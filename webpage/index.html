@@ -1,0 +1,81 @@
+
+<html lang="en">
+    <head>
+        <link href="/style.css" rel="stylesheet" type="text/css" />
+        <link rel="manifest" href="/manifest.json" />
+    </head>
+    <body>
+    <script src="/login.js"></script>
+    <script src="/member.js"></script>
+    <script src="/user.js"></script>
+    <script src="/message.js"></script>
+    <script src="/channel.js"></script>
+    <script src="/role.js"></script>
+    <script src="/guild.js"></script>
+    <script src="/dirrect.js"></script>
+    <script src="/localuser.js"></script>
+    <script src="/markdown.js"></script>
+    <script src="/fullscreen.js"></script>
+    <div id="loading" class="loading"><div id="centerdiv"><img src="/bitmap.svg" width="1in" height="1in"><h1>Jank Client is loading</h1><h2>This shouldn't take long</h2></div></div>
+    <table id="page">
+        <tr>
+            <td rowspan="2" id="neunence">
+                <div id="servers"></div>
+            </td>
+            <td class="servertd" id="servertd">
+                <h2 id="serverName">Server Name</h2>
+            </td>
+            <td colspan="2" class="servertd servernamediv">
+                <h2 id="channelname">Channel</h2>
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+                <div id="channels"></div>
+                <table id="userdock">
+                    <tr>
+                        <td>
+                        <table id="userinfo"><tr>
+                        <td>
+                            <img id="userpfp" class="pfp">
+                        </td>
+                        <td>
+                            <div id="userinfo">
+                                <p id="username">USERNAME</p>
+                                <p id="status">SATUS</p>
+                            </div>
+                        </td>
+                        </tr></table></td>
+                        <td>
+                            <h2 id="settings" onclick="userSettings()">⚙</h2>
+                        </td>
+                    </tr>
+                </table>
+                </div>
+            </td>
+            <td id="channelw">
+                <div id="messagecontainer">
+                <div id="messages">
+                </div>
+                </div>
+                <div id="pasteimage"></div>
+                <div id="typediv">
+                    <textarea id="typebox"></textarea>
+                    <div id="typing" class="hidden">
+                        <p id="typingtext">typing</p>
+                        <div class="loading-indicator">
+                            <span class="dot">.</span>
+                            <span class="dot">.</span>
+                            <span class="dot">.</span>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td id="extra">
+            </td>
+        </tr>
+    </table>
+    <script src="/index.js"></script>
+</body>
+</html>
