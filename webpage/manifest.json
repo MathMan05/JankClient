@@ -1,0 +1,12 @@
+{
+  "name": "Jank Client",
+  "icons": [
+    {
+        "src": "/bitmap.svg",
+        "sizes": "512x512"
+    }
+  ],
+  "start_url":"/channels/@me",
+  "display":"standalone",
+  "theme_color":"#05050a"
+}
