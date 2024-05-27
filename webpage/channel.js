@@ -17,6 +17,16 @@ class channel{
         this.topic=JSON.topic;
         this.nsfw=JSON.nsfw;
         this.position=JSON.position;
+        this.lastreadmessageid=null;
+        this.lastmessageid=JSON.last_message_id;
+    }
+    readStateInfo(json){
+        this.lastreadmessageid=json.last_message_id;
+        this.mentions=json.mention_count;
+        this.lastpin=json.last_pin_timestamp;
+    }
+    get hasunreads(){
+        return this.lastmessageid===this.lastreadmessageid
     }
     get canMessage(){
         for(const thing of this.permission_overwrites){
@@ -368,6 +378,10 @@ class channel{
     }
     messageCreate(messagep,focus){
         const messagez=new cmessage(messagep.d);
+        this.lastmessageid=messagez.id;
+        if(messagez.user===thisuser.user){
+            this.lastreadmessageid=messagez.id;
+        }
         this.messages.unshift(messagez);
         const scrolly=document.getElementById("messagecontainer");
         this.messageids[messagez.id]=messagez;
@@ -378,6 +392,5 @@ class channel{
         if(shouldScroll){
                 scrolly.scrollTop = scrolly.scrollHeight;
         }
-
     }
 }

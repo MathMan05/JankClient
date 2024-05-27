@@ -26,6 +26,12 @@ class dirrect extends guild{
         this.calculateReorder();
         this.printServers();
     }
+    sortchannels(){
+        this.headchannels.sort((a,b)=>{
+            const result=(BigInt(a.lastmessageid)-BigInt(b.lastmessageid));
+            return Number(-result);
+        });
+    }
     giveMember(member){
         console.error("not a real guild, can't give member object")
     }
@@ -59,6 +65,8 @@ class group extends channel{
         this.guild_id="@me";
         this.messageids={};
         this.permission_overwrites=[];
+        this.lastmessageid=JSON.last_message_id;
+        this.lastmessageid??=0;
     }
     createguildHTML(){
         const div=document.createElement("div")
@@ -79,5 +87,34 @@ class group extends channel{
         this.putmessages();
         history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.id);
         document.getElementById("channelname").innerText="@"+this.name;
+    }
+    messageCreate(messagep,focus){
+        const messagez=new cmessage(messagep.d);
+        this.lastmessageid=messagez.id;
+        if(messagez.user===thisuser.user){
+            this.lastreadmessageid=messagez.id;
+        }
+        this.messages.unshift(messagez);
+        const scrolly=document.getElementById("messagecontainer");
+        this.messageids[messagez.id]=messagez;
+        if(this.owner.owner.lookingguild.prevchannel===this){
+            var shouldScroll=scrolly.scrollTop+scrolly.clientHeight>scrolly.scrollHeight-20;
+            messages.appendChild(messagez.buildhtml(this.messages[1]));
+        }
+        if(shouldScroll){
+                scrolly.scrollTop = scrolly.scrollHeight;
+        }
+        console.log(document.getElementById("channels").children)
+        if(thisuser.lookingguild===this.owner){
+            const channellist=document.getElementById("channels").children[0]
+            for(const thing of channellist.children){
+                if(thing.myinfo===this){
+                    channellist.prepend(thing);
+                    console.log(thing.myinfo);
+                    break;
+                }
+                console.log(thing.myinfo,this,thing.myinfo===this);
+            }
+        }
     }
 }

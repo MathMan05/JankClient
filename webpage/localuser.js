@@ -21,7 +21,19 @@ class localuser{
             const temp=new member(thing[0]);
             this.guildids[temp.guild_id].giveMember(temp);
         }
+        for(const thing of ready.d.read_state.entries){
+            console.log(thing)
+            thing.id=this.resolveGuildidFromChannelID(thing.channel_id);//currently needed due to broken server code, remove once id is the guild id
+            this.guildids[thing.id].channelids[thing.channel_id].readStateInfo(thing);
+        }
         this.typing=[];
+    }
+    resolveGuildidFromChannelID(ID){
+        for(const thing of this.guilds){
+            if(thing.channelids[ID]){
+                return thing.id;
+            }
+        }
     }
     updateChannel(JSON){
         this.guildids[JSON.guild_id].updateChannel(JSON);
