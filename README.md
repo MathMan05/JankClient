@@ -8,3 +8,5 @@ both bun and node are supported, and both should function as expected, if there 
 
 Guild with more info and updates:
 https://dev.app.spacebar.chat/invite/WOVGtp
+
+Please report bugs either here or in the guild provided.
