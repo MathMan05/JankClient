@@ -92,9 +92,12 @@ class guild{
         this.owner.channelfocus=id;
         this.channelids[id].getHTML();
     }
+    sortchannels(){
+        this.headchannels.sort((a,b)=>{return a.position-b.position;});
+    }
     getHTML(){
         //this.printServers();
-        this.headchannels.sort((a,b)=>{return a.position-b.position;});
+        this.sortchannels();
         this.printServers();
         console.log("html")
         const build=document.createElement("div");

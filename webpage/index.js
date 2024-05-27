@@ -431,7 +431,6 @@ function initwebsocket(){
                     break;
                 case "READY":
                     thisuser=new localuser(temp);
-                    console.log(temp.d.read_state.entries)
                     thisuser.loaduser();
                     READY=temp;
                     thisuser.init();
