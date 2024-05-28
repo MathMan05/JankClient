@@ -422,7 +422,7 @@ class channel{
     messageCreate(messagep,focus){
         const messagez=new cmessage(messagep.d);
         this.lastmessageid=messagez.id;
-        if(messagez.user===thisuser.user){
+        if(messagez.author===thisuser.user){
             this.lastreadmessageid=messagez.id;
             if(this.myhtml){
                 this.myhtml.classList.remove("cunread");
