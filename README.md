@@ -10,3 +10,5 @@ Guild with more info and updates:
 https://dev.app.spacebar.chat/invite/WOVGtp
 
 Please report bugs either here or in the guild provided, thank you.
+
+I'm new to git/github, so please be patient with me, it's my first time. if there's anything about this repo that's incorrect, please add an issue telling me what it is, or make a merge fixing it
