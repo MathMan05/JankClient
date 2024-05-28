@@ -95,6 +95,27 @@ class guild{
     sortchannels(){
         this.headchannels.sort((a,b)=>{return a.position-b.position;});
     }
+    unreads(html){
+        if(html){
+            this.html=html;
+        }else{
+            html=this.html;
+        }
+        let read=true;
+        for(const thing of this.channels){
+            if(thing.hasunreads){
+                console.log(thing)
+                read=false;
+                break;
+            }
+        }
+        console.log(read);
+        if(read){
+            html.children[0].classList.remove("notiunread");
+        }else{
+            html.children[0].classList.add("notiunread");
+        }
+    }
     getHTML(){
         //this.printServers();
         this.sortchannels();

@@ -7,6 +7,7 @@ class localuser{
         this.status=this.ready.d.user_settings.status;
         this.channelfocus=null;
         this.lookingguild=null;
+        this.guildhtml={};
         for(const thing of ready.d.guilds){
             const temp=new guild(thing,this);
             this.guilds.push(temp);
@@ -23,17 +24,13 @@ class localuser{
         }
         for(const thing of ready.d.read_state.entries){
             console.log(thing)
-            thing.id=this.resolveGuildidFromChannelID(thing.channel_id);//currently needed due to broken server code, remove once id is the guild id
-            this.guildids[thing.id].channelids[thing.channel_id].readStateInfo(thing);
+            const guildid=this.resolveGuildidFromChannelID(thing.id).id;//currently needed due to broken server code, remove once id is the guild id
+            this.guildids[guildid].channelids[thing.channel_id].readStateInfo(thing);
         }
         this.typing=[];
     }
     resolveGuildidFromChannelID(ID){
-        for(const thing of this.guilds){
-            if(thing.channelids[ID]){
-                return thing.id;
-            }
-        }
+        return this.guilds.find(guild => guild.channelids[ID]);
     }
     updateChannel(JSON){
         this.guildids[JSON.guild_id].updateChannel(JSON);
@@ -102,11 +99,18 @@ class localuser{
             if(thing instanceof dirrect){
                 continue;
             }
+            const divy=document.createElement("div");
+            divy.classList.add("servernoti");
+
+            const noti=document.createElement("div");
+            noti.classList.add("unread");
+            divy.append(noti);
+            this.guildhtml[thing.id]=divy;
             if(thing.properties.icon!=null){
                 const img=document.createElement("img");
                 img.classList.add("pfp","servericon")
                 img.src="https://cdn.old.server.spacebar.chat/icons/"+thing.properties.id+"/"+thing.properties.icon+".png";
-                serverlist.appendChild(img)
+                divy.appendChild(img)
                 img.all=thing;
                 img.onclick=function(){
                     console.log(this.all.loadGuild)
@@ -121,18 +125,28 @@ class localuser{
                 }
                 div.innerText=build;
                 div.classList.add("blankserver","servericon")
-                serverlist.appendChild(div)
+                divy.appendChild(div)
                 div.all=thing;
                 div.onclick=function(){
                     this.all.loadGuild();
                     this.all.loadChannel();
                 }
             }
+            serverlist.append(divy);
         }
+        this.unreads();
     }
     messageCreate(messagep){
         messagep.d.guild_id??="@me";
         this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep,this.channelfocus===messagep.d.channel_id);
+        this.unreads();
+    }
+    unreads(){
+        console.log(this.guildhtml)
+        for(const thing of this.guilds){
+            if(thing.id==="@me"){continue;}
+            thing.unreads(this.guildhtml[thing.id])
+        }
     }
     typeingStart(typing){
         if(this.channelfocus===typing.d.channel_id){

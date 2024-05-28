@@ -26,7 +26,7 @@ class channel{
         this.lastpin=json.last_pin_timestamp;
     }
     get hasunreads(){
-        return this.lastmessageid===this.lastreadmessageid
+        return this.lastmessageid!==this.lastreadmessageid&&this.type!==4;
     }
     get canMessage(){
         for(const thing of this.permission_overwrites){
@@ -127,6 +127,9 @@ class channel{
             div.appendChild(childrendiv);
         }else{
             div.classList.add("Channel");
+            if(this.hasunreads){
+                div.classList.add("cunread");
+            }
             lacechannel(div);
             if(admin){this.coatDropDiv(div,this);}
             div.all=this;
@@ -157,6 +160,46 @@ class channel{
             }
         }
         return div;
+    }
+    get myhtml(){
+        const search=document.getElementById("channels").children[0].children
+        if(this.owner!==thisuser.lookingguild){
+            return null
+        }else if(this.parrent){
+            for(const thing of search){
+                if(thing.all===this.parrent){
+                    for(const thing2 of thing.children[1].children){
+                        if(thing2.all===this){
+                            return thing2;
+                        }
+                    }
+                }
+            }
+        }else{
+            for(const thing of search){
+                if(thing.all===this){
+                    return thing;
+                }
+            }
+        }
+        return null;
+    }
+    readbottom(){
+        console.log(this)
+        if(!this.hasunreads){
+            return;
+        }
+        fetch("https://old.server.spacebar.chat/api/v9/channels/"+this.id+"/messages/"+this.lastmessageid+"/ack",{
+            method:"POST",
+            headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
+            body:JSON.stringify({})
+        });
+        this.lastreadmessageid=this.lastmessageid;
+        this.owner.unreads();
+        if(this.myhtml!==null){
+            console.log(this.myhtml.classList)
+            this.myhtml.classList.remove("cunread");
+        }
     }
     coatDropDiv(div,that,container=false){
         div.addEventListener("dragenter", (event) => {
@@ -381,7 +424,15 @@ class channel{
         this.lastmessageid=messagez.id;
         if(messagez.user===thisuser.user){
             this.lastreadmessageid=messagez.id;
+            if(this.myhtml){
+                this.myhtml.classList.remove("cunread");
+            }
+        }else{
+            if(this.myhtml){
+                this.myhtml.classList.add("cunread");
+            }
         }
+        this.owner.unreads();
         this.messages.unshift(messagez);
         const scrolly=document.getElementById("messagecontainer");
         this.messageids[messagez.id]=messagez;
