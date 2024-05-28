@@ -18,6 +18,7 @@ class dirrect extends guild{
             this.channelids[temp.id]=temp;
         }
         this.headchannels=this.channels;
+        this.mentions=0;
     }
     createChannelpac(JSON){
         const thischannel=new group(JSON,owner);
@@ -43,6 +44,11 @@ class dirrect extends guild{
     }
     isAdmin(){
         return false;
+    }
+    unreaddms(){
+        for(const thing of this.channels){
+            thing.unreads();
+        }
     }
 }
 class group extends channel{
@@ -91,7 +97,7 @@ class group extends channel{
     messageCreate(messagep,focus){
         const messagez=new cmessage(messagep.d);
         this.lastmessageid=messagez.id;
-        if(messagez.user===thisuser.user){
+        if(messagez.author===thisuser.user){
             this.lastreadmessageid=messagez.id;
         }
         this.messages.unshift(messagez);
@@ -115,6 +121,43 @@ class group extends channel{
                 }
                 console.log(thing.myinfo,this,thing.myinfo===this);
             }
+        }
+        this.unreads();
+    }
+    unreads(){
+        const sentdms=document.getElementById("sentdms");
+        let current=null;
+        for(const thing of sentdms.children){
+            console.log(thing.all)
+            if(thing.all===this){
+                current=thing;
+            }
+        }
+        console.log(current,this.hasunreads);
+        if(this.hasunreads){
+            if(current){current.noti.innerText=this.mentions;return;}
+            const div=document.createElement("div");
+            div.classList.add("servernoti");
+            const noti=document.createElement("div");
+            noti.classList.add("unread","notiunread","pinged");
+            noti.innerText=this.mentions;
+            div.noti=noti;
+            div.append(noti)
+            const buildpfp=this.user.buildpfp();
+            div.all=this;
+            buildpfp.classList.add("mentioned");
+            console.log(this);
+            div.append(buildpfp)
+            sentdms.append(div);
+            div.onclick=function(){
+                this.all.owner.loadGuild();
+                this.all.getHTML();
+            }
+        }else if(current){
+            console.log("remove")
+            current.remove();
+        }else{
+            console.log(sentdms.children)
         }
     }
 }

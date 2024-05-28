@@ -34,7 +34,7 @@ class localuser{
         this.typing=[];
     }
     resolveGuildidFromChannelID(ID){
-        const resolve=this.guilds.find(guild => guild.channelids[ID])
+        let resolve=this.guilds.find(guild => guild.channelids[ID])
         resolve??=undefined;
         return resolve;
     }
@@ -98,11 +98,17 @@ class localuser{
             this.all.loadGuild();
             this.all.loadChannel();
         }
+        const sentdms=document.createElement("div");
+        sentdms.classList.add("sentdms");
+        serverlist.append(sentdms);
+        sentdms.id="sentdms";
+
         const br=document.createElement("hr")
-        br.classList.add("lightbr")
+        br.classList.add("lightbr");
         serverlist.appendChild(br)
         for(const thing of this.guilds){
             if(thing instanceof dirrect){
+                thing.unreaddms();
                 continue;
             }
             const divy=document.createElement("div");
@@ -151,7 +157,7 @@ class localuser{
         console.log(this.guildhtml)
         for(const thing of this.guilds){
             if(thing.id==="@me"){continue;}
-            thing.unreads(this.guildhtml[thing.id])
+            thing.unreads(this.guildhtml[thing.id]);
         }
     }
     typeingStart(typing){

@@ -651,11 +651,15 @@ document.getElementById("messagecontainer").addEventListener("scroll",(e)=>{
     const messagecontainer=document.getElementById("messagecontainer")
     if(messagecontainer.scrollTop<2000){
         if(!triggered){
-            thisuser.lookingguild.prevchannel.grabmoremessages();
+            thisuser.lookingguild.prevchannel.grabmoremessages().then(()=>{
+                triggered=false;
+                if(messagecontainer.scrollTop===0){
+                    messagecontainer.scrollTop=1;
+                }
+            });
         }
         triggered=true;
     }else{
-        triggered=false;
         if(Math.abs(messagecontainer.scrollHeight-messagecontainer.scrollTop-messagecontainer.clientHeight) < 3){
             thisuser.lookingguild.prevchannel.readbottom();
         }

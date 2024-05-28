@@ -4,6 +4,7 @@ class cmessage{
             this[thing]=messagejson[thing];
         }
         this.author=new user(this.author);
+        console.log(this.type)
     }
     messageevents(obj){
         obj.classList.add("messagediv")
@@ -16,6 +17,7 @@ class cmessage{
         //premessage??=messages.lastChild;
         const build = document.createElement('table');
         const div=document.createElement("div");
+
         if(this.message_reference){
             const replyline=document.createElement("div");
             const line=document.createElement("hr");
@@ -50,9 +52,10 @@ class cmessage{
         this.messageevents(div);
         messagelist.push(div)
         build.classList.add("message");
-        if(this.content!=""||this.attachments.length!=0){
+        div.appendChild(build);
+        if({0:true,19:true}[this.type]||this.attachments.length!=0){
             const pfpRow = document.createElement('th');
-            div.appendChild(build)
+
             let pfpparent, current
             if(premessage!=null){
                 pfpparent=premessage.pfpparent;
@@ -122,7 +125,8 @@ class cmessage{
                 div.appendChild(attatch)
             }
             //
-        }else{
+        }else if(this.type===7){
+
             const text=document.createElement("th");
 
             const texttxt=document.createElement("table");
@@ -133,9 +137,15 @@ class cmessage{
             div.txt=messaged;
             messaged.innerText="welcome: "+this.author.username;
             const messagedwrap=document.createElement("tr")
-            messagedwrap.appendChild(messaged)
-            texttxt.appendChild(messagedwrap)
+            messagedwrap.appendChild(messaged);
 
+            const time=document.createElement("span");
+            time.innerText="  "+formatTime(new Date(this.timestamp));
+            time.classList.add("timestamp");
+            messagedwrap.append(time);
+
+            texttxt.appendChild(messagedwrap)
+            console.log(div)
         }
         div.userid=this.author.id;
         div.all=this;
@@ -162,6 +172,6 @@ function formatTime(date) {
   } else if (isYesterday) {
     return `Yesterday at ${formatTime(date)}`;
   } else {
-    return date.toLocaleDateString();
+    return `${date.toLocaleDateString()} at ${formatTime(date)}`;
   }
 }

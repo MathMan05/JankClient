@@ -346,18 +346,22 @@ class channel{
         }
         this.children=build;
     }
-    grabmoremessages(){
-        if(this.messages.length===0){
+    async grabmoremessages(){
+        if(this.messages.length===0||this.allthewayup){
             return;
         }
         const out=this;
-        fetch("https://api.old.server.spacebar.chat/api/channels/"+this.id+"/messages?before="+this.messages[this.messages.length-1].id+"&limit=100",{
+
+        await fetch("https://api.old.server.spacebar.chat/api/channels/"+this.id+"/messages?before="+this.messages[this.messages.length-1].id+"&limit=100",{
             method:"GET",
             headers:{Authorization:token}
         }).then((j)=>{return j.json()}).then(function(responce){
             //messages.innerHTML = '';
             //responce.reverse()
             let next
+            if(responce.length===0){
+                out.allthewayup=true;
+            }
             for(const i in responce){
                 let messager
                 if(!next){
@@ -381,6 +385,7 @@ class channel{
             }
             //out.buildmessages();
         })
+        return;
     }
     buildmessage(message,next){
         const built=message.buildhtml(next);
