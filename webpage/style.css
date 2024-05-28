@@ -594,11 +594,12 @@ span{
 }
 
 .unread{
+    aspect-ratio : 1 / 1;
     position:absolute;
     background:white;
     height:.075in;
     width:.075in;
-    transition:transform .2s;
+    transition:transform .2s,background .2s,height .2s,width .2s;
     transform:translate(-.20in,.2in);
     z-index:10;
     border-radius: 50%;
@@ -609,6 +610,17 @@ span{
 .notiunread{
     transform:translate(0in,.2in);
 }
+.pinged{
+    aspect-ratio : 1 / 1;
+    transform:translate(0in,.4in);
+    background:red;
+    height:.15in;
+    width:.15in;
+    text-align: center;
+}
 .cunread{
     box-shadow: inset .024in 0 white;  
+}
+.servernoti{
+    position:relative;
 }

@@ -110,6 +110,7 @@ class guild{
             }
         }
         console.log(read);
+        if(!html){return;}
         if(read){
             html.children[0].classList.remove("notiunread");
         }else{
