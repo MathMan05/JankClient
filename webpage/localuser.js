@@ -30,7 +30,10 @@ class localuser{
         this.typing=[];
     }
     resolveGuildidFromChannelID(ID){
-        return this.guilds.find(guild => guild.channelids[ID]);
+        const resolve=this.guilds.find(guild => guild.channelids[ID])
+        resolve??={};
+        console.error("Failed to resolve "+ID);
+        return resolve;
     }
     updateChannel(JSON){
         this.guildids[JSON.guild_id].updateChannel(JSON);
