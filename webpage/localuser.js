@@ -24,7 +24,7 @@ class localuser{
         }
         for(const thing of ready.d.read_state.entries){
             console.log(thing)
-            const guildid=this.resolveGuildidFromChannelID(thing.id).id;//currently needed due to broken server code, remove once id is the guild id
+            const guildid=this.resolveGuildidFromChannelID(thing.id).id;
             this.guildids[guildid].channelids[thing.channel_id].readStateInfo(thing);
         }
         this.typing=[];
