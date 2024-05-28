@@ -185,7 +185,6 @@ class channel{
         return null;
     }
     readbottom(){
-        console.log(this)
         if(!this.hasunreads){
             return;
         }
