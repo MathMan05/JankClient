@@ -16,13 +16,6 @@ let ws
 initwebsocket();
 let READY;
 
-/*
-fetch("https://old.server.spacebar.chat/api/v9/channels/1243314160814653069/messages/1244097259492795763/ack",{
-    method:"POST",
-    headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
-    body:JSON.stringify({})
-})
-*/
 function createbutton(text,img,clickevent=function(){}){
     const textb=document.createElement("tr");
     const intext=document.createElement("button")
@@ -116,6 +109,15 @@ function makemenuc(divmessage,x,y){
         })
         copyidbutton.button.all=divmessage.all;
         build.appendChild(copyidbutton);
+
+        const readall=createbutton("Mark as read",null,function(){
+            console.log(channel)
+            channel.readbottom();
+        })
+        readall.button.all=divmessage.all;
+        build.appendChild(readall);
+
+
         if(thisuser.isAdmin()){
             const deleteChannel=createbutton("Delete channel",null,function(){
                 console.log(channel)
@@ -632,13 +634,17 @@ function userSettings(){
 }
 let triggered=false;
 document.getElementById("messagecontainer").addEventListener("scroll",(e)=>{
-    if(document.getElementById("messagecontainer").scrollTop<2000){
+    const messagecontainer=document.getElementById("messagecontainer")
+    if(messagecontainer.scrollTop<2000){
         if(!triggered){
             thisuser.lookingguild.prevchannel.grabmoremessages();
         }
         triggered=true;
     }else{
         triggered=false;
+        if(Math.abs(messagecontainer.scrollHeight-messagecontainer.scrollTop-messagecontainer.clientHeight) < 3){
+            thisuser.lookingguild.prevchannel.readbottom();
+        }
     }
     //
 })

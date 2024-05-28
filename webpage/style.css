@@ -85,6 +85,7 @@ h2{
 }
 .servericon{
     transition: border-radius .2s;
+    position:relative;
 }
 .servericon:hover{
     border-radius: 30%;
@@ -590,4 +591,24 @@ span{
 }
 .filename{
     color:#47bbff;
+}
+
+.unread{
+    position:absolute;
+    background:white;
+    height:.075in;
+    width:.075in;
+    transition:transform .2s;
+    transform:translate(-.20in,.2in);
+    z-index:10;
+    border-radius: 50%;
+    border:solid;
+    border-width:.02in;
+    border-color:black;
+}
+.notiunread{
+    transform:translate(0in,.2in);
+}
+.cunread{
+    box-shadow: inset .024in 0 white;  
 }
