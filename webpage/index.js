@@ -429,7 +429,9 @@ function initwebsocket(){
         if(temp.op==0){
             switch(temp.t){
                 case "MESSAGE_CREATE":
-                    thisuser.messageCreate(temp);
+                    if(thisuser){
+                        thisuser.messageCreate(temp);
+                    }
                     break;
                 case "READY":
                     thisuser=new localuser(temp);
@@ -441,37 +443,49 @@ function initwebsocket(){
                     document.getElementById("loading").classList.remove("loading")
                     break;
                 case "MESSAGE_UPDATE":
-                    if(window.location.pathname.split("/")[3]==temp.d.channel_id){
-                        const find=temp.d.id;
-                        for(const message of messagelist){
-                            if(message.all.id===find){
-                                message.all.content=temp.d.content;
-                                message.txt.innerHTML=markdown(temp.d.content).innerHTML;
-                                break;
+                    if(thisuser){
+                        if(window.location.pathname.split("/")[3]==temp.d.channel_id){
+                            const find=temp.d.id;
+                            for(const message of messagelist){
+                                if(message.all.id===find){
+                                    message.all.content=temp.d.content;
+                                    message.txt.innerHTML=markdown(temp.d.content).innerHTML;
+                                    break;
+                                }
                             }
-                        }
+                    }
                     }
                     break;
                 case "TYPING_START":
-                    thisuser.typeingStart(temp);
+                    if(thisuser){
+                        thisuser.typeingStart(temp);
+                    }
                     break;
                 case "USER_UPDATE":
-                    const users=user.userids[temp.d.id];
-                    console.log(users,temp.d.id)
+                    if(thisuser){
+                        const users=user.userids[temp.d.id];
+                        console.log(users,temp.d.id)
 
-                    if(users){
-                        users.userupdate(temp.d);
-                        console.log("in here");
+                        if(users){
+                            users.userupdate(temp.d);
+                            console.log("in here");
+                        }
                     }
                     break
                 case "CHANNEL_UPDATE":
-                    thisuser.updateChannel(temp.d);
+                    if(thisuser){
+                        thisuser.updateChannel(temp.d);
+                    }
                     break;
                 case "CHANNEL_CREATE":
-                    thisuser.createChannel(temp.d);
+                    if(thisuser){
+                        thisuser.createChannel(temp.d);
+                    }
                     break;
                 case "CHANNEL_DELETE":
-                    thisuser.delChannel(temp.d);
+                    if(thisuser){
+                        thisuser.delChannel(temp.d);
+                    }
                     break;
             }
 

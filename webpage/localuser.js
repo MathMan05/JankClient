@@ -24,15 +24,18 @@ class localuser{
         }
         for(const thing of ready.d.read_state.entries){
             console.log(thing)
-            const guildid=this.resolveGuildidFromChannelID(thing.id).id;
+            const guild=this.resolveGuildidFromChannelID(thing.id)
+            if(guild===undefined){
+                continue
+            }
+            const guildid=guild.id;
             this.guildids[guildid].channelids[thing.channel_id].readStateInfo(thing);
         }
         this.typing=[];
     }
     resolveGuildidFromChannelID(ID){
         const resolve=this.guilds.find(guild => guild.channelids[ID])
-        resolve??={};
-        console.error("Failed to resolve "+ID);
+        resolve??=undefined;
         return resolve;
     }
     updateChannel(JSON){
