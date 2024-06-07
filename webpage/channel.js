@@ -23,6 +23,7 @@ class channel{
     readStateInfo(json){
         this.lastreadmessageid=json.last_message_id;
         this.mentions=json.mention_count;
+        this.mentions??=0;
         this.lastpin=json.last_pin_timestamp;
     }
     get hasunreads(){

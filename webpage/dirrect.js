@@ -18,7 +18,6 @@ class dirrect extends guild{
             this.channelids[temp.id]=temp;
         }
         this.headchannels=this.channels;
-        this.mentions=0;
     }
     createChannelpac(JSON){
         const thischannel=new group(JSON,owner);
@@ -73,6 +72,7 @@ class group extends channel{
         this.permission_overwrites=[];
         this.lastmessageid=JSON.last_message_id;
         this.lastmessageid??=0;
+        this.mentions=0;
     }
     createguildHTML(){
         const div=document.createElement("div")
@@ -141,6 +141,7 @@ class group extends channel{
             const noti=document.createElement("div");
             noti.classList.add("unread","notiunread","pinged");
             noti.innerText=this.mentions;
+            console.log(this.mentions)
             div.noti=noti;
             div.append(noti)
             const buildpfp=this.user.buildpfp();
