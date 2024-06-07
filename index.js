@@ -3,60 +3,57 @@ const express = require('express');
 const app = express();
 
 app.get('/', (req, res) => {
-    res.sendfile("./webpage/index.html")
-})
-app.get('/login.json', (req, res) => {
-    res.sendfile("./personaldata.json")
+    res.sendFile("./webpage/index.html", {root: "."})
 })
 
 app.get('/login.html', (req, res) => {
-    res.sendfile("./webpage/login.html")
+    res.sendFile("./webpage/login.html", {root: "."})
 })
 app.get('/dirrect.js', (req, res) => {
-    res.sendfile("./webpage/dirrect.js")
+    res.sendFile("./webpage/dirrect.js", {root: "."})
 })
 app.get('/login.js', (req, res) => {
-    res.sendfile("./webpage/login.js")
+    res.sendFile("./webpage/login.js", {root: "."})
 })
 app.get('/bitmap.svg', (req, res) => {
-    res.sendfile("./webpage/bitmap.svg")
+    res.sendFile("./webpage/bitmap.svg", {root: "."})
 })
 app.get('/role.js', (req, res) => {
-    res.sendfile("./webpage/role.js")
+    res.sendFile("./webpage/role.js", {root: "."})
 })
 app.get('/index.js', (req, res) => {
-    res.sendfile("./webpage/index.js")
+    res.sendFile("./webpage/index.js", {root: "."})
 })
 app.get('/guild.js', (req, res) => {
-    res.sendfile("./webpage/guild.js")
+    res.sendFile("./webpage/guild.js", {root: "."})
 })
 app.get('/localuser.js', (req, res) => {
-    res.sendfile("./webpage/localuser.js")
+    res.sendFile("./webpage/localuser.js", {root: "."})
 })
 app.get('/channel.js', (req, res) => {
-    res.sendfile("./webpage/channel.js")
+    res.sendFile("./webpage/channel.js", {root: "."})
 })
 app.get('/user.js', (req, res) => {
-    res.sendfile("./webpage/user.js")
+    res.sendFile("./webpage/user.js", {root: "."})
 })
 app.get('/message.js', (req, res) => {
-    res.sendfile("./webpage/message.js")
+    res.sendFile("./webpage/message.js", {root: "."})
 })
 app.get('/member.js', (req, res) => {
-    res.sendfile("./webpage/member.js")
+    res.sendFile("./webpage/member.js", {root: "."})
 })
 app.get('/markdown.js', (req, res) => {
-    res.sendfile("./webpage/markdown.js")
+    res.sendFile("./webpage/markdown.js", {root: "."})
 })
 app.get('/fullscreen.js', (req, res) => {
-    res.sendfile("./webpage/fullscreen.js")
+    res.sendFile("./webpage/fullscreen.js", {root: "."})
 })
 app.get('/style.css', (req, res) => {
-    res.sendfile("./webpage/style.css")
+    res.sendFile("./webpage/style.css", {root: "."})
 })
 
 app.get('/manifest.json', (req, res) => {
-    res.sendfile("./webpage/manifest.json")
+    res.sendFile("./webpage/manifest.json", {root: "."})
 })
 
 app.get('/favicon.ico', (req, res) => {
@@ -64,7 +61,7 @@ app.get('/favicon.ico', (req, res) => {
 })
 
 app.get('/channels/*', async (req, res) => {
-    res.sendfile("./webpage/index.html")
+    res.sendFile("./webpage/index.html", {root: "."})
 });
 
 
