@@ -10,8 +10,10 @@
     left: 50%;
     transform: translate(-50%, -50%);
     background: #33363d;
+    z-index: 12;
 }
 .nonimagecenter{
+    z-index: 12;
     border-style: solid;
     border-radius:.1in;
     border-color: #1c1b31;
@@ -22,6 +24,7 @@
     height:100%;
     top:0px;
     background:#000000bf;
+    z-index: 11;
 }
 .messagediv:hover{
     background:rgb(30,30,40);
