@@ -30,6 +30,7 @@ function markdown(txt,keep=false){
                         i+=5;
                     }else if(txt[i+3]===" "){
                         element=document.createElement("h2");
+                        element.classList.add("h2md");
                         keepys="## ";
                         i+=4;
                     }

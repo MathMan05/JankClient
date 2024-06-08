@@ -12,6 +12,10 @@
     background: #33363d;
     z-index: 12;
 }
+.commentrow{
+    vertical-align:top;
+    height: 100%;
+}
 .nonimagecenter{
     z-index: 12;
     border-style: solid;
@@ -77,7 +81,8 @@ h2,h3{
     margin:0
 }
 h2{
-    font-size:.2in;
+    font-size: .2in;
+    margin: 0px;
 }
 .pfp{
     border-radius: 50%;
@@ -612,6 +617,7 @@ span{
 .notiunread{
     transform:translate(0in,.2in);
 }
+.h2md{font-size: .25in;}
 .pinged{
     aspect-ratio : 1 / 1;
     transform:translate(0in,.4in);
@@ -625,4 +631,7 @@ span{
 }
 .servernoti{
     position:relative;
+}
+h1{
+    margin: 0px;
 }
