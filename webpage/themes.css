@@ -1,3 +1,57 @@
+:root {
+	--servertd-height: 0px;
+	/* Default value */
+}
+.Dark-theme { /* thanks to TomatoCake for the updated CSS vars and such*/
+	color-scheme: dark;
+
+	--primary-text: #FFF;
+	--primary-bg: #282832;
+	--black: #000;
+
+	--message-bg-hover: #1e1e28;
+	--typing-bg: #161616;
+	--profile-bg: #2e2d33;
+	--timestamp-color: #a2a2a2;
+	--code-bg: #101014;
+	--info-bg: #1a1a1e;
+	--user-info-bg: #323039;
+	--user-dock-bg: #1a1a23;
+	--channels-bg: #32323c;
+	--channel-hover: #1c1b25;
+	--blank-bg: #1b1b1b;
+	--light-border: #929292;
+	--settings-hover: #0e0d10;
+	--quote-bg: #7a798e;
+	--button-bg: #1b1b28;
+	--textarea-bg: #26272c;
+	--filename: #47bbff;
+	--mention-bg: #F00;
+	--pronouns: #797979;
+
+	--server-border: #1b1b24;
+	--server-hover: #252530;
+
+	--reply-border: #474b76;
+	--reply-bg: #0b0d20;
+	--reply-text: #acacac;
+
+	--spoiler-hover: #111111;
+	--spoiler-open-bg: #1e1e1e;
+
+	--unknown-file-bg: #141316;
+	--unknown-file-border: #474555;
+
+	--login-border: #131315;
+	--loading-bg: #22232c;
+
+	--dialog-bg: #33363d;
+	--dialog-border: #1c1b31;
+
+	--scrollbar-track: #34313c;
+	--scrollbar-thumb: #201f29;
+	--scrollbar-thumb-hover: #16161f;
+}
 .WHITE-theme {
 	color-scheme: light;
 

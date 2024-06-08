@@ -1,0 +1,34 @@
+<body>
+<head>
+<link href="/style.css" rel="stylesheet" type="text/css" />
+<link href="/themes.css" rel="stylesheet" type="text/css" id="lightcss"/>
+</head>
+<div id="logindiv">
+<h1>Create an account</h1><br>
+<form id="register" submit="registertry(e)">
+    <label for="instance"><b>Instance:</b></label><br>
+    <p id="verify"></p>
+    <input type="text" placeholder="Instance URL" name="instance" value="https://spacebar.chat/" id="instancein" required><br><br>
+
+    <label for="uname"><b>Email:</b></label><br>
+    <input type="text" placeholder="Enter Email" name="email" required><br><br>
+
+    <label for="uname"><b>Username:</b></label><br>
+    <input type="text" placeholder="Enter Username" name="uname" required><br><br>
+
+    <label for="psw"><b>Password:</b></label><br>
+    <input type="password" placeholder="Enter Password" name="psw" required><br><br>
+
+    <label for="psw2"><b>Enter password again:</b></label><br>
+    <input type="password" placeholder="Enter Password Again" name="psw2" required><br><br>
+
+    <label for="date"><b>Date of birth:</b></label><br>
+    <input type="date" id="start" name="trip-start" name="date"/><br><br><br><br>
+    <p class="wrongred" id="wrong"></p>
+    <button type="submit">Create account</button>
+</form>
+<a href="/login.html">Already have an account?</a>
+</div>
+<script src="/login.js"></script>
+<script src="/register.js"></script>
+</body>
