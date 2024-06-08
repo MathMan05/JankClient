@@ -58,7 +58,7 @@ app.get("/manifest.json", (req, res) => {
 })
 
 app.get("/favicon.ico", (req, res) => {
-	res.send("")
+	res.sendFile(path.join(__dirname, "webpage", "favicon.ico"))
 })
 
 app.get("/channels/*", async (req, res) => {

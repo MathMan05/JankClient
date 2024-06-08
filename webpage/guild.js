@@ -115,8 +115,9 @@ class guild {
 	getHTML() {
 		this.sortchannels()
 		this.printServers()
-		console.log("html")
+
 		const build = document.createElement("div")
+		if (this.id == "@me") build.classList.add("dm-container")
 		for (const thing of this.headchannels) {
 			build.appendChild(thing.createguildHTML(this.isAdmin()))
 		}

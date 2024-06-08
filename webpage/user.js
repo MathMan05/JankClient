@@ -47,11 +47,8 @@ class user {
 	getpfpsrc() {
 		if (this.hypotheticalpfp) return this.avatar
 
-		if (this.avatar === null) {
-			return "https://spacebar-api.vanillaminigames.net/embed/avatars/3.png"
-		} else {
-			return "https://spacebar-api.vanillaminigames.net/avatars/" + this.id + "/" + this.avatar + ".png"
-		}
+		if (this.avatar === null) return "https://spacebar-api.vanillaminigames.net/embed/avatars/3.png"
+		else return "https://spacebar-api.vanillaminigames.net/avatars/" + this.id + "/" + this.avatar + ".png"
 	}
 	createjankpromises() {
 		new Promise(_ => {})

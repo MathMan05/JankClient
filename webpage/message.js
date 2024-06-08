@@ -173,7 +173,8 @@ function formatTime(date) {
 		date.getMonth() == yesterday.getMonth() &&
 		date.getFullYear() == yesterday.getFullYear()
 
-	if (sameDay) return (isGerman ? "heute um " : "Today at ") + makeTime(date)
-	if (isYesterday) return (isGerman ? "gestern um " : "Yesterday at ") + makeTime(date)
-	return date.toLocaleDateString(isGerman ? "de-DE" : void 0, isGerman ? {year: "numeric", month: "2-digit", day: "2-digit"} : void 0) + " at " + makeTime(date)
+	if (sameDay) return (isGerman ? "heute um" : "Today at") + " " + makeTime(date)
+	if (isYesterday) return (isGerman ? "gestern um" : "Yesterday at") + " " + makeTime(date)
+	return date.toLocaleDateString(isGerman ? "de-DE" : void 0, isGerman ? {year: "numeric", month: "2-digit", day: "2-digit"} : void 0) +
+		" " + (isGerman ? "um" : "at") + " " + makeTime(date)
 }

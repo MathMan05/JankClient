@@ -38,8 +38,8 @@ class channel {
 	}
 	sortchildren() {
 		this.children.sort((a, b) => {
- return a.position - b.position
-})
+			return a.position - b.position
+		})
 	}
 	resolveparent(guild) {
 		this.parent = guild.channelids[this.parent_id]
@@ -107,12 +107,10 @@ class channel {
 			}
 			div.appendChild(caps)
 			caps.classList.add("capsflex")
-			decdiv.classList.add("channeleffects")
-			decdiv.classList.add("Channel")
+			decdiv.classList.add("channel", "channeleffects")
 
 			lacechannel(decdiv)
 			decdiv.all = this
-
 
 			for (const channel2 of this.children) {
 				childrendiv.appendChild(channel2.createguildHTML(admin))
@@ -134,7 +132,7 @@ class channel {
 			}
 			div.appendChild(childrendiv)
 		} else {
-			div.classList.add("Channel")
+			div.classList.add("channel")
 			if (this.hasunreads) div.classList.add("cunread")
 
 			lacechannel(div)

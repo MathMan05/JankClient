@@ -99,8 +99,7 @@ function makemenuc(divmessage, x, y) {
 	const build = document.createElement("table")
 	if (x != -1) build.classList.add("contextmenu")
 
-	console.log(divmessage, divmessage.classList.contains("Channel"))
-	if (divmessage.classList.contains("Channel")) {
+	if (divmessage.classList.contains("channel")) {
 		const copyidbutton = createbutton("copy channel id", () => {
 			navigator.clipboard.writeText(divmessage.all.id)
 		})
@@ -415,6 +414,11 @@ function initwebsocket() {
 						genusersettings()
 						document.getElementById("loading").classList.add("doneloading")
 						document.getElementById("loading").classList.remove("loading")
+
+						if (temp.d.user_settings.theme == "light") {
+							document.body.classList.remove("dark-theme")
+							document.body.classList.add("light-theme")
+						}
 						break
 					case "MESSAGE_UPDATE":
 						if (thisuser && window.location.pathname.split("/")[3] == temp.d.channel_id) {
@@ -538,6 +542,8 @@ function genusersettings() {
 	let file = null
 	let newprouns = null
 	let newbio = null
+	let newTheme = null
+
 	let hypouser = new user(thisuser.user)
 	function regen() {
 		hypothetcialprofie.textContent = ""
@@ -547,43 +553,50 @@ function genusersettings() {
 	}
 	regen()
 	usersettings = new fullscreen(
-		["hdiv",
-			["vdiv",
-				["fileupload", "upload pfp:", event => {
-					console.log(event.target.files[0])
-					file = event.target.files[0]
-					const blob = URL.createObjectURL(event.target.files[0])
-					hypouser.avatar = blob
-					hypouser.hypotheticalpfp = true
-					regen()
-				}],
-				["textbox", "Pronouns:", thisuser.user.pronouns, event => {
-					console.log(event.target.value)
-					hypouser.pronouns = event.target.value
-					newprouns = event.target.value
-					regen()
-				}],
-				["mdbox", "Bio:", thisuser.user.bio, event => {
-					console.log(event.target.value)
-					hypouser.bio = event.target.value
-					newbio = event.target.value
-					regen()
-				}],
-				["button", "update user content:", "submit", () => {
-					if (file !== null) thisuser.updatepfp(file)
-					if (newprouns !== null) thisuser.updatepronouns(newprouns)
-					if (newbio !== null) thisuser.updatebio(newbio)
-				}]
+		["vdiv",
+			["hdiv",
+				["vdiv",
+					["fileupload", "upload pfp:", event => {
+						file = event.target.files[0]
+						const blob = URL.createObjectURL(event.target.files[0])
+						hypouser.avatar = blob
+						hypouser.hypotheticalpfp = true
+						regen()
+					}],
+					["textbox", "Pronouns:", thisuser.user.pronouns, event => {
+						hypouser.pronouns = event.target.value
+						newprouns = event.target.value
+						regen()
+					}],
+					["mdbox", "Bio:", thisuser.user.bio, event => {
+						hypouser.bio = event.target.value
+						newbio = event.target.value
+						regen()
+					}]
+				],
+				["vdiv",
+					["html", hypothetcialprofie]
+				]
 			],
-			["vdiv",
-				["html", hypothetcialprofie]
-			]
+			["radio", "Theme", ["dark", "light"], value => {
+				newTheme = value
+			}],
+			["button", "update user content:", "submit", () => {
+				if (file !== null) thisuser.updatepfp(file)
+				if (newprouns !== null) thisuser.updatepronouns(newprouns)
+				if (newbio !== null) thisuser.updatebio(newbio)
+				if (newTheme !== null) {
+					thisuser.updateSettings({theme: newTheme})
+					document.body.classList.toggle("light", newTheme == "light")
+				}
+			}]
 		], _ => {}, (() => {
 			hypouser = user.checkuser(thisuser.user)
 			regen()
 			file = null
 			newprouns = null
 			newbio = null
+			newTheme = null
 		}))
 }
 function userSettings() {

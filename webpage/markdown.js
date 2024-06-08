@@ -27,6 +27,7 @@ function markdown(txt, keep = false) {
 						i += 5
 					} else if (txt[i + 3] == " ") {
 						element = document.createElement("h2")
+                        element.classList.add("h2md")
 						keepys = "## "
 						i += 4
 					}
@@ -47,9 +48,8 @@ function markdown(txt, keep = false) {
 			}
 			if (keepys) {
 				appendcurrent()
-				if (!first) {
-					span.appendChild(document.createElement("br"))
-				}
+				if (!first) span.appendChild(document.createElement("br"))
+
 				const build = []
 				for (; txt[i] != "\n" && txt[i] !== void 0; i++) {
 					build.push(txt[i])
@@ -75,9 +75,8 @@ function markdown(txt, keep = false) {
 				if (txt[i + 2] == "`") count++
 			}
 			let build = ""
-			if (keep) {
-				build += "`".repeat(count)
-			}
+			if (keep) build += "`".repeat(count)
+
 			let find = 0
 			let j = i + count
 			let init = true
@@ -94,9 +93,8 @@ function markdown(txt, keep = false) {
 						if (txt[j] == " " || txt[j] == "\n") {
 							init = false
 						}
-						if (keep) {
-							build += txt[j]
-						}
+						if (keep) build += txt[j]
+
 						continue
 					}
 					build += txt[j]

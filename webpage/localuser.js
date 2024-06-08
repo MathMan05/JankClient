@@ -80,7 +80,7 @@ class localuser {
 	loadGuild(id) {
 		const guild = this.guildids[id]
 		this.lookingguild = guild
-		document.getElementById("serverName").textContent = guild.properties.name
+		document.getElementById("servername").textContent = guild.properties.name
 		document.getElementById("channels").innerHTML = ""
 		document.getElementById("channels").appendChild(guild.getHTML())
 		return guild
@@ -224,6 +224,16 @@ class localuser {
 			})
 		})
 	}
+	updateSettings(settings = {}) {
+		fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/@me/settings", {
+			method: "PATCH",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				Authorization: token
+			},
+			body: JSON.stringify(settings)
+		})
+	}
 	rendertyping() {
 		const typingtext = document.getElementById("typing")
 		const typingUsers = []
@@ -232,7 +242,7 @@ class localuser {
 		for (const thing of this.typing) {
 			i++
 			if (thing[1] > Date.now() - 5000) {
-				typingUsers.push(thing[1])
+				typingUsers.push(thing[0])
 				showing = true
 			}
 		}

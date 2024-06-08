@@ -1,8 +1,3 @@
-function getCookie(name) {
-	const value = `; ${document.cookie}`
-	const parts = value.split(`; ${name}=`)
-	if (parts.length == 2) return parts.pop().split(";").shift()
-}
 async function login(username, password) {
 	const options = {
 		method: "POST",
@@ -22,7 +17,7 @@ async function login(username, password) {
 				if (response.message == "Invalid Form Body") {
 					return response.errors.login._errors[0].message
 				}
-				document.cookie = "token=" + response.token + "; expires=" + new Date(Date.now() + (6.048e+8 * 2))
+				localStorage.setItem("token", response.token)
 				window.location.href = "/channels/@me"
 				return response.token
 			})
@@ -30,9 +25,10 @@ async function login(username, password) {
 		console.error("Error:", error)
 	}
 }
+
 function gettoken() {
-	const temp = getCookie("token")
-	if (temp === void 0) location.href = "/login.html"
+	const temp = localStorage.getItem("token")
+	if (!temp) location.href = "/login.html"
 	return temp
 }
 

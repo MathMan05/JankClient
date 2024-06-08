@@ -33,11 +33,33 @@
 	font-weight: 400;
 }
 
+.dark-theme {
+	color-scheme: dark;
+
+	--primary-text-color: #FFF;
+	--primary-bg-color: #282832;
+	--message-bg-hover: #1e1e28;
+
+	--profile-bg: #2e2d33;
+
+	--dialog-bg: #33363d;
+	--dialog-border: #1c1b31;
+
+	--code-bg: #101014;
+	--info-bg: #1a1a1e;
+}
+.light-theme {
+	color-scheme: light;
+
+	--primary-text-color: #000;
+	--primary-bg-color: #FFF;
+}
+
 body {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 400;
-	background: rgb(40, 40, 50);
-	color: white;
+	background-color: var(--primary-bg-color);
+	color: var(--primary-text-color);
 	overflow-y: hidden;
 	margin: 0;
 	padding: 0;
@@ -55,7 +77,7 @@ body {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	background: #33363d;
+	background-color: var(--dialog-bg);
 	z-index: 12;
 }
 
@@ -63,7 +85,7 @@ body {
 	z-index: 12;
 	border-style: solid;
 	border-radius: .1in;
-	border-color: #1c1b31;
+	border-color: var(--dialog-border);
 }
 
 th {
@@ -76,28 +98,28 @@ th {
 	width: 100%;
 	height: 100%;
 	top: 0;
-	background: #000000bf;
+	background-color: #000000bf;
 	z-index: 11;
 }
 
 .messagediv:hover {
-	background: rgb(30, 30, 40);
+	background-color: var(--message-bg-hover);
 }
 
 pre {
-	background: #101014;
+	background-color: var(--code-bg);
 	width: 100%;
 	overflow-wrap: break-word;
 }
 
 samp {
-	background: #101014;
+	background-color: var(--code-bg);
 }
 
 .contextbutton {
 	transition: background 0.1s ease-in-out;
-	background: rgb(30, 30, 40);
-	color: white;
+	background-color: var(--message-bg-hover);
+	color: var(--primary-text-color);
 	font-weight: bold;
 	width: 5cm;
 	height: .8cm;
@@ -108,7 +130,7 @@ samp {
 
 .infosection {
 	display: inline-block;
-	background: #1a1a1e;
+	background-color: var(--info-bg);
 	border-radius: 10%;
 	padding: .3cm;
 	width: calc(100% - .6cm);
@@ -118,7 +140,7 @@ samp {
 .profile {
 	display: inline-block;
 	position: absolute;
-	background: #2e2d33;
+	background-color: var(--profile-bg);
 	border-radius: 10%;
 	padding: .2cm;
 	width: 7cm;
@@ -127,20 +149,24 @@ samp {
 
 .hypoprofile {
 	display: inline-block;
-	background: #2e2d33;
+	background-color: var(--profile-bg);
 	border-radius: 10%;
 	padding: .2cm;
 	width: 7cm;
 	height: 8cm;
 }
 
+h1,
 h2,
 h3 {
 	margin: 0;
 }
 
 h2 {
-	font-size: .2in;
+	font-size: 19px;
+}
+.h2md {
+	font-size: .25in;
 }
 
 .pfp {
@@ -160,12 +186,12 @@ h2 {
 }
 
 .contextbutton:hover {
-	background: rgb(40, 40, 50);
+	background-color: rgb(40, 40, 50);
 }
 
 .contextmenu {
 	position: absolute;
-	background: #2e2d33;
+	background-color: var(--profile-bg);
 }
 
 #neunence {
@@ -188,7 +214,7 @@ h2 {
 	border-radius: 50%;
 	width: .5in;
 	height: .5in;
-	background: #1b1b1b;
+	background-color: #1b1b1b;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -207,7 +233,6 @@ img {
 #page {
 	height: 100%;
 	width: 100%;
-	/* table-layout: fixed; */
 }
 
 .message {
@@ -220,11 +245,11 @@ img {
 
 .commentrow {
 	width: 100%;
+    height: 100%;
+    vertical-align: top;
 	word-wrap: break-word;
-}
-
-.commentrow tr {
-	text-align: start;
+	text-align: left;
+	font-weight: normal;
 }
 
 #messagecontainer {
@@ -246,7 +271,7 @@ p {
 }
 
 #channels {
-	background: rgb(50, 50, 60);
+	background-color: rgb(50, 50, 60);
 	height: calc(100% - .6in);
 	width: 2.5in;
 	overflow: auto;
@@ -280,8 +305,8 @@ p {
 }
 
 input {
-	background: rgb(30, 30, 40);
-	color: white;
+	background-color: rgb(30, 30, 40);
+	color: var(--primary-text-color);
 	height: .4in;
 	width: 100%;
 }
@@ -308,22 +333,22 @@ p {
 .username {
 	width: fit-content;
 	cursor: pointer;
-	user-select: none;
+	font-weight: bold;
 }
 
 .spoiler {
-	background: black;
+	background-color: black;
 	color: black;
 }
 
 .spoiler:hover {
-	background: #111111;
+	background-color: #111111;
 	color: #111111;
 }
 
 .unspoiled {
-	background: #1e1e1e;
-	color: white;
+	background-color: #1e1e1e;
+	color: var(--primary-text-color);
 }
 
 .unspoiled:before {
@@ -332,7 +357,7 @@ p {
 }
 
 .replying {
-	background: #0b0d20;
+	background-color: #0b0d20;
 }
 
 #typing {
@@ -340,7 +365,7 @@ p {
 	position: absolute;
 	top: 0;
 	right: 4px;
-	background: #161616;
+	background-color: #161616;
 	width: fit-content;
 	transform: translateY(-100%);
 	border-radius: 5px 5px 0 0;
@@ -411,7 +436,7 @@ p {
 	border-radius: 50%;
 	width: .5in;
 	height: .5in;
-	background: #1b1b1b;
+	background-color: #1b1b1b;
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -477,16 +502,16 @@ p {
 ::-webkit-scrollbar-track {
 
 
-	background: #34313c;
+	background-color: #34313c;
 }
 
 ::-webkit-scrollbar-thumb {
-	background: #201f29;
+	background-color: #201f29;
 	box-shadow: 0 2px 5px #000000;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: #16161f;
+	background-color: #16161f;
 	box-shadow: 0 2px 5px #000000;
 }
 
@@ -496,8 +521,8 @@ p {
 }
 
 textarea {
-	background: #26272c;
-	color: white;
+	background-color: #26272c;
+	color: var(--primary-text-color);
 	width: 3.5in;
 	resize: none;
 	height: 1.5in;
@@ -511,7 +536,7 @@ textarea {
 }
 
 .channel:hover {
-	background: #1c1b25;
+	background-color: #1c1b25;
 }
 
 .channel {
@@ -519,28 +544,24 @@ textarea {
 	cursor: pointer;
 }
 
-#serverName {
+#servername {
 	margin-top: .1in;
 	margin-bottom: .1in;
+	padding-left: 5px;
+	text-overflow: ellipsis;
+	overflow-x: hidden;
+	white-space: nowrap;
+	max-width: 220px;
 }
 
 .servertd {
-	background: #252530;
+	background-color: #252530;
 	border-color: #1b1b24;
 	border-width: .1cm;
 	border-style: solid;
 	height: .2in;
 }
 
-/*
-#channels div div{
-	cursor: pointer;
-	user-select: none;
-}
-#channels div div:hover{
-	background:#1c1b25;
-}
-*/
 .channeleffects {
 	cursor: pointer;
 	user-select: none;
@@ -548,14 +569,21 @@ textarea {
 	align-self: stretch;
 	width: 100%;
 }
+.channeleffects:hover {
+	background-color: #1c1b25;
+}
+
+.dm-container {
+	display: flex;
+	flex-direction: column;
+}
+.dm-container div img {
+	padding: 5px;
+}
 
 .messageimg {
 	cursor: pointer;
 	user-select: none;
-}
-
-.channeleffects:hover {
-	background: #1c1b25;
 }
 
 .username:hover {
@@ -564,11 +592,11 @@ textarea {
 
 .tag {
 	font-size: .13in;
-	color: white;
+	color: var(--primary-text-color);
 }
 
 #userdock {
-	background: #1a1a23;
+	background-color: #1a1a23;
 	width: 100%;
 }
 
@@ -581,13 +609,13 @@ textarea {
 }
 
 #settings:hover {
-	background: #0e0d10;
+	background-color: #0e0d10;
 	cursor: pointer;
 	user-select: none;
 }
 
-.userinfo {
-	background: #323039;
+#userinfo {
+	background-color: #323039;
 	border-radius: .1in;
 }
 
@@ -606,8 +634,8 @@ textarea {
 }
 
 button {
-	color: white;
-	background: #1b1b28;
+	color: var(--primary-text-color);
+	background-color: #1b1b28;
 	border-radius: .05in;
 	height: .3in;
 	min-width: 1.3in;
@@ -615,8 +643,8 @@ button {
 }
 
 input::file-selector-button {
-	color: white;
-	background: #1b1b28;
+	color: var(--primary-text-color);
+	background-color: #1b1b28;
 	border-radius: .05in;
 	height: .25in;
 	min-width: 1in;
@@ -627,7 +655,7 @@ input::file-selector-button {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	background: #33363d;
+	background-color: #33363d;
 	min-width: max(min(70%, calc(50% + .5in)), min(3in, 100%));
 	min-height: 70%;
 	border-radius: .1in;
@@ -659,7 +687,7 @@ input::file-selector-button {
 }
 
 .addchannel:hover {
-	background: #000000;
+	background-color: #000000;
 }
 
 .capsflex {
@@ -697,7 +725,7 @@ input[type="checkbox"] {
 	height: .15in;
 	margin-left: .02in;
 	margin-right: .04in;
-	background: #7a798e;
+	background-color: #7a798e;
 }
 
 span {
@@ -709,7 +737,7 @@ span {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	background: #22232c;
+	background-color: #22232c;
 	z-index: 100;
 	text-align: center;
 	transition: transform .2s;
@@ -728,7 +756,7 @@ span {
 }
 
 .unkownfile {
-	background: #141316;
+	background-color: #141316;
 	border-style: solid;
 	border-radius: .1in;
 	border-color: #474555;
@@ -749,7 +777,7 @@ span {
 .unread {
 	aspect-ratio: 1 / 1;
 	position: absolute;
-	background: white;
+	background-color: var(--primary-text-color);
 	height: .075in;
 	width: .075in;
 	transition: transform .2s, background .2s, height .2s, width .2s;
@@ -768,14 +796,14 @@ span {
 .pinged {
 	aspect-ratio: 1 / 1;
 	transform: translate(0, .4in);
-	background: red;
+	background-color: red;
 	height: .15in;
 	width: .15in;
 	text-align: center;
 }
 
 .cunread {
-	box-shadow: inset .024in 0 white;
+	box-shadow: inset .024in 0 var(--primary-text-color);
 }
 
 .servernoti {
