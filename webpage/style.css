@@ -219,8 +219,7 @@ div{
 }
 
 p{
-    transition: background 0.1s ease-in-out;
-    transition: color 0.1s ease-in-out;
+    transition: background 0.1s ease-in-out,color 0.1s ease-in-out;
     width: 100%;
 }
 .username{

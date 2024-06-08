@@ -122,7 +122,7 @@ class cmessage{
                     }
 
                 }
-                div.appendChild(attatch)
+                messagedwrap.appendChild(attatch)
             }
             //
         }else if(this.type===7){
