@@ -11,10 +11,8 @@
 
 	--message-bg-hover: #1e1e28;
 	--typing-bg: #161616;
-	--profile-bg: #2e2d33;
 	--timestamp-color: #a2a2a2;
 	--code-bg: #101014;
-	--info-bg: #1a1a1e;
 	--user-info-bg: #323039;
 	--user-dock-bg: #1a1a23;
 	--channels-bg: #32323c;
@@ -29,8 +27,11 @@
 	--mention-bg: #F00;
 	--pronouns: #797979;
 
+	--profile-bg: #2e2d33;
+	--profile-info-bg: #1a1a1e;
+
 	--server-border: #1b1b24;
-	--server-hover: #252530;
+	--server-bg: #252530;
 
 	--reply-border: #474b76;
 	--reply-bg: #0b0d20;
@@ -59,32 +60,33 @@
 	--primary-bg: #FFF;
 	--black: #FFF;
 
-	--message-bg-hover: #d2d2df;
+	--message-bg-hover: #dedee2;
 	--typing-bg: #dad8d8;
-	--profile-bg: #afabc5;
-	--timestamp-color: #a2a2a2;
+	--timestamp-color: #929297;
 	--code-bg: #cbcbcc;
-	--info-bg: #b0b0c5;
 	--user-info-bg: #b0abc2;
 	--user-dock-bg: #b2b2c4;
-	--channels-bg: #c2c2d1;
+	--channels-bg: #cbcbd8;
 	--channel-hover: #b8b5cc;
 	--blank-bg: #ceccdd;
-	--light-border: #929292;
+	--light-border: #96959e;
 	--settings-hover: #b5b1bb;
 	--quote-bg: #7a798e;
 	--button-bg: #b7b7cc;
 	--textarea-bg: #b1b6ce;
 	--filename: #47bbff;
 	--mention-bg: #F00;
-	--pronouns: #202020;
+	--pronouns: #6a6a6d;
 
-	--server-border: #aaaac4;
-	--server-hover: #b5b5ce;
+	--profile-bg: #cacad8;
+	--profile-info-bg: #bbbbce;
 
-	--reply-border: #474b76;
+	--server-border: #bebed3;
+	--server-bg: #c0c0d4;
+
+	--reply-border: #b1b2bd;
 	--reply-bg: #d4d6e9;
-	--reply-text: #38383d;
+	--reply-text: #2e2e30;
 
 	--spoiler-hover: #b9b9b9;
 	--spoiler-open-bg: #dadada;
@@ -98,9 +100,9 @@
 	--dialog-bg: #c1c8d6;
 	--dialog-border: #b9b7db;
 
-	--scrollbar-track: #d2cedf;
-	--scrollbar-thumb: #bdbcca;
-	--scrollbar-thumb-hover: #a7a7be;
+	--scrollbar-track: #d5d1e2;
+	--scrollbar-thumb: #b0afc0;
+	--scrollbar-thumb-hover: #a5a5b8;
 }
 .Light-theme {
 	color-scheme: light;
