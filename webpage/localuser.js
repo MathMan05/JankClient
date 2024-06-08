@@ -91,7 +91,7 @@ class localuser{
 
         const div=document.createElement("div");
         div.innerText="⌂";
-        div.classList.add("Home","servericon")
+        div.classList.add("home","servericon")
         div.all=this.guildids["@me"];
         serverlist.appendChild(div)
         div.onclick=function(){

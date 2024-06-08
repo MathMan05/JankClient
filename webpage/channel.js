@@ -103,7 +103,7 @@ class channel{
             div.appendChild(caps)
             caps.classList.add("capsflex")
             decdiv.classList.add("channeleffects");
-            decdiv.classList.add("Channel");
+            decdiv.classList.add("channel");
 
             lacechannel(decdiv);
             decdiv.all=this;
@@ -127,7 +127,7 @@ class channel{
             }
             div.appendChild(childrendiv);
         }else{
-            div.classList.add("Channel");
+            div.classList.add("channel");
             if(this.hasunreads){
                 div.classList.add("cunread");
             }

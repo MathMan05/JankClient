@@ -3,36 +3,45 @@ function getCookie(name) {
 }
 function setTheme(){
     const name=localStorage.getItem("theme");
+    if(!name){
+        document.body.className="Dark-theme";
+        localStorage.setItem("theme","Dark");
+    }
     document.body.className=name+"-theme";
 }
 setTheme();
 {
     const instancein=document.getElementById("instancein");
     let timeout=0;
+   async function check(e){
+        try{
+            verify.innerText="Checking Instance"
+            instanceinfo=await setInstance(instancein.value)
+            localStorage.setItem("instanceinfo",JSON.stringify(instanceinfo));
+            verify.innerText="Instance is all good"
+            setTimeout(_=>{
+                console.log(verify.innerText)
+                verify.innerText="";
+            },3000);
 
+        }catch(e){
+            console.log("catch")
+            verify.innerText="Invalid Instance, try again"
+        }
+    }
     if(instancein){
         console.log(instancein)
         instancein.addEventListener("keydown",e=>{
             const verify=document.getElementById("verify");
             verify.innerText="Waiting to check Instance"
             clearTimeout(timeout);
-            timeout=setTimeout(async e=>{
-                try{
-                    verify.innerText="Checking Instance"
-                    instanceinfo=await setInstance(instancein.value)
-                    localStorage.setItem("instanceinfo",JSON.stringify(instanceinfo));
-                    verify.innerText="Instance is all good"
-                    setTimeout(_=>{
-                        console.log(verify.innerText)
-                        verify.innerText="";
-                    },3000);
-
-                }catch(e){
-                    console.log("catch")
-                    verify.innerText="Invalid Instance, try again"
-                }
-            },1000);
+            timeout=setTimeout(check,1000);
         });
+    }
+    if(localStorage.getItem("instanceinfo")){
+        instancein.value=localStorage.getItem("instanceinfo").wellKnown
+    }else{
+        check("https://spacebar.chat/");
     }
 }
 async function login(username, password){

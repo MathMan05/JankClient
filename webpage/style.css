@@ -1,66 +1,10 @@
-:root {
-	--servertd-height: 0px;
-	/* Default value */
-}
-
-.Dark-theme { /* thanks to TomatoCake for the updated CSS vars and such*/
-	color-scheme: dark;
-
-	--primary-text: #FFF;
-	--primary-bg: #282832;
-	--black: #000;
-
-	--message-bg-hover: #1e1e28;
-	--typing-bg: #161616;
-	--profile-bg: #2e2d33;
-	--timestamp-color: #a2a2a2;
-	--code-bg: #101014;
-	--info-bg: #1a1a1e;
-	--user-info-bg: #323039;
-	--user-dock-bg: #1a1a23;
-	--channels-bg: #32323c;
-	--channel-hover: #1c1b25;
-	--blank-bg: #1b1b1b;
-	--light-border: #929292;
-	--settings-hover: #0e0d10;
-	--quote-bg: #7a798e;
-	--button-bg: #1b1b28;
-	--textarea-bg: #26272c;
-	--filename: #47bbff;
-	--mention-bg: #F00;
-	--pronouns: #797979;
-
-	--server-border: #1b1b24;
-	--server-hover: #252530;
-
-	--reply-border: #474b76;
-	--reply-bg: #0b0d20;
-	--reply-text: #acacac;
-
-	--spoiler-hover: #111111;
-	--spoiler-open-bg: #1e1e1e;
-
-	--unknown-file-bg: #141316;
-	--unknown-file-border: #474555;
-
-	--login-border: #131315;
-	--loading-bg: #22232c;
-
-	--dialog-bg: #33363d;
-	--dialog-border: #1c1b31;
-
-	--scrollbar-track: #34313c;
-	--scrollbar-thumb: #201f29;
-	--scrollbar-thumb-hover: #16161f;
-}
-
-
 body {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 400;
 	background-color: var(--primary-bg);
 	color: var(--primary-text);
 	overflow-y: hidden;
+	overflow-x: hidden;
 	margin: 0;
 	padding: 0;
 }
@@ -117,7 +61,7 @@ samp {
 }
 
 .contextbutton {
-	transition: background 0.1s ease-in-out;
+	transition: background .1s ease-in-out;
 	background-color: var(--message-bg-hover);
 	color: var(--primary-text);
 	font-weight: bold;
@@ -130,7 +74,7 @@ samp {
 
 .infosection {
 	display: inline-block;
-	background-color: var(--info-bg);
+	background-color: var(--profile-info-bg);
 	border-radius: 10%;
 	padding: .3cm;
 	width: calc(100% - .6cm);
@@ -312,13 +256,11 @@ input {
 }
 
 div {
-	transition: background 0.1s ease-in-out;
+	transition: background .1s ease-in-out;
 }
-.unkownfile{
-    background: var(--unknown-file-bg);
-}
+
 #typebox {
-	font-family: "sans-serif";
+	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 16px;
 	padding: 3px;
 	border-radius: .25cm;
@@ -328,7 +270,7 @@ div {
 }
 
 p {
-	transition: background 0.1s ease-in-out, color 0.1s ease-in-out;
+	transition: background .1s ease-in-out, color .1s ease-in-out;
 	width: 100%;
 }
 
@@ -336,6 +278,9 @@ p {
 	width: fit-content;
 	cursor: pointer;
 	font-weight: bold;
+}
+.username:hover {
+	text-decoration: underline;
 }
 
 .spoiler {
@@ -372,7 +317,7 @@ p {
 	transform: translateY(-100%);
 	border-radius: 5px 5px 0 0;
 	padding: 4px;
-	transition: transform 0.5s ease, opacity 0.1s ease;
+	transition: transform .5s ease, opacity .1s ease;
 	opacity: 1;
 }
 
@@ -396,11 +341,11 @@ p {
 }
 
 .dot:nth-child(2) {
-	animation-delay: 0.333s;
+	animation-delay: .33s;
 }
 
 .dot:nth-child(3) {
-	animation-delay: .666s;
+	animation-delay: .66s;
 }
 
 #typing p {
@@ -433,7 +378,7 @@ p {
 	width: 80%;
 }
 
-.Home {
+.home {
 	border-radius: 50%;
 	width: .5in;
 	height: .5in;
@@ -473,7 +418,9 @@ p {
 .startreply {
 	display: inline-block;
 	vertical-align: middle;
-	width: .4in;
+	width: 22px;
+	margin-left: 25px;
+	border-color: var(--reply-border);
 }
 
 .replypfp {
@@ -502,6 +449,7 @@ p {
 ::-webkit-scrollbar-thumb {
 	background-color: var(--scrollbar-thumb);
 	box-shadow: 0 2px 5px var(--black);
+	transition: .1s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -524,16 +472,16 @@ textarea {
 
 .channels {
 	overflow: auto;
-	transition: height 0.2s ease-in-out;
+	transition: height .2s ease-in-out;
 	user-select: none;
 	cursor: pointer;
 }
 
-.Channel:hover {
+.channel:hover {
 	background-color: var(--channel-hover);
 }
 
-.Channel {
+.channel {
 	user-select: none;
 	cursor: pointer;
 }
@@ -549,7 +497,7 @@ textarea {
 }
 
 .servertd {
-	background-color: var(--server-hover);
+	background-color: var(--server-bg);
 	border-color: var(--server-border);
 	border-width: .1cm;
 	border-style: solid;
@@ -580,12 +528,9 @@ textarea {
 	user-select: none;
 }
 
-.username:hover {
-	text-decoration: underline;
-}
-
 .tag {
 	font-size: .13in;
+	font-weight: 500;
 	color: var(--primary-text);
 }
 
@@ -611,16 +556,6 @@ textarea {
 #userinfo {
 	background-color: var(--user-info-bg);
 	border-radius: .1in;
-}
-
-.replyusername {
-	user-select: none;
-	cursor: pointer;
-	word-break: normal;
-}
-
-.replyusername:hover {
-	text-decoration: underline;
 }
 
 .servernamediv {
