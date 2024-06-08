@@ -4,30 +4,30 @@ class localuser {
 		this.guilds = []
 		this.guildids = {}
 		this.user = user.checkuser(ready.d.user)
-		this.status = this.ready.d.user_settings.status
+		this.settings = this.ready.d.user_settings
 		this.channelfocus = null
 		this.lookingguild = null
 		this.guildhtml = {}
+
 		for (const thing of ready.d.guilds) {
 			const temp = new guild(thing, this)
 			this.guilds.push(temp)
 			this.guildids[temp.id] = temp
 		}
-		{
-			const temp = new direct(ready.d.private_channels, this)
-			this.guilds.push(temp)
-			this.guildids[temp.id] = temp
-		}
+
+		const temp = new direct(ready.d.private_channels, this)
+		this.guilds.push(temp)
+		this.guildids[temp.id] = temp
+
 		for (const thing of ready.d.merged_members) {
-			const temp = new member(thing[0])
-			this.guildids[temp.guild_id].giveMember(temp)
+			const mergedMember = new member(thing[0])
+			this.guildids[mergedMember.guild_id].giveMember(mergedMember)
 		}
+
 		for (const thing of ready.d.read_state.entries) {
-			console.log(thing)
 			const guild = this.resolveGuildidFromChannelID(thing.id)
-			if (guild == void 0) {
-				continue
-			}
+			if (!guild) continue
+
 			const guildid = guild.id
 			this.guildids[guildid].channelids[thing.channel_id].readStateInfo(thing)
 		}
@@ -72,7 +72,7 @@ class localuser {
 	loaduser() {
 		document.getElementById("username").textContent = this.user.username
 		document.getElementById("userpfp").src = this.user.getpfpsrc()
-		document.getElementById("status").textContent = this.status
+		document.getElementById("status").textContent = this.settings.status
 	}
 	isAdmin() {
 		return this.lookingguild.isAdmin()

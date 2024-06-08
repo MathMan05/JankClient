@@ -126,6 +126,8 @@ class fullscreen {
 				const legend = document.createElement("legend")
 				legend.textContent = array[1]
 				fieldset.appendChild(legend)
+
+				let i = 0
 				for (const thing of array[2]) {
 					const div2 = document.createElement("div")
 					const input = document.createElement("input")
@@ -134,9 +136,12 @@ class fullscreen {
 					input.name = array[1]
 					input.value = thing
 
-					const label = document.createElement("label")
+					if (i == array[4]) input.checked = true
+					i++
 
+					const label = document.createElement("label")
 					label.appendChild(input)
+
 					const span = document.createElement("span")
 					span.textContent = thing
 					label.appendChild(span)
@@ -148,9 +153,25 @@ class fullscreen {
 			}
 			case "html":
 				return array[1]
+			case "select":
+				const div = document.createElement("div")
+				const label = document.createElement("label")
+				const select = document.createElement("select")
+
+				label.innerText = array[1]
+				div.append(label)
+				div.appendChild(select)
+				for (const thing of array[2]) {
+					const option = document.createElement("option")
+					option.innerText = thing
+					select.appendChild(option)
+				}
+				select.selectedIndex = array[4]
+				select.addEventListener("change", array[3])
+				return div
 
 			default:
-				console.error("Can't find element:" + array[0], "  full element:" + array)
+				console.error("Can't find element:" + array[0] + ", full element:", array)
 		}
 	}
 	show() {

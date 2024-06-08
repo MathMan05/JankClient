@@ -49,34 +49,32 @@ function lacechannel(c) {
 
 function createchannels(fincall) {
 	let name = ""
-	let catagory = 1
-	console.log(fincall)
+	let type = 2
 	const channelselect = new fullscreen(
 		["vdiv",
 			["radio", "select channel type",
 				["voice", "text", "announcement"],
-				function(e) {
-					console.log(e)
-					catagory = { text: 0, voice: 2, announcement: 5, catagory: 4 }[e]
-				}
+				value => {
+					type = { text: 0, voice: 2, announcement: 5, catagory: 4 }[value]
+				},
+				1
 			],
 			["textbox", "Name of channel", "", event => {
 				name = event.target.value
 			}],
 			["button", "", "submit", () => {
-				fincall(name, catagory)
+				fincall(name, type)
 				channelselect.hide()
 			}]
 		])
 	channelselect.show()
 }
-function createcatagory(fincall) {
+function createcategory(fincall) {
 	let name = ""
 	const category = 4
-	console.log(fincall)
 	const channelselect = new fullscreen(
 		["vdiv",
-			["textbox", "Name of catagory", "", event => {
+			["textbox", "Name of category", "", event => {
 				name = event.target.value
 			}],
 			["button", "", "submit", () => {
@@ -86,7 +84,7 @@ function createcatagory(fincall) {
 		])
 	channelselect.show()
 }
-function editchannelf(channel) {
+function editchannel(channel) {
 	channel.editChannel()
 }
 
@@ -119,11 +117,11 @@ function makemenuc(divmessage, x, y) {
 			deleteChannel.button.all = divmessage.all
 			build.appendChild(deleteChannel)
 
-			const editchannel = createbutton("edit channel", () => {
-				editchannelf(channel)
+			const editchannelButton = createbutton("edit channel", () => {
+				editchannel(channel)
 			})
-			editchannel.button.all = divmessage.all
-			build.appendChild(editchannel)
+			editchannelButton.button.all = divmessage.all
+			build.appendChild(editchannelButton)
 		}
 	} else {
 		if (thisuser.isAdmin()) {
@@ -134,7 +132,7 @@ function makemenuc(divmessage, x, y) {
 			build.appendChild(createchannel)
 
 			const createcat = createbutton("create catagory", () => {
-				createcatagory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
+				createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
 			})
 			createcat.button.all = divmessage.all
 			build.appendChild(createcat)
@@ -285,8 +283,6 @@ const images = []
 const imageshtml = []
 
 document.getElementById("typebox").addEventListener("keyup", enter)
-console.log(document.getElementById("typebox"))
-document.getElementById("typebox").onclick = console.log
 async function enter(event) {
 	thisuser.lookingguild.prevchannel.typingstart()
 	const tis = document.getElementById("typebox")
@@ -468,6 +464,15 @@ function initwebsocket() {
 
 	ws.addEventListener("close", event => {
 		console.log("WebSocket closed with code " + event.code)
+
+		if (event.code > 1000 && event.code < 1016) {
+			document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server, retrying in five seconds..."
+
+			setTimeout(() => {
+				document.getElementById("load-desc").textContent = "Retrying..."
+				initwebsocket()
+			}, 5000)
+		}
 	})
 }
 
@@ -578,16 +583,23 @@ function genusersettings() {
 					["html", hypothetcialprofie]
 				]
 			],
-			["radio", "Theme", ["dark", "light"], value => {
-				newTheme = value
-			}],
+			["select", "Theme", ["dark", "light"], event => {
+				newTheme = event.target.value
+			}, thisuser.settings.theme == "light" ? 1 : 0],
 			["button", "update user content:", "submit", () => {
 				if (file !== null) thisuser.updatepfp(file)
 				if (newprouns !== null) thisuser.updatepronouns(newprouns)
 				if (newbio !== null) thisuser.updatebio(newbio)
 				if (newTheme !== null) {
 					thisuser.updateSettings({theme: newTheme})
-					document.body.classList.toggle("light", newTheme == "light")
+
+					if (newTheme == "light") {
+						document.body.classList.remove("dark-theme")
+						document.body.classList.add("light-theme")
+					} else {
+						document.body.classList.remove("light-theme")
+						document.body.classList.add("dark-theme")
+					}
 				}
 			}]
 		], _ => {}, (() => {
