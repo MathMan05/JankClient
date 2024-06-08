@@ -479,7 +479,7 @@ function getguildinfo() {
 
 function createunknown(fname, fsize, src) {
 	const div = document.createElement("table")
-	div.classList.add("unkownfile")
+	div.classList.add("unknownfile")
 	const nametr = document.createElement("tr")
 	div.append(nametr)
 	const fileicon = document.createElement("td")
