@@ -1,186 +1,100 @@
-.centeritem {
-    background: #a3b8e9;
-}
-.nonimagecenter{
-    border-color: #b1afd8;
-}
-.background{
-    background:#000000bf;
-}
-.messagediv:hover{
-    background:rgb(162 162 198);
-}
-pre{
-    background:#101014;
-    color: white;
-}
-samp{
-    background:#101014;
-}
-.contextbutton{
-    background:rgb(139 139 255);
-    color:#01021a;
-}
-.infosection{
-    background:#57577c;
-}
-.profile{
-    background:#a4a0bb;
-}
-.hypoprofile{
-    background:#a4a0bb;
-}
-.contextbutton:hover{
-    background:rgb(84 84 166);
-}
-.contextmenu{
-    background:#a4a2b1;
-}
-.blankserver{
-    background:#8b8b98;
-}
-body{
-    background:rgb(160 160 229);
-    color:black;
-}
-#channels{
-    background:rgb(123 123 196);
-}
-input{
-    background:rgb(163 163 210);
-    color:black;
-}
-.spoiler{
-    background:black;
-    color:black;
-}
-.spoiler:hover{
-    background:#111111;
-    color:#111111;
-}
-.unspoiled{
-    background:#454545;
-    color: black;
-}
+.WHITE-theme {
+	color-scheme: light;
 
-.unspoiled:before {
-    background-color: rgb(0 0 0);
-    background-clip: content-box;
-}
-.replying{
-    background:#5f68bb;
-}
-#typing{
-    background:#161616;
-}
-.lightbr{
-    border-color: #929292;
-    color:black;
-    background-color:#9ea7dd;
-}
-.Home{
-    background:#7ea6b9;
-}
-.timestamp{
-    color:#2c2b31;
+	--primary-text: #000;
+	--primary-bg: #FFF;
+	--black: #FFF;
 
-}
-.reply{
-    border-color:#000000;
-}
-.replytext{
-    padding:.05in;
-    color:#1f1f21;
-}
-::-webkit-scrollbar-track {
+	--message-bg-hover: #d2d2df;
+	--typing-bg: #dad8d8;
+	--profile-bg: #afabc5;
+	--timestamp-color: #a2a2a2;
+	--code-bg: #cbcbcc;
+	--info-bg: #b0b0c5;
+	--user-info-bg: #b0abc2;
+	--user-dock-bg: #b2b2c4;
+	--channels-bg: #c2c2d1;
+	--channel-hover: #b8b5cc;
+	--blank-bg: #ceccdd;
+	--light-border: #929292;
+	--settings-hover: #b5b1bb;
+	--quote-bg: #7a798e;
+	--button-bg: #b7b7cc;
+	--textarea-bg: #b1b6ce;
+	--filename: #47bbff;
+	--mention-bg: #F00;
+	--pronouns: #202020;
 
+	--server-border: #aaaac4;
+	--server-hover: #b5b5ce;
 
-  background: #978fae;
-}
+	--reply-border: #474b76;
+	--reply-bg: #d4d6e9;
+	--reply-text: #38383d;
 
-::-webkit-scrollbar-thumb {
-  background: #52515a;
-  box-shadow: 0px 2px 5px #000000;
-}
+	--spoiler-hover: #b9b9b9;
+	--spoiler-open-bg: #dadada;
 
-::-webkit-scrollbar-thumb:hover {
-    background: #63636a;
-	box-shadow: 0px 2px 5px #000000;
-}
-.pronouns{
-    color: #111111;
-}
-textarea{
-    background:#9ea9e3;
-}
+	--unknown-file-bg: #bdbdbd;
+	--unknown-file-border: #adadad;
 
-.Channel:hover{
-    background:#5a4fb9;
-}
-.servertd{
-    background:#a5a5dc;
-    border-color:#8c8cb0;
-}
+	--login-border: #c3c0e0;
+	--loading-bg: #b5b7cc;
 
-.channeleffects:hover{
-    background:#554ab8;
-}
-.tag{
-    color:black;
-}
-#userdock{
-    background:#626292;
-}
-#settings:hover{
-    background:#473962;
-}
-#userinfo{
-    background:#4e3c8f;
-}
-button{
-    color:black;
-    background:#6363c6;
-}
-input::file-selector-button{
-    color:black;
-    background:#6363c6;
-}
-#logindiv{
-    background: #33363d;
-    border-color:#131315;
-}
-.addchannel:hover{
-    background:#524089;
-}
-input[type="checkbox"] {
-    accent-color:#5b5dbf;
-    color:black;
-}
-.quoteline{
-    background:#636274;
-}
-#loading{ 
-    background:#9ba0cd;
-}
-.unkownfile{
-    background:#a69cbb;
-    border-color:#474555;
-}
-.filename{
-    color:#47bbff;
-}
+	--dialog-bg: #c1c8d6;
+	--dialog-border: #b9b7db;
 
-.unread{
-    background:#ffffff;
-    border-color:black;
+	--scrollbar-track: #d2cedf;
+	--scrollbar-thumb: #bdbcca;
+	--scrollbar-thumb-hover: #a7a7be;
 }
-.pinged{
-    background:red;
-}
-.cunread{
-    box-shadow: inset .024in 0 white;
-}
+.Light-theme {
+	color-scheme: light;
 
-.startreply{
-    background: black;
+	--primary-text: #000;
+	--primary-bg: #8e90c3;
+	--black: #fff;
+
+	--message-bg-hover: #5757b5;
+	--typing-bg: #000000;
+	--profile-bg: #8075bf;
+	--timestamp-color: #000000;
+	--code-bg: #a89adf;
+	--info-bg: #6060a3;
+	--user-info-bg: #796f9a;
+	--user-dock-bg: #83839d;
+	--channels-bg: #c2c2d1;
+	--channel-hover: #726e88;
+	--blank-bg: #5e50c5;
+	--light-border: #000000;
+	--settings-hover: #b5b1bb;
+	--quote-bg: #7a798e;
+	--button-bg: #96969e;
+	--textarea-bg: #abb1cd;
+	--filename: #47bbff;
+	--mention-bg: #F00;
+	--pronouns: #202020;
+
+	--server-border: #aaaac4;
+	--server-hover: #7f7fa8;
+
+	--reply-border: #474b76;
+	--reply-bg: #d4d6e9;
+	--reply-text: #38383d;
+
+	--spoiler-hover: #34333a;
+	--spoiler-open-bg: #767587;
+
+	--unknown-file-bg: #bdbdbd;
+	--unknown-file-border: #adadad;
+
+	--login-border: #c3c0e0;
+	--loading-bg: #b5b7cc;
+
+	--dialog-bg: #c1c8d6;
+	--dialog-border: #b9b7db;
+
+	--scrollbar-track: #d2cedf;
+	--scrollbar-thumb: #bdbcca;
+	--scrollbar-thumb-hover: #a7a7be;
 }
