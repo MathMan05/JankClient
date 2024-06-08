@@ -1,6 +1,40 @@
 function getCookie(name) {
     return localStorage.getItem(name);
 }
+function setTheme(){
+    const name=localStorage.getItem("theme");
+    document.body.className=name+"-theme";
+}
+setTheme();
+{
+    const instancein=document.getElementById("instancein");
+    let timeout=0;
+
+    if(instancein){
+        console.log(instancein)
+        instancein.addEventListener("keydown",e=>{
+            const verify=document.getElementById("verify");
+            verify.innerText="Waiting to check Instance"
+            clearTimeout(timeout);
+            timeout=setTimeout(async e=>{
+                try{
+                    verify.innerText="Checking Instance"
+                    instanceinfo=await setInstance(instancein.value)
+                    localStorage.setItem("instanceinfo",JSON.stringify(instanceinfo));
+                    verify.innerText="Instance is all good"
+                    setTimeout(_=>{
+                        console.log(verify.innerText)
+                        verify.innerText="";
+                    },3000);
+
+                }catch(e){
+                    console.log("catch")
+                    verify.innerText="Invalid Instance, try again"
+                }
+            },1000);
+        });
+    }
+}
 async function login(username, password){
     const options={
         method: "POST",
@@ -13,7 +47,9 @@ async function login(username, password){
             "Content-type": "application/json; charset=UTF-8",
         }}
     try{
-        return await fetch('https://api.old.server.spacebar.chat/api/auth/login',options).then(responce=>responce.json())
+        const info=JSON.parse(localStorage.getItem("instanceinfo"));
+        url=new URL(info.login);
+        return await fetch(url.origin+'/api/auth/login',options).then(responce=>responce.json())
         .then((response) => {
             console.log(response,response.message)
             if("Invalid Form Body"===response.message){
@@ -28,6 +64,30 @@ async function login(username, password){
         console.error('Error:', error);
     };
 }
+async function setInstance(url){
+    url=new URL(url);
+    async function attempt(aurl){
+        const info=await fetch(`${aurl.toString()}${aurl.pathname.includes("api") ? "" : "api"}/policies/instance/domains`)
+        .then((x) => x.json());
+        return {
+            api: info.apiEndpoint,
+            gateway: info.gateway,
+            cdn: info.cdn,
+            wellknown: url,
+            login:aurl.toString()
+        }
+    }
+    try{
+        return await attempt(url);
+    }catch(e){
+
+    }
+    const wellKnown = await fetch(`${url.origin}/.well-known/spacebar`)
+    .then((x) => x.json())
+    .then((x) => new URL(x.api));
+    return await attempt(wellKnown);
+}
+
 function gettoken(){
     let temp=getCookie("token");
     temp??=undefined;
@@ -40,7 +100,7 @@ function gettoken(){
 async function check(e){
 
     e.preventDefault();
-    let h=await login(e.srcElement[0].value,e.srcElement[1].value);
+    let h=await login(e.srcElement[1].value,e.srcElement[2].value);
     document.getElementById("wrong").innerText=h;
     console.log(h);
 }

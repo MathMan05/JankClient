@@ -1,3 +1,8 @@
+const info=JSON.parse(localStorage.getItem("instanceinfo"));
+info.api=new URL(info.api);
+info.cdn=new URL(info.cdn);
+info.gateway=new URL(info.gateway);
+info.wellknown=new URL(info.wellknown);
 function setDynamicHeight() {
     var servertdHeight = document.getElementById('servertd').offsetHeight+document.getElementById('typebox').offsetHeight+document.getElementById('pasteimage').offsetHeight;
     document.documentElement.style.setProperty('--servertd-height', servertdHeight + 'px');
@@ -200,7 +205,7 @@ function makemenu(divmessage,x,y){
 
     const dmbutton=createbutton("Message user",null,function(){
         console.log(this)
-        fetch("https://old.server.spacebar.chat/api/v9/users/@me/channels",
+        fetch(info.api.toString()+"/v9/users/@me/channels",
               {method:"POST",
                   body:JSON.stringify({"recipients":[this.all.author.id]}),
                   headers: {"Content-type": "application/json; charset=UTF-8",Authorization:token}
@@ -306,7 +311,7 @@ async function enter(event){
     if(event.key === "Enter"&&!event.shiftKey){
         event.preventDefault();
     if(editing){
-        fetch("https://api.old.server.spacebar.chat/api/channels/"+window.location.pathname.split("/")[3]+"/messages/"+editing,{
+        fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages/"+editing,{
             method: "PATCH",
             headers: {
                 "Content-type": "application/json; charset=UTF-8",
@@ -340,7 +345,7 @@ async function enter(event){
                 body.message_reference=replyjson;
             }
             console.log(body)
-            fetch("https://api.old.server.spacebar.chat/api/channels/"+window.location.pathname.split("/")[3]+"/messages",{
+            fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages",{
                 method:"POST",
                 headers:{
                     "Content-type": "application/json; charset=UTF-8",
@@ -369,7 +374,7 @@ async function enter(event){
             }
             const data=formData.entries()
             console.log(data.next(),data.next(),data.next())
-            console.log((await fetch("https://api.old.server.spacebar.chat/api/channels/"+window.location.pathname.split("/")[3]+"/messages", {
+            console.log((await fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages", {
                 method: 'POST',
                 body: formData,
                 headers:{
@@ -395,7 +400,7 @@ let thisuser=null;
 
 
 function initwebsocket(){
-    ws = new WebSocket('wss://gateway.old.server.spacebar.chat/?v=9&encoding=json');
+    ws = new WebSocket(info.gateway.toString());
 
     ws.addEventListener('open', (event) => {
     console.log('WebSocket connected');
@@ -649,10 +654,7 @@ function genusersettings(){
     })
 }
 setTheme();
-function setTheme(){
-    const name=localStorage.getItem("theme");
-    document.body.className=name+"-theme";
-}
+
 function userSettings(){
     usersettings.show();
 }
