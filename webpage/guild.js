@@ -73,14 +73,14 @@ class guild{
         if(serverbug){
             for(const thing of build){
                 console.log(build,thing)
-                fetch("https://api.old.server.spacebar.chat/api/v9/guilds/"+this.id+"/channels",{
+                fetch(info.api.toString()+"/v9/guilds/"+this.id+"/channels",{
                     method:"PATCH",
                     headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
                     body:JSON.stringify([thing])
                 });
             }
         }else{
-            fetch("https://api.old.server.spacebar.chat/api/v9/guilds/"+this.id+"/channels",{
+            fetch(info.api.toString()+"/v9/guilds/"+this.id+"/channels",{
                 method:"PATCH",
                 headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
                 body:JSON.stringify(build)
@@ -214,7 +214,7 @@ class guild{
         this.channels=build;
     }
     createChannel(name,type){
-        fetch("https://api.old.server.spacebar.chat/api/guilds/"+this.id+"/channels",{
+        fetch(info.api.toString()+"/guilds/"+this.id+"/channels",{
             method:"Post",
             headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
             body:JSON.stringify({name: name, type: type})

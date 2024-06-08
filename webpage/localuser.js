@@ -121,7 +121,7 @@ class localuser{
             if(thing.properties.icon!=null){
                 const img=document.createElement("img");
                 img.classList.add("pfp","servericon")
-                img.src="https://cdn.old.server.spacebar.chat/icons/"+thing.properties.id+"/"+thing.properties.icon+".png";
+                img.src=info.cdn.toString()+"icons/"+thing.properties.id+"/"+thing.properties.icon+".png";
                 divy.appendChild(img)
                 img.all=thing;
                 img.onclick=function(){
@@ -193,7 +193,7 @@ class localuser{
         var reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = function () {
-            fetch("https://old.server.spacebar.chat/api/v9/users/@me",{
+            fetch(info.api.toString()+"/v9/users/@me",{
                 method:"PATCH",
                 headers:{
                     "Content-type": "application/json; charset=UTF-8",
@@ -208,7 +208,7 @@ class localuser{
 
     }
     updatepronouns(pronouns){
-        fetch("https://old.server.spacebar.chat/api/v9/users/@me/profile",{
+        fetch(info.api.toString()+"/v9/users/@me/profile",{
             method:"PATCH",
             headers:{
                 "Content-type": "application/json; charset=UTF-8",
@@ -220,7 +220,7 @@ class localuser{
         });
     }
     updatebio(bio){
-        fetch("https://old.server.spacebar.chat/api/v9/users/@me/profile",{
+        fetch(info.api.toString()+"/v9/users/@me/profile",{
             method:"PATCH",
             headers:{
                 "Content-type": "application/json; charset=UTF-8",
