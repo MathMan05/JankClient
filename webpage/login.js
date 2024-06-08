@@ -1,7 +1,5 @@
 function getCookie(name) {
-  const value = `; ${document.cookie}`;
-  const parts = value.split(`; ${name}=`);
-  if (parts.length === 2) return parts.pop().split(';').shift();
+    return localStorage.getItem(name);
 }
 async function login(username, password){
     const options={
@@ -22,7 +20,7 @@ async function login(username, password){
                 return response.errors.login._errors[0].message;
                 console.log("test")
             }
-            document.cookie = "token="+response.token+"; expires="+new Date(Date.now()+(6.048e+8*2));
+            localStorage.setItem("token",response.token);
             window.location.href = '/channels/@me';
             return response.token;
         })
@@ -31,7 +29,8 @@ async function login(username, password){
     };
 }
 function gettoken(){
-    const temp=getCookie("token");
+    let temp=getCookie("token");
+    temp??=undefined;
     if(temp===undefined){
         window.location.href = '/login.html';
     }
