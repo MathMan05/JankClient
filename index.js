@@ -51,7 +51,9 @@ app.get('/fullscreen.js', (req, res) => {
 app.get('/style.css', (req, res) => {
     res.sendFile("./webpage/style.css", {root: __dirname})
 })
-
+app.get('/light.css', (req, res) => {
+    res.sendFile("./webpage/light.css", {root: __dirname})
+})
 app.get('/manifest.json', (req, res) => {
     res.sendFile("./webpage/manifest.json", {root: __dirname})
 })

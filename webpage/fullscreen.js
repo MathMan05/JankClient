@@ -131,6 +131,7 @@ class fullscreen{
                 const legend=document.createElement("legend");
                 legend.innerText=array[1];
                 fieldset.appendChild(legend);
+                let i=0;
                 for(const thing of array[2]){
                     const div=document.createElement("div");
                     const input=document.createElement("input");
@@ -138,7 +139,9 @@ class fullscreen{
                     input.type="radio";
                     input.name=array[1];
                     input.value=thing;
-
+                    if(i===array[4]){
+                        input.checked=true;
+                    }
                     const label=document.createElement("label");
 
                     label.appendChild(input);
@@ -147,12 +150,30 @@ class fullscreen{
                     label.appendChild(span);
                     div.appendChild(label);
                     fieldset.appendChild(div);
+                    i++
                 }
                 div.appendChild(fieldset);
                 return div;
             }
             case "html":{
                 return array[1];
+            }
+            case "select":{
+                const div=document.createElement("div");
+                const label=document.createElement("label");
+                const select=document.createElement("select");
+
+                label.innerText=array[1];
+                div.append(label);
+                div.appendChild(select);
+                for(const thing of array[2]){
+                    const option = document.createElement("option");
+                    option.innerText=thing;
+                    select.appendChild(option);
+                }
+                select.selectedIndex=array[4];
+                select.addEventListener("change",array[3]);
+                return div;
             }
             default:
                 console.error("can't find element:"+array[0],"  full element:"+array)
