@@ -136,9 +136,6 @@ img {
   width: auto;
   height: auto;
 }
-table {
-  /* border-collapse: collapse; */
-}
 body {
     margin: 0;
     padding: 0;
@@ -157,6 +154,8 @@ body {
 .commentrow{
     width:100%;
     word-wrap: break-word;
+    text-align: left;
+    font-weight: normal;
 }
 #messagecontainer{
     overflow: auto;
@@ -226,6 +225,7 @@ p{
     width:fit-content;
     cursor: pointer;
     user-select: none;
+    font-weight: bold;
 }
 .spoiler{
     background:black;
@@ -308,7 +308,7 @@ p{
     background-color:black;
     width:80%;
 }
-.home{
+.Home{
     border-radius: 50%;
     width:.5in;
     height:.5in;
@@ -394,10 +394,10 @@ textarea{
     user-select: none;
     cursor: pointer;
 }
-.channel:hover{
+.Channel:hover{
     background:#1c1b25;
 }
-.channel{
+.Channel{
     user-select: none;
     cursor: pointer;
 }
