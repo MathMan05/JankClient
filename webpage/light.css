@@ -1,0 +1,186 @@
+.centeritem {
+    background: #a3b8e9;
+}
+.nonimagecenter{
+    border-color: #b1afd8;
+}
+.background{
+    background:#000000bf;
+}
+.messagediv:hover{
+    background:rgb(162 162 198);
+}
+pre{
+    background:#101014;
+    color: white;
+}
+samp{
+    background:#101014;
+}
+.contextbutton{
+    background:rgb(139 139 255);
+    color:#01021a;
+}
+.infosection{
+    background:#57577c;
+}
+.profile{
+    background:#a4a0bb;
+}
+.hypoprofile{
+    background:#a4a0bb;
+}
+.contextbutton:hover{
+    background:rgb(84 84 166);
+}
+.contextmenu{
+    background:#a4a2b1;
+}
+.blankserver{
+    background:#8b8b98;
+}
+body{
+    background:rgb(160 160 229);
+    color:black;
+}
+#channels{
+    background:rgb(123 123 196);
+}
+input{
+    background:rgb(163 163 210);
+    color:black;
+}
+.spoiler{
+    background:black;
+    color:black;
+}
+.spoiler:hover{
+    background:#111111;
+    color:#111111;
+}
+.unspoiled{
+    background:#454545;
+    color: black;
+}
+
+.unspoiled:before {
+    background-color: rgb(0 0 0);
+    background-clip: content-box;
+}
+.replying{
+    background:#5f68bb;
+}
+#typing{
+    background:#161616;
+}
+.lightbr{
+    border-color: #929292;
+    color:black;
+    background-color:#9ea7dd;
+}
+.Home{
+    background:#7ea6b9;
+}
+.timestamp{
+    color:#2c2b31;
+
+}
+.reply{
+    border-color:#000000;
+}
+.replytext{
+    padding:.05in;
+    color:#1f1f21;
+}
+::-webkit-scrollbar-track {
+
+
+  background: #978fae;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #52515a;
+  box-shadow: 0px 2px 5px #000000;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #63636a;
+	box-shadow: 0px 2px 5px #000000;
+}
+.pronouns{
+    color: #111111;
+}
+textarea{
+    background:#9ea9e3;
+}
+
+.Channel:hover{
+    background:#5a4fb9;
+}
+.servertd{
+    background:#a5a5dc;
+    border-color:#8c8cb0;
+}
+
+.channeleffects:hover{
+    background:#554ab8;
+}
+.tag{
+    color:black;
+}
+#userdock{
+    background:#626292;
+}
+#settings:hover{
+    background:#473962;
+}
+#userinfo{
+    background:#4e3c8f;
+}
+button{
+    color:black;
+    background:#6363c6;
+}
+input::file-selector-button{
+    color:black;
+    background:#6363c6;
+}
+#logindiv{
+    background: #33363d;
+    border-color:#131315;
+}
+.addchannel:hover{
+    background:#524089;
+}
+input[type="checkbox"] {
+    accent-color:#5b5dbf;
+    color:black;
+}
+.quoteline{
+    background:#636274;
+}
+#loading{ 
+    background:#9ba0cd;
+}
+.unkownfile{
+    background:#a69cbb;
+    border-color:#474555;
+}
+.filename{
+    color:#47bbff;
+}
+
+.unread{
+    background:#ffffff;
+    border-color:black;
+}
+.pinged{
+    background:red;
+}
+.cunread{
+    box-shadow: inset .024in 0 white;
+}
+
+.startreply{
+    background: black;
+}

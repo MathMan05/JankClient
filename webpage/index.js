@@ -50,7 +50,7 @@ function lacechannel(c){
 
 function createchannels(fincall){
     let name="";
-    let catagory=1;
+    let catagory=2;
     console.log(fincall)
     channelselect=new fullscreen(
     ["vdiv",
@@ -59,7 +59,8 @@ function createchannels(fincall){
             function(e){
                 console.log(e)
                 catagory={"text":0,"voice":2,"announcement":5,"catagory":4}[e]
-            }
+            },
+            1
         ],
         ["textbox","Name of channel","",function(){
             console.log(this)
@@ -630,7 +631,10 @@ function genusersettings(){
                 if(newbio!==null){
                     thisuser.updatebio(newbio);
                 }
-            }]
+            }],
+            ["select","Theme:",["Dark","Light"],e=>{
+                localStorage.setItem("theme",["Dark","Light"][e.target.selectedIndex]);
+            },["Dark","Light"].indexOf(localStorage.getItem("theme"))]
         ],
         ["vdiv",
             ["html",hypothetcialprofie]

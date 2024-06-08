@@ -617,7 +617,9 @@ span{
 .notiunread{
     transform:translate(0in,.2in);
 }
-.h2md{font-size: .25in;}
+.h2md{
+    font-size: .25in;
+}
 .pinged{
     aspect-ratio : 1 / 1;
     transform:translate(0in,.4in);
