@@ -1,223 +1,228 @@
-class guild{
-    constructor(JSON,owner){
-        if(JSON===-1){
-            return;
-        }
-        console.log(JSON);
-        this.owner=owner;
-        this.owner??=thisuser;
-        this.channels=[];
-        this.channelids={};
-        this.id=JSON.id;
-        this.properties=JSON.properties;
-        this.roles=[];
-        this.roleids={};
-        this.prevchannel=undefined;
-        for(const roley of JSON.roles){
-            const roleh=new role(roley);
-            this.roles.push(roleh)
-            this.roleids[roleh.id]=roleh;
-        }
-        for(const thing of JSON.channels){
-            const temp=new channel(thing,this);
-            this.channels.push(temp);
-            this.channelids[temp.id]=temp;
-        }
-        this.headchannels=[];
-        for(const thing of this.channels){
-            if(thing.resolveparent(this)){
-                this.headchannels.push(thing);
-            }
-        }
-    }
-    printServers(){
-        let build=""
-        for(const thing of this.headchannels){
-            build+=(thing.name+":"+thing.position)+"\n";
-            for(const thingy of thing.children){
-                build+=("   "+thingy.name+":"+thingy.position)+"\n";
-            }
-        }
-        console.log(build);
-    }
-    calculateReorder(){
-        let position=-1;
-        let build=[];
-        for(const thing of this.headchannels){
-            const thisthing={id:thing.id}
-            if(thing.position<=position){
-                thing.position=(thisthing.position=position+1);
-            }
-            position=thing.position;
-            console.log(position);
-            if(thing.move_id&&thing.move_id!==thing.parent_id){
-                thing.parent_id=thing.move_id;
-                thisthing.parent_id=thing.parent_id;
-                thing.move_id=undefined;
-            }
-            if(thisthing.position||thisthing.parent_id){
-                build.push(thisthing);
-                console.log(this.channelids[thisthing.parent_id]);
-            }
-            if(thing.children.length>0){
-                const things=thing.calculateReorder()
-                for(const thing of things){
-                    build.push(thing);
-                }
-            }
-        }
-        console.log(build)
-        this.printServers();
-        if(build.length===0){return}
-        const serverbug=false;
-        if(serverbug){
-            for(const thing of build){
-                console.log(build,thing)
-                fetch("https://spacebar-api.vanillaminigames.net/api/v9/guilds/"+this.id+"/channels",{
-                    method:"PATCH",
-                    headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
-                    body:JSON.stringify([thing])
-                });
-            }
-        }else{
-            fetch("https://spacebar-api.vanillaminigames.net/api/v9/guilds/"+this.id+"/channels",{
-                method:"PATCH",
-                headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
-                body:JSON.stringify(build)
-            });
-        }
+class guild {
+	constructor(json, owner) {
+		if (json === -1) {
+			return
+		}
+		console.log(json)
+		this.owner = owner
+		this.owner ??= thisuser
+		this.channels = []
+		this.channelids = {}
+		this.id = json.id
+		this.properties = json.properties
+		this.roles = []
+		this.roleids = {}
+		this.prevchannel = void 0
+		for (const roley of json.roles) {
+			const roleh = new role(roley)
+			this.roles.push(roleh)
+			this.roleids[roleh.id] = roleh
+		}
+		for (const thing of json.channels) {
+			const temp = new channel(thing, this)
+			this.channels.push(temp)
+			this.channelids[temp.id] = temp
+		}
+		this.headchannels = []
+		for (const thing of this.channels) {
+			if (thing.resolveparent(this)) {
+				this.headchannels.push(thing)
+			}
+		}
+	}
+	printServers() {
+		let build = ""
+		for (const thing of this.headchannels) {
+			build += (thing.name + ":" + thing.position) + "\n"
+			for (const thingy of thing.children) {
+				build += ("   " + thingy.name + ":" + thingy.position) + "\n"
+			}
+		}
+		console.log(build)
+	}
+	calculateReorder() {
+		let position = -1
+		const build = []
+		for (const thing of this.headchannels) {
+			const thisthing = { id: thing.id }
+			if (thing.position <= position) {
+				thisthing.position = position + 1
+				thing.position = thisthing.position
+			}
+			position = thing.position
+			console.log(position)
+			if (thing.move_id && thing.move_id !== thing.parent_id) {
+				thing.parent_id = thing.move_id
+				thisthing.parent_id = thing.parent_id
+				thing.move_id = void 0
+			}
+			if (thisthing.position || thisthing.parent_id) {
+				build.push(thisthing)
+				console.log(this.channelids[thisthing.parent_id])
+			}
+			if (thing.children.length > 0) {
+				const things = thing.calculateReorder()
+				for (const thing2 of things) {
+					build.push(thing2)
+				}
+			}
+		}
+		console.log(build)
+		this.printServers()
+		if (build.length === 0) {
+			return
+		}
 
-    }
-    loadChannel(id){
-        this.owner.channelfocus=id;
-        this.channelids[id].getHTML();
-    }
-    sortchannels(){
-        this.headchannels.sort((a,b)=>{return a.position-b.position;});
-    }
-    unreads(html){
-        if(html){
-            this.html=html;
-        }else{
-            html=this.html;
-        }
-        let read=true;
-        for(const thing of this.channels){
-            if(thing.hasunreads){
-                console.log(thing)
-                read=false;
-                break;
-            }
-        }
-        console.log(read);
-        if(!html){return;}
-        if(read){
-            html.children[0].classList.remove("notiunread");
-        }else{
-            html.children[0].classList.add("notiunread");
-        }
-    }
-    getHTML(){
-        //this.printServers();
-        this.sortchannels();
-        this.printServers();
-        console.log("html")
-        const build=document.createElement("div");
-        for(const thing of this.headchannels){
-            build.appendChild(thing.createguildHTML(this.isAdmin()));
-        }
-        return build;
-    }
-    isAdmin(){
-        return this.member.isAdmin()
-    }
-    fillMember(member){
-        member.guild=this;
-        const realroles=[];
-        for(const thing of member.roles){
-            realroles.push(this.getRole(thing));
-        }
-        member.guild=this;
-        member.roles=realroles;
-        return member;
-    }
-    giveMember(member){
-        this.fillMember(member);
-        this.member=member;
-    }
-    getRole(ID){
-        return this.roleids[ID];
-    }
-    hasRole(r){
-        console.log(typeof r,(typeof ""));
-        if((typeof r)!==(typeof "")){
-            r=r.id;
-        }
-        return this.member.hasRole(r);
-    }
-    loadChannel(ID){
-        if(ID){
-            this.channelids[ID].getHTML();
-            return;
-        }
-        if(this.prevchannel){
-            console.log(this.prevchannel)
-            this.prevchannel.getHTML();
-            return;
-        }
-        for(const thing of this.channels){
-            if(thing.children.length===0){
-                thing.getHTML();
-                return
-            }
-        }
-    }
-    loadGuild(){
-        this.owner.loadGuild(this.id);
-    }
-    updateChannel(JSON){
-        this.channelids[JSON.id].updateChannel(JSON);
-        this.headchannels=[];
-        for(const thing of this.channels){
-            thing.children=[];
-        }
-        for(const thing of this.channels){
-            if(thing.resolveparent(this)){
-                this.headchannels.push(thing);
-            }
-        }
-        this.printServers();
-    }
-    createChannelpac(JSON){
-        const thischannel=new channel(JSON,this);
-        this.channelids[JSON.id]=thischannel;
-        this.channels.push(thischannel);
-        thischannel.resolveparent(this);
-        if(!thischannel.parrent){
-            this.headchannels.push(thischannel);
-        }
-        this.calculateReorder();
-        this.printServers();
-    }
-    delChannel(JSON){
-        delete this.channelids[JSON.id];
-        const build=[];
-        for(const thing of this.channels){
-            if(thing.id!==JSON.id){
-                build.push(thing)
-            }else{
-                if(thing.parrent){
-                    thing.parrent.delChannel(JSON);
-                }
-            }
-        }
-        this.channels=build;
-    }
-    createChannel(name,type){
-        fetch("https://spacebar-api.vanillaminigames.net/api/guilds/"+this.id+"/channels",{
-            method:"Post",
-            headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
-            body:JSON.stringify({name: name, type: type})
-        })
-    }
+		const serverbug = false
+		if (serverbug) {
+			for (const thing of build) {
+				console.log(build, thing)
+				fetch("https://spacebar-api.vanillaminigames.net/api/v9/guilds/" + this.id + "/channels", {
+					method: "PATCH",
+					headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
+					body: JSON.stringify([thing])
+				})
+			}
+		} else {
+			fetch("https://spacebar-api.vanillaminigames.net/api/v9/guilds/" + this.id + "/channels", {
+				method: "PATCH",
+				headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
+				body: JSON.stringify(build)
+			})
+		}
+	}
+	loadChannel(id) {
+		this.owner.channelfocus = id
+		this.channelids[id].getHTML()
+	}
+	sortchannels() {
+		this.headchannels.sort((a, b) => {
+			return a.position - b.position
+		})
+	}
+	unreads(html) {
+		if (html) {
+			this.html = html
+		} else {
+			html = this.html
+		}
+		let read = true
+		for (const thing of this.channels) {
+			if (thing.hasunreads) {
+				console.log(thing)
+				read = false
+				break
+			}
+		}
+		console.log(read)
+		if (!html) return
+
+		if (read) {
+			html.children[0].classList.remove("notiunread")
+		} else {
+			html.children[0].classList.add("notiunread")
+		}
+	}
+	getHTML() {
+		this.sortchannels()
+		this.printServers()
+		console.log("html")
+		const build = document.createElement("div")
+		for (const thing of this.headchannels) {
+			build.appendChild(thing.createguildHTML(this.isAdmin()))
+		}
+		return build
+	}
+	isAdmin() {
+		return this.member.isAdmin()
+	}
+	fillMember(member) {
+		member.guild = this
+		const realroles = []
+		for (const thing of member.roles) {
+			realroles.push(this.getRole(thing))
+		}
+		member.guild = this
+		member.roles = realroles
+		return member
+	}
+	giveMember(member) {
+		this.fillMember(member)
+		this.member = member
+	}
+	getRole(ID) {
+		return this.roleids[ID]
+	}
+	hasRole(r) {
+		console.log(typeof r, (typeof ""))
+		if ((typeof r) !== (typeof "")) {
+			r = r.id
+		}
+		return this.member.hasRole(r)
+	}
+	loadChannel(ID) {
+		if (ID) {
+			this.channelids[ID].getHTML()
+			return
+		}
+		if (this.prevchannel) {
+			console.log(this.prevchannel)
+			this.prevchannel.getHTML()
+			return
+		}
+		for (const thing of this.channels) {
+			if (thing.children.length === 0) {
+				thing.getHTML()
+				return
+			}
+		}
+	}
+	loadGuild() {
+		this.owner.loadGuild(this.id)
+	}
+	updateChannel(json) {
+		this.channelids[json.id].updateChannel(json)
+		this.headchannels = []
+		for (const thing of this.channels) {
+			thing.children = []
+		}
+		for (const thing of this.channels) {
+			if (thing.resolveparent(this)) {
+				this.headchannels.push(thing)
+			}
+		}
+		this.printServers()
+	}
+	createChannelpac(json) {
+		const thischannel = new channel(json, this)
+		this.channelids[json.id] = thischannel
+		this.channels.push(thischannel)
+		thischannel.resolveparent(this)
+		if (!thischannel.parrent) {
+			this.headchannels.push(thischannel)
+		}
+		this.calculateReorder()
+		this.printServers()
+	}
+	delChannel(json) {
+		delete this.channelids[json.id]
+		const build = []
+		for (const thing of this.channels) {
+			if (thing.id === json.id) {
+				if (thing.parrent) {
+					thing.parrent.delChannel(json)
+				}
+			} else {
+				build.push(thing)
+			}
+		}
+		this.channels = build
+	}
+	createChannel(name, type) {
+		fetch("https://spacebar-api.vanillaminigames.net/api/guilds/" + this.id + "/channels", {
+			method: "Post",
+			headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
+			body: JSON.stringify({ name, type })
+		})
+	}
 }

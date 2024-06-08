@@ -1,18 +1,40 @@
-<body>
-<head>
-<link href="/style.css" rel="stylesheet" type="text/css" />
-</head>
-<div id="logindiv">
-<h1>Login</h1><br>
-<form id="form" submit="check(e)">
-    <label for="uname"><b>Username:</b></label><br>
-    <input type="text" placeholder="Enter Username" name="uname" required><br><br>
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <label for="psw"><b>Password:</b></label><br>
-    <input type="password" placeholder="Enter Password" name="psw" required><br><br><br><br>
-    <p class="wrongred" id="wrong"></p>
-    <button type="submit">Login</button>
-</form>
-</div>
-<script src="/login.js"></script>
-</body>
+		<meta name="description" content="A SpaceBar Client written in JS, HTML and CSS.">
+		<title>Login - Jank Client - Spacebar</title>
+
+		<link href="/style.css" rel="stylesheet">
+	</head>
+	<body>
+		<div id="logindiv">
+			<h1>Login</h1>
+			<br>
+			<form id="form" submit="check(e)">
+				<label for="uname">
+					<b>Username:</b>
+				</label>
+				<br>
+				<input type="text" placeholder="Enter Username" name="uname" required>
+				<br>
+				<br>
+
+				<label for="psw">
+					<b>Password:</b>
+				</label>
+				<br>
+				<input type="password" placeholder="Enter Password" name="psw" required>
+				<br>
+				<br>
+				<br>
+				<br>
+				<p class="wrongred" id="wrong"></p>
+				<button type="submit">Login</button>
+			</form>
+		</div>
+		<script src="/login.js"></script>
+	</body>
+</html>
