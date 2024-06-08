@@ -15,7 +15,7 @@ async function login(username, password){
             "Content-type": "application/json; charset=UTF-8",
         }}
     try{
-        return await fetch('https://api.old.server.spacebar.chat/api/auth/login',options).then(responce=>responce.json())
+        return await fetch('https://spacebar-api.vanillaminigames.net/api/auth/login',options).then(responce=>responce.json())
         .then((response) => {
             console.log(response,response.message)
             if("Invalid Form Body"===response.message){

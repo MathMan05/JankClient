@@ -189,7 +189,7 @@ class channel{
         if(!this.hasunreads){
             return;
         }
-        fetch("https://old.server.spacebar.chat/api/v9/channels/"+this.id+"/messages/"+this.lastmessageid+"/ack",{
+        fetch("https://spacebar-api.vanillaminigames.net/api/v9/channels/"+this.id+"/messages/"+this.lastmessageid+"/ack",{
             method:"POST",
             headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
             body:JSON.stringify({})
@@ -259,7 +259,7 @@ class channel{
         return div;
     }
     createChannel(name,type){
-        fetch("https://api.old.server.spacebar.chat/api/guilds/"+this.owner.id+"/channels",{
+        fetch("https://spacebar-api.vanillaminigames.net/api/guilds/"+this.owner.id+"/channels",{
             method:"Post",
             headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
             body:JSON.stringify({
@@ -283,7 +283,7 @@ class channel{
                 ["mdbox","Channel topic:",this.topic,function(){topic=this.value}],
                 ["checkbox","NSFW Channel",this.nsfw,function(){nsfw=this.checked}],
                 ["button","","submit",function(){
-                    fetch("https://api.old.server.spacebar.chat/api/v9/channels/"+thisid,{
+                    fetch("https://spacebar-api.vanillaminigames.net/api/v9/channels/"+thisid,{
                         method:"PATCH",
                         headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
                         body:JSON.stringify({
@@ -307,7 +307,7 @@ class channel{
         console.log(full)
     }
     deleteChannel(){
-        fetch("https://api.old.server.spacebar.chat/api/v9/channels/"+this.id,{
+        fetch("https://spacebar-api.vanillaminigames.net/api/v9/channels/"+this.id,{
             method:"DELETE",
             headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token}
         })
@@ -321,7 +321,7 @@ class channel{
     }
     putmessages(){
         const out=this;
-        fetch("https://api.old.server.spacebar.chat/api/channels/"+this.id+"/messages?limit=100",{
+        fetch("https://spacebar-api.vanillaminigames.net/api/channels/"+this.id+"/messages?limit=100",{
         method: 'GET',
         headers: {Authorization:token},
         }).then((j)=>{return j.json()}).then(function(responce){
@@ -353,7 +353,7 @@ class channel{
         }
         const out=this;
 
-        await fetch("https://api.old.server.spacebar.chat/api/channels/"+this.id+"/messages?before="+this.messages[this.messages.length-1].id+"&limit=100",{
+        await fetch("https://spacebar-api.vanillaminigames.net/api/channels/"+this.id+"/messages?before="+this.messages[this.messages.length-1].id+"&limit=100",{
             method:"GET",
             headers:{Authorization:token}
         }).then((j)=>{return j.json()}).then(function(responce){
@@ -419,7 +419,7 @@ class channel{
             return;
         }
         this.typing=new Date().getTime()+6000;
-        fetch("https://api.old.server.spacebar.chat/api/channels/"+this.id+"/typing",{
+        fetch("https://spacebar-api.vanillaminigames.net/api/channels/"+this.id+"/typing",{
             method:"POST",
             headers:{Authorization:token}
         })

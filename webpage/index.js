@@ -199,7 +199,7 @@ function makemenu(divmessage,x,y){
 
     const dmbutton=createbutton("Message user",null,function(){
         console.log(this)
-        fetch("https://old.server.spacebar.chat/api/v9/users/@me/channels",
+        fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/@me/channels",
               {method:"POST",
                   body:JSON.stringify({"recipients":[this.all.author.id]}),
                   headers: {"Content-type": "application/json; charset=UTF-8",Authorization:token}
@@ -305,7 +305,7 @@ async function enter(event){
     if(event.key === "Enter"&&!event.shiftKey){
         event.preventDefault();
     if(editing){
-        fetch("https://api.old.server.spacebar.chat/api/channels/"+window.location.pathname.split("/")[3]+"/messages/"+editing,{
+        fetch("https://spacebar-api.vanillaminigames.net/api/channels/"+window.location.pathname.split("/")[3]+"/messages/"+editing,{
             method: "PATCH",
             headers: {
                 "Content-type": "application/json; charset=UTF-8",
@@ -339,7 +339,7 @@ async function enter(event){
                 body.message_reference=replyjson;
             }
             console.log(body)
-            fetch("https://api.old.server.spacebar.chat/api/channels/"+window.location.pathname.split("/")[3]+"/messages",{
+            fetch("https://spacebar-api.vanillaminigames.net/api/channels/"+window.location.pathname.split("/")[3]+"/messages",{
                 method:"POST",
                 headers:{
                     "Content-type": "application/json; charset=UTF-8",
@@ -368,7 +368,7 @@ async function enter(event){
             }
             const data=formData.entries()
             console.log(data.next(),data.next(),data.next())
-            console.log((await fetch("https://api.old.server.spacebar.chat/api/channels/"+window.location.pathname.split("/")[3]+"/messages", {
+            console.log((await fetch("https://spacebar-api.vanillaminigames.net/api/channels/"+window.location.pathname.split("/")[3]+"/messages", {
                 method: 'POST',
                 body: formData,
                 headers:{
@@ -394,7 +394,7 @@ let thisuser=null;
 
 
 function initwebsocket(){
-    ws = new WebSocket('wss://gateway.old.server.spacebar.chat/?v=9&encoding=json');
+    ws = new WebSocket('wss://spacebar-api.vanillaminigames.net/?v=9&encoding=json');
 
     ws.addEventListener('open', (event) => {
     console.log('WebSocket connected');

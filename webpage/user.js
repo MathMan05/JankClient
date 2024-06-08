@@ -28,7 +28,7 @@ class user{
         }else{
             const tempy=new Promise((resolve, reject) => {
                 usercache[this.id+"+"+guild.id]={done:false};
-                fetch("https://old.server.spacebar.chat/api/v9/users/"+this.id+"/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id="+guild.id).then(json).then(str=>{
+                fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/"+this.id+"/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id="+guild.id).then(json).then(str=>{
                     return new member(str);
                 });
             });
@@ -62,9 +62,9 @@ class user{
             return this.avatar;
         }
         if(this.avatar!=null){
-            return "https://cdn.old.server.spacebar.chat/avatars/"+this.id+"/"+this.avatar+".png";
+            return "https://spacebar-api.vanillaminigames.net/avatars/"+this.id+"/"+this.avatar+".png";
         }else{
-            return "https://cdn.old.server.spacebar.chat/embed/avatars/3.png";
+            return "https://spacebar-api.vanillaminigames.net/embed/avatars/3.png";
         }
     }
     createjankpromises(){

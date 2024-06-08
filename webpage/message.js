@@ -36,7 +36,7 @@ class cmessage{
             line2.classList.add("reply");
             line.classList.add("startreply");
             replyline.classList.add("replyflex")
-            fetch("https://old.server.spacebar.chat/api/v9/channels/"+this.message_reference.channel_id+"/messages?limit=1&around="+this.message_reference.message_id,{headers:{Authorization:token}}).then(responce=>responce.json()).then(responce=>{
+            fetch("https://spacebar-api.vanillaminigames.net/api/v9/channels/"+this.message_reference.channel_id+"/messages?limit=1&around="+this.message_reference.message_id,{headers:{Authorization:token}}).then(responce=>responce.json()).then(responce=>{
                 const author=new user(responce[0].author);
 
                 reply.appendChild(markdown(responce[0].content));
@@ -107,7 +107,7 @@ class cmessage{
                 const attatch = document.createElement("tr")
                 for(const thing of this.attachments){
                     const array=thing.url.split("/");array.shift();array.shift();array.shift();
-                    const src="https://cdn.old.server.spacebar.chat/"+array.join("/");
+                    const src="https://spacebar-api.vanillaminigames.net/"+array.join("/");
                     if(thing.content_type.startsWith('image/')){
                         const img=document.createElement("img");
                         img.classList.add("messageimg")
