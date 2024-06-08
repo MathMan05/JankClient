@@ -632,9 +632,10 @@ function genusersettings(){
                     thisuser.updatebio(newbio);
                 }
             }],
-            ["select","Theme:",["Dark","Light"],e=>{
-                localStorage.setItem("theme",["Dark","Light"][e.target.selectedIndex]);
-            },["Dark","Light"].indexOf(localStorage.getItem("theme"))]
+            ["select","Theme:",["Dark","Light","WHITE"],e=>{
+                localStorage.setItem("theme",["Dark","Light","WHITE"][e.target.selectedIndex]);
+                setTheme();
+            },["Dark","Light","WHITE"].indexOf(localStorage.getItem("theme"))]
         ],
         ["vdiv",
             ["html",hypothetcialprofie]
@@ -646,6 +647,11 @@ function genusersettings(){
         newprouns=null;
         newbio=null;
     })
+}
+setTheme();
+function setTheme(){
+    const name=localStorage.getItem("theme");
+    document.body.className=name+"-theme";
 }
 function userSettings(){
     usersettings.show();
