@@ -1,7 +1,7 @@
 function getCookie(name) {
 	const value = `; ${document.cookie}`
 	const parts = value.split(`; ${name}=`)
-	if (parts.length === 2) return parts.pop().split(";").shift()
+	if (parts.length == 2) return parts.pop().split(";").shift()
 }
 async function login(username, password) {
 	const options = {
@@ -19,7 +19,7 @@ async function login(username, password) {
 		return await fetch("https://spacebar-api.vanillaminigames.net/api/auth/login", options).then(response => response.json())
 			.then(response => {
 				console.log(response, response.message)
-				if (response.message === "Invalid Form Body") {
+				if (response.message == "Invalid Form Body") {
 					return response.errors.login._errors[0].message
 				}
 				document.cookie = "token=" + response.token + "; expires=" + new Date(Date.now() + (6.048e+8 * 2))
@@ -32,16 +32,14 @@ async function login(username, password) {
 }
 function gettoken() {
 	const temp = getCookie("token")
-	if (temp === void 0) {
-		window.location.href = "/login.html"
-	}
+	if (temp === void 0) location.href = "/login.html"
 	return temp
 }
 
 async function check(e) {
 	e.preventDefault()
 	const h = await login(e.srcElement[0].value, e.srcElement[1].value)
-	document.getElementById("wrong").innerText = h
+	document.getElementById("wrong").textContent = h
 	console.log(h)
 }
 if (document.getElementById("form")) {

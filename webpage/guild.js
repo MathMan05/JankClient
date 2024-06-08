@@ -1,8 +1,7 @@
 class guild {
 	constructor(json, owner) {
-		if (json === -1) {
-			return
-		}
+		if (json == -1) return
+
 		console.log(json)
 		this.owner = owner
 		this.owner ??= thisuser
@@ -38,7 +37,6 @@ class guild {
 				build += ("   " + thingy.name + ":" + thingy.position) + "\n"
 			}
 		}
-		console.log(build)
 	}
 	calculateReorder() {
 		let position = -1
@@ -50,8 +48,7 @@ class guild {
 				thing.position = thisthing.position
 			}
 			position = thing.position
-			console.log(position)
-			if (thing.move_id && thing.move_id !== thing.parent_id) {
+			if (thing.move_id && thing.move_id != thing.parent_id) {
 				thing.parent_id = thing.move_id
 				thisthing.parent_id = thing.parent_id
 				thing.move_id = void 0
@@ -69,9 +66,7 @@ class guild {
 		}
 		console.log(build)
 		this.printServers()
-		if (build.length === 0) {
-			return
-		}
+		if (build.length == 0) return
 
 		const serverbug = false
 		if (serverbug) {
@@ -101,11 +96,9 @@ class guild {
 		})
 	}
 	unreads(html) {
-		if (html) {
-			this.html = html
-		} else {
-			html = this.html
-		}
+		if (html) this.html = html
+		else html = this.html
+
 		let read = true
 		for (const thing of this.channels) {
 			if (thing.hasunreads) {
@@ -114,14 +107,10 @@ class guild {
 				break
 			}
 		}
-		console.log(read)
 		if (!html) return
 
-		if (read) {
-			html.children[0].classList.remove("notiunread")
-		} else {
-			html.children[0].classList.add("notiunread")
-		}
+		if (read) html.children[0].classList.remove("notiunread")
+		else html.children[0].classList.add("notiunread")
 	}
 	getHTML() {
 		this.sortchannels()
@@ -154,10 +143,7 @@ class guild {
 		return this.roleids[ID]
 	}
 	hasRole(r) {
-		console.log(typeof r, (typeof ""))
-		if ((typeof r) !== (typeof "")) {
-			r = r.id
-		}
+		if (typeof r != "string") r = r.id
 		return this.member.hasRole(r)
 	}
 	loadChannel(ID) {
@@ -171,7 +157,7 @@ class guild {
 			return
 		}
 		for (const thing of this.channels) {
-			if (thing.children.length === 0) {
+			if (thing.children.length == 0) {
 				thing.getHTML()
 				return
 			}
@@ -198,7 +184,7 @@ class guild {
 		this.channelids[json.id] = thischannel
 		this.channels.push(thischannel)
 		thischannel.resolveparent(this)
-		if (!thischannel.parrent) {
+		if (!thischannel.parent) {
 			this.headchannels.push(thischannel)
 		}
 		this.calculateReorder()
@@ -208,13 +194,9 @@ class guild {
 		delete this.channelids[json.id]
 		const build = []
 		for (const thing of this.channels) {
-			if (thing.id === json.id) {
-				if (thing.parrent) {
-					thing.parrent.delChannel(json)
-				}
-			} else {
-				build.push(thing)
-			}
+			if (thing.id == json.id) {
+				if (thing.parent) thing.parent.delChannel(json)
+			} else build.push(thing)
 		}
 		this.channels = build
 	}

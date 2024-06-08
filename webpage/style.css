@@ -1,3 +1,48 @@
+/* Adobe acumin-pro:
+- http://typekit.com/eulas/00000000000000003b9acafc
+- http://typekit.com/eulas/00000000000000003b9acafd
+- http://typekit.com/eulas/00000000000000003b9acaf7
+- http://typekit.com/eulas/00000000000000003b9acaf6
+*/
+@font-face {
+	font-family: "acumin-pro";
+	src: url("./font/bold.woff2") format("woff2"), url("./font/bold.woff") format("woff"), url("./font/bold.ttf") format("opentype");
+	font-display: fallback;
+	font-style: normal;
+	font-weight: 700;
+}
+@font-face {
+	font-family: "acumin-pro";
+	src: url("./font/italic-bold.woff2") format("woff2"), url("./font/italic-bold.woff") format("woff"), url("./font/italic-bold.ttf") format("opentype");
+	font-display: fallback;
+	font-style: italic;
+	font-weight: 700;
+}
+@font-face {
+	font-family: "acumin-pro";
+	src: url("./font/italic.woff2") format("woff2"), url("./font/italic.woff") format("woff"), url("./font/italic.ttf") format("opentype");
+	font-display: fallback;
+	font-style: italic;
+	font-weight: 400;
+}
+@font-face {
+	font-family: "acumin-pro";
+	src: url("./font/regular.woff2") format("woff2"), url("./font/regular.woff") format("woff"), url("./font/regular.ttf") format("opentype");
+	font-display: fallback;
+	font-style: normal;
+	font-weight: 400;
+}
+
+body {
+	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 400;
+	background: rgb(40, 40, 50);
+	color: white;
+	overflow-y: hidden;
+	margin: 0;
+	padding: 0;
+}
+
 .imgfit {
 	max-width: 80vw;
 	max-height: 80vh;
@@ -19,6 +64,11 @@
 	border-style: solid;
 	border-radius: .1in;
 	border-color: #1c1b31;
+}
+
+th {
+	font-weight: 400;
+	padding: 0;
 }
 
 .background {
@@ -72,7 +122,7 @@ samp {
 	border-radius: 10%;
 	padding: .2cm;
 	width: 7cm;
-	height: 8cm
+	height: 8cm;
 }
 
 .hypoprofile {
@@ -81,12 +131,12 @@ samp {
 	border-radius: 10%;
 	padding: .2cm;
 	width: 7cm;
-	height: 8cm
+	height: 8cm;
 }
 
 h2,
 h3 {
-	margin: 0
+	margin: 0;
 }
 
 h2 {
@@ -105,7 +155,6 @@ h2 {
 	transition: border-radius .2s;
 	position: relative;
 }
-
 .servericon:hover {
 	border-radius: 30%;
 }
@@ -147,27 +196,12 @@ h2 {
 	user-select: none;
 }
 
-body {
-	background: rgb(40, 40, 50);
-	color: white;
-	overflow-y: hidden;
-}
-
 img {
 	vertical-align: middle;
 	max-width: 3in;
 	max-height: 3in;
 	width: auto;
 	height: auto;
-}
-
-table {
-	/* border-collapse: collapse; */
-}
-
-body {
-	margin: 0;
-	padding: 0;
 }
 
 #page {
@@ -187,6 +221,10 @@ body {
 .commentrow {
 	width: 100%;
 	word-wrap: break-word;
+}
+
+.commentrow tr {
+	text-align: start;
 }
 
 #messagecontainer {
@@ -235,7 +273,6 @@ p {
 	margin-right: .02in;
 	font-size: .15in;
 	display: inline-block;
-
 }
 
 #channels p2 {
@@ -254,6 +291,9 @@ div {
 }
 
 #typebox {
+	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 16px;
+	padding: 3px;
 	border-radius: .25cm;
 	width: 100%;
 	height: .5in;

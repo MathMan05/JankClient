@@ -6,14 +6,14 @@ class group extends channel {
 		console.log(json.recipients, json)
 		this.name = json.recipients[0]?.username
 		if (json.recipients[0]) {
-			this.user = new user(json.recipients[0])
+			this.user = user.checkuser(json.recipients[0])
 		} else {
 			this.user = this.owner.owner.user
 		}
 		this.name ??= owner.owner.user.username
 		this.id = json.id
 		this.parent_id = null
-		this.parrent = null
+		this.parent = null
 		this.children = []
 		this.guild_id = "@me"
 		this.messageids = {}
@@ -26,7 +26,7 @@ class group extends channel {
 		const div = document.createElement("div")
 		div.classList.add("channeleffects")
 		const myhtml = document.createElement("span")
-		myhtml.innerText = this.name
+		myhtml.textContent = this.name
 		div.appendChild(this.user.buildpfp())
 		div.appendChild(myhtml)
 		div.myinfo = this
@@ -40,14 +40,13 @@ class group extends channel {
 		this.owner.owner.channelfocus = this.id
 		this.putmessages()
 		history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.id)
-		document.getElementById("channelname").innerText = "@" + this.name
+		document.getElementById("channelname").textContent = "@" + this.name
 	}
 	messageCreate(messagep, focus) {
 		const messagez = new cmessage(messagep.d)
 		this.lastmessageid = messagez.id
-		if (messagez.author === thisuser.user) {
-			this.lastreadmessageid = messagez.id
-		}
+		if (messagez.author === thisuser.user) this.lastreadmessageid = messagez.id
+
 		this.messages.unshift(messagez)
 		const scrolly = document.getElementById("messagecontainer")
 		this.messageids[messagez.id] = messagez
@@ -86,14 +85,14 @@ class group extends channel {
 		console.log(current, this.hasunreads)
 		if (this.hasunreads) {
 			if (current) {
-				current.noti.innerText = this.mentions
+				current.noti.textContent = this.mentions
 				return
 			}
 			const div = document.createElement("div")
 			div.classList.add("servernoti")
 			const noti = document.createElement("div")
 			noti.classList.add("unread", "notiunread", "pinged")
-			noti.innerText = this.mentions
+			noti.textContent = this.mentions
 			console.log(this.mentions)
 			div.noti = noti
 			div.append(noti)

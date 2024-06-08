@@ -3,7 +3,7 @@ class localuser {
 		this.ready = ready
 		this.guilds = []
 		this.guildids = {}
-		this.user = new user(ready.d.user)
+		this.user = user.checkuser(ready.d.user)
 		this.status = this.ready.d.user_settings.status
 		this.channelfocus = null
 		this.lookingguild = null
@@ -25,7 +25,7 @@ class localuser {
 		for (const thing of ready.d.read_state.entries) {
 			console.log(thing)
 			const guild = this.resolveGuildidFromChannelID(thing.id)
-			if (guild === void 0) {
+			if (guild == void 0) {
 				continue
 			}
 			const guildid = guild.id
@@ -40,27 +40,27 @@ class localuser {
 	}
 	updateChannel(json) {
 		this.guildids[json.guild_id].updateChannel(json)
-		if (json.guild_id === this.lookingguild.id) {
+		if (json.guild_id == this.lookingguild.id) {
 			this.loadGuild(json.guild_id)
 		}
 	}
 	createChannel(json) {
 		json.guild_id ??= "@me"
 		this.guildids[json.guild_id].createChannelpac(json)
-		if (json.guild_id === this.lookingguild.id) {
+		if (json.guild_id == this.lookingguild.id) {
 			this.loadGuild(json.guild_id)
 		}
 	}
 	delChannel(json) {
 		json.guild_id ??= "@me"
 		this.guildids[json.guild_id].delChannel(json)
-		if (json.guild_id === this.lookingguild.id) {
+		if (json.guild_id == this.lookingguild.id) {
 			this.loadGuild(json.guild_id)
 		}
 	}
 	init() {
 		const location = window.location.href.split("/")
-		if (location[3] === "channels") {
+		if (location[3] == "channels") {
 			const guild = this.loadGuild(location[4])
 			console.log(guild)
 			guild.loadChannel(location[5])
@@ -70,9 +70,9 @@ class localuser {
 		this.buildservers()
 	}
 	loaduser() {
-		document.getElementById("username").innerText = this.user.username
+		document.getElementById("username").textContent = this.user.username
 		document.getElementById("userpfp").src = this.user.getpfpsrc()
-		document.getElementById("status").innerText = this.status
+		document.getElementById("status").textContent = this.status
 	}
 	isAdmin() {
 		return this.lookingguild.isAdmin()
@@ -80,18 +80,17 @@ class localuser {
 	loadGuild(id) {
 		const guild = this.guildids[id]
 		this.lookingguild = guild
-		document.getElementById("serverName").innerText = guild.properties.name
-		//console.log(this.guildids,id)
+		document.getElementById("serverName").textContent = guild.properties.name
 		document.getElementById("channels").innerHTML = ""
 		document.getElementById("channels").appendChild(guild.getHTML())
 		return guild
 	}
 	buildservers() {
-		const serverlist = document.getElementById("servers")//
+		const serverlist = document.getElementById("servers")
 
 		const div = document.createElement("div")
-		div.innerText = "⌂"
-		div.classList.add("Home", "servericon")
+		div.textContent = "⌂"
+		div.classList.add("home", "servericon")
 		div.all = this.guildids["@me"]
 		serverlist.appendChild(div)
 		div.onclick = function() {
@@ -121,10 +120,9 @@ class localuser {
 			if (thing.properties.icon === null) {
 				const div2 = document.createElement("div")
 				let build = ""
-				for (const char of thing.properties.name.split(" ")) {
-					build += char[0]
-				}
-				div2.innerText = build
+				for (const char of thing.properties.name.split(" ")) build += char[0]
+
+				div2.textContent = build
 				div2.classList.add("blankserver", "servericon")
 				divy.appendChild(div2)
 				div2.all = thing
@@ -135,6 +133,7 @@ class localuser {
 			} else {
 				const img = document.createElement("img")
 				img.classList.add("pfp", "servericon")
+				img.crossOrigin = "anonymous"
 				img.src = "https://spacebar-api.vanillaminigames.net/icons/" + thing.properties.id + "/" + thing.properties.icon + ".png"
 				divy.appendChild(img)
 				img.all = thing
@@ -150,35 +149,28 @@ class localuser {
 	}
 	messageCreate(messagep) {
 		messagep.d.guild_id ??= "@me"
-		this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep, this.channelfocus === messagep.d.channel_id)
+		this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep, this.channelfocus == messagep.d.channel_id)
 		this.unreads()
 	}
 	unreads() {
-		console.log(this.guildhtml)
 		for (const thing of this.guilds) {
-			if (thing.id === "@me") {
- continue
-}
+			if (thing.id == "@me") continue
+
 			thing.unreads(this.guildhtml[thing.id])
 		}
 	}
-	typeingStart(typing) {
-		if (this.channelfocus === typing.d.channel_id) {
+	typingStart(typing) {
+		if (this.channelfocus == typing.d.channel_id) {
 			const memb = typing.d.member
 			let name
-			if (memb.id === this.user.id) {
-				console.log("you is typing")
-				return
-			}
-			console.log("user is typing and you should see it")
-			if (memb.nick) {
-				name = memb.nick
-			} else {
-				name = memb.user.username
-			}
+			if (memb.id == this.user.id) return
+
+			if (memb.nick) name = memb.nick
+			else name = memb.user.username
+
 			let already = false
 			for (const thing of this.typing) {
-				if (thing[0] === name) {
+				if (thing[0] == name) {
 					thing[1] = Date.now()
 					already = true
 					break
@@ -234,32 +226,22 @@ class localuser {
 	}
 	rendertyping() {
 		const typingtext = document.getElementById("typing")
-		let build = ""
-		//const array2 = []
+		const typingUsers = []
 		let showing = false
 		let i = 0
 		for (const thing of this.typing) {
 			i++
 			if (thing[1] > Date.now() - 5000) {
-				build += thing[0]
-				//array2.push(thing)
+				typingUsers.push(thing[1])
 				showing = true
-				if (i !== this.typing.length) {
-					build += ","
-				}
 			}
 		}
-		if (i > 1) {
-			build += " are typing"
-		} else {
-			build += " is typing"
-		}
-		console.log(typingtext.classList)
+
 		if (showing) {
 			typingtext.classList.remove("hidden")
-			document.getElementById("typingtext").innerText = build
-		} else {
-			typingtext.classList.add("hidden")
-		}
+			document.getElementById("typingtext").textContent = typingUsers.length > 1
+				? typingUsers.slice(-1).join(", ") + " and " + typingUsers.at(-1) + " are typing"
+				: typingUsers[0] + " is typing"
+		} else typingtext.classList.add("hidden")
 	}
 }

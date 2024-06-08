@@ -2,64 +2,51 @@ const usercache = {}
 class user {
 	static userids = {}
 	static checkuser(userjson) {
-		if (user.userids[userjson.id]) {
-			return user.userids[userjson.id]
-		} else {
-			const tempuser = new user(userjson, true)
-			user.userids[userjson.id] = tempuser
-			return tempuser
-		}
+		if (user.userids[userjson.id]) return user.userids[userjson.id]
+
+		const tempuser = new user(userjson)
+		user.userids[userjson.id] = tempuser
+		return tempuser
 	}
-	constructor(userjson, dontclone = false) {
-		if (dontclone) {
-			console.log("new user")
-			for (const thing of Object.keys(userjson)) {
-				this[thing] = userjson[thing]
-			}
-			this.hypotheticalpfp = false
-		} else {
-			return user.checkuser(userjson)
+	constructor(userjson) {
+		console.log("new user")
+		for (const thing of Object.keys(userjson)) {
+			this[thing] = userjson[thing]
 		}
+		this.hypotheticalpfp = false
 	}
 	async resolvemember(guild) {
-		if (usercache[this.id + "+" + guild.id]) {
-			return usercache[this.id + "+" + guild.id]
-		} else {
-			const tempy = new Promise((resolve, reject) => {
-				usercache[this.id + "+" + guild.id] = { done: false }
-				fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id=" + guild.id)
-					.then(res => res.json()).then(str => {
-						return new member(str)
-					})
-			})
-			usercache[this.id + "+" + guild.id] = tempy
-		}
+		if (usercache[this.id + "+" + guild.id]) return usercache[this.id + "+" + guild.id]
+
+		const tempy = new Promise((resolve, reject) => {
+			usercache[this.id + "+" + guild.id] = { done: false }
+			fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id=" + guild.id)
+				.then(res => res.json()).then(str => {
+					return new member(str)
+				})
+		})
+		usercache[this.id + "+" + guild.id] = tempy
 	}
 	buildpfp() {
 		const pfp = document.createElement("img")
+		pfp.crossOrigin = "anonymous"
 		pfp.src = this.getpfpsrc(this.id, this.avatar)
 		pfp.classList.add("pfp")
 		pfp.classList.add("userid:" + this.id)
 		return pfp
 	}
 	userupdate(json) {
-		if (json.avatar !== this.avatar) {
-			this.changepfp(json.avatar)
-		}
+		if (json.avatar != this.avatar) this.changepfp(json.avatar)
 	}
 	changepfp(update) {
 		this.avatar = update
 		this.hypotheticalpfp = false
 		const src = this.getpfpsrc()
-		console.log(src)
-		for (const thing of document.getElementsByClassName("userid:" + this.id)) {
-			thing.src = src
-		}
+		for (const thing of document.getElementsByClassName("userid:" + this.id)) thing.src = src
 	}
 	getpfpsrc() {
-		if (this.hypotheticalpfp) {
-			return this.avatar
-		}
+		if (this.hypotheticalpfp) return this.avatar
+
 		if (this.avatar === null) {
 			return "https://spacebar-api.vanillaminigames.net/embed/avatars/3.png"
 		} else {

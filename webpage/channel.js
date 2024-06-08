@@ -1,15 +1,14 @@
 class channel {
 	constructor(json, owner) {
-		if (json === -1) {
-			return
-		}
+		if (json == -1) return
+
 		this.type = json.type
 		this.owner = owner
 		this.messages = []
 		this.name = json.name
 		this.id = json.id
 		this.parent_id = json.parent_id
-		this.parrent = null
+		this.parent = null
 		this.children = []
 		this.guild_id = json.guild_id
 		this.messageids = {}
@@ -27,7 +26,7 @@ class channel {
 		this.lastpin = json.last_pin_timestamp
 	}
 	get hasunreads() {
-		return this.lastmessageid !== this.lastreadmessageid && this.type !== 4
+		return this.lastmessageid != this.lastreadmessageid && this.type != 4
 	}
 	get canMessage() {
 		for (const thing of this.permission_overwrites) {
@@ -43,12 +42,10 @@ class channel {
 })
 	}
 	resolveparent(guild) {
-		this.parrent = guild.channelids[this.parent_id]
-		this.parrent ??= null
-		if (this.parrent !== null) {
-			this.parrent.children.push(this)
-		}
-		return this.parrent === null
+		this.parent = guild.channelids[this.parent_id]
+		this.parent ??= null
+		if (this.parent !== null) this.parent.children.push(this)
+		return this.parent === null
 	}
 	calculateReorder() {
 		let position = -1
@@ -60,7 +57,7 @@ class channel {
 				thing.position = thisthing.position
 			}
 			position = thing.position
-			if (thing.move_id && thing.move_id !== thing.parent_id) {
+			if (thing.move_id && thing.move_id != thing.parent_id) {
 				thing.parent_id = thing.move_id
 				thisthing.parent_id = thing.parent_id
 				thing.move_id = void 0
@@ -84,23 +81,23 @@ class channel {
 		div.addEventListener("dragend", () => {
 			channel.dragged = []
 		})
-		if (this.type === 4) {
+		if (this.type == 4) {
 			this.sortchildren()
 			const caps = document.createElement("div")
 
 			const decdiv = document.createElement("div")
 			const decoration = document.createElement("b")
-			decoration.innerText = "▼"
+			decoration.textContent = "▼"
 			decdiv.appendChild(decoration)
 
 			const myhtml = document.createElement("p2")
-			myhtml.innerText = this.name
+			myhtml.textContent = this.name
 			decdiv.appendChild(myhtml)
 			caps.appendChild(decdiv)
 			const childrendiv = document.createElement("div")
 			if (admin) {
 				const addchannel = document.createElement("span")
-				addchannel.innerText = "+"
+				addchannel.textContent = "+"
 				addchannel.classList.add("addchannel")
 				caps.appendChild(addchannel)
 				addchannel.onclick = function() {
@@ -125,12 +122,12 @@ class channel {
 				childrendiv.style.height = childrendiv.scrollHeight + "px"
 			}, 100)
 			decdiv.onclick = function() {
-				if (decoration.innerText === "▼") {//
-					decoration.innerText = "▲"
+				if (decoration.textContent == "▼") {
+					decoration.textContent = "▲"
 					//childrendiv.classList.add("colapsediv");
 					childrendiv.style.height = "0px"
 				} else {
-					decoration.innerText = "▼"
+					decoration.textContent = "▼"
 					//childrendiv.classList.remove("colapsediv")
 					childrendiv.style.height = childrendiv.scrollHeight + "px"
 				}
@@ -138,29 +135,27 @@ class channel {
 			div.appendChild(childrendiv)
 		} else {
 			div.classList.add("Channel")
-			if (this.hasunreads) {
-				div.classList.add("cunread")
-			}
+			if (this.hasunreads) div.classList.add("cunread")
+
 			lacechannel(div)
-			if (admin) {
-				this.coatDropDiv(div)
-			}
+			if (admin) this.coatDropDiv(div)
+
 			div.all = this
 			const myhtml = document.createElement("span")
-			myhtml.innerText = this.name
-			if (this.type === 0) {
+			myhtml.textContent = this.name
+			if (this.type == 0) {
 				const decoration = document.createElement("b")
-				decoration.innerText = "#"
+				decoration.textContent = "#"
 				div.appendChild(decoration)
 				decoration.classList.add("space")
-			} else if (this.type === 2) {//
+			} else if (this.type == 2) {
 				const decoration = document.createElement("b")
-				decoration.innerText = "🕪"
+				decoration.textContent = "🕪"
 				div.appendChild(decoration)
 				decoration.classList.add("spacee")
-			} else if (this.type === 5) {//
+			} else if (this.type == 5) {
 				const decoration = document.createElement("b")
-				decoration.innerText = "📣"
+				decoration.textContent = "📣"
 				div.appendChild(decoration)
 				decoration.classList.add("spacee")
 			} else {
@@ -178,21 +173,17 @@ class channel {
 		const search = document.getElementById("channels").children[0].children
 		if (this.owner !== thisuser.lookingguild) {
 			return null
-		} else if (this.parrent) {
+		} else if (this.parent) {
 			for (const thing of search) {
-				if (thing.all === this.parrent) {
+				if (thing.all === this.parent) {
 					for (const thing2 of thing.children[1].children) {
-						if (thing2.all === this) {
-							return thing2
-						}
+						if (thing2.all === this) return thing2
 					}
 				}
 			}
 		} else {
 			for (const thing of search) {
-				if (thing.all === this) {
-					return thing
-				}
+				if (thing.all === this) return thing
 			}
 		}
 		return null
@@ -228,38 +219,34 @@ class channel {
 			event.preventDefault()
 			if (container) {
 				that.move_id = this.id
-				if (that.parrent) {
-					that.parrent.children.splice(that.parrent.children.indexOf(that), 1)
+				if (that.parent) {
+					that.parent.children.splice(that.parent.children.indexOf(that), 1)
 				}
-				that.parrent = this
+				that.parent = this
 				container.prepend(channel.dragged[1])
 				console.log(this, that)
 				this.children.unshift(that)
 			} else {
 				console.log(this, channel.dragged)
 				that.move_id = this.parent_id
-				if (that.parrent) {
-					that.parrent.children.splice(that.parrent.children.indexOf(that), 1)
+				if (that.parent) {
+					that.parent.children.splice(that.parent.children.indexOf(that), 1)
 				} else {
 					this.owner.headchannels.splice(this.owner.headchannels.indexOf(that), 1)
 				}
-				that.parrent = this.parrent
-				if (that.parrent) {
+				that.parent = this.parent
+				if (that.parent) {
 					const build = []
-					for (let i = 0; i < that.parrent.children.length; i++) {
-						build.push(that.parrent.children[i])
-						if (that.parrent.children[i] === this) {
-							build.push(that)
-						}
+					for (let i = 0; i < that.parent.children.length; i++) {
+						build.push(that.parent.children[i])
+						if (that.parent.children[i] === this) build.push(that)
 					}
-					that.parrent.children = build
+					that.parent.children = build
 				} else {
 					const build = []
 					for (let i = 0; i < this.owner.headchannels.length; i++) {
 						build.push(this.owner.headchannels[i])
-						if (this.owner.headchannels[i] === this) {
-							build.push(that)
-						}
+						if (this.owner.headchannels[i] === this) build.push(that)
 					}
 					this.owner.headchannels = build
 				}
@@ -291,19 +278,22 @@ class channel {
 		const full = new fullscreen(
 			["hdiv",
 				["vdiv",
-					["textbox", "Channel name:", this.name, function() {
-						name = this.value
+					["textbox", "Channel name:", this.name, event => {
+						name = event.target.value
 					}],
-					["mdbox", "Channel topic:", this.topic, function() {
-						topic = this.value
+					["mdbox", "Channel topic:", this.topic, event => {
+						topic = event.target.value
 					}],
-					["checkbox", "NSFW Channel", this.nsfw, function() {
-						nsfw = this.checked
+					["checkbox", "NSFW Channel", this.nsfw, event => {
+						nsfw = event.target.checked
 					}],
 					["button", "", "submit", function() {
 						fetch("https://spacebar-api.vanillaminigames.net/api/v9/channels/" + thisid, {
 							method: "PATCH",
-							headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
+							headers: {
+								"Content-type": "application/json; charset=UTF-8",
+								Authorization: token
+							},
 							body: JSON.stringify({
 								name,
 								type: thistype,
@@ -315,19 +305,20 @@ class channel {
 								rate_limit_per_user: 0
 							})
 						})
-						console.log(full)
 						full.hide()
 					}]
 				]
 
 			])
 		full.show()
-		console.log(full)
 	}
 	deleteChannel() {
 		fetch("https://spacebar-api.vanillaminigames.net/api/v9/channels/" + this.id, {
 			method: "DELETE",
-			headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token }
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				Authorization: token
+			}
 		})
 	}
 	getHTML() {
@@ -335,7 +326,7 @@ class channel {
 		this.owner.owner.channelfocus = this.id
 		this.putmessages()
 		history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.id)
-		document.getElementById("channelname").innerText = "#" + this.name
+		document.getElementById("channelname").textContent = "#" + this.name
 	}
 	putmessages() {
 		const out = this
@@ -366,9 +357,7 @@ class channel {
 		this.children = build
 	}
 	async grabmoremessages() {
-		if (this.messages.length === 0 || this.allthewayup) {
-			return
-		}
+		if (this.messages.length == 0 || this.allthewayup) return
 		const out = this
 
 		await fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + this.id + "/messages?before=" + this.messages.at(-1).id + "&limit=100", {
@@ -378,9 +367,8 @@ class channel {
 			return j.json()
 		}).then(response => {
 			let next
-			if (response.length === 0) {
-				out.allthewayup = true
-			}
+			if (response.length == 0) out.allthewayup = true
+
 			for (const i in response) {
 				let messager
 				if (next) {
@@ -421,7 +409,7 @@ class channel {
 		this.type = json.type
 		this.name = json.name
 		this.parent_id = json.parent_id
-		this.parrent = null
+		this.parent = null
 		this.children = []
 		this.guild_id = json.guild_id
 		this.messageids = {}
@@ -444,13 +432,9 @@ class channel {
 		this.lastmessageid = messagez.id
 		if (messagez.author === thisuser.user) {
 			this.lastreadmessageid = messagez.id
-			if (this.myhtml) {
-				this.myhtml.classList.remove("cunread")
-			}
+			if (this.myhtml) this.myhtml.classList.remove("cunread")
 		} else {
-			if (this.myhtml) {
-				this.myhtml.classList.add("cunread")
-			}
+			if (this.myhtml) this.myhtml.classList.add("cunread")
 		}
 		this.owner.unreads()
 		this.messages.unshift(messagez)

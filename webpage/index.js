@@ -16,12 +16,12 @@ let ws
 initwebsocket()
 let READY
 
-function createbutton(text, img, clickevent = function() {}) {
+function createbutton(text, clickevent = () => {}) {
 	const textb = document.createElement("tr")
 	const intext = document.createElement("button")
 	textb.button = intext
 	intext.classList.add("contextbutton")
-	intext.innerText = text
+	intext.textContent = text
 	textb.appendChild(intext)
 	intext.onclick = clickevent
 	return textb
@@ -60,12 +60,10 @@ function createchannels(fincall) {
 					catagory = { text: 0, voice: 2, announcement: 5, catagory: 4 }[e]
 				}
 			],
-			["textbox", "Name of channel", "", function() {
-				console.log(this)
-				name = this.value
+			["textbox", "Name of channel", "", event => {
+				name = event.target.value
 			}],
-			["button", "", "submit", function() {
-				console.log(name, catagory)
+			["button", "", "submit", () => {
 				fincall(name, catagory)
 				channelselect.hide()
 			}]
@@ -74,17 +72,15 @@ function createchannels(fincall) {
 }
 function createcatagory(fincall) {
 	let name = ""
-	const catagory = 4
+	const category = 4
 	console.log(fincall)
 	const channelselect = new fullscreen(
 		["vdiv",
-			["textbox", "Name of catagory", "", function() {
-				console.log(this)
-				name = this.value
+			["textbox", "Name of catagory", "", event => {
+				name = event.target.value
 			}],
-			["button", "", "submit", function() {
-				console.log(name, catagory)
-				fincall(name, catagory)
+			["button", "", "submit", () => {
+				fincall(name, category)
 				channelselect.hide()
 			}]
 		])
@@ -98,40 +94,33 @@ let editing = false
 let thisuser = null
 
 function makemenuc(divmessage, x, y) {
-	if (currentmenu != "") {
-		currentmenu.remove()
-	}
+	if (currentmenu != "") currentmenu.remove()
+
 	const build = document.createElement("table")
-	if (x !== -1) {
-		build.classList.add("contextmenu")
-	}
+	if (x != -1) build.classList.add("contextmenu")
+
 	console.log(divmessage, divmessage.classList.contains("Channel"))
 	if (divmessage.classList.contains("Channel")) {
-		const channel = this.all
-		const copyidbutton = createbutton("copy channel id", null, function() {
-			console.log(this)
-			navigator.clipboard.writeText(channel.id)
+		const copyidbutton = createbutton("copy channel id", () => {
+			navigator.clipboard.writeText(divmessage.all.id)
 		})
 		copyidbutton.button.all = divmessage.all
 		build.appendChild(copyidbutton)
 
-		const readall = createbutton("Mark as read", null, () => {
-			console.log(channel)
+		const readall = createbutton("Mark as read", () => {
 			channel.readbottom()
 		})
 		readall.button.all = divmessage.all
 		build.appendChild(readall)
 
-
 		if (thisuser.isAdmin()) {
-			const deleteChannel = createbutton("Delete channel", null, () => {
-				console.log(channel)
+			const deleteChannel = createbutton("Delete channel", () => {
 				channel.deleteChannel()
 			})
 			deleteChannel.button.all = divmessage.all
 			build.appendChild(deleteChannel)
 
-			const editchannel = createbutton("edit channel", null, () => {
+			const editchannel = createbutton("edit channel", () => {
 				editchannelf(channel)
 			})
 			editchannel.button.all = divmessage.all
@@ -139,32 +128,31 @@ function makemenuc(divmessage, x, y) {
 		}
 	} else {
 		if (thisuser.isAdmin()) {
-			const createchannel = createbutton("create channel", null, () => {
+			const createchannel = createbutton("create channel", () => {
 				createchannels(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
 			})
 			createchannel.button.all = divmessage.all
 			build.appendChild(createchannel)
 
-			const createcat = createbutton("create catagory", null, () => {
+			const createcat = createbutton("create catagory", () => {
 				createcatagory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
 			})
 			createcat.button.all = divmessage.all
 			build.appendChild(createcat)
-			//createcatagory
 		}
 	}
 
 	if (divmessage.userid == READY.d.user.id) {
-		const editbut = createbutton("edit", null, function() {
-			console.log(this)
-			editing = this.all.id
-			document.getElementById("typebox").value = this.all.content
+		const editbut = createbutton("edit", () => {
+			console.log("Editing", divmessage)
+			editing = divmessage.all.id
+			document.getElementById("typebox").value = divmessage.all.content
 		})
 		editbut.button.all = divmessage.all
 		console.log(editbut)
 		build.appendChild(editbut)
 	}
-	if (x !== -1) {
+	if (x != -1) {
 		build.style.top = y + "px"
 		build.style.left = x + "px"
 	}
@@ -172,59 +160,54 @@ function makemenuc(divmessage, x, y) {
 	currentmenu = build
 }
 function makemenu(divmessage, x, y) {
-	if (currentmenu != "") {
-		currentmenu.remove()
-	}
+	if (currentmenu != "") currentmenu.remove()
 	const build = document.createElement("table")
-	if (x !== -1) {
-		build.classList.add("contextmenu")
-	}
-	const copybutton = createbutton("copy raw text", null, function() {
-		console.log(this)
-		navigator.clipboard.writeText(this.all.content)
+	if (x != -1) build.classList.add("contextmenu")
+
+	const copybutton = createbutton("copy raw text", () => {
+		navigator.clipboard.writeText(divmessage.all.content)
 	})
 	copybutton.button.all = divmessage.all
 	build.appendChild(copybutton)
-	const replybutton = createbutton("reply", null, function() {
-		console.log(this)
-		if (replyingto) {
-			replyingto.classList.remove("replying")
-		}
+
+	const replybutton = createbutton("reply", () => {
+		if (replyingto) replyingto.classList.remove("replying")
 		replyingto = divmessage
 		replyingto.classList.add("replying")
 	})
 	replybutton.button.all = divmessage.all
 	build.appendChild(replybutton)
-	const copyidbutton = createbutton("copy message id", null, function() {
-		console.log(this)
-		navigator.clipboard.writeText(this.all.id)
+
+	const copyidbutton = createbutton("copy message id", () => {
+		navigator.clipboard.writeText(divmessage.all.id)
 	})
 	copyidbutton.button.all = divmessage.all
 	build.appendChild(copyidbutton)
 
-	const dmbutton = createbutton("Message user", null, function() {
-		console.log(this)
-		fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/@me/channels",
-			{
-				method: "POST",
-				body: JSON.stringify({ recipients: [this.all.author.id] }),
-				headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token }
-			})
+	const dmbutton = createbutton("Message user", () => {
+		fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/@me/channels", {
+			method: "POST",
+			body: JSON.stringify({ recipients: [divmessage.all.author.id] }),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				Authorization: token
+			}
+		})
 	})
 	dmbutton.button.all = divmessage.all
 	build.appendChild(dmbutton)
 
 	if (divmessage.userid == READY.d.user.id) {
-		const editbut = createbutton("edit", null, function() {
-			console.log(this)
-			editing = this.all.id
-			document.getElementById("typebox").value = this.all.content
+		const editbut = createbutton("edit", () => {
+			editing = divmessage.all.id
+			document.getElementById("typebox").value = divmessage.all.content
 		})
 		editbut.button.all = divmessage.all
 		console.log(editbut)
 		build.appendChild(editbut)
 	}
-	if (x !== -1) {
+
+	if (x != -1) {
 		build.style.top = y + "px"
 		build.style.left = x + "px"
 	}
@@ -234,9 +217,8 @@ function makemenu(divmessage, x, y) {
 
 const messagelist = []
 function buildprofile(x, y, user, type = "author") {
-	if (currentmenu != "") {
-		currentmenu.remove()
-	}
+	if (currentmenu != "") currentmenu.remove()
+
 	let nickname, username, discriminator, bio, bot, pronouns, id, avatar
 	if (type == "author") {
 		console.log(user)
@@ -252,45 +234,41 @@ function buildprofile(x, y, user, type = "author") {
 	}
 
 	const div = document.createElement("table")
-	if (x === -1) {
-		div.classList.add("hypoprofile")
-	} else {
+	if (x == -1) div.classList.add("hypoprofile")
+	else {
 		div.style.left = x + "px"
 		div.style.top = y + "px"
 		div.classList.add("profile")
 	}
 
-	{
-		const pfp = user.buildpfp()
-		const pfprow = document.createElement("tr")
-		div.appendChild(pfprow)
-		pfprow.appendChild(pfp)
-	}
-	{
-		const userbody = document.createElement("tr")
-		userbody.classList.add("infosection")
-		div.appendChild(userbody)
-		const usernamehtml = document.createElement("h2")
-		usernamehtml.innerText = nickname
-		userbody.appendChild(usernamehtml)
+	const pfp = user.buildpfp()
+	const pfprow = document.createElement("tr")
+	div.appendChild(pfprow)
+	pfprow.appendChild(pfp)
 
-		const discrimatorhtml = document.createElement("h3")
-		discrimatorhtml.classList.add("tag")
-		discrimatorhtml.innerText = username + "#" + discriminator
-		userbody.appendChild(discrimatorhtml)
+	const userbody = document.createElement("tr")
+	userbody.classList.add("infosection")
+	div.appendChild(userbody)
+	const usernamehtml = document.createElement("h2")
+	usernamehtml.textContent = nickname
+	userbody.appendChild(usernamehtml)
 
-		const pronounshtml = document.createElement("p")
-		pronounshtml.innerText = pronouns
-		pronounshtml.classList.add("pronouns")
-		userbody.appendChild(pronounshtml)
+	const discrimatorhtml = document.createElement("h3")
+	discrimatorhtml.classList.add("tag")
+	discrimatorhtml.textContent = username + "#" + discriminator
+	userbody.appendChild(discrimatorhtml)
 
-		const rule = document.createElement("hr")
-		userbody.appendChild(rule)
-		const biohtml = markdown(bio)
-		userbody.appendChild(biohtml)
-	}
-	console.log(div)
-	if (x !== -1) {
+	const pronounshtml = document.createElement("p")
+	pronounshtml.textContent = pronouns
+	pronounshtml.classList.add("pronouns")
+	userbody.appendChild(pronounshtml)
+
+	const rule = document.createElement("hr")
+	userbody.appendChild(rule)
+	const biohtml = markdown(bio)
+	userbody.appendChild(biohtml)
+
+	if (x != -1) {
 		currentmenu = div
 		document.body.appendChild(div)
 	}
@@ -313,7 +291,7 @@ document.getElementById("typebox").onclick = console.log
 async function enter(event) {
 	thisuser.lookingguild.prevchannel.typingstart()
 	const tis = document.getElementById("typebox")
-	if (event.key === "Enter" && !event.shiftKey) {
+	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
 		if (editing) {
 			fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + window.location.pathname.split("/")[3] + "/messages/" + editing, {
@@ -323,15 +301,13 @@ async function enter(event) {
 					Authorization: token
 				},
 				body: JSON.stringify({ content: tis.value })
-
 			})
 			tis.value = ""
 			editing = false
 		} else {
 			let replyjson = false
 			if (replyingto) {
-				replyjson =
-				{
+				replyjson = {
 					guild_id: replyingto.all.guild_id,
 					channel_id: replyingto.all.channel_id,
 					message_id: replyingto.all.id
@@ -345,10 +321,10 @@ async function enter(event) {
 					content: tis.value,
 					nonce: Math.floor(Math.random() * 1000000000)
 				}
-				if (replyjson) {
-					body.message_reference = replyjson
-				}
-				console.log(body)
+				tis.value = ""
+				if (replyjson) body.message_reference = replyjson
+
+				console.log("Sending message:", body)
 				fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + window.location.pathname.split("/")[3] + "/messages", {
 					method: "POST",
 					headers: {
@@ -356,21 +332,15 @@ async function enter(event) {
 						Authorization: token
 					},
 					body: JSON.stringify(body)
-				}).then(
-					out => {
-						console.log(out, "here it is")
-					}
-				)
-				tis.value = ""
+				})
 			} else {
 				const formData = new FormData()
 				const body = {
 					content: tis.value,
 					nonce: Math.floor(Math.random() * 1000000000)
 				}
-				if (replyjson) {
-					body.message_reference = replyjson
-				}
+				if (replyjson) body.message_reference = replyjson
+
 				formData.append("payload_json", JSON.stringify(body))
 				for (const i in images) {
 					console.log(images[i])
@@ -378,14 +348,13 @@ async function enter(event) {
 				}
 				const data = formData.entries()
 				console.log(data.next(), data.next(), data.next())
-				console.log((await fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + window.location.pathname.split("/")[3] + "/messages", {
+				await fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + window.location.pathname.split("/")[3] + "/messages", {
 					method: "POST",
 					body: formData,
 					headers: {
 						Authorization: token
 					}
-				})))
-				//fetch("/sendimagemessage",{body:formData,method:"POST"})
+				})
 
 				while (images.length != 0) {
 					images.pop()
@@ -436,9 +405,7 @@ function initwebsocket() {
 			if (temp.op == 0) {
 				switch (temp.t) {
 					case "MESSAGE_CREATE":
-						if (thisuser) {
-							thisuser.messageCreate(temp)
-						}
+						if (thisuser) thisuser.messageCreate(temp)
 						break
 					case "READY":
 						thisuser = new localuser(temp)
@@ -451,76 +418,60 @@ function initwebsocket() {
 						break
 					case "MESSAGE_UPDATE":
 						if (thisuser && window.location.pathname.split("/")[3] == temp.d.channel_id) {
-								const find = temp.d.id
-								for (const message of messagelist) {
-									if (message.all.id === find) {
-										message.all.content = temp.d.content
-										message.txt.innerHTML = markdown(temp.d.content).innerHTML
-										break
-									}
+							const find = temp.d.id
+							// eslint-disable-next-line sonarjs/no-empty-collection
+							for (const message of messagelist) {
+								if (message.all.id === find) {
+									message.all.content = temp.d.content
+									message.txt.innerHTML = markdown(temp.d.content).innerHTML
+									break
 								}
 							}
+						}
 						break
 					case "TYPING_START":
-						if (thisuser) {
-							thisuser.typeingStart(temp)
-						}
+						if (thisuser) thisuser.typingStart(temp)
 						break
 					case "USER_UPDATE":
 						if (thisuser) {
 							const users = user.userids[temp.d.id]
 							console.log(users, temp.d.id)
 
-							if (users) {
-								users.userupdate(temp.d)
-								console.log("in here")
-							}
+							if (users) users.userupdate(temp.d)
 						}
 						break
 					case "CHANNEL_UPDATE":
-						if (thisuser) {
-							thisuser.updateChannel(temp.d)
-						}
+						if (thisuser) thisuser.updateChannel(temp.d)
 						break
 					case "CHANNEL_CREATE":
-						if (thisuser) {
-							thisuser.createChannel(temp.d)
-						}
+						if (thisuser) thisuser.createChannel(temp.d)
 						break
 					case "CHANNEL_DELETE":
-						if (thisuser) {
-							thisuser.delChannel(temp.d)
-						}
+						if (thisuser) thisuser.delChannel(temp.d)
 						break
 				}
-			} else if (temp.op === 10) {
+			} else if (temp.op == 10) {
 				console.log("heartbeat down")
 				setInterval(() => {
 					ws.send(JSON.stringify({ op: 1, d: packets }))
 				}, temp.d.heartbeat_interval)
 				packets = 1
-			} else if (temp.op != 11) {
-				packets++
-			}
+			} else if (temp.op != 11) packets++
 		} catch (error) {
 			console.error(error)
 		}
 	})
 
 	ws.addEventListener("close", event => {
-		console.log("WebSocket closed")
+		console.log("WebSocket closed with code " + event.code)
 	})
 }
-
-const cchanel = 0
-
 
 function getguildinfo() {
 	const path = window.location.pathname.split("/")
 	const channel = path[3]
 	ws.send(JSON.stringify({ op: 14, d: { guild_id: path[2], channels: { [channel]: [[0, 99]] } } }))
 }
-
 
 function createunknown(fname, fsize, src) {
 	const div = document.createElement("table")
@@ -536,10 +487,10 @@ function createunknown(fname, fsize, src) {
 	if (src) {
 		const a = document.createElement("a")
 		a.href = src
-		a.innerText = fname
+		a.textContent = fname
 		nametd.append(a)
 	} else {
-		nametd.innerText = fname
+		nametd.textContent = fname
 	}
 
 	nametd.classList.add("filename")
@@ -547,7 +498,7 @@ function createunknown(fname, fsize, src) {
 	const sizetr = document.createElement("tr")
 	const size = document.createElement("td")
 	sizetr.append(size)
-	size.innerText = "Size:" + filesizehuman(fsize)
+	size.textContent = "Size:" + filesizehuman(fsize)
 	size.classList.add("filesize")
 	div.appendChild(sizetr)
 	return div
@@ -562,12 +513,12 @@ function createunknownfile(file) {
 function filetohtml(file) {
 	if (file.type.startsWith("image/")) {
 		const img = document.createElement("img")
+		img.crossOrigin = "anonymous"
 		const blob = URL.createObjectURL(file)
 		img.src = blob
 		return img
 	} else {
-		console.log(file.name)
-
+		console.log("Unsupported file " + file.name + " for embedding into message")
 		return createunknownfile(file)
 	}
 }
@@ -576,68 +527,59 @@ document.addEventListener("paste", async e => {
 		e.preventDefault()
 		const html = filetohtml(file)
 		document.getElementById("pasteimage").appendChild(html)
-		//const blob = URL.createObjectURL(file)
 		images.push(file)
 		imageshtml.push(html)
-
-		console.log(file.type)
 	})
 })
+
 let usersettings
 function genusersettings() {
 	const hypothetcialprofie = document.createElement("div")
 	let file = null
 	let newprouns = null
 	let newbio = null
-	let hypouser = new user(thisuser.user, true)
+	let hypouser = new user(thisuser.user)
 	function regen() {
 		hypothetcialprofie.textContent = ""
 		const hypoprofile = buildprofile(-1, -1, hypouser)
 
 		hypothetcialprofie.appendChild(hypoprofile)
-		console.log(hypothetcialprofie, hypoprofile)
 	}
 	regen()
 	usersettings = new fullscreen(
 		["hdiv",
 			["vdiv",
-				["fileupload", "upload pfp:", function(e) {
-					console.log(this.files[0])
-					file = this.files[0]
-					const blob = URL.createObjectURL(this.files[0])
+				["fileupload", "upload pfp:", event => {
+					console.log(event.target.files[0])
+					file = event.target.files[0]
+					const blob = URL.createObjectURL(event.target.files[0])
 					hypouser.avatar = blob
 					hypouser.hypotheticalpfp = true
 					regen()
 				}],
-				["textbox", "Pronouns:", thisuser.user.pronouns, function(e) {
-					console.log(this.value)
-					hypouser.pronouns = this.value
-					newprouns = this.value
+				["textbox", "Pronouns:", thisuser.user.pronouns, event => {
+					console.log(event.target.value)
+					hypouser.pronouns = event.target.value
+					newprouns = event.target.value
 					regen()
 				}],
-				["mdbox", "Bio:", thisuser.user.bio, function(e) {
-					console.log(this.value)
-					hypouser.bio = this.value
-					newbio = this.value
+				["mdbox", "Bio:", thisuser.user.bio, event => {
+					console.log(event.target.value)
+					hypouser.bio = event.target.value
+					newbio = event.target.value
 					regen()
 				}],
-				["button", "update user content:", "submit", function() {
-					if (file !== null) {
-						thisuser.updatepfp(file)
-					}
-					if (newprouns !== null) {
-						thisuser.updatepronouns(newprouns)
-					}
-					if (newbio !== null) {
-						thisuser.updatebio(newbio)
-					}
+				["button", "update user content:", "submit", () => {
+					if (file !== null) thisuser.updatepfp(file)
+					if (newprouns !== null) thisuser.updatepronouns(newprouns)
+					if (newbio !== null) thisuser.updatebio(newbio)
 				}]
 			],
 			["vdiv",
 				["html", hypothetcialprofie]
 			]
 		], _ => {}, (() => {
-			hypouser = new user(thisuser.user)
+			hypouser = user.checkuser(thisuser.user)
 			regen()
 			file = null
 			newprouns = null
@@ -654,9 +596,7 @@ document.getElementById("messagecontainer").addEventListener("scroll", e => {
 		if (!triggered) {
 			thisuser.lookingguild.prevchannel.grabmoremessages().then(() => {
 				triggered = false
-				if (messagecontainer.scrollTop === 0) {
-					messagecontainer.scrollTop = 1
-				}
+				if (messagecontainer.scrollTop == 0) messagecontainer.scrollTop = 1
 			})
 		}
 		triggered = true
@@ -665,22 +605,4 @@ document.getElementById("messagecontainer").addEventListener("scroll", e => {
 			thisuser.lookingguild.prevchannel.readbottom()
 		}
 	}
-	//
 })
-/*
-{
-	const messages=document.getElementById("messages");
-	let height=messages.clientHeight;
-	//
-	const resizeObserver=new ResizeObserver(()=>{
-		console.log(messages.scrollTop,messages.clientHeight-height-messages.scrollHeight);
-		messages.scrollTop-=height-messages.scrollHeight;
-		console.log(messages.scrollTop)
-		//if(shouldsnap){
-		//    document.getElementById("messagecontainer").scrollTop = document.getElementById("messagecontainer").scrollHeight;
-		//}
-		height=messages.scrollHeight;
-	})
-	resizeObserver.observe(messages)
-}
-*/

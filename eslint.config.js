@@ -60,7 +60,7 @@ const rules = {
 	"no-func-assign": 2,
 	"no-import-assign": 2,
 	"no-invalid-regexp": 2,
-	"no-invalid-this": 1,
+	"no-invalid-this": 2,
 	"no-implicit-coercion": [2, {
 		string: false
 	}],
@@ -72,7 +72,7 @@ const rules = {
 	"no-new-object": 2,
 	"no-obj-calls": 2,
 	"no-self-assign": 2,
-	"no-unreachable": 1,
+	"no-unreachable": 2,
 	"no-unreachable-loop": 2,
 	"no-unsafe-finally": 2,
 	"no-useless-computed-key": 2,

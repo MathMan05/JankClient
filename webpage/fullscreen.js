@@ -15,6 +15,7 @@ class fullscreen {
 		switch (array[0]) {
 			case "img": {
 				const img = document.createElement("img")
+				img.crossOrigin = "anonymous"
 				img.src = array[1]
 				if (array[2] != void 0) {
 					if (array[2].length == 2) {
@@ -57,7 +58,7 @@ class fullscreen {
 				div.appendChild(checkbox)
 				const label = document.createElement("span")
 				checkbox.value = array[2]
-				label.innerText = array[1]
+				label.textContent = array[1]
 				div.appendChild(label)
 				checkbox.addEventListener("change", array[3])
 				checkbox.type = "checkbox"
@@ -68,8 +69,8 @@ class fullscreen {
 				const input = document.createElement("button")
 
 				const label = document.createElement("span")
-				input.innerText = array[2]
-				label.innerText = array[1]
+				input.textContent = array[2]
+				label.textContent = array[1]
 				div.appendChild(label)
 				div.appendChild(input)
 				input.addEventListener("click", array[3])
@@ -80,7 +81,7 @@ class fullscreen {
 				const input = document.createElement("textarea")
 				input.value = array[2]
 				const label = document.createElement("span")
-				label.innerText = array[1]
+				label.textContent = array[1]
 				input.addEventListener("input", array[3])
 				div.appendChild(label)
 				div.appendChild(document.createElement("br"))
@@ -93,8 +94,7 @@ class fullscreen {
 				input.value = array[2]
 				input.type = "text"
 				const label = document.createElement("span")
-				label.innerText = array[1]
-				console.log(array[3])
+				label.textContent = array[1]
 				input.addEventListener("input", array[3])
 				div.appendChild(label)
 				div.appendChild(input)
@@ -105,11 +105,10 @@ class fullscreen {
 				const input = document.createElement("input")
 				input.type = "file"
 				const label = document.createElement("span")
-				label.innerText = array[1]
+				label.textContent = array[1]
 				div.appendChild(label)
 				div.appendChild(input)
 				input.addEventListener("change", array[2])
-				console.log(array)
 				return div
 			}
 			case "radio": {
@@ -119,16 +118,13 @@ class fullscreen {
 					let i = -1
 					for (const thing of fieldset.children) {
 						i++
-						if (i === 0) {
-							continue
-						}
-						if (thing.children[0].children[0].checked) {
-							array[3](thing.children[0].children[0].value)
-						}
+						if (i == 0) continue
+
+						if (thing.children[0].children[0].checked) array[3](thing.children[0].children[0].value)
 					}
 				})
 				const legend = document.createElement("legend")
-				legend.innerText = array[1]
+				legend.textContent = array[1]
 				fieldset.appendChild(legend)
 				for (const thing of array[2]) {
 					const div2 = document.createElement("div")
@@ -142,7 +138,7 @@ class fullscreen {
 
 					label.appendChild(input)
 					const span = document.createElement("span")
-					span.innerText = thing
+					span.textContent = thing
 					label.appendChild(span)
 					div2.appendChild(label)
 					fieldset.appendChild(div2)
@@ -154,19 +150,18 @@ class fullscreen {
 				return array[1]
 
 			default:
-				console.error("can't find element:" + array[0], "  full element:" + array)
+				console.error("Can't find element:" + array[0], "  full element:" + array)
 		}
 	}
 	show() {
 		this.onopen()
-		console.log("fullscreen")
 		this.background = document.createElement("div")
 		this.background.classList.add("background")
 		document.body.appendChild(this.background)
 		document.body.appendChild(this.html)
 		this.background.onclick = function() {
- this.hide()
-}.bind(this)
+			this.hide()
+		}.bind(this)
 	}
 	hide() {
 		document.body.removeChild(this.background)
