@@ -73,7 +73,7 @@ app.get("/channels/*", async (req, res) => {
 })
 
 app.get("/font/:font", (req, res) => {
-	res.sendFile(path.join(__dirname, "webpage", "font", req.params.font))
+	res.sendFile(path.join(__dirname, "webpage", "font", req.params.font.replace(/[^a-z0-9.]/gi, "")))
 })
 
 const PORT = process.env.PORT || 25512

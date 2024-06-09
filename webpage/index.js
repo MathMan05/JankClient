@@ -282,18 +282,16 @@ const messagelist = []
 function buildprofile(x, y, user, type = "author") {
 	if (currentmenu != "") currentmenu.remove()
 
-	let nickname, username, discriminator, bio, bot, pronouns, id, avatar
+	let nickname, username, discriminator, bio, bot, pronouns
 	if (type == "author") {
 		console.log(user)
 		username = user.username
 		nickname = user.username
 
 		bio = user.bio
-		id = user.id
 		discriminator = user.discriminator
 		pronouns = user.pronouns
 		bot = user.bot
-		avatar = user.avatar
 	}
 
 	const div = document.createElement("table")
