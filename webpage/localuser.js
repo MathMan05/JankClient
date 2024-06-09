@@ -4,10 +4,13 @@ class localuser {
 		this.guilds = []
 		this.guildids = {}
 		this.user = user.checkuser(ready.d.user)
-		this.settings = this.ready.d.user_settings
 		this.channelfocus = null
 		this.lookingguild = null
 		this.guildhtml = {}
+
+		this.settings = this.ready.d.user_settings
+		localStorage.setItem("theme", this.settings.theme)
+		setTheme(this.settings.theme)
 
 		for (const thing of ready.d.guilds) {
 			const temp = new guild(thing, this)
@@ -54,18 +57,14 @@ class localuser {
 	delChannel(json) {
 		json.guild_id ??= "@me"
 		this.guildids[json.guild_id].delChannel(json)
-		if (json.guild_id == this.lookingguild.id) {
-			this.loadGuild(json.guild_id)
-		}
+		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
 	}
 	init() {
-		const location = window.location.href.split("/")
-		if (location[3] == "channels") {
-			const guild = this.loadGuild(location[4])
-			console.log(guild)
-			guild.loadChannel(location[5])
-			console.log(location[5])
-			this.channelfocus = location[5]
+		const loc = location.href.split("/")
+		if (loc[3] == "channels") {
+			const guild = this.loadGuild(loc[4])
+			guild.loadChannel(loc[5])
+			this.channelfocus = loc[5]
 		}
 		this.buildservers()
 	}
@@ -134,7 +133,7 @@ class localuser {
 				const img = document.createElement("img")
 				img.classList.add("pfp", "servericon")
 				img.crossOrigin = "anonymous"
-				img.src = "https://spacebar-api.vanillaminigames.net/icons/" + thing.properties.id + "/" + thing.properties.icon + ".png"
+				img.src = instance.cdn + "/icons/" + thing.properties.id + "/" + thing.properties.icon + ".png"
 				divy.appendChild(img)
 				img.all = thing
 				img.onclick = function() {
@@ -187,7 +186,7 @@ class localuser {
 		const reader = new FileReader()
 		reader.readAsDataURL(file)
 		reader.onload = function() {
-			fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/@me", {
+			fetch(instance.api + "/users/@me", {
 				method: "PATCH",
 				headers: {
 					"Content-type": "application/json; charset=UTF-8",
@@ -201,7 +200,7 @@ class localuser {
 		}
 	}
 	updatepronouns(pronouns) {
-		fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/@me/profile", {
+		fetch(instance.api + "/users/@me/profile", {
 			method: "PATCH",
 			headers: {
 				"Content-type": "application/json; charset=UTF-8",
@@ -213,7 +212,7 @@ class localuser {
 		})
 	}
 	updatebio(bio) {
-		fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/@me/profile", {
+		fetch(instance.api + "/users/@me/profile", {
 			method: "PATCH",
 			headers: {
 				"Content-type": "application/json; charset=UTF-8",
@@ -225,7 +224,7 @@ class localuser {
 		})
 	}
 	updateSettings(settings = {}) {
-		fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/@me/settings", {
+		fetch(instance.api + "/users/@me/settings", {
 			method: "PATCH",
 			headers: {
 				"Content-type": "application/json; charset=UTF-8",

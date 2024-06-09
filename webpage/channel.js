@@ -187,10 +187,9 @@ class channel {
 		return null
 	}
 	readbottom() {
-		if (!this.hasunreads) {
-			return
-		}
-		fetch("https://spacebar-api.vanillaminigames.net/api/v9/channels/" + this.id + "/messages/" + this.lastmessageid + "/ack", {
+		if (!this.hasunreads) return
+
+		fetch(instance.api + "/channels/" + this.id + "/messages/" + this.lastmessageid + "/ack", {
 			method: "POST",
 			headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
 			body: JSON.stringify({})
@@ -256,7 +255,7 @@ class channel {
 		return div
 	}
 	createChannel(name, type) {
-		fetch("https://spacebar-api.vanillaminigames.net/api/guilds/" + this.owner.id + "/channels", {
+		fetch(instance.api + "/guilds/" + this.owner.id + "/channels", {
 			method: "Post",
 			headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
 			body: JSON.stringify({
@@ -286,7 +285,7 @@ class channel {
 						nsfw = event.target.checked
 					}],
 					["button", "", "submit", function() {
-						fetch("https://spacebar-api.vanillaminigames.net/api/v9/channels/" + thisid, {
+						fetch(instance.api + "/channels/" + thisid, {
 							method: "PATCH",
 							headers: {
 								"Content-type": "application/json; charset=UTF-8",
@@ -311,7 +310,7 @@ class channel {
 		full.show()
 	}
 	deleteChannel() {
-		fetch("https://spacebar-api.vanillaminigames.net/api/v9/channels/" + this.id, {
+		fetch(instance.api + "/channels/" + this.id, {
 			method: "DELETE",
 			headers: {
 				"Content-type": "application/json; charset=UTF-8",
@@ -328,7 +327,7 @@ class channel {
 	}
 	putmessages() {
 		const out = this
-		fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + this.id + "/messages?limit=100", {
+		fetch(instance.api + "/channels/" + this.id + "/messages?limit=100", {
 			method: "GET",
 			headers: { Authorization: token }
 		}).then(j => {
@@ -358,7 +357,7 @@ class channel {
 		if (this.messages.length == 0 || this.allthewayup) return
 		const out = this
 
-		await fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + this.id + "/messages?before=" + this.messages.at(-1).id + "&limit=100", {
+		await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + this.messages.at(-1).id + "&limit=100", {
 			method: "GET",
 			headers: { Authorization: token }
 		}).then(j => {
@@ -420,7 +419,7 @@ class channel {
 			return
 		}
 		this.typing = Date.now() + 6000
-		fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + this.id + "/typing", {
+		fetch(instance.api + "/channels/" + this.id + "/typing", {
 			method: "POST",
 			headers: { Authorization: token }
 		})

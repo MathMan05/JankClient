@@ -1,15 +1,57 @@
-function setDynamicHeight() {
-	const servertdHeight = document.getElementById("servertd").offsetHeight + document.getElementById("typebox").offsetHeight + document.getElementById("pasteimage").offsetHeight
-	document.documentElement.style.setProperty("--servertd-height", servertdHeight + "px")
-}
-const resizeObserver = new ResizeObserver(() => {
-	setDynamicHeight()
-})
-resizeObserver.observe(document.getElementById("servertd"))
-resizeObserver.observe(document.getElementById("typebox"))
-resizeObserver.observe(document.getElementById("pasteimage"))
-setDynamicHeight()
+const instanceParsed = JSON.parse(localStorage.getItem("instanceinfo"))
+let instance = {}
+if (instanceParsed) {
+	instance = {
+		api: new URL(instanceParsed.api).toString(),
+		cdn: new URL(instanceParsed.cdn).toString(),
+		gateway: new URL(instanceParsed.gateway).toString(),
+		wellknown: new URL(instanceParsed.wellknown).toString()
+	}
+	Object.keys(instance).forEach(key => {
+		if (instance[key].endsWith("/")) instance[key] = instance[key].slice(0, -1)
+	})
+	instance.api = instance.api + "/v9"
+	console.log("Set connection endpoints", instance)
+} else console.error("No instance info found in local storage")
 
+const setTheme = theme => {
+	if (theme == "light") {
+		document.body.classList.remove("dark-theme")
+		document.body.classList.add("light-theme")
+	} else {
+		document.body.classList.remove("light-theme")
+		document.body.classList.add("dark-theme")
+	}
+}
+document.addEventListener("DOMContentLoaded", () => {
+	function setDynamicHeight() {
+		const servertdHeight = document.getElementById("servertd").offsetHeight + document.getElementById("typebox").offsetHeight + document.getElementById("pasteimage").offsetHeight
+		document.documentElement.style.setProperty("--servertd-height", servertdHeight + "px")
+	}
+	const resizeObserver = new ResizeObserver(() => {
+		setDynamicHeight()
+	})
+	resizeObserver.observe(document.getElementById("servertd"))
+	resizeObserver.observe(document.getElementById("typebox"))
+	resizeObserver.observe(document.getElementById("pasteimage"))
+	setDynamicHeight()
+
+	setTheme(localStorage.getItem("theme"))
+})
+
+
+let packets = 1
+const serverz = 0
+const serverid = []
+
+let editing = false
+let thisuser = null
+
+function gettoken() {
+	const temp = localStorage.getItem("token")
+	if (!temp) location.href = "/login.html"
+	return temp
+}
 
 const token = gettoken()
 let ws
@@ -27,11 +69,11 @@ function createbutton(text, clickevent = () => {}) {
 	return textb
 }
 
+
 let currentmenu = ""
 document.addEventListener("click", event => {
-	if (currentmenu == "") {
-		return
-	}
+	if (currentmenu == "") return
+
 	if (!currentmenu.contains(event.target)) {
 		currentmenu.remove()
 		currentmenu = ""
@@ -87,9 +129,6 @@ function createcategory(fincall) {
 function editchannel(channel) {
 	channel.editChannel()
 }
-
-let editing = false
-let thisuser = null
 
 function makemenuc(divmessage, x, y) {
 	if (currentmenu != "") currentmenu.remove()
@@ -182,7 +221,7 @@ function makemenu(divmessage, x, y) {
 	build.appendChild(copyidbutton)
 
 	const dmbutton = createbutton("Message user", () => {
-		fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/@me/channels", {
+		fetch(instance.api + "/users/@me/channels", {
 			method: "POST",
 			body: JSON.stringify({ recipients: [divmessage.all.author.id] }),
 			headers: {
@@ -289,7 +328,7 @@ async function enter(event) {
 	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
 		if (editing) {
-			fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + window.location.pathname.split("/")[3] + "/messages/" + editing, {
+			fetch(instance.api + "/channels/" + window.location.pathname.split("/")[3] + "/messages/" + editing, {
 				method: "PATCH",
 				headers: {
 					"Content-type": "application/json; charset=UTF-8",
@@ -320,7 +359,7 @@ async function enter(event) {
 				if (replyjson) body.message_reference = replyjson
 
 				console.log("Sending message:", body)
-				fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + window.location.pathname.split("/")[3] + "/messages", {
+				fetch(instance.api + "/channels/" + window.location.pathname.split("/")[3] + "/messages", {
 					method: "POST",
 					headers: {
 						"Content-type": "application/json; charset=UTF-8",
@@ -343,7 +382,7 @@ async function enter(event) {
 				}
 				const data = formData.entries()
 				console.log(data.next(), data.next(), data.next())
-				await fetch("https://spacebar-api.vanillaminigames.net/api/channels/" + window.location.pathname.split("/")[3] + "/messages", {
+				await fetch(instance.api + "/channels/" + window.location.pathname.split("/")[3] + "/messages", {
 					method: "POST",
 					body: formData,
 					headers: {
@@ -361,15 +400,11 @@ async function enter(event) {
 	}
 }
 
-let packets = 1
-const serverz = 0
-const serverid = []
-
 
 function initwebsocket() {
-	ws = new WebSocket("wss://spacebar-api.vanillaminigames.net/?v=9&encoding=json")
+	ws = new WebSocket(instance.gateway + "/?v=9&encoding=json")
 
-	ws.addEventListener("open", event => {
+	ws.addEventListener("open", () => {
 		console.log("WebSocket connected")
 		ws.send(JSON.stringify({
 			op: 2,
@@ -410,11 +445,6 @@ function initwebsocket() {
 						genusersettings()
 						document.getElementById("loading").classList.add("doneloading")
 						document.getElementById("loading").classList.remove("loading")
-
-						if (temp.d.user_settings.theme == "light") {
-							document.body.classList.remove("dark-theme")
-							document.body.classList.add("light-theme")
-						}
 						break
 					case "MESSAGE_UPDATE":
 						if (thisuser && window.location.pathname.split("/")[3] == temp.d.channel_id) {
@@ -592,14 +622,9 @@ function genusersettings() {
 				if (newbio !== null) thisuser.updatebio(newbio)
 				if (newTheme !== null) {
 					thisuser.updateSettings({theme: newTheme})
+					localStorage.setItem("theme", newTheme)
 
-					if (newTheme == "light") {
-						document.body.classList.remove("dark-theme")
-						document.body.classList.add("light-theme")
-					} else {
-						document.body.classList.remove("light-theme")
-						document.body.classList.add("dark-theme")
-					}
+					setTheme(newTheme)
 				}
 			}]
 		], _ => {}, (() => {

@@ -158,12 +158,12 @@ class fullscreen {
 				const label = document.createElement("label")
 				const select = document.createElement("select")
 
-				label.innerText = array[1]
+				label.textContent = array[1]
 				div.append(label)
 				div.appendChild(select)
 				for (const thing of array[2]) {
 					const option = document.createElement("option")
-					option.innerText = thing
+					option.textContent = thing
 					select.appendChild(option)
 				}
 				select.selectedIndex = array[4]

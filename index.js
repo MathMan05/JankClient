@@ -10,11 +10,18 @@ app.get("/", (req, res) => {
 app.get("/login.html", (req, res) => {
 	res.sendFile(path.join(__dirname, "webpage", "login.html"))
 })
-app.get("/direct.js", (req, res) => {
-	res.sendFile(path.join(__dirname, "webpage", "direct.js"))
-})
 app.get("/login.js", (req, res) => {
 	res.sendFile(path.join(__dirname, "webpage", "login.js"))
+})
+app.get("/register.html", (req, res) => {
+	res.sendFile(path.join(__dirname, "webpage", "register.html"))
+})
+app.get("/register.js", (req, res) => {
+	res.sendFile(path.join(__dirname, "webpage", "register.js"))
+})
+
+app.get("/direct.js", (req, res) => {
+	res.sendFile(path.join(__dirname, "webpage", "direct.js"))
 })
 app.get("/bitmap.svg", (req, res) => {
 	res.sendFile(path.join(__dirname, "webpage", "bitmap.svg"))
@@ -69,5 +76,6 @@ app.get("/font/:font", (req, res) => {
 	res.sendFile(path.join(__dirname, "webpage", "font", req.params.font))
 })
 
-const PORT = process.env.PORT || 25513
+const PORT = process.env.PORT || 25512
 app.listen(PORT)
+console.log("Started Jank Client on port " + PORT + "!")

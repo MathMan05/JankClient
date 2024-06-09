@@ -29,11 +29,13 @@ const global = {
 	createchannels: "writable",
 	thisuser: "writable",
 	guild: "writable",
-	gettoken: "writable",
 	role: "writable",
 	channel: "writable",
 	group: "writable",
-	messagelist: "writable"
+	messagelist: "writable",
+	instance: "writeable",
+	setTheme: "writeable",
+	checkInstance: "writeable"
 }
 
 const rules = {

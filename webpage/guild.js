@@ -72,14 +72,14 @@ class guild {
 		if (serverbug) {
 			for (const thing of build) {
 				console.log(build, thing)
-				fetch("https://spacebar-api.vanillaminigames.net/api/v9/guilds/" + this.id + "/channels", {
+				fetch(instance.api + "/guilds/" + this.id + "/channels", {
 					method: "PATCH",
 					headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
 					body: JSON.stringify([thing])
 				})
 			}
 		} else {
-			fetch("https://spacebar-api.vanillaminigames.net/api/v9/guilds/" + this.id + "/channels", {
+			fetch(instance.api + "/guilds/" + this.id + "/channels", {
 				method: "PATCH",
 				headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
 				body: JSON.stringify(build)
@@ -174,9 +174,7 @@ class guild {
 			thing.children = []
 		}
 		for (const thing of this.channels) {
-			if (thing.resolveparent(this)) {
-				this.headchannels.push(thing)
-			}
+			if (thing.resolveparent(this)) this.headchannels.push(thing)
 		}
 		this.printServers()
 	}
@@ -185,9 +183,8 @@ class guild {
 		this.channelids[json.id] = thischannel
 		this.channels.push(thischannel)
 		thischannel.resolveparent(this)
-		if (!thischannel.parent) {
-			this.headchannels.push(thischannel)
-		}
+		if (!thischannel.parent) this.headchannels.push(thischannel)
+
 		this.calculateReorder()
 		this.printServers()
 	}
@@ -202,9 +199,12 @@ class guild {
 		this.channels = build
 	}
 	createChannel(name, type) {
-		fetch("https://spacebar-api.vanillaminigames.net/api/guilds/" + this.id + "/channels", {
-			method: "Post",
-			headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
+		fetch(instance.api + "/guilds/" + this.id + "/channels", {
+			method: "POST",
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				Authorization: token
+			},
 			body: JSON.stringify({ name, type })
 		})
 	}

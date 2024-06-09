@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<meta name="description" content="A SpaceBar Client written in JS, HTML and CSS.">
+		<title>Register - Jank Client - Spacebar</title>
+
+		<link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+		<link href="/style.css" rel="stylesheet">
+		<link rel="manifest" href="/manifest.json">
+	</head>
+	<body class="dark-theme">
+		<script src="/login.js"></script>
+		<script src="/register.js"></script>
+
+		<div id="logindiv">
+			<h1>Create an account</h1>
+			<br>
+			<form id="register" submit="registertry(e)">
+				<label for="instance">
+					<b>Instance:</b>
+				</label>
+				<br>
+				<p id="verify"></p>
+				<input type="text" placeholder="Instance URL" name="instance" value="https://spacebar.vanillaminigames.net/" id="instancein" required>
+				<br>
+				<br>
+
+				<label for="uname">
+					<b>Email:</b>
+				</label>
+				<br>
+				<input type="text" placeholder="Enter Email" name="email" required>
+				<br>
+				<br>
+
+				<label for="uname">
+					<b>Username:</b>
+				</label>
+				<br>
+				<input type="text" placeholder="Enter Username" name="uname" required autocomplete="new-password">
+				<br>
+				<br>
+
+				<label for="psw">
+					<b>Password:</b>
+				</label>
+				<br>
+				<input type="password" placeholder="Enter Password" name="psw" required>
+				<br>
+				<br>
+
+				<label for="psw2">
+					<b>Enter password again:</b>
+				</label>
+				<br>
+				<input type="password" placeholder="Enter Password Again" name="psw2" required>
+				<br>
+				<br>
+
+				<label for="date">
+					<b>Date of birth:</b>
+				</label>
+				<br>
+				<input type="date" id="start" name="date">
+				<br>
+				<br>
+
+				<b id="TOSbox">
+					I agree to the <a href="" id="TOSa">TOS</a>:
+				</b>
+				<input type="checkbox" id="TOS" name="TOS">
+				<br>
+				<p class="wrongred" id="wrong"></p>
+				<br>
+
+				<button type="submit">Create account</button>
+			</form>
+			<a href="/login.html">Already have an account?</a>
+		</div>
+	</body>
+</html>

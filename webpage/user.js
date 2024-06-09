@@ -9,7 +9,6 @@ class user {
 		return tempuser
 	}
 	constructor(userjson) {
-		console.log("new user")
 		for (const thing of Object.keys(userjson)) {
 			this[thing] = userjson[thing]
 		}
@@ -20,7 +19,7 @@ class user {
 
 		const tempy = new Promise((resolve, reject) => {
 			usercache[this.id + "+" + guild.id] = { done: false }
-			fetch("https://spacebar-api.vanillaminigames.net/api/v9/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id=" + guild.id)
+			fetch(instance.api + "/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id=" + guild.id)
 				.then(res => res.json()).then(str => {
 					return new member(str)
 				})
@@ -47,8 +46,8 @@ class user {
 	getpfpsrc() {
 		if (this.hypotheticalpfp) return this.avatar
 
-		if (this.avatar === null) return "https://spacebar-api.vanillaminigames.net/embed/avatars/3.png"
-		else return "https://spacebar-api.vanillaminigames.net/avatars/" + this.id + "/" + this.avatar + ".png"
+		if (this.avatar === null) return instance.cdn + "/embed/avatars/3.png"
+		else return instance.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png"
 	}
 	createjankpromises() {
 		new Promise(_ => {})

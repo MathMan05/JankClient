@@ -40,7 +40,7 @@ class cmessage {
 			line.classList.add("startreply")
 			replyline.classList.add("replyflex")
 
-			fetch("https://spacebar-api.vanillaminigames.net/api/v9/channels/" + this.message_reference.channel_id + "/messages?limit=1&around=" + this.message_reference.message_id, {
+			fetch(instance.api + "/channels/" + this.message_reference.channel_id + "/messages?limit=1&around=" + this.message_reference.message_id, {
 				headers: {
 					Authorization: token
 				}
@@ -118,7 +118,7 @@ class cmessage {
 					array.shift()
 					array.shift()
 					array.shift()
-					const src = "https://spacebar-api.vanillaminigames.net/" + array.join("/")
+					const src = instance.cdn + "/" + array.join("/")
 					if (thing.content_type.startsWith("image/")) {
 						const img = document.createElement("img")
 						img.classList.add("messageimg")

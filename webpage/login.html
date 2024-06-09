@@ -10,12 +10,24 @@
 		<link rel="icon" href="/favicon.ico" type="image/x-icon">
 
 		<link href="/style.css" rel="stylesheet">
+		<link rel="manifest" href="/manifest.json">
 	</head>
-	<body>
+	<body class="dark-theme">
+		<script src="/login.js"></script>
+
 		<div id="logindiv">
 			<h1>Login</h1>
 			<br>
-			<form id="form" submit="check(e)">
+			<form id="form" submit="check(event)">
+				<label for="instance">
+					<b>Instance:</b>
+				</label>
+				<br>
+				<p id="verify"></p>
+				<input type="text" placeholder="Instance URL" name="instance" value="https://spacebar.vanillaminigames.net/" id="instancein" required>
+				<br>
+				<br>
+
 				<label for="uname">
 					<b>Username:</b>
 				</label>
@@ -28,7 +40,7 @@
 					<b>Password:</b>
 				</label>
 				<br>
-				<input type="password" placeholder="Enter Password" name="psw" required>
+				<input type="password" placeholder="Enter Password" name="psw" required autocomplete="current-password">
 				<br>
 				<br>
 				<br>
@@ -36,7 +48,8 @@
 				<p class="wrongred" id="wrong"></p>
 				<button type="submit">Login</button>
 			</form>
+
+			<a href="/register.html">Don't have an account?</a>
 		</div>
-		<script src="/login.js"></script>
 	</body>
 </html>
