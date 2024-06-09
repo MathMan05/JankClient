@@ -10,40 +10,41 @@ function setTheme(){
     document.body.className=name+"-theme";
 }
 setTheme();
-{
-    const instancein=document.getElementById("instancein");
-    let timeout=0;
-   async function check(e){
-        try{
-            verify.innerText="Checking Instance"
-            instanceinfo=await setInstance(instancein.value)
-            localStorage.setItem("instanceinfo",JSON.stringify(instanceinfo));
-            verify.innerText="Instance is all good"
-            setTimeout(_=>{
-                console.log(verify.innerText)
-                verify.innerText="";
-            },3000);
 
-        }catch(e){
-            console.log("catch")
-            verify.innerText="Invalid Instance, try again"
-        }
-    }
-    if(instancein){
-        console.log(instancein)
-        instancein.addEventListener("keydown",e=>{
-            const verify=document.getElementById("verify");
-            verify.innerText="Waiting to check Instance"
-            clearTimeout(timeout);
-            timeout=setTimeout(check,1000);
-        });
-    }
-    if(localStorage.getItem("instanceinfo")){
-        instancein.value=localStorage.getItem("instanceinfo").wellKnown
-    }else{
-        check("https://spacebar.chat/");
+const instancein=document.getElementById("instancein");
+let timeout=0;
+async function checkInstance(e){
+    try{
+        verify.innerText="Checking Instance"
+        instanceinfo=await setInstance(instancein.value)
+        localStorage.setItem("instanceinfo",JSON.stringify(instanceinfo));
+        verify.innerText="Instance is all good"
+        if(checkInstance.alt){checkInstance.alt();}
+        setTimeout(_=>{
+            console.log(verify.innerText)
+            verify.innerText="";
+        },3000);
+
+    }catch(e){
+        console.log("catch")
+        verify.innerText="Invalid Instance, try again"
     }
 }
+if(instancein){
+    console.log(instancein)
+    instancein.addEventListener("keydown",e=>{
+        const verify=document.getElementById("verify");
+        verify.innerText="Waiting to check Instance"
+        clearTimeout(timeout);
+        timeout=setTimeout(checkInstance,1000);
+    });
+}
+if(localStorage.getItem("instanceinfo")){
+    instancein.value=JSON.parse(localStorage.getItem("instanceinfo")).wellknown
+}else{
+    checkInstance("https://spacebar.chat/");
+}
+
 async function login(username, password){
     const options={
         method: "POST",
