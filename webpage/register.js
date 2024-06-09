@@ -9,6 +9,7 @@ async function registertry(e){
     const username=elements[2].value;
     if(elements[3].value!==elements[4].value){
         document.getElementById("wrong").innerText="Passwords don't match";
+        return;
     }
     const password=elements[3].value;
     const dateofbirth=elements[5].value;
@@ -20,7 +21,7 @@ async function registertry(e){
             email:email,
             username:username,
             password:password,
-            consent:true,
+            consent:elements[5].checked,
         }),
         headers:{
             "content-type": "application/json"
@@ -40,3 +41,20 @@ async function registertry(e){
     //document.getElementById("wrong").innerText=h;
     // console.log(h);
 }
+let TOSa=document.getElementById("TOSa");
+async function tosLogic(){
+    const apiurl=new URL(JSON.parse(localStorage.getItem("instanceinfo")).api)
+    const tosPage=(await (await fetch(apiurl.toString()+"/ping")).json()).instance.tosPage;
+    if(tosPage){
+        document.getElementById("TOSbox").innerHTML="I agree to the <a href=\"\" id=\"TOSa\">TOS</a>:";
+        TOSa=document.getElementById("TOSa");
+        TOSa.href=tosPage;
+    }else{
+        document.getElementById("TOSbox").innerText="This instance has no TOS, accept TOS anyways:";
+        TOSa=null;
+    }
+    console.log(tosPage);
+}
+tosLogic();
+
+checkInstance.alt=tosLogic;
