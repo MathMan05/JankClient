@@ -77,12 +77,9 @@ class group extends channel {
 		const sentdms = document.getElementById("sentdms")
 		let current = null
 		for (const thing of sentdms.children) {
-			console.log(thing.all)
-			if (thing.all === this) {
-				current = thing
-			}
+			if (thing.all === this) current = thing
 		}
-		console.log(current, this.hasunreads)
+
 		if (this.hasunreads) {
 			if (current) {
 				current.noti.textContent = this.mentions
@@ -93,7 +90,7 @@ class group extends channel {
 			const noti = document.createElement("div")
 			noti.classList.add("unread", "notiunread", "pinged")
 			noti.textContent = this.mentions
-			console.log(this.mentions)
+
 			div.noti = noti
 			div.append(noti)
 			const buildpfp = this.user.buildpfp()
@@ -106,12 +103,7 @@ class group extends channel {
 				this.all.owner.loadGuild()
 				this.all.getHTML()
 			}
-		} else if (current) {
-			console.log("remove")
-			current.remove()
-		} else {
-			console.log(sentdms.children)
-		}
+		} else if (current) current.remove()
 	}
 }
 

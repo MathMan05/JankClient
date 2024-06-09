@@ -11,7 +11,7 @@ async function login(username, password) {
 		})
 	}
 	try {
-		const info = JSON.parse(localStorage.getItem("instanceinfo"))
+		const info = JSON.parse(localStorage.getItem("instanceEndpoints"))
 		const url = new URL(info.login)
 		return await fetch(url.origin + "/api/auth/login", options).then(response => response.json())
 			.then(response => {
@@ -58,28 +58,30 @@ async function check(event) {
 	document.getElementById("wrong").textContent = h
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-	document.getElementById("form").addEventListener("submit", check)
+let instancein
+let verify
+async function checkInstance() {
+	try {
+		verify.textContent = "Checking Instance"
+		localStorage.setItem("instanceEndpoints", JSON.stringify(await setInstance(instancein.value)))
+		verify.textContent = "Instance is all good"
+		if (checkInstance.alt) checkInstance.alt()
 
-	const instancein = document.getElementById("instancein")
-	const verify = document.getElementById("verify")
-	let timeout = 0
-
-	async function checkInstance() {
-		try {
-			verify.textContent = "Checking Instance"
-			localStorage.setItem("instanceinfo", JSON.stringify(await setInstance(instancein.value)))
-			verify.textContent = "Instance is all good"
-			if (checkInstance.alt) checkInstance.alt()
-
-			setTimeout(_ => {
-				verify.textContent = ""
-			}, 3000)
-		} catch (e) {
-			console.warn("Check Instance Error", e)
-			verify.textContent = "Invalid Instance, try again"
-		}
+		setTimeout(_ => {
+			verify.textContent = ""
+		}, 3000)
+	} catch (e) {
+		console.warn("Check Instance Error", e)
+		verify.textContent = "Invalid Instance, try again"
 	}
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+	if (document.getElementById("form")) document.getElementById("form").addEventListener("submit", check)
+
+	instancein = document.getElementById("instancein")
+	verify = document.getElementById("verify")
+	let timeout = 0
 
 	instancein.addEventListener("keydown", () => {
 		verify.textContent = "Waiting to check Instance"
@@ -87,6 +89,15 @@ document.addEventListener("DOMContentLoaded", () => {
 		timeout = setTimeout(checkInstance, 1000)
 	})
 
-	if (localStorage.getItem("instanceinfo")) instancein.value = JSON.parse(localStorage.getItem("instanceinfo")).wellknown
-	else checkInstance("https://spacebar.chat/")
+	if (localStorage.getItem("instanceEndpoints")) instancein.value = JSON.parse(localStorage.getItem("instanceEndpoints")).wellknown
+	else {
+		try {
+			const wellknownRes = await fetch(location.origin + "/.well-known/spacebar")
+			instancein.value = new URL((await wellknownRes.json()).api).toString()
+			console.log("Found well-known on current origin: " + instancein.value)
+		} catch {
+			instancein.value = "https://spacebar.chat/"
+		}
+		checkInstance()
+	}
 })

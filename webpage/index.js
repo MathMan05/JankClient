@@ -1,4 +1,4 @@
-const instanceParsed = JSON.parse(localStorage.getItem("instanceinfo"))
+const instanceParsed = JSON.parse(localStorage.getItem("instanceEndpoints"))
 let instance = {}
 if (instanceParsed) {
 	instance = {
@@ -12,7 +12,7 @@ if (instanceParsed) {
 	})
 	instance.api = instance.api + "/v9"
 	console.log("Set connection endpoints", instance)
-} else console.error("No instance info found in local storage")
+} else location.href = "/login.html"
 
 const setTheme = theme => {
 	if (theme == "light") {
@@ -23,11 +23,15 @@ const setTheme = theme => {
 		document.body.classList.add("dark-theme")
 	}
 }
+const setDynamicHeight = () => {
+	const servertdHeight = document.getElementById("servertd").offsetHeight + document.getElementById("typebox").offsetHeight + document.getElementById("pasteimage").offsetHeight
+	document.documentElement.style.setProperty("--servertd-height", servertdHeight + "px")
+}
+
+const token = gettoken()
+let inviteModal
+
 document.addEventListener("DOMContentLoaded", () => {
-	function setDynamicHeight() {
-		const servertdHeight = document.getElementById("servertd").offsetHeight + document.getElementById("typebox").offsetHeight + document.getElementById("pasteimage").offsetHeight
-		document.documentElement.style.setProperty("--servertd-height", servertdHeight + "px")
-	}
 	const resizeObserver = new ResizeObserver(() => {
 		setDynamicHeight()
 	})
@@ -37,6 +41,30 @@ document.addEventListener("DOMContentLoaded", () => {
 	setDynamicHeight()
 
 	setTheme(localStorage.getItem("theme"))
+
+	let currentInvite = "dUZGRa"
+	inviteModal = new fullscreen(
+		["vdiv",
+			["textbox", "Enter invite code/URL:", "dUZGRa", event => {
+				currentInvite = event.target.value.split("/").pop()
+			}],
+			["button", "Join:", "submit", async () => {
+				const res = await fetch(instance.api + "/invites/" + currentInvite, {
+					method: "POST",
+					headers: {
+						"Content-type": "application/json; charset=UTF-8",
+						Authorization: token
+					}
+				})
+				if (res.ok) inviteModal.hide()
+				else {
+					const json = await res.json()
+					console.error("Unable to join guild using " + currentInvite, json)
+				}
+			}]
+		], _ => {}, (() => {
+			currentInvite = "dUZGRa"
+		}))
 })
 
 
@@ -53,7 +81,6 @@ function gettoken() {
 	return temp
 }
 
-const token = gettoken()
 let ws
 initwebsocket()
 let READY
@@ -639,6 +666,7 @@ function genusersettings() {
 function userSettings() {
 	usersettings.show()
 }
+
 let triggered = false
 document.getElementById("messagecontainer").addEventListener("scroll", e => {
 	const messagecontainer = document.getElementById("messagecontainer")

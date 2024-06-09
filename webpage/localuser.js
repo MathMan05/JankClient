@@ -104,6 +104,7 @@ class localuser {
 		const br = document.createElement("hr")
 		br.classList.add("lightbr")
 		serverlist.appendChild(br)
+
 		for (const thing of this.guilds) {
 			if (thing instanceof direct) {
 				thing.unreaddms()
@@ -145,6 +146,18 @@ class localuser {
 			serverlist.append(divy)
 		}
 		this.unreads()
+
+		const br2 = document.createElement("hr")
+		br2.classList.add("lightbr")
+		serverlist.appendChild(br2)
+
+		const div2 = document.createElement("div")
+		div2.textContent = "+"
+		div2.classList.add("home", "servericon")
+		serverlist.appendChild(div2)
+		div2.addEventListener("click", () => {
+			inviteModal.show()
+		})
 	}
 	messageCreate(messagep) {
 		messagep.d.guild_id ??= "@me"

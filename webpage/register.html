@@ -19,7 +19,7 @@
 		<div id="logindiv">
 			<h1>Create an account</h1>
 			<br>
-			<form id="register" submit="registertry(e)">
+			<form id="register" submit="registertry(event)">
 				<label for="instance">
 					<b>Instance:</b>
 				</label>
@@ -33,7 +33,7 @@
 					<b>Email:</b>
 				</label>
 				<br>
-				<input type="text" placeholder="Enter Email" name="email" required>
+				<input type="text" placeholder="Enter Email" name="email" required autocomplete="email">
 				<br>
 				<br>
 
@@ -41,7 +41,7 @@
 					<b>Username:</b>
 				</label>
 				<br>
-				<input type="text" placeholder="Enter Username" name="uname" required autocomplete="new-password">
+				<input type="text" placeholder="Enter Username" name="uname" required autocomplete="username">
 				<br>
 				<br>
 
@@ -49,7 +49,7 @@
 					<b>Password:</b>
 				</label>
 				<br>
-				<input type="password" placeholder="Enter Password" name="psw" required>
+				<input type="password" placeholder="Enter Password" name="psw" required autocomplete="new-password">
 				<br>
 				<br>
 
@@ -57,7 +57,7 @@
 					<b>Enter password again:</b>
 				</label>
 				<br>
-				<input type="password" placeholder="Enter Password Again" name="psw2" required>
+				<input type="password" placeholder="Enter Password Again" name="psw2" required autocomplete="new-password">
 				<br>
 				<br>
 
@@ -70,7 +70,7 @@
 				<br>
 
 				<b id="TOSbox">
-					I agree to the <a href="" id="TOSa">TOS</a>:
+					I agree to the <a href="" id="TOSa" target="_blank" rel="noopener">Terms of Service</a>:
 				</b>
 				<input type="checkbox" id="TOS" name="TOS">
 				<br>

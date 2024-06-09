@@ -35,7 +35,8 @@ const global = {
 	messagelist: "writable",
 	instance: "writeable",
 	setTheme: "writeable",
-	checkInstance: "writeable"
+	checkInstance: "writeable",
+	inviteModal: "writeable"
 }
 
 const rules = {

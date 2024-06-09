@@ -60,8 +60,9 @@
 	--button-bg: #1b1b28;
 	--textarea-bg: #26272c;
 	--filename: #47bbff;
-	--mention-bg: #F00;
+	--mention-bg: #fc7537;
 	--pronouns: #797979;
+	--error-color: #ff4949;
 
 	--profile-bg: #2e2d33;
 	--profile-info-bg: #1a1a1e;
@@ -112,8 +113,9 @@
 	--button-bg: #b7b7cc;
 	--textarea-bg: #b1b6ce;
 	--filename: #47bbff;
-	--mention-bg: #F00;
+	--mention-bg: #ff6021;
 	--pronouns: #6a6a6d;
+	--error-color: #d40404;
 
 	--profile-bg: #cacad8;
 	--profile-info-bg: #bbbbce;
@@ -864,6 +866,10 @@ span {
 
 .notiunread {
 	transform: translate(0, .2in);
+}
+
+.wrongred {
+	color: var(--error-color);
 }
 
 .pinged {
