@@ -28,7 +28,7 @@ class cmessage{
             const username=document.createElement("span");
             replyline.appendChild(username);
             const reply=document.createElement("div");
-            username.classList.add("replyusername")
+            username.classList.add("username")
             reply.classList.add("replytext");
             replyline.appendChild(reply);
             const line2=document.createElement("hr");

@@ -55,7 +55,7 @@ function lacechannel(c){
 
 function createchannels(fincall){
     let name="";
-    let catagory=2;
+    let category=2;
     console.log(fincall)
     channelselect=new fullscreen(
     ["vdiv",
@@ -63,7 +63,7 @@ function createchannels(fincall){
             ["voice","text","announcement"],
             function(e){
                 console.log(e)
-                catagory={"text":0,"voice":2,"announcement":5,"catagory":4}[e]
+                category={"text":0,"voice":2,"announcement":5,"category":4}[e]
             },
             1
         ],
@@ -72,26 +72,26 @@ function createchannels(fincall){
             name=this.value
         }],
         ["button","","submit",function(){
-            console.log(name,catagory)
-            fincall(name,catagory);
+            console.log(name,category)
+            fincall(name,category);
             channelselect.hide();
         }]
     ]);
     channelselect.show();
 }
-function createcatagory(fincall){
+function createcategory(fincall){
     let name="";
-    let catagory=4;
+    let category=4;
     console.log(fincall)
     channelselect=new fullscreen(
     ["vdiv",
-        ["textbox","Name of catagory","",function(){
+        ["textbox","Name of category","",function(){
             console.log(this)
             name=this.value
         }],
         ["button","","submit",function(){
-            console.log(name,catagory)
-            fincall(name,catagory);
+            console.log(name,category)
+            fincall(name,category);
             channelselect.hide();
         }]
     ]);
@@ -146,12 +146,12 @@ function makemenuc(divmessage,x,y){
             createchannel.button.all=divmessage.all;
             build.appendChild(createchannel);
 
-            const createcat=createbutton("create catagory",null,function(){
-                createcatagory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild));
+            const createcat=createbutton("create category",null,function(){
+                createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild));
             })
             createcat.button.all=divmessage.all;
             build.appendChild(createcat);
-            //createcatagory
+            //createcategory
         }
     }
 
