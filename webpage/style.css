@@ -11,9 +11,6 @@ body {
 #TOS{
 	width: fit-content !important;
 }
-.unkownfile{
-	background:var(--unknown-file-bg) ;
-}
 .imgfit {
 	max-width: 80vw;
 	max-height: 80vh;
