@@ -273,7 +273,7 @@ function initwebsocket(){
             "token":token,
             "capabilities": 16381,
             "properties": {
-                "browser": "Harmony",
+                "browser": "Jank Client",
                 "client_build_number": 0,
                 "release_channel": "Custom",
                 "browser_user_agent": navigator.userAgent
