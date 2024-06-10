@@ -18,6 +18,10 @@ app.get('/register.js', (req, res) => {
 app.get('/dirrect.js', (req, res) => {
     res.sendFile("./webpage/dirrect.js", {root: __dirname})
 })
+app.get('/contextmenu.js', (req, res) => {
+    res.sendFile("./webpage/contextmenu.js", {root: __dirname})
+})
+//
 app.get('/login.js', (req, res) => {
     res.sendFile("./webpage/login.js", {root: __dirname})
 })

@@ -64,7 +64,7 @@ samp {
 
 .contextbutton {
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background-color: var(--channels-bg);
 	color: var(--primary-text);
 	font-weight: bold;
 	width: 5cm;
@@ -72,6 +72,8 @@ samp {
 	text-align: left;
 	font-size: .5cm;
 	cursor: pointer;
+	border-width: 0px 0px .03in;
+	margin: .02in .05in;
 }
 
 .infosection {
@@ -137,7 +139,8 @@ h2 {
 
 .contextmenu {
 	position: absolute;
-	background-color: var(--profile-bg);
+	background-color: var(--profile-info-bg);
+	border-radius: .05in;
 }
 
 #neunence {

@@ -38,12 +38,13 @@ if(instancein){
         clearTimeout(timeout);
         timeout=setTimeout(checkInstance,1000);
     });
+    if(localStorage.getItem("instanceinfo")){
+        instancein.value=JSON.parse(localStorage.getItem("instanceinfo")).wellknown
+    }else{
+        checkInstance("https://spacebar.chat/");
+    }
 }
-if(localStorage.getItem("instanceinfo")){
-    instancein.value=JSON.parse(localStorage.getItem("instanceinfo")).wellknown
-}else{
-    checkInstance("https://spacebar.chat/");
-}
+
 
 async function login(username, password){
     const options={
