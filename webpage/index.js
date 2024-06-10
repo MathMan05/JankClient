@@ -47,7 +47,7 @@ let replyingto=null;
 
 function createchannels(fincall){
     let name="";
-    let category=2;
+    let category=0;
     console.log(fincall)
     channelselect=new fullscreen(
     ["vdiv",
