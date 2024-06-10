@@ -21,18 +21,6 @@ let ws
 initwebsocket();
 let READY;
 
-function createbutton(text,img,clickevent=function(){}){
-    const textb=document.createElement("tr");
-    const intext=document.createElement("button")
-    textb.button=intext;
-    intext.classList.add("contextbutton")
-    intext.innerText=text
-    textb.appendChild(intext)
-    intext.onclick=clickevent;
-    return textb
-
-}
-
 var currentmenu="";
 document.addEventListener('click', function(event) {
     if(currentmenu==""){
@@ -44,14 +32,18 @@ document.addEventListener('click', function(event) {
     }
 });
 let replyingto=null;
-lacechannel(document.getElementById("channels"));
-function lacechannel(c){
-    c.addEventListener("contextmenu", (event) => {
-        event.preventDefault();
-        event.stopImmediatePropagation();
-        makemenuc.bind(c)(event.currentTarget,event.clientX,event.clientY);
-    });
+{
+    const menu=new contextmenu("create backclick");
+    menu.addbutton("Create channel",function(){
+        createchannels(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild));
+    },null,_=>{return thisuser.isAdmin()})
+
+    menu.addbutton("Create category",function(){
+        createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild));
+    },null,_=>{return thisuser.isAdmin()})
+    menu.bind(document.getElementById("channels"))
 }
+
 
 function createchannels(fincall){
     let name="";
@@ -98,139 +90,7 @@ function createcategory(fincall){
     channelselect.show();
 }
 function editchannelf(channel){channel.editChannel();}
-function makemenuc(divmessage,x,y){
-    if(currentmenu!=""){
-        currentmenu.remove();
-    }
-    const build = document.createElement('table');
-    if(x!==-1){
-        build.classList.add("contextmenu");
-    }
-    console.log(divmessage,divmessage.classList.contains("Channel"));
-    if(divmessage.classList.contains("Channel")){
-        const channel=this.all;
-        const copyidbutton=createbutton("copy channel id",null,function(){
-            console.log(this)
-            navigator.clipboard.writeText(channel.id);
-        })
-        copyidbutton.button.all=divmessage.all;
-        build.appendChild(copyidbutton);
 
-        const readall=createbutton("Mark as read",null,function(){
-            console.log(channel)
-            channel.readbottom();
-        })
-        readall.button.all=divmessage.all;
-        build.appendChild(readall);
-
-
-        if(thisuser.isAdmin()){
-            const deleteChannel=createbutton("Delete channel",null,function(){
-                console.log(channel)
-                channel.deleteChannel();
-            })
-            deleteChannel.button.all=divmessage.all;
-            build.appendChild(deleteChannel);
-
-            const editchannel=createbutton("edit channel",null,function(){
-                editchannelf(channel);
-            })
-            editchannel.button.all=divmessage.all;
-            build.appendChild(editchannel);
-        }
-    }else{
-        if(thisuser.isAdmin()){
-            const createchannel=createbutton("create channel",null,function(){
-                createchannels(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild));
-            })
-            createchannel.button.all=divmessage.all;
-            build.appendChild(createchannel);
-
-            const createcat=createbutton("create category",null,function(){
-                createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild));
-            })
-            createcat.button.all=divmessage.all;
-            build.appendChild(createcat);
-            //createcategory
-        }
-    }
-
-    if(divmessage.userid==READY.d.user.id){
-        const editbut=createbutton("edit",null,function(){
-            console.log(this)
-            editing=this.all.id;
-            document.getElementById("typebox").value=this.all.content;
-        })
-        editbut.button.all=divmessage.all;
-        console.log(editbut)
-        build.appendChild(editbut);
-    }
-    if(x!==-1){
-        build.style.top = y+'px';
-        build.style.left = x+'px';
-    }
-    document.body.appendChild(build)
-    currentmenu=build;
-}
-function makemenu(divmessage,x,y){
-    if(currentmenu!=""){
-        currentmenu.remove();
-    }
-    const build = document.createElement('table');
-    if(x!==-1){
-        build.classList.add("contextmenu");
-    }
-    const copybutton=createbutton("copy raw text",null,function(){
-        console.log(this)
-        navigator.clipboard.writeText(this.all.content);
-    })
-    copybutton.button.all=divmessage.all;
-    build.appendChild(copybutton);
-    const replybutton=createbutton("reply",null,function(){
-        console.log(this)
-        if(replyingto){
-            replyingto.classList.remove("replying");
-        }
-        replyingto=divmessage;
-        replyingto.classList.add("replying");
-    })
-    replybutton.button.all=divmessage.all;
-    build.appendChild(replybutton);
-    const copyidbutton=createbutton("copy message id",null,function(){
-        console.log(this)
-        navigator.clipboard.writeText(this.all.id);
-    })
-    copyidbutton.button.all=divmessage.all;
-    build.appendChild(copyidbutton);
-
-    const dmbutton=createbutton("Message user",null,function(){
-        console.log(this)
-        fetch(info.api.toString()+"/v9/users/@me/channels",
-              {method:"POST",
-                  body:JSON.stringify({"recipients":[this.all.author.id]}),
-                  headers: {"Content-type": "application/json; charset=UTF-8",Authorization:token}
-            });
-    })
-    dmbutton.button.all=divmessage.all;
-    build.appendChild(dmbutton);
-
-    if(divmessage.userid==READY.d.user.id){
-        const editbut=createbutton("edit",null,function(){
-            console.log(this)
-            editing=this.all.id;
-            document.getElementById("typebox").value=this.all.content;
-        })
-        editbut.button.all=divmessage.all;
-        console.log(editbut)
-        build.appendChild(editbut);
-    }
-    if(x!==-1){
-        build.style.top = y+'px';
-        build.style.left = x+'px';
-    }
-    document.body.appendChild(build)
-    currentmenu=build;
-}
 let messagelist=[];
 function buildprofile(x,y,user,type="author"){
     if(currentmenu!=""){
@@ -302,12 +162,15 @@ function profileclick(obj,author){
 }
 
 var editing=false;
-document.getElementById("typebox").addEventListener("keyup",enter);
-console.log(document.getElementById("typebox"))
-document.getElementById("typebox").onclick=console.log;
+const typebox=document.getElementById("typebox")
+typebox.addEventListener("keyup",enter);
+typebox.addEventListener("keydown",event=>{
+    if(event.key === "Enter"&&!event.shiftKey) event.preventDefault();
+});
+console.log(typebox)
+typebox.onclick=console.log;
 async function enter(event){
     thisuser.lookingguild.prevchannel.typingstart();
-    const tis=document.getElementById("typebox");
     if(event.key === "Enter"&&!event.shiftKey){
         event.preventDefault();
     if(editing){
@@ -317,10 +180,10 @@ async function enter(event){
                 "Content-type": "application/json; charset=UTF-8",
                 Authorization:token
             },
-            body:JSON.stringify({content:tis.value})
+            body:JSON.stringify({content:typebox.value})
 
         })
-        tis.value="";
+        typebox.value="";
         editing=false;
     }else{
         let replyjson=false;
@@ -338,7 +201,7 @@ async function enter(event){
         if(images.length==0){
 
             const body={
-                content:tis.value,
+                content:typebox.value,
                 nonce:Math.floor(Math.random()*1000000000)
             };
             if(replyjson){
@@ -357,11 +220,11 @@ async function enter(event){
                 console.log(out,"here it is")
                 }
             )
-            tis.value="";
+            typebox.value="";
         }else{
             let formData = new FormData();
             const body={
-                content:tis.value,
+                content:typebox.value,
                 nonce:Math.floor(Math.random()*1000000000),
             }
             if(replyjson){
@@ -387,7 +250,7 @@ async function enter(event){
                 images.pop()
                 pasteimage.removeChild(imageshtml.pop())
             }
-            tis.value="";
+            typebox.value="";
         }
     }
     }

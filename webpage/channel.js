@@ -1,4 +1,26 @@
+"use strict"
 class channel{
+    static contextmenu=new contextmenu("channel menu");
+    static setupcontextmenu(){
+        channel.contextmenu.addbutton("Copy channel id",function(){
+            console.log(this)
+            navigator.clipboard.writeText(this.id);
+        })
+
+        channel.contextmenu.addbutton("Mark as read",function(){
+            console.log(this)
+            this.readbottom();
+        })
+
+        channel.contextmenu.addbutton("Delete channel",function(){
+            console.log(this)
+            this.deleteChannel();
+        },null,_=>{return thisuser.isAdmin()})
+
+        channel.contextmenu.addbutton("Edit channel",function(){
+            editchannelf(this);
+        },null,_=>{return thisuser.isAdmin()})
+    }
     constructor(JSON,owner){
         if(JSON===-1){
             return;
@@ -105,7 +127,7 @@ class channel{
             decdiv.classList.add("channeleffects");
             decdiv.classList.add("channel");
 
-            lacechannel(decdiv);
+            channel.contextmenu.bind(decdiv,this);
             decdiv.all=this;
 
 
@@ -131,7 +153,7 @@ class channel{
             if(this.hasunreads){
                 div.classList.add("cunread");
             }
-            lacechannel(div);
+            channel.contextmenu.bind(div,this);
             if(admin){this.coatDropDiv(div,this);}
             div.all=this;
             const myhtml=document.createElement("span");
@@ -450,3 +472,4 @@ class channel{
         }
     }
 }
+channel.setupcontextmenu();

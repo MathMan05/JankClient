@@ -1,4 +1,37 @@
 class cmessage{
+    static contextmenu=new contextmenu("message menu");
+    static setupcmenu(){
+        cmessage.contextmenu.addbutton("Copy raw text",function(){
+            console.log(this)
+            navigator.clipboard.writeText(this.content);
+        })
+        cmessage.contextmenu.addbutton("Reply",function(div){
+            console.log(this)
+            if(replyingto){
+                replyingto.classList.remove("replying");
+            }
+            replyingto=div;
+            console.log(div);
+            replyingto.classList.add("replying");
+        })
+        cmessage.contextmenu.addbutton("Copy message id",function(){
+            console.log(this)
+            navigator.clipboard.writeText(this.id);
+        })
+        cmessage.contextmenu.addbutton("Message user",function(){
+            console.log(this)
+            fetch(info.api.toString()+"/v9/users/@me/channels",
+                {method:"POST",
+                    body:JSON.stringify({"recipients":[this.author.id]}),
+                    headers: {"Content-type": "application/json; charset=UTF-8",Authorization:token}
+                });
+        })
+        cmessage.contextmenu.addbutton("Edit",function(){
+            console.log(this)
+            editing=this.id;
+            document.getElementById("typebox").value=this.content;
+        },null,_=>{return _.author.id==READY.d.user.id});
+    }
     constructor(messagejson){
         for(const thing of Object.keys(messagejson)){
             this[thing]=messagejson[thing];
@@ -7,11 +40,8 @@ class cmessage{
         console.log(this.type)
     }
     messageevents(obj){
+        cmessage.contextmenu.bind(obj,this)
         obj.classList.add("messagediv")
-        obj.addEventListener("contextmenu", (event) => {
-            event.preventDefault();
-            makemenu(event.currentTarget,event.clientX,event.clientY)
-        });
     }
     buildhtml(premessage){
         //premessage??=messages.lastChild;
@@ -175,3 +205,4 @@ function formatTime(date) {
     return `${date.toLocaleDateString()} at ${formatTime(date)}`;
   }
 }
+cmessage.setupcmenu();
