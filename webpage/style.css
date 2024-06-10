@@ -75,7 +75,9 @@ samp {
 	border-width: 0px 0px .03in;
 	margin: .02in .05in;
 }
-
+.contextbutton:active{
+	border-width: 0px;
+}
 .infosection {
 	display: inline-block;
 	background-color: var(--profile-info-bg);
