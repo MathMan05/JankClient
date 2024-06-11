@@ -3,23 +3,20 @@
 class channel {
 	static contextmenu = new contextmenu("channel menu")
     static setupcontextmenu() {
-        channel.contextmenu.addbutton("Copy channel id", function(){
-            console.log(this)
+        channel.contextmenu.addbutton("Copy channel id", function() {
             navigator.clipboard.writeText(this.id)
         })
 
-        channel.contextmenu.addbutton("Mark as read", function(){
-            console.log(this)
+        channel.contextmenu.addbutton("Mark as read", function() {
             this.readbottom()
         })
 
-        channel.contextmenu.addbutton("Delete channel", function(){
-            console.log(this)
+        channel.contextmenu.addbutton("Delete channel", function() {
             this.deleteChannel()
         }, null, () => thisuser.isAdmin())
 
-        channel.contextmenu.addbutton("Edit channel", function(){
-            editchannelf(this)
+        channel.contextmenu.addbutton("Edit channel", function() {
+            editchannel(this)
         }, null, () => thisuser.isAdmin())
     }
 

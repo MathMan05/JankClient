@@ -22,6 +22,9 @@ class user {
 			fetch(instance.api + "/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id=" + guild.id)
 				.then(res => res.json()).then(str => {
 					return new member(str)
+				}).catch(err => {
+					console.error(err)
+					reject(err)
 				})
 		})
 		usercache[this.id + "+" + guild.id] = tempy

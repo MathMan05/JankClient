@@ -8,7 +8,7 @@ class contextmenu {
 		return {}
 	}
 	makemenu(x, y, addinfo, obj) {
-		const div=document.createElement("table")
+		const div = document.createElement("table")
 		div.classList.add("contextmenu")
 		for (const thing of this.buttons) {
 			if (!thing[3](addinfo)) continue

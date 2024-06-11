@@ -36,7 +36,13 @@ const global = {
 	instance: "writeable",
 	setTheme: "writeable",
 	checkInstance: "writeable",
-	inviteModal: "writeable"
+	inviteModal: "writeable",
+	contextmenu: "writeable",
+	editchannel: "writeable",
+	READY: "writeable",
+	editing: "writeable",
+	replyingto: "writeable",
+	currentmenu: "writeable"
 }
 
 const rules = {

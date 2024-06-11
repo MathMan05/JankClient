@@ -1,36 +1,31 @@
 class cmessage {
     static contextmenu = new contextmenu("message menu")
-    static setupcmenu(){
-        cmessage.contextmenu.addbutton("Copy raw text",function(){
-            console.log(this)
+    static setupcmenu() {
+        cmessage.contextmenu.addbutton("Copy raw text", function() {
             navigator.clipboard.writeText(this.content)
         })
-        cmessage.contextmenu.addbutton("Reply",function(div){
-            console.log(this)
-            if(replyingto){
-                replyingto.classList.remove("replying")
-            }
-            replyingto=div
-            console.log(div)
+        cmessage.contextmenu.addbutton("Reply", div => {
+            if (replyingto) replyingto.classList.remove("replying")
+            replyingto = div
             replyingto.classList.add("replying")
         })
-        cmessage.contextmenu.addbutton("Copy message id",function(){
-            console.log(this)
+        cmessage.contextmenu.addbutton("Copy message id", function() {
             navigator.clipboard.writeText(this.id)
         })
-        cmessage.contextmenu.addbutton("Message user",function(){
-            console.log(this)
-            fetch(info.api.toString()+"/v9/users/@me/channels",
-                {method:"POST",
-                    body:JSON.stringify({"recipients":[this.author.id]}),
-                    headers: {"Content-type": "application/json; charset=UTF-8",Authorization:token}
-                })
+        cmessage.contextmenu.addbutton("Message user", function() {
+            fetch(instance.api + "/users/@me/channels", {
+				method: "POST",
+				body: JSON.stringify({recipients: [this.author.id]}),
+				headers: {
+					"Content-type": "application/json; charset=UTF-8",
+					Authorization: token
+				}
+			})
         })
-        cmessage.contextmenu.addbutton("Edit",function(){
-            console.log(this)
-            editing=this.id;
-            document.getElementById("typebox").value=this.content;
-        },null,_=>{return _.author.id==READY.d.user.id})
+        cmessage.contextmenu.addbutton("Edit", function() {
+            editing = this.id
+            document.getElementById("typebox").value = this.content
+        }, null, m => m.author.id == READY.d.user.id)
     }
 
 	constructor(messagejson) {

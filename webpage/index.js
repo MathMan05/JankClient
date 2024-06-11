@@ -31,6 +31,13 @@ const setDynamicHeight = () => {
 const token = gettoken()
 let inviteModal
 
+let packets = 1
+const serverz = 0
+const serverid = []
+
+let editing = false
+let thisuser = null
+
 document.addEventListener("DOMContentLoaded", () => {
 	const resizeObserver = new ResizeObserver(() => {
 		setDynamicHeight()
@@ -77,13 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
 	menu.bind(document.getElementById("channels"))
 })
 
-
-let packets = 1
-const serverz = 0
-const serverid = []
-
-let editing = false
-let thisuser = null
 
 function gettoken() {
 	const temp = localStorage.getItem("token")
