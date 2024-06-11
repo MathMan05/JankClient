@@ -174,25 +174,22 @@ class localuser {
 	typingStart(typing) {
 		if (this.channelfocus == typing.d.channel_id) {
 			const memb = typing.d.member
-			let name
 			if (memb.id == this.user.id) return
 
-			if (memb.nick) name = memb.nick
-			else name = memb.user.username
+			const name = memb.nick || memb.user.global_name || memb.user.username
 
 			let already = false
 			for (const thing of this.typing) {
-				if (thing[0] == name) {
-					thing[1] = Date.now()
+				if (thing[0] == memb.id) {
+					thing[2] = Date.now()
 					already = true
 					break
 				}
 			}
-			if (!already) {
-				this.typing.push([name, Date.now()])
-			}
-			setTimeout(this.rendertyping.bind(this), 10000)
+			if (!already) this.typing.push([memb.id, name, Date.now()])
+
 			this.rendertyping()
+			setTimeout(this.rendertyping.bind(this), 5000)
 		}
 	}
 	updatepfp(file) {
@@ -247,23 +244,20 @@ class localuser {
 		})
 	}
 	rendertyping() {
-		const typingtext = document.getElementById("typing")
 		const typingUsers = []
 		let showing = false
-		let i = 0
 		for (const thing of this.typing) {
-			i++
-			if (thing[1] > Date.now() - 5000) {
-				typingUsers.push(thing[0])
+			if (thing[2] > Date.now() - 5000) {
+				typingUsers.push(thing[1])
 				showing = true
 			}
 		}
 
 		if (showing) {
-			typingtext.classList.remove("hidden")
+			document.getElementById("typing").classList.remove("hidden")
 			document.getElementById("typingtext").textContent = typingUsers.length > 1
 				? typingUsers.slice(-1).join(", ") + " and " + typingUsers.at(-1) + " are typing"
 				: typingUsers[0] + " is typing"
-		} else typingtext.classList.add("hidden")
+		} else document.getElementById("typing").classList.add("hidden")
 	}
 }

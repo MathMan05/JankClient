@@ -208,7 +208,7 @@ samp {
 
 .contextbutton {
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background-color: var(--channels-hover);
 	color: var(--primary-text);
 	font-weight: bold;
 	width: 5cm;
@@ -216,6 +216,14 @@ samp {
 	text-align: left;
 	font-size: .5cm;
 	cursor: pointer;
+	border-width: 0 0 .03in;
+	margin: .02in .05in;
+}
+.contextbutton:hover {
+	background-color: var(--primary-bg);
+}
+.contextbutton:active {
+	border-width: 0;
 }
 
 .infosection {
@@ -275,13 +283,10 @@ h2 {
 	border-radius: 30%;
 }
 
-.contextbutton:hover {
-	background-color: var(--primary-bg);
-}
-
 .contextmenu {
 	position: absolute;
-	background-color: var(--profile-bg);
+	background-color: var(--profile-info-bg);
+	border-radius: .05in;
 }
 
 #neunence {

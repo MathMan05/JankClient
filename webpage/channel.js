@@ -1,4 +1,28 @@
+"use strict"
+
 class channel {
+	static contextmenu = new contextmenu("channel menu")
+    static setupcontextmenu() {
+        channel.contextmenu.addbutton("Copy channel id", function(){
+            console.log(this)
+            navigator.clipboard.writeText(this.id)
+        })
+
+        channel.contextmenu.addbutton("Mark as read", function(){
+            console.log(this)
+            this.readbottom()
+        })
+
+        channel.contextmenu.addbutton("Delete channel", function(){
+            console.log(this)
+            this.deleteChannel()
+        }, null, () => thisuser.isAdmin())
+
+        channel.contextmenu.addbutton("Edit channel", function(){
+            editchannelf(this)
+        }, null, () => thisuser.isAdmin())
+    }
+
 	constructor(json, owner) {
 		if (json == -1) return
 
@@ -19,6 +43,7 @@ class channel {
 		this.lastreadmessageid = null
 		this.lastmessageid = json.last_message_id
 	}
+
 	readStateInfo(json) {
 		this.lastreadmessageid = json.last_message_id
 		this.mentions = json.mention_count
@@ -109,7 +134,7 @@ class channel {
 			caps.classList.add("capsflex")
 			decdiv.classList.add("channel", "channeleffects")
 
-			lacechannel(decdiv)
+            channel.contextmenu.bind(decdiv, this)
 			decdiv.all = this
 
 			for (const channel2 of this.children) {
@@ -135,7 +160,7 @@ class channel {
 			div.classList.add("channel")
 			if (this.hasunreads) div.classList.add("cunread")
 
-			lacechannel(div)
+            channel.contextmenu.bind(div, this)
 			if (admin) this.coatDropDiv(div)
 
 			div.all = this
@@ -415,9 +440,8 @@ class channel {
 		this.nsfw = json.nsfw
 	}
 	typingstart() {
-		if (this.typing > Date.now()) {
-			return
-		}
+		if (this.typing > Date.now()) return
+
 		this.typing = Date.now() + 6000
 		fetch(instance.api + "/channels/" + this.id + "/typing", {
 			method: "POST",
@@ -446,3 +470,5 @@ class channel {
 		if (shouldScroll) scrolly.scrollTop = scrolly.scrollHeight
 	}
 }
+
+channel.setupcontextmenu()

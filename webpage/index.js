@@ -65,6 +65,16 @@ document.addEventListener("DOMContentLoaded", () => {
 		], _ => {}, (() => {
 			currentInvite = "dUZGRa"
 		}))
+
+	const menu = new contextmenu("create backclick")
+	menu.addbutton("Create channel", () => {
+		createchannels(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
+	}, null, () => thisuser.isAdmin())
+
+	menu.addbutton("Create category", () => {
+		createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
+	}, null, () => thisuser.isAdmin())
+	menu.bind(document.getElementById("channels"))
 })
 
 
@@ -85,18 +95,6 @@ let ws
 initwebsocket()
 let READY
 
-function createbutton(text, clickevent = () => {}) {
-	const textb = document.createElement("tr")
-	const intext = document.createElement("button")
-	textb.button = intext
-	intext.classList.add("contextbutton")
-	intext.textContent = text
-	textb.appendChild(intext)
-	intext.onclick = clickevent
-	return textb
-}
-
-
 let currentmenu = ""
 document.addEventListener("click", event => {
 	if (currentmenu == "") return
@@ -107,24 +105,16 @@ document.addEventListener("click", event => {
 	}
 })
 let replyingto = null
-lacechannel(document.getElementById("channels"))
-function lacechannel(c) {
-	c.addEventListener("contextmenu", event => {
-		event.preventDefault()
-		event.stopImmediatePropagation()
-		makemenuc.bind(c)(event.currentTarget, event.clientX, event.clientY)
-	})
-}
 
 function createchannels(fincall) {
 	let name = ""
-	let type = 2
+	let type = 0
 	const channelselect = new fullscreen(
 		["vdiv",
 			["radio", "select channel type",
 				["voice", "text", "announcement"],
 				value => {
-					type = { text: 0, voice: 2, announcement: 5, catagory: 4 }[value]
+					type = { text: 0, voice: 2, announcement: 5, category: 4 }[value]
 				},
 				1
 			],
@@ -155,127 +145,6 @@ function createcategory(fincall) {
 }
 function editchannel(channel) {
 	channel.editChannel()
-}
-
-function makemenuc(divmessage, x, y) {
-	if (currentmenu != "") currentmenu.remove()
-
-	const build = document.createElement("table")
-	if (x != -1) build.classList.add("contextmenu")
-
-	if (divmessage.classList.contains("channel")) {
-		const copyidbutton = createbutton("copy channel id", () => {
-			navigator.clipboard.writeText(divmessage.all.id)
-		})
-		copyidbutton.button.all = divmessage.all
-		build.appendChild(copyidbutton)
-
-		const readall = createbutton("Mark as read", () => {
-			channel.readbottom()
-		})
-		readall.button.all = divmessage.all
-		build.appendChild(readall)
-
-		if (thisuser.isAdmin()) {
-			const deleteChannel = createbutton("Delete channel", () => {
-				channel.deleteChannel()
-			})
-			deleteChannel.button.all = divmessage.all
-			build.appendChild(deleteChannel)
-
-			const editchannelButton = createbutton("edit channel", () => {
-				editchannel(channel)
-			})
-			editchannelButton.button.all = divmessage.all
-			build.appendChild(editchannelButton)
-		}
-	} else {
-		if (thisuser.isAdmin()) {
-			const createchannel = createbutton("create channel", () => {
-				createchannels(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
-			})
-			createchannel.button.all = divmessage.all
-			build.appendChild(createchannel)
-
-			const createcat = createbutton("create catagory", () => {
-				createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
-			})
-			createcat.button.all = divmessage.all
-			build.appendChild(createcat)
-		}
-	}
-
-	if (divmessage.userid == READY.d.user.id) {
-		const editbut = createbutton("edit", () => {
-			console.log("Editing", divmessage)
-			editing = divmessage.all.id
-			document.getElementById("typebox").value = divmessage.all.content
-		})
-		editbut.button.all = divmessage.all
-		console.log(editbut)
-		build.appendChild(editbut)
-	}
-	if (x != -1) {
-		build.style.top = y + "px"
-		build.style.left = x + "px"
-	}
-	document.body.appendChild(build)
-	currentmenu = build
-}
-function makemenu(divmessage, x, y) {
-	if (currentmenu != "") currentmenu.remove()
-	const build = document.createElement("table")
-	if (x != -1) build.classList.add("contextmenu")
-
-	const copybutton = createbutton("copy raw text", () => {
-		navigator.clipboard.writeText(divmessage.all.content)
-	})
-	copybutton.button.all = divmessage.all
-	build.appendChild(copybutton)
-
-	const replybutton = createbutton("reply", () => {
-		if (replyingto) replyingto.classList.remove("replying")
-		replyingto = divmessage
-		replyingto.classList.add("replying")
-	})
-	replybutton.button.all = divmessage.all
-	build.appendChild(replybutton)
-
-	const copyidbutton = createbutton("copy message id", () => {
-		navigator.clipboard.writeText(divmessage.all.id)
-	})
-	copyidbutton.button.all = divmessage.all
-	build.appendChild(copyidbutton)
-
-	const dmbutton = createbutton("Message user", () => {
-		fetch(instance.api + "/users/@me/channels", {
-			method: "POST",
-			body: JSON.stringify({ recipients: [divmessage.all.author.id] }),
-			headers: {
-				"Content-type": "application/json; charset=UTF-8",
-				Authorization: token
-			}
-		})
-	})
-	dmbutton.button.all = divmessage.all
-	build.appendChild(dmbutton)
-
-	if (divmessage.userid == READY.d.user.id) {
-		const editbut = createbutton("edit", () => {
-			editing = divmessage.all.id
-			document.getElementById("typebox").value = divmessage.all.content
-		})
-		editbut.button.all = divmessage.all
-		console.log(editbut)
-		build.appendChild(editbut)
-	}
-
-	if (x != -1) {
-		build.style.top = y + "px"
-		build.style.left = x + "px"
-	}
-	document.body.appendChild(build)
-	currentmenu = build
 }
 
 const messagelist = []
@@ -346,10 +215,15 @@ function profileclick(obj, author) {
 const images = []
 const imageshtml = []
 
-document.getElementById("typebox").addEventListener("keyup", enter)
+const typebox = document.getElementById("typebox")
+typebox.addEventListener("keyup", enter)
+typebox.addEventListener("keydown", event => {
+    if (event.key == "Enter" && !event.shiftKey) event.preventDefault()
+})
+
 async function enter(event) {
 	thisuser.lookingguild.prevchannel.typingstart()
-	const tis = document.getElementById("typebox")
+
 	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
 		if (editing) {
@@ -359,9 +233,9 @@ async function enter(event) {
 					"Content-type": "application/json; charset=UTF-8",
 					Authorization: token
 				},
-				body: JSON.stringify({ content: tis.value })
+				body: JSON.stringify({ content: typebox.value })
 			})
-			tis.value = ""
+			typebox.value = ""
 			editing = false
 		} else {
 			let replyjson = false
@@ -377,10 +251,10 @@ async function enter(event) {
 			replyingto = false
 			if (images.length == 0) {
 				const body = {
-					content: tis.value,
+					content: typebox.value,
 					nonce: Math.floor(Math.random() * 1000000000)
 				}
-				tis.value = ""
+				typebox.value = ""
 				if (replyjson) body.message_reference = replyjson
 
 				console.log("Sending message:", body)
@@ -395,7 +269,7 @@ async function enter(event) {
 			} else {
 				const formData = new FormData()
 				const body = {
-					content: tis.value,
+					content: typebox.value,
 					nonce: Math.floor(Math.random() * 1000000000)
 				}
 				if (replyjson) body.message_reference = replyjson
@@ -419,7 +293,7 @@ async function enter(event) {
 					images.pop()
 					document.getElementById("pasteimage").removeChild(imageshtml.pop())
 				}
-				tis.value = ""
+				typebox.value = ""
 			}
 		}
 	}
@@ -437,7 +311,7 @@ function initwebsocket() {
 				token,
 				capabilities: 16381,
 				properties: {
-					browser: "Harmony",
+					browser: "Jank Client",
 					client_build_number: 0,
 					release_channel: "Custom",
 					browser_user_agent: navigator.userAgent

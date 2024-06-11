@@ -56,6 +56,9 @@ app.get("/markdown.js", (req, res) => {
 app.get("/fullscreen.js", (req, res) => {
 	res.sendFile(path.join(__dirname, "webpage", "fullscreen.js"))
 })
+app.get("/contextmenu.js", (req, res) => {
+	res.sendFile(path.join(__dirname, "webpage", "contextmenu.js"))
+})
 app.get("/style.css", (req, res) => {
 	res.sendFile(path.join(__dirname, "webpage", "style.css"))
 })
