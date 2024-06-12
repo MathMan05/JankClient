@@ -1,4 +1,30 @@
 class guild{
+    static contextmenu=new contextmenu("channel menu");
+    static setupcontextmenu(){
+        guild.contextmenu.addbutton("Copy Guild id",function(){
+            console.log(this)
+            navigator.clipboard.writeText(this.id);
+        })
+
+        guild.contextmenu.addbutton("Mark as read",function(){
+            console.log(this)
+            this.markAsRead();
+        })
+
+        guild.contextmenu.addbutton("Create Invite",function(){
+            console.log(this);
+        },null,_=>true,_=>false);
+        /* -----things left for later-----
+        guild.contextmenu.addbutton("Leave Guild",function(){
+            console.log(this)
+            this.deleteChannel();
+        },null,_=>{return thisuser.isAdmin()})
+
+        guild.contextmenu.addbutton("Mute Guild",function(){
+            editchannelf(this);
+        },null,_=>{return thisuser.isAdmin()})
+        */
+    }
     constructor(JSON,owner){
         if(JSON===-1){
             return;
@@ -131,6 +157,22 @@ class guild{
     isAdmin(){
         return this.member.isAdmin()
     }
+    async markAsRead(){
+        const build={read_states:[]};
+        for(const thing of this.channels){
+            if(thing.hasunreads){
+                build.read_states.push({channel_id:thing.id,message_id:thing.lastmessageid,read_state_type:0});
+                thing.lastreadmessageid=thing.lastmessageid;
+                thing.myhtml.classList.remove("cunread");
+            }
+        }
+        this.unreads();
+        fetch(info.api.toString()+"/v9/read-states/ack-bulk",{
+            method:"POST",
+            headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
+            body:JSON.stringify(build)
+        })
+    }
     fillMember(member){
         member.guild=this;
         const realroles=[];
@@ -221,3 +263,4 @@ class guild{
         })
     }
 }
+guild.setupcontextmenu();

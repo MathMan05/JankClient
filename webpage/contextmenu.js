@@ -4,8 +4,8 @@ class contextmenu{
         this.buttons=[]
 
     }
-    addbutton(text,onclick,img=null,shown=_=>{return true}){
-        this.buttons.push([text,onclick,img,shown])
+    addbutton(text,onclick,img=null,shown=_=>true,enabled=_=>true){
+        this.buttons.push([text,onclick,img,shown,enabled])
         return {};
     }
     makemenu(x,y,addinfo,obj){
@@ -15,6 +15,7 @@ class contextmenu{
             if(!thing[3](addinfo)){continue;}
             const textb=document.createElement("tr");
             const intext=document.createElement("button")
+            intext.disabled=!thing[4]();
             textb.button=intext;
             intext.classList.add("contextbutton")
             intext.innerText=thing[0]

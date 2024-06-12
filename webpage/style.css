@@ -86,7 +86,13 @@ samp {
 	width: calc(100% - .6cm);
 	height: calc(100% - .75in);
 }
-
+.contextbutton:disabled{
+	cursor:not-allowed;
+	border-width:0px;
+}
+.contextbutton:disabled:hover{
+	background-color: var(--channels-bg);
+}
 .profile {
 	display: inline-block;
 	position: absolute;
@@ -285,6 +291,7 @@ p {
 	width: fit-content;
 	cursor: pointer;
 	font-weight: bold;
+	word-break:normal;
 }
 .username:hover {
 	text-decoration: underline;
@@ -397,7 +404,18 @@ p {
 	user-select: none;
 	cursor: pointer;
 }
-
+.addserver{
+	border-radius: 50%;
+	width: .5in;
+	height: .5in;
+	background-color: var(--blank-bg);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 200%;
+	user-select: none;
+	cursor: pointer;
+}
 #channelw {
 	width: 100%;
 	display: inline-block;
