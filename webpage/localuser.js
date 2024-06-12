@@ -120,7 +120,7 @@ class localuser{
             this.guildhtml[thing.id]=divy;
             if(thing.properties.icon!=null){
                 const img=document.createElement("img");
-                img.classList.add("pfp","servericon")
+                img.classList.add("pfp","servericon");
                 img.src=info.cdn.toString()+"icons/"+thing.properties.id+"/"+thing.properties.icon+".png";
                 divy.appendChild(img)
                 img.all=thing;
@@ -129,6 +129,7 @@ class localuser{
                     this.all.loadGuild();
                     this.all.loadChannel();
                 }
+                guild.contextmenu.bind(img,thing);
             }else{
                 const div=document.createElement("div");
                 let build="";
@@ -143,8 +144,23 @@ class localuser{
                     this.all.loadGuild();
                     this.all.loadChannel();
                 }
+                guild.contextmenu.bind(div,thing)
             }
             serverlist.append(divy);
+        }
+        {
+            const br=document.createElement("hr")
+            br.classList.add("lightbr");
+            serverlist.appendChild(br);
+
+            const div=document.createElement("div");
+            div.innerText="+";
+            div.classList.add("addserver","servericon")
+            serverlist.appendChild(div)
+            div.onclick=function(){
+                console.log("clicked :3")
+            }
+
         }
         this.unreads();
     }
