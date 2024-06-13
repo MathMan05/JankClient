@@ -138,7 +138,7 @@ class channel {
 				childrendiv.appendChild(channel2.createguildHTML(admin))
 			}
 			childrendiv.classList.add("channels")
-			setTimeout(_ => {
+			setTimeout(() => {
 				childrendiv.style.height = childrendiv.scrollHeight + "px"
 			}, 100)
 			decdiv.onclick = function() {

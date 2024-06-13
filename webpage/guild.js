@@ -1,7 +1,9 @@
+"use strict"
+
 class guild {
-	static contextmenu = new contextmenu("channel menu")
+	static contextmenu = new contextmenu("guild menu")
 	static setupcontextmenu() {
-		guild.contextmenu.addbutton("Copy Guild id", function() {
+		guild.contextmenu.addbutton("Copy guild id", function() {
 			navigator.clipboard.writeText(this.id)
 		})
 
@@ -13,10 +15,10 @@ class guild {
 			console.log(this)
 		}, null, () => true, () => false)
 		/* -----things left for later-----
-		guild.contextmenu.addbutton("Leave Guild", function() {
+		guild.contextmenu.addbutton("Leave guild", function() {
 			this.deleteChannel()
 		}, null, () => thisuser.isAdmin())
-		guild.contextmenu.addbutton("Mute Guild", function() {
+		guild.contextmenu.addbutton("Mute guild", function() {
 			editchannelf(this)
 		}, null, () => thisuser.isAdmin())
 		*/

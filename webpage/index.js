@@ -1,3 +1,5 @@
+"use strict"
+
 const instanceParsed = JSON.parse(localStorage.getItem("instanceEndpoints"))
 let instance = {}
 if (instanceParsed) {
@@ -69,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
 					console.error("Unable to join guild using " + currentInvite, json)
 				}
 			}]
-		], _ => {}, (() => {
+		], () => {}, (() => {
 			currentInvite = "dUZGRa"
 		}))
 
@@ -205,10 +207,9 @@ function buildprofile(x, y, user, type = "author") {
 	return div
 }
 function profileclick(obj, author) {
-	obj.onclick = function(e) {
-		console.log(e.clientX, e.clientY, author)
-		buildprofile(e.clientX, e.clientY, author)
-		e.stopPropagation()
+	obj.onclick = event => {
+		event.stopPropagation()
+		buildprofile(event.clientX, event.clientY, author)
 	}
 }
 
@@ -380,7 +381,6 @@ function initwebsocket() {
 						break
 				}
 			} else if (temp.op == 10) {
-				console.log("heartbeat down")
 				setInterval(() => {
 					ws.send(JSON.stringify({ op: 1, d: packets }))
 				}, temp.d.heartbeat_interval)
@@ -441,13 +441,12 @@ function createunknown(fname, fsize, src) {
 	div.appendChild(sizetr)
 	return div
 }
+
 function filesizehuman(fsize) {
 	const i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024))
 	return (fsize / Math.pow(1024, i)).toFixed(2) + " " + ["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i]
 }
-function createunknownfile(file) {
-	return createunknown(file.name, file.size)
-}
+
 function filetohtml(file) {
 	if (file.type.startsWith("image/")) {
 		const img = document.createElement("img")
@@ -457,7 +456,7 @@ function filetohtml(file) {
 		return img
 	} else {
 		console.log("Unsupported file " + file.name + " for embedding into message")
-		return createunknownfile(file)
+		return createunknown(file.name, file.size)
 	}
 }
 document.addEventListener("paste", async e => {
@@ -526,7 +525,7 @@ function genusersettings() {
 					setTheme(newTheme)
 				}
 			}]
-		], _ => {}, (() => {
+		], () => {}, (() => {
 			hypouser = user.checkuser(thisuser.user)
 			regen()
 			file = null

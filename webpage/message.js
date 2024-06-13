@@ -1,3 +1,5 @@
+"use strict"
+
 class cmessage {
     static contextmenu = new contextmenu("message menu")
     static setupcmenu() {
@@ -35,7 +37,7 @@ class cmessage {
 		this.author = user.checkuser(this.author)
 	}
 	messageevents(obj) {
-        cmessage.contextmenu.bind(obj,this)
+        cmessage.contextmenu.bind(obj, this)
 		obj.classList.add("messagediv")
 	}
 	buildhtml(premessage) {

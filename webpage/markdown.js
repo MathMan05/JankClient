@@ -1,4 +1,5 @@
 "use strict"
+
 function markdown(txt, keep = false) {
 	if (typeof txt == "string") return markdown(txt.split(""), keep)
 
@@ -278,13 +279,13 @@ function markdown(txt, keep = false) {
 				i = j
 				const underscores = "||"
 				if (count == 2) {
-					const jElem = document.createElement("j")
-					if (keep) jElem.append(underscores)
-					jElem.appendChild(markdown(build, keep))
-					jElem.classList.add("spoiler")
-					jElem.onclick = markdown.unspoil
-					if (keep) jElem.append(underscores)
-					span.appendChild(jElem)
+					const spoilerElem = document.createElement("span")
+					if (keep) spoilerElem.append(underscores)
+					spoilerElem.appendChild(markdown(build, keep))
+					spoilerElem.classList.add("spoiler")
+					spoilerElem.addEventListener("click", markdown.unspoil)
+					if (keep) spoilerElem.append(underscores)
+					span.appendChild(spoilerElem)
 				}
 				continue
 			}

@@ -19,7 +19,6 @@ const global = {
 	member: "writable",
 	profileclick: "writable",
 	createunknown: "writable",
-	createunknownfile: "writable",
 	direct: "writable",
 	token: "writable",
 	markdown: "writable",

@@ -1,5 +1,7 @@
+"use strict"
+
 class fullscreen {
-	constructor(layout, onclose = _ => {}, onopen = _ => {}) {
+	constructor(layout, onclose = () => {}, onopen = () => {}) {
 		this.layout = layout
 		this.onclose = onclose
 		this.onopen = onopen
@@ -60,6 +62,7 @@ class fullscreen {
 				checkbox.value = array[2]
 				label.textContent = array[1]
 				div.appendChild(label)
+
 				checkbox.addEventListener("change", array[3])
 				checkbox.type = "checkbox"
 				return div

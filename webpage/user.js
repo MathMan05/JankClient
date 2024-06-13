@@ -1,3 +1,5 @@
+"use strict"
+
 const usercache = {}
 class user {
 	static userids = {}
@@ -50,9 +52,6 @@ class user {
 		if (this.hypotheticalpfp) return this.avatar
 
 		if (this.avatar === null) return instance.cdn + "/embed/avatars/3.png"
-		else return instance.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png"
-	}
-	createjankpromises() {
-		new Promise(_ => {})
+		return instance.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png"
 	}
 }

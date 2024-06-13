@@ -1,3 +1,5 @@
+"use strict"
+
 async function login(username, password) {
 	const options = {
 		method: "POST",
@@ -67,7 +69,7 @@ async function checkInstance() {
 		verify.textContent = "Instance is all good"
 		if (checkInstance.alt) checkInstance.alt()
 
-		setTimeout(_ => {
+		setTimeout(() => {
 			verify.textContent = ""
 		}, 3000)
 	} catch (e) {

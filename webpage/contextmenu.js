@@ -1,3 +1,5 @@
+"use strict"
+
 class contextmenu {
 	constructor(name) {
 		this.name = name
@@ -30,7 +32,7 @@ class contextmenu {
 		currentmenu = div
 		return this.div
 	}
-	bind(obj,addinfo) {
+	bind(obj, addinfo) {
 		obj.addEventListener("contextmenu", event => {
 			event.preventDefault()
 			event.stopImmediatePropagation()

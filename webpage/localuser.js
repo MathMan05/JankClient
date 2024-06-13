@@ -1,3 +1,5 @@
+"use strict"
+
 class localuser {
 	constructor(ready) {
 		this.ready = ready
