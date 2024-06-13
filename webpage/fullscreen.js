@@ -111,6 +111,11 @@ class fullscreen {
 				input.addEventListener("change", array[2])
 				return div
 			}
+			case "text": {
+				const span = document.createElement("span")
+				span.textContent = array[1]
+				return span
+			}
 			case "radio": {
 				const div = document.createElement("div")
 				const fieldset = document.createElement("fieldset")
@@ -169,7 +174,34 @@ class fullscreen {
 				select.selectedIndex = array[4]
 				select.addEventListener("change", array[3])
 				return div
+			case "tabs":
+				const table = document.createElement("table")
+				const tabs = document.createElement("tr")
+				table.appendChild(tabs)
+				const content = document.createElement("tr")
+				table.appendChild(content)
 
+				let shown
+				for (const thing of array[1]) {
+					const td = document.createElement("td")
+					const button = document.createElement("button")
+					button.textContent = thing[0]
+					td.appendChild(button)
+					tabs.appendChild(td)
+
+					const tdcontent = document.createElement("td")
+					tdcontent.appendChild(this.tohtml(thing[1]))
+					content.appendChild(tdcontent)
+					if (shown) tdcontent.hidden = true
+					else shown = tdcontent
+
+					button.addEventListener("click", () => {
+						shown.hidden = true
+						tdcontent.hidden = false
+						shown = tdcontent
+					})
+				}
+				return table
 			default:
 				console.error("Can't find element:" + array[0] + ", full element:", array)
 		}

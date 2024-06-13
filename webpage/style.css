@@ -202,7 +202,7 @@ pre {
 	overflow-wrap: break-word;
 }
 
-samp {
+code {
 	background-color: var(--code-bg);
 }
 
@@ -224,6 +224,14 @@ samp {
 }
 .contextbutton:active {
 	border-width: 0;
+}
+
+.contextbutton:disabled {
+	cursor: not-allowed;
+	border-width: 0;
+}
+.contextbutton:disabled:hover {
+	background-color: var(--channels-bg);
 }
 
 .infosection {
@@ -429,6 +437,7 @@ p {
 	width: fit-content;
 	cursor: pointer;
 	font-weight: bold;
+	word-break: normal;
 }
 .username:hover {
 	text-decoration: underline;

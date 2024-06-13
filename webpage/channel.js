@@ -2,23 +2,23 @@
 
 class channel {
 	static contextmenu = new contextmenu("channel menu")
-    static setupcontextmenu() {
-        channel.contextmenu.addbutton("Copy channel id", function() {
-            navigator.clipboard.writeText(this.id)
-        })
+	static setupcontextmenu() {
+		channel.contextmenu.addbutton("Copy channel id", function() {
+			navigator.clipboard.writeText(this.id)
+		})
 
-        channel.contextmenu.addbutton("Mark as read", function() {
-            this.readbottom()
-        })
+		channel.contextmenu.addbutton("Mark as read", function() {
+			this.readbottom()
+		})
 
-        channel.contextmenu.addbutton("Delete channel", function() {
-            this.deleteChannel()
-        }, null, () => thisuser.isAdmin())
+		channel.contextmenu.addbutton("Delete channel", function() {
+			this.deleteChannel()
+		}, null, () => thisuser.isAdmin())
 
-        channel.contextmenu.addbutton("Edit channel", function() {
-            editchannel(this)
-        }, null, () => thisuser.isAdmin())
-    }
+		channel.contextmenu.addbutton("Edit channel", function() {
+			editchannel(this)
+		}, null, () => thisuser.isAdmin())
+	}
 
 	constructor(json, owner) {
 		if (json == -1) return
@@ -131,7 +131,7 @@ class channel {
 			caps.classList.add("capsflex")
 			decdiv.classList.add("channel", "channeleffects")
 
-            channel.contextmenu.bind(decdiv, this)
+			channel.contextmenu.bind(decdiv, this)
 			decdiv.all = this
 
 			for (const channel2 of this.children) {
@@ -157,7 +157,7 @@ class channel {
 			div.classList.add("channel")
 			if (this.hasunreads) div.classList.add("cunread")
 
-            channel.contextmenu.bind(div, this)
+			channel.contextmenu.bind(div, this)
 			if (admin) this.coatDropDiv(div)
 
 			div.all = this

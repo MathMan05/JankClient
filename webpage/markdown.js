@@ -114,10 +114,11 @@ function markdown(txt, keep = false) {
 					pre.textContent = build
 					span.appendChild(pre)
 				} else {
-					const samp = document.createElement("samp")
-					samp.textContent = build
-					span.appendChild(samp)
+					const code = document.createElement("code")
+					code.textContent = build
+					span.appendChild(code)
 				}
+
 				i--
 				continue
 			}
