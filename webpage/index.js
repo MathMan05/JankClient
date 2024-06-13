@@ -18,7 +18,7 @@ setDynamicHeight();
 
 let token=gettoken();
 let ws
-initwebsocket();
+//initwebsocket();
 let READY;
 
 var currentmenu="";
@@ -33,7 +33,7 @@ document.addEventListener('click', function(event) {
 });
 let replyingto=null;
 {
-    const menu=new contextmenu("create backclick");
+    const menu=new contextmenu("create rightclick");
     menu.addbutton("Create channel",function(){
         createchannels(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild));
     },null,_=>{return thisuser.isAdmin()})
@@ -262,122 +262,8 @@ let serverid=[];
 let thisuser=null;
 
 
-function initwebsocket(){
-    ws = new WebSocket(info.gateway.toString());
 
-    ws.addEventListener('open', (event) => {
-    console.log('WebSocket connected');
-    ws.send(JSON.stringify({
-        "op": 2,
-        "d": {
-            "token":token,
-            "capabilities": 16381,
-            "properties": {
-                "browser": "Jank Client",
-                "client_build_number": 0,
-                "release_channel": "Custom",
-                "browser_user_agent": navigator.userAgent
-            },
-            "compress": false,
-            "presence": {
-                "status": "online",
-                "since": new Date().getTime(),
-                "activities": [],
-                "afk": false
-            }
-        }
-    }))
-    });
-
-    ws.addEventListener('message', (event) => {
-
-
-    try{
-        const temp=JSON.parse(event.data);
-        console.log(temp)
-        if(temp.op==0){
-            switch(temp.t){
-                case "MESSAGE_CREATE":
-                    if(thisuser){
-                        thisuser.messageCreate(temp);
-                    }
-                    break;
-                case "READY":
-                    thisuser=new localuser(temp);
-                    thisuser.loaduser();
-                    READY=temp;
-                    thisuser.init();
-                    genusersettings();
-                    document.getElementById("loading").classList.add("doneloading");
-                    document.getElementById("loading").classList.remove("loading")
-                    break;
-                case "MESSAGE_UPDATE":
-                    if(thisuser){
-                        if(window.location.pathname.split("/")[3]==temp.d.channel_id){
-                            const find=temp.d.id;
-                            for(const message of messagelist){
-                                if(message.all.id===find){
-                                    message.all.content=temp.d.content;
-                                    message.txt.innerHTML=markdown(temp.d.content).innerHTML;
-                                    break;
-                                }
-                            }
-                    }
-                    }
-                    break;
-                case "TYPING_START":
-                    if(thisuser){
-                        thisuser.typeingStart(temp);
-                    }
-                    break;
-                case "USER_UPDATE":
-                    if(thisuser){
-                        const users=user.userids[temp.d.id];
-                        console.log(users,temp.d.id)
-
-                        if(users){
-                            users.userupdate(temp.d);
-                            console.log("in here");
-                        }
-                    }
-                    break
-                case "CHANNEL_UPDATE":
-                    if(thisuser){
-                        thisuser.updateChannel(temp.d);
-                    }
-                    break;
-                case "CHANNEL_CREATE":
-                    if(thisuser){
-                        thisuser.createChannel(temp.d);
-                    }
-                    break;
-                case "CHANNEL_DELETE":
-                    if(thisuser){
-                        thisuser.delChannel(temp.d);
-                    }
-                    break;
-            }
-
-        }else if(temp.op===10){
-            console.log("heartbeat down")
-            setInterval(function(){
-                ws.send(JSON.stringify({op:1,d:packets}))
-            },temp.d.heartbeat_interval)
-            packets=1;
-        }else if(temp.op!=11){
-            packets++
-        }
-    }catch(error){
-        console.error(error)
-    }
-
-    });
-
-    ws.addEventListener('close', (event) => {
-    console.log('WebSocket closed');
-    });
-}
-
+thisuser=new localuser();
 let cchanel=0;
 
 

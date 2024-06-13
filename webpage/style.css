@@ -265,7 +265,7 @@ input {
 	background-color: var(--message-bg-hover);
 	color: var(--primary-text);
 	height: .4in;
-	width: 100%;
+	width: 97.5%;
 }
 
 div {
@@ -762,4 +762,15 @@ span {
 
 .servernoti {
 	position: relative;
+}
+.tabbed-head{
+    background: var(--textarea-bg);
+}
+.tabbed-content td{
+    /* border-color: var(--textarea-bg); */
+    /* border-width:1in; */
+    border-inline: medium solid var(--textarea-bg);
+}
+.tabbed-head td button{
+    min-width:1.5in;
 }

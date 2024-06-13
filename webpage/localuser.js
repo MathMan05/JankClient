@@ -1,5 +1,10 @@
 class localuser{
-    constructor(ready){
+    constructor(){
+        this.initwebsocket();
+        this.initialized=false;
+    }
+    gottenReady(ready){
+        this.initialized=true;
         this.ready=ready;
         this.guilds=[];
         this.guildids={};
@@ -32,6 +37,120 @@ class localuser{
             this.guildids[guildid].channelids[thing.channel_id].readStateInfo(thing);
         }
         this.typing=[];
+    }
+    initwebsocket(){
+        this.ws = new WebSocket(info.gateway.toString());
+        this.ws.addEventListener('open', (event) => {
+        console.log('WebSocket connected');
+        this.ws.send(JSON.stringify({
+            "op": 2,
+            "d": {
+                "token":token,
+                "capabilities": 16381,
+                "properties": {
+                    "browser": "Jank Client",
+                    "client_build_number": 0,
+                    "release_channel": "Custom",
+                    "browser_user_agent": navigator.userAgent
+                },
+                "compress": false,
+                "presence": {
+                    "status": "online",
+                    "since": new Date().getTime(),
+                    "activities": [],
+                    "afk": false
+                }
+            }
+        }))
+        });
+
+        this.ws.addEventListener('message', (event) => {
+
+
+        try{
+            const temp=JSON.parse(event.data);
+            console.log(temp)
+            if(temp.op==0){
+                switch(temp.t){
+                    case "MESSAGE_CREATE":
+                        if(this.initialized){
+                            this.messageCreate(temp);
+                        }
+                        break;
+                    case "READY":
+                        this.gottenReady(temp);
+                        this.loaduser();
+                        READY=temp;
+                        this.init();
+                        genusersettings();
+                        document.getElementById("loading").classList.add("doneloading");
+                        document.getElementById("loading").classList.remove("loading")
+                        break;
+                    case "MESSAGE_UPDATE":
+                        if(this.initialized){
+                            if(window.location.pathname.split("/")[3]==temp.d.channel_id){
+                                const find=temp.d.id;
+                                for(const message of messagelist){
+                                    if(message.all.id===find){
+                                        message.all.content=temp.d.content;
+                                        message.txt.innerHTML=markdown(temp.d.content).innerHTML;
+                                        break;
+                                    }
+                                }
+                        }
+                        }
+                        break;
+                    case "TYPING_START":
+                        if(this.initialized){
+                            this.typeingStart(temp);
+                        }
+                        break;
+                    case "USER_UPDATE":
+                        if(this.initialized){
+                            const users=user.userids[temp.d.id];
+                            console.log(users,temp.d.id)
+
+                            if(users){
+                                users.userupdate(temp.d);
+                                console.log("in here");
+                            }
+                        }
+                        break
+                    case "CHANNEL_UPDATE":
+                        if(this.initialized){
+                            this.updateChannel(temp.d);
+                        }
+                        break;
+                    case "CHANNEL_CREATE":
+                        if(this.initialized){
+                            this.createChannel(temp.d);
+                        }
+                        break;
+                    case "CHANNEL_DELETE":
+                        if(this.initialized){
+                            this.delChannel(temp.d);
+                        }
+                        break;
+                }
+
+            }else if(temp.op===10){
+                console.log("heartbeat down")
+                setInterval(_=>{
+                    this.ws.send(JSON.stringify({op:1,d:packets}))
+                },temp.d.heartbeat_interval)
+                packets=1;
+            }else if(temp.op!=11){
+                packets++
+            }
+        }catch(error){
+            console.error(error)
+        }
+
+        });
+
+        this.ws.addEventListener('close', (event) => {
+        console.log('WebSocket closed');
+        });
     }
     resolveGuildidFromChannelID(ID){
         let resolve=this.guilds.find(guild => guild.channelids[ID])
@@ -157,12 +276,62 @@ class localuser{
             div.innerText="+";
             div.classList.add("addserver","servericon")
             serverlist.appendChild(div)
-            div.onclick=function(){
+            div.onclick=_=>{
                 console.log("clicked :3")
+                this.createGuild();
             }
 
         }
         this.unreads();
+    }
+    createGuild(){
+        let inviteurl="";
+        const error=document.createElement("span");
+
+        const full=new fullscreen(["tabs",[
+            ["Join using invite",[
+                "vdiv",
+                    ["textbox",
+                        "Invite Link/Code",
+                        "",
+                        function(){
+                            console.log(this)
+                            inviteurl=this.value;
+                        }
+                    ],
+                    ["html",error]
+                    ,
+                    ["button",
+                        "",
+                        "Submit",
+                        _=>{
+                            let parsed="";
+                            if(inviteurl.includes("/")){
+                                parsed=inviteurl.split("/")[inviteurl.split("/").length-1]
+                            }else{
+                                parsed=inviteurl;
+                            }
+                            fetch(info.api.toString()+"/v9/invites/"+parsed,{
+                                method:"POST",
+                                headers:{
+                                    "Content-type": "application/json; charset=UTF-8",
+                                    Authorization:token
+                                },
+                            }).then(r=>r.json()).then(_=>{
+                                console.log(_);
+                                if(_.message){
+                                    error.innerText=_.message;
+                                }
+                            })
+                        }
+                    ]
+
+            ]],
+            ["Create Server",[
+                "text","Not currently implemented, sorry"
+            ]]
+        ]])
+        full.show();
     }
     messageCreate(messagep){
         messagep.d.guild_id??="@me";

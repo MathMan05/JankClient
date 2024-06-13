@@ -3,7 +3,9 @@ class dirrect extends guild{
         super(-1);
         console.log(JSON);
         this.owner=owner;
-        this.owner??=thisuser;
+        if(!this.owner){
+            console.error("Owner was not included, please fix")
+        }
         this.channels=[];
         this.channelids={};
         this.id="@me";
@@ -97,7 +99,7 @@ class group extends channel{
     messageCreate(messagep,focus){
         const messagez=new cmessage(messagep.d);
         this.lastmessageid=messagez.id;
-        if(messagez.author===thisuser.user){
+        if(messagez.author===this.owner.owner.user){
             this.lastreadmessageid=messagez.id;
         }
         this.messages.unshift(messagez);
@@ -111,7 +113,7 @@ class group extends channel{
                 scrolly.scrollTop = scrolly.scrollHeight;
         }
         console.log(document.getElementById("channels").children)
-        if(thisuser.lookingguild===this.owner){
+        if(this.owner.owner.lookingguild===this.owner){
             const channellist=document.getElementById("channels").children[0]
             for(const thing of channellist.children){
                 if(thing.myinfo===this){

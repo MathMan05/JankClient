@@ -5,21 +5,21 @@ class channel{
         channel.contextmenu.addbutton("Copy channel id",function(){
             console.log(this)
             navigator.clipboard.writeText(this.id);
-        })
+        });
 
         channel.contextmenu.addbutton("Mark as read",function(){
             console.log(this)
             this.readbottom();
-        })
+        });
 
         channel.contextmenu.addbutton("Delete channel",function(){
             console.log(this)
             this.deleteChannel();
-        },null,_=>{return thisuser.isAdmin()})
+        },null,_=>{console.log(_);return _.isAdmin()});
 
         channel.contextmenu.addbutton("Edit channel",function(){
             editchannelf(this);
-        },null,_=>{return thisuser.isAdmin()})
+        },null,_=>{return _.isAdmin()});
     }
     constructor(JSON,owner){
         if(JSON===-1){
@@ -41,6 +41,9 @@ class channel{
         this.position=JSON.position;
         this.lastreadmessageid=null;
         this.lastmessageid=JSON.last_message_id;
+    }
+    isAdmin(){
+        return this.owner.isAdmin();
     }
     readStateInfo(json){
         this.lastreadmessageid=json.last_message_id;
@@ -186,7 +189,7 @@ class channel{
     }
     get myhtml(){
         const search=document.getElementById("channels").children[0].children
-        if(this.owner!==thisuser.lookingguild){
+        if(this.owner!==this.owner.owner.lookingguild){
             return null
         }else if(this.parrent){
             for(const thing of search){
@@ -449,7 +452,7 @@ class channel{
     messageCreate(messagep,focus){
         const messagez=new cmessage(messagep.d);
         this.lastmessageid=messagez.id;
-        if(messagez.author===thisuser.user){
+        if(messagez.author===this.owner.owner.user){
             this.lastreadmessageid=messagez.id;
             if(this.myhtml){
                 this.myhtml.classList.remove("cunread");
