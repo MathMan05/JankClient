@@ -180,21 +180,27 @@ class fullscreen{
                 select.addEventListener("change",array[3]);
                 return div;
             }
-            case "tabs":
+            case "tabs":{
                 const table=document.createElement("table");
                 const tabs=document.createElement("tr");
+                tabs.classList.add("tabbed-head");
                 table.appendChild(tabs);
+                const td=document.createElement("td");
+                tabs.appendChild(td);
                 const content=document.createElement("tr");
+                content.classList.add("tabbed-content");
                 table.appendChild(content);
+
                 let shown;
                 for(const thing of array[1]){
-                    const td=document.createElement("td");
+
                     const button=document.createElement("button");
                     button.innerText=thing[0];
                     td.appendChild(button);
-                    tabs.appendChild(td);
+
 
                     const tdcontent=document.createElement("td");
+                    tdcontent.colSpan=array[1].length;
                     tdcontent.appendChild(this.tohtml(thing[1]));
                     content.appendChild(tdcontent);
                     if(!shown){
@@ -209,6 +215,7 @@ class fullscreen{
                     })
                 }
                 return table;
+            }
             default:
                 console.error("can't find element:"+array[0],"  full element:"+array)
                 return;

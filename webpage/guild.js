@@ -1,5 +1,5 @@
 class guild{
-    static contextmenu=new contextmenu("channel menu");
+    static contextmenu=new contextmenu("guild menu");
     static setupcontextmenu(){
         guild.contextmenu.addbutton("Copy Guild id",function(){
             console.log(this)
@@ -31,7 +31,9 @@ class guild{
         }
         console.log(JSON);
         this.owner=owner;
-        this.owner??=thisuser;
+        if(!this.owner){
+            console.error("Owner was not included, please fix")
+        }
         this.channels=[];
         this.channelids={};
         this.id=JSON.id;

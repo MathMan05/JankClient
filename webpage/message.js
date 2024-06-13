@@ -4,7 +4,7 @@ class cmessage{
         cmessage.contextmenu.addbutton("Copy raw text",function(){
             console.log(this)
             navigator.clipboard.writeText(this.content);
-        })
+        });
         cmessage.contextmenu.addbutton("Reply",function(div){
             console.log(this)
             if(replyingto){
@@ -13,11 +13,15 @@ class cmessage{
             replyingto=div;
             console.log(div);
             replyingto.classList.add("replying");
-        })
+        });
         cmessage.contextmenu.addbutton("Copy message id",function(){
             console.log(this)
             navigator.clipboard.writeText(this.id);
-        })
+        });
+        cmessage.contextmenu.addbutton("Copy user id",function(){
+            console.log(this)
+            navigator.clipboard.writeText(this.author.id);
+        });
         cmessage.contextmenu.addbutton("Message user",function(){
             console.log(this)
             fetch(info.api.toString()+"/v9/users/@me/channels",
