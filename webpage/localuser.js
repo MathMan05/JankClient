@@ -88,6 +88,7 @@ class localuser {
 	}
 	buildservers() {
 		const serverlist = document.getElementById("servers")
+		serverlist.innerHTML = ""
 
 		const div = document.createElement("div")
 		div.textContent = "⌂"

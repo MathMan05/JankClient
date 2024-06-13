@@ -300,6 +300,9 @@ async function enter(event) {
 	}
 }
 
+let heartbeatInterval = 0
+let errorBackoff = 0
+const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
 function initwebsocket() {
 	ws = new WebSocket(instance.gateway + "/?v=9&encoding=json")
@@ -381,7 +384,7 @@ function initwebsocket() {
 						break
 				}
 			} else if (temp.op == 10) {
-				setInterval(() => {
+				heartbeatInterval = setInterval(() => {
 					ws.send(JSON.stringify({ op: 1, d: packets }))
 				}, temp.d.heartbeat_interval)
 				packets = 1
@@ -393,22 +396,17 @@ function initwebsocket() {
 
 	ws.addEventListener("close", event => {
 		console.log("WebSocket closed with code " + event.code)
+		if (heartbeatInterval) clearInterval(heartbeatInterval)
 
-		if (event.code > 1000 && event.code < 1016) {
-			document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server, retrying in five seconds..."
+		if ((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code)) {
+			document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server, retrying..."
 
 			setTimeout(() => {
 				document.getElementById("load-desc").textContent = "Retrying..."
 				initwebsocket()
-			}, 5000)
+			}, 200 + (errorBackoff++ * 3000))
 		}
 	})
-}
-
-function getguildinfo() {
-	const path = window.location.pathname.split("/")
-	const channel = path[3]
-	ws.send(JSON.stringify({ op: 14, d: { guild_id: path[2], channels: { [channel]: [[0, 99]] } } }))
 }
 
 function createunknown(fname, fsize, src) {
@@ -511,8 +509,8 @@ function genusersettings() {
 					["html", hypothetcialprofie]
 				]
 			],
-			["select", "Theme", ["dark", "light"], event => {
-				newTheme = event.target.value
+			["select", "Theme", ["Dark", "Light"], event => {
+				newTheme = event.target.value == "Light" ? "light" : "dark"
 			}, thisuser.settings.theme == "light" ? 1 : 0],
 			["button", "update user content:", "submit", () => {
 				if (file !== null) thisuser.updatepfp(file)
