@@ -1,21 +1,24 @@
 "use strict"
 
 class cmessage {
-    static contextmenu = new contextmenu("message menu")
-    static setupcmenu() {
-        cmessage.contextmenu.addbutton("Copy raw text", function() {
-            navigator.clipboard.writeText(this.content)
-        })
-        cmessage.contextmenu.addbutton("Reply", div => {
-            if (replyingto) replyingto.classList.remove("replying")
-            replyingto = div
-            replyingto.classList.add("replying")
-        })
-        cmessage.contextmenu.addbutton("Copy message id", function() {
-            navigator.clipboard.writeText(this.id)
-        })
-        cmessage.contextmenu.addbutton("Message user", function() {
-            fetch(instance.api + "/users/@me/channels", {
+	static contextmenu = new contextmenu("message menu")
+	static setupcmenu() {
+		cmessage.contextmenu.addbutton("Copy raw text", function() {
+			navigator.clipboard.writeText(this.content)
+		})
+		cmessage.contextmenu.addbutton("Reply", div => {
+			if (replyingto) replyingto.classList.remove("replying")
+			replyingto = div
+			replyingto.classList.add("replying")
+		})
+		cmessage.contextmenu.addbutton("Copy message id", function() {
+			navigator.clipboard.writeText(this.id)
+		})
+		cmessage.contextmenu.addbutton("Copy user id", function() {
+			navigator.clipboard.writeText(this.author.id)
+		})
+		cmessage.contextmenu.addbutton("Message user", function() {
+			fetch(instance.api + "/users/@me/channels", {
 				method: "POST",
 				body: JSON.stringify({recipients: [this.author.id]}),
 				headers: {
@@ -23,12 +26,12 @@ class cmessage {
 					Authorization: token
 				}
 			})
-        })
-        cmessage.contextmenu.addbutton("Edit", function() {
-            editing = this.id
-            document.getElementById("typebox").value = this.content
-        }, null, m => m.author.id == READY.d.user.id)
-    }
+		})
+		cmessage.contextmenu.addbutton("Edit", function() {
+			editing = this.id
+			document.getElementById("typebox").value = this.content
+		}, null, m => m.author.id == READY.d.user.id)
+	}
 
 	constructor(messagejson) {
 		for (const thing of Object.keys(messagejson)) {
@@ -37,7 +40,7 @@ class cmessage {
 		this.author = user.checkuser(this.author)
 	}
 	messageevents(obj) {
-        cmessage.contextmenu.bind(obj, this)
+		cmessage.contextmenu.bind(obj, this)
 		obj.classList.add("messagediv")
 	}
 	buildhtml(premessage) {

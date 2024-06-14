@@ -1,7 +1,87 @@
 "use strict"
 
+let usersettings
+function genusersettings() {
+	const hypothetcialprofie = document.createElement("div")
+	let file = null
+	let newprouns = null
+	let newbio = null
+	let newTheme = null
+
+	let hypouser = new user(thisuser.user)
+	function regen() {
+		hypothetcialprofie.textContent = ""
+		const hypoprofile = buildprofile(-1, -1, hypouser)
+
+		hypothetcialprofie.appendChild(hypoprofile)
+	}
+	regen()
+	usersettings = new fullscreen(
+		["vdiv",
+			["hdiv",
+				["vdiv",
+					["fileupload", "upload pfp:", event => {
+						file = event.target.files[0]
+						const blob = URL.createObjectURL(event.target.files[0])
+						hypouser.avatar = blob
+						hypouser.hypotheticalpfp = true
+						regen()
+					}],
+					["textbox", "Pronouns:", thisuser.user.pronouns, event => {
+						hypouser.pronouns = event.target.value
+						newprouns = event.target.value
+						regen()
+					}],
+					["mdbox", "Bio:", thisuser.user.bio, event => {
+						hypouser.bio = event.target.value
+						newbio = event.target.value
+						regen()
+					}]
+				],
+				["vdiv",
+					["html", hypothetcialprofie]
+				]
+			],
+			["select", "Theme", ["Dark", "Light"], event => {
+				newTheme = event.target.value == "Light" ? "light" : "dark"
+			}, thisuser.settings.theme == "light" ? 1 : 0],
+			["button", "update user content:", "submit", () => {
+				if (file !== null) thisuser.updatepfp(file)
+				if (newprouns !== null) thisuser.updatepronouns(newprouns)
+				if (newbio !== null) thisuser.updatebio(newbio)
+				if (newTheme !== null) {
+					thisuser.updateSettings({theme: newTheme})
+					localStorage.setItem("theme", newTheme)
+
+					setTheme(newTheme)
+				}
+			}]
+		], () => {}, (() => {
+			hypouser = user.checkuser(thisuser.user)
+			regen()
+			file = null
+			newprouns = null
+			newbio = null
+			newTheme = null
+		}))
+}
+function userSettings() {
+	usersettings.show()
+}
+
+let packets = 1
+let heartbeatInterval = 0
+let errorBackoff = 0
+const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
+
 class localuser {
-	constructor(ready) {
+	constructor() {
+		this.initwebsocket()
+		this.initialized = false
+	}
+
+	gottenReady(ready) {
+		this.initialized = true
 		this.ready = ready
 		this.guilds = []
 		this.guildids = {}
@@ -37,6 +117,109 @@ class localuser {
 			this.guildids[guildid].channelids[thing.channel_id].readStateInfo(thing)
 		}
 		this.typing = []
+	}
+	initwebsocket() {
+		this.ws = new WebSocket(instance.gateway + "/?v=9&encoding=json")
+
+		this.ws.addEventListener("open", () => {
+			console.log("WebSocket connected")
+			this.ws.send(JSON.stringify({
+				op: 2,
+				d: {
+					token,
+					capabilities: 16381,
+					properties: {
+						browser: "Jank Client",
+						client_build_number: 0,
+						release_channel: "Custom",
+						browser_user_agent: navigator.userAgent
+					},
+					compress: false,
+					presence: {
+						status: "online",
+						since: Date.now(),
+						activities: [],
+						afk: false
+					}
+				}
+			}))
+		})
+
+		this.ws.addEventListener("message", event => {
+			try {
+				const json = JSON.parse(event.data)
+				console.log(json)
+				if (json.op == 0) {
+					switch (json.t) {
+						case "MESSAGE_CREATE":
+							if (this.initialized) this.messageCreate(json)
+							break
+						case "READY":
+							this.gottenReady(json)
+							this.loaduser()
+							READY = json
+							this.init()
+							genusersettings()
+							document.getElementById("loading").classList.add("doneloading")
+							document.getElementById("loading").classList.remove("loading")
+							break
+						case "MESSAGE_UPDATE":
+							if (this.initialized && window.location.pathname.split("/")[3] == json.d.channel_id) {
+								const find = json.d.id
+								for (const message of messagelist) {
+									if (message.all.id === find) {
+										message.all.content = json.d.content
+										message.txt.innerHTML = markdown(json.d.content).innerHTML
+										break
+									}
+								}
+							}
+							break
+						case "TYPING_START":
+							if (this.initialized) this.typingStart(json)
+							break
+						case "USER_UPDATE":
+							if (this.initialized) {
+								const users = user.userids[json.d.id]
+								console.log(users, json.d.id)
+
+								if (users) users.userupdate(json.d)
+							}
+							break
+						case "CHANNEL_UPDATE":
+							if (this.initialized) this.updateChannel(json.d)
+							break
+						case "CHANNEL_CREATE":
+							if (this.initialized) this.createChannel(json.d)
+							break
+						case "CHANNEL_DELETE":
+							if (this.initialized) this.delChannel(json.d)
+							break
+					}
+				} else if (json.op == 10) {
+					heartbeatInterval = setInterval(() => {
+						this.ws.send(JSON.stringify({ op: 1, d: packets }))
+					}, json.d.heartbeat_interval)
+					packets = 1
+				} else if (json.op != 11) packets++
+			} catch (error) {
+				console.error(error)
+			}
+		})
+
+		this.ws.addEventListener("close", event => {
+			console.log("WebSocket closed with code " + event.code)
+			if (heartbeatInterval) clearInterval(heartbeatInterval)
+
+			if ((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code)) {
+				document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server, retrying..."
+
+				setTimeout(() => {
+					document.getElementById("load-desc").textContent = "Retrying..."
+					this.initwebsocket()
+				}, 200 + (errorBackoff++ * 3000))
+			}
+		})
 	}
 	resolveGuildidFromChannelID(ID) {
 		let resolve = this.guilds.find(guild => guild.channelids[ID])
@@ -141,7 +324,6 @@ class localuser {
 				divy.appendChild(img)
 				img.all = thing
 				img.onclick = function() {
-					console.log(this.all.loadGuild)
 					this.all.loadGuild()
 					this.all.loadChannel()
 				}
@@ -160,7 +342,54 @@ class localuser {
 		serverlist.appendChild(div2)
 		div2.addEventListener("click", () => {
 			inviteModal.show()
+			this.createGuild()
 		})
+	}
+	createGuild() {
+		let inviteurl = ""
+		const error = document.createElement("span")
+
+		const full = new fullscreen(["tabs", [
+			["Join using invite", [
+				"vdiv",
+					["textbox",
+						"Invite Link/Code",
+						"",
+						function() {
+							inviteurl = this.value
+						}
+					],
+					["html", error],
+					["button",
+						"",
+						"Submit",
+						async () => {
+							let parsed = ""
+							if (inviteurl.includes("/")) parsed = inviteurl.split("/")[inviteurl.split("/").length - 1]
+							else parsed = inviteurl
+
+							const res = await fetch(instance.api + "/invites/" + parsed, {
+								method: "POST",
+								headers: {
+									"Content-type": "application/json; charset=UTF-8",
+									Authorization: token
+								}
+							})
+							if (res.ok) inviteModal.hide()
+							else {
+								const json = await res.json()
+								error.textContent = json.message || "An error occurred (response code " + res.status + ")"
+								console.error("Unable to join guild using " + inviteurl, json)
+							}
+						}
+					]
+
+			]],
+			["Create Server", [
+				"text", "Not currently implemented, sorry"
+			]]
+		]])
+		full.show()
 	}
 	messageCreate(messagep) {
 		messagep.d.guild_id ??= "@me"

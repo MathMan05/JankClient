@@ -29,7 +29,8 @@ class guild {
 
 		console.log(json)
 		this.owner = owner
-		this.owner ??= thisuser
+		if (!this.owner) console.error("Owner was not included, please fix")
+
 		this.channels = []
 		this.channelids = {}
 		this.id = json.id
@@ -161,7 +162,7 @@ class guild {
 			}
 		}
 		this.unreads()
-		fetch(instance.api + "/read-states/ack-bulk",{
+		fetch(instance.api + "/read-states/ack-bulk", {
 			method: "POST",
 			headers: {
 				"Content-type": "application/json; charset=UTF-8",

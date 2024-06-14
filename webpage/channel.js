@@ -13,11 +13,11 @@ class channel {
 
 		channel.contextmenu.addbutton("Delete channel", function() {
 			this.deleteChannel()
-		}, null, () => thisuser.isAdmin())
+		}, null, owner => owner.isAdmin())
 
 		channel.contextmenu.addbutton("Edit channel", function() {
 			editchannel(this)
-		}, null, () => thisuser.isAdmin())
+		}, null, owner => owner.isAdmin())
 	}
 
 	constructor(json, owner) {
@@ -41,6 +41,10 @@ class channel {
 		this.lastmessageid = json.last_message_id
 	}
 
+
+	isAdmin() {
+		return this.owner.isAdmin()
+	}
 	readStateInfo(json) {
 		this.lastreadmessageid = json.last_message_id
 		this.mentions = json.mention_count
@@ -191,7 +195,7 @@ class channel {
 	}
 	get myhtml() {
 		const search = document.getElementById("channels").children[0].children
-		if (this.owner !== thisuser.lookingguild) {
+		if (this.owner !== this.owner.owner.lookingguild) {
 			return null
 		} else if (this.parent) {
 			for (const thing of search) {
@@ -353,8 +357,8 @@ class channel {
 			method: "GET",
 			headers: { Authorization: token }
 		}).then(j => {
- return j.json()
-}).then(response => {
+			return j.json()
+		}).then(response => {
 			messages.innerHTML = ""
 			for (const thing of response) {
 				const messager = new cmessage(thing)
@@ -448,7 +452,7 @@ class channel {
 	messageCreate(messagep, focus) {
 		const messagez = new cmessage(messagep.d)
 		this.lastmessageid = messagez.id
-		if (messagez.author === thisuser.user) {
+		if (messagez.author === this.owner.owner.user) {
 			this.lastreadmessageid = messagez.id
 			if (this.myhtml) this.myhtml.classList.remove("cunread")
 		} else {

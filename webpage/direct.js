@@ -3,13 +3,10 @@ class group extends channel {
 		super(-1)
 		this.owner = owner
 		this.messages = []
-		console.log(json.recipients, json)
 		this.name = json.recipients[0]?.username
-		if (json.recipients[0]) {
-			this.user = user.checkuser(json.recipients[0])
-		} else {
-			this.user = this.owner.owner.user
-		}
+		if (json.recipients[0]) this.user = user.checkuser(json.recipients[0])
+		else this.user = this.owner.owner.user
+
 		this.name ??= owner.owner.user.username
 		this.id = json.id
 		this.parent_id = null
@@ -45,7 +42,7 @@ class group extends channel {
 	messageCreate(messagep, focus) {
 		const messagez = new cmessage(messagep.d)
 		this.lastmessageid = messagez.id
-		if (messagez.author === thisuser.user) this.lastreadmessageid = messagez.id
+		if (messagez.author === this.owner.owner.user) this.lastreadmessageid = messagez.id
 
 		this.messages.unshift(messagez)
 		const scrolly = document.getElementById("messagecontainer")
@@ -56,11 +53,9 @@ class group extends channel {
 			shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20
 			messages.appendChild(messagez.buildhtml(this.messages[1]))
 		}
-		if (shouldScroll) {
-			scrolly.scrollTop = scrolly.scrollHeight
-		}
-		console.log(document.getElementById("channels").children)
-		if (thisuser.lookingguild === this.owner) {
+		if (shouldScroll) scrolly.scrollTop = scrolly.scrollHeight
+
+		if (this.owner.owner.lookingguild === this.owner) {
 			const channellist = document.getElementById("channels").children[0]
 			for (const thing of channellist.children) {
 				if (thing.myinfo === this) {
@@ -112,7 +107,8 @@ class direct extends guild {
 		super(-1)
 		console.log(json)
 		this.owner = owner
-		this.owner ??= thisuser
+		if (!this.owner) console.error("Owner was not included, please fix")
+
 		this.channels = []
 		this.channelids = {}
 		this.id = "@me"
@@ -144,10 +140,10 @@ class direct extends guild {
 	giveMember(member) {
 		console.error("not a real guild, can't give member object")
 	}
-	getRole(ID) {
+	getRole() {
 		return null
 	}
-	hasRole(r) {
+	hasRole() {
 		return false
 	}
 	isAdmin() {
