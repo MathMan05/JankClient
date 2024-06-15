@@ -29,7 +29,6 @@ class channel{
         this.type=JSON.type;
         this.owner=owner;
         this.headers=this.owner.headers;
-        console.log(this.headers)
         this.messages=[];
         this.name=JSON.name;
         this.id=JSON.id;
@@ -383,8 +382,8 @@ class channel{
 
         await fetch(info.api.toString()+"/channels/"+this.id+"/messages?before="+this.messages[this.messages.length-1].id+"&limit=100",{
             method:"GET",
-            headers:{Authorization:token}
-        }).then((j)=>{return j.json()}).then(function(responce){
+            headers:this.headers
+        }).then((j)=>{return j.json()}).then(responce=>{
             //messages.innerHTML = '';
             //responce.reverse()
             let next
@@ -449,7 +448,7 @@ class channel{
         this.typing=new Date().getTime()+6000;
         fetch(info.api.toString()+"/channels/"+this.id+"/typing",{
             method:"POST",
-            headers:{Authorization:token}
+            headers:this.headers
         })
     }
     messageCreate(messagep,focus){

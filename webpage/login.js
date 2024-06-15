@@ -34,7 +34,6 @@ function setDefaults(){
 setDefaults();
 class specialuser{
     constructor(json){
-        console.log(json)
         if(typeof json==="specialuser"){
             return json;
         }
@@ -52,6 +51,7 @@ class specialuser{
         }
     }
     set pfpsrc(e){
+        console.log("this ran fr")
         this.json.pfpsrc=e;
         this.updateLocal();
     }
@@ -61,7 +61,7 @@ class specialuser{
     set username(e){
         this.json.username=e;
         this.updateLocal();
-    }
+        }
     get username(){
         return this.json.username;
     }

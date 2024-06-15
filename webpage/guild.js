@@ -32,7 +32,7 @@ class guild{
         }
         console.log(JSON);
         this.owner=owner;
-        this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.owner.userinfo.token};
+        this.headers=this.owner.headers;
         if(!this.owner){
             console.error("Owner was not included, please fix")
         }
@@ -202,7 +202,7 @@ class guild{
         return this.member.hasRole(r);
     }
     loadChannel(ID){
-        if(ID){
+        if(ID&&this.channelids[ID]){
             this.channelids[ID].getHTML();
             return;
         }

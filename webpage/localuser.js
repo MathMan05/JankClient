@@ -2,7 +2,9 @@ class localuser{
     constructor(userinfo){
         this.token=userinfo.token;
         this.userinfo=userinfo;
+        this.serverurls=this.userinfo.serverurls;
         this.initialized=false;
+        this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.userinfo.token};
     }
     gottenReady(ready){
         this.initialized=true;
@@ -10,6 +12,8 @@ class localuser{
         this.guilds=[];
         this.guildids={};
         this.user=new user(ready.d.user);
+        this.userinfo.username=this.user.username;
+        this.userinfo.pfpsrc=this.user.getpfpsrc();
         this.status=this.ready.d.user_settings.status;
         this.channelfocus=null;
         this.lookingguild=null;
@@ -29,7 +33,6 @@ class localuser{
             this.guildids[temp.guild_id].giveMember(temp);
         }
         for(const thing of ready.d.read_state.entries){
-            console.log(thing)
             const guild=this.resolveGuildidFromChannelID(thing.id)
             if(guild===undefined){
                 continue
@@ -57,7 +60,7 @@ class localuser{
     async initwebsocket(){
         let returny=null
         const promise=new Promise((res)=>{returny=res});
-        this.ws = new WebSocket(info.gateway.toString());
+        this.ws = new WebSocket(this.serverurls.gateway.toString());
         this.ws.addEventListener('open', (event) => {
         console.log('WebSocket connected');
         this.ws.send(JSON.stringify({
@@ -228,7 +231,10 @@ class localuser{
         return this.lookingguild.isAdmin();
     }
     loadGuild(id){
-        const guild=this.guildids[id];
+        let guild=this.guildids[id];
+        if(!guild){
+            guild=this.guildids["@me"];
+        }
         this.lookingguild=guild;
         document.getElementById("serverName").innerText=guild.properties.name;
         //console.log(this.guildids,id)
@@ -344,10 +350,7 @@ class localuser{
                             }
                             fetch(info.api.toString()+"/v9/invites/"+parsed,{
                                 method:"POST",
-                                headers:{
-                                    "Content-type": "application/json; charset=UTF-8",
-                                    Authorization:token
-                                },
+                                headers:this.headers,
                             }).then(r=>r.json()).then(_=>{
                                 console.log(_);
                                 if(_.message){
@@ -411,10 +414,7 @@ class localuser{
         reader.onload = function () {
             fetch(info.api.toString()+"/v9/users/@me",{
                 method:"PATCH",
-                headers:{
-                    "Content-type": "application/json; charset=UTF-8",
-                    Authorization:token
-                },
+                headers:this.headers,
                 body:JSON.stringify({
                     avatar:reader.result,
                 })
@@ -426,10 +426,7 @@ class localuser{
     updatepronouns(pronouns){
         fetch(info.api.toString()+"/v9/users/@me/profile",{
             method:"PATCH",
-            headers:{
-                "Content-type": "application/json; charset=UTF-8",
-                Authorization:token
-            },
+            headers:this.headers,
             body:JSON.stringify({
                 pronouns:pronouns,
             })
@@ -438,10 +435,7 @@ class localuser{
     updatebio(bio){
         fetch(info.api.toString()+"/v9/users/@me/profile",{
             method:"PATCH",
-            headers:{
-                "Content-type": "application/json; charset=UTF-8",
-                Authorization:token
-            },
+            headers:this.headers,
             body:JSON.stringify({
                 bio:bio,
             })

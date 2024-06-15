@@ -14,12 +14,11 @@ const users=getBulkUsers();
 if(!users.currentuser){
     window.location.href = '/login.html';
 }
-const info=users.users[users.currentuser].serverurls;
-console.log(users)
+var info=users.users[users.currentuser].serverurls;
 let token=users.users[users.currentuser].token;
 let READY;
 
-let thisuser=new localuser({token:token});
+let thisuser=new localuser(users.users[users.currentuser]);
 thisuser.initwebsocket().then(_=>{
     thisuser.loaduser();
     thisuser.init();
@@ -27,7 +26,80 @@ thisuser.initwebsocket().then(_=>{
     document.getElementById("loading").classList.remove("loading");
     console.log("done loading")
 });
+{
+    const userinfo=document.getElementById("userinfo");
+    const userdock=document.getElementById("userdock");
+    userinfo.addEventListener("click",function(event){
+        const table=document.createElement("table");
+        for(const thing of Object.values(users.users)){
+            console.log(thing.pfpsrc)
+            const tr=document.createElement("tr");
+            const td=document.createElement("td");
 
+            const userinfo=document.createElement("table");
+            userinfo.classList.add("switchtable");
+            const row=document.createElement("tr");
+            userinfo.append(row)
+            const pfpcell=document.createElement("td");
+            row.append(pfpcell);
+            const pfp=document.createElement("img");
+            pfpcell.append(pfp);
+
+            const usertd=document.createElement("td")
+            row.append(usertd);
+            const user=document.createElement("div");
+            usertd.append(user);
+            user.append(thing.username);
+            user.append(document.createElement("br"));
+            const span=document.createElement("span");
+            span.textContent=thing.serverurls.wellknown.hostname;
+            user.append(span);
+            span.classList.add("serverURL")
+
+            pfp.src=thing.pfpsrc;
+            pfp.classList.add("pfp");
+            td.append(userinfo)
+
+            tr.append(td);
+            table.append(tr);
+            tr.addEventListener("click",_=>{
+                thisuser.unload();
+                document.getElementById("loading").classList.remove("doneloading");
+                document.getElementById("loading").classList.add("loading");
+                thisuser=new localuser(thing);
+                window.info =thing.serverurls;
+                users.currentuser=thing.uid;
+                localStorage.setItem("userinfos",JSON.stringify(users));
+                thisuser.initwebsocket().then(_=>{
+                    thisuser.loaduser();
+                    thisuser.init();
+                    document.getElementById("loading").classList.add("doneloading");
+                    document.getElementById("loading").classList.remove("loading");
+                    console.log("done loading")
+
+                });
+            })
+        }
+        {
+            const tr=document.createElement("tr");
+            const td=document.createElement("td");
+            tr.append(td);
+            td.append("Switch accounts ⇌");
+            td.addEventListener("click",_=>{
+                window.location.href="/login.html";
+            })
+            table.append(tr);
+        }
+        table.classList.add("accountSwitcher");
+        if(currentmenu!=""){
+            currentmenu.remove();
+        }
+        currentmenu=table;
+        console.log(table);
+        userdock.append(table);
+        event.stopImmediatePropagation();
+    })
+}
 var currentmenu="";
 document.addEventListener('click', function(event) {
     if(currentmenu==""){
@@ -183,10 +255,7 @@ async function enter(event){
     if(editing){
         fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages/"+editing,{
             method: "PATCH",
-            headers: {
-                "Content-type": "application/json; charset=UTF-8",
-                Authorization:token
-            },
+            headers: thisuser.headers,
             body:JSON.stringify({content:typebox.value})
 
         })
@@ -217,10 +286,7 @@ async function enter(event){
             console.log(body)
             fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages",{
                 method:"POST",
-                headers:{
-                    "Content-type": "application/json; charset=UTF-8",
-                    Authorization:token,
-                },
+                headers:thisuser.headers,
                 body:JSON.stringify(body)
             }).then(
                 function(out){
@@ -247,9 +313,7 @@ async function enter(event){
             console.log((await fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages", {
                 method: 'POST',
                 body: formData,
-                headers:{
-                    "Authorization":token,
-                }
+                headers:{"Authorization":thisuser.token}
             })));
             //fetch("/sendimagemessage",{body:formData,method:"POST"})
 
