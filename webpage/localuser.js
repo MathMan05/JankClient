@@ -1,6 +1,7 @@
 class localuser{
-    constructor(){
-        this.initwebsocket();
+    constructor(userinfo){
+        this.token=userinfo.token;
+        this.userinfo=userinfo;
         this.initialized=false;
     }
     gottenReady(ready){
@@ -38,14 +39,31 @@ class localuser{
         }
         this.typing=[];
     }
-    initwebsocket(){
+    outoffocus(){
+        document.getElementById("servers").textContent="";
+        document.getElementById("channels").textContent="";
+        document.getElementById("messages").textContent="";
+        this.lookingguild=null;
+        this.channelfocus=null;
+    }
+    unload(){
+        this.initialized=false;
+        clearInterval(this.wsinterval);
+        this.outoffocus();
+        this.guilds=[];
+        this.guildids={};
+        this.ws.close(4000)
+    }
+    async initwebsocket(){
+        let returny=null
+        const promise=new Promise((res)=>{returny=res});
         this.ws = new WebSocket(info.gateway.toString());
         this.ws.addEventListener('open', (event) => {
         console.log('WebSocket connected');
         this.ws.send(JSON.stringify({
             "op": 2,
             "d": {
-                "token":token,
+                "token":this.token,
                 "capabilities": 16381,
                 "properties": {
                     "browser": "Jank Client",
@@ -79,12 +97,9 @@ class localuser{
                         break;
                     case "READY":
                         this.gottenReady(temp);
-                        this.loaduser();
                         READY=temp;
-                        this.init();
                         genusersettings();
-                        document.getElementById("loading").classList.add("doneloading");
-                        document.getElementById("loading").classList.remove("loading")
+                        returny();
                         break;
                     case "MESSAGE_UPDATE":
                         if(this.initialized){
@@ -135,7 +150,7 @@ class localuser{
 
             }else if(temp.op===10){
                 console.log("heartbeat down")
-                setInterval(_=>{
+                this.wsinterval=setInterval(_=>{
                     this.ws.send(JSON.stringify({op:1,d:packets}))
                 },temp.d.heartbeat_interval)
                 packets=1;
@@ -149,8 +164,24 @@ class localuser{
         });
 
         this.ws.addEventListener('close', (event) => {
-        console.log('WebSocket closed');
+            clearInterval(this.wsinterval);
+            console.log('WebSocket closed');
+            console.warn(event);
+            if(event.code!==4000&&thisuser===this){
+                this.unload();
+                document.getElementById("loading").classList.remove("doneloading");
+                document.getElementById("loading").classList.add("loading");
+                this.initwebsocket().then(_=>{
+                    thisuser.loaduser();
+                    thisuser.init();
+                    document.getElementById("loading").classList.add("doneloading");
+                    document.getElementById("loading").classList.remove("loading");
+                    console.log("done loading")
+                });
+            }
         });
+        await promise;
+        return;
     }
     resolveGuildidFromChannelID(ID){
         let resolve=this.guilds.find(guild => guild.channelids[ID])

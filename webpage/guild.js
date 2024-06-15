@@ -26,11 +26,13 @@ class guild{
         */
     }
     constructor(JSON,owner){
+
         if(JSON===-1){
             return;
         }
         console.log(JSON);
         this.owner=owner;
+        this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.owner.userinfo.token};
         if(!this.owner){
             console.error("Owner was not included, please fix")
         }
@@ -103,14 +105,14 @@ class guild{
                 console.log(build,thing)
                 fetch(info.api.toString()+"/v9/guilds/"+this.id+"/channels",{
                     method:"PATCH",
-                    headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
+                    headers:this.headers,
                     body:JSON.stringify([thing])
                 });
             }
         }else{
             fetch(info.api.toString()+"/v9/guilds/"+this.id+"/channels",{
                 method:"PATCH",
-                headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
+                headers:this.headers,
                 body:JSON.stringify(build)
             });
         }
@@ -171,7 +173,7 @@ class guild{
         this.unreads();
         fetch(info.api.toString()+"/v9/read-states/ack-bulk",{
             method:"POST",
-            headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
+            headers:this.headers,
             body:JSON.stringify(build)
         })
     }
@@ -260,7 +262,7 @@ class guild{
     createChannel(name,type){
         fetch(info.api.toString()+"/guilds/"+this.id+"/channels",{
             method:"Post",
-            headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
+            headers:this.headers,
             body:JSON.stringify({name: name, type: type})
         })
     }

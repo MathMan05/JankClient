@@ -22,11 +22,14 @@ class channel{
         },null,_=>{return _.isAdmin()});
     }
     constructor(JSON,owner){
+
         if(JSON===-1){
             return;
         }
         this.type=JSON.type;
         this.owner=owner;
+        this.headers=this.owner.headers;
+        console.log(this.headers)
         this.messages=[];
         this.name=JSON.name;
         this.id=JSON.id;
@@ -216,7 +219,7 @@ class channel{
         }
         fetch(info.api.toString()+"/v9/channels/"+this.id+"/messages/"+this.lastmessageid+"/ack",{
             method:"POST",
-            headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
+            headers:this.headers,
             body:JSON.stringify({})
         });
         this.lastreadmessageid=this.lastmessageid;
@@ -286,7 +289,7 @@ class channel{
     createChannel(name,type){
         fetch(info.api.toString()+"/guilds/"+this.owner.id+"/channels",{
             method:"Post",
-            headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
+            headers:this.headers,
             body:JSON.stringify({
                 name: name,
                 type: type,
@@ -310,7 +313,7 @@ class channel{
                 ["button","","submit",function(){
                     fetch(info.api.toString()+"/v9/channels/"+thisid,{
                         method:"PATCH",
-                        headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token},
+                        headers:this.headers,
                         body:JSON.stringify({
                             "name": name,
                             "type": thistype,
@@ -334,7 +337,7 @@ class channel{
     deleteChannel(){
         fetch(info.api.toString()+"/v9/channels/"+this.id,{
             method:"DELETE",
-            headers:{"Content-type": "application/json; charset=UTF-8",Authorization:token}
+            headers:this.headers
         })
     }
     getHTML(){
@@ -348,13 +351,13 @@ class channel{
         const out=this;
         fetch(info.api.toString()+"/channels/"+this.id+"/messages?limit=100",{
         method: 'GET',
-        headers: {Authorization:token},
-        }).then((j)=>{return j.json()}).then(function(responce){
+        headers: this.headers,
+        }).then((j)=>{return j.json()}).then(responce=>{
             messages.innerHTML = '';
             //responce.reverse()
             messagelist=[];
             for(const thing of responce){
-                const messager=new cmessage(thing)
+                const messager=new cmessage(thing,this)
                 if(out.messageids[messager.id]==undefined){
                     out.messageids[messager.id]=messager;
                     out.messages.push(messager);
@@ -391,12 +394,12 @@ class channel{
             for(const i in responce){
                 let messager
                 if(!next){
-                    messager=new cmessage(responce[i])
+                    messager=new cmessage(responce[i],this)
                 }else{
                     messager=next;
                 }
                 if(responce[+i+1]!==undefined){
-                    next=new cmessage(responce[+i+1]);
+                    next=new cmessage(responce[+i+1],this);
                 }else{
                     next=undefined;
                     console.log("ohno",+i+1)
@@ -450,7 +453,7 @@ class channel{
         })
     }
     messageCreate(messagep,focus){
-        const messagez=new cmessage(messagep.d);
+        const messagez=new cmessage(messagep.d,this);
         this.lastmessageid=messagez.id;
         if(messagez.author===this.owner.owner.user){
             this.lastreadmessageid=messagez.id;

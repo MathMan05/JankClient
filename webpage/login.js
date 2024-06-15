@@ -1,6 +1,3 @@
-function getCookie(name) {
-    return localStorage.getItem(name);
-}
 function setTheme(){
     const name=localStorage.getItem("theme");
     if(!name){
@@ -10,7 +7,83 @@ function setTheme(){
     document.body.className=name+"-theme";
 }
 setTheme();
-
+function getBulkUsers(){
+    const json=JSON.parse(localStorage.getItem("userinfos"));
+    for(const thing in json.users){
+        json.users[thing]=new specialuser(json.users[thing]);
+    }
+    return json;
+}
+function getBulkInfo(){
+    return JSON.parse(localStorage.getItem("userinfos"));
+}
+function setDefaults(){
+    let userinfos=localStorage.getItem("userinfos");
+    if(!userinfos){
+        localStorage.setItem("userinfos",JSON.stringify({
+            currentuser:null,
+            users:{},
+            preferances:
+            {
+                theme:"Dark",
+                notifcations:false,
+            },
+        }));
+    }
+}
+setDefaults();
+class specialuser{
+    constructor(json){
+        console.log(json)
+        if(typeof json==="specialuser"){
+            return json;
+        }
+        this.serverurls=json.serverurls;
+        this.serverurls.api=new URL(this.serverurls.api);
+        this.serverurls.cdn=new URL(this.serverurls.cdn);
+        this.serverurls.gateway=new URL(this.serverurls.gateway);
+        this.serverurls.wellknown=new URL(this.serverurls.wellknown);
+        this.email=json.email;
+        this.token=json.token;
+        this.loggedin=json.loggedin;
+        this.json=json;
+        if(!this.serverurls||!this.email||!this.token){
+            console.error("There are fundamentally missing pieces of info missing from this user");
+        }
+    }
+    set pfpsrc(e){
+        this.json.pfpsrc=e;
+        this.updateLocal();
+    }
+    get pfpsrc(){
+        return this.json.pfpsrc;
+    }
+    set username(e){
+        this.json.username=e;
+        this.updateLocal();
+    }
+    get username(){
+        return this.json.username;
+    }
+    get uid(){
+        return this.email+this.serverurls.wellknown;
+    }
+    toJSON(){
+        return this.json;
+    }
+    updateLocal(){
+        const info=getBulkInfo();
+        info.users[this.uid]=this.toJSON();
+        localStorage.setItem("userinfos",JSON.stringify(info));
+    }
+}
+function adduser(user){
+    user=new specialuser(user);
+    const info=getBulkInfo();
+    info.users[user.uid]=user;
+    info.currentuser=user.uid;
+    localStorage.setItem("userinfos",JSON.stringify(info));
+}
 const instancein=document.getElementById("instancein");
 let timeout=0;
 async function checkInstance(e){
@@ -67,7 +140,8 @@ async function login(username, password){
                 return response.errors.login._errors[0].message;
                 console.log("test")
             }
-            localStorage.setItem("token",response.token);
+            //this.serverurls||!this.email||!this.token
+            adduser({serverurls:JSON.parse(localStorage.getItem("instanceinfo")),email:username,token:response.token});
             window.location.href = '/channels/@me';
             return response.token;
         })
@@ -99,14 +173,6 @@ async function setInstance(url){
     return await attempt(wellKnown);
 }
 
-function gettoken(){
-    let temp=getCookie("token");
-    temp??=undefined;
-    if(temp===undefined){
-        window.location.href = '/login.html';
-    }
-    return temp;
-}
 
 async function check(e){
 
