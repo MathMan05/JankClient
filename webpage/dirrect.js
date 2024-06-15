@@ -3,6 +3,7 @@ class dirrect extends guild{
         super(-1);
         console.log(JSON);
         this.owner=owner;
+        this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.owner.userinfo.token};
         if(!this.owner){
             console.error("Owner was not included, please fix")
         }
@@ -56,6 +57,7 @@ class group extends channel{
     constructor(JSON,owner){
         super(-1);
         this.owner=owner;
+        this.headers=this.owner.headers;
         this.messages=[];
         console.log(JSON.recipients,JSON)
         this.name=JSON.recipients[0]?.username;

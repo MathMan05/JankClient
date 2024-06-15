@@ -36,7 +36,10 @@ class cmessage{
             document.getElementById("typebox").value=this.content;
         },null,_=>{return _.author.id==READY.d.user.id});
     }
-    constructor(messagejson){
+    constructor(messagejson,owner){
+        console.log(owner)
+        this.owner=owner;
+        this.headers=this.owner.headers;
         for(const thing of Object.keys(messagejson)){
             this[thing]=messagejson[thing];
         }
@@ -70,7 +73,7 @@ class cmessage{
             line2.classList.add("reply");
             line.classList.add("startreply");
             replyline.classList.add("replyflex")
-            fetch(info.api.toString()+"/v9/channels/"+this.message_reference.channel_id+"/messages?limit=1&around="+this.message_reference.message_id,{headers:{Authorization:token}}).then(responce=>responce.json()).then(responce=>{
+            fetch(info.api.toString()+"/v9/channels/"+this.message_reference.channel_id+"/messages?limit=1&around="+this.message_reference.message_id,{headers:this.headers}).then(responce=>responce.json()).then(responce=>{
                 const author=new user(responce[0].author);
 
                 reply.appendChild(markdown(responce[0].content));

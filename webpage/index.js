@@ -1,8 +1,3 @@
-const info=JSON.parse(localStorage.getItem("instanceinfo"));
-info.api=new URL(info.api);
-info.cdn=new URL(info.cdn);
-info.gateway=new URL(info.gateway);
-info.wellknown=new URL(info.wellknown);
 function setDynamicHeight() {
     var servertdHeight = document.getElementById('servertd').offsetHeight+document.getElementById('typebox').offsetHeight+document.getElementById('pasteimage').offsetHeight;
     document.documentElement.style.setProperty('--servertd-height', servertdHeight + 'px');
@@ -15,11 +10,23 @@ resizeObserver.observe(document.getElementById('typebox'));
 resizeObserver.observe(document.getElementById('pasteimage'));
 setDynamicHeight();
 
-
-let token=gettoken();
-let ws
-//initwebsocket();
+const users=getBulkUsers();
+if(!users.currentuser){
+    window.location.href = '/login.html';
+}
+const info=users.users[users.currentuser].serverurls;
+console.log(users)
+let token=users.users[users.currentuser].token;
 let READY;
+
+let thisuser=new localuser({token:token});
+thisuser.initwebsocket().then(_=>{
+    thisuser.loaduser();
+    thisuser.init();
+    document.getElementById("loading").classList.add("doneloading");
+    document.getElementById("loading").classList.remove("loading");
+    console.log("done loading")
+});
 
 var currentmenu="";
 document.addEventListener('click', function(event) {
@@ -259,11 +266,10 @@ async function enter(event){
 let packets=1;
 let serverz=0;
 let serverid=[];
-let thisuser=null;
 
 
 
-thisuser=new localuser();
+
 let cchanel=0;
 
 
