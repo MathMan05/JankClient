@@ -562,6 +562,7 @@ textarea {
 #userdock {
 	background-color: var(--user-dock-bg);
 	width: 100%;
+	position: relative;
 }
 
 #settings {
@@ -579,8 +580,10 @@ textarea {
 }
 
 #userinfo {
+	position:relative;
 	background-color: var(--user-info-bg);
 	border-radius: .1in;
+	cursor: pointer;
 }
 
 .servernamediv {
@@ -773,4 +776,29 @@ span {
 }
 .tabbed-head td button{
     min-width:1.5in;
+}
+.accountSwitcher{
+	background:var(--profile-bg);
+	cursor:pointer;
+	position:absolute;
+	top:0px;
+	transform: translate(0, -100%);
+	width:100%;
+}
+.accountSwitcher tr{
+	transition: background .3s;
+	background:var(--profile-bg);
+}
+.accountSwitcher tr:hover{
+	background:var(--profile-info-bg);
+}
+.switchtable tr{
+	background-color:transparent;
+}
+.serverURL{
+	color: var(--pronouns);
+	word-wrap: normal;
+	word-break: normal;
+	white-space: nowrap;
+	font-size: .125in;
 }
