@@ -784,6 +784,8 @@ span {
 	top:0px;
 	transform: translate(0, -100%);
 	width:100%;
+	box-shadow: .00in -.5in 1in #0000006b;
+	border-radius: .05in .05in .0in.0in;
 }
 .accountSwitcher tr{
 	transition: background .3s;
