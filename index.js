@@ -5,10 +5,10 @@ const fs = require('fs');
 const app = express();
 
 app.use('/', (req, res) => {
-    if(fs.existsSync(`./webpage${req.path}`)) {
+    if(fs.existsSync(`${__dirname}/webpage${req.path}`)) {
         res.sendFile(`./webpage${req.path}`, {root: __dirname});
     }
-    else if(fs.existsSync(`./webpage${req.path}.html`)) {
+    else if(fs.existsSync(`${__dirname}/webpage${req.path}.html`)) {
         res.sendFile(`./webpage${req.path}.html`, {root: __dirname});
     }
     else {
