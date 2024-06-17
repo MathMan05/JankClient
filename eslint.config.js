@@ -35,7 +35,6 @@ const global = {
 	instance: "writeable",
 	setTheme: "writeable",
 	checkInstance: "writeable",
-	inviteModal: "writeable",
 	contextmenu: "writeable",
 	editchannel: "writeable",
 	READY: "writeable",

@@ -348,7 +348,6 @@ class localuser {
 		div2.classList.add("home", "servericon")
 		serverlist.appendChild(div2)
 		div2.addEventListener("click", () => {
-			inviteModal.show()
 			this.createGuild()
 		})
 	}
@@ -382,7 +381,7 @@ class localuser {
 									Authorization: token
 								}
 							})
-							if (res.ok) inviteModal.hide()
+							if (res.ok) full.hide()
 							else {
 								const json = await res.json()
 								error.textContent = json.message || "An error occurred (response code " + res.status + ")"
