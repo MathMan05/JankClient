@@ -59,7 +59,6 @@ class group extends channel{
         this.owner=owner;
         this.headers=this.owner.headers;
         this.messages=[];
-        console.log(JSON.recipients,JSON)
         this.name=JSON.recipients[0]?.username;
         if(JSON.recipients[0]){
             this.user=new user(JSON.recipients[0]);
@@ -137,7 +136,6 @@ class group extends channel{
                 current=thing;
             }
         }
-        console.log(current,this.hasunreads);
         if(this.hasunreads){
             if(current){current.noti.innerText=this.mentions;return;}
             const div=document.createElement("div");
@@ -159,10 +157,10 @@ class group extends channel{
                 this.all.getHTML();
             }
         }else if(current){
-            console.log("remove")
+
             current.remove();
         }else{
-            console.log(sentdms.children)
+
         }
     }
 }

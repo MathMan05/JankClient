@@ -12,7 +12,6 @@ class user{
     }
     constructor(userjson,dontclone=false){
         if(dontclone){
-            console.log("new user")
             for(const thing of Object.keys(userjson)){
                 this[thing]=userjson[thing];
             }
