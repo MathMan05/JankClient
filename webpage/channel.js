@@ -217,7 +217,7 @@ class channel {
 
 		fetch(instance.api + "/channels/" + this.id + "/messages/" + this.lastmessageid + "/ack", {
 			method: "POST",
-			headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
+			headers: this.headers,
 			body: JSON.stringify({})
 		})
 		this.lastreadmessageid = this.lastmessageid
@@ -282,8 +282,8 @@ class channel {
 	}
 	createChannel(name, type) {
 		fetch(instance.api + "/guilds/" + this.owner.id + "/channels", {
-			method: "Post",
-			headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
+			method: "POST",
+			headers: this.headers,
 			body: JSON.stringify({
 				name,
 				type,
@@ -313,10 +313,7 @@ class channel {
 					["button", "", "submit", function() {
 						fetch(instance.api + "/channels/" + thisid, {
 							method: "PATCH",
-							headers: {
-								"Content-type": "application/json; charset=UTF-8",
-								Authorization: token
-							},
+							headers: this.headers,
 							body: JSON.stringify({
 								name,
 								type: thistype,
@@ -338,10 +335,7 @@ class channel {
 	deleteChannel() {
 		fetch(instance.api + "/channels/" + this.id, {
 			method: "DELETE",
-			headers: {
-				"Content-type": "application/json; charset=UTF-8",
-				Authorization: token
-			}
+			headers: this.headers
 		})
 	}
 	getHTML() {
@@ -355,7 +349,7 @@ class channel {
 		const out = this
 		fetch(instance.api + "/channels/" + this.id + "/messages?limit=100", {
 			method: "GET",
-			headers: { Authorization: token }
+			headers: this.headers
 		}).then(j => {
 			return j.json()
 		}).then(response => {
@@ -385,7 +379,7 @@ class channel {
 
 		await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + this.messages.at(-1).id + "&limit=100", {
 			method: "GET",
-			headers: { Authorization: token }
+			headers: this.headers
 		}).then(j => {
 			return j.json()
 		}).then(response => {
@@ -446,7 +440,7 @@ class channel {
 		this.typing = Date.now() + 6000
 		fetch(instance.api + "/channels/" + this.id + "/typing", {
 			method: "POST",
-			headers: { Authorization: token }
+			headers: this.headers
 		})
 	}
 	messageCreate(messagep, focus) {

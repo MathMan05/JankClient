@@ -40,7 +40,7 @@ class group extends channel {
 		document.getElementById("channelname").textContent = "@" + this.name
 	}
 	messageCreate(messagep, focus) {
-		const messagez = new cmessage(messagep.d)
+		const messagez = new cmessage(messagep.d, this)
 		this.lastmessageid = messagez.id
 		if (messagez.author === this.owner.owner.user) this.lastreadmessageid = messagez.id
 
@@ -105,8 +105,8 @@ class group extends channel {
 class direct extends guild {
 	constructor(json, owner) {
 		super(-1)
-		console.log(json)
 		this.owner = owner
+		this.headers = this.owner.headers
 		if (!this.owner) console.error("Owner was not included, please fix")
 
 		this.channels = []
@@ -137,7 +137,7 @@ class direct extends guild {
 			return Number(-result)
 		})
 	}
-	giveMember(member) {
+	giveMember() {
 		console.error("not a real guild, can't give member object")
 	}
 	getRole() {

@@ -77,7 +77,12 @@ const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 class localuser {
 	constructor() {
 		this.initwebsocket()
-		this.initialized = false
+
+        this.token=userinfo.token;
+        this.userinfo=userinfo;
+        this.serverurls=this.userinfo.serverurls;
+        this.initialized=false;
+        this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.userinfo.token};
 	}
 
 	gottenReady(ready) {
@@ -86,6 +91,8 @@ class localuser {
 		this.guilds = []
 		this.guildids = {}
 		this.user = user.checkuser(ready.d.user)
+        this.userinfo.username=this.user.username;
+        this.userinfo.pfpsrc=this.user.getpfpsrc();
 		this.channelfocus = null
 		this.lookingguild = null
 		this.guildhtml = {}

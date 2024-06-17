@@ -29,6 +29,7 @@ class guild {
 
 		console.log(json)
 		this.owner = owner
+		this.headers = this.owner.headers
 		if (!this.owner) console.error("Owner was not included, please fix")
 
 		this.channels = []
@@ -193,7 +194,7 @@ class guild {
 		return this.member.hasRole(r)
 	}
 	loadChannel(ID) {
-		if (ID) {
+		if (ID && this.channelids[ID]) {
 			this.channelids[ID].getHTML()
 			return
 		}

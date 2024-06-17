@@ -14,7 +14,7 @@ if (instanceParsed) {
 	})
 	instance.api = instance.api + "/v9"
 	console.log("Set connection endpoints", instance)
-} else location.href = "/login.html"
+} else location.href = "/login"
 
 const setTheme = theme => {
 	if (theme == "light") {
@@ -58,12 +58,84 @@ document.addEventListener("DOMContentLoaded", () => {
 		createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
 	}, null, () => thisuser.isAdmin())
 	menu.bind(document.getElementById("channels"))
+	const userinfo=document.getElementById("userinfo");
+    const userdock=document.getElementById("userdock");
+    userinfo.addEventListener("click",function(event){
+        const table=document.createElement("table");
+        for(const thing of Object.values(users.users)){
+            console.log(thing.pfpsrc)
+            const tr=document.createElement("tr");
+            const td=document.createElement("td");
+
+            const userinfo=document.createElement("table");
+            userinfo.classList.add("switchtable");
+            const row=document.createElement("tr");
+            userinfo.append(row)
+            const pfpcell=document.createElement("td");
+            row.append(pfpcell);
+            const pfp=document.createElement("img");
+            pfpcell.append(pfp);
+
+            const usertd=document.createElement("td")
+            row.append(usertd);
+            const user=document.createElement("div");
+            usertd.append(user);
+            user.append(thing.username);
+            user.append(document.createElement("br"));
+            const span=document.createElement("span");
+            span.textContent=thing.serverurls.wellknown.hostname;
+            user.append(span);
+            span.classList.add("serverURL")
+
+            pfp.src=thing.pfpsrc;
+            pfp.classList.add("pfp");
+            td.append(userinfo)
+
+            tr.append(td);
+            table.append(tr);
+            tr.addEventListener("click",_=>{
+                thisuser.unload();
+                document.getElementById("loading").classList.remove("doneloading");
+                document.getElementById("loading").classList.add("loading");
+                thisuser=new localuser(thing);
+                window.info =thing.serverurls;
+                users.currentuser=thing.uid;
+                localStorage.setItem("userinfos",JSON.stringify(users));
+                thisuser.initwebsocket().then(_=>{
+                    thisuser.loaduser();
+                    thisuser.init();
+                    document.getElementById("loading").classList.add("doneloading");
+                    document.getElementById("loading").classList.remove("loading");
+                    console.log("done loading")
+
+                });
+            })
+        }
+        {
+            const tr=document.createElement("tr");
+            const td=document.createElement("td");
+            tr.append(td);
+            td.append("Switch accounts ⇌");
+            td.addEventListener("click",_=>{
+                window.location.href="/login.html";
+            })
+            table.append(tr);
+        }
+        table.classList.add("accountSwitcher");
+        if(currentmenu!=""){
+            currentmenu.remove();
+        }
+        currentmenu=table;
+        console.log(table);
+        userdock.append(table);
+        event.stopImmediatePropagation();
+    })
 })
 
 
 function gettoken() {
 	const temp = localStorage.getItem("token")
-	if (!temp) location.href = "/login.html"
+	if (!temp) location.href = "/login"
 	return temp
 }
 
@@ -203,10 +275,7 @@ async function enter(event) {
 		if (editing) {
 			fetch(instance.api + "/channels/" + window.location.pathname.split("/")[3] + "/messages/" + editing, {
 				method: "PATCH",
-				headers: {
-					"Content-type": "application/json; charset=UTF-8",
-					Authorization: token
-				},
+				headers: thisuser.headers,
 				body: JSON.stringify({ content: typebox.value })
 			})
 			typebox.value = ""
@@ -234,10 +303,7 @@ async function enter(event) {
 				console.log("Sending message:", body)
 				fetch(instance.api + "/channels/" + window.location.pathname.split("/")[3] + "/messages", {
 					method: "POST",
-					headers: {
-						"Content-type": "application/json; charset=UTF-8",
-						Authorization: token
-					},
+					headers: thisuser.headers,
 					body: JSON.stringify(body)
 				})
 			} else {
@@ -259,7 +325,7 @@ async function enter(event) {
 					method: "POST",
 					body: formData,
 					headers: {
-						Authorization: token
+						Authorization: thisuser.token
 					}
 				})
 
