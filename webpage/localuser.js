@@ -75,14 +75,12 @@ let errorBackoff = 0
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
 class localuser {
-	constructor() {
-		this.initwebsocket()
-
-        this.token=userinfo.token;
-        this.userinfo=userinfo;
-        this.serverurls=this.userinfo.serverurls;
-        this.initialized=false;
-        this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.userinfo.token};
+	constructor(userinfo) {
+		this.token = userinfo.token
+		this.userinfo = userinfo
+		this.serverurls = this.userinfo.serverurls
+		this.initialized = false
+		this.headers = {"Content-type": "application/json; charset=UTF-8",Authorization: this.userinfo.token}
 	}
 
 	gottenReady(ready) {
@@ -91,8 +89,8 @@ class localuser {
 		this.guilds = []
 		this.guildids = {}
 		this.user = user.checkuser(ready.d.user)
-        this.userinfo.username=this.user.username;
-        this.userinfo.pfpsrc=this.user.getpfpsrc();
+		this.userinfo.username = this.user.username
+		this.userinfo.pfpsrc = this.user.getpfpsrc()
 		this.channelfocus = null
 		this.lookingguild = null
 		this.guildhtml = {}
@@ -125,7 +123,26 @@ class localuser {
 		}
 		this.typing = []
 	}
-	initwebsocket() {
+	outoffocus() {
+		document.getElementById("servers").textContent = ""
+		document.getElementById("channels").textContent = ""
+		document.getElementById("messages").textContent = ""
+		this.lookingguild = null
+		this.channelfocus = null
+	}
+	unload() {
+		this.initialized = false
+		clearInterval(this.wsinterval)
+		this.outoffocus()
+		this.guilds = []
+		this.guildids = {}
+		this.ws.close(4000)
+	}
+	async initwebsocket() {
+		let returny = null
+		const promise = new Promise(res => {
+			returny = res
+		})
 		this.ws = new WebSocket(instance.gateway + "/?v=9&encoding=json")
 
 		this.ws.addEventListener("open", () => {
@@ -133,7 +150,7 @@ class localuser {
 			this.ws.send(JSON.stringify({
 				op: 2,
 				d: {
-					token,
+					token: this.token,
 					capabilities: 16381,
 					properties: {
 						browser: "Jank Client",
@@ -163,12 +180,9 @@ class localuser {
 							break
 						case "READY":
 							this.gottenReady(json)
-							this.loaduser()
 							READY = json
-							this.init()
 							genusersettings()
-							document.getElementById("loading").classList.add("doneloading")
-							document.getElementById("loading").classList.remove("loading")
+							returny()
 							break
 						case "MESSAGE_UPDATE":
 							if (this.initialized && window.location.pathname.split("/")[3] == json.d.channel_id) {
@@ -218,15 +232,27 @@ class localuser {
 			console.log("WebSocket closed with code " + event.code)
 			if (heartbeatInterval) clearInterval(heartbeatInterval)
 
-			if ((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code)) {
+			if (((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code)) && thisuser === this) {
 				document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server, retrying..."
+				this.unload()
+				document.getElementById("loading").classList.remove("doneloading")
+				document.getElementById("loading").classList.add("loading")
 
 				setTimeout(() => {
 					document.getElementById("load-desc").textContent = "Retrying..."
-					this.initwebsocket()
+
+					this.initwebsocket().then(_ => {
+						thisuser.loaduser()
+						thisuser.init()
+						document.getElementById("loading").classList.add("doneloading")
+						document.getElementById("loading").classList.remove("loading")
+						console.log("done loading")
+					})
 				}, 200 + (errorBackoff++ * 3000))
 			}
 		})
+
+		await promise
 	}
 	resolveGuildidFromChannelID(ID) {
 		let resolve = this.guilds.find(guild => guild.channelids[ID])

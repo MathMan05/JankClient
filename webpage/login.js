@@ -1,5 +1,84 @@
 "use strict"
 
+class specialuser {
+	constructor(json) {
+		console.log(json)
+		if (json instanceof specialuser) return
+
+		this.serverurls = json.serverurls
+		this.serverurls.api = new URL(this.serverurls.api)
+		this.serverurls.cdn = new URL(this.serverurls.cdn)
+		this.serverurls.gateway = new URL(this.serverurls.gateway)
+		this.serverurls.wellknown = new URL(this.serverurls.wellknown)
+		this.email = json.email
+		this.token = json.token
+		this.loggedin = json.loggedin
+		this.json = json
+		if (!this.serverurls || !this.email || !this.token) {
+			console.error("There are fundamentally missing pieces of info missing from this user")
+		}
+	}
+	set pfpsrc(e) {
+		this.json.pfpsrc = e
+		this.updateLocal()
+	}
+	get pfpsrc() {
+		return this.json.pfpsrc
+	}
+	set username(e) {
+		this.json.username = e
+		this.updateLocal()
+	}
+	get username() {
+		return this.json.username
+	}
+	get uid() {
+		return this.email + this.serverurls.wellknown
+	}
+	toJSON() {
+		return this.json
+	}
+	updateLocal() {
+		const info = getBulkInfo()
+		info.users[this.uid] = this.toJSON()
+		localStorage.setItem("userinfos",JSON.stringify(info))
+	}
+}
+
+function getBulkUsers() {
+	const json = JSON.parse(localStorage.getItem("userinfos"))
+	for (const thing in json.users) {
+		json.users[thing] = new specialuser(json.users[thing])
+	}
+	return json
+}
+function getBulkInfo() {
+	return JSON.parse(localStorage.getItem("userinfos"))
+}
+function setDefaults() {
+	const userinfos = localStorage.getItem("userinfos")
+	if (!userinfos) {
+		localStorage.setItem("userinfos",JSON.stringify({
+			currentuser: null,
+			users: {},
+			preferances:
+			{
+				theme: "Dark",
+				notifcations: false
+			}
+		}))
+	}
+}
+setDefaults()
+
+function adduser(user) {
+	user = new specialuser(user)
+	const info = getBulkInfo()
+	info.users[user.uid] = user
+	info.currentuser = user.uid
+	localStorage.setItem("userinfos",JSON.stringify(info))
+}
+
 async function login(username, password) {
 	const options = {
 		method: "POST",
@@ -20,7 +99,8 @@ async function login(username, password) {
 				console.log(response)
 				if (response.message == "Invalid Form Body") return response.errors.login._errors[0].message
 
-				localStorage.setItem("token", response.token)
+				//this.serverurls||!this.email||!this.token
+				adduser({serverurls: JSON.parse(localStorage.getItem("instanceinfo")),email: username,token: response.token})
 				location.href = "/channels/@me"
 				return response.token
 			})

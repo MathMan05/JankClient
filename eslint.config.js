@@ -41,7 +41,8 @@ const global = {
 	editing: "writeable",
 	replyingto: "writeable",
 	currentmenu: "writeable",
-	buildprofile: "writeable"
+	buildprofile: "writeable",
+	getBulkUsers: "writeable"
 }
 
 const rules = {

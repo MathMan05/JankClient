@@ -1,20 +1,22 @@
 "use strict"
 
-const instanceParsed = JSON.parse(localStorage.getItem("instanceEndpoints"))
-let instance = {}
-if (instanceParsed) {
-	instance = {
-		api: new URL(instanceParsed.api).toString(),
-		cdn: new URL(instanceParsed.cdn).toString(),
-		gateway: new URL(instanceParsed.gateway).toString(),
-		wellknown: new URL(instanceParsed.wellknown).toString()
-	}
-	Object.keys(instance).forEach(key => {
-		if (instance[key].endsWith("/")) instance[key] = instance[key].slice(0, -1)
-	})
-	instance.api = instance.api + "/v9"
-	console.log("Set connection endpoints", instance)
-} else location.href = "/login"
+const users = getBulkUsers()
+if (!users.currentuser) location.href = "/login"
+const info = users.users[users.currentuser].serverurls
+console.log(users)
+const token = users.users[users.currentuser].token
+
+let ws
+let READY
+
+let thisuser = new localuser(users.users[users.currentuser])
+thisuser.initwebsocket().then(() => {
+	thisuser.loaduser()
+	thisuser.init()
+	document.getElementById("loading").classList.add("doneloading")
+	document.getElementById("loading").classList.remove("loading")
+	console.log("done loading")
+})
 
 const setTheme = theme => {
 	if (theme == "light") {
@@ -30,13 +32,11 @@ const setDynamicHeight = () => {
 	document.documentElement.style.setProperty("--servertd-height", servertdHeight + "px")
 }
 
-const token = gettoken()
-
 const serverz = 0
 const serverid = []
 
 let editing = false
-const thisuser = new localuser()
+let currentmenu = ""
 
 document.addEventListener("DOMContentLoaded", () => {
 	const resizeObserver = new ResizeObserver(() => {
@@ -58,91 +58,79 @@ document.addEventListener("DOMContentLoaded", () => {
 		createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
 	}, null, () => thisuser.isAdmin())
 	menu.bind(document.getElementById("channels"))
-	const userinfo=document.getElementById("userinfo");
-    const userdock=document.getElementById("userdock");
-    userinfo.addEventListener("click",function(event){
-        const table=document.createElement("table");
-        for(const thing of Object.values(users.users)){
-            console.log(thing.pfpsrc)
-            const tr=document.createElement("tr");
-            const td=document.createElement("td");
+	const userinfo = document.getElementById("userinfo")
+	const userdock = document.getElementById("userdock")
+	userinfo.addEventListener("click",event => {
+		const table = document.createElement("table")
+		for (const thing of Object.values(users.users)) {
+			console.log(thing.pfpsrc)
+			const tr = document.createElement("tr")
+			const td = document.createElement("td")
 
-            const userinfo=document.createElement("table");
-            userinfo.classList.add("switchtable");
-            const row=document.createElement("tr");
-            userinfo.append(row)
-            const pfpcell=document.createElement("td");
-            row.append(pfpcell);
-            const pfp=document.createElement("img");
-            pfpcell.append(pfp);
+			const userinfoTable = document.createElement("table")
+			userinfoTable.classList.add("switchtable")
+			const row = document.createElement("tr")
+			userinfoTable.append(row)
+			const pfpcell = document.createElement("td")
+			row.append(pfpcell)
+			const pfp = document.createElement("img")
+			pfpcell.append(pfp)
 
-            const usertd=document.createElement("td")
-            row.append(usertd);
-            const user=document.createElement("div");
-            usertd.append(user);
-            user.append(thing.username);
-            user.append(document.createElement("br"));
-            const span=document.createElement("span");
-            span.textContent=thing.serverurls.wellknown.hostname;
-            user.append(span);
-            span.classList.add("serverURL")
+			const usertd = document.createElement("td")
+			row.append(usertd)
+			const user = document.createElement("div")
+			usertd.append(user)
+			user.append(thing.username)
+			user.append(document.createElement("br"))
+			const span = document.createElement("span")
+			span.textContent = thing.serverurls.wellknown.hostname
+			user.append(span)
+			span.classList.add("serverURL")
 
-            pfp.src=thing.pfpsrc;
-            pfp.classList.add("pfp");
-            td.append(userinfo)
+			pfp.src = thing.pfpsrc
+			pfp.classList.add("pfp")
+			td.append(userinfoTable)
 
-            tr.append(td);
-            table.append(tr);
-            tr.addEventListener("click",_=>{
-                thisuser.unload();
-                document.getElementById("loading").classList.remove("doneloading");
-                document.getElementById("loading").classList.add("loading");
-                thisuser=new localuser(thing);
-                window.info =thing.serverurls;
-                users.currentuser=thing.uid;
-                localStorage.setItem("userinfos",JSON.stringify(users));
-                thisuser.initwebsocket().then(_=>{
-                    thisuser.loaduser();
-                    thisuser.init();
-                    document.getElementById("loading").classList.add("doneloading");
-                    document.getElementById("loading").classList.remove("loading");
-                    console.log("done loading")
+			tr.append(td)
+			table.append(tr)
+			tr.addEventListener("click",_ => {
+				thisuser.unload()
+				document.getElementById("loading").classList.remove("doneloading")
+				document.getElementById("loading").classList.add("loading")
+				thisuser = new localuser(thing)
+				window.info = thing.serverurls
+				users.currentuser = thing.uid
+				localStorage.setItem("userinfos",JSON.stringify(users))
+				thisuser.initwebsocket().then(() => {
+					thisuser.loaduser()
+					thisuser.init()
+					document.getElementById("loading").classList.add("doneloading")
+					document.getElementById("loading").classList.remove("loading")
+					console.log("done loading")
+				})
+			})
+		}
+		{
+			const tr = document.createElement("tr")
+			const td = document.createElement("td")
+			tr.append(td)
+			td.append("Switch accounts ⇌")
+			td.addEventListener("click",_ => {
+				window.location.href = "/login.html"
+			})
+			table.append(tr)
+		}
+		table.classList.add("accountSwitcher")
 
-                });
-            })
-        }
-        {
-            const tr=document.createElement("tr");
-            const td=document.createElement("td");
-            tr.append(td);
-            td.append("Switch accounts ⇌");
-            td.addEventListener("click",_=>{
-                window.location.href="/login.html";
-            })
-            table.append(tr);
-        }
-        table.classList.add("accountSwitcher");
-        if(currentmenu!=""){
-            currentmenu.remove();
-        }
-        currentmenu=table;
-        console.log(table);
-        userdock.append(table);
-        event.stopImmediatePropagation();
-    })
+		if (currentmenu != "") currentmenu.remove()
+		currentmenu = table
+		console.log(table)
+		userdock.append(table)
+		event.stopImmediatePropagation()
+	})
 })
 
 
-function gettoken() {
-	const temp = localStorage.getItem("token")
-	if (!temp) location.href = "/login"
-	return temp
-}
-
-let ws
-let READY
-
-let currentmenu = ""
 document.addEventListener("click", event => {
 	if (currentmenu == "") return
 

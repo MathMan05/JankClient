@@ -2,6 +2,7 @@ class group extends channel {
 	constructor(json, owner) {
 		super(-1)
 		this.owner = owner
+		this.headers = this.owner.headers
 		this.messages = []
 		this.name = json.recipients[0]?.username
 		if (json.recipients[0]) this.user = user.checkuser(json.recipients[0])
@@ -106,7 +107,7 @@ class direct extends guild {
 	constructor(json, owner) {
 		super(-1)
 		this.owner = owner
-		this.headers = this.owner.headers
+		this.headers = {"Content-type": "application/json; charset=UTF-8", Authorization: this.owner.userinfo.token}
 		if (!this.owner) console.error("Owner was not included, please fix")
 
 		this.channels = []

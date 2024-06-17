@@ -21,10 +21,7 @@ class cmessage {
 			fetch(instance.api + "/users/@me/channels", {
 				method: "POST",
 				body: JSON.stringify({recipients: [this.author.id]}),
-				headers: {
-					"Content-type": "application/json; charset=UTF-8",
-					Authorization: token
-				}
+				headers: this.headers
 			})
 		})
 		cmessage.contextmenu.addbutton("Edit", function() {
@@ -33,7 +30,10 @@ class cmessage {
 		}, null, m => m.author.id == READY.d.user.id)
 	}
 
-	constructor(messagejson) {
+    constructor(messagejson,owner) {
+        console.log(owner)
+        this.owner = owner
+        this.headers = this.owner.headers
 		for (const thing of Object.keys(messagejson)) {
 			this[thing] = messagejson[thing]
 		}
@@ -72,9 +72,7 @@ class cmessage {
 			replyline.classList.add("replyflex")
 
 			fetch(instance.api + "/channels/" + this.message_reference.channel_id + "/messages?limit=1&around=" + this.message_reference.message_id, {
-				headers: {
-					Authorization: token
-				}
+				headers: this.headers
 			}).then(response => response.json()).then(response => {
 				const author = user.checkuser(response[0].author)
 

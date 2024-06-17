@@ -25,6 +25,8 @@ class channel {
 
 		this.type = json.type
 		this.owner = owner
+        this.headers = this.owner.headers
+        console.log(this.headers)
 		this.messages = []
 		this.name = json.name
 		this.id = json.id
@@ -354,8 +356,8 @@ class channel {
 			return j.json()
 		}).then(response => {
 			messages.innerHTML = ""
-			for (const thing of response) {
-				const messager = new cmessage(thing)
+			for (const msg of response) {
+				const messager = new cmessage(msg, this)
 				if (out.messageids[messager.id] == void 0) {
 					out.messageids[messager.id] = messager
 					out.messages.push(messager)
@@ -388,26 +390,21 @@ class channel {
 
 			for (const i in response) {
 				let messager
-				if (next) {
-					messager = next
-				} else {
-					messager = new cmessage(response[i])
-				}
+				if (next) messager = next
+				else messager = new cmessage(response[i], this)
+
 				if (response[Number(i) + 1] === void 0) {
 					next = void 0
 					console.log("ohno", Number(i) + 1)
-				} else {
-					next = new cmessage(response[Number(i) + 1])
-				}
-				if (out.messageids[messager.id] == void 0) {
+				} else next = new cmessage(response[Number(i) + 1], this)
+
+				if (out.messageids[messager.id] === void 0) {
 					out.messageids[messager.id] = messager
 					out.buildmessage(messager, next)
 					out.messages.push(messager)
-				} else {
-					console.log("How???")
-				}
+				} else console.trace("How???")
 			}
-			//out.buildmessages();
+			//out.buildmessages()
 		})
 	}
 	buildmessage(message, next) {
@@ -444,7 +441,7 @@ class channel {
 		})
 	}
 	messageCreate(messagep, focus) {
-		const messagez = new cmessage(messagep.d)
+		const messagez = new cmessage(messagep.d, this)
 		this.lastmessageid = messagez.id
 		if (messagez.author === this.owner.owner.user) {
 			this.lastreadmessageid = messagez.id

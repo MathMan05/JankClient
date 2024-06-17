@@ -29,7 +29,7 @@ class guild {
 
 		console.log(json)
 		this.owner = owner
-		this.headers = this.owner.headers
+		this.headers = {"Content-type": "application/json; charset=UTF-8", Authorization: this.owner.userinfo.token}
 		if (!this.owner) console.error("Owner was not included, please fix")
 
 		this.channels = []
@@ -101,14 +101,14 @@ class guild {
 				console.log(build, thing)
 				fetch(instance.api + "/guilds/" + this.id + "/channels", {
 					method: "PATCH",
-					headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
+					headers: this.headers,
 					body: JSON.stringify([thing])
 				})
 			}
 		} else {
 			fetch(instance.api + "/guilds/" + this.id + "/channels", {
 				method: "PATCH",
-				headers: { "Content-type": "application/json; charset=UTF-8", Authorization: token },
+				headers: this.headers,
 				body: JSON.stringify(build)
 			})
 		}
@@ -165,10 +165,7 @@ class guild {
 		this.unreads()
 		fetch(instance.api + "/read-states/ack-bulk", {
 			method: "POST",
-			headers: {
-				"Content-type": "application/json; charset=UTF-8",
-				Authorization: token
-			},
+			headers: this.headers,
 			body: JSON.stringify(build)
 		})
 	}
@@ -247,10 +244,7 @@ class guild {
 	createChannel(name, type) {
 		fetch(instance.api + "/guilds/" + this.id + "/channels", {
 			method: "POST",
-			headers: {
-				"Content-type": "application/json; charset=UTF-8",
-				Authorization: token
-			},
+			headers: this.headers,
 			body: JSON.stringify({ name, type })
 		})
 	}
