@@ -229,7 +229,7 @@ p {
 
 #channels {
 	background-color: var(--channels-bg);
-	height: calc(100% - .6in);
+	height: calc(100vh - .9in);
 	width: 2.5in;
 	overflow: auto;
 	user-select: none;

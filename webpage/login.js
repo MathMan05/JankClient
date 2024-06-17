@@ -34,8 +34,8 @@ function setDefaults(){
 setDefaults();
 class specialuser{
     constructor(json){
-        if(typeof json==="specialuser"){
-            return json;
+        if(json instanceof specialuser){
+            console.error("specialuser can't construct from another specialuser");
         }
         this.serverurls=json.serverurls;
         this.serverurls.api=new URL(this.serverurls.api);
@@ -183,4 +183,28 @@ async function check(e){
 }
 if(document.getElementById("form")){
 document.getElementById("form").addEventListener("submit", check);
+}
+//Service workers :3
+if ("serviceWorker" in navigator){
+    navigator.serviceWorker.register("/service.js", {
+    scope: "/",
+    }).then((registration) => {
+        let serviceWorker;
+        if (registration.installing) {
+            serviceWorker = registration.installing;
+            console.log("installing");
+        } else if (registration.waiting) {
+            serviceWorker = registration.waiting;
+            console.log("waiting");
+        } else if (registration.active) {
+            serviceWorker = registration.active;
+            console.log("active");
+        }
+        if (serviceWorker) {
+            console.log(serviceWorker.state);
+            serviceWorker.addEventListener("statechange", (e) => {
+                console.log(e.target.state);
+            });
+        }
+    })
 }

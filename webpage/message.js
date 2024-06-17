@@ -37,14 +37,12 @@ class cmessage{
         },null,_=>{return _.author.id==READY.d.user.id});
     }
     constructor(messagejson,owner){
-        console.log(owner)
         this.owner=owner;
         this.headers=this.owner.headers;
         for(const thing of Object.keys(messagejson)){
             this[thing]=messagejson[thing];
         }
         this.author=new user(this.author);
-        console.log(this.type)
     }
     messageevents(obj){
         cmessage.contextmenu.bind(obj,this)
@@ -182,7 +180,6 @@ class cmessage{
             messagedwrap.append(time);
 
             texttxt.appendChild(messagedwrap)
-            console.log(div)
         }
         div.userid=this.author.id;
         div.all=this;
