@@ -10,6 +10,7 @@ const app = express()
 
 app.use("/", (req, res) => {
 	const reqPath = req.path.replace(/[^\w.]/g, "")
+	if (reqPath.length == 0) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
 
 	if (fs.existsSync(path.join(__dirname, "webpage", reqPath))) res.sendFile(path.join(__dirname, "webpage", reqPath))
 	else if (fs.existsSync(path.join(__dirname, "webpage", "font", reqPath))) res.sendFile(path.join(__dirname, "webpage", "font", reqPath))

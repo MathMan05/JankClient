@@ -3,13 +3,21 @@
 class specialuser {
 	constructor(json) {
 		console.log(json)
-		if (json instanceof specialuser) return
+		if (json instanceof specialuser) throw Error("Input for specialuser must not be instance of specialuser")
 
-		this.serverurls = json.serverurls
-		this.serverurls.api = new URL(this.serverurls.api)
-		this.serverurls.cdn = new URL(this.serverurls.cdn)
-		this.serverurls.gateway = new URL(this.serverurls.gateway)
-		this.serverurls.wellknown = new URL(this.serverurls.wellknown)
+		const instance = {
+			api: new URL(json.serverurls.api).toString(),
+			cdn: new URL(json.serverurls.cdn).toString(),
+			gateway: new URL(json.serverurls.gateway).toString(),
+			wellknown: new URL(json.serverurls.wellknown).toString()
+		}
+		Object.keys(instance).forEach(key => {
+			if (instance[key].endsWith("/")) instance[key] = instance[key].slice(0, -1)
+		})
+		instance.api = instance.api + "/v9"
+		console.log("Set connection endpoints", instance)
+		this.serverurls = instance
+
 		this.email = json.email
 		this.token = json.token
 		this.loggedin = json.loggedin
@@ -18,15 +26,15 @@ class specialuser {
 			console.error("There are fundamentally missing pieces of info missing from this user")
 		}
 	}
-	set pfpsrc(e) {
-		this.json.pfpsrc = e
+	set pfpsrc(newPfp) {
+		this.json.pfpsrc = newPfp
 		this.updateLocal()
 	}
 	get pfpsrc() {
 		return this.json.pfpsrc
 	}
-	set username(e) {
-		this.json.username = e
+	set username(newName) {
+		this.json.username = newName
 		this.updateLocal()
 	}
 	get username() {
@@ -41,14 +49,14 @@ class specialuser {
 	updateLocal() {
 		const info = getBulkInfo()
 		info.users[this.uid] = this.toJSON()
-		localStorage.setItem("userinfos",JSON.stringify(info))
+		localStorage.setItem("userinfos", JSON.stringify(info))
 	}
 }
 
 function getBulkUsers() {
-	const json = JSON.parse(localStorage.getItem("userinfos"))
-	for (const thing in json.users) {
-		json.users[thing] = new specialuser(json.users[thing])
+	const json = getBulkInfo()
+	for (const user in json.users) {
+		json.users[user] = new specialuser(json.users[user])
 	}
 	return json
 }
@@ -58,12 +66,11 @@ function getBulkInfo() {
 function setDefaults() {
 	const userinfos = localStorage.getItem("userinfos")
 	if (!userinfos) {
-		localStorage.setItem("userinfos",JSON.stringify({
+		localStorage.setItem("userinfos", JSON.stringify({
 			currentuser: null,
 			users: {},
-			preferances:
-			{
-				theme: "Dark",
+			preferances: {
+				theme: "dark",
 				notifcations: false
 			}
 		}))
