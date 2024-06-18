@@ -1,11 +1,13 @@
 "use strict"
 
+let instance = {}
+
 class specialuser {
 	constructor(json) {
 		console.log(json)
-		if (json instanceof specialuser) throw Error("Input for specialuser must not be instance of specialuser")
+		if (json instanceof specialuser) throw new Error("Input for specialuser must not be instance of specialuser")
 
-		const instance = {
+		instance = {
 			api: new URL(json.serverurls.api).toString(),
 			cdn: new URL(json.serverurls.cdn).toString(),
 			gateway: new URL(json.serverurls.gateway).toString(),
@@ -87,7 +89,10 @@ function adduser(user) {
 }
 
 async function login(username, password) {
-	const options = {
+	const info = JSON.parse(localStorage.getItem("instanceEndpoints"))
+	const url = new URL(info.login)
+
+	const res = await fetch(url.origin + "/api/auth/login", {
 		method: "POST",
 		headers: {
 			"Content-Type": "application/json; charset=UTF-8"
@@ -97,23 +102,16 @@ async function login(username, password) {
 			password,
 			undelete: false
 		})
-	}
-	try {
-		const info = JSON.parse(localStorage.getItem("instanceEndpoints"))
-		const url = new URL(info.login)
-		return await fetch(url.origin + "/api/auth/login", options).then(response => response.json())
-			.then(response => {
-				console.log(response)
-				if (response.message == "Invalid Form Body") return response.errors.login._errors[0].message
+	})
 
-				//this.serverurls||!this.email||!this.token
-				adduser({serverurls: JSON.parse(localStorage.getItem("instanceinfo")),email: username,token: response.token})
-				location.href = "/channels/@me"
-				return response.token
-			})
-	} catch (error) {
-		console.error("Error:", error)
-	}
+	const json = await res.json()
+	console.log(json)
+	if (json.message == "Invalid Form Body") return Object.values(json.errors)[0]._errors[0].message
+
+	//this.serverurls||!this.email||!this.token
+	adduser({serverurls: info, email: username, token: json.token})
+	location.href = "/channels/@me"
+	return json.token
 }
 
 async function setInstance(url) {
@@ -166,7 +164,9 @@ async function checkInstance() {
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-	if (document.getElementById("form")) document.getElementById("form").addEventListener("submit", check)
+	if (!document.getElementById("form")) return
+
+	document.getElementById("form").addEventListener("submit", check)
 
 	instancein = document.getElementById("instancein")
 	verify = document.getElementById("verify")

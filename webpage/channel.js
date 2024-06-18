@@ -25,8 +25,7 @@ class channel {
 
 		this.type = json.type
 		this.owner = owner
-        this.headers = this.owner.headers
-        console.log(this.headers)
+		this.headers = this.owner.headers
 		this.messages = []
 		this.name = json.name
 		this.id = json.id

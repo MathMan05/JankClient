@@ -30,10 +30,9 @@ class cmessage {
 		}, null, m => m.author.id == READY.d.user.id)
 	}
 
-    constructor(messagejson,owner) {
-        console.log(owner)
-        this.owner = owner
-        this.headers = this.owner.headers
+	constructor(messagejson, owner) {
+		this.owner = owner
+		this.headers = this.owner.headers
 		for (const thing of Object.keys(messagejson)) {
 			this[thing] = messagejson[thing]
 		}
