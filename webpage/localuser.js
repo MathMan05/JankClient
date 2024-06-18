@@ -295,7 +295,9 @@ class localuser {
 		return this.lookingguild.isAdmin()
 	}
 	loadGuild(id) {
-		const guild = this.guildids[id]
+		let guild = this.guildids[id]
+		if (!guild) guild = this.guildids["@me"]
+
 		this.lookingguild = guild
 		document.getElementById("servername").textContent = guild.properties.name
 		document.getElementById("channels").innerHTML = ""

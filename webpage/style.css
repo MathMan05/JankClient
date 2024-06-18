@@ -381,10 +381,6 @@ p {
 	user-select: none;
 }
 
-#userdock {
-	height: .5in;
-}
-
 #channels p {
 	text-indent: 10px;
 }
@@ -695,8 +691,10 @@ textarea {
 }
 
 #userdock {
+	height: .5in;
 	background-color: var(--user-dock-bg);
 	width: 100%;
+	position: relative;
 }
 
 #settings {
@@ -714,8 +712,10 @@ textarea {
 }
 
 #userinfo {
+	position: relative;
 	background-color: var(--user-info-bg);
 	border-radius: .1in;
+	cursor: pointer;
 }
 
 .servernamediv {
@@ -913,4 +913,30 @@ span {
 }
 .tabbed-head td button{
 	min-width: 1.5in;
+}
+
+.accountSwitcher {
+	background-color: var(--profile-bg);
+	cursor: pointer;
+	position: absolute;
+	top: 0;
+	transform: translate(0, -100%);
+	width: 100%;
+}
+.accountSwitcher tr {
+	transition: background-color .3s;
+	background-color: var(--profile-bg);
+}
+.accountSwitcher tr:hover {
+	background-color: var(--profile-info-bg);
+}
+.switchtable tr {
+	background-color: transparent;
+}
+.serverURL {
+	color: var(--pronouns);
+	word-wrap: normal;
+	word-break: normal;
+	white-space: nowrap;
+	font-size: .125in;
 }
