@@ -118,6 +118,12 @@ class fullscreen{
                 span.innerText=array[1];
                 return span;
             }
+            case "title":{
+                const span =document.createElement("span");
+                span.classList.add("title")
+                span.innerText=array[1];
+                return span;
+            }
             case "radio":{
                 const div=document.createElement("div");
                 const fieldset=document.createElement("fieldset");

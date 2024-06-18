@@ -4,11 +4,9 @@
 }
 .Dark-theme { /* thanks to TomatoCake for the updated CSS vars and such*/
 	color-scheme: dark;
-
 	--primary-text: #FFF;
 	--primary-bg: #282832;
 	--black: #000;
-
 	--message-bg-hover: #1e1e28;
 	--typing-bg: #161616;
 	--timestamp-color: #a2a2a2;
@@ -18,7 +16,7 @@
 	--channels-bg: #32323c;
 	--channel-hover: #1c1b25;
 	--blank-bg: #1b1b1b;
-	--light-border: #929292;
+	--light-border: #92929B;
 	--settings-hover: #0e0d10;
 	--quote-bg: #7a798e;
 	--button-bg: #1b1b28;
@@ -26,29 +24,21 @@
 	--filename: #47bbff;
 	--mention-bg: #F00;
 	--pronouns: #797979;
-
 	--profile-bg: #2e2d33;
 	--profile-info-bg: #1a1a1e;
-
 	--server-border: #1b1b24;
 	--server-bg: #252530;
-
 	--reply-border: #474b76;
 	--reply-bg: #0b0d20;
 	--reply-text: #acacac;
-
 	--spoiler-hover: #111111;
 	--spoiler-open-bg: #1e1e1e;
-
 	--unknown-file-bg: #141316;
 	--unknown-file-border: #474555;
-
 	--login-border: #131315;
 	--loading-bg: #22232c;
-
 	--dialog-bg: #33363d;
 	--dialog-border: #1c1b31;
-
 	--scrollbar-track: #34313c;
 	--scrollbar-thumb: #201f29;
 	--scrollbar-thumb-hover: #16161f;
