@@ -149,6 +149,23 @@ class localuser{
                             this.delChannel(temp.d);
                         }
                         break;
+                    case "GUILD_DELETE":
+                    {
+                        const guildy=this.guildids[temp.d.id];
+                        delete this.guildids[temp.d.id];
+                        this.guilds.splice(this.guilds.indexOf(guildy),1);
+                        guildy.html.remove();
+                        break;
+                    }
+                    case "GUILD_CREATE":
+                    {
+                        const guildy=new guild(temp.d,this);
+                        this.guilds.push(guildy);
+                        this.guildids[guildy.id]=guildy;
+                        console.log("test1")
+                        document.getElementById("servers").insertBefore(guildy.generateGuildIcon(),document.getElementById("bottomseperator"));
+                        console.log("test2")
+                    }
                 }
 
             }else if(temp.op===10){
@@ -267,47 +284,14 @@ class localuser{
                 thing.unreaddms();
                 continue;
             }
-            const divy=document.createElement("div");
-            divy.classList.add("servernoti");
-
-            const noti=document.createElement("div");
-            noti.classList.add("unread");
-            divy.append(noti);
-            this.guildhtml[thing.id]=divy;
-            if(thing.properties.icon!=null){
-                const img=document.createElement("img");
-                img.classList.add("pfp","servericon");
-                img.src=info.cdn.toString()+"icons/"+thing.properties.id+"/"+thing.properties.icon+".png";
-                divy.appendChild(img)
-                img.all=thing;
-                img.onclick=function(){
-                    console.log(this.all.loadGuild)
-                    this.all.loadGuild();
-                    this.all.loadChannel();
-                }
-                guild.contextmenu.bind(img,thing);
-            }else{
-                const div=document.createElement("div");
-                let build="";
-                for(const char of thing.properties.name.split(" ")){
-                    build+=char[0];
-                }
-                div.innerText=build;
-                div.classList.add("blankserver","servericon")
-                divy.appendChild(div)
-                div.all=thing;
-                div.onclick=function(){
-                    this.all.loadGuild();
-                    this.all.loadChannel();
-                }
-                guild.contextmenu.bind(div,thing)
-            }
+            const divy=thing.generateGuildIcon();
             serverlist.append(divy);
         }
         {
-            const br=document.createElement("hr")
+            const br=document.createElement("hr");
             br.classList.add("lightbr");
             serverlist.appendChild(br);
+            br.id="bottomseperator";
 
             const div=document.createElement("div");
             div.innerText="+";
