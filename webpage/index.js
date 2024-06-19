@@ -15,7 +15,6 @@ thisuser.initwebsocket().then(() => {
 	thisuser.init()
 	document.getElementById("loading").classList.add("doneloading")
 	document.getElementById("loading").classList.remove("loading")
-	console.log("done loading")
 })
 
 const setTheme = theme => {
@@ -106,7 +105,6 @@ document.addEventListener("DOMContentLoaded", () => {
 					thisuser.init()
 					document.getElementById("loading").classList.add("doneloading")
 					document.getElementById("loading").classList.remove("loading")
-					console.log("done loading")
 				})
 			})
 		}
@@ -402,3 +400,5 @@ document.getElementById("messagecontainer").addEventListener("scroll", e => {
 		}
 	}
 })
+
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("/service.js")

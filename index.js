@@ -8,6 +8,11 @@ const path = require("node:path")
 const express = require("express")
 const app = express()
 
+app.use("/getupdates", (req, res) => {
+	const out = fs.statSync(path.join(__dirname, "webpage"))
+	res.send("" + out.mtimeMs)
+})
+
 app.use("/", (req, res) => {
 	const reqPath = req.path.replace(/[^\w.]/g, "")
 	if (reqPath.length == 0) return res.sendFile(path.join(__dirname, "webpage", "index.html"))

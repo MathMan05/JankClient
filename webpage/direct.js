@@ -61,7 +61,6 @@ class group extends channel {
 			for (const thing of channellist.children) {
 				if (thing.myinfo === this) {
 					channellist.prepend(thing)
-					console.log(thing.myinfo)
 					break
 				}
 				console.log(thing.myinfo, this, thing.myinfo === this)
@@ -107,7 +106,10 @@ class direct extends guild {
 	constructor(json, owner) {
 		super(-1)
 		this.owner = owner
-		this.headers = {"Content-type": "application/json; charset=UTF-8", Authorization: this.owner.userinfo.token}
+		this.headers = {
+			"Content-Type": "application/json; charset=UTF-8",
+			Authorization: this.owner.userinfo.token
+		}
 		if (!this.owner) console.error("Owner was not included, please fix")
 
 		this.channels = []

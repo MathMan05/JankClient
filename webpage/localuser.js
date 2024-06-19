@@ -80,7 +80,10 @@ class localuser {
 		this.userinfo = userinfo
 		this.serverurls = this.userinfo.serverurls
 		this.initialized = false
-		this.headers = {"Content-type": "application/json; charset=UTF-8",Authorization: this.userinfo.token}
+		this.headers = {
+			"Content-Type": "application/json; charset=UTF-8",
+			Authorization: this.userinfo.token
+		}
 	}
 
 	gottenReady(ready) {
@@ -216,6 +219,19 @@ class localuser {
 						case "CHANNEL_DELETE":
 							if (this.initialized) this.delChannel(json.d)
 							break
+						case "GUILD_DELETE": {
+							const guildy = this.guildids[json.d.id]
+							delete this.guildids[json.d.id]
+							this.guilds.splice(this.guilds.indexOf(guildy),1)
+							guildy.html.remove()
+							break
+						}
+						case "GUILD_CREATE": {
+							const guildy = new guild(json.d,this)
+							this.guilds.push(guildy)
+							this.guildids[guildy.id] = guildy
+							document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseperator"))
+						}
 					}
 				} else if (json.op == 10) {
 					heartbeatInterval = setInterval(() => {
@@ -246,7 +262,6 @@ class localuser {
 						thisuser.init()
 						document.getElementById("loading").classList.add("doneloading")
 						document.getElementById("loading").classList.remove("loading")
-						console.log("done loading")
 					})
 				}, 200 + (errorBackoff++ * 3000))
 			}
@@ -326,49 +341,20 @@ class localuser {
 		br.classList.add("lightbr")
 		serverlist.appendChild(br)
 
-		for (const thing of this.guilds) {
-			if (thing instanceof direct) {
-				thing.unreaddms()
+		for (const guild of this.guilds) {
+			if (guild instanceof direct) {
+				guild.unreaddms()
 				continue
 			}
-			const divy = document.createElement("div")
-			divy.classList.add("servernoti")
 
-			const noti = document.createElement("div")
-			noti.classList.add("unread")
-			divy.append(noti)
-			this.guildhtml[thing.id] = divy
-			if (thing.properties.icon === null) {
-				const div2 = document.createElement("div")
-				let build = ""
-				for (const char of thing.properties.name.split(" ")) build += char[0]
-
-				div2.textContent = build
-				div2.classList.add("blankserver", "servericon")
-				divy.appendChild(div2)
-				div2.all = thing
-				div2.onclick = function() {
-					this.all.loadGuild()
-					this.all.loadChannel()
-				}
-			} else {
-				const img = document.createElement("img")
-				img.classList.add("pfp", "servericon")
-				img.crossOrigin = "anonymous"
-				img.src = instance.cdn + "/icons/" + thing.properties.id + "/" + thing.properties.icon + ".png"
-				divy.appendChild(img)
-				img.all = thing
-				img.onclick = function() {
-					this.all.loadGuild()
-					this.all.loadChannel()
-				}
-			}
+			const divy = guild.generateGuildIcon()
 			serverlist.append(divy)
 		}
 		this.unreads()
 
 		const br2 = document.createElement("hr")
 		br2.classList.add("lightbr")
+		br2.id = "bottomseperator"
 		serverlist.appendChild(br2)
 
 		const div2 = document.createElement("div")
@@ -404,10 +390,7 @@ class localuser {
 
 							const res = await fetch(instance.api + "/invites/" + parsed, {
 								method: "POST",
-								headers: {
-									"Content-type": "application/json; charset=UTF-8",
-									Authorization: token
-								}
+								headers: this.headers
 							})
 							if (res.ok) full.hide()
 							else {
@@ -464,10 +447,7 @@ class localuser {
 		reader.onload = function() {
 			fetch(instance.api + "/users/@me", {
 				method: "PATCH",
-				headers: {
-					"Content-type": "application/json; charset=UTF-8",
-					Authorization: token
-				},
+				headers: this.headers,
 				body: JSON.stringify({
 					avatar: reader.result
 				})
@@ -478,10 +458,7 @@ class localuser {
 	updatepronouns(pronouns) {
 		fetch(instance.api + "/users/@me/profile", {
 			method: "PATCH",
-			headers: {
-				"Content-type": "application/json; charset=UTF-8",
-				Authorization: token
-			},
+			headers: this.headers,
 			body: JSON.stringify({
 				pronouns
 			})
@@ -490,10 +467,7 @@ class localuser {
 	updatebio(bio) {
 		fetch(instance.api + "/users/@me/profile", {
 			method: "PATCH",
-			headers: {
-				"Content-type": "application/json; charset=UTF-8",
-				Authorization: token
-			},
+			headers: this.headers,
 			body: JSON.stringify({
 				bio
 			})
@@ -502,10 +476,7 @@ class localuser {
 	updateSettings(settings = {}) {
 		fetch(instance.api + "/users/@me/settings", {
 			method: "PATCH",
-			headers: {
-				"Content-type": "application/json; charset=UTF-8",
-				Authorization: token
-			},
+			headers: this.headers,
 			body: JSON.stringify(settings)
 		})
 	}

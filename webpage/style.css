@@ -176,6 +176,7 @@ body {
 	border-style: solid;
 	border-radius: .1in;
 	border-color: var(--dialog-border);
+	padding: .03in;
 }
 
 th {
@@ -207,7 +208,7 @@ code {
 }
 
 .contextbutton {
-	transition: background .1s ease-in-out;
+	transition: background-color .1s ease-in-out;
 	background-color: var(--channels-hover);
 	color: var(--primary-text);
 	font-weight: bold;
@@ -375,7 +376,7 @@ p {
 
 #channels {
 	background-color: var(--channels-bg);
-	height: calc(100% - .6in);
+	height: calc(100vh - .9in);
 	width: 2.5in;
 	overflow: auto;
 	user-select: none;
@@ -408,10 +409,13 @@ input {
 	color: var(--primary-text);
 	height: .4in;
 	width: 97.5%;
+	border-color: var(--settings-hover);
+	border-width: 0 0 .04in 0;
+	border-radius: .05in;
 }
 
 div {
-	transition: background .1s ease-in-out;
+	transition: background-color .1s ease-in-out;
 }
 
 #typebox {
@@ -425,7 +429,7 @@ div {
 }
 
 p {
-	transition: background .1s ease-in-out, color .1s ease-in-out;
+	transition: background-color .1s ease-in-out, color .1s ease-in-out;
 	width: 100%;
 }
 
@@ -701,7 +705,7 @@ textarea {
 	cursor: pointer;
 	user-select: none;
 	border-radius: .1in;
-	transition: background 1s;
+	transition: background-color 1s;
 	text-align: center;
 }
 
@@ -723,20 +727,58 @@ textarea {
 }
 
 button {
+	transition: background-color .1s ease-in-out;
+	background-color: var(--textarea-bg);
 	color: var(--primary-text);
-	background-color: var(--button-bg);
-	border-radius: .05in;
-	height: .3in;
-	min-width: 1.3in;
-	font-size: .175in;
+	font-weight: bold;
+	text-align: left;
+	font-size: .45cm;
+	cursor: pointer;
+	border-width: 0 0 .03in 0;
+	border-radius:.03in;
+	margin: .02in .05in;
+}
+button:active {
+	border-width: 0;
+}
+button:disabled {
+	cursor: not-allowed;
+	border-width: 0;
+}
+button:disabled:hover {
+	background-color: var(--textarea-bg);
+}
+button:hover {
+	background-color: var(--primary-bg);
 }
 
 input::file-selector-button {
+	transition: background-color .1s ease-in-out;
+	background-color: var(--textarea-bg);
 	color: var(--primary-text);
-	background-color: var(--button-bg);
-	border-radius: .05in;
-	height: .25in;
-	min-width: 1in;
+	font-weight: bold;
+	text-align: left;
+	font-size: .45cm;
+	cursor: pointer;
+	border-width: 0 0 .03in 0;
+	border-radius: .03in;
+	margin: .02in .05in;
+}
+
+input[type="file"] {
+	background-color: transparent;
+}
+select {
+	transition: background-color .1s ease-in-out;
+	background-color: var(--textarea-bg);
+	color: var(--primary-text);
+	font-weight: bold;
+	text-align: left;
+	font-size: .45cm;
+	cursor: pointer;
+	border-width: 0 0 .03in 0;
+	border-radius: .03in;
+	margin: .02in .05in;
 }
 
 #logindiv {
@@ -769,7 +811,7 @@ input::file-selector-button {
 	margin-left: auto;
 	width: .2in;
 	text-align: center;
-	transition: background .2s;
+	transition: background-color .2s;
 	border-radius: .1in;
 	cursor: pointer;
 	user-select: none;
@@ -869,8 +911,8 @@ span {
 	background-color: var(--primary-text);
 	height: .075in;
 	width: .075in;
-	transition: transform .2s, background .2s, height .2s, width .2s;
-	transform: translate(-.20in, .2in);
+	transition: transform .2s, background-color .2s, height .2s, width .2s;
+	transform: translate(-.2in, .2in);
 	z-index: 10;
 	border-radius: 50%;
 	border: solid;
@@ -903,15 +945,15 @@ span {
 	position: relative;
 }
 
-.tabbed-head{
-	background-color: var(--textarea-bg);
+.tabbed-head {
+	background-color: var(--settings-hover);
 }
-.tabbed-content td{
+.tabbed-content td {
 	/* border-color: var(--textarea-bg); */
 	/* border-width:1in; */
 	border-inline: medium solid var(--textarea-bg);
 }
-.tabbed-head td button{
+.tabbed-head td button {
 	min-width: 1.5in;
 }
 
