@@ -127,7 +127,6 @@ class localuser{
                         if(this.initialized){
                             const users=user.userids[temp.d.id];
                             console.log(users,temp.d.id)
-
                             if(users){
                                 users.userupdate(temp.d);
                                 console.log("in here");
@@ -395,7 +394,8 @@ class localuser{
     updatepfp(file){
         var reader = new FileReader();
         reader.readAsDataURL(file);
-        reader.onload = function () {
+        console.log(this.headers);
+        reader.onload = () =>{
             fetch(info.api.toString()+"/v9/users/@me",{
                 method:"PATCH",
                 headers:this.headers,
