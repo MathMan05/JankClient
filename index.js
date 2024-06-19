@@ -12,6 +12,7 @@ let debugging=true;
 app.use('/', (req, res) => {
     if(debugging&&req.path.startsWith("/service.js")){
         res.send("console.log(\"Hi :3\");");
+        return;
     }
     if(fs.existsSync(`${__dirname}/webpage${req.path}`)) {
         res.sendFile(`./webpage${req.path}`, {root: __dirname});

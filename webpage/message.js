@@ -123,7 +123,12 @@ class cmessage{
                 username.innerText=this.author.username;
                 const userwrap=document.createElement("tr")
                 userwrap.appendChild(username)
-
+                if(this.author.bot){
+                    const username=document.createElement("span");
+                    username.classList.add("bot")
+                    username.innerText="BOT";
+                    userwrap.appendChild(username)
+                }
                 const time=document.createElement("span");
                 time.innerText="  "+formatTime(new Date(this.timestamp));
                 time.classList.add("timestamp")

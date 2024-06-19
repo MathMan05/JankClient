@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <link href="/style.css" rel="stylesheet" type="text/css" />
         <link href="/themes.css" rel="stylesheet" type="text/css" id="lightcss"/>
 
@@ -21,6 +22,7 @@
     <script src="/localuser.js"></script>
     <script src="/markdown.js"></script>
     <script src="/fullscreen.js"></script>
+    <script src="/audio.js"></script>
 
     <div id="loading" class="loading"><div id="centerdiv"><img src="/bitmap.svg" width="1in" height="1in"><h1>Jank Client is loading</h1><h2>This shouldn't take long</h2></div></div>
     <table id="page" cellspacing="0" cellpadding="0">
@@ -32,7 +34,7 @@
                 <h2 id="serverName">Server Name</h2>
             </td>
             <td colspan="2" class="servertd servernamediv">
-                <h2 id="channelname">Channel</h2>
+                <span id="mobileback" hidden=true></span><span id="channelname">Channel</span>
             </td>
 
         </tr>

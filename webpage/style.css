@@ -8,12 +8,17 @@ body {
 	margin: 0;
 	padding: 0;
 }
+.collapse{
+	width:0px !important;
+	overflow: hidden;
+	max-width: 0px !important;
+}
 #TOS{
 	width: fit-content !important;
 }
 .imgfit {
 	max-width: 80vw;
-	max-height: 80vh;
+	max-height: 80dvh;
 	width: auto;
 	height: auto;
 }
@@ -157,12 +162,12 @@ h2 {
 #neunence {
 	vertical-align: top;
 	overflow: auto;
-	height: 9vh;
+	height: 9dvh;
 }
 
 #servers {
 	vertical-align: top;
-	height: 100vh;
+	height: 100dvh;
 	overflow-x: hidden;
 }
 
@@ -192,7 +197,7 @@ img {
 
 #page {
 	height: 100%;
-	width: 100%;
+	width: 100vw;
 }
 
 .message {
@@ -232,7 +237,7 @@ p {
 
 #channels {
 	background-color: var(--channels-bg);
-	height: calc(100vh - .9in);
+	height: calc(100dvh - .9in);
 	width: 2.5in;
 	overflow: auto;
 	user-select: none;
@@ -283,7 +288,7 @@ div {
 	font-size: 16px;
 	padding: 3px;
 	border-radius: .25cm;
-	width: 100%;
+	width: -webkit-fill-available;
 	height: .5in;
 	z-index: -100;
 }
@@ -426,7 +431,7 @@ p {
 	width: 100%;
 	display: inline-block;
 	grid-template-rows: auto 1fr;
-	height: calc(100vh - .1in - var(--servertd-height));
+	height: calc(100dvh - .1in - var(--servertd-height));
 }
 
 .timestamp {
@@ -598,8 +603,9 @@ textarea {
 
 button {
 	transition: background .1s ease-in-out;
-	background-color: var(--textarea-bg);
+	background-color: var(--message-bg-hover);
 	color: var(--primary-text);
+	border-color:var(--timestamp-color);
 	font-weight: bold;
 	text-align: left;
 	font-size: .45cm;
@@ -607,6 +613,7 @@ button {
 	border-width: 0px .00in .03in 0;
 	border-radius:.03in;
 	margin: .02in .05in;
+	box-shadow: 0px 0px .03in var(--black);
 }
 button:active{
 	border-width: 0px;
@@ -616,14 +623,17 @@ button:disabled{
 	border-width:0px;
 }
 button:disabled:hover{
-	background-color: var(--textarea-bg);
+	background-color: var(--message-bg-hover);
+	border-color:var(--timestamp-color);
+	color: var(--primary-text);
 }
 button:hover {
 	background-color: var(--primary-bg);
 }
 input::file-selector-button {
 	transition: background .1s ease-in-out;
-	background-color: var(--textarea-bg);
+	background-color: var(--message-bg-hover);
+	border-color:var(--timestamp-color);
 	color: var(--primary-text);
 	font-weight: bold;
 	text-align: left;
@@ -637,8 +647,8 @@ input[type="file"] {
   background:transparent;
 }
 select{
-  transition: background .1s ease-in-out;
-	background-color: var(--textarea-bg);
+	transition: background .1s ease-in-out;
+	background-color: var(--message-bg-hover);
 	color: var(--primary-text);
 	font-weight: bold;
 	text-align: left;
@@ -646,7 +656,9 @@ select{
 	cursor: pointer;
 	border-width: 0px .00in .03in 0;
 	border-radius:.03in;
+	border-color:var(--timestamp-color);
 	margin: .02in .05in;
+	box-shadow: 0px 0px .03in var(--black);
 }
 #logindiv {
 	position: absolute;
@@ -849,4 +861,34 @@ span {
 	font-size:.25in;
 	font-weight:bold;
 	text-shadow: .01in .01in .02in var(--black);
+}
+#channelname{
+	font-size:.2in;
+	font-weight:bold;
+}
+#mobileback{
+	/* display:inline-block; */
+	font-size:.3in;
+	font-weight:bold;
+	padding:.025in;
+	background:#06003f96;
+	width:.25in;
+	height:.25in;
+	text-align: center;
+	margin-right:.1in;
+	margin-left:.05in;
+	border-radius:.05in;
+	border:solid;
+	border-color:black;
+	border-width:.04in;
+}
+.bot{
+	background:steelblue;
+	padding:.02in .05in;
+	border-radius:.05in;
+	border:solid black;
+	border-width:.03in;
+	font-weight:bold;
+	font-size:.125in;
+	margin-left:.025in;
 }
