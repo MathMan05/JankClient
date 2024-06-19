@@ -1,3 +1,4 @@
+const mobile=isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 function setTheme(){
     const name=localStorage.getItem("theme");
     if(!name){
@@ -88,8 +89,8 @@ const instancein=document.getElementById("instancein");
 let timeout=0;
 async function checkInstance(e){
     try{
-        verify.innerText="Checking Instance"
-        instanceinfo=await setInstance(instancein.value)
+        verify.innerText="Checking Instance";
+        instanceinfo=await setInstance(instancein.value);
         localStorage.setItem("instanceinfo",JSON.stringify(instanceinfo));
         verify.innerText="Instance is all good"
         if(checkInstance.alt){checkInstance.alt();}

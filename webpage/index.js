@@ -497,6 +497,19 @@ document.getElementById("messagecontainer").addEventListener("scroll",(e)=>{
     }
     //
 })
+if(mobile){
+    document.getElementById("channelw").onclick=function(){
+        document.getElementById("channels").parentNode.classList.add("collapse");
+        document.getElementById("servertd").classList.add("collapse");
+        document.getElementById("servers").classList.add("collapse");
+    }
+    document.getElementById("mobileback").innerText="#";
+    document.getElementById("mobileback").onclick=function(){
+        document.getElementById("channels").parentNode.classList.remove("collapse");
+        document.getElementById("servertd").classList.remove("collapse");
+        document.getElementById("servers").classList.remove("collapse");
+    }
+}
 /*
 {
     const messages=document.getElementById("messages");

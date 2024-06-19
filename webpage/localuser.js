@@ -395,7 +395,7 @@ class localuser{
         var reader = new FileReader();
         reader.readAsDataURL(file);
         console.log(this.headers);
-        reader.onload = () =>{
+        reader.onload = ()=>{
             fetch(info.api.toString()+"/v9/users/@me",{
                 method:"PATCH",
                 headers:this.headers,
