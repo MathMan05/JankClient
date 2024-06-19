@@ -1,7 +1,7 @@
 "use strict"
 
 class cmessage {
-	static contextmenu = new contextmenu("message menu")
+	static contextmenu = new contextmenu()
 	static setupcmenu() {
 		cmessage.contextmenu.addbutton("Copy raw text", function() {
 			navigator.clipboard.writeText(this.content)
@@ -20,7 +20,9 @@ class cmessage {
 		cmessage.contextmenu.addbutton("Message user", function() {
 			fetch(instance.api + "/users/@me/channels", {
 				method: "POST",
-				body: JSON.stringify({recipients: [this.author.id]}),
+				body: JSON.stringify({
+					recipients: [this.author.id]
+				}),
 				headers: this.headers
 			})
 		})

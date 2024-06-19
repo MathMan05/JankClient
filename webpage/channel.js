@@ -1,7 +1,7 @@
 "use strict"
 
 class channel {
-	static contextmenu = new contextmenu("channel menu")
+	static contextmenu = new contextmenu()
 	static setupcontextmenu() {
 		channel.contextmenu.addbutton("Copy channel id", function() {
 			navigator.clipboard.writeText(this.id)

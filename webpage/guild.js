@@ -1,7 +1,7 @@
 "use strict"
 
 class guild {
-	static contextmenu = new contextmenu("guild menu")
+	static contextmenu = new contextmenu()
 	static setupcontextmenu() {
 		guild.contextmenu.addbutton("Copy guild id", function() {
 			navigator.clipboard.writeText(this.id)
@@ -15,13 +15,13 @@ class guild {
 			console.log(this)
 		}, null, () => true, () => false)
 
-        guild.contextmenu.addbutton("Leave guild", function(){
-            this.confirmleave()
-        }, null, guild => guild.properties.owner_id != guild.member.user.id)
+		guild.contextmenu.addbutton("Leave guild", function() {
+			this.confirmleave()
+		}, null, g => g.properties.owner_id != g.member.user.id)
 
-        guild.contextmenu.addbutton("Delete guild", function(){
-            this.confirmDelete()
-        }, null, guild => guild.properties.owner_id == guild.member.user.id)
+		guild.contextmenu.addbutton("Delete guild", function() {
+			this.confirmDelete()
+		}, null, g => g.properties.owner_id == g.member.user.id)
 	}
 
 	constructor(json, owner) {
@@ -251,123 +251,119 @@ class guild {
 			body: JSON.stringify({ name, type })
 		})
 	}
-    confirmleave(){
-        const full= new fullscreen([
-            "vdiv",
-            ["title",
-                "Are you sure you want to leave?"
-            ],
-            ["hdiv",
-                ["button",
-                "",
-                "Yes, I'm sure",
-                _=>{
-                    this.leave().then(_=>{
-                        full.hide();
-                    });
-                }
-                ],
-                ["button",
-                "",
-                "Nevermind",
-                _=>{
-                    full.hide();
-                }
-                ]
+	confirmleave() {
+		const full = new fullscreen([
+			"vdiv",
+			["title",
+				"Are you sure you want to leave?"
+			],
+			["hdiv",
+				["button",
+				"",
+				"Yes, I'm sure",
+				async () => {
+					await this.leave()
+					full.hide()
+				}
+				],
+				["button",
+				"",
+				"Nevermind",
+				_ => {
+					full.hide()
+				}
+				]
 
-            ]
-        ]);
-        full.show();
-    }
-    async leave(){
-        return fetch(info.api.toString()+"/users/@me/guilds/"+this.id,{
-            method:"DELETE",
-            headers:this.headers
-        })
-    }
-    generateGuildIcon(){
-        const divy=document.createElement("div");
-        divy.classList.add("servernoti");
+			]
+		])
+		full.show()
+	}
+	async leave() {
+		return fetch(instance.api.toString() + "/users/@me/guilds/" + this.id,{
+			method: "DELETE",
+			headers: this.headers
+		})
+	}
+	generateGuildIcon() {
+		const divy = document.createElement("div")
+		divy.classList.add("servernoti")
 
-        const noti=document.createElement("div");
-        noti.classList.add("unread");
-        divy.append(noti);
-        this.owner.guildhtml[this.id]=divy;
-        if(this.properties.icon!=null){
-            const img=document.createElement("img");
-            img.classList.add("pfp","servericon");
-            img.src=info.cdn.toString()+"icons/"+this.properties.id+"/"+this.properties.icon+".png";
-            divy.appendChild(img)
-            img.onclick=()=>{
-                console.log(this.loadGuild)
-                this.loadGuild();
-                this.loadChannel();
-            }
-            guild.contextmenu.bind(img,this);
-        }else{
-            const div=document.createElement("div");
-            let build="";
-            for(const char of this.properties.name.split(" ")){
-                build+=char[0];
-            }
-            div.innerText=build;
-            div.classList.add("blankserver","servericon")
-            divy.appendChild(div)
-            div.onclick=()=>{
-                this.loadGuild();
-                this.loadChannel();
-            }
-            guild.contextmenu.bind(div,this)
-        }
-        return divy;
-    }
-    confirmDelete(){
-        let confirmname="";
-        const full= new fullscreen([
-            "vdiv",
-            ["title",
-                "Are you sure you want to delete "+this.properties.name+"?"
-            ],
-            ["textbox",
-                "Name of server:",
-                "",
-                function(){
-                    confirmname=this.value;
-                }
-            ]
-            ,
-            ["hdiv",
-                ["button",
-                "",
-                "Yes, I'm sure",
-                _=>{
-                    console.log(confirmname)
-                    if(confirmname!==this.properties.name){
-                        return;
-                    }
-                    this.delete().then(_=>{
-                        full.hide();
-                    });
-                }
-                ],
-                ["button",
-                "",
-                "Nevermind",
-                _=>{
-                    full.hide();
-                }
-                ]
+		const noti = document.createElement("div")
+		noti.classList.add("unread")
+		divy.append(noti)
+		this.owner.guildhtml[this.id] = divy
+		if (this.properties.icon === null) {
+			const div = document.createElement("div")
+			let build = ""
+			for (const char of this.properties.name.split(" ")) {
+				build += char[0]
+			}
+			div.innerText = build
+			div.classList.add("blankserver", "servericon")
+			divy.appendChild(div)
+			div.onclick = () => {
+				this.loadGuild()
+				this.loadChannel()
+			}
+			guild.contextmenu.bind(div,this)
+		} else {
+			const img = document.createElement("img")
+			img.classList.add("pfp","servericon")
+			img.src = instance.cdn.toString() + "icons/" + this.properties.id + "/" + this.properties.icon + ".png"
+			divy.appendChild(img)
+			img.onclick = () => {
+				console.log(this.loadGuild)
+				this.loadGuild()
+				this.loadChannel()
+			}
+			guild.contextmenu.bind(img, this)
+		}
+		return divy
+	}
+	confirmDelete() {
+		let confirmname = ""
+		const full = new fullscreen([
+			"vdiv",
+			["title",
+				"Are you sure you want to delete " + this.properties.name + "?"
+			],
+			["textbox",
+				"Name of server:",
+				"",
+				function() {
+					confirmname = this.value
+				}
+			],
+			["hdiv",
+				["button",
+				"",
+				"Yes, I'm sure",
+				async () => {
+					console.log(confirmname)
+					if (confirmname == this.properties.name) return
 
-            ]
-        ]);
-        full.show();
-    }
-    async delete(){
-        return fetch(info.api.toString()+"/guilds/"+this.id+"/delete",{
-            method:"POST",
-            headers:this.headers,
-        })
-    }
+					await this.delete()
+					full.hide()
+				}
+				],
+				["button",
+				"",
+				"Nevermind",
+				_ => {
+					full.hide()
+				}
+				]
+
+			]
+		])
+		full.show()
+	}
+	async delete() {
+		return fetch(instance.api.toString() + "/guilds/" + this.id + "/delete",{
+			method: "POST",
+			headers: this.headers
+		})
+	}
 }
 
 guild.setupcontextmenu()

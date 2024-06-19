@@ -7,6 +7,7 @@ const path = require("node:path")
 
 const express = require("express")
 const app = express()
+app.disable("x-powered-by")
 
 app.use("/getupdates", (req, res) => {
 	const out = fs.statSync(path.join(__dirname, "webpage"))

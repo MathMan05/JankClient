@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 	setTheme(localStorage.getItem("theme"))
 
-	const menu = new contextmenu("create rightclick")
+	const menu = new contextmenu()
 	menu.addbutton("Create channel", () => {
 		createchannels(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
 	}, null, () => thisuser.isAdmin())

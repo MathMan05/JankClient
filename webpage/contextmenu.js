@@ -1,8 +1,7 @@
 "use strict"
 
 class contextmenu {
-	constructor(name) {
-		this.name = name
+	constructor() {
 		this.buttons = []
 	}
 	addbutton(text, onclick, img = null, shown = () => true, enabled = () => true) {

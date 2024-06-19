@@ -10,33 +10,39 @@ async function putInCache(request, response) {
 }
 
 let lastcache
-self.addEventListener("activate", async (event) => {
-	console.log("test2")
+
+self.addEventListener("activate", event => {
+	event.waitUntil((async () => {
+		if ("navigationPreload" in self.registration) await self.registration.navigationPreload.enable()
+	})())
+
+	self.clients.claim()
+
 	checkCache()
 })
+
+let checkedrecently = false
 async function checkCache() {
-	if (checkedrecently) {
-		return
-	}
-	promise = await caches.match("/getupdates")
-	if (promise) {
-		lastcache = await promise.text()
-	}
-	console.log(lastcache)
+	if (checkedrecently) return
+
+	const prevCache = await caches.match("/getupdates")
+	if (prevCache) lastcache = await prevCache.text()
+
 	fetch("/getupdates").then(async data => {
-		text = await data.clone().text()
-		console.log(text, lastcache)
-		if (lastcache !== text) {
+		const text = await data.clone().text()
+		if (lastcache != text) {
 			caches.delete("cache")
 			putInCache("/getupdates", data.clone())
 		}
 		checkedrecently = true
-		setTimeout(_ => { checkedrecently = false }, 1000 * 60 * 30)
+		setTimeout(() => {
+			checkedrecently = false
+		}, 1000 * 60 * 30)
 	})
 }
-var checkedrecently = false
+
 function samedomain(url) {
-	return new URL(url).origin === self.origin
+	return new URL(url).origin == self.origin
 }
 function isindexhtml(url) {
 	console.log(url)
@@ -45,43 +51,22 @@ function isindexhtml(url) {
 	}
 	return false
 }
-async function getfile(event) {
-	checkCache()
-	if (!samedomain(event.request.url)) {
-		return await fetch(event.request.clone())
-	}
-	const responseFromCache = await caches.match(event.request.url)
-	console.log(responseFromCache, caches)
-	if (responseFromCache) {
-		console.log("cache hit")
-		return responseFromCache
-	}
 
-	if (isindexhtml(event.request.url)) {
-		console.log("is index.html")
-		const responseFromCache = await caches.match("/index.html")
-		if (responseFromCache) {
-			console.log("cache hit")
-			return responseFromCache
-		}
-		const responseFromNetwork = await fetch("/index.html")
-		await putInCache("/index.html", responseFromNetwork.clone())
-		return responseFromNetwork
-	}
-	const responseFromNetwork = await fetch(event.request.clone())
-	console.log(event.request.clone())
-	await putInCache(event.request.clone(), responseFromNetwork.clone())
-	try {
-		return responseFromNetwork
-	} catch (e) {
-		console.error(e)
-	}
+async function getfile(event) {
+	const preloadResponse = await event.preloadResponse
+	if (preloadResponse) return preloadResponse
+
+	checkCache()
+	if (!samedomain(event.request.url)) return await fetch(event.request.clone())
+
+	const responseFromCache = await caches.match(isindexhtml(event.request.url) ? "/index.html" : event.request.url)
+	if (responseFromCache) return responseFromCache
+
+	const responseFromNetwork = await fetch(isindexhtml(event.request.url) ? "/index.html" : event.request.clone())
+	await putInCache(isindexhtml(event.request.url) ? "/index.html" : event.request.clone(), responseFromNetwork.clone())
+	return responseFromNetwork
 }
 
-self.addEventListener("fetch", (event) => {
-	try {
-		event.respondWith(getfile(event))
-	} catch (e) {
-		console.error(e)
-	}
+self.addEventListener("fetch", event => {
+	event.respondWith(getfile(event))
 })
