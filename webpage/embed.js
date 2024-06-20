@@ -25,7 +25,9 @@ class embed{
     }
     generateRich(){
         const div=document.createElement("div");
-        div.style.backgroundColor="#"+this.json.color.toString(16);
+        if(this.json.color){
+            div.style.backgroundColor="#"+this.json.color.toString(16);
+        }
         div.classList.add("embed-color");
 
         const embed=document.createElement("div");
