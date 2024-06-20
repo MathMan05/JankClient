@@ -932,8 +932,8 @@ span {
 	margin-bottom:.1in;
 	display: block;
 	text-decoration:none;
-	font-size:.2in
+	font-size:.2in;
 }
 .provider{
-	color:var(--timestamp-color)
+	color:var(--timestamp-color);
 }
