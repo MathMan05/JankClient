@@ -288,7 +288,7 @@ div {
 	font-size: 16px;
 	padding: 3px;
 	border-radius: .25cm;
-	width: -webkit-fill-available;
+	width: 99%;
 	height: .5in;
 	z-index: -100;
 }
@@ -563,7 +563,13 @@ textarea {
 	cursor: pointer;
 	user-select: none;
 }
-
+.embedimg {
+	cursor: pointer;
+	user-select: none;
+	max-width:1in;
+	max-height:.75in;
+	border-radius:.03in;
+}
 .tag {
 	font-size: .13in;
 	font-weight: 500;
@@ -610,7 +616,7 @@ button {
 	text-align: left;
 	font-size: .45cm;
 	cursor: pointer;
-	border-width: 0px .00in .03in 0;
+	border-width: 0px .00in .03in 0in;
 	border-radius:.03in;
 	margin: .02in .05in;
 	box-shadow: 0px 0px .03in var(--black);
@@ -891,4 +897,43 @@ span {
 	font-weight:bold;
 	font-size:.125in;
 	margin-left:.025in;
+}
+.embed-color{
+	padding-left: .04in;
+	border-radius:.05in;
+}
+.embed{
+	background:var(--embed);
+	padding:.075in;
+	border-radius:.05in;
+	max-width: 4in;
+	font-size: .15in;
+}
+.embedp{
+	margin-bottom:.075in
+}
+.embedicon{
+	width:.25in;
+	height:.25in;
+	border-radius:.25in;
+	margin-right:.1in;
+}
+.linkembed{
+	max-width:5in;
+}
+.bigembedimg {
+	cursor: pointer;
+	user-select: none;
+	max-width:4in;
+	max-height:3in;
+	border-radius:.03in;
+}
+.embed a{
+	margin-bottom:.1in;
+	display: block;
+	text-decoration:none;
+	font-size:.2in
+}
+.provider{
+	color:var(--timestamp-color)
 }

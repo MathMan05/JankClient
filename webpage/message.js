@@ -42,6 +42,10 @@ class cmessage{
         for(const thing of Object.keys(messagejson)){
             this[thing]=messagejson[thing];
         }
+        for(const thing in this.embeds){
+            console.log(thing,this.embeds)
+            this.embeds[thing]=new embed(this.embeds[thing],this);
+        }
         this.author=new user(this.author);
     }
     messageevents(obj){
@@ -88,7 +92,7 @@ class cmessage{
         messagelist.push(div)
         build.classList.add("message");
         div.appendChild(build);
-        if({0:true,19:true}[this.type]||this.attachments.length!=0){
+        if({0:true,19:true}[this.type]||this.attachments.length!==0){
             const pfpRow = document.createElement('th');
 
             let pfpparent, current
@@ -143,7 +147,7 @@ class cmessage{
             texttxt.appendChild(messagedwrap)
 
             build.appendChild(text)
-            if(this.attachments.length!=0){
+            if(this.attachments.length){
                 const attatch = document.createElement("tr")
                 for(const thing of this.attachments){
                     const array=thing.url.split("/");array.shift();array.shift();array.shift();
@@ -163,6 +167,13 @@ class cmessage{
 
                 }
                 messagedwrap.appendChild(attatch)
+            }
+            if(this.embeds.length){
+                const embeds = document.createElement("tr")
+                for(const thing of this.embeds){
+                    embeds.appendChild(thing.generateHTML());
+                }
+                messagedwrap.appendChild(embeds)
             }
             //
         }else if(this.type===7){
