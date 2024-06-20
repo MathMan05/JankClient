@@ -82,7 +82,7 @@ class cmessage{
 
                 minipfp.src=author.getpfpsrc()
                 profileclick(minipfp,author)
-                username.innerText=author.username;
+                username.textContent=author.username;
                 profileclick(username,author)
             });
             div.appendChild(replyline);
@@ -124,17 +124,17 @@ class cmessage{
                 const username=document.createElement("span");
                 username.classList.add("username")
                 profileclick(username,this.author);
-                username.innerText=this.author.username;
+                username.textContent=this.author.username;
                 const userwrap=document.createElement("tr")
                 userwrap.appendChild(username)
                 if(this.author.bot){
                     const username=document.createElement("span");
                     username.classList.add("bot")
-                    username.innerText="BOT";
+                    username.textContent="BOT";
                     userwrap.appendChild(username)
                 }
                 const time=document.createElement("span");
-                time.innerText="  "+formatTime(new Date(this.timestamp));
+                time.textContent="  "+formatTime(new Date(this.timestamp));
                 time.classList.add("timestamp")
                 userwrap.appendChild(time);
 
@@ -186,12 +186,12 @@ class cmessage{
 
             const messaged=document.createElement("p");
             div.txt=messaged;
-            messaged.innerText="welcome: "+this.author.username;
+            messaged.textContent="welcome: "+this.author.username;
             const messagedwrap=document.createElement("tr")
             messagedwrap.appendChild(messaged);
 
             const time=document.createElement("span");
-            time.innerText="  "+formatTime(new Date(this.timestamp));
+            time.textContent="  "+formatTime(new Date(this.timestamp));
             time.classList.add("timestamp");
             messagedwrap.append(time);
 

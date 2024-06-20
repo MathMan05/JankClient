@@ -54,7 +54,7 @@ class fullscreen{
                 div.appendChild(checkbox)
                 const label=document.createElement("span");
                 checkbox.value=array[2];
-                label.innerText=array[1];
+                label.textContent=array[1];
                 div.appendChild(label);
                 checkbox.addEventListener("change",array[3]);
                 checkbox.type = "checkbox";
@@ -66,8 +66,8 @@ class fullscreen{
                 const input = document.createElement('button');
 
                 const label=document.createElement("span");
-                input.innerText=array[2];
-                label.innerText=array[1];
+                input.textContent=array[2];
+                label.textContent=array[1];
                 div.appendChild(label);
                 div.appendChild(input)
                 input.addEventListener("click",array[3]);
@@ -79,7 +79,7 @@ class fullscreen{
                 const input=document.createElement("textarea");
                 input.value=array[2];
                 const label=document.createElement("span");
-                label.innerText=array[1];
+                label.textContent=array[1];
                 input.addEventListener("input",array[3]);
                 div.appendChild(label);
                 div.appendChild(document.createElement("br"));
@@ -93,7 +93,7 @@ class fullscreen{
                 input.value=array[2];
                 input.type="text";
                 const label=document.createElement("span");
-                label.innerText=array[1];
+                label.textContent=array[1];
                 console.log(array[3])
                 input.addEventListener("input",array[3]);
                 div.appendChild(label);
@@ -106,7 +106,7 @@ class fullscreen{
                 const input=document.createElement("input");
                 input.type="file";
                 const label=document.createElement("span");
-                label.innerText=array[1];
+                label.textContent=array[1];
                 div.appendChild(label);
                 div.appendChild(input);
                 input.addEventListener("change",array[2]);
@@ -115,13 +115,13 @@ class fullscreen{
             }
             case "text":{
                 const span =document.createElement("span");
-                span.innerText=array[1];
+                span.textContent=array[1];
                 return span;
             }
             case "title":{
                 const span =document.createElement("span");
                 span.classList.add("title")
-                span.innerText=array[1];
+                span.textContent=array[1];
                 return span;
             }
             case "radio":{
@@ -140,7 +140,7 @@ class fullscreen{
                     }
                 });
                 const legend=document.createElement("legend");
-                legend.innerText=array[1];
+                legend.textContent=array[1];
                 fieldset.appendChild(legend);
                 let i=0;
                 for(const thing of array[2]){
@@ -157,7 +157,7 @@ class fullscreen{
 
                     label.appendChild(input);
                     const span=document.createElement("span");
-                    span.innerText=thing;
+                    span.textContent=thing;
                     label.appendChild(span);
                     div.appendChild(label);
                     fieldset.appendChild(div);
@@ -174,12 +174,12 @@ class fullscreen{
                 const label=document.createElement("label");
                 const select=document.createElement("select");
 
-                label.innerText=array[1];
+                label.textContent=array[1];
                 div.append(label);
                 div.appendChild(select);
                 for(const thing of array[2]){
                     const option = document.createElement("option");
-                    option.innerText=thing;
+                    option.textContent=thing;
                     select.appendChild(option);
                 }
                 select.selectedIndex=array[4];
@@ -201,7 +201,7 @@ class fullscreen{
                 for(const thing of array[1]){
 
                     const button=document.createElement("button");
-                    button.innerText=thing[0];
+                    button.textContent=thing[0];
                     td.appendChild(button);
 
 

@@ -239,9 +239,9 @@ class localuser{
         this.buildservers();
     }
     loaduser(){
-        document.getElementById("username").innerText=this.user.username
+        document.getElementById("username").textContent=this.user.username
         document.getElementById("userpfp").src=this.user.getpfpsrc()
-        document.getElementById("status").innerText=this.status;
+        document.getElementById("status").textContent=this.status;
     }
     isAdmin(){
         return this.lookingguild.isAdmin();
@@ -252,7 +252,7 @@ class localuser{
             guild=this.guildids["@me"];
         }
         this.lookingguild=guild;
-        document.getElementById("serverName").innerText=guild.properties.name;
+        document.getElementById("serverName").textContent=guild.properties.name;
         //console.log(this.guildids,id)
         document.getElementById("channels").innerHTML="";
         document.getElementById("channels").appendChild(guild.getHTML());
@@ -262,7 +262,7 @@ class localuser{
         const serverlist=document.getElementById("servers");//
 
         const div=document.createElement("div");
-        div.innerText="⌂";
+        div.textContent="⌂";
         div.classList.add("home","servericon")
         div.all=this.guildids["@me"];
         serverlist.appendChild(div)
@@ -293,7 +293,7 @@ class localuser{
             br.id="bottomseperator";
 
             const div=document.createElement("div");
-            div.innerText="+";
+            div.textContent="+";
             div.classList.add("addserver","servericon")
             serverlist.appendChild(div)
             div.onclick=_=>{
@@ -337,7 +337,7 @@ class localuser{
                             }).then(r=>r.json()).then(_=>{
                                 console.log(_);
                                 if(_.message){
-                                    error.innerText=_.message;
+                                    error.textContent=_.message;
                                 }
                             })
                         }
@@ -450,7 +450,7 @@ class localuser{
         console.log(typingtext.classList);
         if(showing){
             typingtext.classList.remove("hidden");
-            document.getElementById("typingtext").innerText=build;
+            document.getElementById("typingtext").textContent=build;
         }else{
             typingtext.classList.add("hidden");
         }

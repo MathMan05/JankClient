@@ -8,7 +8,7 @@ async function registertry(e){
     const email=elements[1].value;
     const username=elements[2].value;
     if(elements[3].value!==elements[4].value){
-        document.getElementById("wrong").innerText="Passwords don't match";
+        document.getElementById("wrong").textContent="Passwords don't match";
         return;
     }
     const password=elements[3].value;
@@ -31,14 +31,14 @@ async function registertry(e){
         e.json().then(e=>{
             if(!e.token){
                 console.log(e);
-                document.getElementById("wrong").innerText=e.errors[Object.keys(e.errors)[0]]._errors[0].message;
+                document.getElementById("wrong").textContent=e.errors[Object.keys(e.errors)[0]]._errors[0].message;
             }else{
                 localStorage.setItem("token",e.token);
                 window.location.href = '/channels/@me';
             }
         })
     })
-    //document.getElementById("wrong").innerText=h;
+    //document.getElementById("wrong").textContent=h;
     // console.log(h);
 }
 let TOSa=document.getElementById("TOSa");
@@ -50,7 +50,7 @@ async function tosLogic(){
         TOSa=document.getElementById("TOSa");
         TOSa.href=tosPage;
     }else{
-        document.getElementById("TOSbox").innerText="This instance has no TOS, accept TOS anyways:";
+        document.getElementById("TOSbox").textContent="This instance has no TOS, accept TOS anyways:";
         TOSa=null;
     }
     console.log(tosPage);
