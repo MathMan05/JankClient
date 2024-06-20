@@ -188,7 +188,7 @@ class localuser {
 							returny()
 							break
 						case "MESSAGE_UPDATE":
-							if (this.initialized && window.location.pathname.split("/")[3] == json.d.channel_id) {
+							if (this.initialized && location.pathname.split("/")[3] == json.d.channel_id) {
 								const find = json.d.id
 								for (const message of messagelist) {
 									if (message.all.id === find) {
@@ -222,12 +222,12 @@ class localuser {
 						case "GUILD_DELETE": {
 							const guildy = this.guildids[json.d.id]
 							delete this.guildids[json.d.id]
-							this.guilds.splice(this.guilds.indexOf(guildy),1)
+							this.guilds.splice(this.guilds.indexOf(guildy), 1)
 							guildy.html.remove()
 							break
 						}
 						case "GUILD_CREATE": {
-							const guildy = new guild(json.d,this)
+							const guildy = new guild(json.d, this)
 							this.guilds.push(guildy)
 							this.guildids[guildy.id] = guildy
 							document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseperator"))

@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	menu.bind(document.getElementById("channels"))
 	const userinfo = document.getElementById("userinfo")
 	const userdock = document.getElementById("userdock")
-	userinfo.addEventListener("click",event => {
+	userinfo.addEventListener("click", event => {
 		const table = document.createElement("table")
 		for (const thing of Object.values(users.users)) {
 			console.log(thing.pfpsrc)
@@ -92,14 +92,14 @@ document.addEventListener("DOMContentLoaded", () => {
 
 			tr.append(td)
 			table.append(tr)
-			tr.addEventListener("click",_ => {
+			tr.addEventListener("click", () => {
 				thisuser.unload()
 				document.getElementById("loading").classList.remove("doneloading")
 				document.getElementById("loading").classList.add("loading")
 				thisuser = new localuser(thing)
 				window.info = thing.serverurls
 				users.currentuser = thing.uid
-				localStorage.setItem("userinfos",JSON.stringify(users))
+				localStorage.setItem("userinfos", JSON.stringify(users))
 				thisuser.initwebsocket().then(() => {
 					thisuser.loaduser()
 					thisuser.init()
@@ -113,8 +113,8 @@ document.addEventListener("DOMContentLoaded", () => {
 			const td = document.createElement("td")
 			tr.append(td)
 			td.append("Switch accounts ⇌")
-			td.addEventListener("click",_ => {
-				window.location.href = "/login.html"
+			td.addEventListener("click", () => {
+				location.href = "/login.html"
 			})
 			table.append(tr)
 		}
@@ -259,7 +259,7 @@ async function enter(event) {
 	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
 		if (editing) {
-			fetch(instance.api + "/channels/" + window.location.pathname.split("/")[3] + "/messages/" + editing, {
+			fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages/" + editing, {
 				method: "PATCH",
 				headers: thisuser.headers,
 				body: JSON.stringify({ content: typebox.value })
@@ -287,7 +287,7 @@ async function enter(event) {
 				if (replyjson) body.message_reference = replyjson
 
 				console.log("Sending message:", body)
-				fetch(instance.api + "/channels/" + window.location.pathname.split("/")[3] + "/messages", {
+				fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages", {
 					method: "POST",
 					headers: thisuser.headers,
 					body: JSON.stringify(body)
@@ -307,7 +307,7 @@ async function enter(event) {
 				}
 				const data = formData.entries()
 				console.log(data.next(), data.next(), data.next())
-				await fetch(instance.api + "/channels/" + window.location.pathname.split("/")[3] + "/messages", {
+				await fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages", {
 					method: "POST",
 					body: formData,
 					headers: {
@@ -402,3 +402,17 @@ document.getElementById("messagecontainer").addEventListener("scroll", e => {
 })
 
 if ("serviceWorker" in navigator) navigator.serviceWorker.register("/service.js")
+
+if (screen.width <= 600) {
+	document.getElementById("channelw").onclick = () => {
+		document.getElementById("channels").parentNode.classList.add("collapse")
+		document.getElementById("servertd").classList.add("collapse")
+		document.getElementById("servers").classList.add("collapse")
+	}
+	document.getElementById("mobileback").innerText = "#"
+	document.getElementById("mobileback").onclick = () => {
+		document.getElementById("channels").parentNode.classList.remove("collapse")
+		document.getElementById("servertd").classList.remove("collapse")
+		document.getElementById("servers").classList.remove("collapse")
+	}
+}

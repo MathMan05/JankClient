@@ -279,7 +279,7 @@ class guild {
 		full.show()
 	}
 	async leave() {
-		return fetch(instance.api.toString() + "/users/@me/guilds/" + this.id,{
+		return fetch(instance.api.toString() + "/users/@me/guilds/" + this.id, {
 			method: "DELETE",
 			headers: this.headers
 		})
@@ -305,10 +305,10 @@ class guild {
 				this.loadGuild()
 				this.loadChannel()
 			}
-			guild.contextmenu.bind(div,this)
+			guild.contextmenu.bind(div, this)
 		} else {
 			const img = document.createElement("img")
-			img.classList.add("pfp","servericon")
+			img.classList.add("pfp", "servericon")
 			img.src = instance.cdn.toString() + "icons/" + this.properties.id + "/" + this.properties.icon + ".png"
 			divy.appendChild(img)
 			img.onclick = () => {
@@ -359,7 +359,7 @@ class guild {
 		full.show()
 	}
 	async delete() {
-		return fetch(instance.api.toString() + "/guilds/" + this.id + "/delete",{
+		return fetch(instance.api.toString() + "/guilds/" + this.id + "/delete", {
 			method: "POST",
 			headers: this.headers
 		})

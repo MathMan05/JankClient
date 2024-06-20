@@ -127,6 +127,13 @@ class cmessage {
 				const userwrap = document.createElement("tr")
 				userwrap.appendChild(username)
 
+				if (this.author.bot) {
+					const botTag = document.createElement("span")
+					botTag.classList.add("bot")
+					botTag.innerText = "BOT"
+					userwrap.appendChild(botTag)
+				}
+
 				const time = document.createElement("span")
 				time.textContent = "  " + formatTime(new Date(this.timestamp))
 				time.classList.add("timestamp")

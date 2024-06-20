@@ -71,7 +71,7 @@ function setDefaults() {
 		localStorage.setItem("userinfos", JSON.stringify({
 			currentuser: null,
 			users: {},
-			preferances: {
+			preferences: {
 				theme: "dark",
 				notifcations: false
 			}
@@ -85,7 +85,7 @@ function adduser(user) {
 	const info = getBulkInfo()
 	info.users[user.uid] = user
 	info.currentuser = user.uid
-	localStorage.setItem("userinfos",JSON.stringify(info))
+	localStorage.setItem("userinfos", JSON.stringify(info))
 }
 
 async function login(username, password) {

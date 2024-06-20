@@ -1,15 +1,7 @@
 async function putInCache(request, response) {
-	console.log(request, response)
 	const cache = await caches.open("cache")
-	console.log("Grabbed")
-	try {
-		console.log(await cache.put(request, response))
-	} catch (error) {
-		console.error(error)
-	}
+	await cache.put(request, response)
 }
-
-let lastcache
 
 self.addEventListener("activate", event => {
 	event.waitUntil((async () => {
@@ -21,6 +13,7 @@ self.addEventListener("activate", event => {
 	checkCache()
 })
 
+let lastcache
 let checkedrecently = false
 async function checkCache() {
 	if (checkedrecently) return
@@ -44,8 +37,8 @@ async function checkCache() {
 function samedomain(url) {
 	return new URL(url).origin == self.origin
 }
+
 function isindexhtml(url) {
-	console.log(url)
 	if (new URL(url).pathname.startsWith("/channels")) {
 		return true
 	}
