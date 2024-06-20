@@ -19,7 +19,7 @@ app.use("/", (req, res) => {
 	if (reqPath.length == 0) return res.sendFile(path.join(__dirname, "webpage", "index.html"))
 
 	if (fs.existsSync(path.join(__dirname, "webpage", reqPath))) res.sendFile(path.join(__dirname, "webpage", reqPath))
-	else if (fs.existsSync(path.join(__dirname, "webpage", "font", reqPath))) res.sendFile(path.join(__dirname, "webpage", "font", reqPath))
+	else if (fs.existsSync(path.join(__dirname, "webpage", "font", reqPath.replace("font", "")))) res.sendFile(path.join(__dirname, "webpage", "font", reqPath.replace("font", "")))
 	else if (fs.existsSync(path.join(__dirname, "webpage", reqPath + ".html"))) res.sendFile(path.join(__dirname, "webpage", reqPath + ".html"))
 	else res.sendFile(path.join(__dirname, "webpage", "index.html"))
 })

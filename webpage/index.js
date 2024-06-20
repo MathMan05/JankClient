@@ -387,7 +387,7 @@ let triggered = false
 document.getElementById("messagecontainer").addEventListener("scroll", e => {
 	const messagecontainer = document.getElementById("messagecontainer")
 	if (messagecontainer.scrollTop < 2000) {
-		if (!triggered) {
+		if (!triggered && thisuser.lookingguild) {
 			thisuser.lookingguild.prevchannel.grabmoremessages().then(() => {
 				triggered = false
 				if (messagecontainer.scrollTop == 0) messagecontainer.scrollTop = 1
@@ -409,7 +409,7 @@ if (screen.width <= 600) {
 		document.getElementById("servertd").classList.add("collapse")
 		document.getElementById("servers").classList.add("collapse")
 	}
-	document.getElementById("mobileback").innerText = "#"
+	document.getElementById("mobileback").textContent = "#"
 	document.getElementById("mobileback").onclick = () => {
 		document.getElementById("channels").parentNode.classList.remove("collapse")
 		document.getElementById("servertd").classList.remove("collapse")

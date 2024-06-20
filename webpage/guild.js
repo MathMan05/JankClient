@@ -298,7 +298,7 @@ class guild {
 			for (const char of this.properties.name.split(" ")) {
 				build += char[0]
 			}
-			div.innerText = build
+			div.textContent = build
 			div.classList.add("blankserver", "servericon")
 			divy.appendChild(div)
 			div.onclick = () => {

@@ -122,7 +122,7 @@ class fullscreen {
 			case "title": {
 				const span = document.createElement("span")
 				span.classList.add("title")
-				span.innerText = array[1]
+				span.textContent = array[1]
 				return span
 			}
 			case "radio": {
