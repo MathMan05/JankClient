@@ -6,12 +6,12 @@ class embed{
         this.json=json;
     }
     getType(json){
-        return json.type||"form";
+        return json.type||"rich";
     }
     generateHTML(){
         switch(this.type){
-            case "form":
-                return this.generateForm();
+            case "rich":
+                return this.generateRich();
             case "image":
                 return this.generateImage();
             case "link":
@@ -23,7 +23,7 @@ class embed{
                 return document.createElement("div");//prevent errors by giving blank div
         }
     }
-    generateForm(){
+    generateRich(){
         const div=document.createElement("div");
         div.style.backgroundColor="#"+this.json.color.toString(16);
         div.classList.add("embed-color");
