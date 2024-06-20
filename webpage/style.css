@@ -920,6 +920,8 @@ span {
 }
 .linkembed{
 	max-width:5in;
+	border: solid;
+	border-color: var(--settings-hover);
 }
 .bigembedimg {
 	cursor: pointer;
