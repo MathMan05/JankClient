@@ -24,6 +24,7 @@ class embed{
         }
     }
     generateRich(){
+        console.log(this.json)
         const div=document.createElement("div");
         if(this.json.color){
             div.style.backgroundColor="#"+this.json.color.toString(16);
@@ -33,23 +34,58 @@ class embed{
         const embed=document.createElement("div");
         embed.classList.add("embed");
         div.append(embed);
-        const title=document.createElement("h3");
+
+        if(this.json.author){
+            const authorline=document.createElement("div");
+            if(this.json.author.icon_url){
+                const img=document.createElement("img");
+                img.classList.add("embedimg");
+                img.src=this.json.author.icon_url;
+                authorline.append(img);
+            }
+            const a=document.createElement("a");
+            a.innerText=this.json.author.name
+            if(this.json.author.url){
+                a.href=this.json.author.url
+            }
+            a.classList.add("username")
+            authorline.append(a);
+            embed.append(authorline);
+        }
+        const title=document.createElement("a");
         title.textContent=this.json.title;
+        if(this.json.url){
+            title.href=this.json.url;
+        }
+        title.classList.add("embedtitle");
         embed.append(title);
+
+        if(this.json.description){
+            const p=document.createElement("p");
+            p.textContent=this.json.description;
+            embed.append(p);
+        }
+
         embed.append(document.createElement("br"));
         if(this.json.fields){
             for(const thing of this.json.fields){
+                const div=document.createElement("div");
                 const b=document.createElement("b");
                 b.textContent=thing.name;
-                embed.append(b);
-                embed.append(document.createElement("br"));
-                const p=document.createElement("p")
+                div.append(b);
+                let p;
+                thing.inline??=false;
+                p=document.createElement("p")
                 p.textContent=thing.value;
-                p.classList.add("embedp")
-                embed.append(p);
+                p.classList.add("embedp");
+                div.append(p);
+                embed.append(div);
+                if(thing.inline){
+                    div.classList.add("inline");
+                }
             }
         }
-        if(this.json.footer){
+        if(this.json.footer||this.json.timestamp){
             const footer=document.createElement("div");
             if(this.json.footer.icon_url){
                 const img=document.createElement("img");
@@ -58,7 +94,21 @@ class embed{
                 footer.append(img);
             }
             if(this.json.footer.text){
-                footer.append(this.json.footer.text);
+                const span=document.createElement("span");
+                span.textContent=this.json.footer.text;
+                span.classList.add("spaceright");
+                footer.append(span);
+            }
+            if(this.json.footer.text&&this.json.timestamp){
+                const span=document.createElement("b");
+                span.textContent="-";
+                span.classList.add("spaceright");
+                footer.append(span);
+            }
+            if(this.json.timestamp){
+                const span=document.createElement("span")
+                span.textContent=new Date(this.json.timestamp).toLocaleString();;
+                footer.append(span);
             }
             embed.append(footer);
         }
@@ -91,10 +141,6 @@ class embed{
             const td=document.createElement("td");
             const img=document.createElement("img");
             img.classList.add("embedimg");
-            img.onclick=function(){
-                const full=new fullscreen(["img",img.src,["fit"]]);
-                full.show();
-            }
             img.src=this.json.thumbnail.proxy_url;
             td.append(img);
             trtop.append(td);
@@ -113,7 +159,6 @@ class embed{
         colordiv.style.backgroundColor="#000000";
         colordiv.classList.add("embed-color");
 
-        console.log(this.json,":3")
         const div=document.createElement("div");
         div.classList.add("embed");
         const providor=document.createElement("p");

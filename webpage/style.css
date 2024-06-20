@@ -901,6 +901,7 @@ span {
 .embed-color{
 	padding-left: .04in;
 	border-radius:.05in;
+	background: black;
 }
 .embed{
 	background:var(--embed);
@@ -938,4 +939,23 @@ span {
 }
 .provider{
 	color:var(--timestamp-color);
+}
+.embedtitle{
+	margin-bottom:0in !important;
+	padding-bottom: .05in;
+	font-weight: bold;
+}
+.embed b{
+	margin-right:.075in;
+}
+.inline{
+	display:inline-block;
+	margin-right:.1in;
+}
+.embed .username{
+	color:var(--primary-text);
+	font-size:.15in;
+}
+.spaceright{
+	margin-right:.1in;
 }
