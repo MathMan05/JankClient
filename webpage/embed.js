@@ -37,27 +37,31 @@ class embed{
         title.textContent=this.json.title;
         embed.append(title);
         embed.append(document.createElement("br"));
-        for(const thing of this.json.fields){
-            const b=document.createElement("b");
-            b.textContent=thing.name;
-            embed.append(b);
-            embed.append(document.createElement("br"));
-            const p=document.createElement("p")
-            p.textContent=thing.value;
-            p.classList.add("embedp")
-            embed.append(p);
+        if(this.json.fields){
+            for(const thing of this.json.fields){
+                const b=document.createElement("b");
+                b.textContent=thing.name;
+                embed.append(b);
+                embed.append(document.createElement("br"));
+                const p=document.createElement("p")
+                p.textContent=thing.value;
+                p.classList.add("embedp")
+                embed.append(p);
+            }
         }
-        const footer=document.createElement("div");
-        if(this.json.footer.icon_url){
-            const img=document.createElement("img");
-            img.src=this.json.footer.icon_url;
-            img.classList.add("embedicon");
-            footer.append(img);
+        if(this.json.footer){
+            const footer=document.createElement("div");
+            if(this.json.footer.icon_url){
+                const img=document.createElement("img");
+                img.src=this.json.footer.icon_url;
+                img.classList.add("embedicon");
+                footer.append(img);
+            }
+            if(this.json.footer.text){
+                footer.append(this.json.footer.text);
+            }
+            embed.append(footer);
         }
-        if(this.json.footer.text){
-            footer.append(this.json.footer.text);
-        }
-        embed.append(footer);
         return div;
     }
     generateImage(){
