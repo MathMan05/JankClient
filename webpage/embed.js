@@ -32,16 +32,16 @@ class embed{
         embed.classList.add("embed");
         div.append(embed);
         const title=document.createElement("h3");
-        title.innerText=this.json.title;
+        title.textContent=this.json.title;
         embed.append(title);
         embed.append(document.createElement("br"));
         for(const thing of this.json.fields){
             const b=document.createElement("b");
-            b.innerText=thing.name;
+            b.textContent=thing.name;
             embed.append(b);
             embed.append(document.createElement("br"));
             const p=document.createElement("p")
-            p.innerText=thing.value;
+            p.textContent=thing.value;
             p.classList.add("embedp")
             embed.append(p);
         }
@@ -77,7 +77,7 @@ class embed{
             const td=document.createElement("td");
             const a=document.createElement("a");
             a.href=this.json.url;
-            a.innerText=this.json.title;
+            a.textContent=this.json.title;
             td.append(a);
             trtop.append(td);
         }
@@ -96,7 +96,7 @@ class embed{
         const bottomtr=document.createElement("tr");
         const td=document.createElement("td");
         const span=document.createElement("span");
-        span.innerText=this.json.description;
+        span.textContent=this.json.description;
         td.append(span);
         bottomtr.append(td);
         table.append(bottomtr)
@@ -112,15 +112,15 @@ class embed{
         div.classList.add("embed");
         const providor=document.createElement("p");
         providor.classList.add("provider");
-        providor.innerText=this.json.provider.name;
+        providor.textContent=this.json.provider.name;
         div.append(providor);
         const a=document.createElement("a");
         a.href=this.json.url;
-        a.innerText=this.json.title;
+        a.textContent=this.json.title;
         div.append(a);
 
         const description=document.createElement("p");
-        description.innerText=this.json.description;
+        description.textContent=this.json.description;
         div.append(description);
 
         {

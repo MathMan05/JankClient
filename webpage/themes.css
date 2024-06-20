@@ -46,11 +46,9 @@
 }
 .WHITE-theme {
 	color-scheme: light;
-
 	--primary-text: #000;
 	--primary-bg: #FFF;
 	--black: #FFF;
-
 	--message-bg-hover: #dedee2;
 	--typing-bg: #dad8d8;
 	--timestamp-color: #929297;
@@ -68,32 +66,25 @@
 	--filename: #47bbff;
 	--mention-bg: #F00;
 	--pronouns: #6a6a6d;
-
 	--profile-bg: #cacad8;
 	--profile-info-bg: #bbbbce;
-
 	--server-border: #bebed3;
 	--server-bg: #c0c0d4;
-
 	--reply-border: #b1b2bd;
 	--reply-bg: #d4d6e9;
 	--reply-text: #2e2e30;
-
 	--spoiler-hover: #b9b9b9;
 	--spoiler-open-bg: #dadada;
-
 	--unknown-file-bg: #bdbdbd;
 	--unknown-file-border: #adadad;
-
 	--login-border: #c3c0e0;
 	--loading-bg: #b5b7cc;
-
 	--dialog-bg: #c1c8d6;
 	--dialog-border: #b9b7db;
-
 	--scrollbar-track: #d5d1e2;
 	--scrollbar-thumb: #b0afc0;
 	--scrollbar-thumb-hover: #a5a5b8;
+	--embed: #cdccd1;
 }
 .Light-theme {
 	color-scheme: light;
@@ -144,4 +135,5 @@
 	--scrollbar-track: #d2cedf;
 	--scrollbar-thumb: #bdbcca;
 	--scrollbar-thumb-hover: #a7a7be;
+	--embed: #cdccd1;
 }

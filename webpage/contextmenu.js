@@ -18,7 +18,7 @@ class contextmenu{
             intext.disabled=!thing[4]();
             textb.button=intext;
             intext.classList.add("contextbutton")
-            intext.innerText=thing[0]
+            intext.textContent=thing[0]
             textb.appendChild(intext)
             console.log(thing)
             intext.onclick=thing[1].bind(addinfo,obj);

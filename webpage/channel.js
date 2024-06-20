@@ -109,17 +109,17 @@ class channel{
 
             const decdiv=document.createElement("div");
             const decoration=document.createElement("b");
-            decoration.innerText="▼"
+            decoration.textContent="▼"
             decdiv.appendChild(decoration)
 
             const myhtml=document.createElement("p2");
-            myhtml.innerText=this.name;
+            myhtml.textContent=this.name;
             decdiv.appendChild(myhtml);
             caps.appendChild(decdiv);
             const childrendiv=document.createElement("div");
             if(admin){
                 const addchannel=document.createElement("span");
-                addchannel.innerText="+";
+                addchannel.textContent="+";
                 addchannel.classList.add("addchannel");
                 caps.appendChild(addchannel);
                 addchannel.onclick=function(){
@@ -142,12 +142,12 @@ class channel{
             childrendiv.classList.add("channels");
             setTimeout(_=>{childrendiv.style.height = childrendiv.scrollHeight + 'px';},100)
             decdiv.onclick=function(){
-                if(decoration.innerText==="▼"){//
-                    decoration.innerText="▲";
+                if(decoration.textContent==="▼"){//
+                    decoration.textContent="▲";
                     //childrendiv.classList.add("colapsediv");
                     childrendiv.style.height = '0px';
                 }else{
-                    decoration.innerText="▼";
+                    decoration.textContent="▼";
                     //childrendiv.classList.remove("colapsediv")
                     childrendiv.style.height = childrendiv.scrollHeight + 'px';
                 }
@@ -162,20 +162,20 @@ class channel{
             if(admin){this.coatDropDiv(div,this);}
             div.all=this;
             const myhtml=document.createElement("span");
-            myhtml.innerText=this.name;
+            myhtml.textContent=this.name;
             if(this.type===0){
                 const decoration=document.createElement("b");
-                decoration.innerText="#"
+                decoration.textContent="#"
                 div.appendChild(decoration)
                 decoration.classList.add("space");
             }else if(this.type===2){//
                 const decoration=document.createElement("b");
-                decoration.innerText="🕪"
+                decoration.textContent="🕪"
                 div.appendChild(decoration)
                 decoration.classList.add("spacee");
             }else if(this.type===5){//
                 const decoration=document.createElement("b");
-                decoration.innerText="📣"
+                decoration.textContent="📣"
                 div.appendChild(decoration)
                 decoration.classList.add("spacee");
             }else{
@@ -344,7 +344,7 @@ class channel{
         this.owner.owner.channelfocus=this.id;
         this.putmessages();
         history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.id);
-        document.getElementById("channelname").innerText="#"+this.name;
+        document.getElementById("channelname").textContent="#"+this.name;
     }
     putmessages(){
         const out=this;

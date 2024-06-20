@@ -89,26 +89,26 @@ const instancein=document.getElementById("instancein");
 let timeout=0;
 async function checkInstance(e){
     try{
-        verify.innerText="Checking Instance";
+        verify.textContent="Checking Instance";
         instanceinfo=await setInstance(instancein.value);
         localStorage.setItem("instanceinfo",JSON.stringify(instanceinfo));
-        verify.innerText="Instance is all good"
+        verify.textContent="Instance is all good"
         if(checkInstance.alt){checkInstance.alt();}
         setTimeout(_=>{
-            console.log(verify.innerText)
-            verify.innerText="";
+            console.log(verify.textContent)
+            verify.textContent="";
         },3000);
 
     }catch(e){
         console.log("catch")
-        verify.innerText="Invalid Instance, try again"
+        verify.textContent="Invalid Instance, try again"
     }
 }
 if(instancein){
     console.log(instancein)
     instancein.addEventListener("keydown",e=>{
         const verify=document.getElementById("verify");
-        verify.innerText="Waiting to check Instance"
+        verify.textContent="Waiting to check Instance"
         clearTimeout(timeout);
         timeout=setTimeout(checkInstance,1000);
     });
@@ -179,7 +179,7 @@ async function check(e){
 
     e.preventDefault();
     let h=await login(e.srcElement[1].value,e.srcElement[2].value);
-    document.getElementById("wrong").innerText=h;
+    document.getElementById("wrong").textContent=h;
     console.log(h);
 }
 if(document.getElementById("form")){

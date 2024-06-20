@@ -118,7 +118,7 @@ function markdown(txt,keep=false){
                 }
                 if(count!==3){
                     const samp=document.createElement("samp");
-                    samp.innerText=build;
+                    samp.textContent=build;
                     span.appendChild(samp);
                 }else{
                     const pre=document.createElement("pre");
@@ -128,7 +128,7 @@ function markdown(txt,keep=false){
                     if(txt[i]==="\n"){
                         i++
                     }
-                    pre.innerText=build;
+                    pre.textContent=build;
                     span.appendChild(pre);
                 }
                 i--;
@@ -305,7 +305,7 @@ function markdown(txt,keep=false){
                 continue;
             }
         }
-        current.innerText+=txt[i];
+        current.textContent+=txt[i];
     }
     appendcurrent();
     return span;

@@ -207,16 +207,16 @@ function buildprofile(x,y,user,type="author"){
         userbody.classList.add("infosection");
         div.appendChild(userbody);
         const usernamehtml=document.createElement("h2");
-        usernamehtml.innerText=nickname;
+        usernamehtml.textContent=nickname;
         userbody.appendChild(usernamehtml);
 
         const discrimatorhtml=document.createElement("h3");
         discrimatorhtml.classList.add("tag");
-        discrimatorhtml.innerText=username+"#"+discriminator;
+        discrimatorhtml.textContent=username+"#"+discriminator;
         userbody.appendChild(discrimatorhtml)
 
         const pronounshtml=document.createElement("p");
-        pronounshtml.innerText=pronouns;
+        pronounshtml.textContent=pronouns;
         pronounshtml.classList.add("pronouns");
         userbody.appendChild(pronounshtml)
 
@@ -360,10 +360,10 @@ function createunknown(fname,fsize,src){
     if(src){
         const a=document.createElement("a");
         a.href=src;
-        a.innerText=fname;
+        a.textContent=fname;
         nametd.append(a);
     }else{
-        nametd.innerText=fname;
+        nametd.textContent=fname;
     }
 
     nametd.classList.add("filename");
@@ -371,7 +371,7 @@ function createunknown(fname,fsize,src){
     const sizetr=document.createElement("tr");
     const size=document.createElement("td");
     sizetr.append(size);
-    size.innerText="Size:"+filesizehuman(fsize);
+    size.textContent="Size:"+filesizehuman(fsize);
     size.classList.add("filesize");
     div.appendChild(sizetr)
     return div;
@@ -503,7 +503,7 @@ if(mobile){
         document.getElementById("servertd").classList.add("collapse");
         document.getElementById("servers").classList.add("collapse");
     }
-    document.getElementById("mobileback").innerText="#";
+    document.getElementById("mobileback").textContent="#";
     document.getElementById("mobileback").onclick=function(){
         document.getElementById("channels").parentNode.classList.remove("collapse");
         document.getElementById("servertd").classList.remove("collapse");
