@@ -55,6 +55,7 @@ class guild{
         this.roles=[];
         this.roleids={};
         this.prevchannel=undefined;
+        this.message_notifications=0;
         for(const roley of JSON.roles){
             const roleh=new role(roley);
             this.roles.push(roleh)
