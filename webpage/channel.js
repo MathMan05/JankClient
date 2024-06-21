@@ -340,6 +340,9 @@ class channel{
         })
     }
     getHTML(){
+        if(this.owner!==this.owner.owner.lookingguild){
+            this.owner.loadGuild();
+        }
         this.owner.prevchannel=this;
         this.owner.owner.channelfocus=this.id;
         this.putmessages();
@@ -532,6 +535,10 @@ class channel{
                 icon:message.author.getpfpsrc(),
                 image:imgurl,
             });
+            notification.addEventListener("click",_=>{
+                window.focus();
+                this.getHTML();
+            })
         } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then((permission) => {
                 this.notify(message);
