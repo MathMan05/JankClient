@@ -28,6 +28,10 @@ class localuser{
             this.guilds.push(temp);
             this.guildids[temp.id]=temp;
         }
+        console.log(ready.d.user_guild_settings.entries)
+        for(const thing of ready.d.user_guild_settings.entries){
+            this.guildids[thing.guild_id].notisetting(thing);
+        }
         for(const thing of ready.d.merged_members){
             const temp=new member(thing[0]);
             this.guildids[temp.guild_id].giveMember(temp);
