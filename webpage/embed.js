@@ -141,6 +141,10 @@ class embed{
             const td=document.createElement("td");
             const img=document.createElement("img");
             img.classList.add("embedimg");
+            img.onclick=function(){
+                const full=new fullscreen(["img",img.src,["fit"]]);
+                full.show();
+            }
             img.src=this.json.thumbnail.proxy_url;
             td.append(img);
             trtop.append(td);
