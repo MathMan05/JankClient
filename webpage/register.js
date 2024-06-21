@@ -21,7 +21,7 @@ async function registertry(e){
             email:email,
             username:username,
             password:password,
-            consent:elements[5].checked,
+            consent:elements[6].checked,
         }),
         headers:{
             "content-type": "application/json"

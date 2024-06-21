@@ -87,25 +87,25 @@ class embed{
         }
         if(this.json.footer||this.json.timestamp){
             const footer=document.createElement("div");
-            if(this.json.footer.icon_url){
+            if(this.json?.footer?.icon_url){
                 const img=document.createElement("img");
                 img.src=this.json.footer.icon_url;
                 img.classList.add("embedicon");
                 footer.append(img);
             }
-            if(this.json.footer.text){
+            if(this.json?.footer?.text){
                 const span=document.createElement("span");
                 span.textContent=this.json.footer.text;
                 span.classList.add("spaceright");
                 footer.append(span);
             }
-            if(this.json.footer.text&&this.json.timestamp){
+            if(this.json?.footer&&this.json?.timestamp){
                 const span=document.createElement("b");
                 span.textContent="-";
                 span.classList.add("spaceright");
                 footer.append(span);
             }
-            if(this.json.timestamp){
+            if(this.json?.timestamp){
                 const span=document.createElement("span")
                 span.textContent=new Date(this.json.timestamp).toLocaleString();;
                 footer.append(span);
