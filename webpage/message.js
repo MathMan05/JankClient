@@ -38,9 +38,9 @@ class cmessage {
 		for (const thing of Object.keys(messagejson)) {
 			this[thing] = messagejson[thing]
 		}
-        for (const thing in this.embeds) {
-            this.embeds[thing] = new embed(this.embeds[thing],this)
-        }
+		for (const thing in this.embeds) {
+			this.embeds[thing] = new embed(this.embeds[thing],this)
+		}
 		this.author = user.checkuser(this.author)
 	}
 	messageevents(obj) {
@@ -174,13 +174,13 @@ class cmessage {
 				messagedwrap.appendChild(attach)
 			}
 
-            if (this.embeds.length > 0) {
-                const embeds = document.createElement("tr")
-                for (const thing of this.embeds) {
-                    embeds.appendChild(thing.generateHTML())
-                }
-                messagedwrap.appendChild(embeds)
-            }
+			if (this.embeds.length > 0) {
+				const embeds = document.createElement("tr")
+				for (const thing of this.embeds) {
+					embeds.appendChild(thing.generateHTML())
+				}
+				messagedwrap.appendChild(embeds)
+			}
 		} else if (this.type == 7) {
 			const text = document.createElement("th")
 

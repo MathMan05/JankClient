@@ -55,8 +55,6 @@ class embed {
 			title.classList.add("embedtitle")
 			if (this.json.url) title.href = this.json.url
 			embedElem.append(title)
-
-			embedElem.append(document.createElement("br"))
 		}
 
 		if (this.json.description) {
@@ -71,14 +69,14 @@ class embed {
 			const b = document.createElement("b")
 			b.textContent = field.name
 			divField.append(b)
-			field.inline ??= false
 
 			const p = document.createElement("p")
 			p.textContent = field.value
 			p.classList.add("embedp")
 			divField.append(p)
-			embedElem.append(divField)
+
 			if (field.inline) divField.classList.add("inline")
+			embedElem.append(divField)
 		}
 
 		if (this.json.footer || this.json.timestamp) {
@@ -99,8 +97,8 @@ class embed {
 			}
 
 			if (this.json.footer && this.json.footer.text && this.json.timestamp) {
-				const span = document.createElement("b")
-				span.textContent = "-"
+				const span = document.createElement("span")
+				span.textContent = "•"
 				span.classList.add("spaceright")
 				footer.append(span)
 			}

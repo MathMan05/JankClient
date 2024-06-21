@@ -386,7 +386,9 @@ p {
 
 #channels {
 	background-color: var(--channels-bg);
-	height: calc(100dvh - .9in);
+	height: 100dvh;
+	height: -webkit-fill-available;
+	height: -moz-available;
 	width: 2.5in;
 	overflow: auto;
 	user-select: none;
@@ -710,7 +712,8 @@ textarea {
 	height: .5in;
 	background-color: var(--user-dock-bg);
 	width: 100%;
-	position: relative;
+	position: absolute;
+	bottom: 0;
 }
 
 #settings {
@@ -1101,5 +1104,5 @@ span {
 	font-size: .15in;
 }
 .spaceright {
-	margin-right: .1in;
+	margin-right: 3px;
 }
