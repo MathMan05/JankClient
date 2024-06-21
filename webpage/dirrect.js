@@ -23,7 +23,7 @@ class dirrect extends guild{
         this.headchannels=this.channels;
     }
     createChannelpac(JSON){
-        const thischannel=new group(JSON,owner);
+        const thischannel=new group(JSON,this);
         this.channelids[JSON.id]=thischannel;
         this.channels.push(thischannel);
         this.calculateReorder();
