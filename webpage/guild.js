@@ -11,6 +11,11 @@ class guild{
             this.markAsRead();
         });
 
+        guild.contextmenu.addbutton("Notifications",function(){
+            console.log(this)
+            this.setnotifcation();
+        });
+
         guild.contextmenu.addbutton("Leave guild",function(){
             this.confirmleave();
         },null,function(_){return _.properties.owner_id!==_.member.user.id});
@@ -66,6 +71,37 @@ class guild{
                 this.headchannels.push(thing);
             }
         }
+    }
+    notisetting(settings){
+        this.message_notifications=settings.message_notifications;
+    }
+    setnotifcation(){
+    let noti=this.message_notifications
+    const notiselect=new fullscreen(
+    ["vdiv",
+        ["radio","select notifications type",
+            ["all","only mentions","none"],
+            function(e){
+                noti=["all","only mentions","none"].indexOf(e);
+            },
+            noti
+        ],
+        ["button","","submit",_=>{
+            fetch(info.api.toString()+"/v9/users/@me/guilds/settings",{
+                method:"PATCH",
+                headers:this.headers,
+                body:JSON.stringify({
+                    "guilds":{
+                        [this.id]:{
+                            "message_notifications": noti
+                        }
+                    }
+                })
+            })
+            this.message_notifications=noti;
+        }]
+    ]);
+    notiselect.show();
     }
     confirmleave(){
         const full= new fullscreen([
