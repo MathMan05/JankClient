@@ -62,6 +62,9 @@ pre {
 	background-color: var(--code-bg);
 	width: 100%;
 	overflow-wrap: break-word;
+	word-wrap: break-word;
+	word-break: break-word;
+	white-space: pre-wrap;
 }
 
 samp {
@@ -291,6 +294,7 @@ div {
 	width: 99%;
 	height: .5in;
 	z-index: -100;
+	max-width: 99%;
 }
 
 p {
@@ -432,6 +436,7 @@ p {
 	display: inline-block;
 	grid-template-rows: auto 1fr;
 	height: calc(100dvh - .1in - var(--servertd-height));
+	max-width: 100%;
 }
 
 .timestamp {
@@ -605,6 +610,7 @@ textarea {
 
 .servernamediv {
 	width: 100%;
+	max-width: 100%;
 }
 
 button {

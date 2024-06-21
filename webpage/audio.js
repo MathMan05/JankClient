@@ -79,5 +79,3 @@ class voice{
         }
     }
 }
-const audio=new voice("triangle",101);
-//audio.play();

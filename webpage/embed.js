@@ -140,13 +140,15 @@ class embed{
         {
             const td=document.createElement("td");
             const img=document.createElement("img");
-            img.classList.add("embedimg");
-            img.onclick=function(){
-                const full=new fullscreen(["img",img.src,["fit"]]);
-                full.show();
+            if(this.json.thumbnail){
+                img.classList.add("embedimg");
+                img.onclick=function(){
+                    const full=new fullscreen(["img",img.src,["fit"]]);
+                    full.show();
+                }
+                img.src=this.json.thumbnail.proxy_url;
+                td.append(img);
             }
-            img.src=this.json.thumbnail.proxy_url;
-            td.append(img);
             trtop.append(td);
         }
         const bottomtr=document.createElement("tr");
@@ -165,10 +167,12 @@ class embed{
 
         const div=document.createElement("div");
         div.classList.add("embed");
-        const providor=document.createElement("p");
-        providor.classList.add("provider");
-        providor.textContent=this.json.provider.name;
-        div.append(providor);
+        if(this.json.provider){
+            const providor=document.createElement("p");
+            providor.classList.add("provider");
+            providor.textContent=this.json.provider.name;
+            div.append(providor);
+        }
         const a=document.createElement("a");
         a.href=this.json.url;
         a.textContent=this.json.title;
