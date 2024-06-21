@@ -128,7 +128,7 @@ class direct extends guild {
 		this.headchannels = this.channels
 	}
 	createChannelpac(json) {
-		const thischannel = new group(json, this.owner)
+		const thischannel = new group(json, this)
 		this.channelids[json.id] = thischannel
 		this.channels.push(thischannel)
 		this.calculateReorder()
