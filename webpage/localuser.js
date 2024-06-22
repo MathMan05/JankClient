@@ -45,6 +45,10 @@ function genusersettings() {
 			["select", "Theme", ["Dark", "Light"], event => {
 				newTheme = event.target.value == "Light" ? "light" : "dark"
 			}, thisuser.settings.theme == "light" ? 1 : 0],
+			["select","Notification sound:", voice.sounds, e => {
+				voice.setNotificationSound(voice.sounds[e.target.selectedIndex])
+				voice.noises(voice.sounds[e.target.selectedIndex])
+			},	voice.sounds.indexOf(voice.getNotificationSound())],
 			["button", "update user content:", "submit", () => {
 				if (file !== null) thisuser.updatepfp(file)
 				if (newprouns !== null) thisuser.updatepronouns(newprouns)
@@ -111,6 +115,11 @@ class localuser {
 		const temp = new direct(ready.d.private_channels, this)
 		this.guilds.push(temp)
 		this.guildids[temp.id] = temp
+
+		console.log(ready.d.user_guild_settings.entries)
+		for (const thing of ready.d.user_guild_settings.entries) {
+			this.guildids[thing.guild_id].notisetting(thing)
+		}
 
 		for (const thing of ready.d.merged_members) {
 			const mergedMember = new member(thing[0])

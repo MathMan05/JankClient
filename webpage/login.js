@@ -66,17 +66,31 @@ function getBulkInfo() {
 	return JSON.parse(localStorage.getItem("userinfos"))
 }
 function setDefaults() {
-	const userinfos = localStorage.getItem("userinfos")
+	const userinfos = getBulkInfo()
 	if (!userinfos) {
 		localStorage.setItem("userinfos", JSON.stringify({
 			currentuser: null,
 			users: {},
 			preferences: {
 				theme: "dark",
-				notifcations: false
+				notifications: false,
+				notisound: "three"
 			}
 		}))
 	}
+
+	if (userinfos.users === void 0) userinfos.users = {}
+	if (userinfos.preferences === void 0) {
+		userinfos.preferences = {
+			theme: "Dark",
+			notifcations: false,
+			notisound: "three"
+		}
+	}
+	if (userinfos.preferences && userinfos.preferences.notisound === void 0) {
+		userinfos.preferences.notisound = "three"
+	}
+	localStorage.setItem("userinfos", JSON.stringify(userinfos))
 }
 setDefaults()
 

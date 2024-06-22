@@ -67,6 +67,14 @@ class group extends channel {
 			}
 		}
 		this.unreads()
+
+		if (messagez.author == this.owner.owner.user) return
+		if (this.owner.owner.lookingguild.prevchannel === this && document.hasFocus()) return
+
+		if (this.notification == "all" || (this.notification === "mentions" && messagez.mentionsuser(this.owner.owner.user))) this.notify(messagez)
+	}
+	notititle(message) {
+		return message.author.username
 	}
 	unreads() {
 		const sentdms = document.getElementById("sentdms")

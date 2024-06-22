@@ -39,13 +39,33 @@ class cmessage {
 			this[thing] = messagejson[thing]
 		}
 		for (const thing in this.embeds) {
-			this.embeds[thing] = new embed(this.embeds[thing],this)
+			this.embeds[thing] = new embed(this.embeds[thing], this)
 		}
 		this.author = user.checkuser(this.author)
+
+		for (const thing in this.mentions) {
+			this.mentions[thing] = new user(this.mentions[thing])
+		}
+		if (this.mentions.length || this.mention_roles.length) {//currently mention_roles isn't implemented on the spacebar servers
+			console.log(this.mentions, this.mention_roles)
+		}
 	}
 	messageevents(obj) {
 		cmessage.contextmenu.bind(obj, this)
 		obj.classList.add("messagediv")
+	}
+	mentionsuser(userd) {
+		if (userd instanceof user) return this.mentions.includes(userd)
+		if (userd instanceof member) return this.mentions.includes(userd.user)
+	}
+	getimages() {
+		const build = []
+		for (const thing of this.attachments) {
+			if (thing.content_type.startsWith("image/")) {
+				build.push(thing)
+			}
+		}
+		return build
 	}
 	buildhtml(premessage) {
 		//premessage??=messages.lastChild;

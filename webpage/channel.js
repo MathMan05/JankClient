@@ -340,6 +340,10 @@ class channel {
 		})
 	}
 	getHTML() {
+		if (this.owner !== this.owner.owner.lookingguild) {
+			this.owner.loadGuild()
+		}
+
 		this.owner.prevchannel = this
 		this.owner.owner.channelfocus = this.id
 		this.putmessages()
@@ -439,6 +443,22 @@ class channel {
 			headers: this.headers
 		})
 	}
+	get notification() {
+		let notinumber = this.message_notifications
+		if (notinumber === 3) notinumber = null
+		notinumber ??= this.owner.message_notifications
+
+		switch (notinumber) {
+			case 0:
+				return "all"
+			case 1:
+				return "mentions"
+			case 2:
+				return "none"
+			case 3:
+				return "default"
+		}
+	}
 	messageCreate(messagep, focus) {
 		const messagez = new cmessage(messagep.d, this)
 		this.lastmessageid = messagez.id
@@ -448,6 +468,7 @@ class channel {
 		} else {
 			if (this.myhtml) this.myhtml.classList.add("cunread")
 		}
+
 		this.owner.unreads()
 		this.messages.unshift(messagez)
 		const scrolly = document.getElementById("messagecontainer")
@@ -459,6 +480,45 @@ class channel {
 			messages.appendChild(messagez.buildhtml(this.messages[1]))
 		}
 		if (shouldScroll) scrolly.scrollTop = scrolly.scrollHeight
+
+		if (messagez.author == this.owner.owner.user) return
+		if (this.owner.owner.lookingguild.prevchannel === this && document.hasFocus()) return
+
+		if (this.notification == "all" || (this.notification === "mentions" && messagez.mentionsuser(this.owner.owner.user))) this.notify(messagez)
+	}
+	notititle(message) {
+		return message.author.username + " > " + this.owner.properties.name + " > " + this.name
+	}
+	notify(message) {
+		voice.noises(voice.getNotificationSound())
+
+		if ("Notification" in window && Notification.permission == "granted") {
+			let noticontent = markdown(message.content).textContent
+			noticontent ||= message.embeds[0].json.title
+			noticontent ||= markdown(message.embeds[0].json.description).textContent
+			noticontent ||= "Blank Message"
+			let imgurl = null
+			const images = message.getimages()
+			if (images.length) {
+				const image = images[0]
+				imgurl ||= image.proxy_url
+				imgurl ||= image.url
+			}
+
+			const notification = new Notification(this.notititle(message), {
+				body: noticontent,
+				icon: message.author.getpfpsrc(),
+				image: imgurl
+			})
+			notification.addEventListener("click", () => {
+				window.focus()
+				this.getHTML()
+			})
+		} else if (Notification.permission != "denied") {
+			Notification.requestPermission().then(() => {
+				this.notify(message)
+			})
+		}
 	}
 }
 

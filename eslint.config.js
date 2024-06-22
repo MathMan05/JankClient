@@ -43,7 +43,8 @@ const global = {
 	currentmenu: "writeable",
 	buildprofile: "writeable",
 	getBulkUsers: "writeable",
-	embed: "writeable"
+	embed: "writeable",
+	voice: "writeable"
 }
 
 const rules = {

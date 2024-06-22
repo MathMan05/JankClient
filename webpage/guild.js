@@ -15,6 +15,10 @@ class guild {
 			console.log(this)
 		}, null, () => true, () => false)
 
+		guild.contextmenu.addbutton("Notifications", function() {
+			this.setnotifcation()
+		})
+
 		guild.contextmenu.addbutton("Leave guild", function() {
 			this.confirmleave()
 		}, null, g => g.properties.owner_id != g.member.user.id)
@@ -42,6 +46,8 @@ class guild {
 		this.roles = []
 		this.roleids = {}
 		this.prevchannel = void 0
+		this.message_notifications = 0
+
 		for (const roley of json.roles) {
 			const roleh = new role(roley)
 			this.roles.push(roleh)
@@ -250,6 +256,37 @@ class guild {
 			headers: this.headers,
 			body: JSON.stringify({ name, type })
 		})
+	}
+	notisetting(settings) {
+		this.message_notifications = settings.message_notifications
+	}
+	setnotifcation() {
+		let noti = this.message_notifications
+		const notiselect = new fullscreen(
+		["vdiv",
+			["radio","select notifications type",
+				["all","only mentions","none"],
+				function(e) {
+					noti = ["all","only mentions","none"].indexOf(e)
+				},
+				noti
+			],
+			["button","","submit", () => {
+				fetch(instance.api.toString() + "/v9/users/@me/guilds/settings",{
+					method: "PATCH",
+					headers: this.headers,
+					body: JSON.stringify({
+						guilds: {
+							[this.id]: {
+								message_notifications: noti
+							}
+						}
+					})
+				})
+				this.message_notifications = noti
+			}]
+		])
+		notiselect.show()
 	}
 	confirmleave() {
 		const full = new fullscreen([
