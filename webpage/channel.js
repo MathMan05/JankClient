@@ -509,13 +509,7 @@ class channel{
        return message.author.username+" > "+this.owner.properties.name+" > "+this.name;
     }
     notify(message){
-        {
-            const voicy=new voice("sin",800);
-            voicy.play()
-            setTimeout(_=>{voicy.freq=1000},50);
-            setTimeout(_=>{voicy.freq=1300},100);
-            setTimeout(_=>{voicy.stop()},150);
-        }
+        voice.noises(voice.getNotificationSound());
         if (!("Notification" in window)) {
 
         } else if (Notification.permission === "granted") {

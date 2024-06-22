@@ -459,7 +459,11 @@ function genusersettings(){
             ["select","Theme:",["Dark","Light","WHITE"],e=>{
                 localStorage.setItem("theme",["Dark","Light","WHITE"][e.target.selectedIndex]);
                 setTheme();
-            },["Dark","Light","WHITE"].indexOf(localStorage.getItem("theme"))]
+            },["Dark","Light","WHITE"].indexOf(localStorage.getItem("theme"))],
+            ["select","Notification sound:",voice.sounds,e=>{
+                voice.setNotificationSound(voice.sounds[e.target.selectedIndex]);
+                voice.noises(voice.sounds[e.target.selectedIndex]);
+            },voice.sounds.indexOf(voice.getNotificationSound())]
         ],
         ["vdiv",
             ["html",hypothetcialprofie]
