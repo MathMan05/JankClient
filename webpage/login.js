@@ -19,7 +19,7 @@ function getBulkInfo(){
     return JSON.parse(localStorage.getItem("userinfos"));
 }
 function setDefaults(){
-    let userinfos=localStorage.getItem("userinfos");
+    let userinfos=JSON.parse(localStorage.getItem("userinfos"));
     if(!userinfos){
         localStorage.setItem("userinfos",JSON.stringify({
             currentuser:null,
@@ -28,9 +28,24 @@ function setDefaults(){
             {
                 theme:"Dark",
                 notifcations:false,
+                notisound:"three",
             },
         }));
     }
+    if(userinfos.users===undefined){
+        userinfos.users={};
+    }
+    if(userinfos.preferances===undefined){
+        userinfos.preferances={
+                theme:"Dark",
+                notifcations:false,
+                notisound:"three",
+            }
+    }
+    if(userinfos.preferances&&(userinfos.preferances.notisound===undefined)){
+        userinfos.preferances.notisound="three";
+    }
+    localStorage.setItem("userinfos",JSON.stringify(userinfos));
 }
 setDefaults();
 class specialuser{
