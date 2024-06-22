@@ -124,12 +124,12 @@ class voice{
         return ["three","zip","square","beep"];
     }
     static setNotificationSound(sound){
-        let userinfos=JSON.parse(localStorage.getItem("userinfos"));
+        let userinfos=getBulkInfo();
         userinfos.preferances.notisound=sound;
         localStorage.setItem("userinfos",JSON.stringify(userinfos));
     }
     static getNotificationSound(){
-        let userinfos=JSON.parse(localStorage.getItem("userinfos"));
+        let userinfos=getBulkInfo();
         return userinfos.preferances.notisound;
     }
 }

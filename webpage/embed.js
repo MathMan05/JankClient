@@ -74,15 +74,13 @@ class embed{
                 b.textContent=thing.name;
                 div.append(b);
                 let p;
-                thing.inline??=false;
                 p=document.createElement("p")
                 p.textContent=thing.value;
                 p.classList.add("embedp");
                 div.append(p);
+
+                if(thing.inline){div.classList.add("inline");}
                 embed.append(div);
-                if(thing.inline){
-                    div.classList.add("inline");
-                }
             }
         }
         if(this.json.footer||this.json.timestamp){
@@ -100,8 +98,8 @@ class embed{
                 footer.append(span);
             }
             if(this.json?.footer&&this.json?.timestamp){
-                const span=document.createElement("b");
-                span.textContent="-";
+                const span=document.createElement("span");
+                span.textContent="•";
                 span.classList.add("spaceright");
                 footer.append(span);
             }
