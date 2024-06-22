@@ -331,11 +331,7 @@ class guild {
 		this.owner.guildhtml[this.id] = divy
 		if (this.properties.icon === null) {
 			const div = document.createElement("div")
-			let build = ""
-			for (const char of this.properties.name.split(" ")) {
-				build += char[0]
-			}
-			div.textContent = build
+			div.textContent = this.properties.name.split(" ").map(e => e[0]).join("")
 			div.classList.add("blankserver", "servericon")
 			divy.appendChild(div)
 			div.onclick = () => {
@@ -346,10 +342,9 @@ class guild {
 		} else {
 			const img = document.createElement("img")
 			img.classList.add("pfp", "servericon")
-			img.src = instance.cdn.toString() + "icons/" + this.properties.id + "/" + this.properties.icon + ".png"
+			img.src = instance.cdn + "/icons/" + this.properties.id + "/" + this.properties.icon + ".png"
 			divy.appendChild(img)
 			img.onclick = () => {
-				console.log(this.loadGuild)
 				this.loadGuild()
 				this.loadChannel()
 			}

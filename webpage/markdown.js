@@ -11,12 +11,11 @@ function markdown(txt, keep = false) {
 			current = document.createElement("span")
 		}
 	}
+
 	for (let i = 0; i < txt.length; i++) {
 		if (txt[i] == "\n" || i == 0) {
 			const first = i == 0
-			if (first) {
-				i--
-			}
+			if (first) i--
 			let element = null
 			let keepys = false
 
@@ -41,7 +40,6 @@ function markdown(txt, keep = false) {
 				element = document.createElement("div")
 				const line = document.createElement("div")
 				line.classList.add("quoteline")
-				console.log(line)
 				element.append(line)
 				element.classList.add("quote")
 				keepys = "> "
@@ -64,11 +62,13 @@ function markdown(txt, keep = false) {
 			}
 			if (first) i++
 		}
+
 		if (txt[i] == "\n") {
 			appendcurrent()
 			span.append(document.createElement("br"))
 			continue
 		}
+
 		if (txt[i] == "`") {
 			let count = 1
 			if (txt[i + 1] == "`") {
@@ -145,6 +145,7 @@ function markdown(txt, keep = false) {
 					}
 				}
 			}
+
 			if (find == count && (count != 1 || txt[i + 1] != " ")) {
 				appendcurrent()
 				i = j
@@ -199,6 +200,7 @@ function markdown(txt, keep = false) {
 					}
 				}
 			}
+
 			if (find == count && (count != 1 || (txt[j + 1] == " " || txt[j + 1] == "\n" || txt[j + 1] === void 0))) {
 				appendcurrent()
 				i = j
@@ -274,17 +276,18 @@ function markdown(txt, keep = false) {
 					}
 				}
 			}
+
 			if (find == count) {
 				appendcurrent()
 				i = j
-				const underscores = "||"
+				const pipes = "||"
 				if (count == 2) {
 					const spoilerElem = document.createElement("span")
-					if (keep) spoilerElem.append(underscores)
+					if (keep) spoilerElem.append(pipes)
 					spoilerElem.appendChild(markdown(build, keep))
 					spoilerElem.classList.add("spoiler")
 					spoilerElem.addEventListener("click", markdown.unspoil)
-					if (keep) spoilerElem.append(underscores)
+					if (keep) spoilerElem.append(pipes)
 					span.appendChild(spoilerElem)
 				}
 				continue
@@ -292,6 +295,7 @@ function markdown(txt, keep = false) {
 		}
 		current.textContent += txt[i]
 	}
+
 	appendcurrent()
 	return span
 }

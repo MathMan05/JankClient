@@ -451,17 +451,17 @@ class localuser {
 		}
 	}
 	updatepfp(file) {
+		const headers = this.headers
 		const reader = new FileReader()
 		reader.readAsDataURL(file)
 		reader.onload = function() {
 			fetch(instance.api + "/users/@me", {
 				method: "PATCH",
-				headers: this.headers,
+				headers,
 				body: JSON.stringify({
 					avatar: reader.result
 				})
 			})
-			console.log(reader.result)
 		}
 	}
 	updatepronouns(pronouns) {

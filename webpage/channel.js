@@ -133,7 +133,7 @@ class channel {
 				this.coatDropDiv(decdiv, childrendiv)
 			}
 			div.appendChild(caps)
-			caps.classList.add("capsflex")
+			caps.classList.add("flex")
 			decdiv.classList.add("channel", "channeleffects")
 
 			channel.contextmenu.bind(decdiv, this)

@@ -39,9 +39,8 @@ function samedomain(url) {
 }
 
 function isindexhtml(url) {
-	if (new URL(url).pathname.startsWith("/channels")) {
-		return true
-	}
+	const parsed = new URL(url)
+	if (parsed.pathname.startsWith("/channels")) return true
 	return false
 }
 
@@ -52,11 +51,11 @@ async function getfile(event) {
 	checkCache()
 	if (!samedomain(event.request.url)) return await fetch(event.request.clone())
 
-	const responseFromCache = await caches.match(isindexhtml(event.request.url) ? "/index.html" : event.request.url)
+	const responseFromCache = await caches.match(isindexhtml(event.request.url) ? "/index" : event.request.url)
 	if (responseFromCache) return responseFromCache
 
-	const responseFromNetwork = await fetch(isindexhtml(event.request.url) ? "/index.html" : event.request.clone())
-	await putInCache(isindexhtml(event.request.url) ? "/index.html" : event.request.clone(), responseFromNetwork.clone())
+	const responseFromNetwork = await fetch(isindexhtml(event.request.url) ? "/index" : event.request.clone())
+	await putInCache(isindexhtml(event.request.url) ? "/index" : event.request.clone(), responseFromNetwork.clone())
 	return responseFromNetwork
 }
 

@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
 		createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
 	}, null, () => thisuser.isAdmin())
 	menu.bind(document.getElementById("channels"))
+
 	const userinfo = document.getElementById("userinfo")
 	const userdock = document.getElementById("userdock")
 	userinfo.addEventListener("click", event => {
@@ -114,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
 			tr.append(td)
 			td.append("Switch accounts ⇌")
 			td.addEventListener("click", () => {
-				location.href = "/login.html"
+				location.href = "/login"
 			})
 			table.append(tr)
 		}
@@ -122,7 +123,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 		if (currentmenu != "") currentmenu.remove()
 		currentmenu = table
-		console.log(table)
 		userdock.append(table)
 		event.stopImmediatePropagation()
 	})
