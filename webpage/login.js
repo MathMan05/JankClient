@@ -9,7 +9,7 @@ function setTheme(){
 }
 setTheme();
 function getBulkUsers(){
-    const json=JSON.parse(localStorage.getItem("userinfos"));
+    const json=getBulkInfo()
     for(const thing in json.users){
         json.users[thing]=new specialuser(json.users[thing]);
     }
@@ -19,7 +19,7 @@ function getBulkInfo(){
     return JSON.parse(localStorage.getItem("userinfos"));
 }
 function setDefaults(){
-    let userinfos=JSON.parse(localStorage.getItem("userinfos"));
+    let userinfos=getBulkInfo()
     if(!userinfos){
         localStorage.setItem("userinfos",JSON.stringify({
             currentuser:null,

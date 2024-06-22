@@ -139,7 +139,7 @@ class group extends channel{
         }
     }
     notititle(message){
-       return message.author.username;
+        return message.author.username;
     }
     unreads(){
         const sentdms=document.getElementById("sentdms");

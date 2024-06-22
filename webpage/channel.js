@@ -514,8 +514,10 @@ class channel{
 
         } else if (Notification.permission === "granted") {
             let noticontent=markdown(message.content).textContent;
-            noticontent||=message.embeds[0].json.title;
-            noticontent||=markdown(message.embeds[0].json.description).textContent;
+            if(message.embeds[0]){
+                noticontent||=message.embeds[0].json.title;
+                noticontent||=markdown(message.embeds[0].json.description).textContent;
+            }
             noticontent||="Blank Message";
             let imgurl=null;
             const images=message.getimages();

@@ -240,7 +240,9 @@ p {
 
 #channels {
 	background-color: var(--channels-bg);
-	height: calc(100dvh - .9in);
+	height: 100dvh;
+	height: -webkit-fill-available;
+	height: -moz-available;
 	width: 2.5in;
 	overflow: auto;
 	user-select: none;
@@ -584,7 +586,8 @@ textarea {
 #userdock {
 	background-color: var(--user-dock-bg);
 	width: 100%;
-	position: relative;
+	position: absolute;
+	bottom: 0;
 }
 
 #settings {
@@ -848,9 +851,10 @@ span {
 	position:absolute;
 	top:0px;
 	transform: translate(0, -100%);
-	width:100%;
+	/* width:100%; */
 	box-shadow: .00in -.5in 1in #0000006b;
 	border-radius: .05in .05in .0in.0in;
+	/* max-width: 100%; */
 }
 .accountSwitcher tr{
 	transition: background .3s;
