@@ -32,7 +32,7 @@ class cmessage{
         })
         cmessage.contextmenu.addbutton("Edit",function(){
             console.log(this)
-            editing=this.id;
+            editing=this;
             document.getElementById("typebox").value=this.content;
         },null,_=>{return _.author.id==READY.d.user.id});
     }
@@ -53,9 +53,18 @@ class cmessage{
         if(this.mentions.length||this.mention_roles.length){//currently mention_roles isn't implemented on the spacebar servers
             console.log(this.mentions,this.mention_roles)
         }
-        if(this.mentionsuser(this.owner.owner.owner.user)){
+        if(this.mentionsuser(this.localuser.user)){
             console.log(this);
         }
+    }
+    get channel(){
+        return this.owner;
+    }
+    get guild(){
+        return this.owner.guild;
+    }
+    get localuser(){
+        return this.owner.localuser;
     }
     messageevents(obj){
         cmessage.contextmenu.bind(obj,this)
@@ -76,6 +85,13 @@ class cmessage{
             }
         }
         return build;
+    }
+    async edit(content){
+        return await fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages/"+this.id,{
+            method: "PATCH",
+            headers: this.headers,
+            body:JSON.stringify({content:content})
+        });
     }
     buildhtml(premessage){
         //premessage??=messages.lastChild;

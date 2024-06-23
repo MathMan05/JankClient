@@ -238,7 +238,7 @@ class localuser{
             console.log(guild);
             guild.loadChannel(location[5]);
             console.log(location[5])
-            this.channelfocus=location[5];
+            this.channelfocus=guild.channelids[location[5]];
         }
         this.buildservers();
     }
@@ -356,7 +356,7 @@ class localuser{
     }
     messageCreate(messagep){
         messagep.d.guild_id??="@me";
-        this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep,this.channelfocus===messagep.d.channel_id);
+        this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep,this.channelfocus.id===messagep.d.channel_id);
         this.unreads();
     }
     unreads(){
@@ -367,7 +367,7 @@ class localuser{
         }
     }
     typeingStart(typing){
-        if(this.channelfocus===typing.d.channel_id){
+        if(this.channelfocus.id===typing.d.channel_id){
             const memb=typing.d.member;
             let name;
             if(memb.id===this.user.id){

@@ -45,7 +45,13 @@ class channel{
         this.lastmessageid=JSON.last_message_id;
     }
     isAdmin(){
-        return this.owner.isAdmin();
+        return this.guild.isAdmin();
+    }
+    get guild(){
+        return this.owner;
+    }
+    get localuser(){
+        return this.guild.localuser;
     }
     readStateInfo(json){
         this.lastreadmessageid=json.last_message_id;
@@ -58,7 +64,7 @@ class channel{
     }
     get canMessage(){
         for(const thing of this.permission_overwrites){
-            if(this.owner.hasRole(thing.id)&&thing.deny&(1<<11)){
+            if(this.guild.hasRole(thing.id)&&thing.deny&(1<<11)){
                 return false;
             }
         }
@@ -88,7 +94,7 @@ class channel{
                 thing.parent_id=thing.move_id;
                 thisthing.parent_id=thing.parent_id;
                 thing.move_id=undefined;
-                console.log(this.owner.channelids[thisthing.parent_id]);
+                console.log(this.guild.channelids[thisthing.parent_id]);
             }
             if(thisthing.position||thisthing.parent_id){
                 build.push(thisthing);
@@ -191,7 +197,7 @@ class channel{
     }
     get myhtml(){
         const search=document.getElementById("channels").children[0].children
-        if(this.owner!==this.owner.owner.lookingguild){
+        if(this.guild!==this.localuser.lookingguild){
             return null
         }else if(this.parrent){
             for(const thing of search){
@@ -222,7 +228,7 @@ class channel{
             body:JSON.stringify({})
         });
         this.lastreadmessageid=this.lastmessageid;
-        this.owner.unreads();
+        this.guild.unreads();
         if(this.myhtml!==null){
             console.log(this.myhtml.classList)
             this.myhtml.classList.remove("cunread");
@@ -256,7 +262,7 @@ class channel{
                 if(that.parrent){
                     that.parrent.children.splice(that.parrent.children.indexOf(that),1);
                 }else{
-                    this.owner.headchannels.splice(this.owner.headchannels.indexOf(that),1);
+                    this.guild.headchannels.splice(this.guild.headchannels.indexOf(that),1);
                 }
                 that.parrent=this.parrent;
                 if(that.parrent){
@@ -270,23 +276,23 @@ class channel{
                     that.parrent.children=build;
                 }else{
                     const build=[];
-                    for(let i=0;i<this.owner.headchannels.length;i++){
-                        build.push(this.owner.headchannels[i])
-                        if(this.owner.headchannels[i]===this){
+                    for(let i=0;i<this.guild.headchannels.length;i++){
+                        build.push(this.guild.headchannels[i])
+                        if(this.guild.headchannels[i]===this){
                             build.push(that);
                         }
                     }
-                    this.owner.headchannels=build;
+                    this.guild.headchannels=build;
                 }
                 div.after(channel.dragged[1]);
             }
-            this.owner.calculateReorder()
+            this.guild.calculateReorder()
         });
 
         return div;
     }
     createChannel(name,type){
-        fetch(info.api.toString()+"/guilds/"+this.owner.id+"/channels",{
+        fetch(info.api.toString()+"/guilds/"+this.guild.id+"/channels",{
             method:"Post",
             headers:this.headers,
             body:JSON.stringify({
@@ -340,11 +346,11 @@ class channel{
         })
     }
     getHTML(){
-        if(this.owner!==this.owner.owner.lookingguild){
-            this.owner.loadGuild();
+        if(this.guild!==this.localuser.lookingguild){
+            this.guild.loadGuild();
         }
-        this.owner.prevchannel=this;
-        this.owner.owner.channelfocus=this.id;
+        this.guild.prevchannel=this;
+        this.localuser.channelfocus=this;
         this.putmessages();
         history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.id);
         document.getElementById("channelname").textContent="#"+this.name;
@@ -457,7 +463,7 @@ class channel{
     get notification(){
         let notinumber=this.message_notifications;
         if(+notinumber===3){notinumber=null;}
-        notinumber??=this.owner.message_notifications;
+        notinumber??=this.guild.message_notifications;
         switch(+notinumber){
             case 0:
                 return "all";
@@ -469,10 +475,55 @@ class channel{
                 return "default";
         }
     }
+    async sendMessage(content,{attatchmenets=[],embeds=[],replyingto=false}){
+        let replyjson=false;
+        if(replyingto){
+            replyjson=
+            {
+                "guild_id":replyingto.guild.id,
+                "channel_id": replyingto.channel.id,
+                "message_id": replyingto.id,
+            };
+        }
+        if(attatchmenets.length===0){
+            const body={
+                content:content,
+                nonce:Math.floor(Math.random()*1000000000)
+            };
+            if(replyjson){
+                body.message_reference=replyjson;
+            }
+            console.log(body)
+            return await fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages",{
+                method:"POST",
+                headers:this.headers,
+                body:JSON.stringify(body)
+            })
+        }else{
+            const formData = new FormData();
+            const body={
+                content:content,
+                nonce:Math.floor(Math.random()*1000000000),
+            }
+            if(replyjson){
+                body.message_reference=replyjson;
+            }
+            formData.append('payload_json', JSON.stringify(body));
+            for(const i in attatchmenets){
+                console.log(attatchmenets[i])
+                formData.append("files["+i+"]",attatchmenets[i]);
+            }
+            return await fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages", {
+                method: 'POST',
+                body: formData,
+                headers:{"Authorization":this.headers.Authorization}
+            });
+        }
+    }
     messageCreate(messagep,focus){
         const messagez=new cmessage(messagep.d,this);
         this.lastmessageid=messagez.id;
-        if(messagez.author===this.owner.owner.user){
+        if(messagez.author===this.localuser.user){
             this.lastreadmessageid=messagez.id;
             if(this.myhtml){
                 this.myhtml.classList.remove("cunread");
@@ -482,31 +533,31 @@ class channel{
                 this.myhtml.classList.add("cunread");
             }
         }
-        this.owner.unreads();
+        this.guild.unreads();
         this.messages.unshift(messagez);
         const scrolly=document.getElementById("messagecontainer");
         this.messageids[messagez.id]=messagez;
-        if(this.owner.owner.lookingguild.prevchannel===this){
+        if(this.localuser.lookingguild.prevchannel===this){
             var shouldScroll=scrolly.scrollTop+scrolly.clientHeight>scrolly.scrollHeight-20;
             messages.appendChild(messagez.buildhtml(this.messages[1]));
         }
         if(shouldScroll){
                 scrolly.scrollTop = scrolly.scrollHeight;
         }
-        if(messagez.author===this.owner.owner.user){
+        if(messagez.author===this.localuser.user){
             return;
         }
-        if(this.owner.owner.lookingguild.prevchannel===this&&document.hasFocus()){
+        if(this.localuser.lookingguild.prevchannel===this&&document.hasFocus()){
             return;
         }
         if(this.notification==="all"){
             this.notify(messagez);
-        }else if(this.notification==="mentions"&&messagez.mentionsuser(this.owner.owner.user)){
+        }else if(this.notification==="mentions"&&messagez.mentionsuser(this.localuser.user)){
             this.notify(messagez);
         }
     }
     notititle(message){
-       return message.author.username+" > "+this.owner.properties.name+" > "+this.name;
+       return message.author.username+" > "+this.guild.properties.name+" > "+this.name;
     }
     notify(message){
         voice.noises(voice.getNotificationSound());
