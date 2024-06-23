@@ -46,7 +46,7 @@ class guild{
         this.owner=owner;
         this.headers=this.owner.headers;
         if(!this.owner){
-            console.error("Owner was not included, please fix")
+            console.error("localuser was not included, please fix")
         }
         this.channels=[];
         this.channelids={};
@@ -196,8 +196,11 @@ class guild{
         }
 
     }
+    get localuser(){
+        return this.owner;
+    }
     loadChannel(id){
-        this.owner.channelfocus=id;
+        this.localuser.channelfocus=this.channelids[id];
         this.channelids[id].getHTML();
     }
     sortchannels(){
@@ -210,7 +213,7 @@ class guild{
         const noti=document.createElement("div");
         noti.classList.add("unread");
         divy.append(noti);
-        this.owner.guildhtml[this.id]=divy;
+        this.localuser.guildhtml[this.id]=divy;
         if(this.properties.icon!=null){
             const img=document.createElement("img");
             img.classList.add("pfp","servericon");
@@ -379,7 +382,7 @@ class guild{
         }
     }
     loadGuild(){
-        this.owner.loadGuild(this.id);
+        this.localuser.loadGuild(this.id);
     }
     updateChannel(JSON){
         this.channelids[JSON.id].updateChannel(JSON);

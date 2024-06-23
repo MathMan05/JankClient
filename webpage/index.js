@@ -248,82 +248,31 @@ typebox.addEventListener("keydown",event=>{
 });
 console.log(typebox)
 typebox.onclick=console.log;
+
 async function enter(event){
-    thisuser.lookingguild.prevchannel.typingstart();
+    thisuser.channelfocus.typingstart();
     if(event.key === "Enter"&&!event.shiftKey){
         event.preventDefault();
-    if(editing){
-        fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages/"+editing,{
-            method: "PATCH",
-            headers: thisuser.headers,
-            body:JSON.stringify({content:typebox.value})
-
-        })
-        typebox.value="";
-        editing=false;
-    }else{
-        let replyjson=false;
-        if(replyingto){
-            replyjson=
-            {
-                "guild_id":replyingto.all.guild_id,
-                "channel_id": replyingto.all.channel_id,
-                "message_id": replyingto.all.id,
-            };
-            replyingto.classList.remove("replying");
-        }
-
-        replyingto=false;
-        if(images.length==0){
-
-            const body={
-                content:typebox.value,
-                nonce:Math.floor(Math.random()*1000000000)
-            };
-            if(replyjson){
-                body.message_reference=replyjson;
-            }
-            console.log(body)
-            fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages",{
-                method:"POST",
-                headers:thisuser.headers,
-                body:JSON.stringify(body)
-            }).then(
-                function(out){
-                console.log(out,"here it is")
-                }
-            )
-            typebox.value="";
+        if(editing){
+            editing.edit(typebox.value);
+            editing=false;
         }else{
-            let formData = new FormData();
-            const body={
-                content:typebox.value,
-                nonce:Math.floor(Math.random()*1000000000),
+            let replying=replyingto?.all;
+            if(replyingto){
+                replyingto.classList.remove("replying");
             }
-            if(replyjson){
-                body.message_reference=replyjson;
-            }
-            formData.append('payload_json', JSON.stringify(body));
-            for(i in images){
-                console.log(images[i])
-                formData.append("files["+i+"]",images[i]);
-            }
-            const data=formData.entries()
-            console.log(data.next(),data.next(),data.next())
-            console.log((await fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages", {
-                method: 'POST',
-                body: formData,
-                headers:{"Authorization":thisuser.token}
-            })));
-            //fetch("/sendimagemessage",{body:formData,method:"POST"})
-
-            while(images.length!=0){
-                images.pop()
-                pasteimage.removeChild(imageshtml.pop())
-            }
-            typebox.value="";
+            replyingto=false;
+            thisuser.channelfocus.sendMessage(typebox.value,{
+                attatchmenets:images,
+                replyingto:replying,
+            })
         }
-    }
+        while(images.length!=0){
+            images.pop();
+            pasteimage.removeChild(imageshtml.pop());
+        }
+        typebox.value="";
+        return;
     }
 }
 

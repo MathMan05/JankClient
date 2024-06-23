@@ -1,10 +1,11 @@
 class dirrect extends guild{
     constructor(JSON,owner){
         super(-1);
+        this.message_notifications=0;
         console.log(JSON);
         this.owner=owner;
-        this.headers=this.owner.headers;
-        if(!this.owner){
+        this.headers=this.localuser.headers;
+        if(!this.localuser){
             console.error("Owner was not included, please fix")
         }
         this.channels=[];
@@ -57,15 +58,15 @@ class group extends channel{
     constructor(JSON,owner){
         super(-1);
         this.owner=owner;
-        this.headers=this.owner.headers;
+        this.headers=this.guild.headers;
         this.messages=[];
         this.name=JSON.recipients[0]?.username;
         if(JSON.recipients[0]){
             this.user=new user(JSON.recipients[0]);
         }else{
-            this.user=this.owner.owner.user;
+            this.user=this.localuser.user;
         }
-        this.name??=owner.owner.user.username;
+        this.name??=this.localuser.user.username;
         this.id=JSON.id;
         this.parent_id=null;
         this.parrent=null;
@@ -91,8 +92,8 @@ class group extends channel{
         return div;
     }
     getHTML(){
-        this.owner.prevchannel=this;
-        this.owner.owner.channelfocus=this.id;
+        this.guild.prevchannel=this;
+        this.localuser.channelfocus=this;
         this.putmessages();
         history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.id);
         document.getElementById("channelname").textContent="@"+this.name;
@@ -100,13 +101,13 @@ class group extends channel{
     messageCreate(messagep,focus){
         const messagez=new cmessage(messagep.d,this);
         this.lastmessageid=messagez.id;
-        if(messagez.author===this.owner.owner.user){
+        if(messagez.author===this.localuser.user){
             this.lastreadmessageid=messagez.id;
         }
         this.messages.unshift(messagez);
         const scrolly=document.getElementById("messagecontainer");
         this.messageids[messagez.id]=messagez;
-        if(this.owner.owner.lookingguild.prevchannel===this){
+        if(this.localuser.lookingguild.prevchannel===this){
             var shouldScroll=scrolly.scrollTop+scrolly.clientHeight>scrolly.scrollHeight-20;
             messages.appendChild(messagez.buildhtml(this.messages[1]));
         }
@@ -114,7 +115,7 @@ class group extends channel{
                 scrolly.scrollTop = scrolly.scrollHeight;
         }
         console.log(document.getElementById("channels").children)
-        if(this.owner.owner.lookingguild===this.owner){
+        if(this.localuser.lookingguild===this.guild){
             const channellist=document.getElementById("channels").children[0]
             for(const thing of channellist.children){
                 if(thing.myinfo===this){
@@ -126,15 +127,16 @@ class group extends channel{
             }
         }
         this.unreads();
-        if(messagez.author===this.owner.owner.user){
+        if(messagez.author===this.localuser.user){
             return;
         }
-        if(this.owner.owner.lookingguild.prevchannel===this&&document.hasFocus()){
+        if(this.localuser.lookingguild.prevchannel===this&&document.hasFocus()){
             return;
         }
+        console.log(this.notification);
         if(this.notification==="all"){
             this.notify(messagez);
-        }else if(this.notification==="mentions"&&messagez.mentionsuser(this.owner.owner.user)){
+        }else if(this.notification==="mentions"&&messagez.mentionsuser(this.localuser.user)){
             this.notify(messagez);
         }
     }
@@ -167,7 +169,7 @@ class group extends channel{
             div.append(buildpfp)
             sentdms.append(div);
             div.onclick=function(){
-                this.all.owner.loadGuild();
+                this.all.guild.loadGuild();
                 this.all.getHTML();
             }
         }else if(current){
