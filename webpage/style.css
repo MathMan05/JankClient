@@ -585,7 +585,7 @@ textarea {
 
 #userdock {
 	background-color: var(--user-dock-bg);
-	width: 100%;
+	width: 2.5in;
 	position: absolute;
 	bottom: 0;
 }
