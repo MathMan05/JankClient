@@ -141,12 +141,12 @@ class voice {
 		return ["three", "zip", "square", "beep"]
 	}
 	static setNotificationSound(sound) {
-		const userinfos = JSON.parse(localStorage.getItem("userinfos"))
+		const userinfos = getBulkInfo()
 		userinfos.preferences.notisound = sound
 		localStorage.setItem("userinfos", JSON.stringify(userinfos))
 	}
 	static getNotificationSound() {
-		const userinfos = JSON.parse(localStorage.getItem("userinfos"))
+		const userinfos = getBulkInfo()
 		return userinfos.preferences.notisound
 	}
 }

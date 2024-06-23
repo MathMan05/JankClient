@@ -2,8 +2,8 @@
 
 const users = getBulkUsers()
 if (!users.currentuser) location.href = "/login"
-const info = users.users[users.currentuser].serverurls
 console.log(users)
+let instance = users.users[users.currentuser].serverurls
 const token = users.users[users.currentuser].token
 
 let ws
@@ -63,17 +63,22 @@ document.addEventListener("DOMContentLoaded", () => {
 	userinfo.addEventListener("click", event => {
 		const table = document.createElement("table")
 		for (const thing of Object.values(users.users)) {
-			console.log(thing.pfpsrc)
 			const tr = document.createElement("tr")
 			const td = document.createElement("td")
 
 			const userinfoTable = document.createElement("table")
 			userinfoTable.classList.add("switchtable")
+
 			const row = document.createElement("tr")
-			userinfoTable.append(row)
 			const pfpcell = document.createElement("td")
 			row.append(pfpcell)
+			userinfoTable.append(row)
+			td.append(userinfoTable)
+
 			const pfp = document.createElement("img")
+			pfp.crossOrigin = "anonymous"
+			pfp.src = thing.pfpsrc
+			pfp.classList.add("pfp")
 			pfpcell.append(pfp)
 
 			const usertd = document.createElement("td")
@@ -87,10 +92,6 @@ document.addEventListener("DOMContentLoaded", () => {
 			user.append(span)
 			span.classList.add("serverURL")
 
-			pfp.src = thing.pfpsrc
-			pfp.classList.add("pfp")
-			td.append(userinfoTable)
-
 			tr.append(td)
 			table.append(tr)
 			tr.addEventListener("click", () => {
@@ -98,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
 				document.getElementById("loading").classList.remove("doneloading")
 				document.getElementById("loading").classList.add("loading")
 				thisuser = new localuser(thing)
-				window.info = thing.serverurls
+				instance = thing.serverurls
 				users.currentuser = thing.uid
 				localStorage.setItem("userinfos", JSON.stringify(users))
 				thisuser.initwebsocket().then(() => {

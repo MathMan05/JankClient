@@ -223,10 +223,7 @@ class channel {
 		})
 		this.lastreadmessageid = this.lastmessageid
 		this.owner.unreads()
-		if (this.myhtml !== null) {
-			console.log(this.myhtml.classList)
-			this.myhtml.classList.remove("cunread")
-		}
+		if (this.myhtml !== null) this.myhtml.classList.remove("cunread")
 	}
 	coatDropDiv(div, container = false) {
 		div.addEventListener("dragenter", event => {
@@ -494,12 +491,15 @@ class channel {
 
 		if ("Notification" in window && Notification.permission == "granted") {
 			let noticontent = markdown(message.content).textContent
-			noticontent ||= message.embeds[0].json.title
-			noticontent ||= markdown(message.embeds[0].json.description).textContent
+			if (message.embeds[0]) {
+				noticontent ||= message.embeds.find(embed => embed.json.title)?.json.title
+				noticontent ||= markdown(message.embeds.find(embed => embed.json.description)?.json.description).textContent
+			}
 			noticontent ||= "Blank Message"
+
 			let imgurl = null
 			const images = message.getimages()
-			if (images.length) {
+			if (images.length > 0) {
 				const image = images[0]
 				imgurl ||= image.proxy_url
 				imgurl ||= image.url

@@ -7,10 +7,26 @@ self.addEventListener("activate", event => {
 	event.waitUntil((async () => {
 		if ("navigationPreload" in self.registration) await self.registration.navigationPreload.enable()
 	})())
-
 	self.clients.claim()
 
 	checkCache()
+})
+
+self.addEventListener("push", event => {
+	const data = event.data.json()
+	const notification = new self.Notification(data.title, {
+		body: data.body,
+		icon: data.icon,
+		image: data.image
+	})
+	notification.addEventListener("click", () => {
+		self.clients.openWindow(data.uri)
+	})
+})
+
+self.registration.pushManager.subscribe({
+	userVisibleOnly: true,
+	applicationServerKey: ""
 })
 
 let lastcache
@@ -44,21 +60,22 @@ function isindexhtml(url) {
 	return false
 }
 
-async function getfile(event) {
-	const preloadResponse = await event.preloadResponse
-	if (preloadResponse) return preloadResponse
-
-	checkCache()
-	if (!samedomain(event.request.url)) return await fetch(event.request.clone())
-
-	const responseFromCache = await caches.match(isindexhtml(event.request.url) ? "/index" : event.request.url)
-	if (responseFromCache) return responseFromCache
-
-	const responseFromNetwork = await fetch(isindexhtml(event.request.url) ? "/index" : event.request.clone())
-	await putInCache(isindexhtml(event.request.url) ? "/index" : event.request.clone(), responseFromNetwork.clone())
-	return responseFromNetwork
-}
-
 self.addEventListener("fetch", event => {
-	event.respondWith(getfile(event))
+	const url = new URL(event.request.url)
+	if (event.request.method == "GET" && url.protocol == "https:" && (event.request.mode == "navigate" || event.request.mode == "no-cors" || event.request.mode == "cors")) {
+		event.respondWith((async () => {
+			const preloadResponse = await event.preloadResponse
+			if (preloadResponse) return preloadResponse
+
+			checkCache()
+			if (!samedomain(event.request.url)) return await fetch(event.request.clone())
+
+			const responseFromCache = await caches.match(isindexhtml(event.request.url) ? "/index" : event.request.url)
+			if (responseFromCache) return responseFromCache
+
+			const responseFromNetwork = await fetch(isindexhtml(event.request.url) ? "/index" : event.request.clone())
+			await putInCache(isindexhtml(event.request.url) ? "/index" : event.request.clone(), responseFromNetwork.clone())
+			return responseFromNetwork
+		})())
+	}
 })

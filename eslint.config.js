@@ -44,7 +44,8 @@ const global = {
 	buildprofile: "writeable",
 	getBulkUsers: "writeable",
 	embed: "writeable",
-	voice: "writeable"
+	voice: "writeable",
+	getBulkInfo: "writeable"
 }
 
 const rules = {

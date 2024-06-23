@@ -104,32 +104,18 @@ class guild {
 		this.printServers()
 		if (build.length == 0) return
 
-		const serverbug = false
-		if (serverbug) {
-			for (const thing of build) {
-				console.log(build, thing)
-				fetch(instance.api + "/guilds/" + this.id + "/channels", {
-					method: "PATCH",
-					headers: this.headers,
-					body: JSON.stringify([thing])
-				})
-			}
-		} else {
-			fetch(instance.api + "/guilds/" + this.id + "/channels", {
-				method: "PATCH",
-				headers: this.headers,
-				body: JSON.stringify(build)
-			})
-		}
+		fetch(instance.api + "/guilds/" + this.id + "/channels", {
+			method: "PATCH",
+			headers: this.headers,
+			body: JSON.stringify(build)
+		})
 	}
 	loadChannel(id) {
 		this.owner.channelfocus = id
 		this.channelids[id].getHTML()
 	}
 	sortchannels() {
-		this.headchannels.sort((a, b) => {
-			return a.position - b.position
-		})
+		this.headchannels.sort((a, b) => a.position - b.position)
 	}
 	unreads(html) {
 		if (html) this.html = html

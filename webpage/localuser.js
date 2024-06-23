@@ -502,7 +502,7 @@ class localuser {
 		if (showing) {
 			document.getElementById("typing").classList.remove("hidden")
 			document.getElementById("typingtext").textContent = typingUsers.length > 1
-				? typingUsers.slice(-1).join(", ") + " and " + typingUsers.at(-1) + " are typing"
+				? typingUsers.slice(1).join(", ") + " and " + typingUsers[0] + " are typing"
 				: typingUsers[0] + " is typing"
 		} else document.getElementById("typing").classList.add("hidden")
 	}

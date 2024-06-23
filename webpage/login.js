@@ -1,24 +1,20 @@
 "use strict"
 
-let instance = {}
-
 class specialuser {
 	constructor(json) {
-		console.log(json)
 		if (json instanceof specialuser) throw new Error("Input for specialuser must not be instance of specialuser")
 
-		instance = {
+		const instanceURLs = {
 			api: new URL(json.serverurls.api).toString(),
 			cdn: new URL(json.serverurls.cdn).toString(),
 			gateway: new URL(json.serverurls.gateway).toString(),
 			wellknown: new URL(json.serverurls.wellknown).toString()
 		}
-		Object.keys(instance).forEach(key => {
-			if (instance[key].endsWith("/")) instance[key] = instance[key].slice(0, -1)
+		Object.keys(instanceURLs).forEach(key => {
+			if (instanceURLs[key].endsWith("/")) instanceURLs[key] = instanceURLs[key].slice(0, -1)
 		})
-		instance.api = instance.api + "/v9"
-		console.log("Set connection endpoints", instance)
-		this.serverurls = instance
+		instanceURLs.api = instanceURLs.api + "/v9"
+		this.serverurls = instanceURLs
 
 		this.email = json.email
 		this.token = json.token

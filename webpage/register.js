@@ -7,7 +7,7 @@ async function registertry(event) {
 		document.getElementById("wrong").textContent = "Passwords don't match"
 		return
 	}
-	const password = elements[3].value
+
 	const dateofbirth = elements[5].value
 	const apiurl = new URL(JSON.parse(localStorage.getItem("instanceEndpoints")).api)
 
@@ -20,7 +20,7 @@ async function registertry(event) {
 			date_of_birth: dateofbirth,
 			email,
 			username,
-			password,
+			password: elements[3].value,
 			consent: elements[6].checked
 		})
 	}).then(res => {
