@@ -7,7 +7,7 @@ class localuser{
         this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.userinfo.token};
     }
     gottenReady(ready){
-        this.usersettings;
+        this.usersettings=null;
         this.initialized=true;
         this.ready=ready;
         this.guilds=[];
@@ -34,8 +34,9 @@ class localuser{
             this.guildids[thing.guild_id].notisetting(thing);
         }
         for(const thing of ready.d.merged_members){
-            const temp=new member(thing[0]);
-            this.guildids[temp.guild_id].giveMember(temp);
+            const guild=this.guildids[thing[0].guild_id]
+            const temp=new member(thing[0],guild);
+            guild.giveMember(temp);
         }
         for(const thing of ready.d.read_state.entries){
             const guild=this.resolveGuildidFromChannelID(thing.id)
