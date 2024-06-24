@@ -387,6 +387,10 @@ p {
 	padding-bottom: 0;
 }
 
+#channels-td {
+	padding-right: 250px;
+}
+
 #channels {
 	background-color: var(--channels-bg);
 	position: absolute;
