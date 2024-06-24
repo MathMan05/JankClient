@@ -130,7 +130,7 @@ class embed {
 	}
 	generateLink() {
 		const table = document.createElement("table")
-		table.classList.add("embed","linkembed")
+		table.classList.add("embed", "linkembed")
 		const trtop = document.createElement("tr")
 		table.append(trtop)
 

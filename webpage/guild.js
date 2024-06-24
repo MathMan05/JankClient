@@ -113,7 +113,7 @@ class guild {
 		return this.owner
 	}
 	loadChannel(id) {
-		this.owner.channelfocus = id
+		this.localuser.channelfocus = this.channelids[id]
 		this.channelids[id].getHTML()
 	}
 	sortchannels() {
@@ -252,15 +252,15 @@ class guild {
 		let noti = this.message_notifications
 		const notiselect = new fullscreen(
 		["vdiv",
-			["radio","select notifications type",
-				["all","only mentions","none"],
+			["radio", "select notifications type",
+				["all", "only mentions", "none"],
 				function(e) {
-					noti = ["all","only mentions","none"].indexOf(e)
+					noti = ["all", "only mentions", "none"].indexOf(e)
 				},
 				noti
 			],
-			["button","","submit", () => {
-				fetch(instance.api.toString() + "/v9/users/@me/guilds/settings",{
+			["button", "", "submit", () => {
+				fetch(instance.api.toString() + "/v9/users/@me/guilds/settings", {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify({

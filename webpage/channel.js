@@ -344,7 +344,7 @@ class channel {
 		}
 
 		this.owner.prevchannel = this
-		this.owner.owner.channelfocus = this.id
+		this.owner.owner.channelfocus = this
 		this.putmessages()
 		history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "#" + this.name
@@ -458,29 +458,29 @@ class channel {
 				return "default"
 		}
 	}
-	async sendMessage(content, {attachments=[],embeds=[],replyingto=false}){
-		let replyjson=false
+	async sendMessage(content, {attachments = [], embeds = [], replyingto = false}) {
+		let replyjson = false
 		if (replyingto) replyjson = {
 			guild_id: replyingto.guild.id,
 			channel_id: replyingto.channel.id,
-			message_id: replyingto.id,
+			message_id: replyingto.id
 		}
 
 		if (attachments.length == 0) {
-			const body={
+			const body = {
 				content,
 				nonce: Math.floor(Math.random() * 1000000000)
 			}
-			if (replyjson) body.message_reference=replyjson
+			if (replyjson) body.message_reference = replyjson
 
-			return await fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages", {
-				method:"POST",
+			return await fetch(instance.api + "/channels/" + this.id + "/messages", {
+				method: "POST",
 				headers: this.headers,
 				body: JSON.stringify(body)
 			})
 		} else {
 			const formData = new FormData()
-			const body={
+			const body = {
 				content,
 				nonce: Math.floor(Math.random() * 1000000000)
 			}
@@ -492,7 +492,7 @@ class channel {
 				formData.append("files[" + i + "]", attachments[i])
 			}
 
-			return await fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages", {
+			return await fetch(instance.api + "/channels/" + this.id + "/messages", {
 				method: "POST",
 				body: formData,
 				headers: {

@@ -54,15 +54,15 @@ class cmessage {
 			this.mentions[u] = new user(this.mentions[u])
 		}
 	}
-    get channel() {
-        return this.owner
-    }
-    get guild() {
-        return this.owner.guild
-    }
-    get localuser() {
-        return this.owner.localuser
-    }
+	get channel() {
+		return this.owner
+	}
+	get guild() {
+		return this.owner.guild
+	}
+	get localuser() {
+		return this.owner.localuser
+	}
 	messageevents(obj) {
 		cmessage.contextmenu.bind(obj, this)
 		obj.classList.add("messagediv")
@@ -80,13 +80,13 @@ class cmessage {
 		}
 		return build
 	}
-    async edit(content) {
-        return await fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages/" + this.id, {
-            method: "PATCH",
-            headers: this.headers,
-            body: JSON.stringify({content})
-        })
-    }
+	async edit(content) {
+		return await fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
+			method: "PATCH",
+			headers: this.headers,
+			body: JSON.stringify({content})
+		})
+	}
 	buildhtml(premessage) {
 		//premessage??=messages.lastChild;
 		const build = document.createElement("table")

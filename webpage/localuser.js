@@ -1,76 +1,7 @@
 "use strict"
 
-let usersettings
-function genusersettings() {
-	const hypothetcialprofie = document.createElement("div")
-	let file = null
-	let newprouns = null
-	let newbio = null
-	let newTheme = null
-
-	let hypouser = new user(thisuser.user)
-	function regen() {
-		hypothetcialprofie.textContent = ""
-		const hypoprofile = buildprofile(-1, -1, hypouser)
-
-		hypothetcialprofie.appendChild(hypoprofile)
-	}
-	regen()
-	usersettings = new fullscreen(
-		["vdiv",
-			["hdiv",
-				["vdiv",
-					["fileupload", "upload pfp:", event => {
-						file = event.target.files[0]
-						const blob = URL.createObjectURL(event.target.files[0])
-						hypouser.avatar = blob
-						hypouser.hypotheticalpfp = true
-						regen()
-					}],
-					["textbox", "Pronouns:", thisuser.user.pronouns, event => {
-						hypouser.pronouns = event.target.value
-						newprouns = event.target.value
-						regen()
-					}],
-					["mdbox", "Bio:", thisuser.user.bio, event => {
-						hypouser.bio = event.target.value
-						newbio = event.target.value
-						regen()
-					}]
-				],
-				["vdiv",
-					["html", hypothetcialprofie]
-				]
-			],
-			["select", "Theme", ["Dark", "Light"], event => {
-				newTheme = event.target.value == "Light" ? "light" : "dark"
-			}, thisuser.settings.theme == "light" ? 1 : 0],
-			["select","Notification sound:", voice.sounds, e => {
-				voice.setNotificationSound(voice.sounds[e.target.selectedIndex])
-				voice.noises(voice.sounds[e.target.selectedIndex])
-			},	voice.sounds.indexOf(voice.getNotificationSound())],
-			["button", "update user content:", "submit", () => {
-				if (file !== null) thisuser.updatepfp(file)
-				if (newprouns !== null) thisuser.updatepronouns(newprouns)
-				if (newbio !== null) thisuser.updatebio(newbio)
-				if (newTheme !== null) {
-					thisuser.updateSettings({theme: newTheme})
-					localStorage.setItem("theme", newTheme)
-
-					setTheme(newTheme)
-				}
-			}]
-		], () => {}, (() => {
-			hypouser = user.checkuser(thisuser.user)
-			regen()
-			file = null
-			newprouns = null
-			newbio = null
-			newTheme = null
-		}))
-}
 function userSettings() {
-	usersettings.show()
+	thisuser.usersettings.show()
 }
 
 let packets = 1
@@ -98,6 +29,7 @@ class localuser {
 		this.user = user.checkuser(ready.d.user)
 		this.userinfo.username = this.user.username
 		this.userinfo.pfpsrc = this.user.getpfpsrc()
+		this.usersettings = null
 		this.channelfocus = null
 		this.lookingguild = null
 		this.guildhtml = {}
@@ -193,7 +125,7 @@ class localuser {
 						case "READY":
 							this.gottenReady(json)
 							READY = json
-							genusersettings()
+							this.genusersettings()
 							returny()
 							break
 						case "MESSAGE_UPDATE":
@@ -304,9 +236,9 @@ class localuser {
 	init() {
 		const loc = location.href.split("/")
 		if (loc[3] == "channels") {
-			const guild = this.loadGuild(loc[4])
-			guild.loadChannel(loc[5])
-			this.channelfocus = guild.channelids[loc[5]]
+			const guildLoaded = this.loadGuild(loc[4])
+			guildLoaded.loadChannel(loc[5])
+			this.channelfocus = guildLoaded.channelids[loc[5]]
 		}
 		this.buildservers()
 	}
@@ -505,5 +437,73 @@ class localuser {
 				? typingUsers.slice(1).join(", ") + " and " + typingUsers[0] + " are typing"
 				: typingUsers[0] + " is typing"
 		} else document.getElementById("typing").classList.add("hidden")
+	}
+	genusersettings() {
+		const hypothetcialprofie = document.createElement("div")
+		let file = null
+		let newprouns = null
+		let newbio = null
+		let newTheme = null
+
+		let hypouser = new user(thisuser.user)
+		function regen() {
+			hypothetcialprofie.textContent = ""
+			const hypoprofile = buildprofile(-1, -1, hypouser)
+
+			hypothetcialprofie.appendChild(hypoprofile)
+		}
+		regen()
+		this.usersettings = new fullscreen(
+			["vdiv",
+				["hdiv",
+					["vdiv",
+						["fileupload", "upload pfp:", event => {
+							file = event.target.files[0]
+							const blob = URL.createObjectURL(event.target.files[0])
+							hypouser.avatar = blob
+							hypouser.hypotheticalpfp = true
+							regen()
+						}],
+						["textbox", "Pronouns:", thisuser.user.pronouns, event => {
+							hypouser.pronouns = event.target.value
+							newprouns = event.target.value
+							regen()
+						}],
+						["mdbox", "Bio:", thisuser.user.bio, event => {
+							hypouser.bio = event.target.value
+							newbio = event.target.value
+							regen()
+						}]
+					],
+					["vdiv",
+						["html", hypothetcialprofie]
+					]
+				],
+				["select", "Theme", ["Dark", "Light"], event => {
+					newTheme = event.target.value == "Light" ? "light" : "dark"
+				}, thisuser.settings.theme == "light" ? 1 : 0],
+				["select", "Notification sound:", voice.sounds, e => {
+					voice.setNotificationSound(voice.sounds[e.target.selectedIndex])
+					voice.noises(voice.sounds[e.target.selectedIndex])
+				},	voice.sounds.indexOf(voice.getNotificationSound())],
+				["button", "update user content:", "submit", () => {
+					if (file !== null) thisuser.updatepfp(file)
+					if (newprouns !== null) thisuser.updatepronouns(newprouns)
+					if (newbio !== null) thisuser.updatebio(newbio)
+					if (newTheme !== null) {
+						thisuser.updateSettings({theme: newTheme})
+						localStorage.setItem("theme", newTheme)
+
+						setTheme(newTheme)
+					}
+				}]
+			], () => {}, (() => {
+				hypouser = user.checkuser(thisuser.user)
+				regen()
+				file = null
+				newprouns = null
+				newbio = null
+				newTheme = null
+			}))
 	}
 }

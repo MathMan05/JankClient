@@ -281,7 +281,6 @@ function profileclick(obj, author) {
 }
 
 let images = []
-const imageshtml = []
 
 const typebox = document.getElementById("typebox")
 typebox.addEventListener("keyup", enter)
@@ -295,13 +294,13 @@ async function enter(event) {
 	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
 
-        if (editing) {
-            editing.edit(typebox.value)
-            editing = false
+		if (editing) {
+			editing.edit(typebox.value)
+			editing = false
 		} else {
-            let replying = replyingto?.all
-            if (replyingto) {
-                replyingto.classList.remove("replying")
+			const replying = replyingto?.all
+			if (replyingto) {
+				replyingto.classList.remove("replying")
 				replyingto = false
 			}
 
@@ -312,10 +311,9 @@ async function enter(event) {
 		}
 
 		images = []
-		pasteimage.innerHTML = ""
+		document.getElementById("pasteimage").innerHTML = ""
 
-        typebox.value = ""
-        return
+		typebox.value = ""
 	}
 }
 
@@ -373,7 +371,6 @@ document.addEventListener("paste", async e => {
 		const html = filetohtml(file)
 		document.getElementById("pasteimage").appendChild(html)
 		images.push(file)
-		imageshtml.push(html)
 	})
 })
 

@@ -314,7 +314,6 @@ h2 {
 #neunence {
 	vertical-align: top;
 	overflow: auto;
-	height: 9dvh;
 }
 
 #servers {
@@ -387,18 +386,19 @@ p {
 	padding-bottom: 0;
 }
 
-#channels-td {
-	padding-right: 250px;
-}
-
 #channels {
+	--top-height: 52px;
 	background-color: var(--channels-bg);
 	position: absolute;
-	top: 52.19px;
-	height: calc(100dvh - 105px);
+	top: var(--top-height);
+	height: calc(100dvh - 53px - var(--top-height));
 	width: 2.5in;
 	overflow: auto;
 	user-select: none;
+}
+
+#channels-td {
+	padding-right: 245px;
 }
 
 #channels p {
@@ -684,7 +684,6 @@ textarea {
 	border-color: var(--server-border);
 	border-width: .1cm;
 	border-style: solid;
-	height: .2in;
 }
 
 .channeleffects {
