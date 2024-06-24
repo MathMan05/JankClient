@@ -556,7 +556,7 @@ class channel{
     notititle(message){
        return message.author.username+" > "+this.guild.properties.name+" > "+this.name;
     }
-    notify(message){
+    notify(message,deep=0){
         voice.noises(voice.getNotificationSound());
         if (!("Notification" in window)) {
 
@@ -585,7 +585,8 @@ class channel{
             })
         } else if (Notification.permission !== "denied") {
             Notification.requestPermission().then((permission) => {
-                this.notify(message);
+                if(deep===3){return};
+                this.notify(message,deep+1);
             });
         }
     }
