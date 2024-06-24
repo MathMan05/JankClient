@@ -108,7 +108,14 @@ class cmessage{
             const username=document.createElement("span");
             replyline.appendChild(username);
             const reply=document.createElement("div");
-            username.classList.add("username")
+            username.classList.add("username");
+
+            member.resolve(this.author,this.guild).then(_=>{
+                console.log(_);
+                console.log(_.getColor());
+                username.style.color=_.getColor();
+            });
+
             reply.classList.add("replytext");
             replyline.appendChild(reply);
             const line2=document.createElement("hr");
@@ -165,6 +172,11 @@ class cmessage{
                 const username=document.createElement("span");
                 username.classList.add("username")
                 profileclick(username,this.author);
+                    member.resolve(this.author,this.guild).then(_=>{
+                    console.log(_);
+                    console.log(_.getColor());
+                    username.style.color=_.getColor();
+                })
                 username.textContent=this.author.username;
                 const userwrap=document.createElement("tr")
                 userwrap.appendChild(username)

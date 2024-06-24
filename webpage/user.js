@@ -1,4 +1,4 @@
-const usercache={};
+//const usercache={};
 class user{
     static userids={};
     static checkuser(userjson){
@@ -16,23 +16,13 @@ class user{
                 this[thing]=userjson[thing];
             }
             this.hypotheticalpfp=false;
+            console.log(this);
         }else{
             return user.checkuser(userjson);
         }
     }
     async resolvemember(guild){
-        let str;
-        if(usercache[this.id+"+"+guild.id]){
-            return usercache[this.id+"+"+guild.id];
-        }else{
-            const tempy=new Promise((resolve, reject) => {
-                usercache[this.id+"+"+guild.id]={done:false};
-                fetch(info.api.toString()+"/v9/users/"+this.id+"/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id="+guild.id).then(json).then(str=>{
-                    return new member(str);
-                });
-            });
-            usercache[this.id+"+"+guild.id]=tempy;
-        }
+        await member.resolve(this,guild);
     }
     buildpfp(){
         const pfp=document.createElement('img');
