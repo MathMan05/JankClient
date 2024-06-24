@@ -87,7 +87,7 @@ class cmessage{
         return build;
     }
     async edit(content){
-        return await fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages/"+this.id,{
+        return await fetch(info.api.toString()+"/channels/"+this.channel.id+"/messages/"+this.id,{
             method: "PATCH",
             headers: this.headers,
             body:JSON.stringify({content:content})
@@ -245,25 +245,25 @@ class cmessage{
 }
 
 function formatTime(date) {
-  const now = new Date();
-  const sameDay = date.getDate() === now.getDate() &&
-                  date.getMonth() === now.getMonth() &&
-                  date.getFullYear() === now.getFullYear();
+    const now = new Date();
+    const sameDay = date.getDate() === now.getDate() &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
 
-  const yesterday = new Date(now);
-  yesterday.setDate(now.getDate() - 1);
-  const isYesterday = date.getDate() === yesterday.getDate() &&
-                      date.getMonth() === yesterday.getMonth() &&
-                      date.getFullYear() === yesterday.getFullYear();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday = date.getDate() === yesterday.getDate() &&
+        date.getMonth() === yesterday.getMonth() &&
+        date.getFullYear() === yesterday.getFullYear();
 
-  const formatTime = date => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formatTime = date => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-  if (sameDay) {
-    return `Today at ${formatTime(date)}`;
-  } else if (isYesterday) {
-    return `Yesterday at ${formatTime(date)}`;
-  } else {
-    return `${date.toLocaleDateString()} at ${formatTime(date)}`;
-  }
+    if (sameDay) {
+        return `Today at ${formatTime(date)}`;
+    } else if (isYesterday) {
+        return `Yesterday at ${formatTime(date)}`;
+    } else {
+        return `${date.toLocaleDateString()} at ${formatTime(date)}`;
+    }
 }
 cmessage.setupcmenu();

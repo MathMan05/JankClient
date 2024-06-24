@@ -475,7 +475,7 @@ class channel{
                 return "default";
         }
     }
-    async sendMessage(content,{attatchmenets=[],embeds=[],replyingto=false}){
+    async sendMessage(content,{attachments=[],embeds=[],replyingto=false}){
         let replyjson=false;
         if(replyingto){
             replyjson=
@@ -485,7 +485,7 @@ class channel{
                 "message_id": replyingto.id,
             };
         }
-        if(attatchmenets.length===0){
+        if(attachments.length===0){
             const body={
                 content:content,
                 nonce:Math.floor(Math.random()*1000000000)
@@ -494,7 +494,7 @@ class channel{
                 body.message_reference=replyjson;
             }
             console.log(body)
-            return await fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages",{
+            return await fetch(info.api.toString()+"/channels/"+this.id+"/messages",{
                 method:"POST",
                 headers:this.headers,
                 body:JSON.stringify(body)
@@ -509,11 +509,11 @@ class channel{
                 body.message_reference=replyjson;
             }
             formData.append('payload_json', JSON.stringify(body));
-            for(const i in attatchmenets){
-                console.log(attatchmenets[i])
-                formData.append("files["+i+"]",attatchmenets[i]);
+            for(const i in attachments){
+                console.log(attachments[i])
+                formData.append("files["+i+"]",attachments[i]);
             }
-            return await fetch(info.api.toString()+"/channels/"+window.location.pathname.split("/")[3]+"/messages", {
+            return await fetch(info.api.toString()+"/channels/"+this.id+"/messages", {
                 method: 'POST',
                 body: formData,
                 headers:{"Authorization":this.headers.Authorization}
