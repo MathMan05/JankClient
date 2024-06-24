@@ -4,10 +4,10 @@ class dirrect extends guild{
         this.message_notifications=0;
         console.log(JSON);
         this.owner=owner;
-        this.headers=this.localuser.headers;
         if(!this.localuser){
             console.error("Owner was not included, please fix")
         }
+        this.headers=this.localuser.headers;
         this.channels=[];
         this.channelids={};
         this.id="@me";
