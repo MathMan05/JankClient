@@ -239,10 +239,11 @@ p {
 }
 
 #channels {
+	--top-height: 28px;
 	background-color: var(--channels-bg);
-	height: 100dvh;
-	height: -webkit-fill-available;
-	height: -moz-available;
+	position: absolute;
+	top: var(--top-height);
+	height: calc(100dvh - 53px - var(--top-height));
 	width: 2.5in;
 	overflow: auto;
 	user-select: none;
@@ -588,6 +589,11 @@ textarea {
 	width: 2.5in;
 	position: absolute;
 	bottom: 0;
+	/* position: absolute; */
+}
+
+#channels-td {
+	padding-right: 240px;
 }
 
 #settings {
