@@ -2,11 +2,9 @@ class cmessage{
     static contextmenu=new contextmenu("message menu");
     static setupcmenu(){
         cmessage.contextmenu.addbutton("Copy raw text",function(){
-            console.log(this)
             navigator.clipboard.writeText(this.content);
         });
         cmessage.contextmenu.addbutton("Reply",function(div){
-            console.log(this)
             if(replyingto){
                 replyingto.classList.remove("replying");
             }
@@ -15,15 +13,12 @@ class cmessage{
             replyingto.classList.add("replying");
         });
         cmessage.contextmenu.addbutton("Copy message id",function(){
-            console.log(this)
             navigator.clipboard.writeText(this.id);
         });
         cmessage.contextmenu.addbutton("Copy user id",function(){
-            console.log(this)
             navigator.clipboard.writeText(this.author.id);
         });
         cmessage.contextmenu.addbutton("Message user",function(){
-            console.log(this)
             fetch(info.api.toString()+"/v9/users/@me/channels",
                 {method:"POST",
                     body:JSON.stringify({"recipients":[this.author.id]}),
@@ -31,7 +26,6 @@ class cmessage{
                 });
         })
         cmessage.contextmenu.addbutton("Edit",function(){
-            console.log(this)
             editing=this;
             document.getElementById("typebox").value=this.content;
         },null,_=>{return _.author.id==READY.d.user.id});
@@ -111,8 +105,6 @@ class cmessage{
             username.classList.add("username");
 
             member.resolve(this.author,this.guild).then(_=>{
-                console.log(_);
-                console.log(_.getColor());
                 username.style.color=_.getColor();
             });
 
@@ -173,8 +165,6 @@ class cmessage{
                 username.classList.add("username")
                 profileclick(username,this.author);
                     member.resolve(this.author,this.guild).then(_=>{
-                    console.log(_);
-                    console.log(_.getColor());
                     username.style.color=_.getColor();
                 })
                 username.textContent=this.author.username;

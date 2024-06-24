@@ -13,7 +13,6 @@ class member{
             this[thing]=membery[thing];
         }
         this.user=new user(this.user);
-        console.log(this)
     }
     get guild(){
         return this.owner;
@@ -43,7 +42,6 @@ class member{
     }
     hasRole(ID){
         for(const thing of this.roles){
-            console.log(this.roles)
             if(thing.id===ID){
                 return true;
             }
@@ -51,10 +49,8 @@ class member{
         return false;
     }
     getColor(){
-        console.log(this);
         for(const thing of this.roles){
             const color=thing.getColor();
-            console.log(thing);
             if(color){
               return color;
             }
@@ -62,7 +58,6 @@ class member{
         return "";
     }
     isAdmin(){
-        console.log(this);
         return this.guild.properties.owner_id===this.user.id;
 
     }

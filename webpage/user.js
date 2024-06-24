@@ -16,7 +16,6 @@ class user{
                 this[thing]=userjson[thing];
             }
             this.hypotheticalpfp=false;
-            console.log(this);
         }else{
             return user.checkuser(userjson);
         }

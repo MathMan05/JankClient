@@ -43,7 +43,6 @@ function markdown(txt,keep=false){
                 element=document.createElement("div");
                 const line=document.createElement("div");
                 line.classList.add("quoteline");
-                console.log(line);
                 element.append(line);
                 element.classList.add("quote");
                 keepys="> ";
