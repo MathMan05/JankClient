@@ -306,7 +306,7 @@ class localuser {
 		if (loc[3] == "channels") {
 			const guild = this.loadGuild(loc[4])
 			guild.loadChannel(loc[5])
-			this.channelfocus = loc[5]
+			this.channelfocus = guild.channelids[loc[5]]
 		}
 		this.buildservers()
 	}
@@ -419,7 +419,7 @@ class localuser {
 	}
 	messageCreate(messagep) {
 		messagep.d.guild_id ??= "@me"
-		this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep, this.channelfocus == messagep.d.channel_id)
+		this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep, this.channelfocus.id == messagep.d.channel_id)
 		this.unreads()
 	}
 	unreads() {
@@ -430,7 +430,7 @@ class localuser {
 		}
 	}
 	typingStart(typing) {
-		if (this.channelfocus == typing.d.channel_id) {
+		if (this.channelfocus.id == typing.d.channel_id) {
 			const memb = typing.d.member
 			if (memb.id == this.user.id) return
 

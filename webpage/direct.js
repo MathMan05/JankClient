@@ -1,14 +1,16 @@
 class group extends channel {
 	constructor(json, owner) {
 		super(-1)
+
+		this.message_notifications = 0
 		this.owner = owner
-		this.headers = this.owner.headers
+		this.headers = this.guild.headers
 		this.messages = []
 		this.name = json.recipients[0]?.username
 		if (json.recipients[0]) this.user = user.checkuser(json.recipients[0])
-		else this.user = this.owner.owner.user
+		else this.user = this.localuser.user
 
-		this.name ??= owner.owner.user.username
+		this.name ??= this.localuser.user.username
 		this.id = json.id
 		this.parent_id = null
 		this.parent = null
@@ -34,8 +36,8 @@ class group extends channel {
 		return div
 	}
 	getHTML() {
-		this.owner.prevchannel = this
-		this.owner.owner.channelfocus = this.id
+		this.guild.prevchannel = this
+		this.localuser.channelfocus = this
 		this.putmessages()
 		history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "@" + this.name
@@ -43,20 +45,20 @@ class group extends channel {
 	messageCreate(messagep, focus) {
 		const messagez = new cmessage(messagep.d, this)
 		this.lastmessageid = messagez.id
-		if (messagez.author === this.owner.owner.user) this.lastreadmessageid = messagez.id
+		if (messagez.author === this.localuser.user) this.lastreadmessageid = messagez.id
 
 		this.messages.unshift(messagez)
 		const scrolly = document.getElementById("messagecontainer")
 		this.messageids[messagez.id] = messagez
 
 		let shouldScroll = false
-		if (this.owner.owner.lookingguild.prevchannel === this) {
+		if (this.localuser.lookingguild.prevchannel === this) {
 			shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20
 			messages.appendChild(messagez.buildhtml(this.messages[1]))
 		}
 		if (shouldScroll) scrolly.scrollTop = scrolly.scrollHeight
 
-		if (this.owner.owner.lookingguild === this.owner) {
+		if (this.localuser.lookingguild === this.guild) {
 			const channellist = document.getElementById("channels").children[0]
 			for (const thing of channellist.children) {
 				if (thing.myinfo === this) {
@@ -68,10 +70,10 @@ class group extends channel {
 		}
 		this.unreads()
 
-		if (messagez.author == this.owner.owner.user) return
-		if (this.owner.owner.lookingguild.prevchannel === this && document.hasFocus()) return
+		if (messagez.author == this.localuser.user) return
+		if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) return
 
-		if (this.notification == "all" || (this.notification === "mentions" && messagez.mentionsuser(this.owner.owner.user))) this.notify(messagez)
+		if (this.notification == "all" || (this.notification === "mentions" && messagez.mentionsuser(this.localuser.user))) this.notify(messagez)
 	}
 	notititle(message) {
 		return message.author.username
@@ -88,6 +90,7 @@ class group extends channel {
 				current.noti.textContent = this.mentions
 				return
 			}
+
 			const div = document.createElement("div")
 			div.classList.add("servernoti")
 			const noti = document.createElement("div")
@@ -103,7 +106,7 @@ class group extends channel {
 			div.append(buildpfp)
 			sentdms.append(div)
 			div.onclick = function() {
-				this.all.owner.loadGuild()
+				this.all.guild.loadGuild()
 				this.all.getHTML()
 			}
 		} else if (current) current.remove()
@@ -114,11 +117,7 @@ class direct extends guild {
 	constructor(json, owner) {
 		super(-1)
 		this.owner = owner
-		this.headers = {
-			"Content-Type": "application/json; charset=UTF-8",
-			Authorization: this.owner.userinfo.token
-		}
-		if (!this.owner) console.error("Owner was not included, please fix")
+		this.headers = this.localuser.headers
 
 		this.channels = []
 		this.channelids = {}

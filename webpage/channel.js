@@ -44,7 +44,13 @@ class channel {
 
 
 	isAdmin() {
-		return this.owner.isAdmin()
+		return this.guild.isAdmin()
+	}
+	get guild() {
+		return this.owner
+	}
+	get localuser() {
+		return this.guild.localuser
 	}
 	readStateInfo(json) {
 		this.lastreadmessageid = json.last_message_id
@@ -88,7 +94,6 @@ class channel {
 				thing.parent_id = thing.move_id
 				thisthing.parent_id = thing.parent_id
 				thing.move_id = void 0
-				console.log(this.owner.channelids[thisthing.parent_id])
 			}
 			if (thisthing.position || thisthing.parent_id) {
 				build.push(thisthing)
@@ -196,7 +201,7 @@ class channel {
 	}
 	get myhtml() {
 		const search = document.getElementById("channels").children[0].children
-		if (this.owner !== this.owner.owner.lookingguild) {
+		if (this.guild !== this.localuser.lookingguild) {
 			return null
 		} else if (this.parent) {
 			for (const thing of search) {
@@ -222,7 +227,7 @@ class channel {
 			body: JSON.stringify({})
 		})
 		this.lastreadmessageid = this.lastmessageid
-		this.owner.unreads()
+		this.guild.unreads()
 		if (this.myhtml !== null) this.myhtml.classList.remove("cunread")
 	}
 	coatDropDiv(div, container = false) {
@@ -240,9 +245,8 @@ class channel {
 			event.preventDefault()
 			if (container) {
 				that.move_id = this.id
-				if (that.parent) {
-					that.parent.children.splice(that.parent.children.indexOf(that), 1)
-				}
+				if (that.parent) that.parent.children.splice(that.parent.children.indexOf(that), 1)
+
 				that.parent = this
 				container.prepend(channel.dragged[1])
 				console.log(this, that)
@@ -250,11 +254,9 @@ class channel {
 			} else {
 				console.log(this, channel.dragged)
 				that.move_id = this.parent_id
-				if (that.parent) {
-					that.parent.children.splice(that.parent.children.indexOf(that), 1)
-				} else {
-					this.owner.headchannels.splice(this.owner.headchannels.indexOf(that), 1)
-				}
+				if (that.parent) that.parent.children.splice(that.parent.children.indexOf(that), 1)
+				else this.guild.headchannels.splice(this.guild.headchannels.indexOf(that), 1)
+
 				that.parent = this.parent
 				if (that.parent) {
 					const build = []
@@ -265,21 +267,21 @@ class channel {
 					that.parent.children = build
 				} else {
 					const build = []
-					for (let i = 0; i < this.owner.headchannels.length; i++) {
-						build.push(this.owner.headchannels[i])
-						if (this.owner.headchannels[i] === this) build.push(that)
+					for (let i = 0; i < this.guild.headchannels.length; i++) {
+						build.push(this.guild.headchannels[i])
+						if (this.guild.headchannels[i] === this) build.push(that)
 					}
-					this.owner.headchannels = build
+					this.guild.headchannels = build
 				}
 				div.after(channel.dragged[1])
 			}
-			this.owner.calculateReorder()
+			this.guild.calculateReorder()
 		})
 
 		return div
 	}
 	createChannel(name, type) {
-		fetch(instance.api + "/guilds/" + this.owner.id + "/channels", {
+		fetch(instance.api + "/guilds/" + this.guild.id + "/channels", {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({
@@ -443,7 +445,7 @@ class channel {
 	get notification() {
 		let notinumber = this.message_notifications
 		if (notinumber === 3) notinumber = null
-		notinumber ??= this.owner.message_notifications
+		notinumber ??= this.guild.message_notifications
 
 		switch (notinumber) {
 			case 0:
@@ -456,35 +458,78 @@ class channel {
 				return "default"
 		}
 	}
+	async sendMessage(content, {attachments=[],embeds=[],replyingto=false}){
+		let replyjson=false
+		if (replyingto) replyjson = {
+			guild_id: replyingto.guild.id,
+			channel_id: replyingto.channel.id,
+			message_id: replyingto.id,
+		}
+
+		if (attachments.length == 0) {
+			const body={
+				content,
+				nonce: Math.floor(Math.random() * 1000000000)
+			}
+			if (replyjson) body.message_reference=replyjson
+
+			return await fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages", {
+				method:"POST",
+				headers: this.headers,
+				body: JSON.stringify(body)
+			})
+		} else {
+			const formData = new FormData()
+			const body={
+				content,
+				nonce: Math.floor(Math.random() * 1000000000)
+			}
+			if (replyjson) body.message_reference = replyjson
+
+			formData.append("payload_json", JSON.stringify(body))
+			for (const i in attachments) {
+				console.log(attachments[i])
+				formData.append("files[" + i + "]", attachments[i])
+			}
+
+			return await fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages", {
+				method: "POST",
+				body: formData,
+				headers: {
+					Authorization: this.headers.Authorization
+				}
+			})
+		}
+	}
 	messageCreate(messagep, focus) {
 		const messagez = new cmessage(messagep.d, this)
 		this.lastmessageid = messagez.id
-		if (messagez.author === this.owner.owner.user) {
+		if (messagez.author === this.localuser.user) {
 			this.lastreadmessageid = messagez.id
 			if (this.myhtml) this.myhtml.classList.remove("cunread")
 		} else {
 			if (this.myhtml) this.myhtml.classList.add("cunread")
 		}
 
-		this.owner.unreads()
+		this.guild.unreads()
 		this.messages.unshift(messagez)
 		const scrolly = document.getElementById("messagecontainer")
 		this.messageids[messagez.id] = messagez
 
 		let shouldScroll = false
-		if (this.owner.owner.lookingguild.prevchannel === this) {
+		if (this.localuser.lookingguild.prevchannel === this) {
 			shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20
 			messages.appendChild(messagez.buildhtml(this.messages[1]))
 		}
 		if (shouldScroll) scrolly.scrollTop = scrolly.scrollHeight
 
-		if (messagez.author == this.owner.owner.user) return
-		if (this.owner.owner.lookingguild.prevchannel === this && document.hasFocus()) return
+		if (messagez.author == this.localuser.user) return
+		if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) return
 
-		if (this.notification == "all" || (this.notification === "mentions" && messagez.mentionsuser(this.owner.owner.user))) this.notify(messagez)
+		if (this.notification == "all" || (this.notification === "mentions" && messagez.mentionsuser(this.localuser.user))) this.notify(messagez)
 	}
 	notititle(message) {
-		return message.author.username + " > " + this.owner.properties.name + " > " + this.name
+		return message.author.username + " > " + this.guild.properties.name + " > " + this.name
 	}
 	notify(message) {
 		voice.noises(voice.getNotificationSound())

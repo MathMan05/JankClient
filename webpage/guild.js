@@ -37,7 +37,6 @@ class guild {
 			"Content-Type": "application/json; charset=UTF-8",
 			Authorization: this.owner.userinfo.token
 		}
-		if (!this.owner) console.error("Owner was not included, please fix")
 
 		this.channels = []
 		this.channelids = {}
@@ -109,6 +108,9 @@ class guild {
 			headers: this.headers,
 			body: JSON.stringify(build)
 		})
+	}
+	get localuser() {
+		return this.owner
 	}
 	loadChannel(id) {
 		this.owner.channelfocus = id
@@ -203,7 +205,7 @@ class guild {
 		}
 	}
 	loadGuild() {
-		this.owner.loadGuild(this.id)
+		this.localuser.loadGuild(this.id)
 	}
 	updateChannel(json) {
 		this.channelids[json.id].updateChannel(json)
@@ -314,7 +316,7 @@ class guild {
 		const noti = document.createElement("div")
 		noti.classList.add("unread")
 		divy.append(noti)
-		this.owner.guildhtml[this.id] = divy
+		this.localuser.guildhtml[this.id] = divy
 		if (this.properties.icon === null) {
 			const div = document.createElement("div")
 			div.textContent = this.properties.name.split(" ").map(e => e[0]).join("")

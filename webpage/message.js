@@ -34,7 +34,7 @@ class cmessage {
 			})
 		})
 		cmessage.contextmenu.addbutton("Edit", function() {
-			editing = this.id
+			editing = this
 			document.getElementById("typebox").value = this.content
 		}, null, m => m.author.id == READY.d.user.id)
 	}
@@ -54,6 +54,15 @@ class cmessage {
 			this.mentions[u] = new user(this.mentions[u])
 		}
 	}
+    get channel() {
+        return this.owner
+    }
+    get guild() {
+        return this.owner.guild
+    }
+    get localuser() {
+        return this.owner.localuser
+    }
 	messageevents(obj) {
 		cmessage.contextmenu.bind(obj, this)
 		obj.classList.add("messagediv")
@@ -71,6 +80,13 @@ class cmessage {
 		}
 		return build
 	}
+    async edit(content) {
+        return await fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages/" + this.id, {
+            method: "PATCH",
+            headers: this.headers,
+            body: JSON.stringify({content})
+        })
+    }
 	buildhtml(premessage) {
 		//premessage??=messages.lastChild;
 		const build = document.createElement("table")

@@ -280,7 +280,7 @@ function profileclick(obj, author) {
 	}
 }
 
-const images = []
+let images = []
 const imageshtml = []
 
 const typebox = document.getElementById("typebox")
@@ -290,74 +290,32 @@ typebox.addEventListener("keydown", event => {
 })
 
 async function enter(event) {
-	thisuser.lookingguild.prevchannel.typingstart()
+	thisuser.channelfocus.typingstart()
 
 	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
-		if (editing) {
-			fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages/" + editing, {
-				method: "PATCH",
-				headers: thisuser.headers,
-				body: JSON.stringify({ content: typebox.value })
-			})
-			typebox.value = ""
-			editing = false
+
+        if (editing) {
+            editing.edit(typebox.value)
+            editing = false
 		} else {
-			let replyjson = false
-			if (replyingto) {
-				replyjson = {
-					guild_id: replyingto.all.guild_id,
-					channel_id: replyingto.all.channel_id,
-					message_id: replyingto.all.id
-				}
-				replyingto.classList.remove("replying")
+            let replying = replyingto?.all
+            if (replyingto) {
+                replyingto.classList.remove("replying")
+				replyingto = false
 			}
 
-			replyingto = false
-			if (images.length == 0) {
-				const body = {
-					content: typebox.value,
-					nonce: Math.floor(Math.random() * 1000000000)
-				}
-				typebox.value = ""
-				if (replyjson) body.message_reference = replyjson
-
-				console.log("Sending message:", body)
-				fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages", {
-					method: "POST",
-					headers: thisuser.headers,
-					body: JSON.stringify(body)
-				})
-			} else {
-				const formData = new FormData()
-				const body = {
-					content: typebox.value,
-					nonce: Math.floor(Math.random() * 1000000000)
-				}
-				if (replyjson) body.message_reference = replyjson
-
-				formData.append("payload_json", JSON.stringify(body))
-				for (const i in images) {
-					console.log(images[i])
-					formData.append("files[" + i + "]", images[i])
-				}
-				const data = formData.entries()
-				console.log(data.next(), data.next(), data.next())
-				await fetch(instance.api + "/channels/" + location.pathname.split("/")[3] + "/messages", {
-					method: "POST",
-					body: formData,
-					headers: {
-						Authorization: thisuser.token
-					}
-				})
-
-				while (images.length != 0) {
-					images.pop()
-					document.getElementById("pasteimage").removeChild(imageshtml.pop())
-				}
-				typebox.value = ""
-			}
+			thisuser.channelfocus.sendMessage(typebox.value, {
+				attachments: images,
+				replyingto: replying
+			})
 		}
+
+		images = []
+		pasteimage.innerHTML = ""
+
+        typebox.value = ""
+        return
 	}
 }
 
