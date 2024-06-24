@@ -387,11 +387,11 @@ p {
 }
 
 #channels {
-	--top-height: 52px;
+	--top-height: 36px;
 	background-color: var(--channels-bg);
 	position: absolute;
 	top: var(--top-height);
-	height: calc(100dvh - 53px - var(--top-height));
+	height: calc(100dvh - 54px - var(--top-height));
 	width: 2.5in;
 	overflow: auto;
 	user-select: none;
@@ -670,8 +670,6 @@ textarea {
 }
 
 #servername {
-	margin-top: .1in;
-	margin-bottom: .1in;
 	padding-left: 5px;
 	text-overflow: ellipsis;
 	overflow-x: hidden;
