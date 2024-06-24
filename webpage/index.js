@@ -37,7 +37,7 @@ const serverid = []
 let editing = false
 let currentmenu = ""
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
 	const resizeObserver = new ResizeObserver(() => {
 		setDynamicHeight()
 	})
@@ -127,7 +127,42 @@ document.addEventListener("DOMContentLoaded", () => {
 		userdock.append(table)
 		event.stopImmediatePropagation()
 	})
+
+
+	if ("serviceWorker" in navigator) navigator.serviceWorker.register("/service.js")
+
+	/*const subscription = await navigator.serviceWorker.ready.then(async registration => {
+		const sub = await registration.pushManager.getSubscription()
+		if (sub) return sub
+
+		const res = await fetch(instance.api + "/notifications/webpush/vapidKey")
+		if (!res.ok) throw new Error("Failed to get VAPID key: " + res.status + " " + res.statusText)
+
+		return registration.pushManager.subscribe({
+			userVisibleOnly: true,
+			applicationServerKey: await res.text()
+		})
+	})
+
+	await fetch(instance.api + "/notifications/webpush/subscribe", {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: token
+		},
+		body: JSON.stringify(subscription)
+	})
+	console.log("Subscribed to push notifications")*/
 })
+
+const requestTestNotif = async () => {
+	fetch(instance.api + "/notifications/webpush/testNotification", {
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: token
+		}
+	})
+}
 
 
 document.addEventListener("click", event => {
@@ -401,8 +436,6 @@ document.getElementById("messagecontainer").addEventListener("scroll", e => {
 		}
 	}
 })
-
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("/service.js")
 
 if (screen.width <= 600) {
 	document.getElementById("channelw").onclick = () => {

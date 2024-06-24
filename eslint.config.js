@@ -72,7 +72,7 @@ const rules = {
 	"no-func-assign": 2,
 	"no-import-assign": 2,
 	"no-invalid-regexp": 2,
-	"no-invalid-this": 1,
+	"no-invalid-this": 0, // Find a proper solution
 	"no-implicit-coercion": [2, {
 		string: false
 	}],

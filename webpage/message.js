@@ -11,6 +11,13 @@ class cmessage {
 			replyingto = div
 			replyingto.classList.add("replying")
 		})
+		cmessage.contextmenu.addbutton("Delete (temp)", function() {
+			fetch(instance.api + "/channels/" + this.channel_id + "/messages/" + this.id, {
+				method: "DELETE",
+				headers: this.headers
+			})
+		}, null, m => m.author.id == READY.d.user.id || m.owner.owner.isAdmin())
+
 		cmessage.contextmenu.addbutton("Copy message id", function() {
 			navigator.clipboard.writeText(this.id)
 		})
@@ -35,19 +42,16 @@ class cmessage {
 	constructor(messagejson, owner) {
 		this.owner = owner
 		this.headers = this.owner.headers
-		for (const thing of Object.keys(messagejson)) {
-			this[thing] = messagejson[thing]
+		for (const key of Object.keys(messagejson)) {
+			this[key] = messagejson[key]
 		}
-		for (const thing in this.embeds) {
-			this.embeds[thing] = new embed(this.embeds[thing], this)
+		for (const e in this.embeds) {
+			this.embeds[e] = new embed(this.embeds[e], this)
 		}
 		this.author = user.checkuser(this.author)
 
-		for (const thing in this.mentions) {
-			this.mentions[thing] = new user(this.mentions[thing])
-		}
-		if (this.mentions.length || this.mention_roles.length) {//currently mention_roles isn't implemented on the spacebar servers
-			console.log(this.mentions, this.mention_roles)
+		for (const u in this.mentions) {
+			this.mentions[u] = new user(this.mentions[u])
 		}
 	}
 	messageevents(obj) {

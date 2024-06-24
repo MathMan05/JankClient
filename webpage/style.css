@@ -389,9 +389,9 @@ p {
 
 #channels {
 	background-color: var(--channels-bg);
-	height: 100dvh;
-	height: -webkit-fill-available;
-	height: -moz-available;
+	position: absolute;
+	top: 52.19px;
+	height: calc(100dvh - 105px);
 	width: 2.5in;
 	overflow: auto;
 	user-select: none;

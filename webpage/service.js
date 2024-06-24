@@ -19,14 +19,18 @@ self.addEventListener("push", event => {
 		icon: data.icon,
 		image: data.image
 	})
-	notification.addEventListener("click", () => {
-		self.clients.openWindow(data.uri)
-	})
-})
 
-self.registration.pushManager.subscribe({
-	userVisibleOnly: true,
-	applicationServerKey: ""
+	notification.addEventListener("click", () => {
+		self.clients.matchAll({
+			type: "window",
+			includeUncontrolled: true
+		}).then(clientList => {
+			// If there is at least one client (opened page), focus it.
+			if (clientList.length > 0) return clientList[0].focus()
+
+			return self.clients.openWindow(data.uri)
+		})
+	})
 })
 
 let lastcache
