@@ -5,7 +5,6 @@ class role{
         }
         this.permissions=new permissions(JSON.permissions);
         this.owner=owner;
-        console.log(this);
     }
     get guild(){
         return this.owner;

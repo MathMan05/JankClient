@@ -230,7 +230,6 @@ class channel{
         this.lastreadmessageid=this.lastmessageid;
         this.guild.unreads();
         if(this.myhtml!==null){
-            console.log(this.myhtml.classList)
             this.myhtml.classList.remove("cunread");
         }
     }
@@ -254,7 +253,6 @@ class channel{
                 }
                 that.parrent=this;
                 container.prepend(channel.dragged[1]);
-                console.log(this,that)
                 this.children.unshift(that);
             }else{
                 console.log(this,channel.dragged);
@@ -436,7 +434,6 @@ class channel{
         }
         document.getElementById("messagecontainer").scrollTop = document.getElementById("messagecontainer").scrollHeight;
 
-        console.log(typebox.disabled=!this.canMessage);
     }
     updateChannel(JSON){
         this.type=JSON.type;

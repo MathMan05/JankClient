@@ -135,7 +135,6 @@ class localuser{
                             console.log(users,temp.d.id)
                             if(users){
                                 users.userupdate(temp.d);
-                                console.log("in here");
                             }
                         }
                         break
@@ -167,9 +166,7 @@ class localuser{
                         const guildy=new guild(temp.d,this);
                         this.guilds.push(guildy);
                         this.guildids[guildy.id]=guildy;
-                        console.log("test1")
                         document.getElementById("servers").insertBefore(guildy.generateGuildIcon(),document.getElementById("bottomseperator"));
-                        console.log("test2")
                     }
                 }
 
@@ -237,9 +234,7 @@ class localuser{
         const location=window.location.href.split("/");
         if(location[3]==="channels"){
             const guild=this.loadGuild(location[4]);
-            console.log(guild);
             guild.loadChannel(location[5]);
-            console.log(location[5])
             this.channelfocus=guild.channelids[location[5]];
         }
         this.buildservers();
@@ -472,7 +467,6 @@ class localuser{
             const hypoprofile=buildprofile(-1,-1,hypouser);
 
             hypothetcialprofie.appendChild(hypoprofile)
-            console.log(hypothetcialprofie,hypoprofile)
         }
         regen();
         this.usersettings=new fullscreen(

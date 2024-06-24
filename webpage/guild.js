@@ -314,7 +314,6 @@ class guild{
         //this.printServers();
         this.sortchannels();
         this.printServers();
-        console.log("html")
         const build=document.createElement("div");
         for(const thing of this.headchannels){
             build.appendChild(thing.createguildHTML(this.isAdmin()));
@@ -356,7 +355,6 @@ class guild{
         return this.roleids[ID];
     }
     hasRole(r){
-        console.log(typeof r,(typeof ""));
         if((typeof r)!==(typeof "")){
             r=r.id;
         }
