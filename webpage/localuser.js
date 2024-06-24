@@ -7,6 +7,7 @@ class localuser{
         this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.userinfo.token};
     }
     gottenReady(ready){
+        this.usersettings;
         this.initialized=true;
         this.ready=ready;
         this.guilds=[];
@@ -105,7 +106,7 @@ class localuser{
                     case "READY":
                         this.gottenReady(temp);
                         READY=temp;
-                        genusersettings();
+                        this.genusersettings();
                         returny();
                         break;
                     case "MESSAGE_UPDATE":
@@ -459,5 +460,72 @@ class localuser{
             typingtext.classList.add("hidden");
         }
     }
+    genusersettings(){
+        const hypothetcialprofie=document.createElement("div");
+        let file=null;
+        let newprouns=null;
+        let newbio=null;
+        let hypouser=new user(thisuser.user,true);
+        function regen(){
+            hypothetcialprofie.textContent="";
+            const hypoprofile=buildprofile(-1,-1,hypouser);
 
+            hypothetcialprofie.appendChild(hypoprofile)
+            console.log(hypothetcialprofie,hypoprofile)
+        }
+        regen();
+        this.usersettings=new fullscreen(
+        ["hdiv",
+            ["vdiv",
+                ["fileupload","upload pfp:",function(e){
+                    console.log(this.files[0])
+                    file=this.files[0];
+                    const blob = URL.createObjectURL(this.files[0]);
+                    hypouser.avatar = blob;
+                    hypouser.hypotheticalpfp=true;
+                    regen();
+                }],
+                ["textbox","Pronouns:",thisuser.user.pronouns,function(e){
+                    console.log(this.value);
+                    hypouser.pronouns=this.value;
+                    newprouns=this.value;
+                    regen();
+                }],
+                ["mdbox","Bio:",thisuser.user.bio,function(e){
+                    console.log(this.value);
+                    hypouser.bio=this.value;
+                    newbio=this.value;
+                    regen();
+                }],
+                ["button","update user content:","submit",function(){
+                    if(file!==null){
+                        thisuser.updatepfp(file);
+                    }
+                    if(newprouns!==null){
+                        thisuser.updatepronouns(newprouns);
+                    }
+                    if(newbio!==null){
+                        thisuser.updatebio(newbio);
+                    }
+                }],
+                ["select","Theme:",["Dark","Light","WHITE"],e=>{
+                    localStorage.setItem("theme",["Dark","Light","WHITE"][e.target.selectedIndex]);
+                    setTheme();
+                },["Dark","Light","WHITE"].indexOf(localStorage.getItem("theme"))],
+                ["select","Notification sound:",voice.sounds,e=>{
+                    voice.setNotificationSound(voice.sounds[e.target.selectedIndex]);
+                    voice.noises(voice.sounds[e.target.selectedIndex]);
+                },voice.sounds.indexOf(voice.getNotificationSound())]
+            ],
+            ["vdiv",
+                ["html",hypothetcialprofie]
+            ]
+        ],_=>{},function(){
+            hypouser=new user(thisuser.user);
+            regen();
+            file=null;
+            newprouns=null;
+            newbio=null;
+        })
+    }
 }
