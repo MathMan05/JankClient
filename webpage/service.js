@@ -1,12 +1,8 @@
-async function putInCache(request, response) {
-	const cache = await caches.open("cache")
-	await cache.put(request, response)
-}
-
 self.addEventListener("activate", event => {
 	event.waitUntil((async () => {
 		if ("navigationPreload" in self.registration) await self.registration.navigationPreload.enable()
 	})())
+
 	self.clients.claim()
 
 	checkCache()
@@ -33,29 +29,24 @@ self.addEventListener("push", event => {
 	})
 })
 
-let lastcache
-let checkedrecently = false
+let lastCache
+let lastChecked = 0
 async function checkCache() {
-	if (checkedrecently) return
+	if (lastChecked + 1000 * 60 * 30 > Date.now()) return
 
 	const prevCache = await caches.match("/getupdates")
-	if (prevCache) lastcache = await prevCache.text()
+	if (prevCache) lastCache = await prevCache.text()
 
 	fetch("/getupdates").then(async data => {
 		const text = await data.clone().text()
-		if (lastcache != text) {
-			caches.delete("cache")
-			putInCache("/getupdates", data.clone())
-		}
-		checkedrecently = true
-		setTimeout(() => {
-			checkedrecently = false
-		}, 1000 * 60 * 30)
+		if (lastCache != text) caches.delete("cache")
+
+		lastChecked = Date.now()
 	})
 }
 
 function samedomain(url) {
-	return new URL(url).origin == self.origin
+	return
 }
 
 function isindexhtml(url) {
@@ -72,13 +63,16 @@ self.addEventListener("fetch", event => {
 			if (preloadResponse) return preloadResponse
 
 			checkCache()
-			if (!samedomain(event.request.url)) return await fetch(event.request.clone())
+			if (new URL(event.request.url).origin != self.origin) return await fetch(event.request)
 
-			const responseFromCache = await caches.match(isindexhtml(event.request.url) ? "/index" : event.request.url)
-			if (responseFromCache) return responseFromCache
+			const cache = await caches.open("cache")
 
-			const responseFromNetwork = await fetch(isindexhtml(event.request.url) ? "/index" : event.request.clone())
-			await putInCache(isindexhtml(event.request.url) ? "/index" : event.request.clone(), responseFromNetwork.clone())
+			const responseFromCache = await cache.match(isindexhtml(event.request.url) ? "/index" : event.request.url)
+			if (responseFromCache) console.log("Found a cached response for " + (isindexhtml(event.request.url) ? "/index" : event.request.url))
+			//if (responseFromCache) return responseFromCache
+
+			const responseFromNetwork = await fetch(isindexhtml(event.request.url) ? "/index" : event.request)
+			cache.put(isindexhtml(event.request.url) ? "/index" : event.request, responseFromNetwork.clone())
 			return responseFromNetwork
 		})())
 	}

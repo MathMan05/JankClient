@@ -1,6 +1,5 @@
 "use strict"
 
-const usercache = {}
 class user {
 	static userids = {}
 	static checkuser(userjson) {
@@ -17,19 +16,7 @@ class user {
 		this.hypotheticalpfp = false
 	}
 	async resolvemember(guild) {
-		if (usercache[this.id + "+" + guild.id]) return usercache[this.id + "+" + guild.id]
-
-		const tempy = new Promise((resolve, reject) => {
-			usercache[this.id + "+" + guild.id] = { done: false }
-			fetch(instance.api + "/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=false&guild_id=" + guild.id)
-				.then(res => res.json()).then(str => {
-					return new member(str)
-				}).catch(err => {
-					console.error(err)
-					reject(err)
-				})
-		})
-		usercache[this.id + "+" + guild.id] = tempy
+		await member.resolve(this, guild)
 	}
 	buildpfp() {
 		const pfp = document.createElement("img")

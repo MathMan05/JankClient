@@ -104,6 +104,12 @@ class cmessage {
 			const username = document.createElement("span")
 			replyline.appendChild(username)
 
+			member.resolve(this.author,this.guild).then(_=>{
+				console.log(_);
+				console.log(_.getColor());
+				username.style.color=_.getColor();
+			});
+
 			const reply = document.createElement("div")
 			username.classList.add("username")
 			reply.classList.add("replytext")
@@ -165,6 +171,10 @@ class cmessage {
 			if (combine) {
 				const username = document.createElement("span")
 				username.classList.add("username")
+				member.resolve(this.author,this.guild).then(m => {
+					username.style.color = m.getColor()
+				})
+
 				profileclick(username, this.author)
 				username.textContent = this.author.username
 				const userwrap = document.createElement("tr")

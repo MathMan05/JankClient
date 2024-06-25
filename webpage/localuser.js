@@ -53,9 +53,10 @@ class localuser {
 			this.guildids[thing.guild_id].notisetting(thing)
 		}
 
-		for (const thing of ready.d.merged_members) {
-			const mergedMember = new member(thing[0])
-			this.guildids[mergedMember.guild_id].giveMember(mergedMember)
+		for (const m of ready.d.merged_members) {
+            const guild=this.guildids[m[0].guild_id]
+            const temp = new member(m[0], guild)
+            guild.giveMember(temp)
 		}
 
 		for (const thing of ready.d.read_state.entries) {

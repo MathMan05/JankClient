@@ -395,10 +395,8 @@ class channel {
 				if (next) messager = next
 				else messager = new cmessage(response[i], this)
 
-				if (response[Number(i) + 1] === void 0) {
-					next = void 0
-					console.log("ohno", Number(i) + 1)
-				} else next = new cmessage(response[Number(i) + 1], this)
+				if (response[Number(i) + 1] === void 0) next = void 0
+				else next = new cmessage(response[Number(i) + 1], this)
 
 				if (out.messageids[messager.id] === void 0) {
 					out.messageids[messager.id] = messager
@@ -531,16 +529,18 @@ class channel {
 	notititle(message) {
 		return message.author.username + " > " + this.guild.properties.name + " > " + this.name
 	}
-	notify(message) {
+	async notify(message) {
 		voice.noises(voice.getNotificationSound())
+		if (!("Notification" in window)) return
 
-		if ("Notification" in window && Notification.permission == "granted") {
+		if (Notification.permission == "granted") {
 			let noticontent = markdown(message.content).textContent
 			if (message.embeds[0]) {
 				noticontent ||= message.embeds.find(embed => embed.json.title)?.json.title
 				noticontent ||= markdown(message.embeds.find(embed => embed.json.description)?.json.description).textContent
 			}
-			noticontent ||= "Blank Message"
+			if (message.system) noticontent ||= "System Message"
+			else noticontent ||= "Blank Message"
 
 			let imgurl = null
 			const images = message.getimages()
@@ -560,9 +560,8 @@ class channel {
 				this.getHTML()
 			})
 		} else if (Notification.permission != "denied") {
-			Notification.requestPermission().then(() => {
-				this.notify(message)
-			})
+			const result = await Notification.requestPermission()
+			if (result == "granted") this.notify(message)
 		}
 	}
 }

@@ -167,12 +167,10 @@ class guild {
 		})
 	}
 	fillMember(member) {
-		member.guild = this
 		const realroles = []
 		for (const thing of member.roles) {
 			realroles.push(this.getRole(thing))
 		}
-		member.guild = this
 		member.roles = realroles
 		return member
 	}
