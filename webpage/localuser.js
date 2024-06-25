@@ -25,7 +25,7 @@ class localuser{
             this.guildids[temp.id]=temp;
         }
         {
-            const temp=new dirrect(ready.d.private_channels,this);
+            const temp=new direct(ready.d.private_channels,this);
             this.guilds.push(temp);
             this.guildids[temp.id]=temp;
         }
@@ -280,7 +280,7 @@ class localuser{
         br.classList.add("lightbr");
         serverlist.appendChild(br)
         for(const thing of this.guilds){
-            if(thing instanceof dirrect){
+            if(thing instanceof direct){
                 thing.unreaddms();
                 continue;
             }

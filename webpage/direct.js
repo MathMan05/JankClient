@@ -1,4 +1,4 @@
-class dirrect extends guild{
+class direct extends guild{
     constructor(JSON,owner){
         super(-1);
         this.message_notifications=0;
