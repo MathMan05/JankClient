@@ -45,7 +45,8 @@ const global = {
 	getBulkUsers: "writeable",
 	embed: "writeable",
 	voice: "writeable",
-	getBulkInfo: "writeable"
+	getBulkInfo: "writeable",
+	permissions: "writeable"
 }
 
 const rules = {

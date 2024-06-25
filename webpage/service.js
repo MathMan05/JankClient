@@ -45,10 +45,6 @@ async function checkCache() {
 	})
 }
 
-function samedomain(url) {
-	return
-}
-
 function isindexhtml(url) {
 	const parsed = new URL(url)
 	if (parsed.pathname.startsWith("/channels")) return true

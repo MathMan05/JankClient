@@ -104,11 +104,9 @@ class cmessage {
 			const username = document.createElement("span")
 			replyline.appendChild(username)
 
-			member.resolve(this.author,this.guild).then(_=>{
-				console.log(_);
-				console.log(_.getColor());
-				username.style.color=_.getColor();
-			});
+			member.resolve(this.author, this.guild).then(member => {
+				username.style.color = member.getColor()
+			})
 
 			const reply = document.createElement("div")
 			username.classList.add("username")

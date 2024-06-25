@@ -31,7 +31,6 @@ class guild {
 	constructor(json, owner) {
 		if (json == -1) return
 
-		console.log(json)
 		this.owner = owner
 		this.headers = {
 			"Content-Type": "application/json; charset=UTF-8",

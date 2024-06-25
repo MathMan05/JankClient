@@ -446,7 +446,6 @@ div {
 	width: -moz-available;
 	width: -webkit-fill-available;
 	height: .5in;
-	z-index: -100;
 	max-width: 99%;
 }
 
@@ -501,6 +500,7 @@ p {
 	padding: 4px;
 	transition: transform .5s ease, opacity .1s ease;
 	opacity: 1;
+	z-index: -1;
 }
 
 #typediv {

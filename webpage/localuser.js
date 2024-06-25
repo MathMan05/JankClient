@@ -44,19 +44,17 @@ class localuser {
 			this.guildids[temp.id] = temp
 		}
 
-		const temp = new direct(ready.d.private_channels, this)
-		this.guilds.push(temp)
-		this.guildids[temp.id] = temp
+		const dmChannels = new direct(ready.d.private_channels, this)
+		this.guilds.push(dmChannels)
+		this.guildids[dmChannels.id] = dmChannels
 
-		console.log(ready.d.user_guild_settings.entries)
-		for (const thing of ready.d.user_guild_settings.entries) {
-			this.guildids[thing.guild_id].notisetting(thing)
+		for (const guildSettings of ready.d.user_guild_settings.entries) {
+			this.guildids[guildSettings.guild_id].notisetting(guildSettings)
 		}
 
 		for (const m of ready.d.merged_members) {
-            const guild=this.guildids[m[0].guild_id]
-            const temp = new member(m[0], guild)
-            guild.giveMember(temp)
+			const guild = this.guildids[m[0].guild_id]
+			guild.giveMember(new member(m[0], guild))
 		}
 
 		for (const thing of ready.d.read_state.entries) {
