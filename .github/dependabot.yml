@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+      time: "05:00"
+      timezone: "Europe/Berlin"
+    assignees:
+      - "DEVTomatoCake"
+    groups:
+      eslint:
+        patterns:
+          - "@html-parser/eslint-plugin"
+          - "@html-parser/parser"
+          - "@stylistic/eslint-plugin-js"
+          - "eslint-plugin-*"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "saturday"
+      time: "05:00"
+      timezone: "Europe/Berlin"
+    assignees:
+      - "DEVTomatoCake"
