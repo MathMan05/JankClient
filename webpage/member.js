@@ -1,9 +1,7 @@
 class member {
 	static already = {}
 	constructor(memberjson,owner) {
-		if (!owner) {
-			console.error("Guild not included in the creation of a member object")
-		}
+		if (!owner) console.error("Guild not included in the creation of a member object")
 
 		this.owner = owner
 		let membery = memberjson
@@ -11,6 +9,7 @@ class member {
 			membery = memberjson.guild_member
 			this.user = memberjson.user
 		}
+
 		for (const thing of Object.keys(membery)) {
 			if (thing == "guild") continue
 

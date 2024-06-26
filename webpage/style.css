@@ -1085,7 +1085,7 @@ span {
 	max-height: 3in;
 	border-radius: .03in;
 }
-.embed a {
+.embed .title {
 	margin-bottom: .1in;
 	display: block;
 	text-decoration: none;

@@ -16,7 +16,8 @@ class embed {
 			case "link":
 				return this.generateLink()
 			case "article":
-				return this.generateArticle()
+			case "video":
+				return this.generateArticle(this.type)
 			default:
 				console.warn(`unsupported embed type ${this.type}, please add support dev :3`, this.json)
 				return document.createElement("div")//prevent errors by giving blank div
@@ -53,7 +54,11 @@ class embed {
 			const title = document.createElement(this.json.url ? "a" : "span")
 			title.textContent = this.json.title
 			title.classList.add("embedtitle")
-			if (this.json.url) title.href = this.json.url
+			if (this.json.url) {
+				title.href = this.json.url
+				title.target = "_blank"
+				title.rel = "noreferrer noopener"
+			}
 			embedElem.append(title)
 		}
 
@@ -137,7 +142,10 @@ class embed {
 		{
 			const td = document.createElement("td")
 			const a = document.createElement("a")
+			a.classList.add("title")
 			a.href = this.json.url
+			a.target = "_blank"
+			a.rel = "noreferrer noopener"
 			a.textContent = this.json.title
 			td.append(a)
 			trtop.append(td)
@@ -165,7 +173,7 @@ class embed {
 
 		return table
 	}
-	generateArticle() {
+	generateArticle(type = "article") {
 		const colordiv = document.createElement("div")
 		colordiv.style.backgroundColor = "#000000"
 		colordiv.classList.add("embed-color")
@@ -174,15 +182,21 @@ class embed {
 		div.classList.add("embed")
 
 		if (this.json.provider) {
-			const provider = document.createElement("p")
+			const provider = document.createElement("a")
 			provider.classList.add("provider")
 			provider.textContent = this.json.provider.name
+			provider.href = this.json.provider.url
+			provider.target = "_blank"
+			provider.rel = "noreferrer noopener"
 			div.append(provider)
 		}
 
 		const a = document.createElement("a")
+		a.classList.add("title")
 		a.href = this.json.url
 		a.textContent = this.json.title
+		a.target = "_blank"
+		a.rel = "noreferrer noopener"
 		div.append(a)
 
 		const description = document.createElement("p")
@@ -198,6 +212,16 @@ class embed {
 		img.crossOrigin = "anonymous"
 		img.src = this.json.thumbnail.proxy_url
 		div.append(img)
+
+		if (type == "video" && this.json.video) {
+			const proxyUrl = new URL(this.json.video.proxy_url)
+			if (proxyUrl.hostname != "youtube.com") { // YouTube isn't a proxy, embedding it would need a privacy notice
+				const video = document.createElement("video")
+				video.controls = true
+				video.src = this.json.video.proxy_url
+				div.append(video)
+			}
+		}
 
 		colordiv.append(div)
 		return colordiv
