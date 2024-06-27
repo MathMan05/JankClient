@@ -546,6 +546,7 @@ textarea {
 
 #serverName {
 	margin-left: 5px;
+	background-color: var(--channels-bg);
 }
 
 .servertd {
