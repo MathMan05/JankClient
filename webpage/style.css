@@ -147,6 +147,11 @@ h2 {
 .servericon {
 	transition: border-radius .2s;
 	position: relative;
+
+	margin-top: 5px;
+
+	margin-right: 7px;
+	margin-left: 5px;
 }
 .servericon:hover {
 	border-radius: 30%;
