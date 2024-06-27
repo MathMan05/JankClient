@@ -1,29 +1,29 @@
 "use strict"
 
-class guild {
-	static contextmenu = new contextmenu()
+class Guild {
+	static contextmenu = new ContextMenu()
 	static setupcontextmenu() {
-		guild.contextmenu.addbutton("Copy guild id", function() {
+		Guild.contextmenu.addbutton("Copy guild id", function() {
 			navigator.clipboard.writeText(this.id)
 		})
 
-		guild.contextmenu.addbutton("Mark as read", function() {
+		Guild.contextmenu.addbutton("Mark as read", function() {
 			this.markAsRead()
 		})
 
-		guild.contextmenu.addbutton("Create Invite", function() {
+		Guild.contextmenu.addbutton("Create Invite", function() {
 			console.log(this)
 		}, null, () => true, () => false)
 
-		guild.contextmenu.addbutton("Notifications", function() {
+		Guild.contextmenu.addbutton("Notifications", function() {
 			this.setnotifcation()
 		})
 
-		guild.contextmenu.addbutton("Leave guild", function() {
+		Guild.contextmenu.addbutton("Leave guild", function() {
 			this.confirmleave()
 		}, null, g => g.properties.owner_id != g.member.user.id)
 
-		guild.contextmenu.addbutton("Delete guild", function() {
+		Guild.contextmenu.addbutton("Delete guild", function() {
 			this.confirmDelete()
 		}, null, g => g.properties.owner_id == g.member.user.id)
 	}
@@ -47,12 +47,12 @@ class guild {
 		this.message_notifications = 0
 
 		for (const roley of json.roles) {
-			const roleh = new role(roley)
+			const roleh = new Role(roley)
 			this.roles.push(roleh)
 			this.roleids[roleh.id] = roleh
 		}
 		for (const thing of json.channels) {
-			const temp = new channel(thing, this)
+			const temp = new Channel(thing, this)
 			this.channels.push(temp)
 			this.channelids[temp.id] = temp
 		}
@@ -216,7 +216,7 @@ class guild {
 		this.printServers()
 	}
 	createChannelpac(json) {
-		const thischannel = new channel(json, this)
+		const thischannel = new Channel(json, this)
 		this.channelids[json.id] = thischannel
 		this.channels.push(thischannel)
 		thischannel.resolveparent(this)
@@ -247,7 +247,7 @@ class guild {
 	}
 	setnotifcation() {
 		let noti = this.message_notifications
-		const notiselect = new fullscreen(
+		const notiselect = new Dialog(
 		["vdiv",
 			["radio", "select notifications type",
 				["all", "only mentions", "none"],
@@ -274,7 +274,7 @@ class guild {
 		notiselect.show()
 	}
 	confirmleave() {
-		const full = new fullscreen([
+		const full = new Dialog([
 			"vdiv",
 			["title",
 				"Are you sure you want to leave?"
@@ -323,7 +323,7 @@ class guild {
 				this.loadGuild()
 				this.loadChannel()
 			}
-			guild.contextmenu.bind(div, this)
+			Guild.contextmenu.bind(div, this)
 		} else {
 			const img = document.createElement("img")
 			img.classList.add("pfp", "servericon")
@@ -333,13 +333,13 @@ class guild {
 				this.loadGuild()
 				this.loadChannel()
 			}
-			guild.contextmenu.bind(img, this)
+			Guild.contextmenu.bind(img, this)
 		}
 		return divy
 	}
 	confirmDelete() {
 		let confirmname = ""
-		const full = new fullscreen([
+		const full = new Dialog([
 			"vdiv",
 			["title",
 				"Are you sure you want to delete " + this.properties.name + "?"
@@ -383,4 +383,4 @@ class guild {
 	}
 }
 
-guild.setupcontextmenu()
+Guild.setupcontextmenu()

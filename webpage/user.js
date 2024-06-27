@@ -1,12 +1,12 @@
 "use strict"
 
-class user {
+class User {
 	static userids = {}
 	static checkuser(userjson) {
-		if (user.userids[userjson.id]) return user.userids[userjson.id]
+		if (User.userids[userjson.id]) return User.userids[userjson.id]
 
-		const tempuser = new user(userjson)
-		user.userids[userjson.id] = tempuser
+		const tempuser = new User(userjson)
+		User.userids[userjson.id] = tempuser
 		return tempuser
 	}
 	constructor(userjson) {
@@ -16,7 +16,7 @@ class user {
 		this.hypotheticalpfp = false
 	}
 	async resolvemember(guild) {
-		await member.resolve(this, guild)
+		await Member.resolve(this, guild)
 	}
 	buildpfp() {
 		const pfp = document.createElement("img")

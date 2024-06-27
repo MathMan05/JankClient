@@ -1,6 +1,6 @@
 "use strict"
 
-class fullscreen {
+class Dialog {
 	constructor(layout, onclose = () => {}, onopen = () => {}) {
 		this.layout = layout
 		this.onclose = onclose

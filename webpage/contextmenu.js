@@ -1,6 +1,6 @@
 "use strict"
 
-class contextmenu {
+class ContextMenu {
 	constructor() {
 		this.buttons = []
 	}

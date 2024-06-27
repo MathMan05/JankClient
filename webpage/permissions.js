@@ -1,18 +1,18 @@
-class permissions {
+class Permissions {
 	constructor(b) {
 		this.permissions = BigInt(b)
 	}
 	getPermisionbit(b) {
 		return Boolean((this.permissions >> BigInt(b)) & 1n)
 	}
-	setPermisionbit(b,state) {
+	setPermisionbit(b, state) {
 		const bit = 1n << BigInt(b)
 		this.permissions = (this.permissions & ~bit) | (BigInt(state) << BigInt(b))//thanks to geotale for this code :3
 	}
 	static map
 	static info
 	static makeMap() {
-		permissions.info = [//for people in the future, do not reorder these, the creation of the map realize on the order
+		Permissions.info = [//for people in the future, do not reorder these, the creation of the map realize on the order
 			{
 				name: "CREATE_INSTANT_INVITE",
 				readableName: "Create instance invite",
@@ -219,16 +219,16 @@ class permissions {
 				description: "Allows the user to time out other users to prevent them from sending or reacting to messages in chat and threads, and from speaking in voice and stage channels"
 			}
 		]
-		permissions.map = {}
+		Permissions.map = {}
 		let i = 0
-		for (const thing of permissions.info) {
-			permissions.map[i] = thing
-			permissions.map[thing.name] = i
+		for (const thing of Permissions.info) {
+			Permissions.map[i] = thing
+			Permissions.map[thing.name] = i
 			i++
 		}
 	}
 	getPermision(name) {
-		return this.getPermisionbit(permissions.map[name])
+		return this.getPermisionbit(Permissions.map[name])
 	}
 }
-permissions.makeMap()
+Permissions.makeMap()

@@ -1,30 +1,30 @@
 "use strict"
 
-class cmessage {
-	static contextmenu = new contextmenu()
+class Message {
+	static contextmenu = new ContextMenu()
 	static setupcmenu() {
-		cmessage.contextmenu.addbutton("Copy raw text", function() {
+		Message.contextmenu.addbutton("Copy raw text", function() {
 			navigator.clipboard.writeText(this.content)
 		})
-		cmessage.contextmenu.addbutton("Reply", div => {
+		Message.contextmenu.addbutton("Reply", div => {
 			if (replyingto) replyingto.classList.remove("replying")
 			replyingto = div
 			replyingto.classList.add("replying")
 		})
-		cmessage.contextmenu.addbutton("Delete (temp)", function() {
+		Message.contextmenu.addbutton("Delete (temp)", function() {
 			fetch(instance.api + "/channels/" + this.channel_id + "/messages/" + this.id, {
 				method: "DELETE",
 				headers: this.headers
 			})
 		}, null, m => m.author.id == READY.d.user.id || m.owner.owner.isAdmin())
 
-		cmessage.contextmenu.addbutton("Copy message id", function() {
+		Message.contextmenu.addbutton("Copy message id", function() {
 			navigator.clipboard.writeText(this.id)
 		})
-		cmessage.contextmenu.addbutton("Copy user id", function() {
+		Message.contextmenu.addbutton("Copy user id", function() {
 			navigator.clipboard.writeText(this.author.id)
 		})
-		cmessage.contextmenu.addbutton("Message user", function() {
+		Message.contextmenu.addbutton("Message user", function() {
 			fetch(instance.api + "/users/@me/channels", {
 				method: "POST",
 				body: JSON.stringify({
@@ -33,7 +33,7 @@ class cmessage {
 				headers: this.headers
 			})
 		})
-		cmessage.contextmenu.addbutton("Edit", function() {
+		Message.contextmenu.addbutton("Edit", function() {
 			editing = this
 			document.getElementById("typebox").value = this.content
 		}, null, m => m.author.id == READY.d.user.id)
@@ -46,12 +46,12 @@ class cmessage {
 			this[key] = messagejson[key]
 		}
 		for (const e in this.embeds) {
-			this.embeds[e] = new embed(this.embeds[e], this)
+			this.embeds[e] = new Embed(this.embeds[e], this)
 		}
-		this.author = user.checkuser(this.author)
+		this.author = User.checkuser(this.author)
 
 		for (const u in this.mentions) {
-			this.mentions[u] = new user(this.mentions[u])
+			this.mentions[u] = new User(this.mentions[u])
 		}
 	}
 	get channel() {
@@ -64,12 +64,12 @@ class cmessage {
 		return this.owner.localuser
 	}
 	messageevents(obj) {
-		cmessage.contextmenu.bind(obj, this)
+		Message.contextmenu.bind(obj, this)
 		obj.classList.add("messagediv")
 	}
 	mentionsuser(userd) {
-		if (userd instanceof user) return this.mentions.includes(userd)
-		if (userd instanceof member) return this.mentions.includes(userd.user)
+		if (userd instanceof User) return this.mentions.includes(userd)
+		if (userd instanceof Member) return this.mentions.includes(userd.user)
 	}
 	getimages() {
 		const build = []
@@ -104,7 +104,7 @@ class cmessage {
 			const username = document.createElement("span")
 			replyline.appendChild(username)
 
-			member.resolve(this.author, this.guild).then(member => {
+			Member.resolve(this.author, this.guild).then(member => {
 				username.style.color = member.getColor()
 			})
 
@@ -122,7 +122,7 @@ class cmessage {
 			fetch(instance.api + "/channels/" + this.message_reference.channel_id + "/messages?limit=1&around=" + this.message_reference.message_id, {
 				headers: this.headers
 			}).then(response => response.json()).then(response => {
-				const author = user.checkuser(response[0].author)
+				const author = User.checkuser(response[0].author)
 
 				reply.appendChild(markdown(response[0].content))
 
@@ -169,7 +169,7 @@ class cmessage {
 			if (combine) {
 				const username = document.createElement("span")
 				username.classList.add("username")
-				member.resolve(this.author,this.guild).then(m => {
+				Member.resolve(this.author, this.guild).then(m => {
 					username.style.color = m.getColor()
 				})
 
@@ -192,6 +192,7 @@ class cmessage {
 
 				texttxt.appendChild(userwrap)
 			}
+
 			const messaged = markdown(this.content)
 			div.txt = messaged
 			const messagedwrap = document.createElement("tr")
@@ -211,7 +212,7 @@ class cmessage {
 						const img = document.createElement("img")
 						img.classList.add("messageimg")
 						img.onclick = () => {
-							const full = new fullscreen(["img", img.src, ["fit"]])
+							const full = new Dialog(["img", img.src, ["fit"]])
 							full.show()
 						}
 						img.crossOrigin = "anonymous"
@@ -255,7 +256,7 @@ class cmessage {
 	}
 }
 
-cmessage.setupcmenu()
+Message.setupcmenu()
 
 const isGerman = (navigator.language || navigator.userLanguage).startsWith("de")
 const makeTime = date => date.toLocaleTimeString(isGerman ? "de-DE" : void 0, { hour: "2-digit", minute: "2-digit" })

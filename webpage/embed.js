@@ -1,4 +1,4 @@
-class embed {
+class Embed {
 	constructor(json, owner) {
 		this.type = this.getType(json)
 		this.owner = owner
@@ -124,7 +124,7 @@ class embed {
 		if (this.json.thumbnail) {
 			img.classList.add("embedimg")
 			img.onclick = function() {
-				const full = new fullscreen(["img", img.src, ["fit"]])
+				const full = new Dialog(["img", img.src, ["fit"]])
 				full.show()
 			}
 			img.crossOrigin = "anonymous"
@@ -155,7 +155,7 @@ class embed {
 		const img = document.createElement("img")
 		img.classList.add("embedimg")
 		img.onclick = () => {
-			const full = new fullscreen(["img", img.src, ["fit"]])
+			const full = new Dialog(["img", img.src, ["fit"]])
 			full.show()
 		}
 		img.crossOrigin = "anonymous"
@@ -206,7 +206,7 @@ class embed {
 		const img = document.createElement("img")
 		img.classList.add("bigembedimg")
 		img.onclick = () => {
-			const full = new fullscreen(["img", img.src, ["fit"]])
+			const full = new Dialog(["img", img.src, ["fit"]])
 			full.show()
 		}
 		img.crossOrigin = "anonymous"

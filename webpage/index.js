@@ -9,7 +9,7 @@ const token = users.users[users.currentuser].token
 let ws
 let READY
 
-let thisuser = new localuser(users.users[users.currentuser])
+let thisuser = new LocalUser(users.users[users.currentuser])
 thisuser.initwebsocket().then(() => {
 	thisuser.loaduser()
 	thisuser.init()
@@ -48,7 +48,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	setTheme(localStorage.getItem("theme"))
 
-	const menu = new contextmenu()
+	const menu = new ContextMenu()
 	menu.addbutton("Create channel", () => {
 		createchannels(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
 	}, null, () => thisuser.isAdmin())
@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 				thisuser.unload()
 				document.getElementById("loading").classList.remove("doneloading")
 				document.getElementById("loading").classList.add("loading")
-				thisuser = new localuser(thing)
+				thisuser = new LocalUser(thing)
 				instance = thing.serverurls
 				users.currentuser = thing.uid
 				localStorage.setItem("userinfos", JSON.stringify(users))
@@ -179,7 +179,7 @@ let replyingto = null
 function createchannels(fincall) {
 	let name = ""
 	let type = 0
-	const channelselect = new fullscreen(
+	const channelselect = new Dialog(
 		["vdiv",
 			["radio", "select channel type",
 				["voice", "text", "announcement"],
@@ -201,7 +201,7 @@ function createchannels(fincall) {
 function createcategory(fincall) {
 	let name = ""
 	const category = 4
-	const channelselect = new fullscreen(
+	const channelselect = new Dialog(
 		["vdiv",
 			["textbox", "Name of category", "", event => {
 				name = event.target.value

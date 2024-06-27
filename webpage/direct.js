@@ -1,4 +1,4 @@
-class group extends channel {
+class Group extends Channel {
 	constructor(json, owner) {
 		super(-1)
 
@@ -7,7 +7,7 @@ class group extends channel {
 		this.headers = this.guild.headers
 		this.messages = []
 		this.name = json.recipients[0]?.username
-		if (json.recipients[0]) this.user = user.checkuser(json.recipients[0])
+		if (json.recipients[0]) this.user = User.checkuser(json.recipients[0])
 		else this.user = this.localuser.user
 
 		this.name ??= this.localuser.user.username
@@ -43,7 +43,7 @@ class group extends channel {
 		document.getElementById("channelname").textContent = "@" + this.name
 	}
 	messageCreate(messagep, focus) {
-		const messagez = new cmessage(messagep.d, this)
+		const messagez = new Message(messagep.d, this)
 		this.lastmessageid = messagez.id
 		if (messagez.author === this.localuser.user) this.lastreadmessageid = messagez.id
 
@@ -113,7 +113,7 @@ class group extends channel {
 	}
 }
 
-class direct extends guild {
+class Direct extends Guild {
 	constructor(json, owner) {
 		super(-1)
 		this.owner = owner
@@ -128,14 +128,14 @@ class direct extends guild {
 		this.prevchannel = void 0
 		this.properties.name = "Direct Messages"
 		for (const thing of json) {
-			const temp = new group(thing, this)
+			const temp = new Group(thing, this)
 			this.channels.push(temp)
 			this.channelids[temp.id] = temp
 		}
 		this.headchannels = this.channels
 	}
 	createChannelpac(json) {
-		const thischannel = new group(json, this)
+		const thischannel = new Group(json, this)
 		this.channelids[json.id] = thischannel
 		this.channels.push(thischannel)
 		this.calculateReorder()

@@ -1,21 +1,21 @@
 "use strict"
 
-class channel {
-	static contextmenu = new contextmenu()
+class Channel {
+	static contextmenu = new ContextMenu()
 	static setupcontextmenu() {
-		channel.contextmenu.addbutton("Copy channel id", function() {
+		Channel.contextmenu.addbutton("Copy channel id", function() {
 			navigator.clipboard.writeText(this.id)
 		})
 
-		channel.contextmenu.addbutton("Mark as read", function() {
+		Channel.contextmenu.addbutton("Mark as read", function() {
 			this.readbottom()
 		})
 
-		channel.contextmenu.addbutton("Delete channel", function() {
+		Channel.contextmenu.addbutton("Delete channel", function() {
 			this.deleteChannel()
 		}, null, owner => owner.isAdmin())
 
-		channel.contextmenu.addbutton("Edit channel", function() {
+		Channel.contextmenu.addbutton("Edit channel", function() {
 			editchannel(this)
 		}, null, owner => owner.isAdmin())
 	}
@@ -107,11 +107,11 @@ class channel {
 		div.all = this
 		div.draggable = admin
 		div.addEventListener("dragstart", e => {
-			channel.dragged = [this, div]
+			Channel.dragged = [this, div]
 			e.stopImmediatePropagation()
 		})
 		div.addEventListener("dragend", () => {
-			channel.dragged = []
+			Channel.dragged = []
 		})
 		if (this.type == 4) {
 			this.sortchildren()
@@ -141,7 +141,7 @@ class channel {
 			caps.classList.add("flex")
 			decdiv.classList.add("channel", "channeleffects")
 
-			channel.contextmenu.bind(decdiv, this)
+			Channel.contextmenu.bind(decdiv, this)
 			decdiv.all = this
 
 			for (const channel2 of this.children) {
@@ -167,7 +167,7 @@ class channel {
 			div.classList.add("channel")
 			if (this.hasunreads) div.classList.add("cunread")
 
-			channel.contextmenu.bind(div, this)
+			Channel.contextmenu.bind(div, this)
 			if (admin) this.coatDropDiv(div)
 
 			div.all = this
@@ -241,18 +241,18 @@ class channel {
 		})
 
 		div.addEventListener("drop", event => {
-			const that = channel.dragged[0]
+			const that = Channel.dragged[0]
 			event.preventDefault()
 			if (container) {
 				that.move_id = this.id
 				if (that.parent) that.parent.children.splice(that.parent.children.indexOf(that), 1)
 
 				that.parent = this
-				container.prepend(channel.dragged[1])
+				container.prepend(Channel.dragged[1])
 				console.log(this, that)
 				this.children.unshift(that)
 			} else {
-				console.log(this, channel.dragged)
+				console.log(this, Channel.dragged)
 				that.move_id = this.parent_id
 				if (that.parent) that.parent.children.splice(that.parent.children.indexOf(that), 1)
 				else this.guild.headchannels.splice(this.guild.headchannels.indexOf(that), 1)
@@ -273,7 +273,7 @@ class channel {
 					}
 					this.guild.headchannels = build
 				}
-				div.after(channel.dragged[1])
+				div.after(Channel.dragged[1])
 			}
 			this.guild.calculateReorder()
 		})
@@ -298,7 +298,7 @@ class channel {
 		let nsfw = this.nsfw
 		const thisid = this.id
 		const thistype = this.type
-		const full = new fullscreen(
+		const full = new Dialog(
 			["hdiv",
 				["vdiv",
 					["textbox", "Channel name:", this.name, event => {
@@ -359,7 +359,7 @@ class channel {
 		}).then(response => {
 			messages.innerHTML = ""
 			for (const msg of response) {
-				const messager = new cmessage(msg, this)
+				const messager = new Message(msg, this)
 				if (out.messageids[messager.id] == void 0) {
 					out.messageids[messager.id] = messager
 					out.messages.push(messager)
@@ -393,10 +393,10 @@ class channel {
 			for (const i in response) {
 				let messager
 				if (next) messager = next
-				else messager = new cmessage(response[i], this)
+				else messager = new Message(response[i], this)
 
 				if (response[Number(i) + 1] === void 0) next = void 0
-				else next = new cmessage(response[Number(i) + 1], this)
+				else next = new Message(response[Number(i) + 1], this)
 
 				if (out.messageids[messager.id] === void 0) {
 					out.messageids[messager.id] = messager
@@ -500,7 +500,7 @@ class channel {
 		}
 	}
 	messageCreate(messagep, focus) {
-		const messagez = new cmessage(messagep.d, this)
+		const messagez = new Message(messagep.d, this)
 		this.lastmessageid = messagez.id
 		if (messagez.author === this.localuser.user) {
 			this.lastreadmessageid = messagez.id
@@ -530,7 +530,7 @@ class channel {
 		return message.author.username + " > " + this.guild.properties.name + " > " + this.name
 	}
 	async notify(message) {
-		voice.noises(voice.getNotificationSound())
+		Audio.noises(Audio.getNotificationSound())
 		if (!("Notification" in window)) return
 
 		if (Notification.permission == "granted") {
@@ -566,4 +566,4 @@ class channel {
 	}
 }
 
-channel.setupcontextmenu()
+Channel.setupcontextmenu()

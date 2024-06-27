@@ -1,9 +1,9 @@
-class role {
+class Role {
 	constructor(json, owner) {
 		for (const thing of Object.keys(json)) {
 			this[thing] = json[thing]
 		}
-		this.permissions = new permissions(json.permissions)
+		this.permissions = new Permissions(json.permissions)
 		this.owner = owner
 	}
 	get guild() {

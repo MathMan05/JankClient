@@ -1,8 +1,8 @@
 "use strict"
 
-class specialuser {
+class SpecialUser {
 	constructor(json) {
-		if (json instanceof specialuser) throw new Error("Input for specialuser must not be instance of specialuser")
+		if (json instanceof SpecialUser) throw new Error("Input for SpecialUser must not be instance of SpecialUser")
 
 		const instanceURLs = {
 			api: new URL(json.serverurls.api).toString(),
@@ -54,7 +54,7 @@ class specialuser {
 function getBulkUsers() {
 	const json = getBulkInfo()
 	for (const user in json.users) {
-		json.users[user] = new specialuser(json.users[user])
+		json.users[user] = new SpecialUser(json.users[user])
 	}
 	return json
 }
@@ -91,7 +91,7 @@ function setDefaults() {
 setDefaults()
 
 function adduser(user) {
-	user = new specialuser(user)
+	user = new SpecialUser(user)
 	const info = getBulkInfo()
 	info.users[user.uid] = user
 	info.currentuser = user.uid

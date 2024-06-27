@@ -1,6 +1,6 @@
-class member {
+class Member {
 	static already = {}
-	constructor(memberjson,owner) {
+	constructor(memberjson, owner) {
 		if (!owner) console.error("Guild not included in the creation of a member object")
 
 		this.owner = owner
@@ -15,7 +15,7 @@ class member {
 
 			this[thing] = membery[thing]
 		}
-		this.user = user.checkuser(this.user)
+		this.user = User.checkuser(this.user)
 	}
 	get guild() {
 		return this.owner
@@ -23,11 +23,11 @@ class member {
 	get localuser() {
 		return this.guild.localuser
 	}
-	static async resolve(user,guild) {
-		if (!member.already[guild.id]) {
-			member.already[guild.id] = {}
-		} else if (member.already[guild.id][user.id]) {
-			const memb = member.already[guild.id][user.id]
+	static async resolve(user, guild) {
+		if (!Member.already[guild.id]) {
+			Member.already[guild.id] = {}
+		} else if (Member.already[guild.id][user.id]) {
+			const memb = Member.already[guild.id][user.id]
 			if (memb instanceof Promise) {
 				return await memb
 			}
@@ -37,13 +37,13 @@ class member {
 		const promise = fetch(instance.api + "/users/" + user.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + guild.id, {
 			headers: guild.headers
 		}).then(res => res.json()).then(json => {
-			const memb = new member(json,guild)
-			member.already[guild.id][user.id] = memb
+			const memb = new Member(json, guild)
+			Member.already[guild.id][user.id] = memb
 			guild.fillMember(memb)
 			return memb
 		})
 
-		member.already[guild.id][user.id] = promise
+		Member.already[guild.id][user.id] = promise
 		return await promise
 	}
 	hasRole(ID) {

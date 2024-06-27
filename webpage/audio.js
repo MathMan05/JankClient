@@ -1,4 +1,4 @@
-class voice {
+class Audio {
 	constructor(wave, freq, volume = 1) {
 		this.audioCtx = new (window.AudioContext || window.webkitAudioContext)()
 		this.info = {wave, freq}
@@ -84,7 +84,7 @@ class voice {
 	static noises(noise) {
 		switch (noise) {
 			case "three":{
-					const voicy = new voice("sin", 800)
+					const voicy = new Audio("sin", 800)
 					voicy.play()
 					setTimeout(_ => {
 						voicy.freq = 1000
@@ -98,7 +98,7 @@ class voice {
 					break
 				}
 			case "zip":{
-				const voicy = new voice((t, freq) => {
+				const voicy = new Audio((t, freq) => {
 					return Math.sin(((t + 2) ** (Math.cos(t * 4))) * Math.PI * 2 * freq)
 				}, 700)
 				voicy.play()
@@ -108,7 +108,7 @@ class voice {
 				break
 			}
 			case "square":{
-				const voicy = new voice("square", 600, 0.4)
+				const voicy = new Audio("square", 600, 0.4)
 				voicy.play()
 				setTimeout(_ => {
 					voicy.freq = 800
@@ -122,7 +122,7 @@ class voice {
 				break
 			}
 			case "beep":{
-				const voicy = new voice("sin", 800)
+				const voicy = new Audio("sin", 800)
 				voicy.play()
 				setTimeout(_ => {
 					voicy.stop()

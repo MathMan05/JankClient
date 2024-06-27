@@ -9,7 +9,7 @@ let heartbeatInterval = 0
 let errorBackoff = 0
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
-class localuser {
+class LocalUser {
 	constructor(userinfo) {
 		this.token = userinfo.token
 		this.userinfo = userinfo
@@ -26,7 +26,7 @@ class localuser {
 		this.ready = ready
 		this.guilds = []
 		this.guildids = {}
-		this.user = user.checkuser(ready.d.user)
+		this.user = User.checkuser(ready.d.user)
 		this.userinfo.username = this.user.username
 		this.userinfo.pfpsrc = this.user.getpfpsrc()
 		this.usersettings = null
@@ -39,12 +39,12 @@ class localuser {
 		setTheme(this.settings.theme)
 
 		for (const thing of ready.d.guilds) {
-			const temp = new guild(thing, this)
+			const temp = new Guild(thing, this)
 			this.guilds.push(temp)
 			this.guildids[temp.id] = temp
 		}
 
-		const dmChannels = new direct(ready.d.private_channels, this)
+		const dmChannels = new Direct(ready.d.private_channels, this)
 		this.guilds.push(dmChannels)
 		this.guildids[dmChannels.id] = dmChannels
 
@@ -54,7 +54,7 @@ class localuser {
 
 		for (const m of ready.d.merged_members) {
 			const guild = this.guildids[m[0].guild_id]
-			guild.giveMember(new member(m[0], guild))
+			guild.giveMember(new Member(m[0], guild))
 		}
 
 		for (const thing of ready.d.read_state.entries) {
@@ -144,7 +144,7 @@ class localuser {
 							break
 						case "USER_UPDATE":
 							if (this.initialized) {
-								const users = user.userids[json.d.id]
+								const users = User.userids[json.d.id]
 								console.log(users, json.d.id)
 
 								if (users) users.userupdate(json.d)
@@ -167,7 +167,7 @@ class localuser {
 							break
 						}
 						case "GUILD_CREATE": {
-							const guildy = new guild(json.d, this)
+							const guildy = new Guild(json.d, this)
 							this.guilds.push(guildy)
 							this.guildids[guildy.id] = guildy
 							document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseperator"))
@@ -282,7 +282,7 @@ class localuser {
 		serverlist.appendChild(br)
 
 		for (const guild of this.guilds) {
-			if (guild instanceof direct) {
+			if (guild instanceof Direct) {
 				guild.unreaddms()
 				continue
 			}
@@ -309,7 +309,7 @@ class localuser {
 		let inviteurl = ""
 		const error = document.createElement("span")
 
-		const full = new fullscreen(["tabs", [
+		const full = new Dialog(["tabs", [
 			["Join using invite", [
 				"vdiv",
 					["textbox",
@@ -444,7 +444,7 @@ class localuser {
 		let newbio = null
 		let newTheme = null
 
-		let hypouser = new user(thisuser.user)
+		let hypouser = new User(thisuser.user)
 		function regen() {
 			hypothetcialprofie.textContent = ""
 			const hypoprofile = buildprofile(-1, -1, hypouser)
@@ -452,7 +452,7 @@ class localuser {
 			hypothetcialprofie.appendChild(hypoprofile)
 		}
 		regen()
-		this.usersettings = new fullscreen(
+		this.usersettings = new Dialog(
 			["vdiv",
 				["hdiv",
 					["vdiv",
@@ -481,10 +481,10 @@ class localuser {
 				["select", "Theme", ["Dark", "Light"], event => {
 					newTheme = event.target.value == "Light" ? "light" : "dark"
 				}, thisuser.settings.theme == "light" ? 1 : 0],
-				["select", "Notification sound:", voice.sounds, e => {
-					voice.setNotificationSound(voice.sounds[e.target.selectedIndex])
-					voice.noises(voice.sounds[e.target.selectedIndex])
-				},	voice.sounds.indexOf(voice.getNotificationSound())],
+				["select", "Notification sound:", Audio.sounds, e => {
+					Audio.setNotificationSound(Audio.sounds[e.target.selectedIndex])
+					Audio.noises(Audio.sounds[e.target.selectedIndex])
+				}, Audio.sounds.indexOf(Audio.getNotificationSound())],
 				["button", "update user content:", "submit", () => {
 					if (file !== null) thisuser.updatepfp(file)
 					if (newprouns !== null) thisuser.updatepronouns(newprouns)
@@ -497,7 +497,7 @@ class localuser {
 					}
 				}]
 			], () => {}, (() => {
-				hypouser = user.checkuser(thisuser.user)
+				hypouser = User.checkuser(thisuser.user)
 				regen()
 				file = null
 				newprouns = null
