@@ -5,28 +5,28 @@
 .Dark-theme { /* thanks to TomatoCake for the updated CSS vars and such*/
 	color-scheme: dark;
 	--primary-text: #FFF;
-	--primary-bg: #282832;
+	--primary-bg: #1a1a20; /* prev: #282832 */
 	--black: #000;
 	--message-bg-hover: #1e1e28;
 	--typing-bg: #161616;
 	--timestamp-color: #a2a2a2;
 	--code-bg: #101014;
-	--user-info-bg: #323039;
-	--user-dock-bg: #1a1a23;
-	--channels-bg: #32323c;
-	--channel-hover: #1c1b25;
+	--user-info-bg: #1a1a20; /* prev: #323039 */
+	--user-dock-bg: #1a1a20; /* prev: #1a1a23 */
+	--channels-bg: #24242b; /* prev: #32323c */
+	--channel-hover: #2f2f38; /* prev: #1c1b25 */
 	--blank-bg: #1b1b1b;
 	--light-border: #92929B;
 	--settings-hover: #0e0d10;
-	--quote-bg: #7a798e;
+	--quote-bg: #818094; /* prev: #7a798e */
 	--button-bg: #1b1b28;
-	--textarea-bg: #26272c;
+	--textarea-bg: #24242b; /* prev: #26272c */
 	--filename: #47bbff;
 	--mention-bg: #F00;
-	--pronouns: #797979;
-	--profile-bg: #2e2d33;
-	--profile-info-bg: #1a1a1e;
-	--server-border: #1b1b24;
+	--pronouns: #898989; /* prev: #797979 */
+	--profile-bg: #202028; /* prev: #2e2d33 */
+	--profile-info-bg: #1a1a20; /* prev: #1a1a1e */
+	--server-border: #22222a; /* prev: #1b1b24 */
 	--server-bg: #252530;
 	--reply-border: #474b76;
 	--reply-bg: #0b0d20;
