@@ -1,0 +1,318 @@
+import { Contextmenu } from "./contextmenu.js";
+import { User } from "./user.js";
+import { Member } from "./member.js";
+import { markdown } from "./markdown.js";
+import { Embed } from "./embed.js";
+import { Fullscreen } from "./fullscreen.js";
+class Message {
+    static contextmenu = new Contextmenu("message menu");
+    owner;
+    headers;
+    embeds;
+    author;
+    mentions;
+    mention_roles;
+    attachments;
+    id;
+    message_reference;
+    type;
+    timestamp;
+    content;
+    static setupcmenu() {
+        Message.contextmenu.addbutton("Copy raw text", function () {
+            navigator.clipboard.writeText(this.content);
+        });
+        Message.contextmenu.addbutton("Reply", function (div) {
+            if (this.channel.replyingto) {
+                this.channel.replyingto.classList.remove("replying");
+            }
+            this.channel.replyingto = div;
+            console.log(div);
+            this.channel.replyingto.classList.add("replying");
+        });
+        Message.contextmenu.addbutton("Copy message id", function () {
+            navigator.clipboard.writeText(this.id);
+        });
+        Message.contextmenu.addbutton("Copy user id", function () {
+            navigator.clipboard.writeText(this.author.id);
+        });
+        Message.contextmenu.addbutton("Message user", function () {
+            fetch(this.info.api.toString() + "/v9/users/@me/channels", { method: "POST",
+                body: JSON.stringify({ "recipients": [this.author.id] }),
+                headers: this.headers
+            });
+        });
+        Message.contextmenu.addbutton("Edit", function () {
+            this.channel.editing = this;
+            document.getElementById("typebox").value = this.content;
+        }, null, _ => { return _.author.id === _.localuser.user.id; });
+    }
+    constructor(messagejson, owner) {
+        this.owner = owner;
+        this.headers = this.owner.headers;
+        for (const thing of Object.keys(messagejson)) {
+            this[thing] = messagejson[thing];
+        }
+        for (const thing in this.embeds) {
+            console.log(thing, this.embeds);
+            this.embeds[thing] = new Embed(this.embeds[thing], this);
+        }
+        this.author = new User(this.author, this.localuser);
+        for (const thing in this.mentions) {
+            this.mentions[thing] = new User(this.mentions[thing], this.localuser);
+        }
+        if (this.mentions.length || this.mention_roles.length) { //currently mention_roles isn't implemented on the spacebar servers
+            console.log(this.mentions, this.mention_roles);
+        }
+        if (this.mentionsuser(this.localuser.user)) {
+            console.log(this);
+        }
+    }
+    get channel() {
+        return this.owner;
+    }
+    get guild() {
+        return this.owner.guild;
+    }
+    get localuser() {
+        return this.owner.localuser;
+    }
+    get info() {
+        return this.owner.info;
+    }
+    messageevents(obj) {
+        Message.contextmenu.bind(obj, this);
+        obj.classList.add("messagediv");
+    }
+    mentionsuser(userd) {
+        if (userd instanceof User) {
+            return this.mentions.includes(userd);
+        }
+        else if (userd instanceof Member) {
+            return this.mentions.includes(userd.user);
+        }
+    }
+    getimages() {
+        const build = [];
+        for (const thing of this.attachments) {
+            if (thing.content_type.startsWith('image/')) {
+                build.push(thing);
+            }
+        }
+        return build;
+    }
+    async edit(content) {
+        return await fetch(this.info.api.toString() + "/channels/" + this.channel.id + "/messages/" + this.id, {
+            method: "PATCH",
+            headers: this.headers,
+            body: JSON.stringify({ content: content })
+        });
+    }
+    buildhtml(premessage) {
+        //premessage??=messages.lastChild;
+        const build = document.createElement('table');
+        const div = document.createElement("div");
+        if (this.message_reference) {
+            const replyline = document.createElement("div");
+            const line = document.createElement("hr");
+            const minipfp = document.createElement("img");
+            minipfp.classList.add("replypfp");
+            replyline.appendChild(line);
+            replyline.appendChild(minipfp);
+            const username = document.createElement("span");
+            replyline.appendChild(username);
+            const reply = document.createElement("div");
+            username.classList.add("username");
+            Member.resolve(this.author, this.guild).then(_ => {
+                username.style.color = _.getColor();
+            });
+            reply.classList.add("replytext");
+            replyline.appendChild(reply);
+            const line2 = document.createElement("hr");
+            replyline.appendChild(line2);
+            line2.classList.add("reply");
+            line.classList.add("startreply");
+            replyline.classList.add("replyflex");
+            fetch(this.info.api.toString() + "/v9/channels/" + this.message_reference.channel_id + "/messages?limit=1&around=" + this.message_reference.message_id, { headers: this.headers }).then(responce => responce.json()).then(responce => {
+                const author = new User(responce[0].author, this.localuser);
+                reply.appendChild(markdown(responce[0].content));
+                minipfp.src = author.getpfpsrc();
+                author.profileclick(minipfp);
+                username.textContent = author.username;
+                author.profileclick(username);
+            });
+            div.appendChild(replyline);
+        }
+        this.messageevents(div);
+        build.classList.add("message");
+        div.appendChild(build);
+        if ({ 0: true, 19: true }[this.type] || this.attachments.length !== 0) {
+            const pfpRow = document.createElement('th');
+            let pfpparent, current;
+            if (premessage != null) {
+                pfpparent = premessage.pfpparent;
+                pfpparent ??= premessage;
+                let pfpparent2 = pfpparent.all;
+                pfpparent2 ??= pfpparent;
+                const old = (new Date(pfpparent2.timestamp).getTime()) / 1000;
+                const newt = (new Date(this.timestamp).getTime()) / 1000;
+                current = (newt - old) > 600;
+            }
+            const combine = (premessage?.userid != this.author.id && premessage?.author?.id != this.author.id) || (current) || this.message_reference;
+            if (combine) {
+                const pfp = this.author.buildpfp();
+                this.author.profileclick(pfp);
+                pfpRow.appendChild(pfp);
+            }
+            else {
+                div["pfpparent"] = pfpparent;
+            }
+            pfpRow.classList.add("pfprow");
+            build.appendChild(pfpRow);
+            const text = document.createElement("th");
+            const texttxt = document.createElement("table");
+            texttxt.classList.add("commentrow");
+            text.appendChild(texttxt);
+            if (combine) {
+                const username = document.createElement("span");
+                username.classList.add("username");
+                this.author.profileclick(username);
+                Member.resolve(this.author, this.guild).then(_ => {
+                    if (!_) {
+                        return;
+                    }
+                    username.style.color = _.getColor();
+                });
+                username.textContent = this.author.username;
+                const userwrap = document.createElement("tr");
+                userwrap.appendChild(username);
+                if (this.author.bot) {
+                    const username = document.createElement("span");
+                    username.classList.add("bot");
+                    username.textContent = "BOT";
+                    userwrap.appendChild(username);
+                }
+                const time = document.createElement("span");
+                time.textContent = "  " + formatTime(new Date(this.timestamp));
+                time.classList.add("timestamp");
+                userwrap.appendChild(time);
+                texttxt.appendChild(userwrap);
+            }
+            const messaged = markdown(this.content);
+            div["txt"] = messaged;
+            const messagedwrap = document.createElement("tr");
+            messagedwrap.appendChild(messaged);
+            texttxt.appendChild(messagedwrap);
+            build.appendChild(text);
+            if (this.attachments.length) {
+                console.log(this.attachments);
+                const attatch = document.createElement("tr");
+                for (const thing of this.attachments) {
+                    const array = thing.url.split("/");
+                    array.shift();
+                    array.shift();
+                    array.shift();
+                    const src = this.info.cdn.toString() + array.join("/");
+                    if (thing.content_type.startsWith('image/')) {
+                        const img = document.createElement("img");
+                        img.classList.add("messageimg");
+                        img.onclick = function () {
+                            const full = new Fullscreen(["img", img.src, ["fit"]]);
+                            full.show();
+                        };
+                        img.src = src;
+                        attatch.appendChild(img);
+                    }
+                    else {
+                        attatch.appendChild(this.createunknown(thing.filename, thing.size, src));
+                    }
+                }
+                messagedwrap.appendChild(attatch);
+            }
+            if (this.embeds.length) {
+                const embeds = document.createElement("tr");
+                for (const thing of this.embeds) {
+                    embeds.appendChild(thing.generateHTML());
+                }
+                messagedwrap.appendChild(embeds);
+            }
+            //
+        }
+        else if (this.type === 7) {
+            const text = document.createElement("th");
+            const texttxt = document.createElement("table");
+            text.appendChild(texttxt);
+            build.appendChild(text);
+            const messaged = document.createElement("p");
+            div["txt"] = messaged;
+            messaged.textContent = "welcome: " + this.author.username;
+            const messagedwrap = document.createElement("tr");
+            messagedwrap.appendChild(messaged);
+            const time = document.createElement("span");
+            time.textContent = "  " + formatTime(new Date(this.timestamp));
+            time.classList.add("timestamp");
+            messagedwrap.append(time);
+            texttxt.appendChild(messagedwrap);
+        }
+        div["userid"] = this.author.id;
+        div["all"] = this;
+        return (div);
+    }
+    createunknown(fname, fsize, src) {
+        const div = document.createElement("table");
+        div.classList.add("unknownfile");
+        const nametr = document.createElement("tr");
+        div.append(nametr);
+        const fileicon = document.createElement("td");
+        nametr.append(fileicon);
+        fileicon.append("🗎");
+        fileicon.classList.add("fileicon");
+        fileicon.rowSpan = 2;
+        const nametd = document.createElement("td");
+        if (src) {
+            const a = document.createElement("a");
+            a.href = src;
+            a.textContent = fname;
+            nametd.append(a);
+        }
+        else {
+            nametd.textContent = fname;
+        }
+        nametd.classList.add("filename");
+        nametr.append(nametd);
+        const sizetr = document.createElement("tr");
+        const size = document.createElement("td");
+        sizetr.append(size);
+        size.textContent = "Size:" + this.filesizehuman(fsize);
+        size.classList.add("filesize");
+        div.appendChild(sizetr);
+        return div;
+    }
+    filesizehuman(fsize) {
+        var i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024));
+        return +((fsize / Math.pow(1024, i)).toFixed(2)) * 1 + ' ' + ['Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'Terabytes'][i];
+    }
+}
+function formatTime(date) {
+    const now = new Date();
+    const sameDay = date.getDate() === now.getDate() &&
+        date.getMonth() === now.getMonth() &&
+        date.getFullYear() === now.getFullYear();
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const isYesterday = date.getDate() === yesterday.getDate() &&
+        date.getMonth() === yesterday.getMonth() &&
+        date.getFullYear() === yesterday.getFullYear();
+    const formatTime = date => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (sameDay) {
+        return `Today at ${formatTime(date)}`;
+    }
+    else if (isYesterday) {
+        return `Yesterday at ${formatTime(date)}`;
+    }
+    else {
+        return `${date.toLocaleDateString()} at ${formatTime(date)}`;
+    }
+}
+Message.setupcmenu();
+export { Message };

@@ -1,18 +1,24 @@
-class permissions{
-    constructor(b){
-        this.permissions=BigInt(b);
+export {Permissions};
+class Permissions{
+    allow:bigint;
+    deny:bigint;
+    constructor(allow:string,deny:string=""){
+        this.allow=BigInt(allow);
+        this.deny=BigInt(deny);
     }
-    getPermisionbit(b){
-        return Boolean((this.permissions>>BigInt(b))&1n);
+    getPermisionbit(b:number,big:bigint) : boolean{
+        return Boolean((big>>BigInt(b))&1n);
     }
-    setPermisionbit(b,state){
+    setPermisionbit(b:number,state:boolean,big:bigint) : bigint{
         const bit=1n<<BigInt(b);
-        this.permissions=(this.permissions & ~bit) | (BigInt(state) << BigInt(b));//thanks to geotale for this code :3
+        return (big & ~bit) | (BigInt(state) << BigInt(b));//thanks to geotale for this code :3
     }
-    static map
-    static info
+    static map:{
+        [key:number|string]:{"name":string,"readableName":string,"description":string}|number,
+    }
+    static info:{"name":string,"readableName":string,"description":string}[];
     static makeMap(){
-        permissions.info=[//for people in the future, do not reorder these, the creation of the map realize on the order
+        Permissions.info=[//for people in the future, do not reorder these, the creation of the map realize on the order
             {
                 name:"CREATE_INSTANT_INVITE",
                 readableName:"Create instance invite",
@@ -219,16 +225,22 @@ class permissions{
                 description:"Allows the user to time out other users to prevent them from sending or reacting to messages in chat and threads, and from speaking in voice and stage channels"
             },
         ];
-        permissions.map={};
+        Permissions.map={};
         let i=0;
-        for(const thing of permissions.info){
-            permissions.map[i]=thing;
-            permissions.map[thing.name]=i;
+        for(const thing of Permissions.info){
+            Permissions.map[i]=thing;
+            Permissions.map[thing.name]=i;
             i++;
         }
     }
-    getPermision(name){
-        return this.getPermisionbit(permissions.map[name]);
+    getPermision(name:string):number{
+        if(this.getPermisionbit(Permissions.map[name] as number,this.allow)){
+            return 1;
+        }else if(this.getPermisionbit(Permissions.map[name] as number,this.deny)){
+            return -1;
+        }else{
+            return 0;
+        }
     }
 }
-permissions.makeMap();
+Permissions.makeMap();

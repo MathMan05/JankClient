@@ -1,6 +1,10 @@
-class embed{
-    constructor(json, owner){
-
+import {Fullscreen} from "./fullscreen.js";
+import {Message} from "./message.js";
+class Embed{
+    type:string;
+    owner:Message;
+    json;
+    constructor(json, owner:Message){
         this.type=this.getType(json);
         this.owner=owner;
         this.json=json;
@@ -116,7 +120,7 @@ class embed{
         const img=document.createElement("img");
         img.classList.add("messageimg")
         img.onclick=function(){
-            const full=new fullscreen(["img",img.src,["fit"]]);
+            const full=new Fullscreen(["img",img.src,["fit"]]);
             full.show();
         }
         img.src=this.json.thumbnail.proxy_url;
@@ -141,7 +145,7 @@ class embed{
             if(this.json.thumbnail){
                 img.classList.add("embedimg");
                 img.onclick=function(){
-                    const full=new fullscreen(["img",img.src,["fit"]]);
+                    const full=new Fullscreen(["img",img.src,["fit"]]);
                     full.show();
                 }
                 img.src=this.json.thumbnail.proxy_url;
@@ -184,7 +188,7 @@ class embed{
             const img=document.createElement("img");
             img.classList.add("bigembedimg");
             img.onclick=function(){
-                const full=new fullscreen(["img",img.src,["fit"]]);
+                const full=new Fullscreen(["img",img.src,["fit"]]);
                 full.show();
             }
             img.src=this.json.thumbnail.proxy_url;
@@ -194,3 +198,4 @@ class embed{
         return colordiv;
     }
 }
+export {Embed};

@@ -1,30 +1,52 @@
-class guild{
-    static contextmenu=new contextmenu("guild menu");
+import { Channel } from "./channel.js";
+import { Localuser } from "./localuser.js";
+import {Contextmenu} from "./contextmenu.js";
+import {Role} from "./role.js";
+import {Fullscreen} from "./fullscreen.js";
+import {Member} from "./member.js";
+
+class Guild{
+    owner:Localuser;
+    headers:Localuser["headers"];
+    channels:Channel[];
+    channelids:{[key:string]:Channel};
+    id:string;
+    properties
+    roles:Role[];
+    roleids:{[key:string]:Role};
+    prevchannel:Channel;
+    message_notifications
+    headchannels:Channel[];
+    position:number;
+    parent_id:string;
+    member:Member;
+    html:HTMLUnknownElement;
+    static contextmenu=new Contextmenu("guild menu");
     static setupcontextmenu(){
-        guild.contextmenu.addbutton("Copy Guild id",function(){
+        Guild.contextmenu.addbutton("Copy Guild id",function(){
             console.log(this)
             navigator.clipboard.writeText(this.id);
         });
 
-        guild.contextmenu.addbutton("Mark as read",function(){
+        Guild.contextmenu.addbutton("Mark as read",function(){
             console.log(this)
             this.markAsRead();
         });
 
-        guild.contextmenu.addbutton("Notifications",function(){
+        Guild.contextmenu.addbutton("Notifications",function(){
             console.log(this)
             this.setnotifcation();
         });
 
-        guild.contextmenu.addbutton("Leave guild",function(){
+        Guild.contextmenu.addbutton("Leave guild",function(){
             this.confirmleave();
         },null,function(_){return _.properties.owner_id!==_.member.user.id});
 
-        guild.contextmenu.addbutton("Delete guild",function(){
+        Guild.contextmenu.addbutton("Delete guild",function(){
             this.confirmDelete();
         },null,function(_){return _.properties.owner_id===_.member.user.id});
 
-        guild.contextmenu.addbutton("Create invite",function(){
+        Guild.contextmenu.addbutton("Create invite",function(){
             console.log(this);
         },null,_=>true,_=>false);
         /* -----things left for later-----
@@ -38,7 +60,7 @@ class guild{
         },null,_=>{return thisuser.isAdmin()})
         */
     }
-    constructor(JSON,owner){
+    constructor(JSON,owner:Localuser){
 
         if(JSON===-1){
             return;
@@ -57,12 +79,12 @@ class guild{
         this.prevchannel=undefined;
         this.message_notifications=0;
         for(const roley of JSON.roles){
-            const roleh=new role(roley);
+            const roleh=new Role(roley,this);
             this.roles.push(roleh)
             this.roleids[roleh.id]=roleh;
         }
         for(const thing of JSON.channels){
-            const temp=new channel(thing,this);
+            const temp=new Channel(thing,this);
             this.channels.push(temp);
             this.channelids[temp.id]=temp;
         }
@@ -78,7 +100,7 @@ class guild{
     }
     setnotifcation(){
     let noti=this.message_notifications
-    const notiselect=new fullscreen(
+    const notiselect=new Fullscreen(
     ["vdiv",
         ["radio","select notifications type",
             ["all","only mentions","none"],
@@ -88,7 +110,7 @@ class guild{
             noti
         ],
         ["button","","submit",_=>{
-            fetch(info.api.toString()+"/v9/users/@me/guilds/settings",{
+            fetch(this.info.api.toString()+"/v9/users/@me/guilds/settings",{
                 method:"PATCH",
                 headers:this.headers,
                 body:JSON.stringify({
@@ -105,7 +127,7 @@ class guild{
     notiselect.show();
     }
     confirmleave(){
-        const full= new fullscreen([
+        const full= new Fullscreen([
             "vdiv",
             ["title",
                 "Are you sure you want to leave?"
@@ -133,7 +155,7 @@ class guild{
         full.show();
     }
     async leave(){
-        return fetch(info.api.toString()+"/users/@me/guilds/"+this.id,{
+        return fetch(this.info.api.toString()+"/users/@me/guilds/"+this.id,{
             method:"DELETE",
             headers:this.headers
         })
@@ -152,7 +174,7 @@ class guild{
         let position=-1;
         let build=[];
         for(const thing of this.headchannels){
-            const thisthing={id:thing.id}
+            const thisthing={id:thing.id,position:undefined,parent_id:undefined}
             if(thing.position<=position){
                 thing.position=(thisthing.position=position+1);
             }
@@ -181,14 +203,14 @@ class guild{
         if(serverbug){
             for(const thing of build){
                 console.log(build,thing)
-                fetch(info.api.toString()+"/v9/guilds/"+this.id+"/channels",{
+                fetch(this.info.api.toString()+"/v9/guilds/"+this.id+"/channels",{
                     method:"PATCH",
                     headers:this.headers,
                     body:JSON.stringify([thing])
                 });
             }
         }else{
-            fetch(info.api.toString()+"/v9/guilds/"+this.id+"/channels",{
+            fetch(this.info.api.toString()+"/v9/guilds/"+this.id+"/channels",{
                 method:"PATCH",
                 headers:this.headers,
                 body:JSON.stringify(build)
@@ -199,9 +221,8 @@ class guild{
     get localuser(){
         return this.owner;
     }
-    loadChannel(id){
-        this.localuser.channelfocus=this.channelids[id];
-        this.channelids[id].getHTML();
+    get info(){
+        return this.owner.info;
     }
     sortchannels(){
         this.headchannels.sort((a,b)=>{return a.position-b.position;});
@@ -217,14 +238,14 @@ class guild{
         if(this.properties.icon!=null){
             const img=document.createElement("img");
             img.classList.add("pfp","servericon");
-            img.src=info.cdn.toString()+"icons/"+this.properties.id+"/"+this.properties.icon+".png";
+            img.src=this.info.cdn.toString()+"icons/"+this.properties.id+"/"+this.properties.icon+".png";
             divy.appendChild(img)
             img.onclick=()=>{
                 console.log(this.loadGuild)
                 this.loadGuild();
                 this.loadChannel();
             }
-            guild.contextmenu.bind(img,this);
+            Guild.contextmenu.bind(img,this);
         }else{
             const div=document.createElement("div");
             let build="";
@@ -238,13 +259,13 @@ class guild{
                 this.loadGuild();
                 this.loadChannel();
             }
-            guild.contextmenu.bind(div,this)
+            Guild.contextmenu.bind(div,this)
         }
         return divy;
     }
     confirmDelete(){
         let confirmname="";
-        const full= new fullscreen([
+        const full= new Fullscreen([
             "vdiv",
             ["title",
                 "Are you sure you want to delete "+this.properties.name+"?"
@@ -284,12 +305,12 @@ class guild{
         full.show();
     }
     async delete(){
-        return fetch(info.api.toString()+"/guilds/"+this.id+"/delete",{
+        return fetch(this.info.api.toString()+"/guilds/"+this.id+"/delete",{
             method:"POST",
             headers:this.headers,
         })
     }
-    unreads(html){
+    unreads(html=undefined){
         if(html){
             this.html=html;
         }else{
@@ -333,13 +354,13 @@ class guild{
             }
         }
         this.unreads();
-        fetch(info.api.toString()+"/v9/read-states/ack-bulk",{
+        fetch(this.info.api.toString()+"/v9/read-states/ack-bulk",{
             method:"POST",
             headers:this.headers,
             body:JSON.stringify(build)
         })
     }
-    fillMember(member){
+    fillMember(member:Member){
         const realroles=[];
         for(const thing of member.roles){
             realroles.push(this.getRole(thing));
@@ -347,20 +368,21 @@ class guild{
         member.roles=realroles;
         return member;
     }
-    giveMember(member){
+    giveMember(member:Member){
         this.fillMember(member);
         this.member=member;
     }
     getRole(ID){
         return this.roleids[ID];
     }
-    hasRole(r){
+    hasRole(r:Role|string){
+        console.log("this should run");
         if((typeof r)!==(typeof "")){
-            r=r.id;
+            r=(r as Role).id;
         }
-        return this.member.hasRole(r);
+        return this.member.hasRole(r as string);
     }
-    loadChannel(ID){
+    loadChannel(ID=undefined){
         if(ID&&this.channelids[ID]){
             this.channelids[ID].getHTML();
             return;
@@ -394,7 +416,7 @@ class guild{
         this.printServers();
     }
     createChannelpac(JSON){
-        const thischannel=new channel(JSON,this);
+        const thischannel=new Channel(JSON,this);
         this.channelids[JSON.id]=thischannel;
         this.channels.push(thischannel);
         thischannel.resolveparent(this);
@@ -404,26 +426,82 @@ class guild{
         this.calculateReorder();
         this.printServers();
     }
+    createchannels(func=this.createChannel){
+        let name="";
+        let category=0;
+        const channelselect=new Fullscreen(
+        ["vdiv",
+            ["radio","select channel type",
+                ["voice","text","announcement"],
+                function(e){
+                    console.log(e)
+                    category={"text":0,"voice":2,"announcement":5,"category":4}[e]
+                },
+                1
+            ],
+            ["textbox","Name of channel","",function(){
+                console.log(this)
+                name=this.value
+            }],
+            ["button","","submit",function(){
+                console.log(name,category)
+                func(name,category);
+                channelselect.hide();
+            }.bind(this)]
+        ]);
+        channelselect.show();
+    }
+    createcategory(){
+        let name="";
+        let category=4;
+        const channelselect=new Fullscreen(
+        ["vdiv",
+            ["textbox","Name of category","",function(){
+                console.log(this);
+                name=this.value;
+            }],
+            ["button","","submit",function(){
+                console.log(name,category)
+                this.createChannel(name,category);
+                channelselect.hide();
+            }]
+        ]);
+        channelselect.show();
+    }
     delChannel(JSON){
+        const channel=this.channelids[JSON.id];
         delete this.channelids[JSON.id];
+
+        this.channels.splice(this.channels.indexOf(channel),1);
+        const indexy=this.headchannels.indexOf(channel);
+        if(indexy!==-1){
+            this.headchannels.splice(indexy,1);
+        }
+
+        /*
         const build=[];
         for(const thing of this.channels){
-            if(thing.id!==JSON.id){
+            console.log(thing.id);
+            if(thing!==channel){
                 build.push(thing)
             }else{
+                console.log("fail");
                 if(thing.parrent){
                     thing.parrent.delChannel(JSON);
                 }
             }
         }
         this.channels=build;
+        */
+        this.printServers();
     }
-    createChannel(name,type){
-        fetch(info.api.toString()+"/guilds/"+this.id+"/channels",{
+    createChannel(name:string,type:number){
+        fetch(this.info.api.toString()+"/guilds/"+this.id+"/channels",{
             method:"Post",
             headers:this.headers,
             body:JSON.stringify({name: name, type: type})
         })
     }
 }
-guild.setupcontextmenu();
+Guild.setupcontextmenu();
+export { Guild };

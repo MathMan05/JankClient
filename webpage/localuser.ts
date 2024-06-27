@@ -1,18 +1,48 @@
-class localuser{
-    constructor(userinfo){
+import {Guild} from "./guild.js";
+import {Channel} from "./channel.js";
+import {Direct} from "./direct.js";
+import {Voice} from "./audio.js";
+import {User} from "./user.js";
+import {Member} from "./member.js";
+import {markdown} from "./markdown.js";
+import {Fullscreen} from "./fullscreen.js";
+import {setTheme, Specialuser} from "./login.js";
+class Localuser{
+    packets:number;
+    token:string;
+    userinfo:Specialuser;
+    serverurls;
+    initialized:boolean;
+    info;
+    headers:{"Content-type":string,Authorization:string};
+    usersettings:Fullscreen;
+    ready;
+    guilds:Guild[];
+    guildids:{ [key: string]: Guild };
+    user:User;
+    status:string;
+    channelfocus:Channel;
+    lookingguild:Guild;
+    guildhtml:Record<string, HTMLDivElement>;
+    ws:WebSocket;
+    typing:[string,number][];
+    wsinterval:NodeJS.Timeout;
+    constructor(userinfo:Specialuser){
+        this.packets=1;
         this.token=userinfo.token;
         this.userinfo=userinfo;
         this.serverurls=this.userinfo.serverurls;
         this.initialized=false;
+        this.info=this.serverurls;
         this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.userinfo.token};
     }
-    gottenReady(ready){
+    gottenReady(ready):void{
         this.usersettings=null;
         this.initialized=true;
         this.ready=ready;
         this.guilds=[];
         this.guildids={};
-        this.user=new user(ready.d.user);
+        this.user=new User(ready.d.user,this);
         this.userinfo.username=this.user.username;
         this.userinfo.pfpsrc=this.user.getpfpsrc();
         this.status=this.ready.d.user_settings.status;
@@ -20,12 +50,12 @@ class localuser{
         this.lookingguild=null;
         this.guildhtml={};
         for(const thing of ready.d.guilds){
-            const temp=new guild(thing,this);
+            const temp=new Guild(thing,this);
             this.guilds.push(temp);
             this.guildids[temp.id]=temp;
         }
         {
-            const temp=new direct(ready.d.private_channels,this);
+            const temp=new Direct(ready.d.private_channels,this);
             this.guilds.push(temp);
             this.guildids[temp.id]=temp;
         }
@@ -35,11 +65,11 @@ class localuser{
         }
         for(const thing of ready.d.merged_members){
             const guild=this.guildids[thing[0].guild_id]
-            const temp=new member(thing[0],guild);
+            const temp=new Member(thing[0],guild);
             guild.giveMember(temp);
         }
         for(const thing of ready.d.read_state.entries){
-            const guild=this.resolveGuildidFromChannelID(thing.id)
+            const guild=this.resolveChannelFromID(thing.id).guild;
             if(guild===undefined){
                 continue
             }
@@ -48,14 +78,14 @@ class localuser{
         }
         this.typing=[];
     }
-    outoffocus(){
+    outoffocus():void{
         document.getElementById("servers").textContent="";
         document.getElementById("channels").textContent="";
         document.getElementById("messages").textContent="";
         this.lookingguild=null;
         this.channelfocus=null;
     }
-    unload(){
+    unload():void{
         this.initialized=false;
         clearInterval(this.wsinterval);
         this.outoffocus();
@@ -63,7 +93,7 @@ class localuser{
         this.guildids={};
         this.ws.close(4000)
     }
-    async initwebsocket(){
+    async initwebsocket():Promise<void>{
         let returny=null
         const promise=new Promise((res)=>{returny=res});
         this.ws = new WebSocket(this.serverurls.gateway.toString());
@@ -106,22 +136,25 @@ class localuser{
                         break;
                     case "READY":
                         this.gottenReady(temp);
-                        READY=temp;
                         this.genusersettings();
                         returny();
                         break;
                     case "MESSAGE_UPDATE":
                         if(this.initialized){
-                            if(window.location.pathname.split("/")[3]==temp.d.channel_id){
+                            if(this.channelfocus.id===temp.d.channel_id){
                                 const find=temp.d.id;
+                                const messagelist=document.getElementById("messages").children;
                                 for(const message of messagelist){
-                                    if(message.all.id===find){
-                                        message.all.content=temp.d.content;
-                                        message.txt.innerHTML=markdown(temp.d.content).innerHTML;
+                                    const all = message["all"];
+                                    if(all.id===find){
+                                        all.content=temp.d.content;
+                                        message["txt"].innerHTML=markdown(temp.d.content).innerHTML;
                                         break;
                                     }
                                 }
-                        }
+                            }else{
+                                this.resolveChannelFromID(temp.d.channel_id).messages.find(e=>e.id===temp.d.channel_id).content=temp.d.content;
+                            }
                         }
                         break;
                     case "TYPING_START":
@@ -131,7 +164,7 @@ class localuser{
                         break;
                     case "USER_UPDATE":
                         if(this.initialized){
-                            const users=user.userids[temp.d.id];
+                            const users=User.userids[temp.d.id];
                             console.log(users,temp.d.id)
                             if(users){
                                 users.userupdate(temp.d);
@@ -163,7 +196,7 @@ class localuser{
                     }
                     case "GUILD_CREATE":
                     {
-                        const guildy=new guild(temp.d,this);
+                        const guildy=new Guild(temp.d,this);
                         this.guilds.push(guildy);
                         this.guildids[guildy.id]=guildy;
                         document.getElementById("servers").insertBefore(guildy.generateGuildIcon(),document.getElementById("bottomseperator"));
@@ -173,11 +206,11 @@ class localuser{
             }else if(temp.op===10){
                 console.log("heartbeat down")
                 this.wsinterval=setInterval(_=>{
-                    this.ws.send(JSON.stringify({op:1,d:packets}))
+                    this.ws.send(JSON.stringify({op:1,d:this.packets}))
                 },temp.d.heartbeat_interval)
-                packets=1;
+                this.packets=1;
             }else if(temp.op!=11){
-                packets++
+                this.packets++
             }
         }catch(error){
             console.error(error)
@@ -189,13 +222,13 @@ class localuser{
             clearInterval(this.wsinterval);
             console.log('WebSocket closed');
             console.warn(event);
-            if(event.code!==4000&&thisuser===this){
+            if(event.code!==4000&&this===this){
                 this.unload();
                 document.getElementById("loading").classList.remove("doneloading");
                 document.getElementById("loading").classList.add("loading");
                 this.initwebsocket().then(_=>{
-                    thisuser.loaduser();
-                    thisuser.init();
+                    this.loaduser();
+                    this.init();
                     document.getElementById("loading").classList.add("doneloading");
                     document.getElementById("loading").classList.remove("loading");
                     console.log("done loading")
@@ -205,32 +238,34 @@ class localuser{
         await promise;
         return;
     }
-    resolveGuildidFromChannelID(ID){
-        let resolve=this.guilds.find(guild => guild.channelids[ID])
+    resolveChannelFromID(ID:string):Channel{
+        console.log(this.guilds.find(guild => guild.channelids[ID]).channelids)
+        let resolve=this.guilds.find(guild => guild.channelids[ID]).channelids[ID];
         resolve??=undefined;
         return resolve;
     }
-    updateChannel(JSON){
+    updateChannel(JSON):void{
         this.guildids[JSON.guild_id].updateChannel(JSON);
         if(JSON.guild_id===this.lookingguild.id){
             this.loadGuild(JSON.guild_id);
         }
     }
-    createChannel(JSON){
+    createChannel(JSON):void{
         JSON.guild_id??="@me";
         this.guildids[JSON.guild_id].createChannelpac(JSON);
         if(JSON.guild_id===this.lookingguild.id){
             this.loadGuild(JSON.guild_id);
         }
     }
-    delChannel(JSON){
+    delChannel(JSON):void{
         JSON.guild_id??="@me";
         this.guildids[JSON.guild_id].delChannel(JSON);
+
         if(JSON.guild_id===this.lookingguild.id){
             this.loadGuild(JSON.guild_id);
         }
     }
-    init(){
+    init():void{
         const location=window.location.href.split("/");
         if(location[3]==="channels"){
             const guild=this.loadGuild(location[4]);
@@ -239,15 +274,15 @@ class localuser{
         }
         this.buildservers();
     }
-    loaduser(){
-        document.getElementById("username").textContent=this.user.username
-        document.getElementById("userpfp").src=this.user.getpfpsrc()
+    loaduser():void{
+        document.getElementById("username").textContent=this.user.username;
+        (document.getElementById("userpfp") as HTMLImageElement).src=this.user.getpfpsrc();
         document.getElementById("status").textContent=this.status;
     }
-    isAdmin(){
+    isAdmin():boolean{
         return this.lookingguild.isAdmin();
     }
-    loadGuild(id){
+    loadGuild(id:string):Guild{
         let guild=this.guildids[id];
         if(!guild){
             guild=this.guildids["@me"];
@@ -259,17 +294,17 @@ class localuser{
         document.getElementById("channels").appendChild(guild.getHTML());
         return guild;
     }
-    buildservers(){
+    buildservers():void{
         const serverlist=document.getElementById("servers");//
 
         const div=document.createElement("div");
         div.textContent="⌂";
         div.classList.add("home","servericon")
-        div.all=this.guildids["@me"];
+        div["all"]=this.guildids["@me"];
         serverlist.appendChild(div)
         div.onclick=function(){
-            this.all.loadGuild();
-            this.all.loadChannel();
+            this["all"].loadGuild();
+            this["all"].loadChannel();
         }
         const sentdms=document.createElement("div");
         sentdms.classList.add("sentdms");
@@ -280,8 +315,8 @@ class localuser{
         br.classList.add("lightbr");
         serverlist.appendChild(br)
         for(const thing of this.guilds){
-            if(thing instanceof direct){
-                thing.unreaddms();
+            if(thing instanceof Direct){
+                (thing as Direct).unreaddms();
                 continue;
             }
             const divy=thing.generateGuildIcon();
@@ -309,7 +344,7 @@ class localuser{
         let inviteurl="";
         const error=document.createElement("span");
 
-        const full=new fullscreen(["tabs",[
+        const full=new Fullscreen(["tabs",[
             ["Join using invite",[
                 "vdiv",
                     ["textbox",
@@ -332,7 +367,7 @@ class localuser{
                             }else{
                                 parsed=inviteurl;
                             }
-                            fetch(info.api.toString()+"/v9/invites/"+parsed,{
+                            fetch(this.info.api.toString()+"/v9/invites/"+parsed,{
                                 method:"POST",
                                 headers:this.headers,
                             }).then(r=>r.json()).then(_=>{
@@ -351,19 +386,19 @@ class localuser{
         ]])
         full.show();
     }
-    messageCreate(messagep){
+    messageCreate(messagep):void{
         messagep.d.guild_id??="@me";
-        this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep,this.channelfocus.id===messagep.d.channel_id);
+        this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep);
         this.unreads();
     }
-    unreads(){
+    unreads():void{
         console.log(this.guildhtml)
         for(const thing of this.guilds){
             if(thing.id==="@me"){continue;}
             thing.unreads(this.guildhtml[thing.id]);
         }
     }
-    typeingStart(typing){
+    typeingStart(typing):void{
         if(this.channelfocus.id===typing.d.channel_id){
             const memb=typing.d.member;
             let name;
@@ -392,12 +427,12 @@ class localuser{
             this.rendertyping();
         }
     }
-    updatepfp(file){
+    updatepfp(file:Blob):void{
         var reader = new FileReader();
         reader.readAsDataURL(file);
         console.log(this.headers);
         reader.onload = ()=>{
-            fetch(info.api.toString()+"/v9/users/@me",{
+            fetch(this.info.api.toString()+"/v9/users/@me",{
                 method:"PATCH",
                 headers:this.headers,
                 body:JSON.stringify({
@@ -408,8 +443,8 @@ class localuser{
         };
 
     }
-    updatepronouns(pronouns){
-        fetch(info.api.toString()+"/v9/users/@me/profile",{
+    updatepronouns(pronouns:string):void{
+        fetch(this.info.api.toString()+"/v9/users/@me/profile",{
             method:"PATCH",
             headers:this.headers,
             body:JSON.stringify({
@@ -417,8 +452,8 @@ class localuser{
             })
         });
     }
-    updatebio(bio){
-        fetch(info.api.toString()+"/v9/users/@me/profile",{
+    updatebio(bio:string):void{
+        fetch(this.info.api.toString()+"/v9/users/@me/profile",{
             method:"PATCH",
             headers:this.headers,
             body:JSON.stringify({
@@ -426,7 +461,7 @@ class localuser{
             })
         });
     }
-    rendertyping(){
+    rendertyping():void{
         const typingtext=document.getElementById("typing")
         let build="";
         const array2=[];
@@ -456,20 +491,20 @@ class localuser{
             typingtext.classList.add("hidden");
         }
     }
-    genusersettings(){
+    genusersettings():void{
         const hypothetcialprofie=document.createElement("div");
         let file=null;
         let newprouns=null;
         let newbio=null;
-        let hypouser=new user(thisuser.user,true);
+        let hypouser=new User(this.user,this,true);
         function regen(){
             hypothetcialprofie.textContent="";
-            const hypoprofile=buildprofile(-1,-1,hypouser);
+            const hypoprofile=hypouser.buildprofile(-1,-1);
 
             hypothetcialprofie.appendChild(hypoprofile)
         }
         regen();
-        this.usersettings=new fullscreen(
+        this.usersettings=new Fullscreen(
         ["hdiv",
             ["vdiv",
                 ["fileupload","upload pfp:",function(e){
@@ -480,13 +515,13 @@ class localuser{
                     hypouser.hypotheticalpfp=true;
                     regen();
                 }],
-                ["textbox","Pronouns:",thisuser.user.pronouns,function(e){
+                ["textbox","Pronouns:",this.user.pronouns,function(e){
                     console.log(this.value);
                     hypouser.pronouns=this.value;
                     newprouns=this.value;
                     regen();
                 }],
-                ["mdbox","Bio:",thisuser.user.bio,function(e){
+                ["mdbox","Bio:",this.user.bio,function(e){
                     console.log(this.value);
                     hypouser.bio=this.value;
                     newbio=this.value;
@@ -494,33 +529,35 @@ class localuser{
                 }],
                 ["button","update user content:","submit",function(){
                     if(file!==null){
-                        thisuser.updatepfp(file);
+                        this.updatepfp(file);
                     }
                     if(newprouns!==null){
-                        thisuser.updatepronouns(newprouns);
+                        this.updatepronouns(newprouns);
                     }
                     if(newbio!==null){
-                        thisuser.updatebio(newbio);
+                        this.updatebio(newbio);
                     }
                 }],
                 ["select","Theme:",["Dark","Light","WHITE"],e=>{
                     localStorage.setItem("theme",["Dark","Light","WHITE"][e.target.selectedIndex]);
                     setTheme();
                 },["Dark","Light","WHITE"].indexOf(localStorage.getItem("theme"))],
-                ["select","Notification sound:",voice.sounds,e=>{
-                    voice.setNotificationSound(voice.sounds[e.target.selectedIndex]);
-                    voice.noises(voice.sounds[e.target.selectedIndex]);
-                },voice.sounds.indexOf(voice.getNotificationSound())]
+                ["select","Notification sound:",Voice.sounds,e=>{
+                    Voice.setNotificationSound(Voice.sounds[e.target.selectedIndex]);
+                    Voice.noises(Voice.sounds[e.target.selectedIndex]);
+                },Voice.sounds.indexOf(Voice.getNotificationSound())]
             ],
             ["vdiv",
                 ["html",hypothetcialprofie]
             ]
         ],_=>{},function(){
-            hypouser=new user(thisuser.user);
+            console.log(this);
+            hypouser=new User(this.user,this);
             regen();
             file=null;
             newprouns=null;
             newbio=null;
-        })
+        }.bind(this))
     }
 }
+export {Localuser};

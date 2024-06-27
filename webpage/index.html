@@ -10,21 +10,28 @@
     </head>
 
     <body class="Dark-theme">
-    <script src="/login.js"></script>
-    <script src="/contextmenu.js"></script>
-    <script src="/member.js"></script>
-    <script src="/user.js"></script>
-    <script src="/embed.js"></script>
-    <script src="/message.js"></script>
-    <script src="/channel.js"></script>
-    <script src="/permissions.js"></script>
-    <script src="/role.js"></script>
-    <script src="/guild.js"></script>
-    <script src="/direct.js"></script>
-    <script src="/localuser.js"></script>
-    <script src="/markdown.js"></script>
-    <script src="/fullscreen.js"></script>
-    <script src="/audio.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "localuser": "/localuser.js",
+                "guild": "/guild.js",
+                "direct": "/direct.js",
+                "channel":"/channel.js",
+                "message":"/message.js",
+                "audio":"/audio.js",
+                "user":"/user.js",
+                "member":"/member.js",
+                "markdown":"/markdown.js",
+                "embed":"/embed.js",
+                "contextmenu":"/contextmenu.js",
+                "role":"/role.js",
+                "permissions":"/permissions.js",
+                "fullscreen":"/fullscreen.js",
+                "login":"/login.js"
+            }
+        }
+    </script>
+    <script src="/index.js" type="module"></script>
 
     <div id="loading" class="loading"><div id="centerdiv"><img src="/bitmap.svg" width="1in" height="1in"><h1>Jank Client is loading</h1><h2>This shouldn't take long</h2></div></div>
     <table id="page" cellspacing="0" cellpadding="0">
@@ -58,7 +65,7 @@
                         </td>
                         </tr></table></td>
                         <td>
-                            <h2 id="settings" onclick="userSettings()">⚙</h2>
+                            <h2 id="settings">⚙</h2>
                         </td>
                     </tr>
                 </table>
@@ -86,6 +93,5 @@
             </td>
         </tr>
     </table>
-    <script src="/index.js"></script>
 </body>
 </html>
