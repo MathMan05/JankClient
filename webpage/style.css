@@ -535,14 +535,17 @@ textarea {
 	cursor: pointer;
 }
 
-#servername {
+#channelname, #servername {
 	margin-top: .1in;
 	margin-bottom: .1in;
 	padding-left: 5px;
 	text-overflow: ellipsis;
 	overflow-x: hidden;
 	white-space: nowrap;
-	max-width: 220px;
+}
+
+#serverName {
+	margin-left: 5px;
 }
 
 .servertd {
