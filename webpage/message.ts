@@ -1,34 +1,56 @@
-class cmessage{
-    static contextmenu=new contextmenu("message menu");
+import {Contextmenu} from "./contextmenu.js";
+import {User} from "./user.js";
+import {Member} from "./member.js";
+import {markdown} from "./markdown.js";
+import {Embed} from "./embed.js";
+import {Fullscreen} from "./fullscreen.js";
+import { Channel } from "./channel.js";
+import {Localuser} from "./localuser.js";
+import { Role } from "./role.js";
+
+class Message{
+    static contextmenu=new Contextmenu("message menu");
+    owner:Channel;
+    headers:Localuser["headers"];
+    embeds:Embed[];
+    author:User;
+    mentions:User[];
+    mention_roles:Role[];
+    attachments;
+    id:string;
+    message_reference;
+    type:number;
+    timestamp:number;
+    content;
     static setupcmenu(){
-        cmessage.contextmenu.addbutton("Copy raw text",function(){
+        Message.contextmenu.addbutton("Copy raw text",function(){
             navigator.clipboard.writeText(this.content);
         });
-        cmessage.contextmenu.addbutton("Reply",function(div){
-            if(replyingto){
-                replyingto.classList.remove("replying");
+        Message.contextmenu.addbutton("Reply",function(div){
+            if(this.channel.replyingto){
+                this.channel.replyingto.classList.remove("replying");
             }
-            replyingto=div;
+            this.channel.replyingto=div;
             console.log(div);
-            replyingto.classList.add("replying");
+            this.channel.replyingto.classList.add("replying");
         });
-        cmessage.contextmenu.addbutton("Copy message id",function(){
+        Message.contextmenu.addbutton("Copy message id",function(){
             navigator.clipboard.writeText(this.id);
         });
-        cmessage.contextmenu.addbutton("Copy user id",function(){
+        Message.contextmenu.addbutton("Copy user id",function(){
             navigator.clipboard.writeText(this.author.id);
         });
-        cmessage.contextmenu.addbutton("Message user",function(){
-            fetch(info.api.toString()+"/v9/users/@me/channels",
+        Message.contextmenu.addbutton("Message user",function(){
+            fetch(this.info.api.toString()+"/v9/users/@me/channels",
                 {method:"POST",
                     body:JSON.stringify({"recipients":[this.author.id]}),
-                    headers: {"Content-type": "application/json; charset=UTF-8",Authorization:token}
+                    headers: this.headers
                 });
         })
-        cmessage.contextmenu.addbutton("Edit",function(){
-            editing=this;
-            document.getElementById("typebox").value=this.content;
-        },null,_=>{return _.author.id==READY.d.user.id});
+        Message.contextmenu.addbutton("Edit",function(){
+            this.channel.editing=this;
+            (document.getElementById("typebox") as HTMLInputElement).value=this.content;
+        },null,_=>{return _.author.id===_.localuser.user.id});
     }
     constructor(messagejson,owner){
         this.owner=owner;
@@ -38,11 +60,11 @@ class cmessage{
         }
         for(const thing in this.embeds){
             console.log(thing,this.embeds)
-            this.embeds[thing]=new embed(this.embeds[thing],this);
+            this.embeds[thing]=new Embed(this.embeds[thing],this);
         }
-        this.author=new user(this.author);
+        this.author=new User(this.author,this.localuser);
         for(const thing in this.mentions){
-            this.mentions[thing]=new user(this.mentions[thing]);
+            this.mentions[thing]=new User(this.mentions[thing],this.localuser);
         }
         if(this.mentions.length||this.mention_roles.length){//currently mention_roles isn't implemented on the spacebar servers
             console.log(this.mentions,this.mention_roles)
@@ -60,14 +82,17 @@ class cmessage{
     get localuser(){
         return this.owner.localuser;
     }
+    get info(){
+        return this.owner.info;
+    }
     messageevents(obj){
-        cmessage.contextmenu.bind(obj,this)
+        Message.contextmenu.bind(obj,this)
         obj.classList.add("messagediv")
     }
     mentionsuser(userd){
-        if(userd instanceof user){
+        if(userd instanceof User){
             return this.mentions.includes(userd);
-        }else if(userd instanceof member){
+        }else if(userd instanceof Member){
             return this.mentions.includes(userd.user);
         }
     }
@@ -81,7 +106,7 @@ class cmessage{
         return build;
     }
     async edit(content){
-        return await fetch(info.api.toString()+"/channels/"+this.channel.id+"/messages/"+this.id,{
+        return await fetch(this.info.api.toString()+"/channels/"+this.channel.id+"/messages/"+this.id,{
             method: "PATCH",
             headers: this.headers,
             body:JSON.stringify({content:content})
@@ -104,7 +129,7 @@ class cmessage{
             const reply=document.createElement("div");
             username.classList.add("username");
 
-            member.resolve(this.author,this.guild).then(_=>{
+            Member.resolve(this.author,this.guild).then(_=>{
                 username.style.color=_.getColor();
             });
 
@@ -115,21 +140,20 @@ class cmessage{
             line2.classList.add("reply");
             line.classList.add("startreply");
             replyline.classList.add("replyflex")
-            fetch(info.api.toString()+"/v9/channels/"+this.message_reference.channel_id+"/messages?limit=1&around="+this.message_reference.message_id,{headers:this.headers}).then(responce=>responce.json()).then(responce=>{
-                const author=new user(responce[0].author);
+            fetch(this.info.api.toString()+"/v9/channels/"+this.message_reference.channel_id+"/messages?limit=1&around="+this.message_reference.message_id,{headers:this.headers}).then(responce=>responce.json()).then(responce=>{
+                const author=new User(responce[0].author,this.localuser);
 
                 reply.appendChild(markdown(responce[0].content));
 
                 minipfp.src=author.getpfpsrc()
-                profileclick(minipfp,author)
+                author.profileclick(minipfp)
                 username.textContent=author.username;
-                profileclick(username,author)
+                author.profileclick(username)
             });
             div.appendChild(replyline);
         }
 
         this.messageevents(div);
-        messagelist.push(div)
         build.classList.add("message");
         div.appendChild(build);
         if({0:true,19:true}[this.type]||this.attachments.length!==0){
@@ -145,13 +169,13 @@ class cmessage{
                 const newt=(new Date(this.timestamp).getTime())/1000;
                 current=(newt-old)>600;
             }
-            const combine=(premessage?.userid!=this.author.id&premessage?.author?.id!=this.author.id)||(current)||this.message_reference
+            const combine=(premessage?.userid!=this.author.id&&premessage?.author?.id!=this.author.id)||(current)||this.message_reference
             if(combine){
                 const pfp=this.author.buildpfp();
-                profileclick(pfp,this.author);
+                this.author.profileclick(pfp);
                 pfpRow.appendChild(pfp);
             }else{
-                div.pfpparent=pfpparent;
+                div["pfpparent"]=pfpparent;
             }
             pfpRow.classList.add("pfprow")
             build.appendChild(pfpRow);
@@ -163,8 +187,9 @@ class cmessage{
             if(combine){
                 const username=document.createElement("span");
                 username.classList.add("username")
-                profileclick(username,this.author);
-                    member.resolve(this.author,this.guild).then(_=>{
+                this.author.profileclick(username);
+                    Member.resolve(this.author,this.guild).then(_=>{
+                    if(!_){return}
                     username.style.color=_.getColor();
                 })
                 username.textContent=this.author.username;
@@ -184,28 +209,29 @@ class cmessage{
                 texttxt.appendChild(userwrap)
             }
             const messaged=markdown(this.content);
-            div.txt=messaged;
+            div["txt"]=messaged;
             const messagedwrap=document.createElement("tr")
             messagedwrap.appendChild(messaged)
             texttxt.appendChild(messagedwrap)
 
             build.appendChild(text)
             if(this.attachments.length){
+                console.log(this.attachments)
                 const attatch = document.createElement("tr")
                 for(const thing of this.attachments){
                     const array=thing.url.split("/");array.shift();array.shift();array.shift();
-                    const src=info.cdn.toString()+array.join("/");
+                    const src=this.info.cdn.toString()+array.join("/");
                     if(thing.content_type.startsWith('image/')){
                         const img=document.createElement("img");
                         img.classList.add("messageimg")
                         img.onclick=function(){
-                            const full=new fullscreen(["img",img.src,["fit"]]);
+                            const full=new Fullscreen(["img",img.src,["fit"]]);
                             full.show();
                         }
                         img.src=src;
                         attatch.appendChild(img)
                     }else{
-                        attatch.appendChild(createunknown(thing.filename,thing.size,src))
+                        attatch.appendChild(this.createunknown(thing.filename,thing.size,src))
                     }
 
                 }
@@ -228,7 +254,7 @@ class cmessage{
             build.appendChild(text)
 
             const messaged=document.createElement("p");
-            div.txt=messaged;
+            div["txt"]=messaged;
             messaged.textContent="welcome: "+this.author.username;
             const messagedwrap=document.createElement("tr")
             messagedwrap.appendChild(messaged);
@@ -240,9 +266,43 @@ class cmessage{
 
             texttxt.appendChild(messagedwrap)
         }
-        div.userid=this.author.id;
-        div.all=this;
+        div["userid"]=this.author.id;
+        div["all"]=this;
         return(div)
+    }
+    createunknown(fname,fsize,src){
+        const div=document.createElement("table");
+        div.classList.add("unknownfile");
+        const nametr=document.createElement("tr");
+        div.append(nametr);
+        const fileicon=document.createElement("td");
+        nametr.append(fileicon);
+        fileicon.append("🗎");
+        fileicon.classList.add("fileicon");
+        fileicon.rowSpan=2;
+        const nametd=document.createElement("td");
+        if(src){
+            const a=document.createElement("a");
+            a.href=src;
+            a.textContent=fname;
+            nametd.append(a);
+        }else{
+            nametd.textContent=fname;
+        }
+
+        nametd.classList.add("filename");
+        nametr.append(nametd);
+        const sizetr=document.createElement("tr");
+        const size=document.createElement("td");
+        sizetr.append(size);
+        size.textContent="Size:"+this.filesizehuman(fsize);
+        size.classList.add("filesize");
+        div.appendChild(sizetr)
+        return div;
+    }
+    filesizehuman(fsize){
+        var i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024));
+        return +((fsize / Math.pow(1024, i)).toFixed(2)) * 1 + ' ' + ['Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'Terabytes'][i];
     }
 }
 
@@ -268,4 +328,5 @@ function formatTime(date) {
         return `${date.toLocaleDateString()} at ${formatTime(date)}`;
     }
 }
-cmessage.setupcmenu();
+Message.setupcmenu();
+export { Message };

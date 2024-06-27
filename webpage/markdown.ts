@@ -1,7 +1,10 @@
-"use strict";
-function markdown(txt,keep=false){
-    if((typeof txt)===(typeof "")){
-        return markdown(txt.split(""),keep);
+export {markdown};
+function markdown(text : string|string[],keep=false){
+    let txt : string[];
+    if((typeof txt)==="string"){
+        txt=(text as string).split("");
+    }else{
+        txt=(text as string[]);
     }
     const span=document.createElement("span");
     let current=document.createElement("span");
@@ -19,7 +22,7 @@ function markdown(txt,keep=false){
                 i--;
             }
             let element=null;
-            let keepys=false;
+            let keepys="";
 
             if(txt[i+1]==="#"){
                 console.log("test");
@@ -151,7 +154,7 @@ function markdown(txt,keep=false){
                 if(txt[j]==="*"){
                     find++;
                 }else{
-                    build+=txt[j];
+                    build.push(txt[j]);
                     if(find!==0){
                         build=build.concat(new Array(find).fill("*"));
                         find=0;
@@ -205,7 +208,7 @@ function markdown(txt,keep=false){
                 if(txt[j]==="_"){
                     find++;
                 }else{
-                    build+=txt[j];
+                    build.push(txt[j]);
                     if(find!==0){
                         build=build.concat(new Array(find).fill("_"));
                         find=0;
@@ -251,7 +254,7 @@ function markdown(txt,keep=false){
                 if(txt[j]==="~"){
                     find++;
                 }else{
-                    build+=txt[j];
+                    build.push(txt[j]);
                     if(find!==0){
                         build=build.concat(new Array(find).fill("~"));
                         find=0;
@@ -281,7 +284,7 @@ function markdown(txt,keep=false){
                 if(txt[j]==="|"){
                     find++;
                 }else{
-                    build+=txt[j];
+                    build.push(txt[j]);
                     if(find!==0){
                         build=build.concat(new Array(find).fill("~"));
                         find=0;
@@ -309,8 +312,9 @@ function markdown(txt,keep=false){
     appendcurrent();
     return span;
 }
-markdown.unspoil=function(e){
+markdown.unspoil=function(e:any) : void{
     //console.log("undone")
     e.target.classList.remove("spoiler")
     e.target.classList.add("unspoiled")
 }
+

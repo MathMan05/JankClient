@@ -1,4 +1,10 @@
-class fullscreen{
+export {Fullscreen};
+class Fullscreen{
+    layout;
+    onclose: Function;
+    onopen: Function;
+    html:HTMLDivElement;
+    background: HTMLDivElement;
     constructor(layout,onclose=_=>{},onopen=_=>{}){
         this.layout=layout;
         this.onclose=onclose;
@@ -134,8 +140,9 @@ class fullscreen{
                         if(i===0){
                             continue;
                         }
-                        if(thing.children[0].children[0].checked){
-                            array[3](thing.children[0].children[0].value);
+                        const checkbox = thing.children[0].children[0] as HTMLInputElement;
+                        if(checkbox.checked){
+                            array[3](checkbox.value);
                         }
                     }
                 });

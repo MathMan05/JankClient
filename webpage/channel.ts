@@ -1,31 +1,69 @@
 "use strict"
-class channel{
-    static contextmenu=new contextmenu("channel menu");
+import { Message } from "./message.js";
+import {Voice} from "./audio.js";
+import {Contextmenu} from "./contextmenu.js";
+import {Fullscreen} from "./fullscreen.js";
+import {markdown} from "./markdown.js";
+import {Guild} from "./guild.js";
+import { Localuser } from "./localuser.js";
+import { Permissions } from "./permissions.js";
+declare global {
+    interface NotificationOptions {
+        image?: string
+    }
+}
+class Channel{
+    editing:Message;
+    type:number;
+    owner:Guild;
+    headers:Localuser["headers"];
+    messages:Message[];
+    name:string;
+    id:string;
+    parent_id:string;
+    parrent:Channel;
+    children:Channel[];
+    guild_id:string;
+    messageids:{[key : string]:Message};
+    permission_overwrites:{[key:string]:Permissions};
+    topic:string;
+    nsfw:boolean;
+    position:number;
+    lastreadmessageid:string;
+    lastmessageid:string;
+    mentions:number;
+    lastpin:string;
+    move_id:string;
+    typing:number;
+    message_notifications:number;
+    allthewayup:boolean;
+    static contextmenu=new Contextmenu("channel menu");
     static setupcontextmenu(){
-        channel.contextmenu.addbutton("Copy channel id",function(){
+        Channel.contextmenu.addbutton("Copy channel id",function(){
             console.log(this)
             navigator.clipboard.writeText(this.id);
         });
 
-        channel.contextmenu.addbutton("Mark as read",function(){
+        Channel.contextmenu.addbutton("Mark as read",function(){
             console.log(this)
             this.readbottom();
         });
 
-        channel.contextmenu.addbutton("Delete channel",function(){
+        Channel.contextmenu.addbutton("Delete channel",function(){
             console.log(this)
             this.deleteChannel();
         },null,_=>{console.log(_);return _.isAdmin()});
 
-        channel.contextmenu.addbutton("Edit channel",function(){
-            editchannelf(this);
+        Channel.contextmenu.addbutton("Edit channel",function(){
+            this.editChannel(this);
         },null,_=>{return _.isAdmin()});
     }
-    constructor(JSON,owner){
+    constructor(JSON,owner:Guild){
 
         if(JSON===-1){
             return;
         }
+        this.editing;
         this.type=JSON.type;
         this.owner=owner;
         this.headers=this.owner.headers;
@@ -37,7 +75,11 @@ class channel{
         this.children=[];
         this.guild_id=JSON.guild_id;
         this.messageids={};
-        this.permission_overwrites=JSON.permission_overwrites;
+        this.permission_overwrites={};
+        for(const thing of JSON.permission_overwrites){
+            this.permission_overwrites[thing.id]=new Permissions(thing.allow,thing.deny);
+        }
+        console.log(this.permission_overwrites)
         this.topic=JSON.topic;
         this.nsfw=JSON.nsfw;
         this.position=JSON.position;
@@ -53,6 +95,9 @@ class channel{
     get localuser(){
         return this.guild.localuser;
     }
+    get info(){
+        return this.owner.info;
+    }
     readStateInfo(json){
         this.lastreadmessageid=json.last_message_id;
         this.mentions=json.mention_count;
@@ -63,8 +108,13 @@ class channel{
         return this.lastmessageid!==this.lastreadmessageid&&this.type!==4;
     }
     get canMessage(){
-        for(const thing of this.permission_overwrites){
-            if(this.guild.hasRole(thing.id)&&thing.deny&(1<<11)){
+        console.log("this should run");
+        for(const thing of Object.entries(this.permission_overwrites)){
+            const perm=thing[1].getPermision("SEND_MESSAGES");
+            if(perm===1){
+                return true
+            }
+            if(perm===-1){
                 return false;
             }
         }
@@ -73,7 +123,7 @@ class channel{
     sortchildren(){
        this.children.sort((a,b)=>{return a.position-b.position});
     }
-    resolveparent(guild){
+    resolveparent(guild:Guild){
         this.parrent=guild.channelids[this.parent_id];
         this.parrent??=null;
         if(this.parrent!==null){
@@ -85,7 +135,7 @@ class channel{
         let position=-1;
         let build=[];
         for(const thing of this.children){
-            const thisthing={id:thing.id}
+            const thisthing={id:thing.id,position:undefined,parent_id:undefined};
             if(thing.position<position){
                 thing.position=thisthing.position=position+1;
             }
@@ -105,10 +155,10 @@ class channel{
     static dragged=[];
     createguildHTML(admin=false){
         const div=document.createElement("div");
-        div.all=this;
+        div["all"]=this;
         div.draggable=admin;
-        div.addEventListener("dragstart",(e)=>{channel.dragged=[this,div];e.stopImmediatePropagation()})
-        div.addEventListener("dragend",()=>{channel.dragged=[]})
+        div.addEventListener("dragstart",(e)=>{Channel.dragged=[this,div];e.stopImmediatePropagation()})
+        div.addEventListener("dragend",()=>{Channel.dragged=[]})
         if(this.type===4){
             this.sortchildren();
             const caps=document.createElement("div");
@@ -129,17 +179,17 @@ class channel{
                 addchannel.classList.add("addchannel");
                 caps.appendChild(addchannel);
                 addchannel.onclick=function(){
-                    createchannels(this.createChannel.bind(this));
+                    this.guild.createchannels(this.createChannel.bind(this));
                 }.bind(this);
-                this.coatDropDiv(decdiv,this,childrendiv);
+                this.coatDropDiv(decdiv,childrendiv);
             }
             div.appendChild(caps)
             caps.classList.add("capsflex")
             decdiv.classList.add("channeleffects");
             decdiv.classList.add("channel");
 
-            channel.contextmenu.bind(decdiv,this);
-            decdiv.all=this;
+            Channel.contextmenu.bind(decdiv,this);
+            decdiv["all"]=this;
 
 
             for(const channel of this.children){
@@ -164,9 +214,9 @@ class channel{
             if(this.hasunreads){
                 div.classList.add("cunread");
             }
-            channel.contextmenu.bind(div,this);
-            if(admin){this.coatDropDiv(div,this);}
-            div.all=this;
+            Channel.contextmenu.bind(div,this);
+            if(admin){this.coatDropDiv(div);}
+            div["all"]=this;
             const myhtml=document.createElement("span");
             myhtml.textContent=this.name;
             if(this.type===0){
@@ -188,9 +238,8 @@ class channel{
                 console.log(this.type)
             }
             div.appendChild(myhtml);
-            div.myinfo=this;
-            div.onclick=function(){
-                this.myinfo.getHTML();
+            div.onclick=_=>{
+                this.getHTML();
             }
         }
         return div;
@@ -201,9 +250,9 @@ class channel{
             return null
         }else if(this.parrent){
             for(const thing of search){
-                if(thing.all===this.parrent){
+                if(thing["all"]===this.parrent){
                     for(const thing2 of thing.children[1].children){
-                        if(thing2.all===this){
+                        if(thing2["all"]===this){
                             return thing2;
                         }
                     }
@@ -211,7 +260,7 @@ class channel{
             }
         }else{
             for(const thing of search){
-                if(thing.all===this){
+                if(thing["all"]===this){
                     return thing;
                 }
             }
@@ -222,7 +271,7 @@ class channel{
         if(!this.hasunreads){
             return;
         }
-        fetch(info.api.toString()+"/v9/channels/"+this.id+"/messages/"+this.lastmessageid+"/ack",{
+        fetch(this.info.api.toString()+"/v9/channels/"+this.id+"/messages/"+this.lastmessageid+"/ack",{
             method:"POST",
             headers:this.headers,
             body:JSON.stringify({})
@@ -233,7 +282,7 @@ class channel{
             this.myhtml.classList.remove("cunread");
         }
     }
-    coatDropDiv(div,that,container=false){
+    coatDropDiv(div:HTMLDivElement,container:HTMLElement|boolean=false){
         div.addEventListener("dragenter", (event) => {
             console.log("enter")
             event.preventDefault();
@@ -244,7 +293,7 @@ class channel{
         });
 
         div.addEventListener("drop", (event) => {
-            const that=channel.dragged[0];
+            const that=Channel.dragged[0];
             event.preventDefault();
             if(container){
                 that.move_id=this.id;
@@ -252,10 +301,10 @@ class channel{
                     that.parrent.children.splice(that.parrent.children.indexOf(that),1);
                 }
                 that.parrent=this;
-                container.prepend(channel.dragged[1]);
+                (container as HTMLElement).prepend(Channel.dragged[1]);
                 this.children.unshift(that);
             }else{
-                console.log(this,channel.dragged);
+                console.log(this,Channel.dragged);
                 that.move_id=this.parent_id;
                 if(that.parrent){
                     that.parrent.children.splice(that.parrent.children.indexOf(that),1);
@@ -282,15 +331,15 @@ class channel{
                     }
                     this.guild.headchannels=build;
                 }
-                div.after(channel.dragged[1]);
+                div.after(Channel.dragged[1]);
             }
             this.guild.calculateReorder()
         });
 
         return div;
     }
-    createChannel(name,type){
-        fetch(info.api.toString()+"/guilds/"+this.guild.id+"/channels",{
+    createChannel(name:string,type:number){
+        fetch(this.info.api.toString()+"/guilds/"+this.guild.id+"/channels",{
             method:"Post",
             headers:this.headers,
             body:JSON.stringify({
@@ -307,14 +356,14 @@ class channel{
         let nsfw=this.nsfw;
         const thisid=this.id;
         const thistype=this.type;
-        const full=new fullscreen(
+        const full=new Fullscreen(
         ["hdiv",
             ["vdiv",
                 ["textbox","Channel name:",this.name,function(){name=this.value}],
                 ["mdbox","Channel topic:",this.topic,function(){topic=this.value}],
                 ["checkbox","NSFW Channel",this.nsfw,function(){nsfw=this.checked}],
                 ["button","","submit",function(){
-                    fetch(info.api.toString()+"/v9/channels/"+thisid,{
+                    fetch(this.info.api.toString()+"/v9/channels/"+thisid,{
                         method:"PATCH",
                         headers:this.headers,
                         body:JSON.stringify({
@@ -338,7 +387,7 @@ class channel{
         console.log(full)
     }
     deleteChannel(){
-        fetch(info.api.toString()+"/v9/channels/"+this.id,{
+        fetch(this.info.api.toString()+"/v9/channels/"+this.id,{
             method:"DELETE",
             headers:this.headers
         })
@@ -352,18 +401,18 @@ class channel{
         this.putmessages();
         history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.id);
         document.getElementById("channelname").textContent="#"+this.name;
+        console.log(this);
+        (document.getElementById("typebox") as HTMLInputElement).disabled=!this.canMessage;
     }
     putmessages(){
         const out=this;
-        fetch(info.api.toString()+"/channels/"+this.id+"/messages?limit=100",{
+        fetch(this.info.api.toString()+"/channels/"+this.id+"/messages?limit=100",{
         method: 'GET',
         headers: this.headers,
         }).then((j)=>{return j.json()}).then(responce=>{
-            messages.innerHTML = '';
-            //responce.reverse()
-            messagelist=[];
+            document.getElementById("messages").innerHTML = '';
             for(const thing of responce){
-                const messager=new cmessage(thing,this)
+                const messager=new Message(thing,this)
                 if(out.messageids[messager.id]==undefined){
                     out.messageids[messager.id]=messager;
                     out.messages.push(messager);
@@ -387,25 +436,25 @@ class channel{
         }
         const out=this;
 
-        await fetch(info.api.toString()+"/channels/"+this.id+"/messages?before="+this.messages[this.messages.length-1].id+"&limit=100",{
+        await fetch(this.info.api.toString()+"/channels/"+this.id+"/messages?before="+this.messages[this.messages.length-1].id+"&limit=100",{
             method:"GET",
             headers:this.headers
         }).then((j)=>{return j.json()}).then(responce=>{
             //messages.innerHTML = '';
             //responce.reverse()
-            let next
+            let next:Message;
             if(responce.length===0){
                 out.allthewayup=true;
             }
             for(const i in responce){
-                let messager
+                let messager:Message;
                 if(!next){
-                    messager=new cmessage(responce[i],this)
+                    messager=new Message(responce[i],this)
                 }else{
                     messager=next;
                 }
                 if(responce[+i+1]!==undefined){
-                    next=new cmessage(responce[+i+1],this);
+                    next=new Message(responce[+i+1],this);
                 }else{
                     next=undefined;
                     console.log("ohno",+i+1)
@@ -422,15 +471,15 @@ class channel{
         })
         return;
     }
-    buildmessage(message,next){
+    buildmessage(message:Message,next:Message){
         const built=message.buildhtml(next);
-        messages.prepend(built);
+        document.getElementById("messages").prepend(built);
     }
     buildmessages(){
         for(const i in this.messages){
             const prev=this.messages[(+i)+1];
             const built=this.messages[i].buildhtml(prev);
-            messages.prepend(built);
+            document.getElementById("messages").prepend(built);
         }
         document.getElementById("messagecontainer").scrollTop = document.getElementById("messagecontainer").scrollHeight;
 
@@ -452,7 +501,7 @@ class channel{
             return;
         }
         this.typing=new Date().getTime()+6000;
-        fetch(info.api.toString()+"/channels/"+this.id+"/typing",{
+        fetch(this.info.api.toString()+"/channels/"+this.id+"/typing",{
             method:"POST",
             headers:this.headers
         })
@@ -472,8 +521,8 @@ class channel{
                 return "default";
         }
     }
-    async sendMessage(content,{attachments=[],embeds=[],replyingto=false}){
-        let replyjson=false;
+    async sendMessage(content:string,{attachments=[],embeds=[],replyingto=null}){
+        let replyjson:any;
         if(replyingto){
             replyjson=
             {
@@ -481,17 +530,18 @@ class channel{
                 "channel_id": replyingto.channel.id,
                 "message_id": replyingto.id,
             };
-        }
+        };
         if(attachments.length===0){
             const body={
                 content:content,
-                nonce:Math.floor(Math.random()*1000000000)
+                nonce:Math.floor(Math.random()*1000000000),
+                message_reference:undefined
             };
             if(replyjson){
                 body.message_reference=replyjson;
             }
             console.log(body)
-            return await fetch(info.api.toString()+"/channels/"+this.id+"/messages",{
+            return await fetch(this.info.api.toString()+"/channels/"+this.id+"/messages",{
                 method:"POST",
                 headers:this.headers,
                 body:JSON.stringify(body)
@@ -501,6 +551,7 @@ class channel{
             const body={
                 content:content,
                 nonce:Math.floor(Math.random()*1000000000),
+                message_reference:undefined
             }
             if(replyjson){
                 body.message_reference=replyjson;
@@ -510,15 +561,15 @@ class channel{
                 console.log(attachments[i])
                 formData.append("files["+i+"]",attachments[i]);
             }
-            return await fetch(info.api.toString()+"/channels/"+this.id+"/messages", {
+            return await fetch(this.info.api.toString()+"/channels/"+this.id+"/messages", {
                 method: 'POST',
                 body: formData,
                 headers:{"Authorization":this.headers.Authorization}
             });
         }
     }
-    messageCreate(messagep,focus){
-        const messagez=new cmessage(messagep.d,this);
+    messageCreate(messagep:any):void{
+        const messagez=new Message(messagep.d,this);
         this.lastmessageid=messagez.id;
         if(messagez.author===this.localuser.user){
             this.lastreadmessageid=messagez.id;
@@ -536,7 +587,7 @@ class channel{
         this.messageids[messagez.id]=messagez;
         if(this.localuser.lookingguild.prevchannel===this){
             var shouldScroll=scrolly.scrollTop+scrolly.clientHeight>scrolly.scrollHeight-20;
-            messages.appendChild(messagez.buildhtml(this.messages[1]));
+            document.getElementById("messages").appendChild(messagez.buildhtml(this.messages[1]));
         }
         if(shouldScroll){
                 scrolly.scrollTop = scrolly.scrollHeight;
@@ -553,11 +604,11 @@ class channel{
             this.notify(messagez);
         }
     }
-    notititle(message){
+    notititle(message:Message):string{
        return message.author.username+" > "+this.guild.properties.name+" > "+this.name;
     }
-    notify(message,deep=0){
-        voice.noises(voice.getNotificationSound());
+    notify(message:Message,deep=0){
+        Voice.noises(Voice.getNotificationSound());
         if (!("Notification" in window)) {
 
         } else if (Notification.permission === "granted") {
@@ -584,11 +635,12 @@ class channel{
                 this.getHTML();
             })
         } else if (Notification.permission !== "denied") {
-            Notification.requestPermission().then((permission) => {
+            Notification.requestPermission().then(() => {
                 if(deep===3){return};
                 this.notify(message,deep+1);
             });
         }
     }
 }
-channel.setupcontextmenu();
+Channel.setupcontextmenu();
+export {Channel};

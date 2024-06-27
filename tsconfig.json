@@ -1,0 +1,16 @@
+ {
+  "compilerOptions": {
+    "target": "es2022",
+    "moduleResolution": "Bundler",
+    "module":"es2022",
+    "strict": false,
+    "esModuleInterop": true,
+    "outDir": "./.dist"
+  },
+  "include": [
+    "./webpage/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,4 +1,5 @@
-const mobile=isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+export {mobile, getBulkUsers,getBulkInfo,setTheme,Specialuser}
 function setTheme(){
     const name=localStorage.getItem("theme");
     if(!name){
@@ -11,7 +12,7 @@ setTheme();
 function getBulkUsers(){
     const json=getBulkInfo()
     for(const thing in json.users){
-        json.users[thing]=new specialuser(json.users[thing]);
+        json.users[thing]=new Specialuser(json.users[thing]);
     }
     return json;
 }
@@ -48,9 +49,14 @@ function setDefaults(){
     localStorage.setItem("userinfos",JSON.stringify(userinfos));
 }
 setDefaults();
-class specialuser{
+class Specialuser{
+    serverurls;
+    email:string;
+    token:string;
+    loggedin;
+    json;
     constructor(json){
-        if(json instanceof specialuser){
+        if(json instanceof Specialuser){
             console.error("specialuser can't construct from another specialuser");
         }
         this.serverurls=json.serverurls;
@@ -94,21 +100,23 @@ class specialuser{
     }
 }
 function adduser(user){
-    user=new specialuser(user);
+    user=new Specialuser(user);
     const info=getBulkInfo();
     info.users[user.uid]=user;
     info.currentuser=user.uid;
     localStorage.setItem("userinfos",JSON.stringify(info));
 }
 const instancein=document.getElementById("instancein");
-let timeout=0;
+let timeout;
+let instanceinfo;
 async function checkInstance(e){
+    const verify=document.getElementById("verify");;
     try{
         verify.textContent="Checking Instance";
-        instanceinfo=await setInstance(instancein.value);
+        const instanceinfo=await setInstance((instancein as HTMLInputElement).value);
         localStorage.setItem("instanceinfo",JSON.stringify(instanceinfo));
         verify.textContent="Instance is all good"
-        if(checkInstance.alt){checkInstance.alt();}
+        if(checkInstance["alt"]){checkInstance["alt"]();}
         setTimeout(_=>{
             console.log(verify.textContent)
             verify.textContent="";
@@ -128,7 +136,7 @@ if(instancein){
         timeout=setTimeout(checkInstance,1000);
     });
     if(localStorage.getItem("instanceinfo")){
-        instancein.value=JSON.parse(localStorage.getItem("instanceinfo")).wellknown
+        (instancein as HTMLInputElement).value=JSON.parse(localStorage.getItem("instanceinfo")).wellknown
     }else{
         checkInstance("https://spacebar.chat/");
     }
@@ -148,7 +156,7 @@ async function login(username, password){
         }}
     try{
         const info=JSON.parse(localStorage.getItem("instanceinfo"));
-        url=new URL(info.login);
+        const url=new URL(info.login);
         return await fetch(url.origin+'/api/auth/login',options).then(responce=>responce.json())
         .then((response) => {
             console.log(response,response.message)

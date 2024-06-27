@@ -4,6 +4,13 @@ const express = require('express');
 const fs = require('fs');
 const app = express();
 
+const tsNode = require('ts-node');
+
+tsNode.register({
+  transpileOnly: true,
+  files: true
+});
+
 app.use("/getupdates",(req, res) => {
     const out=fs.statSync(`${__dirname}/webpage`);
     res.send(out.mtimeMs+"");
@@ -16,6 +23,10 @@ app.use('/', (req, res) => {
     }
     if(fs.existsSync(`${__dirname}/webpage${req.path}`)) {
         res.sendFile(`./webpage${req.path}`, {root: __dirname});
+    }else if(req.path.endsWith(".js") && fs.existsSync(`${__dirname}/.dist${req.path}`)){
+        const dir=`./.dist${req.path}`;
+        res.sendFile(dir, {root: __dirname});
+        return;
     }
     else if(fs.existsSync(`${__dirname}/webpage${req.path}.html`)) {
         res.sendFile(`./webpage${req.path}.html`, {root: __dirname});
