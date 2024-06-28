@@ -45,6 +45,7 @@ class Contextmenu{
         div.style.top = y+'px';
         div.style.left = x+'px';
         document.body.appendChild(div);
+        Contextmenu.keepOnScreen(div);
         console.log(div)
         Contextmenu.currentmenu=div;
         return this.div;
@@ -59,7 +60,18 @@ class Contextmenu{
         return func;
     }
     static keepOnScreen(obj:HTMLElement){
-
+        const html = document.documentElement.getBoundingClientRect();
+        const docheight=html.height
+        const docwidth=html.width
+        const box=obj.getBoundingClientRect();
+        console.log(box,docheight,docwidth);
+        if(box.right>docwidth){
+            console.log("test")
+            obj.style.left = docwidth-box.width+'px';
+        }
+        if(box.bottom>docheight){
+            obj.style.top = docheight-box.height+'px';
+        }
     }
 }
 Contextmenu.setup();
