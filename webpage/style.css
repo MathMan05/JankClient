@@ -61,6 +61,7 @@
 	--textarea-bg: #26272c;
 	--filename: #47bbff;
 	--mention-bg: #fc7537;
+	--notify-bg: #fc7537;
 	--pronouns: #797979;
 	--error-color: #ff4949;
 	--embed: #1a1823;
@@ -115,7 +116,8 @@
 	--button-bg: #b7b7cc;
 	--textarea-bg: #b1b6ce;
 	--filename: #47bbff;
-	--mention-bg: #ff6021;
+	--mention-bg: #ff6b31;
+	--notify-bg: #ff170f;
 	--pronouns: #6a6a6d;
 	--error-color: #d40404;
 	--embed: #f2f3f5;
@@ -669,7 +671,7 @@ textarea {
 	cursor: pointer;
 }
 
-#servername {
+#servername, #channelname {
 	padding-left: 5px;
 	text-overflow: ellipsis;
 	overflow-x: hidden;
@@ -935,7 +937,6 @@ span {
 }
 
 .unread {
-	aspect-ratio: 1 / 1;
 	position: absolute;
 	background-color: var(--primary-text);
 	height: .075in;
@@ -958,9 +959,8 @@ span {
 }
 
 .pinged {
-	aspect-ratio: 1 / 1;
 	transform: translate(0, .4in);
-	background-color: var(--mention-bg);
+	background-color: var(--notify-bg);
 	height: .15in;
 	width: .15in;
 	text-align: center;
@@ -968,10 +968,6 @@ span {
 
 .cunread {
 	box-shadow: inset .024in 0 var(--primary-text);
-}
-
-.servernoti {
-	position: relative;
 }
 
 .tabbed-head {
@@ -1093,6 +1089,7 @@ span {
 }
 .provider {
 	color: var(--timestamp-color);
+	text-decoration: none;
 }
 .embedtitle {
 	margin-bottom: 0 !important;

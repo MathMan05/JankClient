@@ -92,7 +92,7 @@ class Group extends Channel {
 			}
 
 			const div = document.createElement("div")
-			div.classList.add("servernoti")
+			div.classList.add("servericon")
 			const noti = document.createElement("div")
 			noti.classList.add("unread", "notiunread", "pinged")
 			noti.textContent = this.mentions
@@ -102,7 +102,6 @@ class Group extends Channel {
 			const buildpfp = this.user.buildpfp()
 			div.all = this
 			buildpfp.classList.add("mentioned")
-			console.log(this)
 			div.append(buildpfp)
 			sentdms.append(div)
 			div.onclick = function() {

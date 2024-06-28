@@ -9,7 +9,18 @@
   "keywords": [
     "spacebar"
   ],
-  "author": "MathMan05",
+  "author": {
+    "name": "MathMan05",
+    "url": "https://github.com/MathMan05"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MathMan05/JankClient.git"
+  },
+  "contributors": [{
+    "name": "TomatoCake",
+    "url": "https://github.com/DEVTomatoCake"
+  }],
   "license": "GPL-3.0",
   "dependencies": {
     "express": "^4.19.2"

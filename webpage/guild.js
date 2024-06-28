@@ -308,7 +308,6 @@ class Guild {
 	}
 	generateGuildIcon() {
 		const divy = document.createElement("div")
-		divy.classList.add("servernoti")
 
 		const noti = document.createElement("div")
 		noti.classList.add("unread")
