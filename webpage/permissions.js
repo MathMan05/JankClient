@@ -1,13 +1,14 @@
 class Permissions {
-	constructor(b) {
-		this.permissions = BigInt(b)
+	constructor(allow, deny = "") {
+		this.allow = BigInt(allow)
+		this.deny = BigInt(deny)
 	}
-	getPermisionbit(b) {
-		return Boolean((this.permissions >> BigInt(b)) & 1n)
+	hasPermissionBit(b, big) {
+		return Boolean((big >> BigInt(b)) & 1n)
 	}
-	setPermisionbit(b, state) {
+	setPermissionBit(b, state, big) {
 		const bit = 1n << BigInt(b)
-		this.permissions = (this.permissions & ~bit) | (BigInt(state) << BigInt(b))//thanks to geotale for this code :3
+		return (big & ~bit) | (BigInt(state) << BigInt(b)) //thanks to geotale for this code :3
 	}
 	static map
 	static info
@@ -227,8 +228,10 @@ class Permissions {
 			i++
 		}
 	}
-	getPermision(name) {
-		return this.getPermisionbit(Permissions.map[name])
+	hasPermission(name) {
+		if (this.hasPermissionBit(Permissions.map[name], this.allow)) return 1
+		if (this.hasPermissionBit(Permissions.map[name], this.deny)) return -1
+		return 0
 	}
 }
 Permissions.makeMap()

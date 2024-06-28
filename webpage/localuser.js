@@ -1,11 +1,5 @@
 "use strict"
 
-// eslint-disable-next-line no-unused-vars
-const userSettings = () => {
-	thisuser.usersettings.show()
-}
-
-let packets = 1
 let heartbeatInterval = 0
 let errorBackoff = 0
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
@@ -28,7 +22,7 @@ class LocalUser {
 		this.ready = ready
 		this.guilds = []
 		this.guildids = {}
-		this.user = User.checkuser(ready.d.user)
+		this.user = User.checkuser(ready.d.user, this)
 		this.userinfo.username = this.user.username
 		this.userinfo.pfpsrc = this.user.getpfpsrc()
 		this.usersettings = null
@@ -36,12 +30,17 @@ class LocalUser {
 		this.lookingguild = null
 		this.guildhtml = {}
 
+		const members = {}
+		for (const thing of ready.d.merged_members) {
+			members[thing[0].guild_id] = thing[0]
+		}
+
 		this.settings = this.ready.d.user_settings
 		localStorage.setItem("theme", this.settings.theme)
 		setTheme(this.settings.theme)
 
 		for (const thing of ready.d.guilds) {
-			const temp = new Guild(thing, this)
+			const temp = new Guild(thing, this, members[thing.id])
 			this.guilds.push(temp)
 			this.guildids[temp.id] = temp
 		}
@@ -54,17 +53,12 @@ class LocalUser {
 			this.guildids[guildSettings.guild_id].notisetting(guildSettings)
 		}
 
-		for (const m of ready.d.merged_members) {
-			const guild = this.guildids[m[0].guild_id]
-			guild.giveMember(new Member(m[0], guild))
-		}
-
 		for (const thing of ready.d.read_state.entries) {
-			const guild = this.resolveGuildidFromChannelID(thing.id)
-			if (!guild) continue
+			console.log(thing.id)
+			const guild = this.resolveChannelFromID(thing.id).guild
+			if (guild === void 0) continue
 
-			const guildid = guild.id
-			this.guildids[guildid].channelids[thing.channel_id].readStateInfo(thing)
+			this.guildids[guild.id].channelids[thing.channel_id].readStateInfo(thing)
 		}
 		this.typing = []
 	}
@@ -115,23 +109,23 @@ class LocalUser {
 		})
 
 		this.ws.addEventListener("message", event => {
-			try {
-				const json = JSON.parse(event.data)
-				console.log(json)
-				if (json.op == 0) {
-					switch (json.t) {
-						case "MESSAGE_CREATE":
-							if (this.initialized) this.messageCreate(json)
-							break
-						case "READY":
-							this.gottenReady(json)
-							READY = json
-							this.genusersettings()
-							returny()
-							break
-						case "MESSAGE_UPDATE":
-							if (this.initialized && location.pathname.split("/")[3] == json.d.channel_id) {
+			const json = JSON.parse(event.data)
+			console.log(json)
+			if (json.op == 0) {
+				switch (json.t) {
+					case "MESSAGE_CREATE":
+						if (this.initialized) this.messageCreate(json)
+						break
+					case "READY":
+						this.gottenReady(json)
+						this.genusersettings()
+						returny()
+						break
+					case "MESSAGE_UPDATE":
+						if (this.initialized) {
+							if (this.channelfocus.id == json.d.channel_id) {
 								const find = json.d.id
+								const messagelist = document.getElementById("messages").children
 								for (const message of messagelist) {
 									if (message.all.id === find) {
 										message.all.content = json.d.content
@@ -139,58 +133,60 @@ class LocalUser {
 										break
 									}
 								}
-							}
-							break
-						case "TYPING_START":
-							if (this.initialized) this.typingStart(json)
-							break
-						case "USER_UPDATE":
-							if (this.initialized) {
-								const users = User.userids[json.d.id]
-								console.log(users, json.d.id)
+							} else this.resolveChannelFromID(json.d.channel_id).messages.find(msg => msg.id == json.d.channel_id).content = json.d.content
+						}
+						break
+					case "MESSAGE_DELETE":
+						console.log("Message delete", json.d)
+						this.guildids[json.d.guild_id].channelids[json.d.channel_id].messageids[json.d.id].deleteEvent()
+						break
+					case "TYPING_START":
+						if (this.initialized) this.typingStart(json)
+						break
+					case "USER_UPDATE":
+						if (this.initialized) {
+							const users = User.userids[json.d.id]
+							console.log(users, json.d.id)
 
-								if (users) users.userupdate(json.d)
-							}
-							break
-						case "CHANNEL_UPDATE":
-							if (this.initialized) this.updateChannel(json.d)
-							break
-						case "CHANNEL_CREATE":
-							if (this.initialized) this.createChannel(json.d)
-							break
-						case "CHANNEL_DELETE":
-							if (this.initialized) this.delChannel(json.d)
-							break
-						case "GUILD_DELETE": {
-							const guildy = this.guildids[json.d.id]
-							delete this.guildids[json.d.id]
-							this.guilds.splice(this.guilds.indexOf(guildy), 1)
-							guildy.html.remove()
-							break
+							if (users) users.userupdate(json.d)
 						}
-						case "GUILD_CREATE": {
-							const guildy = new Guild(json.d, this)
-							this.guilds.push(guildy)
-							this.guildids[guildy.id] = guildy
-							document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseperator"))
-						}
+						break
+					case "CHANNEL_UPDATE":
+						if (this.initialized) this.updateChannel(json.d)
+						break
+					case "CHANNEL_CREATE":
+						if (this.initialized) this.createChannel(json.d)
+						break
+					case "CHANNEL_DELETE":
+						if (this.initialized) this.delChannel(json.d)
+						break
+					case "GUILD_DELETE": {
+						const guildy = this.guildids[json.d.id]
+						delete this.guildids[json.d.id]
+						this.guilds.splice(this.guilds.indexOf(guildy), 1)
+						guildy.html.remove()
+						break
 					}
-				} else if (json.op == 10) {
-					heartbeatInterval = setInterval(() => {
-						this.ws.send(JSON.stringify({ op: 1, d: packets }))
-					}, json.d.heartbeat_interval)
-					packets = 1
-				} else if (json.op != 11) packets++
-			} catch (error) {
-				console.error(error)
-			}
+					case "GUILD_CREATE": {
+						const guildy = new Guild(json.d, this, this.user)
+						this.guilds.push(guildy)
+						this.guildids[guildy.id] = guildy
+						document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseperator"))
+					}
+				}
+			} else if (json.op == 10) {
+				heartbeatInterval = setInterval(() => {
+					this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
+				}, json.d.heartbeat_interval)
+				this.packets = 1
+			} else if (json.op != 11) this.packets++
 		})
 
 		this.ws.addEventListener("close", event => {
 			console.log("WebSocket closed with code " + event.code)
 			if (heartbeatInterval) clearInterval(heartbeatInterval)
 
-			if (((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code)) && thisuser === this) {
+			if (((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code))) {
 				document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server, retrying..."
 				this.unload()
 				document.getElementById("loading").classList.remove("doneloading")
@@ -200,8 +196,8 @@ class LocalUser {
 					document.getElementById("load-desc").textContent = "Retrying..."
 
 					this.initwebsocket().then(() => {
-						thisuser.loaduser()
-						thisuser.init()
+						this.loaduser()
+						this.init()
 						document.getElementById("loading").classList.add("doneloading")
 						document.getElementById("loading").classList.remove("loading")
 					})
@@ -211,10 +207,8 @@ class LocalUser {
 
 		await promise
 	}
-	resolveGuildidFromChannelID(ID) {
-		let resolve = this.guilds.find(guild => guild.channelids[ID])
-		resolve ??= void 0
-		return resolve
+	resolveChannelFromID(ID) {
+		return this.guilds.find(guild => guild.channelids[ID]).channelids[ID]
 	}
 	updateChannel(json) {
 		this.guildids[json.guild_id].updateChannel(json)
@@ -232,6 +226,7 @@ class LocalUser {
 	delChannel(json) {
 		json.guild_id ??= "@me"
 		this.guildids[json.guild_id].delChannel(json)
+
 		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
 	}
 	init() {
@@ -351,7 +346,7 @@ class LocalUser {
 	}
 	messageCreate(messagep) {
 		messagep.d.guild_id ??= "@me"
-		this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep, this.channelfocus.id == messagep.d.channel_id)
+		this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep)
 		this.unreads()
 	}
 	unreads() {
@@ -445,10 +440,10 @@ class LocalUser {
 		let newbio = null
 		let newTheme = null
 
-		let hypouser = new User(thisuser.user)
+		let hypouser = new User(this.user, this, true)
 		const regen = () => {
 			hypothetcialprofie.textContent = ""
-			const hypoprofile = buildprofile(-1, -1, hypouser)
+			const hypoprofile = hypouser.buildprofile(-1, -1)
 
 			hypothetcialprofie.appendChild(hypoprofile)
 		}
@@ -465,12 +460,12 @@ class LocalUser {
 							hypouser.hypotheticalpfp = true
 							regen()
 						}],
-						["textbox", "Pronouns:", thisuser.user.pronouns, event => {
+						["textbox", "Pronouns:", this.user.pronouns, event => {
 							hypouser.pronouns = event.target.value
 							newprouns = event.target.value
 							regen()
 						}],
-						["mdbox", "Bio:", thisuser.user.bio, event => {
+						["mdbox", "Bio:", this.user.bio, event => {
 							hypouser.bio = event.target.value
 							newbio = event.target.value
 							regen()
@@ -488,9 +483,9 @@ class LocalUser {
 					Audio.noises(Audio.sounds[e.target.selectedIndex])
 				}, Audio.sounds.indexOf(Audio.getNotificationSound())],
 				["button", "update user content:", "submit", () => {
-					if (file !== null) thisuser.updatepfp(file)
-					if (newprouns !== null) thisuser.updatepronouns(newprouns)
-					if (newbio !== null) thisuser.updatebio(newbio)
+					if (file !== null) this.updatepfp(file)
+					if (newprouns !== null) this.updatepronouns(newprouns)
+					if (newbio !== null) this.updatebio(newbio)
 					if (newTheme !== null) {
 						thisuser.updateSettings({theme: newTheme})
 						localStorage.setItem("theme", newTheme)
@@ -499,7 +494,7 @@ class LocalUser {
 					}
 				}]
 			], () => {}, (() => {
-				hypouser = User.checkuser(thisuser.user)
+				hypouser = User.checkuser(this.user, this)
 				regen()
 				file = null
 				newprouns = null

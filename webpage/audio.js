@@ -19,7 +19,7 @@ class Audio {
 		this.source.buffer = this.myArrayBuffer
 		this.source.loop = true
 		this.source.start()
-		this.updateWave(freq)
+		this.updateWave()
 	}
 	get wave() {
 		return this.info.wave

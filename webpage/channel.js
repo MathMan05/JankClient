@@ -1,7 +1,7 @@
 "use strict"
 
 class Channel {
-	static contextmenu = new ContextMenu()
+	static contextmenu = new Contextmenu()
 	static setupcontextmenu() {
 		Channel.contextmenu.addbutton("Copy channel id", function() {
 			navigator.clipboard.writeText(this.id)
@@ -34,12 +34,16 @@ class Channel {
 		this.children = []
 		this.guild_id = json.guild_id
 		this.messageids = {}
-		this.permission_overwrites = json.permission_overwrites
 		this.topic = json.topic
 		this.nsfw = json.nsfw
 		this.position = json.position
 		this.lastreadmessageid = null
 		this.lastmessageid = json.last_message_id
+
+		this.permission_overwrites = {}
+		for (const override of json.permission_overwrites) {
+			this.permission_overwrites[override.id] = new Permissions(override.allow, override.deny)
+		}
 	}
 
 	isAdmin() {
@@ -51,22 +55,34 @@ class Channel {
 	get localuser() {
 		return this.guild.localuser
 	}
+	get info() {
+		return this.owner.info
+	}
 	readStateInfo(json) {
 		this.lastreadmessageid = json.last_message_id
 		this.mentions = json.mention_count
 		this.mentions ??= 0
 		this.lastpin = json.last_pin_timestamp
 	}
+	hasPermission(name, member = this.guild.member) {
+		if (member.isAdmin()) return true
+
+		for (const thing of member.roles) {
+			if (this.permission_overwrites[thing.id]) {
+				const perm = this.permission_overwrites[thing.id].hasPermission(name)
+				if (perm) return perm == 1
+			}
+			if (thing.permissions.hasPermission(name)) return true
+		}
+		return false
+	}
 	get hasunreads() {
+		if (!this.hasPermission("VIEW_CHANNEL")) return false
+
 		return this.lastmessageid != this.lastreadmessageid && this.type != 4
 	}
 	get canMessage() {
-		for (const thing of this.permission_overwrites) {
-			if (this.owner.hasRole(thing.id) && thing.deny & (1 << 11)) {
-				return false
-			}
-		}
-		return true
+		return this.hasPermission("SEND_MESSAGES")
 	}
 	sortchildren() {
 		this.children.sort((a, b) => {
@@ -101,6 +117,13 @@ class Channel {
 	static dragged = []
 	createguildHTML(admin = false) {
 		const div = document.createElement("div")
+		if (!this.hasPermission("VIEW_CHANNEL")) {
+			let quit = true
+			for (const thing of this.children) {
+				if (thing.hasPermission("VIEW_CHANNEL")) quit = false
+			}
+			if (quit) return div
+		}
 		div.id = "ch-" + this.id
 		div.all = this
 		div.draggable = admin
@@ -132,7 +155,7 @@ class Channel {
 				addchannel.classList.add("addchannel")
 				caps.appendChild(addchannel)
 				addchannel.onclick = function() {
-					createchannels(this.createChannel.bind(this))
+					this.guild.createchannels(this.createChannel.bind(this))
 				}.bind(this)
 				this.coatDropDiv(decdiv, childrendiv)
 			}
@@ -203,9 +226,8 @@ class Channel {
 			div.appendChild(decoration)
 
 			div.appendChild(myhtml)
-			div.myinfo = this
-			div.onclick = function() {
-				this.myinfo.getHTML()
+			div.onclick = () => {
+				this.getHTML()
 			}
 		}
 		return div
@@ -349,7 +371,7 @@ class Channel {
 			headers: this.headers
 		})
 	}
-	getHTML() {
+	async getHTML() {
 		if (this.owner != this.owner.owner.lookingguild) this.owner.loadGuild()
 
 		for (const elem of document.getElementsByClassName("active")) elem.classList.remove("active")
@@ -357,26 +379,31 @@ class Channel {
 
 		this.owner.prevchannel = this
 		this.owner.owner.channelfocus = this
-		this.putmessages()
+		const prom = Message.wipeChanel()
+		await this.putmessages()
+		await prom
+		this.buildmessages()
+
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "#" + this.name
+		document.getElementById("typebox").disabled = !this.canMessage
 	}
-	putmessages() {
-		const out = this
-		fetch(instance.api + "/channels/" + this.id + "/messages?limit=100", {
+	async putmessages() {
+		if (this.messages.length >= 100) return
+
+		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?limit=100", {
 			method: "GET",
 			headers: this.headers
-		}).then(res => res.json()).then(json => {
-			messages.innerHTML = ""
-			for (const msg of json) {
-				const messager = new Message(msg, this)
-				if (out.messageids[messager.id] == void 0) {
-					out.messageids[messager.id] = messager
-					out.messages.push(messager)
-				}
-			}
-			out.buildmessages()
 		})
+
+		const responce = await res.json()
+		for (const thing of responce) {
+			const messager = new Message(thing, this)
+			if (this.messageids[messager.id] === void 0) {
+				this.messageids[messager.id] = messager
+				this.messages.push(messager)
+			}
+		}
 	}
 	delChannel(json) {
 		const build = []
@@ -417,13 +444,13 @@ class Channel {
 	}
 	buildmessage(message, next) {
 		const built = message.buildhtml(next)
-		messages.prepend(built)
+		document.getElementById("messages").prepend(built)
 	}
 	buildmessages() {
 		for (const i in this.messages) {
 			const prev = this.messages[Number(i) + 1]
 			const built = this.messages[i].buildhtml(prev)
-			messages.prepend(built)
+			document.getElementById("messages").prepend(built)
 
 			if (prev) {
 				const prevDate = new Date(prev.timestamp)
@@ -445,7 +472,7 @@ class Channel {
 					line2.classList.add("reply")
 					dateContainer.appendChild(line2)
 
-					messages.prepend(dateContainer)
+					document.getElementById("messages").prepend(dateContainer)
 				}
 			}
 		}
@@ -488,8 +515,8 @@ class Channel {
 				return "default"
 		}
 	}
-	async sendMessage(content, {attachments = [], replyingto = false}) {
-		let replyjson = false
+	async sendMessage(content, {attachments = [], replyingto = null}) {
+		let replyjson
 		if (replyingto) replyjson = {
 			guild_id: replyingto.guild.id,
 			channel_id: replyingto.channel.id,
@@ -531,7 +558,9 @@ class Channel {
 			})
 		}
 	}
-	messageCreate(messagep, focus) {
+	messageCreate(messagep) {
+		if (!this.hasPermission("VIEW_CHANNEL")) return
+
 		const messagez = new Message(messagep.d, this)
 		this.lastmessageid = messagez.id
 		if (messagez.author === this.localuser.user) {
@@ -549,7 +578,7 @@ class Channel {
 		let shouldScroll = false
 		if (this.localuser.lookingguild.prevchannel === this) {
 			shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20
-			messages.appendChild(messagez.buildhtml(this.messages[1]))
+			document.getElementById("messages").appendChild(messagez.buildhtml(this.messages[1]))
 		}
 		if (shouldScroll) scrolly.scrollTop = scrolly.scrollHeight
 

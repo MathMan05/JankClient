@@ -6,8 +6,6 @@ console.log(users)
 let instance = users.users[users.currentuser].serverurls
 
 // eslint-disable-next-line no-unused-vars
-let ws
-// eslint-disable-next-line no-unused-vars
 let READY
 
 let thisuser = new LocalUser(users.users[users.currentuser])
@@ -32,45 +30,8 @@ const setDynamicHeight = () => {
 	document.documentElement.style.setProperty("--servertd-height", servertdHeight + "px")
 }
 
-let editing = false
-let currentmenu = ""
-
-const createchannels = fincall => {
-	let name = ""
-	let type = 0
-	const channelselect = new Dialog(
-		["vdiv",
-			["radio", "select channel type",
-				["voice", "text", "announcement"],
-				value => {
-					type = { text: 0, voice: 2, announcement: 5, category: 4 }[value]
-				},
-				1
-			],
-			["textbox", "Name of channel", "", event => {
-				name = event.target.value
-			}],
-			["button", "", "submit", () => {
-				fincall(name, type)
-				channelselect.hide()
-			}]
-		])
-	channelselect.show()
-}
-const createcategory = fincall => {
-	let name = ""
-	const category = 4
-	const channelselect = new Dialog(
-		["vdiv",
-			["textbox", "Name of category", "", event => {
-				name = event.target.value
-			}],
-			["button", "", "submit", () => {
-				fincall(name, category)
-				channelselect.hide()
-			}]
-		])
-	channelselect.show()
+const userSettings = () => {
+    thisuser.usersettings.show()
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -84,13 +45,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	setTheme(localStorage.getItem("theme"))
 
-	const menu = new ContextMenu()
+	const menu = new Contextmenu()
 	menu.addbutton("Create channel", () => {
-		createchannels(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
+		thisuser.lookingguild.createchannels()
 	}, null, () => thisuser.isAdmin())
 
 	menu.addbutton("Create category", () => {
-		createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild))
+		thisuser.lookingguild.createcategory()
 	}, null, () => thisuser.isAdmin())
 	menu.bind(document.getElementById("channels"))
 
@@ -158,11 +119,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 		})
 		table.append(tr)
 
-		if (currentmenu != "") currentmenu.remove()
-		currentmenu = table
+		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
+		Contextmenu.currentmenu = table
 		userdock.append(table)
 		event.stopImmediatePropagation()
 	})
+
+	document.getElementById("settings").addEventListener("click", userSettings)
 
 	if ("serviceWorker" in navigator) {
 		navigator.serviceWorker.register("/service.js")
@@ -202,17 +165,6 @@ const requestTestNotif = async () => {
 	})
 }
 
-
-document.addEventListener("click", event => {
-	if (currentmenu == "") return
-
-	if (!currentmenu.contains(event.target)) {
-		currentmenu.remove()
-		currentmenu = ""
-	}
-})
-let replyingto = null
-
 // eslint-disable-next-line no-unused-vars
 const editchannel = channel => {
 	channel.editChannel()
@@ -220,90 +172,34 @@ const editchannel = channel => {
 
 // eslint-disable-next-line no-unused-vars
 const messagelist = []
-const buildprofile = (x, y, user, type = "author") => {
-	if (currentmenu != "") currentmenu.remove()
 
-	let nickname, username, discriminator, bio, pronouns
-	if (type == "author") {
-		console.log(user)
-		username = user.username
-		nickname = user.username
-
-		bio = user.bio
-		discriminator = user.discriminator
-		pronouns = user.pronouns
-	}
-
-	const div = document.createElement("table")
-	if (x == -1) div.classList.add("hypoprofile")
-	else {
-		div.style.left = x + "px"
-		div.style.top = y + "px"
-		div.classList.add("profile")
-	}
-
-	const pfp = user.buildpfp()
-	const pfprow = document.createElement("tr")
-	div.appendChild(pfprow)
-	pfprow.appendChild(pfp)
-
-	const userbody = document.createElement("tr")
-	userbody.classList.add("infosection")
-	div.appendChild(userbody)
-	const usernamehtml = document.createElement("h2")
-	usernamehtml.textContent = nickname
-	userbody.appendChild(usernamehtml)
-
-	const discrimatorhtml = document.createElement("h3")
-	discrimatorhtml.classList.add("tag")
-	discrimatorhtml.textContent = username + "#" + discriminator
-	userbody.appendChild(discrimatorhtml)
-
-	const pronounshtml = document.createElement("p")
-	pronounshtml.textContent = pronouns
-	pronounshtml.classList.add("pronouns")
-	userbody.appendChild(pronounshtml)
-
-	const rule = document.createElement("hr")
-	userbody.appendChild(rule)
-	const biohtml = markdown(bio)
-	userbody.appendChild(biohtml)
-
-	if (x != -1) {
-		currentmenu = div
-		document.body.appendChild(div)
-	}
-	return div
-}
-
-// eslint-disable-next-line no-unused-vars
-const profileclick = (obj, author) => {
-	obj.onclick = event => {
-		event.stopPropagation()
-		buildprofile(event.clientX, event.clientY, author)
-	}
+const getguildinfo = () => {
+	const path = window.location.pathname.split("/")
+	const channel = path[3]
+	this.ws.send(JSON.stringify({op: 14, d: {guild_id: path[2], channels: {[channel]: [[0, 99]]}}}))
 }
 
 let images = []
 
+let replyingto = null
 const typebox = document.getElementById("typebox")
 typebox.addEventListener("keyup", event => {
-	thisuser.channelfocus.typingstart()
+	const channel = thisuser.channelfocus
+	channel.typingstart()
 
 	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
 
-		if (editing) {
-			editing.edit(typebox.value)
-			editing = false
+		if (channel.editing) {
+			channel.editing.edit(typebox.value)
+			channel.editing = null
 		} else {
+			replyingto = channel.replyingto
 			const replying = replyingto?.all
-			if (replyingto) {
-				replyingto.classList.remove("replying")
-				replyingto = false
-			}
+			if (replyingto) replyingto.classList.remove("replying")
 
-			thisuser.channelfocus.sendMessage(typebox.value, {
+			channel.replyingto = null
+			channel.sendMessage(typebox.value, {
 				attachments: images,
 				replyingto: replying
 			})
@@ -318,44 +214,6 @@ typebox.addEventListener("keyup", event => {
 typebox.addEventListener("keydown", event => {
 	if (event.key == "Enter" && !event.shiftKey) event.preventDefault()
 })
-
-const filesizehuman = fsize => {
-	const i = fsize <= 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024))
-	return (fsize / Math.pow(1024, i)).toFixed(2) + " " + ["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i]
-}
-
-const createunknown = (fname, fsize, src) => {
-	const div = document.createElement("table")
-	div.classList.add("unknownfile")
-	const nametr = document.createElement("tr")
-	div.append(nametr)
-
-	const fileicon = document.createElement("td")
-	fileicon.append("🗎")
-	fileicon.classList.add("fileicon")
-	fileicon.rowSpan = "2"
-	nametr.append(fileicon)
-
-	const nametd = document.createElement("td")
-	if (src) {
-		const a = document.createElement("a")
-		a.href = src
-		a.textContent = fname
-		nametd.append(a)
-	} else {
-		nametd.textContent = fname
-	}
-
-	nametd.classList.add("filename")
-	nametr.append(nametd)
-	const sizetr = document.createElement("tr")
-	const size = document.createElement("td")
-	sizetr.append(size)
-	size.textContent = "Size:" + filesizehuman(fsize)
-	size.classList.add("filesize")
-	div.appendChild(sizetr)
-	return div
-}
 
 const filetohtml = file => {
 	if (file.type.startsWith("image/")) {

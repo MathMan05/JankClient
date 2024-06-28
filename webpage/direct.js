@@ -1,13 +1,13 @@
 class Group extends Channel {
 	constructor(json, owner) {
-		super(-1)
+		super(-1, owner)
 
 		this.message_notifications = 0
 		this.owner = owner
 		this.headers = this.guild.headers
 		this.messages = []
 		this.name = json.recipients[0]?.username
-		if (json.recipients[0]) this.user = User.checkuser(json.recipients[0])
+		if (json.recipients[0]) this.user = User.checkuser(json.recipients[0], this.localuser)
 		else this.user = this.localuser.user
 
 		this.name ??= this.localuser.user.username
@@ -17,9 +17,9 @@ class Group extends Channel {
 		this.children = []
 		this.guild_id = "@me"
 		this.messageids = {}
-		this.permission_overwrites = []
+		this.permission_overwrites = {}
 		this.lastmessageid = json.last_message_id
-		this.lastmessageid ??= 0
+		this.lastmessageid ??= "0"
 		this.mentions = 0
 	}
 	createguildHTML() {
@@ -36,14 +36,19 @@ class Group extends Channel {
 		}
 		return div
 	}
-	getHTML() {
+	async getHTML() {
+		if (this.guild !== this.localuser.lookingguild) this.guild.loadGuild()
+
+		const prom = Message.wipeChanel()
 		this.guild.prevchannel = this
 		this.localuser.channelfocus = this
-		this.putmessages()
+		await this.putmessages()
+		await prom
+		this.buildmessages()
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "@" + this.name
 	}
-	messageCreate(messagep, focus) {
+	messageCreate(messagep) {
 		const messagez = new Message(messagep.d, this)
 		this.lastmessageid = messagez.id
 		if (messagez.author === this.localuser.user) this.lastreadmessageid = messagez.id
@@ -55,7 +60,7 @@ class Group extends Channel {
 		let shouldScroll = false
 		if (this.localuser.lookingguild.prevchannel === this) {
 			shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20
-			messages.appendChild(messagez.buildhtml(this.messages[1]))
+			document.getElementById("messages").appendChild(messagez.buildhtml(this.messages[1]))
 		}
 		if (shouldScroll) scrolly.scrollTop = scrolly.scrollHeight
 
@@ -66,7 +71,6 @@ class Group extends Channel {
 					channellist.prepend(thing)
 					break
 				}
-				console.log(thing.myinfo, this, thing.myinfo === this)
 			}
 		}
 		this.unreads()
@@ -106,19 +110,26 @@ class Group extends Channel {
 			div.append(buildpfp)
 			sentdms.append(div)
 			div.onclick = function() {
-				this.all.guild.loadGuild()
-				this.all.getHTML()
+				this.noti.guild.loadGuild()
+				this.noti.getHTML()
 			}
 		} else if (current) current.remove()
+	}
+	isAdmin() {
+		return false
+	}
+	hasPermission() {
+		return true
 	}
 }
 
 // eslint-disable-next-line no-unused-vars
 class Direct extends Guild {
 	constructor(json, owner) {
-		super(-1)
+		super(-1, owner, null)
 		this.owner = owner
 		this.headers = this.localuser.headers
+        this.message_notifications = 0
 
 		this.channels = []
 		this.channelids = {}

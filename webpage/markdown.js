@@ -1,7 +1,7 @@
 "use strict"
 
 const markdown = (txt, keep = false) => {
-	if (typeof txt == "string") return markdown(txt.split(""), keep)
+	if (typeof txt == "string") txt = txt.split("")
 
 	const span = document.createElement("span")
 	let current = document.createElement("span")
@@ -17,7 +17,7 @@ const markdown = (txt, keep = false) => {
 			const first = i == 0
 			if (first) i--
 			let element = null
-			let keepys = false
+			let keepys = ""
 
 			if (txt[i + 1] == "#") {
 				if (txt[i + 2] == "#") {
@@ -138,7 +138,7 @@ const markdown = (txt, keep = false) => {
 			for (; txt[j] !== void 0 && find != count; j++) {
 				if (txt[j] == "*") find++
 				else {
-					build += txt[j]
+					build.push(txt[j])
 					if (find != 0) {
 						build = build.concat(new Array(find).fill("*"))
 						find = 0

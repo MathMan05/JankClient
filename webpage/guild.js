@@ -1,7 +1,7 @@
 "use strict"
 
 class Guild {
-	static contextmenu = new ContextMenu()
+	static contextmenu = new Contextmenu()
 	static setupcontextmenu() {
 		Guild.contextmenu.addbutton("Copy guild id", function() {
 			navigator.clipboard.writeText(this.id)
@@ -28,14 +28,11 @@ class Guild {
 		}, null, g => g.properties.owner_id == g.member.user.id)
 	}
 
-	constructor(json, owner) {
+	constructor(json, owner, member) {
 		if (json == -1) return
 
 		this.owner = owner
-		this.headers = {
-			"Content-Type": "application/json; charset=UTF-8",
-			Authorization: this.owner.userinfo.token
-		}
+		this.headers = this.owner.headers
 
 		this.channels = []
 		this.channelids = {}
@@ -47,10 +44,13 @@ class Guild {
 		this.message_notifications = 0
 
 		for (const roley of json.roles) {
-			const roleh = new Role(roley)
+			const roleh = new Role(roley, this)
 			this.roles.push(roleh)
 			this.roleids[roleh.id] = roleh
 		}
+
+        Member.resolve(member, this).then(m => this.member = m)
+
 		for (const thing of json.channels) {
 			const temp = new Channel(thing, this)
 			this.channels.push(temp)
@@ -65,7 +65,12 @@ class Guild {
 		let position = -1
 		const build = []
 		for (const thing of this.headchannels) {
-			const thisthing = { id: thing.id }
+			const thisthing = {
+				id: thing.id,
+				position: void 0,
+				parent_id: void 0
+			}
+
 			if (thing.position <= position) {
 				thisthing.position = position + 1
 				thing.position = thisthing.position
@@ -99,9 +104,8 @@ class Guild {
 	get localuser() {
 		return this.owner
 	}
-	loadChannel(id) {
-		this.localuser.channelfocus = this.channelids[id]
-		this.channelids[id].getHTML()
+	get info() {
+		return this.owner.info
 	}
 	sortchannels() {
 		this.headchannels.sort((a, b) => a.position - b.position)
@@ -151,19 +155,9 @@ class Guild {
 			body: JSON.stringify(build)
 		})
 	}
-	fillMember(member) {
-		const realroles = []
-		for (const thing of member.roles) {
-			realroles.push(this.getRole(thing))
-		}
-		member.roles = realroles
-		return member
-	}
-	giveMember(member) {
-		this.fillMember(member)
-		this.member = member
-	}
 	getRole(ID) {
+		if (!this.roleids[ID]) console.error("Role id " + ID + " does not exist", this.roleids)
+
 		return this.roleids[ID]
 	}
 	hasRole(r) {
@@ -176,10 +170,10 @@ class Guild {
 			return
 		}
 		if (this.prevchannel) {
-			console.log(this.prevchannel)
 			this.prevchannel.getHTML()
 			return
 		}
+
 		for (const thing of this.channels) {
 			if (thing.children.length == 0) {
 				thing.getHTML()
@@ -209,15 +203,58 @@ class Guild {
 
 		this.calculateReorder()
 	}
+	createchannels(func = this.createChannel) {
+		let name = ""
+		let type = 0
+		const channelselect = new Dialog(
+			["vdiv",
+				["radio", "select channel type",
+					["voice", "text", "announcement"],
+					value => {
+						type = { text: 0, voice: 2, announcement: 5, category: 4 }[value]
+					},
+					1
+				],
+				["textbox", "Name of channel", "", event => {
+					name = event.target.value
+				}],
+				["button", "", "submit", () => {
+					func(name, type)
+					channelselect.hide()
+				}]
+			])
+		channelselect.show()
+	}
+	createcategory() {
+		let name = ""
+		const category = 4
+		const channelselect = new Dialog(
+			["vdiv",
+				["textbox", "Name of category", "", event => {
+					name = event.target.value
+				}],
+				["button", "", "submit", () => {
+					this.createChannel(name, category)
+					channelselect.hide()
+				}]
+			])
+		channelselect.show()
+	}
 	delChannel(json) {
+		const channel = this.channelids[JSON.id]
 		delete this.channelids[json.id]
-		const build = []
+
+		this.channels.splice(this.channels.indexOf(channel), 1)
+		const indexy = this.headchannels.indexOf(channel)
+		if (indexy !== -1) this.headchannels.splice(indexy, 1)
+
+		/*const build = []
 		for (const thing of this.channels) {
 			if (thing.id == json.id) {
 				if (thing.parent) thing.parent.delChannel(json)
 			} else build.push(thing)
 		}
-		this.channels = build
+		this.channels = build*/
 	}
 	createChannel(name, type) {
 		fetch(instance.api + "/guilds/" + this.id + "/channels", {

@@ -21,22 +21,31 @@ const formatTime = date => {
 }
 
 class Message {
-	static contextmenu = new ContextMenu()
+	static setup() {
+		this.del = new Promise(resolve => {
+			this.resolve = resolve
+		})
+		Message.setupcmenu()
+	}
+	static async wipeChanel() {
+		this.resolve()
+		document.getElementById("messages").innerHTML = ""
+		await Promise.allSettled([this.resolve])
+		this.del = new Promise(resolve => {
+			this.resolve = resolve
+		})
+	}
+
+	static contextmenu = new Contextmenu()
 	static setupcmenu() {
 		Message.contextmenu.addbutton("Copy raw text", function() {
 			navigator.clipboard.writeText(this.content)
 		})
 		Message.contextmenu.addbutton("Reply", div => {
-			if (replyingto) replyingto.classList.remove("replying")
-			replyingto = div
-			replyingto.classList.add("replying")
+			if (this.channel.replyingto) this.channel.replyingto.classList.remove("replying")
+				this.channel.replyingto = div
+			this.channel.replyingto.classList.add("replying")
 		})
-		Message.contextmenu.addbutton("Delete (temp)", function() {
-			fetch(instance.api + "/channels/" + this.channel_id + "/messages/" + this.id, {
-				method: "DELETE",
-				headers: this.headers
-			})
-		}, null, m => m.author.id == READY.d.user.id || m.owner.owner.isAdmin())
 
 		Message.contextmenu.addbutton("Copy message id", function() {
 			navigator.clipboard.writeText(this.id)
@@ -47,16 +56,20 @@ class Message {
 		Message.contextmenu.addbutton("Message user", function() {
 			fetch(instance.api + "/users/@me/channels", {
 				method: "POST",
+				headers: this.headers,
 				body: JSON.stringify({
 					recipients: [this.author.id]
-				}),
-				headers: this.headers
+				})
 			})
 		})
+
 		Message.contextmenu.addbutton("Edit", function() {
-			editing = this
+			this.channel.editing = this
 			document.getElementById("typebox").value = this.content
-		}, null, m => m.author.id == READY.d.user.id)
+		}, null, m => m.author.id == m.localuser.user.id)
+		Message.contextmenu.addbutton("Delete message", function() {
+			this.delete()
+		}, null, msg => msg.canDelete())
 	}
 
 	constructor(messagejson, owner) {
@@ -68,11 +81,14 @@ class Message {
 		for (const e in this.embeds) {
 			this.embeds[e] = new Embed(this.embeds[e], this)
 		}
-		this.author = User.checkuser(this.author)
+		this.author = User.checkuser(this.author, this.localuser)
 
 		for (const u in this.mentions) {
-			this.mentions[u] = new User(this.mentions[u])
+			this.mentions[u] = new User(this.mentions[u], this.localuser)
 		}
+	}
+	canDelete() {
+		return this.channel.hasPermission("MANAGE_MESSAGES") || this.author.id == this.localuser.user.id
 	}
 	get channel() {
 		return this.owner
@@ -83,8 +99,16 @@ class Message {
 	get localuser() {
 		return this.owner.localuser
 	}
+	get info() {
+		return this.owner.info
+	}
 	messageevents(obj) {
-		Message.contextmenu.bind(obj, this)
+		const func = Message.contextmenu.bind(obj, this)
+		this.div = obj
+		Message.del.then(() => {
+			obj.removeEventListener("click", func)
+			this.div = null
+		})
 		obj.classList.add("messagediv")
 	}
 	mentionsuser(userd) {
@@ -107,10 +131,30 @@ class Message {
 			body: JSON.stringify({content})
 		})
 	}
-	buildhtml(premessage) {
-		//premessage??=messages.lastChild;
+	delete() {
+		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
+			headers: this.headers,
+			method: "DELETE"
+		})
+	}
+	deleteEvent() {
+		if (this.div) {
+			this.div.innerHTML = ""
+			this.div = null
+		}
+
+		const index = this.channel.messages.indexOf(this)
+		this.channel.messages.splice(this.channel.messages.indexOf(this), 1)
+		delete this.channel.messageids[this.id]
+		const regen = this.channel.messages[index - 1]
+		if (regen) regen.generateMessage()
+	}
+	generateMessage(premessage = null) {
+		if (!premessage) premessage = this.channel.messages[this.channel.messages.indexOf(this) + 1]
+
+		const div = this.div
+		div.innerHTML = ""
 		const build = document.createElement("table")
-		const div = document.createElement("div")
 
 		if (this.message_reference) {
 			const replyline = document.createElement("div")
@@ -125,6 +169,17 @@ class Message {
 			replyline.appendChild(username)
 
 			Member.resolve(this.author, this.guild).then(member => {
+				if (!member) return
+
+				if (member.error) {
+					username.textContent += "Error"
+					const error = document.createElement("span")
+					error.textContent = "!"
+					error.classList.add("membererror")
+					username.after(error)
+					return
+				}
+
 				username.style.color = member.getColor()
 			})
 
@@ -142,21 +197,20 @@ class Message {
 			fetch(instance.api + "/channels/" + this.message_reference.channel_id + "/messages?limit=1&around=" + this.message_reference.message_id, {
 				headers: this.headers
 			}).then(response => response.json()).then(response => {
-				const author = User.checkuser(response[0].author)
+				const author = User.checkuser(response[0].author, this.localuser)
 
 				reply.appendChild(markdown(response[0].content))
 
 				minipfp.crossOrigin = "anonymous"
 				minipfp.src = author.getpfpsrc()
-				profileclick(minipfp, author)
+				author.profileclick(minipfp)
 				username.textContent = author.username
-				profileclick(username, author)
+				author.profileclick(username)
 			})
 			div.appendChild(replyline)
 		}
 
 		this.messageevents(div)
-		messagelist.push(div)
 		build.classList.add("message")
 		div.appendChild(build)
 		if ({ 0: true, 19: true }[this.type] || this.attachments.length > 0) {
@@ -164,7 +218,6 @@ class Message {
 
 			let pfpparent, current
 			if (premessage) {
-				pfpparent = premessage.pfpparent
 				pfpparent ??= premessage
 				let pfpparent2 = pfpparent.all
 				pfpparent2 ??= pfpparent
@@ -172,10 +225,11 @@ class Message {
 				const newt = new Date(this.timestamp).getTime() / 1000
 				current = (newt - old) > 600
 			}
-			const combine = (premessage?.userid != this.author.id & premessage?.author?.id != this.author.id) || (current) || this.message_reference
+
+			const combine = premessage?.author?.id != this.author.id || current || this.message_reference
 			if (combine) {
 				const pfp = this.author.buildpfp()
-				profileclick(pfp, this.author)
+				this.author.profileclick(pfp)
 				pfpRow.appendChild(pfp)
 			} else div.pfpparent = pfpparent
 
@@ -189,11 +243,20 @@ class Message {
 			if (combine) {
 				const username = document.createElement("span")
 				username.classList.add("username")
-				Member.resolve(this.author, this.guild).then(m => {
-					username.style.color = m.getColor()
+				Member.resolve(this.author, this.guild).then(member => {
+					if (!member) return
+
+					if (member.error) {
+						const error = document.createElement("span")
+						error.textContent = "!"
+						error.classList.add("membererror")
+						username.after(error)
+						return
+					}
+					username.style.color = member.getColor()
 				})
 
-				profileclick(username, this.author)
+				this.author.profileclick(username)
 				username.textContent = this.author.username
 				const userwrap = document.createElement("tr")
 				userwrap.appendChild(username)
@@ -238,7 +301,7 @@ class Message {
 						img.crossOrigin = "anonymous"
 						img.src = src
 						attach.appendChild(img)
-					} else attach.appendChild(createunknown(thing.filename, thing.size, src))
+					} else attach.appendChild(this.createunknown(thing.filename, thing.size, src))
 				}
 				messagedwrap.appendChild(attach)
 			}
@@ -270,10 +333,48 @@ class Message {
 
 			texttxt.appendChild(messagedwrap)
 		}
-		div.userid = this.author.id
 		div.all = this
 		return div
 	}
+	buildhtml(premessage) {
+		if (this.div) {
+			console.error(`HTML for ${this} already exists, aborting`)
+			return
+		}
+		//premessage??=messages.lastChild;
+		const div = document.createElement("div")
+		this.div = div
+		return this.generateMessage(premessage)
+	}
+	createunknown(fname, fsize) {
+		const div = document.createElement("table")
+		div.classList.add("unknownfile")
+		const nametr = document.createElement("tr")
+		div.append(nametr)
+
+		const fileicon = document.createElement("td")
+		fileicon.append("🗎")
+		fileicon.classList.add("fileicon")
+		fileicon.rowSpan = 2
+		nametr.append(fileicon)
+
+		const nametd = document.createElement("td")
+		nametd.textContent = fname
+
+		nametd.classList.add("filename")
+		nametr.append(nametd)
+		const sizetr = document.createElement("tr")
+		const size = document.createElement("td")
+		sizetr.append(size)
+		size.textContent = "Size:" + this.filesizehuman(fsize)
+		size.classList.add("filesize")
+		div.appendChild(sizetr)
+		return div
+	}
+	filesizehuman(fsize) {
+		const i = fsize <= 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024))
+		return (fsize / Math.pow(1024, i)).toFixed(2) + " " + ["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i]
+	}
 }
 
-Message.setupcmenu()
+Message.setup()

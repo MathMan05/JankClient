@@ -1,7 +1,18 @@
 "use strict"
 
-// eslint-disable-next-line no-unused-vars
-class ContextMenu {
+class Contextmenu {
+	static setup() {
+		Contextmenu.currentmenu = ""
+		document.addEventListener("click", event => {
+			if (Contextmenu.currentmenu == "") {
+				return
+			}
+			if (!Contextmenu.currentmenu.contains(event.target)) {
+				Contextmenu.currentmenu.remove()
+				Contextmenu.currentmenu = ""
+			}
+		})
+	}
 	constructor() {
 		this.buttons = []
 	}
@@ -12,31 +23,51 @@ class ContextMenu {
 	makemenu(x, y, addinfo, obj) {
 		const div = document.createElement("table")
 		div.classList.add("contextmenu")
-		for (const thing of this.buttons) {
-			if (!thing[3](addinfo)) continue
+		for (const button of this.buttons) {
+			if (!button[3](addinfo)) continue
 			const textb = document.createElement("tr")
 			const intext = document.createElement("button")
-			intext.disabled = !thing[4]()
+			intext.disabled = !button[4]()
 			textb.button = intext
 			intext.classList.add("contextbutton")
-			intext.textContent = thing[0]
+			intext.textContent = button[0]
 			textb.appendChild(intext)
-			intext.onclick = thing[1].bind(addinfo, obj)
+			intext.onclick = button[1].bind(addinfo, obj)
 			div.appendChild(textb)
 		}
-		if (currentmenu != "") currentmenu.remove()
+		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 
 		div.style.top = y + "px"
 		div.style.left = x + "px"
 		document.body.appendChild(div)
-		currentmenu = div
+
+		Contextmenu.keepOnScreen(div)
+		Contextmenu.currentmenu = div
+
 		return this.div
 	}
 	bind(obj, addinfo) {
-		obj.addEventListener("contextmenu", event => {
+		const func = event => {
 			event.preventDefault()
 			event.stopImmediatePropagation()
 			this.makemenu(event.clientX, event.clientY, addinfo, obj)
-		})
+		}
+		obj.addEventListener("contextmenu", func)
+		return func
+	}
+	static keepOnScreen(obj) {
+		const html = document.documentElement.getBoundingClientRect()
+		const docheight = html.height
+		const docwidth = html.width
+		const box = obj.getBoundingClientRect()
+		console.log(box, docheight, docwidth)
+		if (box.right > docwidth) {
+			console.log("test")
+			obj.style.left = docwidth - box.width + "px"
+		}
+		if (box.bottom > docheight) {
+			obj.style.top = docheight - box.height + "px"
+		}
 	}
 }
+Contextmenu.setup()
