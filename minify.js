@@ -94,18 +94,40 @@ const minifyFile = async (inputPath, options = {}) => {
 	})
 }
 
+const generateJSOptions = (retain = []) => ({
+	compress: {
+		...defaultOptions.compress,
+		top_retain: retain
+	},
+	mangle: {
+		reserved: retain
+	}
+})
+
 const minify = async () => {
-	await minifyFile("./assets/js/script.js", {
-		compress: {
-			...defaultOptions.compress,
-			top_retain: ["get", "getCookie", "setCookie", "deleteCookie", "encode", "assertInt", "handleError", "handleClickAndEnter", "sidebar", "fadeOut", "fadeIn", "openDialog"]
-		},
-		mangle: {
-			reserved: ["get", "getCookie", "setCookie", "deleteCookie", "encode", "assertInt", "handleError", "handleClickAndEnter", "sidebar", "fadeOut", "fadeIn", "openDialog"]
-		}
-	})
+	await minifyFile("./webpage/audio.js", generateJSOptions(["Audio"]))
+	await minifyFile("./webpage/channel.js", generateJSOptions(["Channel"]))
+	await minifyFile("./webpage/contextmenu.js", generateJSOptions(["ContextMenu"]))
+	await minifyFile("./webpage/dialog.js", generateJSOptions(["Dialog"]))
+	await minifyFile("./webpage/direct.js", generateJSOptions(["Group", "Direct"]))
+	await minifyFile("./webpage/embed.js", generateJSOptions([]))
+	await minifyFile("./webpage/guild.js", generateJSOptions(["Guild"]))
+	await minifyFile("./webpage/index.js", generateJSOptions([
+		"ws", "READY", "createchannels", "createcategory", "requestTestNotif", "editchannel", "messagelist", "buildprofile", "profileclick", "createunknown"
+	]))
+	await minifyFile("./webpage/localuser.js", generateJSOptions(["LocalUser"]))
+	await minifyFile("./webpage/login.js", generateJSOptions(["getBulkInfo", "getBulkUsers"]))
+	await minifyFile("./webpage/markdown.js", generateJSOptions(["markdown"]))
+	await minifyFile("./webpage/member.js", generateJSOptions(["Member"]))
+	await minifyFile("./webpage/message.js", generateJSOptions(["Message"]))
+	await minifyFile("./webpage/permissions.js", generateJSOptions(["Permissions"]))
+	await minifyFile("./webpage/register.js", generateJSOptions([]))
+	await minifyFile("./webpage/role.js", generateJSOptions(["Role"]))
+	await minifyFile("./webpage/service.js", generateJSOptions([]))
+	await minifyFile("./webpage/user.js", generateJSOptions(["User"]))
 
 	await minifyFile("./webpage/style.css")
+	await minifyFile("./webpage/manifest.json")
 
 	results.push({
 		path: "= Total",
