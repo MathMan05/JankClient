@@ -42,7 +42,6 @@ class Channel {
 		this.lastmessageid = json.last_message_id
 	}
 
-
 	isAdmin() {
 		return this.guild.isAdmin()
 	}
@@ -95,15 +94,14 @@ class Channel {
 				thisthing.parent_id = thing.parent_id
 				thing.move_id = void 0
 			}
-			if (thisthing.position || thisthing.parent_id) {
-				build.push(thisthing)
-			}
+			if (thisthing.position || thisthing.parent_id) build.push(thisthing)
 		}
 		return build
 	}
 	static dragged = []
 	createguildHTML(admin = false) {
 		const div = document.createElement("div")
+		div.id = "ch-" + this.id
 		div.all = this
 		div.draggable = admin
 		div.addEventListener("dragstart", e => {
@@ -113,6 +111,7 @@ class Channel {
 		div.addEventListener("dragend", () => {
 			Channel.dragged = []
 		})
+
 		if (this.type == 4) {
 			this.sortchildren()
 			const caps = document.createElement("div")
@@ -151,14 +150,13 @@ class Channel {
 			setTimeout(() => {
 				childrendiv.style.height = childrendiv.scrollHeight + "px"
 			}, 100)
+
 			decdiv.onclick = function() {
 				if (decoration.textContent == "▼") {
 					decoration.textContent = "▲"
-					//childrendiv.classList.add("colapsediv");
-					childrendiv.style.height = "0px"
+					childrendiv.style.height = "0"
 				} else {
 					decoration.textContent = "▼"
-					//childrendiv.classList.remove("colapsediv")
 					childrendiv.style.height = childrendiv.scrollHeight + "px"
 				}
 			}
@@ -173,24 +171,37 @@ class Channel {
 			div.all = this
 			const myhtml = document.createElement("span")
 			myhtml.textContent = this.name
+
+			const decoration = document.createElement("b")
+			if (this.parent) decoration.classList.add("indent")
+
 			if (this.type == 0) {
-				const decoration = document.createElement("b")
 				decoration.textContent = "#"
-				div.appendChild(decoration)
 				decoration.classList.add("space")
 			} else if (this.type == 2) {
-				const decoration = document.createElement("b")
 				decoration.textContent = "🕪"
-				div.appendChild(decoration)
-				decoration.classList.add("spacee")
+				decoration.classList.add("space", "spacee")
 			} else if (this.type == 5) {
-				const decoration = document.createElement("b")
 				decoration.textContent = "📣"
-				div.appendChild(decoration)
-				decoration.classList.add("spacee")
+				decoration.classList.add("space", "spacee")
+			} else if (this.type >= 10 && this.type <= 12) {
+				decoration.textContent = "🧵"
+				decoration.classList.add("space", "spacee")
+			} else if (this.type == 13) {
+				decoration.textContent = "🎭"
+				decoration.classList.add("space", "spacee")
+			} else if (this.type == 15) {
+				decoration.textContent = "🗂️"
+				decoration.classList.add("space", "spacee")
+			} else if (this.type == 16) {
+				decoration.textContent = "📸"
+				decoration.classList.add("space", "spacee")
 			} else {
-				console.log(this.type)
+				decoration.textContent = "❓"
+				console.warn("Unable to handle channel type " + this.type)
 			}
+			div.appendChild(decoration)
+
 			div.appendChild(myhtml)
 			div.myinfo = this
 			div.onclick = function() {
@@ -339,14 +350,15 @@ class Channel {
 		})
 	}
 	getHTML() {
-		if (this.owner !== this.owner.owner.lookingguild) {
-			this.owner.loadGuild()
-		}
+		if (this.owner != this.owner.owner.lookingguild) this.owner.loadGuild()
+
+		for (const elem of document.getElementsByClassName("active")) elem.classList.remove("active")
+		document.getElementById("ch-" + this.id).classList.add("active")
 
 		this.owner.prevchannel = this
 		this.owner.owner.channelfocus = this
 		this.putmessages()
-		history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.id)
+		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "#" + this.name
 	}
 	putmessages() {
@@ -354,11 +366,9 @@ class Channel {
 		fetch(instance.api + "/channels/" + this.id + "/messages?limit=100", {
 			method: "GET",
 			headers: this.headers
-		}).then(j => {
-			return j.json()
-		}).then(response => {
+		}).then(res => res.json()).then(json => {
 			messages.innerHTML = ""
-			for (const msg of response) {
+			for (const msg of json) {
 				const messager = new Message(msg, this)
 				if (out.messageids[messager.id] == void 0) {
 					out.messageids[messager.id] = messager
@@ -370,10 +380,8 @@ class Channel {
 	}
 	delChannel(json) {
 		const build = []
-		for (const thing of this.children) {
-			if (thing.id !== json.id) {
-				build.push(thing)
-			}
+		for (const child of this.children) {
+			if (child.id != json.id) build.push(child)
 		}
 		this.children = build
 	}

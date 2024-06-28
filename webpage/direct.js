@@ -29,6 +29,7 @@ class Group extends Channel {
 		myhtml.textContent = this.name
 		div.appendChild(this.user.buildpfp())
 		div.appendChild(myhtml)
+
 		div.myinfo = this
 		div.onclick = function() {
 			this.myinfo.getHTML()
@@ -39,7 +40,7 @@ class Group extends Channel {
 		this.guild.prevchannel = this
 		this.localuser.channelfocus = this
 		this.putmessages()
-		history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.id)
+		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "@" + this.name
 	}
 	messageCreate(messagep, focus) {

@@ -58,9 +58,7 @@ class Guild {
 		}
 		this.headchannels = []
 		for (const thing of this.channels) {
-			if (thing.resolveparent(this)) {
-				this.headchannels.push(thing)
-			}
+			if (thing.resolveparent(this)) this.headchannels.push(thing)
 		}
 	}
 	printServers() {
@@ -68,7 +66,7 @@ class Guild {
 		for (const thing of this.headchannels) {
 			build += (thing.name + ":" + thing.position) + "\n"
 			for (const thingy of thing.children) {
-				build += ("   " + thingy.name + ":" + thingy.position) + "\n"
+				build += "   " + thingy.name + ":" + thingy.position + "\n"
 			}
 		}
 	}
@@ -123,9 +121,8 @@ class Guild {
 		else html = this.html
 
 		let read = true
-		for (const thing of this.channels) {
-			if (thing.hasunreads) {
-				console.log(thing)
+		for (const channel of this.channels) {
+			if (channel.hasunreads) {
 				read = false
 				break
 			}

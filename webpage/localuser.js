@@ -340,7 +340,6 @@ class LocalUser {
 							}
 						}
 					]
-
 			]],
 			["Create Server", [
 				"text", "Not currently implemented, sorry"

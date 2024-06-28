@@ -4,7 +4,6 @@ const users = getBulkUsers()
 if (!users.currentuser) location.href = "/login"
 console.log(users)
 let instance = users.users[users.currentuser].serverurls
-const token = users.users[users.currentuser].token
 
 let ws
 let READY
@@ -62,6 +61,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 	const userdock = document.getElementById("userdock")
 	userinfo.addEventListener("click", event => {
 		const table = document.createElement("table")
+		table.classList.add("accountSwitcher")
+
 		for (const thing of Object.values(users.users)) {
 			const tr = document.createElement("tr")
 			const td = document.createElement("td")
@@ -110,17 +111,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 				})
 			})
 		}
-		{
-			const tr = document.createElement("tr")
-			const td = document.createElement("td")
-			tr.append(td)
-			td.append("Switch accounts ⇌")
-			td.addEventListener("click", () => {
-				location.href = "/login"
-			})
-			table.append(tr)
-		}
-		table.classList.add("accountSwitcher")
+
+		const tr = document.createElement("tr")
+		const td = document.createElement("td")
+		tr.append(td)
+		td.append("Switch accounts ⇌")
+		td.addEventListener("click", () => {
+			location.href = "/login"
+		})
+		table.append(tr)
 
 		if (currentmenu != "") currentmenu.remove()
 		currentmenu = table
@@ -148,7 +147,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
-				Authorization: token
+				Authorization: users.users[users.currentuser].token
 			},
 			body: JSON.stringify(subscription)
 		})
@@ -160,7 +159,7 @@ const requestTestNotif = async () => {
 	fetch(instance.api + "/notifications/webpush/testNotification", {
 		headers: {
 			"Content-Type": "application/json",
-			Authorization: token
+			Authorization: users.users[users.currentuser].token
 		}
 	})
 }

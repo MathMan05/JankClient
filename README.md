@@ -10,4 +10,4 @@ and register an account, or log in with your email and password.
 
 You can view the current roadmap on https://github.com/users/MathMan05/projects/1.
 
-And you can also join the spacebar server for Jank Client here https://dev.app.spacebar.chat/invite/USgYJo
+You can also join the Spacebar server for Jank Client here https://dev.app.spacebar.chat/invite/USgYJo or try out Jank Client at https://sb-jankclient.vanillaminigames.net.

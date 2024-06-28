@@ -51,8 +51,6 @@
 	--code-bg: #101014;
 	--user-info-bg: #323039;
 	--user-dock-bg: #1a1a23;
-	--channels-bg: #32323c;
-	--channel-hover: #1c1b25;
 	--blank-bg: #1b1b1b;
 	--light-border: #929292;
 	--settings-hover: #0e0d10;
@@ -66,6 +64,10 @@
 	--error-color: #ff4949;
 	--embed: #1a1823;
 	--embed-fallback: #6b717c;
+
+	--channels-bg: #32323c;
+	--channel-hover: #27272e;
+	--channel-active: #35353b;
 
 	--profile-bg: #2e2d33;
 	--profile-info-bg: #1a1a1e;
@@ -107,8 +109,6 @@
 	--code-bg: #cbcbcc;
 	--user-info-bg: #b0abc2;
 	--user-dock-bg: #b2b2c4;
-	--channels-bg: #cbcbd8;
-	--channel-hover: #b8b5cc;
 	--blank-bg: #ceccdd;
 	--light-border: #96959e;
 	--settings-hover: #b5b1bb;
@@ -122,6 +122,10 @@
 	--error-color: #d40404;
 	--embed: #f2f3f5;
 	--embed-fallback: #6b717c;
+
+	--channels-bg: #d6d6db;
+	--channel-hover: #bebecc;
+	--channel-active: #aeacbd;
 
 	--profile-bg: #cacad8;
 	--profile-info-bg: #bbbbce;
@@ -302,6 +306,7 @@ h2 {
 .servericon {
 	transition: border-radius .2s;
 	position: relative;
+	margin: 4px;
 }
 .servericon:hover {
 	border-radius: 30%;
@@ -415,14 +420,16 @@ p {
 }
 
 .spacee {
-	text-indent: .15in;
-	margin-right: .02in;
 	font-size: .15in;
-	display: inline-block;
 }
 
-#channels p2 {
+.indent {
+	text-indent: .15in;
+}
+
+#channels .active {
 	font-weight: bold;
+	background-color: var(--channel-active);
 }
 
 input {
@@ -861,10 +868,6 @@ select {
 	height: .15in;
 }
 
-.channels .space {
-	text-indent: .15in;
-}
-
 input[type="checkbox"] {
 	width: .15in;
 	height: .15in;
@@ -951,7 +954,7 @@ span {
 }
 
 .notiunread {
-	transform: translate(0, .2in);
+	transform: translate(-5px, 23px);
 }
 
 .wrongred {
@@ -959,10 +962,10 @@ span {
 }
 
 .pinged {
-	transform: translate(0, .4in);
+	transform: translate(0, .35in);
 	background-color: var(--notify-bg);
-	height: .15in;
-	width: .15in;
+	height: .17in;
+	width: .17in;
 	text-align: center;
 }
 

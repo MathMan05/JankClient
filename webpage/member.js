@@ -5,10 +5,8 @@ class Member {
 
 		this.owner = owner
 		let membery = memberjson
-		if (memberjson.guild_member) {
-			membery = memberjson.guild_member
-			this.user = memberjson.user
-		}
+		if (memberjson.guild_member) membery = memberjson.guild_member
+		this.user = memberjson.user
 
 		for (const thing of Object.keys(membery)) {
 			if (thing == "guild") continue
@@ -34,12 +32,12 @@ class Member {
 			return memb
 		}
 
-		const promise = fetch(instance.api + "/users/" + user.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + guild.id, {
+		const promise = fetch(instance.api + "/users/" + user.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true" + (guild.id == "@me" ? "" : "&guild_id=" + guild.id), {
 			headers: guild.headers
 		}).then(res => res.json()).then(json => {
 			const memb = new Member(json, guild)
 			Member.already[guild.id][user.id] = memb
-			guild.fillMember(memb)
+			if (guild.id != "@me") guild.fillMember(memb)
 			return memb
 		})
 
@@ -53,6 +51,8 @@ class Member {
 		return false
 	}
 	getColor() {
+		if (!this.roles) return ""
+
 		for (const r of this.roles) {
 			const color = r.getColor()
 			if (color) return color
