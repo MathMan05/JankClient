@@ -197,7 +197,7 @@ class Message {
             replyline.classList.add("replyflex");
             fetch(this.info.api.toString() + "/v9/channels/" + this.message_reference.channel_id + "/messages?limit=1&around=" + this.message_reference.message_id, { headers: this.headers }).then(responce => responce.json()).then(responce => {
                 const author = new User(responce[0].author, this.localuser);
-                reply.appendChild(markdown(responce[0].content));
+                reply.appendChild(markdown(responce[0].content, { stdsize: true }));
                 minipfp.src = author.getpfpsrc();
                 author.profileclick(minipfp);
                 username.textContent = author.username;

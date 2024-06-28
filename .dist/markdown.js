@@ -1,5 +1,5 @@
 export { markdown };
-function markdown(text, keep = false) {
+function markdown(text, { keep = false, stdsize = false } = {}) {
     let txt;
     if ((typeof txt) === "string") {
         txt = text.split("");
@@ -55,17 +55,20 @@ function markdown(text, keep = false) {
             }
             if (keepys) {
                 appendcurrent();
-                if (!first) {
+                if (!first && !stdsize) {
                     span.appendChild(document.createElement("br"));
                 }
                 const build = [];
                 for (; txt[i] !== "\n" && txt[i] !== undefined; i++) {
                     build.push(txt[i]);
                 }
+                if (stdsize) {
+                    element = document.createElement("span");
+                }
                 if (keep) {
                     element.append(keepys);
                 }
-                element.appendChild(markdown(build, keep));
+                element.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                 span.append(element);
                 i--;
                 continue;
@@ -76,7 +79,15 @@ function markdown(text, keep = false) {
         }
         if (txt[i] === "\n") {
             appendcurrent();
-            span.append(document.createElement("br"));
+            if (!stdsize) {
+                span.append(document.createElement("br"));
+            }
+            else {
+                const s = document.createElement("span");
+                s.textContent = "...";
+                span.append(s);
+                return span;
+            }
             continue;
         }
         if (txt[i] === "`") {
@@ -121,7 +132,7 @@ function markdown(text, keep = false) {
                 if (keep) {
                     build += "`".repeat(find);
                 }
-                if (count !== 3) {
+                if (count !== 3 && !stdsize) {
                     const samp = document.createElement("samp");
                     samp.textContent = build;
                     span.appendChild(samp);
@@ -173,7 +184,7 @@ function markdown(text, keep = false) {
                     if (keep) {
                         i.append(stars);
                     }
-                    i.appendChild(markdown(build, keep));
+                    i.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                     if (keep) {
                         i.append(stars);
                     }
@@ -184,7 +195,7 @@ function markdown(text, keep = false) {
                     if (keep) {
                         b.append(stars);
                     }
-                    b.appendChild(markdown(build, keep));
+                    b.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                     if (keep) {
                         b.append(stars);
                     }
@@ -196,7 +207,7 @@ function markdown(text, keep = false) {
                     if (keep) {
                         b.append(stars);
                     }
-                    b.appendChild(markdown(build, keep));
+                    b.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                     if (keep) {
                         b.append(stars);
                     }
@@ -239,7 +250,7 @@ function markdown(text, keep = false) {
                     if (keep) {
                         i.append(underscores);
                     }
-                    i.appendChild(markdown(build, keep));
+                    i.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                     if (keep) {
                         i.append(underscores);
                     }
@@ -250,7 +261,7 @@ function markdown(text, keep = false) {
                     if (keep) {
                         u.append(underscores);
                     }
-                    u.appendChild(markdown(build, keep));
+                    u.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                     if (keep) {
                         u.append(underscores);
                     }
@@ -262,7 +273,7 @@ function markdown(text, keep = false) {
                     if (keep) {
                         i.append(underscores);
                     }
-                    i.appendChild(markdown(build, keep));
+                    i.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                     if (keep) {
                         i.append(underscores);
                     }
@@ -299,7 +310,7 @@ function markdown(text, keep = false) {
                     if (keep) {
                         s.append(underscores);
                     }
-                    s.appendChild(markdown(build, keep));
+                    s.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                     if (keep) {
                         s.append(underscores);
                     }
@@ -334,7 +345,7 @@ function markdown(text, keep = false) {
                     if (keep) {
                         j.append(underscores);
                     }
-                    j.appendChild(markdown(build, keep));
+                    j.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                     j.classList.add("spoiler");
                     j.onclick = markdown.unspoil;
                     if (keep) {

@@ -184,14 +184,14 @@ class Embed{
         description.textContent=this.json.description;
         div.append(description);
 
-        {
+        if(this.json.thumbnail){
             const img=document.createElement("img");
             img.classList.add("bigembedimg");
             img.onclick=function(){
                 const full=new Fullscreen(["img",img.src,["fit"]]);
                 full.show();
             }
-            img.src=this.json.thumbnail.proxy_url;
+            img.src=this.json.thumbnail.proxy_url||this.json.thumbnail.url;
             div.append(img);
         }
         colordiv.append(div);
