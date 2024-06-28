@@ -78,15 +78,9 @@ function markdown(text, { keep = false, stdsize = false } = {}) {
             }
         }
         if (txt[i] === "\n") {
-            appendcurrent();
             if (!stdsize) {
+                appendcurrent();
                 span.append(document.createElement("br"));
-            }
-            else {
-                const s = document.createElement("span");
-                s.textContent = "...";
-                span.append(s);
-                return span;
             }
             continue;
         }
