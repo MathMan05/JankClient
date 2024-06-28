@@ -14,7 +14,6 @@ class Embed {
 			case "image":
 				return this.generateImage()
 			case "link":
-				return this.generateLink()
 			case "article":
 			case "video":
 				return this.generateArticle(this.type)
@@ -121,6 +120,7 @@ class Embed {
 	generateImage() {
 		const td = document.createElement("td")
 		const img = document.createElement("img")
+
 		if (this.json.thumbnail) {
 			img.classList.add("embedimg")
 			img.onclick = function() {
@@ -131,47 +131,8 @@ class Embed {
 			img.src = this.json.thumbnail.proxy_url
 			td.append(img)
 		}
+
 		return img
-	}
-	generateLink() {
-		const table = document.createElement("table")
-		table.classList.add("embed", "linkembed")
-		const trtop = document.createElement("tr")
-		table.append(trtop)
-
-		{
-			const td = document.createElement("td")
-			const a = document.createElement("a")
-			a.classList.add("title")
-			a.href = this.json.url
-			a.target = "_blank"
-			a.rel = "noreferrer noopener"
-			a.textContent = this.json.title
-			td.append(a)
-			trtop.append(td)
-		}
-
-		const tdImage = document.createElement("td")
-		const img = document.createElement("img")
-		img.classList.add("embedimg")
-		img.onclick = () => {
-			const full = new Dialog(["img", img.src, ["fit"]])
-			full.show()
-		}
-		img.crossOrigin = "anonymous"
-		img.src = this.json.thumbnail.proxy_url
-		tdImage.append(img)
-		trtop.append(tdImage)
-
-		const bottomtr = document.createElement("tr")
-		const td = document.createElement("td")
-		const span = document.createElement("span")
-		span.textContent = this.json.description
-		td.append(span)
-		bottomtr.append(td)
-		table.append(bottomtr)
-
-		return table
 	}
 	generateArticle(type = "article") {
 		const colordiv = document.createElement("div")
@@ -203,15 +164,17 @@ class Embed {
 		description.textContent = this.json.description
 		div.append(description)
 
-		const img = document.createElement("img")
-		img.classList.add("bigembedimg")
-		img.onclick = () => {
-			const full = new Dialog(["img", img.src, ["fit"]])
-			full.show()
+		if (this.json.image || this.json.thumbnail) {
+			const img = document.createElement("img")
+			if (this.json.image) img.classList.add("bigembedimg")
+			img.addEventListener("click", () => {
+				const full = new Dialog(["img", img.src, ["fit"]])
+				full.show()
+			})
+			img.crossOrigin = "anonymous"
+			img.src = this.json.image ? this.json.image.proxy_url : this.json.thumbnail.proxy_url
+			div.append(img)
 		}
-		img.crossOrigin = "anonymous"
-		img.src = this.json.thumbnail.proxy_url
-		div.append(img)
 
 		if (type == "video" && this.json.video) {
 			const proxyUrl = new URL(this.json.video.proxy_url)

@@ -244,7 +244,7 @@ class Message {
 			messagedwrap.appendChild(messaged)
 
 			const time = document.createElement("span")
-			time.textContent = "  " + formatTime(new Date(this.timestamp))
+			time.textContent = formatTime(new Date(this.timestamp))
 			time.classList.add("timestamp")
 			messagedwrap.append(time)
 

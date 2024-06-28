@@ -592,6 +592,7 @@ p {
 
 .timestamp {
 	color: var(--timestamp-color);
+	margin-left: 5px;
 	font-size: .14in;
 }
 
@@ -1034,13 +1035,12 @@ span {
 
 .bot {
 	background-color: #3d47cc;
-	padding: .02in .05in;
-	border-radius: .05in;
-	border: solid var(--black);
-	border-width: .03in;
+	color: var(--black);
+	padding: 0 3px 1px;
+	border-radius: 5px;
 	font-weight: bold;
-	font-size: .125in;
-	margin-left: .025in;
+	font-size: 12px;
+	margin-left: 5px;
 }
 
 .embedimg {
@@ -1053,7 +1053,7 @@ span {
 
 .embed-color {
 	padding-left: .04in;
-	border-radius: .05in;
+	border-radius: .07in;
 	background-color: black;
 }
 .embed {
