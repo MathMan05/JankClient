@@ -216,6 +216,7 @@ th {
 pre {
 	background-color: var(--code-bg);
 	width: 100vw;
+	max-width: max-content;
 	overflow-wrap: break-word;
 	word-wrap: break-word;
 	word-break: break-word;
