@@ -1,26 +1,44 @@
 import { User } from "./user.js";
+import { Guild } from "./guild.js";
 class Member {
     static already = {};
     owner;
     user;
     roles;
-    constructor(memberjson, owner) {
-        if (!owner) {
-            console.error("Guild not included in the creation of a member object");
-        }
+    error;
+    constructor(memberjson, owner, error = false) {
+        this.error = error;
         this.owner = owner;
         let membery = memberjson;
-        if (memberjson.guild_member) {
-            membery = memberjson.guild_member;
-            this.user = memberjson.user;
+        this.roles = [];
+        if (!error) {
+            if (memberjson.guild_member) {
+                membery = memberjson.guild_member;
+                this.user = memberjson.user;
+            }
         }
         for (const thing of Object.keys(membery)) {
             if (thing === "guild") {
                 continue;
             }
+            if (thing === "owner") {
+                continue;
+            }
+            if (thing === "roles") {
+                for (const strrole of membery["roles"]) {
+                    const role = this.guild.getRole(strrole);
+                    this.roles.push(role);
+                }
+                continue;
+            }
             this[thing] = membery[thing];
         }
-        this.user = new User(this.user, owner.localuser);
+        if (error) {
+            this.user = memberjson;
+        }
+        else {
+            this.user = new User(this.user, owner.localuser);
+        }
     }
     get guild() {
         return this.owner;
@@ -31,7 +49,17 @@ class Member {
     get info() {
         return this.owner.info;
     }
-    static async resolve(user, guild) {
+    static async resolve(unkown, guild) {
+        if (!(guild instanceof Guild)) {
+            console.error(guild);
+        }
+        let user;
+        if (unkown instanceof User) {
+            user = unkown;
+        }
+        else {
+            return new Member(unkown, guild);
+        }
         if (guild.id === "@me") {
             return null;
         }
@@ -48,12 +76,18 @@ class Member {
         const promoise = fetch(guild.info.api.toString() + "/v9/users/" + user.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + guild.id, { headers: guild.headers }).then(_ => _.json()).then(json => {
             const memb = new Member(json, guild);
             Member.already[guild.id][user.id] = memb;
-            guild.fillMember(memb);
             console.log("resolved");
             return memb;
         });
         Member.already[guild.id][user.id] = promoise;
-        return await promoise;
+        try {
+            return await promoise;
+        }
+        catch (_) {
+            const memb = new Member(user, guild, true);
+            Member.already[guild.id][user.id] = memb;
+            return memb;
+        }
     }
     hasRole(ID) {
         console.log(this.roles, ID);
@@ -74,6 +108,11 @@ class Member {
         return "";
     }
     isAdmin() {
+        for (const role of this.roles) {
+            if (role.permissions.getPermision("ADMINISTRATOR")) {
+                return true;
+            }
+        }
         return this.guild.properties.owner_id === this.user.id;
     }
 }

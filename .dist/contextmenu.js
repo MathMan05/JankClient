@@ -52,11 +52,15 @@ class Contextmenu {
         return this.div;
     }
     bind(obj, addinfo = undefined) {
-        obj.addEventListener("contextmenu", (event) => {
+        const func = (event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.makemenu(event.clientX, event.clientY, addinfo, obj);
-        });
+        };
+        obj.addEventListener("contextmenu", func);
+        return func;
+    }
+    static keepOnScreen(obj) {
     }
 }
 Contextmenu.setup();

@@ -138,7 +138,7 @@ h2 {
 
 .pfp {
 	border-radius: 50%;
-	width: .5in;
+	width: 0.5in;
 	height: .5in;
 	user-select: none;
 	cursor: pointer;
@@ -599,9 +599,12 @@ textarea {
 #settings {
 	cursor: pointer;
 	user-select: none;
-	border-radius: .1in;
+	border-radius: .3in;
 	transition: background 1s;
 	text-align: center;
+	font-size: .25in;
+	width: .3in;
+	height: .3in;
 }
 
 #settings:hover {
@@ -974,4 +977,14 @@ span {
 }
 .spaceright{
 	margin-right:.1in;
+}
+.membererror{
+	display:inline-block;
+	background:#656500;
+	height:.15in;
+	width:.15in;
+	border-radius:.1in;
+	text-align:center;
+	border:solid black .03in;
+	margin-left:.025in;
 }

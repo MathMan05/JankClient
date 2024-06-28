@@ -50,11 +50,16 @@ class Contextmenu{
         return this.div;
     }
     bind(obj:HTMLElement,addinfo:any=undefined){
-        obj.addEventListener("contextmenu", (event) => {
+        const func=(event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.makemenu(event.clientX,event.clientY,addinfo,obj)
-        });
+        }
+        obj.addEventListener("contextmenu", func);
+        return func;
+    }
+    static keepOnScreen(obj:HTMLElement){
+
     }
 }
 Contextmenu.setup();

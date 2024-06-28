@@ -49,8 +49,13 @@ class Localuser{
         this.channelfocus=null;
         this.lookingguild=null;
         this.guildhtml={};
+        const members={};
+        for(const thing of ready.d.merged_members){
+            members[thing[0].guild_id]=thing[0];
+        }
+
         for(const thing of ready.d.guilds){
-            const temp=new Guild(thing,this);
+            const temp=new Guild(thing,this,members[thing.id]);
             this.guilds.push(temp);
             this.guildids[temp.id]=temp;
         }
@@ -59,15 +64,13 @@ class Localuser{
             this.guilds.push(temp);
             this.guildids[temp.id]=temp;
         }
-        console.log(ready.d.user_guild_settings.entries)
+        console.log(ready.d.user_guild_settings.entries);
+
+
         for(const thing of ready.d.user_guild_settings.entries){
             this.guildids[thing.guild_id].notisetting(thing);
         }
-        for(const thing of ready.d.merged_members){
-            const guild=this.guildids[thing[0].guild_id]
-            const temp=new Member(thing[0],guild);
-            guild.giveMember(temp);
-        }
+
         for(const thing of ready.d.read_state.entries){
             const guild=this.resolveChannelFromID(thing.id).guild;
             if(guild===undefined){
@@ -134,6 +137,10 @@ class Localuser{
                             this.messageCreate(temp);
                         }
                         break;
+                    case "MESSAGE_DELETE":
+                        console.log(temp.d);
+                        this.guildids[temp.d.guild_id].channelids[temp.d.channel_id].messageids[temp.d.id].deleteEvent();
+                        break;
                     case "READY":
                         this.gottenReady(temp);
                         this.genusersettings();
@@ -196,7 +203,7 @@ class Localuser{
                     }
                     case "GUILD_CREATE":
                     {
-                        const guildy=new Guild(temp.d,this);
+                        const guildy=new Guild(temp.d,this,this.user);
                         this.guilds.push(guildy);
                         this.guildids[guildy.id]=guildy;
                         document.getElementById("servers").insertBefore(guildy.generateGuildIcon(),document.getElementById("bottomseperator"));
@@ -239,7 +246,6 @@ class Localuser{
         return;
     }
     resolveChannelFromID(ID:string):Channel{
-        console.log(this.guilds.find(guild => guild.channelids[ID]).channelids)
         let resolve=this.guilds.find(guild => guild.channelids[ID]).channelids[ID];
         resolve??=undefined;
         return resolve;

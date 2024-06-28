@@ -31,6 +31,7 @@ class Channel {
     message_notifications;
     allthewayup;
     static contextmenu = new Contextmenu("channel menu");
+    replyingto;
     static setupcontextmenu() {
         Channel.contextmenu.addbutton("Copy channel id", function () {
             console.log(this);
@@ -68,7 +69,6 @@ class Channel {
         for (const thing of JSON.permission_overwrites) {
             this.permission_overwrites[thing.id] = new Permissions(thing.allow, thing.deny);
         }
-        console.log(this.permission_overwrites);
         this.topic = JSON.topic;
         this.nsfw = JSON.nsfw;
         this.position = JSON.position;
@@ -94,20 +94,30 @@ class Channel {
         this.lastpin = json.last_pin_timestamp;
     }
     get hasunreads() {
+        if (!this.hasPermission("VIEW_CHANNEL")) {
+            return false;
+        }
         return this.lastmessageid !== this.lastreadmessageid && this.type !== 4;
     }
-    get canMessage() {
-        console.log("this should run");
-        for (const thing of Object.entries(this.permission_overwrites)) {
-            const perm = thing[1].getPermision("SEND_MESSAGES");
-            if (perm === 1) {
+    hasPermission(name, member = this.guild.member) {
+        if (member.isAdmin()) {
+            return true;
+        }
+        for (const thing of member.roles) {
+            if (this.permission_overwrites[thing.id]) {
+                let perm = this.permission_overwrites[thing.id].getPermision(name);
+                if (perm) {
+                    return perm === 1;
+                }
+            }
+            if (thing.permissions.getPermision(name)) {
                 return true;
             }
-            if (perm === -1) {
-                return false;
-            }
         }
-        return true;
+        return false;
+    }
+    get canMessage() {
+        return this.hasPermission("SEND_MESSAGES");
     }
     sortchildren() {
         this.children.sort((a, b) => { return a.position - b.position; });
@@ -144,6 +154,17 @@ class Channel {
     static dragged = [];
     createguildHTML(admin = false) {
         const div = document.createElement("div");
+        if (!this.hasPermission("VIEW_CHANNEL")) {
+            let quit = true;
+            for (const thing of this.children) {
+                if (thing.hasPermission("VIEW_CHANNEL")) {
+                    quit = false;
+                }
+            }
+            if (quit) {
+                return div;
+            }
+        }
         div["all"] = this;
         div.draggable = admin;
         div.addEventListener("dragstart", (e) => { Channel.dragged = [this, div]; e.stopImmediatePropagation(); });
@@ -383,34 +404,38 @@ class Channel {
             headers: this.headers
         });
     }
-    getHTML() {
+    async getHTML() {
         if (this.guild !== this.localuser.lookingguild) {
             this.guild.loadGuild();
         }
         this.guild.prevchannel = this;
         this.localuser.channelfocus = this;
-        this.putmessages();
+        const prom = Message.wipeChanel();
+        await this.putmessages();
+        await prom;
+        this.buildmessages();
         history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.id);
         document.getElementById("channelname").textContent = "#" + this.name;
         console.log(this);
         document.getElementById("typebox").disabled = !this.canMessage;
     }
-    putmessages() {
-        const out = this;
-        fetch(this.info.api.toString() + "/channels/" + this.id + "/messages?limit=100", {
+    async putmessages() {
+        if (this.messages.length >= 100) {
+            return;
+        }
+        ;
+        const j = await fetch(this.info.api.toString() + "/channels/" + this.id + "/messages?limit=100", {
             method: 'GET',
             headers: this.headers,
-        }).then((j) => { return j.json(); }).then(responce => {
-            document.getElementById("messages").innerHTML = '';
-            for (const thing of responce) {
-                const messager = new Message(thing, this);
-                if (out.messageids[messager.id] == undefined) {
-                    out.messageids[messager.id] = messager;
-                    out.messages.push(messager);
-                }
-            }
-            out.buildmessages();
         });
+        const responce = await j.json();
+        for (const thing of responce) {
+            const messager = new Message(thing, this);
+            if (this.messageids[messager.id] === undefined) {
+                this.messageids[messager.id] = messager;
+                this.messages.push(messager);
+            }
+        }
     }
     delChannel(JSON) {
         const build = [];
@@ -565,6 +590,9 @@ class Channel {
         }
     }
     messageCreate(messagep) {
+        if (!this.hasPermission("VIEW_CHANNEL")) {
+            return;
+        }
         const messagez = new Message(messagep.d, this);
         this.lastmessageid = messagez.id;
         if (messagez.author === this.localuser.user) {

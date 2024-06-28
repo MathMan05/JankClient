@@ -3,10 +3,11 @@ import { Channel } from "./channel.js";
 import { Message } from "./message.js";
 import { Localuser } from "./localuser.js";
 import {User} from "./user.js";
+import { Member } from "./member.js";
 
 class Direct extends Guild{
     constructor(JSON,owner:Localuser){
-        super(-1,owner);
+        super(-1,owner,null);
         this.message_notifications=0;
         console.log(JSON);
         this.owner=owner;
@@ -98,10 +99,16 @@ class Group extends Channel{
         }
         return div;
     }
-    getHTML(){
+    async getHTML(){
+        if(this.guild!==this.localuser.lookingguild){
+            this.guild.loadGuild();
+        }
+        const prom=Message.wipeChanel();
         this.guild.prevchannel=this;
         this.localuser.channelfocus=this;
-        this.putmessages();
+        await this.putmessages();
+        await prom;
+        this.buildmessages();
         history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.id);
         document.getElementById("channelname").textContent="@"+this.name;
     }
@@ -182,6 +189,12 @@ class Group extends Channel{
         }else{
 
         }
+    }
+    isAdmin(): boolean {
+        return false;
+    }
+    hasPermission(name: string, member?: Member): boolean {
+        return true;
     }
 }
 export {Direct, Group};

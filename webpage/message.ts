@@ -16,12 +16,25 @@ class Message{
     author:User;
     mentions:User[];
     mention_roles:Role[];
-    attachments;
+    attachments;//probably should be its own class tbh, should be Attachments[]
     id:string;
     message_reference;
     type:number;
     timestamp:number;
-    content;
+    content:string;
+    static del:Promise<void>;
+    static resolve:Function;
+    div:HTMLDivElement;
+    static setup(){
+        this.del=new Promise(_=>{this.resolve=_});
+        Message.setupcmenu();
+    }
+    static async wipeChanel(){
+        this.resolve();
+        document.getElementById("messages").innerHTML="";
+        await Promise.allSettled([this.resolve]);
+        this.del=new Promise(_=>{this.resolve=_})
+    }
     static setupcmenu(){
         Message.contextmenu.addbutton("Copy raw text",function(){
             navigator.clipboard.writeText(this.content);
@@ -51,8 +64,11 @@ class Message{
             this.channel.editing=this;
             (document.getElementById("typebox") as HTMLInputElement).value=this.content;
         },null,_=>{return _.author.id===_.localuser.user.id});
+        Message.contextmenu.addbutton("Delete message",function(){
+            this.delete();
+        },null,_=>{return _.canDelete()})
     }
-    constructor(messagejson,owner){
+    constructor(messagejson,owner:Channel){
         this.owner=owner;
         this.headers=this.owner.headers;
         for(const thing of Object.keys(messagejson)){
@@ -73,6 +89,9 @@ class Message{
             console.log(this);
         }
     }
+    canDelete(){
+        return this.channel.hasPermission("MANAGE_MESSAGES")||this.author.id===this.localuser.user.id;
+    }
     get channel(){
         return this.owner;
     }
@@ -85,11 +104,16 @@ class Message{
     get info(){
         return this.owner.info;
     }
-    messageevents(obj){
-        Message.contextmenu.bind(obj,this)
-        obj.classList.add("messagediv")
+    messageevents(obj:HTMLDivElement){
+        const func=Message.contextmenu.bind(obj,this);
+        this.div=obj;
+        Message.del.then(_=>{
+            obj.removeEventListener("click",func);
+            this.div=null;
+        })
+        obj.classList.add("messagediv");
     }
-    mentionsuser(userd){
+    mentionsuser(userd:User|Member){
         if(userd instanceof User){
             return this.mentions.includes(userd);
         }else if(userd instanceof Member){
@@ -112,11 +136,32 @@ class Message{
             body:JSON.stringify({content:content})
         });
     }
-    buildhtml(premessage){
-        //premessage??=messages.lastChild;
+    delete(){
+        fetch(`${this.info.api.toString()}/channels/${this.channel.id}/messages/${this.id}`,{
+            headers:this.headers,
+            method:"DELETE",
+        })
+    }
+    deleteEvent(){
+        if(this.div){
+            this.div.innerHTML="";
+            this.div=null;
+        }
+        const index=this.channel.messages.indexOf(this);
+        this.channel.messages.splice(this.channel.messages.indexOf(this),1);
+        delete this.channel.messageids[this.id];
+        const regen=this.channel.messages[index-1]
+        if(regen){
+            regen.generateMessage();
+        }
+    }
+    generateMessage(premessage:Message=null){
+        if(!premessage){
+            premessage=this.channel.messages[this.channel.messages.indexOf(this)+1];
+        }
+        const div=this.div;
+        div.innerHTML="";
         const build = document.createElement('table');
-        const div=document.createElement("div");
-
         if(this.message_reference){
             const replyline=document.createElement("div");
             const line=document.createElement("hr");
@@ -130,7 +175,21 @@ class Message{
             username.classList.add("username");
 
             Member.resolve(this.author,this.guild).then(_=>{
+                if(!_) {return};
+                console.log(_.error);
+                if(_.error){
+                    username.textContent+="Error";
+                    alert("Should've gotten here")
+                    const error=document.createElement("span");
+                    error.textContent="!";
+                    error.classList.add("membererror");
+                    username.after(error);
+
+                    return;
+                }
                 username.style.color=_.getColor();
+            }).catch(_=>{
+                console.log(_)
             });
 
             reply.classList.add("replytext");
@@ -161,7 +220,6 @@ class Message{
 
             let pfpparent, current
             if(premessage!=null){
-                pfpparent=premessage.pfpparent;
                 pfpparent??=premessage;
                 let pfpparent2=pfpparent.all;
                 pfpparent2??=pfpparent;
@@ -169,7 +227,7 @@ class Message{
                 const newt=(new Date(this.timestamp).getTime())/1000;
                 current=(newt-old)>600;
             }
-            const combine=(premessage?.userid!=this.author.id&&premessage?.author?.id!=this.author.id)||(current)||this.message_reference
+            const combine=(premessage?.author?.id!=this.author.id)||(current)||this.message_reference
             if(combine){
                 const pfp=this.author.buildpfp();
                 this.author.profileclick(pfp);
@@ -188,8 +246,16 @@ class Message{
                 const username=document.createElement("span");
                 username.classList.add("username")
                 this.author.profileclick(username);
-                    Member.resolve(this.author,this.guild).then(_=>{
-                    if(!_){return}
+                Member.resolve(this.author,this.guild).then(_=>{
+                    if(!_) {return};
+                    if(_.error){
+                        const error=document.createElement("span");
+                        error.textContent="!";
+                        error.classList.add("membererror");
+                        username.after(error);
+
+                        return;
+                    }
                     username.style.color=_.getColor();
                 })
                 username.textContent=this.author.username;
@@ -266,9 +332,15 @@ class Message{
 
             texttxt.appendChild(messagedwrap)
         }
-        div["userid"]=this.author.id;
         div["all"]=this;
         return(div)
+    }
+    buildhtml(premessage:Message){
+        if(this.div){console.error(`HTML for ${this} already exists, aborting`);return;}
+        //premessage??=messages.lastChild;
+        const div=document.createElement("div");
+        this.div=div;
+        return this.generateMessage(premessage);
     }
     createunknown(fname,fsize,src){
         const div=document.createElement("table");
@@ -328,5 +400,5 @@ function formatTime(date) {
         return `${date.toLocaleDateString()} at ${formatTime(date)}`;
     }
 }
-Message.setupcmenu();
+Message.setup();
 export { Message };
