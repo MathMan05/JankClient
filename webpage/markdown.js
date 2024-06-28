@@ -250,13 +250,13 @@ const markdown = (txt, keep = false) => {
 				appendcurrent()
 				i = j
 				const underscores = "~~"
-				if (count == 2) {
-					const sElem = document.createElement("s")
-					if (keep) sElem.append(underscores)
-					sElem.appendChild(markdown(build, keep))
-					if (keep) sElem.append(underscores)
-					span.appendChild(sElem)
-				}
+
+				const sElem = document.createElement("s")
+				if (keep) sElem.append(underscores)
+				sElem.appendChild(markdown(build, keep))
+				if (keep) sElem.append(underscores)
+				span.appendChild(sElem)
+
 				continue
 			}
 		}
@@ -281,15 +281,15 @@ const markdown = (txt, keep = false) => {
 				appendcurrent()
 				i = j
 				const pipes = "||"
-				if (count == 2) {
-					const spoilerElem = document.createElement("span")
-					if (keep) spoilerElem.append(pipes)
-					spoilerElem.appendChild(markdown(build, keep))
-					spoilerElem.classList.add("spoiler")
-					spoilerElem.addEventListener("click", markdown.unspoil)
-					if (keep) spoilerElem.append(pipes)
-					span.appendChild(spoilerElem)
-				}
+
+				const spoilerElem = document.createElement("span")
+				if (keep) spoilerElem.append(pipes)
+				spoilerElem.appendChild(markdown(build, keep))
+				spoilerElem.classList.add("spoiler")
+				spoilerElem.addEventListener("click", markdown.unspoil)
+				if (keep) spoilerElem.append(pipes)
+				span.appendChild(spoilerElem)
+
 				continue
 			}
 		}

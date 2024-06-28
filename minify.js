@@ -43,7 +43,8 @@ const minifyFile = async (inputPath, options = {}) => {
 		})
 
 		if (result.error) throw result.error
-		if (result.warnings && result.warnings.length > defaultOptions.compress.passes) console.log(inputPath, result.warnings)
+		if (result.warnings && result.warnings.length > defaultOptions.compress.passes)
+			console.log(inputPath, result.warnings.filter(w => !w.includes(" last_count: ") && !w.includes("Retaining variable ")))
 	} else if (filename.endsWith(".css")) {
 		const clean = new CleanCSS({
 			compatibility: {
@@ -110,12 +111,12 @@ const minify = async () => {
 	await minifyFile("./webpage/contextmenu.js", generateJSOptions(["ContextMenu"]))
 	await minifyFile("./webpage/dialog.js", generateJSOptions(["Dialog"]))
 	await minifyFile("./webpage/direct.js", generateJSOptions(["Group", "Direct"]))
-	await minifyFile("./webpage/embed.js", generateJSOptions([]))
+	await minifyFile("./webpage/embed.js", generateJSOptions(["Embed"]))
 	await minifyFile("./webpage/guild.js", generateJSOptions(["Guild"]))
 	await minifyFile("./webpage/index.js", generateJSOptions([
-		"ws", "READY", "createchannels", "createcategory", "requestTestNotif", "editchannel", "messagelist", "buildprofile", "profileclick", "createunknown"
+		"ws", "READY", "createchannels", "createcategory", "requestTestNotif", "editchannel", "messagelist", "buildprofile", "profileclick", "createunknown", "setTheme"
 	]))
-	await minifyFile("./webpage/localuser.js", generateJSOptions(["LocalUser"]))
+	await minifyFile("./webpage/localuser.js", generateJSOptions(["LocalUser", "userSettings"]))
 	await minifyFile("./webpage/login.js", generateJSOptions(["getBulkInfo", "getBulkUsers"]))
 	await minifyFile("./webpage/markdown.js", generateJSOptions(["markdown"]))
 	await minifyFile("./webpage/member.js", generateJSOptions(["Member"]))

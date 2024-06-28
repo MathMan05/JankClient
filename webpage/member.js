@@ -25,13 +25,11 @@ class Member {
 		return this.guild.localuser
 	}
 	static async resolve(user, guild) {
-		if (!Member.already[guild.id]) {
-			Member.already[guild.id] = {}
-		} else if (Member.already[guild.id][user.id]) {
+		if (!Member.already[guild.id]) Member.already[guild.id] = {}
+		else if (Member.already[guild.id][user.id]) {
 			const memb = Member.already[guild.id][user.id]
-			if (memb instanceof Promise) {
-				return await memb
-			}
+
+			if (memb instanceof Promise) return await memb
 			return memb
 		}
 

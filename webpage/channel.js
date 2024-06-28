@@ -567,10 +567,10 @@ class Channel {
 
 		if (Notification.permission == "granted") {
 			let noticontent = markdown(message.content).textContent
-			if (message.embeds[0]) {
-				noticontent ||= message.embeds.find(embed => embed.json.title)?.json.title
-				noticontent ||= markdown(message.embeds.find(embed => embed.json.description)?.json.description).textContent
-			}
+			if (message.embeds[0] && !noticontent)
+				noticontent = message.embeds.find(embed => embed.json.title)?.json.title ||
+					markdown(message.embeds.find(embed => embed.json.description)?.json.description).textContent
+
 			if (message.system) noticontent ||= "System Message"
 			else noticontent ||= "Blank Message"
 
@@ -578,8 +578,7 @@ class Channel {
 			const images = message.getimages()
 			if (images.length > 0) {
 				const image = images[0]
-				imgurl ||= image.proxy_url
-				imgurl ||= image.url
+				imgurl ||= image.proxy_url || image.url
 			}
 
 			const notification = new Notification(this.notititle(message), {

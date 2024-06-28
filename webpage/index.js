@@ -329,11 +329,13 @@ const createunknown = (fname, fsize, src) => {
 	div.classList.add("unknownfile")
 	const nametr = document.createElement("tr")
 	div.append(nametr)
+
 	const fileicon = document.createElement("td")
-	nametr.append(fileicon)
 	fileicon.append("🗎")
 	fileicon.classList.add("fileicon")
 	fileicon.rowSpan = "2"
+	nametr.append(fileicon)
+
 	const nametd = document.createElement("td")
 	if (src) {
 		const a = document.createElement("a")
