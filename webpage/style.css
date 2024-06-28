@@ -57,7 +57,12 @@ th {
 .messagediv:hover {
 	background-color: var(--message-bg-hover);
 }
-
+.messagediv{
+	overflow: hidden;
+	max-width:100%;
+	/* width: 9%; */
+	/* display: inline-block; */
+}
 pre {
 	background-color: var(--code-bg);
 	width: 100%;
@@ -225,10 +230,11 @@ img {
 	height: 100%;
 	width: 100%;
 	display: inline-block;
+	max-width: 100%;
 }
 
 #messages {
-	width: 100%;
+	max-width: 100%;
 }
 
 p {
@@ -448,15 +454,25 @@ p {
 }
 
 .replyflex {
+	overflow: hidden;
 	display: flex;
 	align-items: center;
+	max-width: 100%;
+	flex-direction: row;
+	/* width: 00; */
+	flex-wrap: nowrap;
+	justify-content: space-between;
 }
 
 .reply {
-	display: inline-block;
+	display: inline;
 	vertical-align: middle;
 	flex-grow: 1;
 	border-color: var(--reply-border);
+	/* flex: 1; */
+	min-width: 0px;
+	/* max-width: 0px; */
+	/* grid-column-end: 1; */
 }
 
 .startreply {
@@ -477,8 +493,20 @@ p {
 }
 
 .replytext {
-	padding: .05in;
+	padding: 0 .05in;
 	color: var(--reply-text);
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	max-width: fit-content;
+	/* display: block; */
+	/* flex-grow: 1; */
+	flex: 1 1 auto;
+	width: fit-content;
+	min-width: 0;
+	/* display: inline-block !important; */
+	width: 25vw;
+	grid-column: 2;
 }
 
 ::-webkit-scrollbar {
@@ -765,6 +793,9 @@ input[type="checkbox"] {
 span {
 	word-wrap: break-word;
 	word-break: break-word;
+	/* overflow: clip; */
+	/* width: 2in; */
+	/* max-width: 100%; */
 }
 
 #loading {
@@ -987,4 +1018,10 @@ span {
 	text-align:center;
 	border:solid black .03in;
 	margin-left:.025in;
+}
+.replyflex span{
+	/* display: inline-block; */
+	text-overflow:ellipsis;
+	overflow: hidden;
+	max-width: 100%;
 }

@@ -229,7 +229,7 @@ class Localuser{
             clearInterval(this.wsinterval);
             console.log('WebSocket closed');
             console.warn(event);
-            if(event.code!==4000&&this===this){
+            if(event.code!==4000){
                 this.unload();
                 document.getElementById("loading").classList.remove("doneloading");
                 document.getElementById("loading").classList.add("loading");
