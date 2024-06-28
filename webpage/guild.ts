@@ -15,7 +15,7 @@ class Guild{
     roles:Role[];
     roleids:{[key:string]:Role};
     prevchannel:Channel;
-    message_notifications
+    message_notifications:number;
     headchannels:Channel[];
     position:number;
     parent_id:string;
@@ -60,16 +60,13 @@ class Guild{
         },null,_=>{return thisuser.isAdmin()})
         */
     }
-    constructor(JSON,owner:Localuser){
+    constructor(JSON,owner:Localuser,member){
 
         if(JSON===-1){
             return;
         }
         this.owner=owner;
         this.headers=this.owner.headers;
-        if(!this.owner){
-            console.error("localuser was not included, please fix")
-        }
         this.channels=[];
         this.channelids={};
         this.id=JSON.id;
@@ -83,6 +80,7 @@ class Guild{
             this.roles.push(roleh)
             this.roleids[roleh.id]=roleh;
         }
+        Member.resolve(member,this).then(_=>this.member=_);
         for(const thing of JSON.channels){
             const temp=new Channel(thing,this);
             this.channels.push(temp);
@@ -360,19 +358,8 @@ class Guild{
             body:JSON.stringify(build)
         })
     }
-    fillMember(member:Member){
-        const realroles=[];
-        for(const thing of member.roles){
-            realroles.push(this.getRole(thing));
-        }
-        member.roles=realroles;
-        return member;
-    }
-    giveMember(member:Member){
-        this.fillMember(member);
-        this.member=member;
-    }
-    getRole(ID){
+    getRole(ID:string):Role{
+        if(!this.roleids[ID]){console.error(`role id ${ID} does not exist`,this.roleids)}
         return this.roleids[ID];
     }
     hasRole(r:Role|string){
@@ -382,7 +369,7 @@ class Guild{
         }
         return this.member.hasRole(r as string);
     }
-    loadChannel(ID=undefined){
+    loadChannel(ID:string=undefined){
         if(ID&&this.channelids[ID]){
             this.channelids[ID].getHTML();
             return;

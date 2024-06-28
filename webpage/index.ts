@@ -142,11 +142,12 @@ async function enter(event){
             channel.editing.edit((typebox).value);
             channel.editing=null;
         }else{
+            replyingto= thisuser.channelfocus.replyingto;
             let replying=replyingto?.all;
             if(replyingto){
                 replyingto.classList.remove("replying");
             }
-            replyingto=false;
+            thisuser.channelfocus.replyingto=null;
             channel.sendMessage(typebox.value,{
                 attachments:images,
                 replyingto:replying,
