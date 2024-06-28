@@ -15,3 +15,5 @@ I'm new to Git/GitHub, so please be patient with me, it's my first time. If ther
 If there are any problems with Jank Client, please let me know.
 
 You can view the current roadmap on https://github.com/users/MathMan05/projects/1.
+
+And you can also join the spacebar server for Jank Client here https://dev.app.spacebar.chat/invite/USgYJo 
