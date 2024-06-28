@@ -1,5 +1,5 @@
 # JankClient
-JanKClient is a SpaceBar Client written in JS, HTML, and CSS.
+JankClient is a SpaceBar Client written in JS, HTML, and CSS.
 To run it, clone the repo and do `npm install express`, then either  
 `node index.js`
 or
