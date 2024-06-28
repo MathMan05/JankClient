@@ -125,9 +125,11 @@ class User{
             userbody.appendChild(biohtml);
         }
         console.log(div);
+
         if(x!==-1){
             Contextmenu.currentmenu=div;
             document.body.appendChild(div)
+            Contextmenu.keepOnScreen(div);
         }
         return div;
     }

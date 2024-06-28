@@ -126,6 +126,7 @@ class User {
         if (x !== -1) {
             Contextmenu.currentmenu = div;
             document.body.appendChild(div);
+            Contextmenu.keepOnScreen(div);
         }
         return div;
     }
