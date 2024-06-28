@@ -7,7 +7,7 @@
 	--primary-text: #FFF;
 	--primary-bg: #1a1a20; /* prev: #282832 */
 	--black: #000;
-	--message-bg-hover: #1e1e28;
+	--message-bg-hover: #24242b; /* prev: #1e1e28 */
 	--typing-bg: #161616;
 	--timestamp-color: #a2a2a2;
 	--code-bg: #101014;
@@ -27,7 +27,7 @@
 	--profile-bg: #202028; /* prev: #2e2d33 */
 	--profile-info-bg: #1a1a20; /* prev: #1a1a1e */
 	--server-border: #22222a; /* prev: #1b1b24 */
-	--server-bg: #252530;
+	--server-bg: #24242b; /* prev: #252530 */
 	--reply-border: #474b76;
 	--reply-bg: #0b0d20;
 	--reply-text: #acacac;
@@ -37,7 +37,7 @@
 	--unknown-file-border: #474555;
 	--login-border: #131315;
 	--loading-bg: #22232c;
-	--dialog-bg: #33363d;
+	--dialog-bg: #1a1a20; /* prev: #33363d */
 	--dialog-border: #1c1b31;
 	--scrollbar-track: #34313c;
 	--scrollbar-thumb: #201f29;
