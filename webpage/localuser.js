@@ -1,6 +1,7 @@
 "use strict"
 
-function userSettings() {
+// eslint-disable-next-line no-unused-vars
+const userSettings = () => {
 	thisuser.usersettings.show()
 }
 
@@ -9,6 +10,7 @@ let heartbeatInterval = 0
 let errorBackoff = 0
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
+// eslint-disable-next-line no-unused-vars
 class LocalUser {
 	constructor(userinfo) {
 		this.token = userinfo.token
@@ -197,7 +199,7 @@ class LocalUser {
 				setTimeout(() => {
 					document.getElementById("load-desc").textContent = "Retrying..."
 
-					this.initwebsocket().then(_ => {
+					this.initwebsocket().then(() => {
 						thisuser.loaduser()
 						thisuser.init()
 						document.getElementById("loading").classList.add("doneloading")
@@ -444,13 +446,14 @@ class LocalUser {
 		let newTheme = null
 
 		let hypouser = new User(thisuser.user)
-		function regen() {
+		const regen = () => {
 			hypothetcialprofie.textContent = ""
 			const hypoprofile = buildprofile(-1, -1, hypouser)
 
 			hypothetcialprofie.appendChild(hypoprofile)
 		}
 		regen()
+
 		this.usersettings = new Dialog(
 			["vdiv",
 				["hdiv",

@@ -1,4 +1,4 @@
-async function registertry(event) {
+const registertry = async event => {
 	event.preventDefault()
 	const elements = event.srcElement
 	const email = elements[1].value
@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
 	document.getElementById("register").addEventListener("submit", registertry)
 
 	let TOSa = document.getElementById("TOSa")
-	async function tosLogic() {
+	checkInstance.alt = async () => {
 		const apiurl = new URL(JSON.parse(localStorage.getItem("instanceEndpoints")).api)
 		const tosPage = (await (await fetch(apiurl.toString() + "/ping")).json()).instance.tosPage
 		if (tosPage) {
@@ -53,5 +53,4 @@ document.addEventListener("DOMContentLoaded", () => {
 		}
 		console.log("Found ToS page: " + tosPage)
 	}
-	checkInstance.alt = tosLogic
 })

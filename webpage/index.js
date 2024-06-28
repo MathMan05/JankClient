@@ -5,7 +5,9 @@ if (!users.currentuser) location.href = "/login"
 console.log(users)
 let instance = users.users[users.currentuser].serverurls
 
+// eslint-disable-next-line no-unused-vars
 let ws
+// eslint-disable-next-line no-unused-vars
 let READY
 
 let thisuser = new LocalUser(users.users[users.currentuser])
@@ -30,11 +32,46 @@ const setDynamicHeight = () => {
 	document.documentElement.style.setProperty("--servertd-height", servertdHeight + "px")
 }
 
-const serverz = 0
-const serverid = []
-
 let editing = false
 let currentmenu = ""
+
+const createchannels = fincall => {
+	let name = ""
+	let type = 0
+	const channelselect = new Dialog(
+		["vdiv",
+			["radio", "select channel type",
+				["voice", "text", "announcement"],
+				value => {
+					type = { text: 0, voice: 2, announcement: 5, category: 4 }[value]
+				},
+				1
+			],
+			["textbox", "Name of channel", "", event => {
+				name = event.target.value
+			}],
+			["button", "", "submit", () => {
+				fincall(name, type)
+				channelselect.hide()
+			}]
+		])
+	channelselect.show()
+}
+const createcategory = fincall => {
+	let name = ""
+	const category = 4
+	const channelselect = new Dialog(
+		["vdiv",
+			["textbox", "Name of category", "", event => {
+				name = event.target.value
+			}],
+			["button", "", "submit", () => {
+				fincall(name, category)
+				channelselect.hide()
+			}]
+		])
+	channelselect.show()
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
 	const resizeObserver = new ResizeObserver(() => {
@@ -155,6 +192,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	}
 })
 
+// eslint-disable-next-line no-unused-vars
 const requestTestNotif = async () => {
 	fetch(instance.api + "/notifications/webpush/testNotification", {
 		headers: {
@@ -175,52 +213,17 @@ document.addEventListener("click", event => {
 })
 let replyingto = null
 
-function createchannels(fincall) {
-	let name = ""
-	let type = 0
-	const channelselect = new Dialog(
-		["vdiv",
-			["radio", "select channel type",
-				["voice", "text", "announcement"],
-				value => {
-					type = { text: 0, voice: 2, announcement: 5, category: 4 }[value]
-				},
-				1
-			],
-			["textbox", "Name of channel", "", event => {
-				name = event.target.value
-			}],
-			["button", "", "submit", () => {
-				fincall(name, type)
-				channelselect.hide()
-			}]
-		])
-	channelselect.show()
-}
-function createcategory(fincall) {
-	let name = ""
-	const category = 4
-	const channelselect = new Dialog(
-		["vdiv",
-			["textbox", "Name of category", "", event => {
-				name = event.target.value
-			}],
-			["button", "", "submit", () => {
-				fincall(name, category)
-				channelselect.hide()
-			}]
-		])
-	channelselect.show()
-}
-function editchannel(channel) {
+// eslint-disable-next-line no-unused-vars
+const editchannel = channel => {
 	channel.editChannel()
 }
 
+// eslint-disable-next-line no-unused-vars
 const messagelist = []
-function buildprofile(x, y, user, type = "author") {
+const buildprofile = (x, y, user, type = "author") => {
 	if (currentmenu != "") currentmenu.remove()
 
-	let nickname, username, discriminator, bio, bot, pronouns
+	let nickname, username, discriminator, bio, pronouns
 	if (type == "author") {
 		console.log(user)
 		username = user.username
@@ -229,7 +232,6 @@ function buildprofile(x, y, user, type = "author") {
 		bio = user.bio
 		discriminator = user.discriminator
 		pronouns = user.pronouns
-		bot = user.bot
 	}
 
 	const div = document.createElement("table")
@@ -273,7 +275,9 @@ function buildprofile(x, y, user, type = "author") {
 	}
 	return div
 }
-function profileclick(obj, author) {
+
+// eslint-disable-next-line no-unused-vars
+const profileclick = (obj, author) => {
 	obj.onclick = event => {
 		event.stopPropagation()
 		buildprofile(event.clientX, event.clientY, author)
@@ -283,12 +287,7 @@ function profileclick(obj, author) {
 let images = []
 
 const typebox = document.getElementById("typebox")
-typebox.addEventListener("keyup", enter)
-typebox.addEventListener("keydown", event => {
-	if (event.key == "Enter" && !event.shiftKey) event.preventDefault()
-})
-
-async function enter(event) {
+typebox.addEventListener("keyup", event => {
 	thisuser.channelfocus.typingstart()
 
 	if (event.key == "Enter" && !event.shiftKey) {
@@ -315,9 +314,17 @@ async function enter(event) {
 
 		typebox.value = ""
 	}
+})
+typebox.addEventListener("keydown", event => {
+	if (event.key == "Enter" && !event.shiftKey) event.preventDefault()
+})
+
+const filesizehuman = fsize => {
+	const i = fsize <= 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024))
+	return (fsize / Math.pow(1024, i)).toFixed(2) + " " + ["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i]
 }
 
-function createunknown(fname, fsize, src) {
+const createunknown = (fname, fsize, src) => {
 	const div = document.createElement("table")
 	div.classList.add("unknownfile")
 	const nametr = document.createElement("tr")
@@ -348,12 +355,7 @@ function createunknown(fname, fsize, src) {
 	return div
 }
 
-function filesizehuman(fsize) {
-	const i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024))
-	return (fsize / Math.pow(1024, i)).toFixed(2) + " " + ["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i]
-}
-
-function filetohtml(file) {
+const filetohtml = file => {
 	if (file.type.startsWith("image/")) {
 		const img = document.createElement("img")
 		img.crossOrigin = "anonymous"
@@ -365,9 +367,10 @@ function filetohtml(file) {
 		return createunknown(file.name, file.size)
 	}
 }
-document.addEventListener("paste", async e => {
-	Array.from(e.clipboardData.files).forEach(async file => {
-		e.preventDefault()
+
+document.addEventListener("paste", event => {
+	Array.from(event.clipboardData.files).forEach(file => {
+		event.preventDefault()
 		const html = filetohtml(file)
 		document.getElementById("pasteimage").appendChild(html)
 		images.push(file)
@@ -375,7 +378,7 @@ document.addEventListener("paste", async e => {
 })
 
 let triggered = false
-document.getElementById("messagecontainer").addEventListener("scroll", e => {
+document.getElementById("messagecontainer").addEventListener("scroll", () => {
 	const messagecontainer = document.getElementById("messagecontainer")
 	if (messagecontainer.scrollTop < 2000) {
 		if (!triggered && thisuser.lookingguild) {
@@ -385,11 +388,8 @@ document.getElementById("messagecontainer").addEventListener("scroll", e => {
 			})
 		}
 		triggered = true
-	} else {
-		if (Math.abs(messagecontainer.scrollHeight - messagecontainer.scrollTop - messagecontainer.clientHeight) < 3) {
-			thisuser.lookingguild.prevchannel.readbottom()
-		}
-	}
+	} else if (Math.abs(messagecontainer.scrollHeight - messagecontainer.scrollTop - messagecontainer.clientHeight) < 3)
+		thisuser.lookingguild.prevchannel.readbottom()
 })
 
 if (screen.width <= 600) {

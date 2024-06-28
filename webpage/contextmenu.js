@@ -1,5 +1,6 @@
 "use strict"
 
+// eslint-disable-next-line no-unused-vars
 class ContextMenu {
 	constructor() {
 		this.buttons = []

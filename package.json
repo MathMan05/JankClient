@@ -4,7 +4,8 @@
   "description": "A SpaceBar Client written in JS, HTML and CSS. To run, clone the repo and do either `node index.js` or `bun index.js` both bun and node are supported, and both should function as expected, if there are any problems with Jank Client on things that aren't linux, please let me know. To access Jank Client after init simply go to http://localhost:8080/login and login with your username and password.",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "minify": "node minify.js"
   },
   "keywords": [
     "spacebar"
@@ -17,13 +18,17 @@
     "type": "git",
     "url": "https://github.com/MathMan05/JankClient.git"
   },
-  "contributors": [{
-    "name": "TomatoCake",
-    "url": "https://github.com/DEVTomatoCake"
-  }],
+  "contributors": [
+    {
+      "name": "TomatoCake",
+      "url": "https://github.com/DEVTomatoCake"
+    }
+  ],
   "license": "GPL-3.0",
   "dependencies": {
-    "express": "^4.19.2"
+    "clean-css": "^5.3.3",
+    "express": "^4.19.2",
+    "uglify-js": "^3.18.0"
   },
   "devDependencies": {
     "@html-eslint/eslint-plugin": "^0.24.1",

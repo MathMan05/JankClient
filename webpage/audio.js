@@ -1,3 +1,6 @@
+"use strict"
+
+// eslint-disable-next-line no-unused-vars
 class Audio {
 	constructor(wave, freq, volume = 1) {
 		this.audioCtx = new (window.AudioContext || window.webkitAudioContext)()
@@ -86,13 +89,13 @@ class Audio {
 			case "three":{
 					const voicy = new Audio("sin", 800)
 					voicy.play()
-					setTimeout(_ => {
+					setTimeout(() => {
 						voicy.freq = 1000
 					}, 50)
-					setTimeout(_ => {
+					setTimeout(() => {
 						voicy.freq = 1300
 					}, 100)
-					setTimeout(_ => {
+					setTimeout(() => {
 						voicy.stop()
 					}, 150)
 					break
@@ -102,7 +105,7 @@ class Audio {
 					return Math.sin(((t + 2) ** (Math.cos(t * 4))) * Math.PI * 2 * freq)
 				}, 700)
 				voicy.play()
-				setTimeout(_ => {
+				setTimeout(() => {
 					voicy.stop()
 				}, 150)
 				break
@@ -110,7 +113,7 @@ class Audio {
 			case "square":{
 				const voicy = new Audio("square", 600, 0.4)
 				voicy.play()
-				setTimeout(_ => {
+				setTimeout(() => {
 					voicy.freq = 800
 				}, 50)
 				setTimeout(() => {
@@ -124,13 +127,13 @@ class Audio {
 			case "beep":{
 				const voicy = new Audio("sin", 800)
 				voicy.play()
-				setTimeout(_ => {
+				setTimeout(() => {
 					voicy.stop()
 				}, 50)
-				setTimeout(_ => {
+				setTimeout(() => {
 					voicy.play()
 				}, 100)
-				setTimeout(_ => {
+				setTimeout(() => {
 					voicy.stop()
 				}, 150)
 				break

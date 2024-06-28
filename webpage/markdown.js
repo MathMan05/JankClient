@@ -1,11 +1,11 @@
 "use strict"
 
-function markdown(txt, keep = false) {
+const markdown = (txt, keep = false) => {
 	if (typeof txt == "string") return markdown(txt.split(""), keep)
 
 	const span = document.createElement("span")
 	let current = document.createElement("span")
-	function appendcurrent() {
+	const appendcurrent = () => {
 		if (current.innerHTML != "") {
 			span.append(current)
 			current = document.createElement("span")

@@ -1,3 +1,21 @@
+"use strict"
+
+let lastCache
+let lastChecked = 0
+const checkCache = async () => {
+	if (lastChecked + 1000 * 60 * 30 > Date.now()) return
+
+	const prevCache = await caches.match("/getupdates")
+	if (prevCache) lastCache = await prevCache.text()
+
+	fetch("/getupdates").then(async data => {
+		const text = await data.clone().text()
+		if (lastCache != text) caches.delete("cache")
+
+		lastChecked = Date.now()
+	})
+}
+
 self.addEventListener("activate", event => {
 	event.waitUntil((async () => {
 		if ("navigationPreload" in self.registration) await self.registration.navigationPreload.enable()
@@ -29,23 +47,7 @@ self.addEventListener("push", event => {
 	})
 })
 
-let lastCache
-let lastChecked = 0
-async function checkCache() {
-	if (lastChecked + 1000 * 60 * 30 > Date.now()) return
-
-	const prevCache = await caches.match("/getupdates")
-	if (prevCache) lastCache = await prevCache.text()
-
-	fetch("/getupdates").then(async data => {
-		const text = await data.clone().text()
-		if (lastCache != text) caches.delete("cache")
-
-		lastChecked = Date.now()
-	})
-}
-
-function isindexhtml(url) {
+const isindexhtml = url => {
 	const parsed = new URL(url)
 	if (parsed.pathname.startsWith("/channels")) return true
 	return false

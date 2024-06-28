@@ -61,15 +61,6 @@ class Guild {
 			if (thing.resolveparent(this)) this.headchannels.push(thing)
 		}
 	}
-	printServers() {
-		let build = ""
-		for (const thing of this.headchannels) {
-			build += (thing.name + ":" + thing.position) + "\n"
-			for (const thingy of thing.children) {
-				build += "   " + thingy.name + ":" + thingy.position + "\n"
-			}
-		}
-	}
 	calculateReorder() {
 		let position = -1
 		const build = []
@@ -97,7 +88,6 @@ class Guild {
 			}
 		}
 		console.log(build)
-		this.printServers()
 		if (build.length == 0) return
 
 		fetch(instance.api + "/guilds/" + this.id + "/channels", {
@@ -134,7 +124,6 @@ class Guild {
 	}
 	getHTML() {
 		this.sortchannels()
-		this.printServers()
 
 		const build = document.createElement("div")
 		if (this.id == "@me") build.classList.add("dm-container")
@@ -210,7 +199,6 @@ class Guild {
 		for (const thing of this.channels) {
 			if (thing.resolveparent(this)) this.headchannels.push(thing)
 		}
-		this.printServers()
 	}
 	createChannelpac(json) {
 		const thischannel = new Channel(json, this)
@@ -220,7 +208,6 @@ class Guild {
 		if (!thischannel.parent) this.headchannels.push(thischannel)
 
 		this.calculateReorder()
-		this.printServers()
 	}
 	delChannel(json) {
 		delete this.channelids[json.id]
@@ -288,7 +275,7 @@ class Guild {
 				["button",
 				"",
 				"Nevermind",
-				_ => {
+				() => {
 					full.hide()
 				}
 				]
@@ -362,7 +349,7 @@ class Guild {
 				["button",
 				"",
 				"Nevermind",
-				_ => {
+				() => {
 					full.hide()
 				}
 				]

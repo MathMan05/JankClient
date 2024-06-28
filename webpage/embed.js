@@ -1,3 +1,6 @@
+"use strict"
+
+// eslint-disable-next-line no-unused-vars
 class Embed {
 	constructor(json, owner) {
 		this.type = this.getType(json)

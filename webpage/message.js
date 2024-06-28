@@ -1,5 +1,25 @@
 "use strict"
 
+const isGerman = (navigator.language || navigator.userLanguage).startsWith("de")
+const makeTime = date => date.toLocaleTimeString(isGerman ? "de-DE" : void 0, { hour: "2-digit", minute: "2-digit" })
+const formatTime = date => {
+	const now = new Date()
+	const sameDay = date.getDate() == now.getDate() &&
+		date.getMonth() == now.getMonth() &&
+		date.getFullYear() == now.getFullYear()
+
+	const yesterday = new Date(now)
+	yesterday.setDate(now.getDate() - 1)
+	const isYesterday = date.getDate() == yesterday.getDate() &&
+		date.getMonth() == yesterday.getMonth() &&
+		date.getFullYear() == yesterday.getFullYear()
+
+	if (sameDay) return (isGerman ? "heute um" : "Today at") + " " + makeTime(date)
+	if (isYesterday) return (isGerman ? "gestern um" : "Yesterday at") + " " + makeTime(date)
+	return date.toLocaleDateString(isGerman ? "de-DE" : void 0, isGerman ? {year: "numeric", month: "2-digit", day: "2-digit"} : void 0) +
+		" " + (isGerman ? "um" : "at") + " " + makeTime(date)
+}
+
 class Message {
 	static contextmenu = new ContextMenu()
 	static setupcmenu() {
@@ -257,23 +277,3 @@ class Message {
 }
 
 Message.setupcmenu()
-
-const isGerman = (navigator.language || navigator.userLanguage).startsWith("de")
-const makeTime = date => date.toLocaleTimeString(isGerman ? "de-DE" : void 0, { hour: "2-digit", minute: "2-digit" })
-function formatTime(date) {
-	const now = new Date()
-	const sameDay = date.getDate() == now.getDate() &&
-		date.getMonth() == now.getMonth() &&
-		date.getFullYear() == now.getFullYear()
-
-	const yesterday = new Date(now)
-	yesterday.setDate(now.getDate() - 1)
-	const isYesterday = date.getDate() == yesterday.getDate() &&
-		date.getMonth() == yesterday.getMonth() &&
-		date.getFullYear() == yesterday.getFullYear()
-
-	if (sameDay) return (isGerman ? "heute um" : "Today at") + " " + makeTime(date)
-	if (isYesterday) return (isGerman ? "gestern um" : "Yesterday at") + " " + makeTime(date)
-	return date.toLocaleDateString(isGerman ? "de-DE" : void 0, isGerman ? {year: "numeric", month: "2-digit", day: "2-digit"} : void 0) +
-		" " + (isGerman ? "um" : "at") + " " + makeTime(date)
-}

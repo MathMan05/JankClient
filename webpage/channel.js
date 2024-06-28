@@ -488,7 +488,7 @@ class Channel {
 				return "default"
 		}
 	}
-	async sendMessage(content, {attachments = [], embeds = [], replyingto = false}) {
+	async sendMessage(content, {attachments = [], replyingto = false}) {
 		let replyjson = false
 		if (replyingto) replyjson = {
 			guild_id: replyingto.guild.id,

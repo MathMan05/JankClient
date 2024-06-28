@@ -1,5 +1,9 @@
 "use strict"
 
+const getBulkInfo = () => {
+	return JSON.parse(localStorage.getItem("userinfos"))
+}
+
 class SpecialUser {
 	constructor(json) {
 		if (json instanceof SpecialUser) throw new Error("Input for SpecialUser must not be instance of SpecialUser")
@@ -51,17 +55,16 @@ class SpecialUser {
 	}
 }
 
-function getBulkUsers() {
+// eslint-disable-next-line no-unused-vars
+const getBulkUsers = () => {
 	const json = getBulkInfo()
 	for (const user in json.users) {
 		json.users[user] = new SpecialUser(json.users[user])
 	}
 	return json
 }
-function getBulkInfo() {
-	return JSON.parse(localStorage.getItem("userinfos"))
-}
-function setDefaults() {
+
+const setDefaults = () => {
 	const userinfos = getBulkInfo()
 	if (!userinfos) {
 		localStorage.setItem("userinfos", JSON.stringify({
@@ -90,7 +93,7 @@ function setDefaults() {
 }
 setDefaults()
 
-function adduser(user) {
+const adduser = user => {
 	user = new SpecialUser(user)
 	const info = getBulkInfo()
 	info.users[user.uid] = user
@@ -98,7 +101,7 @@ function adduser(user) {
 	localStorage.setItem("userinfos", JSON.stringify(info))
 }
 
-async function login(username, password) {
+const login = async (username, password) => {
 	const info = JSON.parse(localStorage.getItem("instanceEndpoints"))
 	const url = new URL(info.login)
 
@@ -124,10 +127,10 @@ async function login(username, password) {
 	return json.token
 }
 
-async function setInstance(url) {
+const setInstance = async url => {
 	url = new URL(url)
 
-	async function attempt(aurl) {
+	const attempt = async aurl => {
 		const info = await fetch(aurl.toString() + (aurl.pathname.includes("api") ? "" : "api") + "/policies/instance/domains")
 			.then(x => x.json())
 
@@ -149,7 +152,7 @@ async function setInstance(url) {
 	return await attempt(wellKnown)
 }
 
-async function check(event) {
+const check = async event => {
 	event.preventDefault()
 	const h = await login(event.srcElement[1].value, event.srcElement[2].value)
 	document.getElementById("wrong").textContent = h
@@ -157,7 +160,7 @@ async function check(event) {
 
 let instancein
 let verify
-async function checkInstance() {
+const checkInstance = async () => {
 	try {
 		verify.textContent = "Checking Instance"
 		localStorage.setItem("instanceEndpoints", JSON.stringify(await setInstance(instancein.value)))

@@ -1,3 +1,6 @@
+"use strict"
+
+// eslint-disable-next-line no-unused-vars
 class Role {
 	constructor(json, owner) {
 		for (const thing of Object.keys(json)) {

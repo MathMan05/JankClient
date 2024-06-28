@@ -113,6 +113,7 @@ class Group extends Channel {
 	}
 }
 
+// eslint-disable-next-line no-unused-vars
 class Direct extends Guild {
 	constructor(json, owner) {
 		super(-1)
@@ -139,7 +140,6 @@ class Direct extends Guild {
 		this.channelids[json.id] = thischannel
 		this.channels.push(thischannel)
 		this.calculateReorder()
-		this.printServers()
 	}
 	sortchannels() {
 		this.headchannels.sort((a, b) => {
