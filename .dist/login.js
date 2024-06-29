@@ -31,6 +31,7 @@ function setDefaults() {
                 notisound: "three",
             },
         }));
+        userinfos = getBulkInfo();
     }
     if (userinfos.users === undefined) {
         userinfos.users = {};

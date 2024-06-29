@@ -20,7 +20,7 @@ function getBulkInfo(){
     return JSON.parse(localStorage.getItem("userinfos"));
 }
 function setDefaults(){
-    let userinfos=getBulkInfo()
+    let userinfos=getBulkInfo();
     if(!userinfos){
         localStorage.setItem("userinfos",JSON.stringify({
             currentuser:null,
@@ -32,6 +32,7 @@ function setDefaults(){
                 notisound:"three",
             },
         }));
+        userinfos=getBulkInfo();
     }
     if(userinfos.users===undefined){
         userinfos.users={};
