@@ -404,6 +404,38 @@ class Channel {
             headers: this.headers
         });
     }
+    setReplying(message) {
+        if (this.replyingto) {
+            this.replyingto.div.classList.remove("replying");
+        }
+        this.replyingto = message;
+        console.log(message);
+        this.replyingto.div.classList.add("replying");
+        this.makereplybox();
+    }
+    makereplybox() {
+        const replybox = document.getElementById("replybox");
+        if (this.replyingto) {
+            replybox.innerHTML = "";
+            const span = document.createElement("span");
+            span.textContent = "Replying to " + this.replyingto.author.username;
+            const X = document.createElement("button");
+            X.onclick = _ => {
+                this.replyingto.div.classList.remove("replying");
+                replybox.classList.add("hideReplyBox");
+                this.replyingto = null;
+                replybox.innerHTML = "";
+            };
+            replybox.classList.remove("hideReplyBox");
+            X.textContent = "⦻";
+            X.classList.add("cancelReply");
+            replybox.append(span);
+            replybox.append(X);
+        }
+        else {
+            replybox.classList.add("hideReplyBox");
+        }
+    }
     async getmessage(id) {
         if (this.messageids[id]) {
             return this.messageids[id];
@@ -427,6 +459,7 @@ class Channel {
         const prom = Message.wipeChanel();
         await this.putmessages();
         await prom;
+        this.makereplybox();
         this.buildmessages();
         history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.id);
         document.getElementById("channelname").textContent = "#" + this.name;
