@@ -1,12 +1,25 @@
+import { Localuser } from "./localuser.js";
+import {Contextmenu} from "./contextmenu.js";
+import {mobile, getBulkUsers,setTheme, Specialuser} from "./login.js";
+async function waitforload(){
+    let res
+    new Promise(r=>{res=r});
+    document.addEventListener("DOMContentLoaded", function(){
+        res();
+    });
+    await res;
+}
+await waitforload();
+
 function setDynamicHeight() {
-    var servertdHeight = document.getElementById('servertd').offsetHeight+document.getElementById('typebox').offsetHeight+document.getElementById('pasteimage').offsetHeight;
+    var servertdHeight = document.getElementById('servertd').offsetHeight+document.getElementById('typediv').offsetHeight+document.getElementById('pasteimage').offsetHeight;
     document.documentElement.style.setProperty('--servertd-height', servertdHeight + 'px');
 }
 const resizeObserver = new ResizeObserver(() => {
     setDynamicHeight();
 });
 resizeObserver.observe(document.getElementById('servertd'));
-resizeObserver.observe(document.getElementById('typebox'));
+resizeObserver.observe(document.getElementById('replybox'));
 resizeObserver.observe(document.getElementById('pasteimage'));
 setDynamicHeight();
 
@@ -18,7 +31,7 @@ var info=users.users[users.currentuser].serverurls;
 let token=users.users[users.currentuser].token;
 let READY;
 
-let thisuser=new localuser(users.users[users.currentuser]);
+let thisuser=new Localuser(users.users[users.currentuser]);
 thisuser.initwebsocket().then(_=>{
     thisuser.loaduser();
     thisuser.init();
@@ -32,7 +45,8 @@ thisuser.initwebsocket().then(_=>{
     userinfo.addEventListener("click",function(event){
         const table=document.createElement("table");
         for(const thing of Object.values(users.users)){
-            console.log(thing.pfpsrc)
+            const specialuser=thing as Specialuser;
+            console.log(specialuser.pfpsrc)
             const tr=document.createElement("tr");
             const td=document.createElement("td");
 
@@ -49,14 +63,14 @@ thisuser.initwebsocket().then(_=>{
             row.append(usertd);
             const user=document.createElement("div");
             usertd.append(user);
-            user.append(thing.username);
+            user.append(specialuser.username);
             user.append(document.createElement("br"));
             const span=document.createElement("span");
-            span.textContent=thing.serverurls.wellknown.hostname;
+            span.textContent=specialuser.serverurls.wellknown.hostname;
             user.append(span);
             span.classList.add("serverURL")
 
-            pfp.src=thing.pfpsrc;
+            pfp.src=specialuser.pfpsrc;
             pfp.classList.add("pfp");
             td.append(userinfo)
 
@@ -66,9 +80,8 @@ thisuser.initwebsocket().then(_=>{
                 thisuser.unload();
                 document.getElementById("loading").classList.remove("doneloading");
                 document.getElementById("loading").classList.add("loading");
-                thisuser=new localuser(thing);
-                window.info =thing.serverurls;
-                users.currentuser=thing.uid;
+                thisuser=new Localuser(specialuser);
+                users["currentuser"]=specialuser.uid;
                 localStorage.setItem("userinfos",JSON.stringify(users));
                 thisuser.initwebsocket().then(_=>{
                     thisuser.loaduser();
@@ -91,181 +104,55 @@ thisuser.initwebsocket().then(_=>{
             table.append(tr);
         }
         table.classList.add("accountSwitcher");
-        if(currentmenu!=""){
-            currentmenu.remove();
+        if(Contextmenu.currentmenu!=""){
+            Contextmenu.currentmenu.remove();
         }
-        currentmenu=table;
+        Contextmenu.currentmenu=table;
         console.log(table);
         userdock.append(table);
         event.stopImmediatePropagation();
     })
 }
-var currentmenu="";
-document.addEventListener('click', function(event) {
-    if(currentmenu==""){
-        return;
-    }
-    if (!currentmenu.contains(event.target)) {
-        currentmenu.remove();
-        currentmenu="";
-    }
-});
-let replyingto=null;
+
 {
-    const menu=new contextmenu("create rightclick");
+    const menu=new Contextmenu("create rightclick");
     menu.addbutton("Create channel",function(){
-        createchannels(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild));
+        thisuser.lookingguild.createchannels();
     },null,_=>{return thisuser.isAdmin()})
 
     menu.addbutton("Create category",function(){
-        createcategory(thisuser.lookingguild.createChannel.bind(thisuser.lookingguild));
+         thisuser.lookingguild.createcategory();
     },null,_=>{return thisuser.isAdmin()})
     menu.bind(document.getElementById("channels"))
 }
 
 
-function createchannels(fincall){
-    let name="";
-    let category=0;
-    console.log(fincall);
-    channelselect=new fullscreen(
-    ["vdiv",
-        ["radio","select channel type",
-            ["voice","text","announcement"],
-            function(e){
-                console.log(e)
-                category={"text":0,"voice":2,"announcement":5,"category":4}[e]
-            },
-            1
-        ],
-        ["textbox","Name of channel","",function(){
-            console.log(this)
-            name=this.value
-        }],
-        ["button","","submit",function(){
-            console.log(name,category)
-            fincall(name,category);
-            channelselect.hide();
-        }]
-    ]);
-    channelselect.show();
-}
-function createcategory(fincall){
-    let name="";
-    let category=4;
-    console.log(fincall);
-    channelselect=new fullscreen(
-    ["vdiv",
-        ["textbox","Name of category","",function(){
-            console.log(this)
-            name=this.value
-        }],
-        ["button","","submit",function(){
-            console.log(name,category)
-            fincall(name,category);
-            channelselect.hide();
-        }]
-    ]);
-    channelselect.show();
-}
 function editchannelf(channel){channel.editChannel();}
 
-let messagelist=[];
-function buildprofile(x,y,user,type="author"){
-    if(currentmenu!=""){
-        currentmenu.remove();
-    }
-    let nickname, username, discriminator, bio, bot, pronouns, id, avatar
-    if(type=="author"){
-        console.log(user)
-        username=nickname=user.username;
-        bio=user.bio;
-        id=user.id;
-        discriminator=user.discriminator;
-        pronouns=user.pronouns;
-        bot=user.bot;
-        avatar=user.avatar;
-    }
 
-    const div=document.createElement("table");
-    if(x!==-1){
-        div.style.left=x+"px";
-        div.style.top=y+"px";
-        div.classList.add("profile");
-    }else{
-        div.classList.add("hypoprofile");
-    }
 
-    {
-        const pfp=user.buildpfp();
-        const pfprow=document.createElement("tr");
-        div.appendChild(pfprow);
-        pfprow.appendChild(pfp);
-    }
-    {
-        const userbody=document.createElement("tr");
-        userbody.classList.add("infosection");
-        div.appendChild(userbody);
-        const usernamehtml=document.createElement("h2");
-        usernamehtml.textContent=nickname;
-        userbody.appendChild(usernamehtml);
-
-        const discrimatorhtml=document.createElement("h3");
-        discrimatorhtml.classList.add("tag");
-        discrimatorhtml.textContent=username+"#"+discriminator;
-        userbody.appendChild(discrimatorhtml)
-
-        const pronounshtml=document.createElement("p");
-        pronounshtml.textContent=pronouns;
-        pronounshtml.classList.add("pronouns");
-        userbody.appendChild(pronounshtml)
-
-        const rule=document.createElement("hr");
-        userbody.appendChild(rule);
-        const biohtml=markdown(bio);
-        userbody.appendChild(biohtml);
-    }
-    console.log(div);
-    if(x!==-1){
-        currentmenu=div;
-        document.body.appendChild(div)
-    }
-    return div
-}
-function profileclick(obj,author){
-    obj.onclick=function(e){
-        console.log(e.clientX,e.clientY,author);
-        buildprofile(e.clientX,e.clientY,author);
-        e.stopPropagation();
-    }
-}
-
-var editing=false;
-const typebox=document.getElementById("typebox")
-typebox.addEventListener("keyup",enter);
-typebox.addEventListener("keydown",event=>{
-    if(event.key === "Enter"&&!event.shiftKey) event.preventDefault();
-});
-console.log(typebox)
-typebox.onclick=console.log;
-
+const pasteimage=document.getElementById("pasteimage");
+let replyingto=null;
 async function enter(event){
-    thisuser.channelfocus.typingstart();
+    const channel=thisuser.channelfocus
+    channel.typingstart();
     if(event.key === "Enter"&&!event.shiftKey){
         event.preventDefault();
-        if(editing){
-            editing.edit(typebox.value);
-            editing=false;
+        if(channel.editing){
+            channel.editing.edit((typebox).value);
+            channel.editing=null;
         }else{
-            let replying=replyingto?.all;
+            replyingto= thisuser.channelfocus.replyingto;
+            let replying=replyingto;
             if(replyingto){
-                replyingto.classList.remove("replying");
+                replyingto.div.classList.remove("replying");
             }
-            replyingto=false;
-            thisuser.channelfocus.sendMessage(typebox.value,{
+            thisuser.channelfocus.replyingto=null;
+            channel.sendMessage(typebox.value,{
                 attachments:images,
                 replyingto:replying,
             })
+            thisuser.channelfocus.makereplybox();
         }
         while(images.length!=0){
             images.pop();
@@ -276,7 +163,17 @@ async function enter(event){
     }
 }
 
-let packets=1;
+const typebox=document.getElementById("typebox") as HTMLInputElement;
+typebox.addEventListener("keyup",enter);
+typebox.addEventListener("keydown",event=>{
+    if(event.key === "Enter"&&!event.shiftKey) event.preventDefault();
+});
+console.log(typebox)
+typebox.onclick=console.log;
+
+
+
+
 let serverz=0;
 let serverid=[];
 
@@ -289,13 +186,13 @@ let cchanel=0;
 function getguildinfo(){
     const path=window.location.pathname.split("/");
     const channel=path[3];
-    ws.send(JSON.stringify({op: 14, d: {guild_id: path[2], channels: {[channel]: [[0, 99]]}}}));
+    this.ws.send(JSON.stringify({op: 14, d: {guild_id: path[2], channels: {[channel]: [[0, 99]]}}}));
 }
 
 
-const images=[];
+const images:Blob[]=[];
 const imageshtml=[];
-function createunknown(fname,fsize,src){
+function createunknown(fname,fsize){
     const div=document.createElement("table");
     div.classList.add("unknownfile");
     const nametr=document.createElement("tr");
@@ -304,14 +201,9 @@ function createunknown(fname,fsize,src){
     nametr.append(fileicon);
     fileicon.append("🗎");
     fileicon.classList.add("fileicon");
-    fileicon.rowSpan="2";
+    fileicon.rowSpan=2;
     const nametd=document.createElement("td");
-    if(src){
-        const a=document.createElement("a");
-        a.href=src;
-        a.textContent=fname;
-        nametd.append(a);
-    }else{
+    {
         nametd.textContent=fname;
     }
 
@@ -344,17 +236,16 @@ function filetohtml(file){
         return createunknownfile(file);
     }
 }
+import { File } from "./file.js";
 document.addEventListener('paste', async (e) => {
-  Array.from(e.clipboardData.files).forEach(async (file) => {
-    e.preventDefault();
-    const html=filetohtml(file);
-    pasteimage.appendChild(html);
-    const blob = URL.createObjectURL(file);
-    images.push(file)
-    imageshtml.push(html);
-
-    console.log(file.type)
-  });
+    Array.from(e.clipboardData.files).forEach(async (f) => {
+        const file=File.initFromBlob(f);
+        e.preventDefault();
+        const html=file.upHTML(images,f);
+        pasteimage.appendChild(html);
+        images.push(f)
+        imageshtml.push(html);
+    });
 });
 
 setTheme();
@@ -362,6 +253,7 @@ setTheme();
 function userSettings(){
     thisuser.usersettings.show();
 }
+document.getElementById("settings").onclick=userSettings;
 let triggered=false;
 document.getElementById("messagecontainer").addEventListener("scroll",(e)=>{
     const messagecontainer=document.getElementById("messagecontainer")
@@ -384,13 +276,13 @@ document.getElementById("messagecontainer").addEventListener("scroll",(e)=>{
 })
 if(mobile){
     document.getElementById("channelw").onclick=function(){
-        document.getElementById("channels").parentNode.classList.add("collapse");
+        (document.getElementById("channels").parentNode as HTMLElement).classList.add("collapse");
         document.getElementById("servertd").classList.add("collapse");
         document.getElementById("servers").classList.add("collapse");
     }
     document.getElementById("mobileback").textContent="#";
     document.getElementById("mobileback").onclick=function(){
-        document.getElementById("channels").parentNode.classList.remove("collapse");
+        (document.getElementById("channels").parentNode as HTMLElement).classList.remove("collapse");
         document.getElementById("servertd").classList.remove("collapse");
         document.getElementById("servers").classList.remove("collapse");
     }

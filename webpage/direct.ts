@@ -1,6 +1,13 @@
-class direct extends guild{
-    constructor(JSON,owner){
-        super(-1);
+import {Guild} from "./guild.js";
+import { Channel } from "./channel.js";
+import { Message } from "./message.js";
+import { Localuser } from "./localuser.js";
+import {User} from "./user.js";
+import { Member } from "./member.js";
+
+class Direct extends Guild{
+    constructor(JSON,owner:Localuser){
+        super(-1,owner,null);
         this.message_notifications=0;
         console.log(JSON);
         this.owner=owner;
@@ -17,14 +24,14 @@ class direct extends guild{
         this.prevchannel=undefined;
         this.properties.name="Dirrect Messages";
         for(const thing of JSON){
-            const temp=new group(thing,this);
+            const temp=new Group(thing,this);
             this.channels.push(temp);
             this.channelids[temp.id]=temp;
         }
         this.headchannels=this.channels;
     }
     createChannelpac(JSON){
-        const thischannel=new group(JSON,this);
+        const thischannel=new Group(JSON,this);
         this.channelids[JSON.id]=thischannel;
         this.channels.push(thischannel);
         this.calculateReorder();
@@ -50,19 +57,20 @@ class direct extends guild{
     }
     unreaddms(){
         for(const thing of this.channels){
-            thing.unreads();
+            (thing as Group).unreads();
         }
     }
 }
-class group extends channel{
-    constructor(JSON,owner){
-        super(-1);
+class Group extends Channel{
+    user:User;
+    constructor(JSON,owner:Direct){
+        super(-1,owner);
         this.owner=owner;
         this.headers=this.guild.headers;
         this.messages=[];
         this.name=JSON.recipients[0]?.username;
         if(JSON.recipients[0]){
-            this.user=new user(JSON.recipients[0]);
+            this.user=new User(JSON.recipients[0],this.localuser);
         }else{
             this.user=this.localuser.user;
         }
@@ -73,9 +81,9 @@ class group extends channel{
         this.children=[];
         this.guild_id="@me";
         this.messageids={};
-        this.permission_overwrites=[];
+        this.permission_overwrites={};
         this.lastmessageid=JSON.last_message_id;
-        this.lastmessageid??=0;
+        this.lastmessageid??="0";
         this.mentions=0;
     }
     createguildHTML(){
@@ -85,21 +93,27 @@ class group extends channel{
         myhtml.textContent=this.name;
         div.appendChild(this.user.buildpfp());
         div.appendChild(myhtml);
-        div.myinfo=this;
-        div.onclick=function(){
-            this.myinfo.getHTML();
+        div["myinfo"]=this;
+        div.onclick=_=>{
+            this.getHTML();
         }
         return div;
     }
-    getHTML(){
+    async getHTML(){
+        if(this.guild!==this.localuser.lookingguild){
+            this.guild.loadGuild();
+        }
+        const prom=Message.wipeChanel();
         this.guild.prevchannel=this;
         this.localuser.channelfocus=this;
-        this.putmessages();
+        await this.putmessages();
+        await prom;
+        this.buildmessages();
         history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.id);
         document.getElementById("channelname").textContent="@"+this.name;
     }
-    messageCreate(messagep,focus){
-        const messagez=new cmessage(messagep.d,this);
+    messageCreate(messagep){
+        const messagez=new Message(messagep.d,this);
         this.lastmessageid=messagez.id;
         if(messagez.author===this.localuser.user){
             this.lastreadmessageid=messagez.id;
@@ -109,7 +123,7 @@ class group extends channel{
         this.messageids[messagez.id]=messagez;
         if(this.localuser.lookingguild.prevchannel===this){
             var shouldScroll=scrolly.scrollTop+scrolly.clientHeight>scrolly.scrollHeight-20;
-            messages.appendChild(messagez.buildhtml(this.messages[1]));
+            document.getElementById("messages").appendChild(messagez.buildhtml(this.messages[1]));
         }
         if(shouldScroll){
                 scrolly.scrollTop = scrolly.scrollHeight;
@@ -118,12 +132,10 @@ class group extends channel{
         if(this.localuser.lookingguild===this.guild){
             const channellist=document.getElementById("channels").children[0]
             for(const thing of channellist.children){
-                if(thing.myinfo===this){
+                if(thing["myinfo"]===this){
                     channellist.prepend(thing);
-                    console.log(thing.myinfo);
                     break;
                 }
-                console.log(thing.myinfo,this,thing.myinfo===this);
             }
         }
         this.unreads();
@@ -147,8 +159,7 @@ class group extends channel{
         const sentdms=document.getElementById("sentdms");
         let current=null;
         for(const thing of sentdms.children){
-            console.log(thing.all)
-            if(thing.all===this){
+            if(thing["all"]===this){
                 current=thing;
             }
         }
@@ -158,19 +169,19 @@ class group extends channel{
             div.classList.add("servernoti");
             const noti=document.createElement("div");
             noti.classList.add("unread","notiunread","pinged");
-            noti.textContent=this.mentions;
+            noti.textContent=""+this.mentions;
             console.log(this.mentions)
-            div.noti=noti;
+            div["noti"]=noti;
             div.append(noti)
             const buildpfp=this.user.buildpfp();
-            div.all=this;
+            div["all"]=this;
             buildpfp.classList.add("mentioned");
             console.log(this);
             div.append(buildpfp)
             sentdms.append(div);
             div.onclick=function(){
-                this.all.guild.loadGuild();
-                this.all.getHTML();
+                this["noti"].guild.loadGuild();
+                this["noti"].getHTML();
             }
         }else if(current){
 
@@ -179,4 +190,11 @@ class group extends channel{
 
         }
     }
+    isAdmin(): boolean {
+        return false;
+    }
+    hasPermission(name: string, member?: Member): boolean {
+        return true;
+    }
 }
+export {Direct, Group};

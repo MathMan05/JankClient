@@ -1,7 +1,10 @@
-"use strict";
-function markdown(txt,keep=false){
-    if((typeof txt)===(typeof "")){
-        return markdown(txt.split(""),keep);
+export {markdown};
+function markdown(text : string|string[],{keep=false,stdsize=false} = {}){
+    let txt : string[];
+    if((typeof txt)==="string"){
+        txt=(text as string).split("");
+    }else{
+        txt=(text as string[]);
     }
     const span=document.createElement("span");
     let current=document.createElement("span");
@@ -19,7 +22,7 @@ function markdown(txt,keep=false){
                 i--;
             }
             let element=null;
-            let keepys=false;
+            let keepys="";
 
             if(txt[i+1]==="#"){
                 console.log("test");
@@ -50,17 +53,20 @@ function markdown(txt,keep=false){
             }
             if(keepys){
                 appendcurrent();
-                if(!first){
+                if(!first&&!stdsize){
                     span.appendChild(document.createElement("br"));
                 }
                 const build=[];
                 for(;txt[i]!=="\n"&&txt[i]!==undefined;i++){
                     build.push(txt[i]);
                 }
+                if(stdsize){
+                   element=document.createElement("span");
+                }
                 if(keep){
                     element.append(keepys);
                 }
-                element.appendChild(markdown(build,keep));
+                element.appendChild(markdown(build,{keep:keep,stdsize:stdsize}));
                 span.append(element);
                 i--;
                 continue;
@@ -70,8 +76,11 @@ function markdown(txt,keep=false){
             }
         }
         if(txt[i]==="\n"){
-            appendcurrent();
-            span.append(document.createElement("br"));
+
+            if(!stdsize){
+                appendcurrent();
+                span.append(document.createElement("br"));
+            }
             continue;
         }
         if(txt[i]==="`"){
@@ -115,7 +124,7 @@ function markdown(txt,keep=false){
                 if(keep){
                     build+="`".repeat(find);
                 }
-                if(count!==3){
+                if(count!==3&&!stdsize){
                     const samp=document.createElement("samp");
                     samp.textContent=build;
                     span.appendChild(samp);
@@ -151,7 +160,7 @@ function markdown(txt,keep=false){
                 if(txt[j]==="*"){
                     find++;
                 }else{
-                    build+=txt[j];
+                    build.push(txt[j]);
                     if(find!==0){
                         build=build.concat(new Array(find).fill("*"));
                         find=0;
@@ -166,20 +175,20 @@ function markdown(txt,keep=false){
                 if(count===1){
                     const i=document.createElement("i");
                     if(keep){i.append(stars)}
-                    i.appendChild(markdown(build,keep));
+                    i.appendChild(markdown(build,{keep:keep,stdsize:stdsize}));
                     if(keep){i.append(stars)}
                     span.appendChild(i);
                 }else if(count===2){
                     const b=document.createElement("b");
                     if(keep){b.append(stars)}
-                    b.appendChild(markdown(build,keep));
+                    b.appendChild(markdown(build,{keep:keep,stdsize:stdsize}));
                     if(keep){b.append(stars)}
                     span.appendChild(b);
                 }else{
                     const b=document.createElement("b");
                     const i=document.createElement("i");
                     if(keep){b.append(stars)}
-                    b.appendChild(markdown(build,keep));
+                    b.appendChild(markdown(build,{keep:keep,stdsize:stdsize}));
                     if(keep){b.append(stars)}
                     i.appendChild(b);
                     span.appendChild(i);
@@ -205,7 +214,7 @@ function markdown(txt,keep=false){
                 if(txt[j]==="_"){
                     find++;
                 }else{
-                    build+=txt[j];
+                    build.push(txt[j]);
                     if(find!==0){
                         build=build.concat(new Array(find).fill("_"));
                         find=0;
@@ -219,20 +228,20 @@ function markdown(txt,keep=false){
                 if(count===1){
                     const i=document.createElement("i");
                     if(keep){i.append(underscores)}
-                    i.appendChild(markdown(build,keep));
+                    i.appendChild(markdown(build,{keep:keep,stdsize:stdsize}));
                     if(keep){i.append(underscores)}
                     span.appendChild(i);
                 }else if(count===2){
                     const u=document.createElement("u");
                     if(keep){u.append(underscores)}
-                    u.appendChild(markdown(build,keep));
+                    u.appendChild(markdown(build,{keep:keep,stdsize:stdsize}));
                     if(keep){u.append(underscores)}
                     span.appendChild(u);
                 }else{
                     const u=document.createElement("u");
                     const i=document.createElement("i");
                     if(keep){i.append(underscores)}
-                    i.appendChild(markdown(build,keep));
+                    i.appendChild(markdown(build,{keep:keep,stdsize:stdsize}));
                     if(keep){i.append(underscores)}
                     u.appendChild(i)
                     span.appendChild(u);
@@ -251,7 +260,7 @@ function markdown(txt,keep=false){
                 if(txt[j]==="~"){
                     find++;
                 }else{
-                    build+=txt[j];
+                    build.push(txt[j]);
                     if(find!==0){
                         build=build.concat(new Array(find).fill("~"));
                         find=0;
@@ -265,7 +274,7 @@ function markdown(txt,keep=false){
                 if(count===2){
                     const s=document.createElement("s");
                     if(keep){s.append(underscores)}
-                    s.appendChild(markdown(build,keep));
+                    s.appendChild(markdown(build,{keep:keep,stdsize:stdsize}));
                     if(keep){s.append(underscores)}
                     span.appendChild(s);
                 }
@@ -281,7 +290,7 @@ function markdown(txt,keep=false){
                 if(txt[j]==="|"){
                     find++;
                 }else{
-                    build+=txt[j];
+                    build.push(txt[j]);
                     if(find!==0){
                         build=build.concat(new Array(find).fill("~"));
                         find=0;
@@ -295,7 +304,7 @@ function markdown(txt,keep=false){
                 if(count===2){
                     const j=document.createElement("j");
                     if(keep){j.append(underscores)}
-                    j.appendChild(markdown(build,keep));
+                    j.appendChild(markdown(build,{keep:keep,stdsize:stdsize}));
                     j.classList.add("spoiler");
                     j.onclick=markdown.unspoil;
                     if(keep){j.append(underscores)}
@@ -309,8 +318,9 @@ function markdown(txt,keep=false){
     appendcurrent();
     return span;
 }
-markdown.unspoil=function(e){
+markdown.unspoil=function(e:any) : void{
     //console.log("undone")
     e.target.classList.remove("spoiler")
     e.target.classList.add("unspoiled")
 }
+
