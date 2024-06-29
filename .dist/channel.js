@@ -446,7 +446,9 @@ class Channel {
             return new Message(json[0], this);
         }
     }
+    static genid = 0;
     async getHTML() {
+        const id = ++Channel.genid;
         if (this.guild !== this.localuser.lookingguild) {
             this.guild.loadGuild();
         }
@@ -459,6 +461,9 @@ class Channel {
         const prom = Message.wipeChanel();
         await this.putmessages();
         await prom;
+        if (id !== Channel.genid) {
+            return;
+        }
         this.makereplybox();
         this.buildmessages();
         history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.id);

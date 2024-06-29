@@ -324,40 +324,6 @@ class Message {
         this.div = div;
         return this.generateMessage(premessage);
     }
-    createunknown(fname, fsize, src) {
-        const div = document.createElement("table");
-        div.classList.add("unknownfile");
-        const nametr = document.createElement("tr");
-        div.append(nametr);
-        const fileicon = document.createElement("td");
-        nametr.append(fileicon);
-        fileicon.append("🗎");
-        fileicon.classList.add("fileicon");
-        fileicon.rowSpan = 2;
-        const nametd = document.createElement("td");
-        if (src) {
-            const a = document.createElement("a");
-            a.href = src;
-            a.textContent = fname;
-            nametd.append(a);
-        }
-        else {
-            nametd.textContent = fname;
-        }
-        nametd.classList.add("filename");
-        nametr.append(nametd);
-        const sizetr = document.createElement("tr");
-        const size = document.createElement("td");
-        sizetr.append(size);
-        size.textContent = "Size:" + this.filesizehuman(fsize);
-        size.classList.add("filesize");
-        div.appendChild(sizetr);
-        return div;
-    }
-    filesizehuman(fsize) {
-        var i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024));
-        return +((fsize / Math.pow(1024, i)).toFixed(2)) * 1 + ' ' + ['Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'Terabytes'][i];
-    }
 }
 function formatTime(date) {
     const now = new Date();
