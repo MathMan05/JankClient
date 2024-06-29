@@ -208,15 +208,15 @@ function filetohtml(file) {
         return createunknownfile(file);
     }
 }
+import { File } from "./file.js";
 document.addEventListener('paste', async (e) => {
-    Array.from(e.clipboardData.files).forEach(async (file) => {
+    Array.from(e.clipboardData.files).forEach(async (f) => {
+        const file = File.initFromBlob(f);
         e.preventDefault();
-        const html = filetohtml(file);
+        const html = file.upHTML(images, f);
         pasteimage.appendChild(html);
-        const blob = URL.createObjectURL(file);
-        images.push(file);
+        images.push(f);
         imageshtml.push(html);
-        console.log(file.type);
     });
 });
 setTheme();

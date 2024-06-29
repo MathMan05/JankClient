@@ -404,10 +404,24 @@ class Channel {
             headers: this.headers
         });
     }
+    async getmessage(id) {
+        if (this.messageids[id]) {
+            return this.messageids[id];
+        }
+        else {
+            const gety = await fetch(this.info.api.toString() + "/v9/channels/" + this.id + "/messages?limit=1&around=" + id, { headers: this.headers });
+            const json = await gety.json();
+            return new Message(json[0], this);
+        }
+    }
     async getHTML() {
         if (this.guild !== this.localuser.lookingguild) {
             this.guild.loadGuild();
         }
+        if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) {
+            this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
+        }
+        this.myhtml.classList.add("viewChannel");
         this.guild.prevchannel = this;
         this.localuser.channelfocus = this;
         const prom = Message.wipeChanel();
@@ -420,7 +434,7 @@ class Channel {
         document.getElementById("typebox").disabled = !this.canMessage;
     }
     async putmessages() {
-        if (this.messages.length >= 100) {
+        if (this.messages.length >= 100 || this.allthewayup) {
             return;
         }
         ;
@@ -429,6 +443,9 @@ class Channel {
             headers: this.headers,
         });
         const responce = await j.json();
+        if (responce.length !== 100) {
+            this.allthewayup = true;
+        }
         for (const thing of responce) {
             const messager = new Message(thing, this);
             if (this.messageids[messager.id] === undefined) {

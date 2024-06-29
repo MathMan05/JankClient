@@ -412,10 +412,23 @@ class Channel{
             headers:this.headers
         })
     }
+    async getmessage(id:string):Promise<Message>{
+        if(this.messageids[id]){
+            return this.messageids[id];
+        }else{
+            const gety=await fetch(this.info.api.toString()+"/v9/channels/"+this.id+"/messages?limit=1&around="+id,{headers:this.headers})
+            const json=await gety.json();
+            return new Message(json[0],this);
+        }
+    }
     async getHTML(){
         if(this.guild!==this.localuser.lookingguild){
             this.guild.loadGuild();
         }
+        if(this.localuser.channelfocus&&this.localuser.channelfocus.myhtml){
+            this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
+        }
+        this.myhtml.classList.add("viewChannel")
         this.guild.prevchannel=this;
         this.localuser.channelfocus=this;
         const prom=Message.wipeChanel();
@@ -428,12 +441,15 @@ class Channel{
         (document.getElementById("typebox") as HTMLInputElement).disabled=!this.canMessage;
     }
     async putmessages(){
-        if(this.messages.length>=100){return};
+        if(this.messages.length>=100||this.allthewayup){return};
         const j=await fetch(this.info.api.toString()+"/channels/"+this.id+"/messages?limit=100",{
         method: 'GET',
         headers: this.headers,
         })
         const responce=await j.json();
+        if(responce.length!==100){
+            this.allthewayup=true;
+        }
         for(const thing of responce){
             const messager=new Message(thing,this)
             if(this.messageids[messager.id]===undefined){

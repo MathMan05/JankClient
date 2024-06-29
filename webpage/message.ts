@@ -7,6 +7,7 @@ import {Fullscreen} from "./fullscreen.js";
 import { Channel } from "./channel.js";
 import {Localuser} from "./localuser.js";
 import { Role } from "./role.js";
+import {File} from "./file.js";
 
 class Message{
     static contextmenu=new Contextmenu("message menu");
@@ -16,7 +17,7 @@ class Message{
     author:User;
     mentions:User[];
     mention_roles:Role[];
-    attachments;//probably should be its own class tbh, should be Attachments[]
+    attachments:File[];//probably should be its own class tbh, should be Attachments[]
     id:string;
     message_reference;
     type:number;
@@ -72,6 +73,13 @@ class Message{
         this.owner=owner;
         this.headers=this.owner.headers;
         for(const thing of Object.keys(messagejson)){
+            if(thing==="attachments"){
+                this.attachments=[];
+                for(const thing of messagejson.attachments){
+                    this.attachments.push(new File(thing,this));
+                }
+                continue;
+            }
             this[thing]=messagejson[thing];
         }
         for(const thing in this.embeds){
@@ -199,11 +207,9 @@ class Message{
             line2.classList.add("reply");
             line.classList.add("startreply");
             replyline.classList.add("replyflex")
-            fetch(this.info.api.toString()+"/v9/channels/"+this.message_reference.channel_id+"/messages?limit=1&around="+this.message_reference.message_id,{headers:this.headers}).then(responce=>responce.json()).then(responce=>{
-                const author=new User(responce[0].author,this.localuser);
-
-                reply.appendChild(markdown(responce[0].content,{stdsize:true}));
-
+            this.channel.getmessage(this.message_reference.message_id).then(message=>{
+                const author=message.author;
+                reply.appendChild(markdown(message.content,{stdsize:true}));
                 minipfp.src=author.getpfpsrc()
                 author.profileclick(minipfp)
                 username.textContent=author.username;
@@ -285,21 +291,7 @@ class Message{
                 console.log(this.attachments)
                 const attatch = document.createElement("tr")
                 for(const thing of this.attachments){
-                    const array=thing.url.split("/");array.shift();array.shift();array.shift();
-                    const src=this.info.cdn.toString()+array.join("/");
-                    if(thing.content_type.startsWith('image/')){
-                        const img=document.createElement("img");
-                        img.classList.add("messageimg")
-                        img.onclick=function(){
-                            const full=new Fullscreen(["img",img.src,["fit"]]);
-                            full.show();
-                        }
-                        img.src=src;
-                        attatch.appendChild(img)
-                    }else{
-                        attatch.appendChild(this.createunknown(thing.filename,thing.size,src))
-                    }
-
+                    attatch.appendChild(thing.getHTML())
                 }
                 messagedwrap.appendChild(attatch)
             }

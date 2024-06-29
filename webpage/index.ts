@@ -189,7 +189,7 @@ function getguildinfo(){
 }
 
 
-const images=[];
+const images:Blob[]=[];
 const imageshtml=[];
 function createunknown(fname,fsize){
     const div=document.createElement("table");
@@ -235,17 +235,16 @@ function filetohtml(file){
         return createunknownfile(file);
     }
 }
+import { File } from "./file.js";
 document.addEventListener('paste', async (e) => {
-  Array.from(e.clipboardData.files).forEach(async (file) => {
-    e.preventDefault();
-    const html=filetohtml(file);
-    pasteimage.appendChild(html);
-    const blob = URL.createObjectURL(file);
-    images.push(file)
-    imageshtml.push(html);
-
-    console.log(file.type)
-  });
+    Array.from(e.clipboardData.files).forEach(async (f) => {
+        const file=File.initFromBlob(f);
+        e.preventDefault();
+        const html=file.upHTML(images,f);
+        pasteimage.appendChild(html);
+        images.push(f)
+        imageshtml.push(html);
+    });
 });
 
 setTheme();

@@ -20,7 +20,7 @@ class Guild{
     position:number;
     parent_id:string;
     member:Member;
-    html:HTMLUnknownElement;
+    html:HTMLElement;
     static contextmenu=new Contextmenu("guild menu");
     static setupcontextmenu(){
         Guild.contextmenu.addbutton("Copy Guild id",function(){

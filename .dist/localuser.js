@@ -66,7 +66,11 @@ class Localuser {
             this.guildids[thing.guild_id].notisetting(thing);
         }
         for (const thing of ready.d.read_state.entries) {
-            const guild = this.resolveChannelFromID(thing.id).guild;
+            const channel = this.resolveChannelFromID(thing.id);
+            if (!channel) {
+                continue;
+            }
+            const guild = channel.guild;
             if (guild === undefined) {
                 continue;
             }
@@ -238,9 +242,11 @@ class Localuser {
         return;
     }
     resolveChannelFromID(ID) {
-        let resolve = this.guilds.find(guild => guild.channelids[ID]).channelids[ID];
-        resolve ??= undefined;
-        return resolve;
+        let resolve = this.guilds.find(guild => guild.channelids[ID]);
+        if (resolve) {
+            return resolve.channelids[ID];
+        }
+        return undefined;
     }
     updateChannel(JSON) {
         this.guildids[JSON.guild_id].updateChannel(JSON);
@@ -264,12 +270,12 @@ class Localuser {
     }
     init() {
         const location = window.location.href.split("/");
+        this.buildservers();
         if (location[3] === "channels") {
             const guild = this.loadGuild(location[4]);
             guild.loadChannel(location[5]);
             this.channelfocus = guild.channelids[location[5]];
         }
-        this.buildservers();
     }
     loaduser() {
         document.getElementById("username").textContent = this.user.username;
@@ -284,6 +290,12 @@ class Localuser {
         if (!guild) {
             guild = this.guildids["@me"];
         }
+        if (this.lookingguild) {
+            this.lookingguild.html.classList.remove("serveropen");
+        }
+        if (guild.html) {
+            guild.html.classList.add("serveropen");
+        }
         this.lookingguild = guild;
         document.getElementById("serverName").textContent = guild.properties.name;
         //console.log(this.guildids,id)
@@ -293,11 +305,18 @@ class Localuser {
     }
     buildservers() {
         const serverlist = document.getElementById("servers"); //
+        const outdiv = document.createElement("div");
         const div = document.createElement("div");
         div.textContent = "⌂";
         div.classList.add("home", "servericon");
         div["all"] = this.guildids["@me"];
-        serverlist.appendChild(div);
+        this.guildids["@me"].html = outdiv;
+        const unread = document.createElement("div");
+        unread.classList.add("unread");
+        outdiv.append(unread);
+        outdiv.appendChild(div);
+        outdiv.classList.add("servernoti");
+        serverlist.append(outdiv);
         div.onclick = function () {
             this["all"].loadGuild();
             this["all"].loadChannel();
