@@ -10,25 +10,24 @@ class Member {
 		if (memberjson.code == 404) return
 
 		this.owner = owner
-		let membery = memberjson
+		let member = memberjson
 		this.roles = []
 		if (!error) {
-			if (memberjson.guild_member) membery = memberjson.guild_member
+			if (memberjson.guild_member) member = memberjson.guild_member
 			this.user = memberjson.user
 		}
 
-		for (const thing of Object.keys(membery)) {
+		for (const thing of Object.keys(member)) {
 			if (thing == "guild" || thing == "owner") continue
 
 			if (thing == "roles") {
-				for (const strrole of membery.roles) {
+				for (const strrole of member.roles) {
 					const role = this.guild.getRole(strrole)
 					this.roles.push(role)
 				}
 			}
 		}
 
-		console.log(memberjson)
 		if (error) this.user = memberjson
 		else this.user = User.checkuser(this.user, owner.localuser)
 	}

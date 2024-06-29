@@ -371,17 +371,55 @@ class Channel {
 			headers: this.headers
 		})
 	}
+	setReplying(message) {
+		if (this.replyingto) this.replyingto.div.classList.remove("replying")
+		this.replyingto = message
+		this.replyingto.div.classList.add("replying")
+		this.makereplybox()
+	}
+	makereplybox() {
+		const replybox = document.getElementById("replybox")
+		if (this.replyingto) {
+			replybox.innerHTML = ""
+			const span = document.createElement("span")
+			span.textContent = "Replying to " + this.replyingto.author.username
+
+			const close = document.createElement("button")
+			close.textContent = "⦻"
+			close.classList.add("cancelReply")
+			close.addEventListener("click", () => {
+				this.replyingto.div.classList.remove("replying")
+				replybox.classList.add("hideReplyBox")
+				this.replyingto = null
+				replybox.innerHTML = ""
+			})
+
+			replybox.classList.remove("hideReplyBox")
+			replybox.append(span)
+			replybox.append(close)
+		} else replybox.classList.add("hideReplyBox")
+	}
+	async getmessage(id) {
+		if (this.messageids[id]) return this.messageids[id]
+
+		const gety = await fetch(instance.api + "/channels/" + this.id + "/messages?limit=1&around=" + id, {
+			headers: this.headers
+		})
+		const json = await gety.json()
+		return new Message(json[0], this)
+	}
 	async getHTML() {
 		if (this.owner != this.owner.owner.lookingguild) this.owner.loadGuild()
 
-		for (const elem of document.getElementsByClassName("active")) elem.classList.remove("active")
-		document.getElementById("ch-" + this.id).classList.add("active")
+		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) this.localuser.channelfocus.myhtml.classList.remove("viewChannel")
+		this.myhtml.classList.add("viewChannel")
 
 		this.owner.prevchannel = this
 		this.owner.owner.channelfocus = this
 		const prom = Message.wipeChanel()
 		await this.putmessages()
 		await prom
+		this.makereplybox()
 		this.buildmessages()
 
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
@@ -389,15 +427,16 @@ class Channel {
 		document.getElementById("typebox").disabled = !this.canMessage
 	}
 	async putmessages() {
-		if (this.messages.length >= 100) return
+		if (this.messages.length >= 100 || this.allthewayup) return
 
 		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?limit=100", {
-			method: "GET",
 			headers: this.headers
 		})
 
-		const responce = await res.json()
-		for (const thing of responce) {
+		const json = await res.json()
+		if (json.length != 100) this.allthewayup = true
+
+		for (const thing of json) {
 			const messager = new Message(thing, this)
 			if (this.messageids[messager.id] === void 0) {
 				this.messageids[messager.id] = messager
@@ -417,7 +456,6 @@ class Channel {
 		const out = this
 
 		await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + this.messages.at(-1).id + "&limit=100", {
-			method: "GET",
 			headers: this.headers
 		}).then(j => {
 			return j.json()
@@ -545,7 +583,6 @@ class Channel {
 
 			formData.append("payload_json", JSON.stringify(body))
 			for (const i in attachments) {
-				console.log(attachments[i])
 				formData.append("files[" + i + "]", attachments[i])
 			}
 
@@ -566,9 +603,7 @@ class Channel {
 		if (messagez.author === this.localuser.user) {
 			this.lastreadmessageid = messagez.id
 			if (this.myhtml) this.myhtml.classList.remove("cunread")
-		} else {
-			if (this.myhtml) this.myhtml.classList.add("cunread")
-		}
+		} else if (this.myhtml) this.myhtml.classList.add("cunread")
 
 		this.guild.unreads()
 		this.messages.unshift(messagez)

@@ -49,7 +49,7 @@ class Guild {
 			this.roleids[roleh.id] = roleh
 		}
 
-        Member.resolve(member, this).then(m => this.member = m)
+		Member.resolve(member, this).then(m => this.member = m)
 
 		for (const thing of json.channels) {
 			const temp = new Channel(thing, this)

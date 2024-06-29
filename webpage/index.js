@@ -26,12 +26,12 @@ const setTheme = theme => {
 	}
 }
 const setDynamicHeight = () => {
-	const servertdHeight = document.getElementById("servertd").offsetHeight + document.getElementById("typebox").offsetHeight + document.getElementById("pasteimage").offsetHeight
+	const servertdHeight = document.getElementById("servertd").offsetHeight + document.getElementById("typediv").offsetHeight + document.getElementById("pasteimage").offsetHeight
 	document.documentElement.style.setProperty("--servertd-height", servertdHeight + "px")
 }
 
 const userSettings = () => {
-    thisuser.usersettings.show()
+	thisuser.usersettings.show()
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 		setDynamicHeight()
 	})
 	resizeObserver.observe(document.getElementById("servertd"))
-	resizeObserver.observe(document.getElementById("typebox"))
+	resizeObserver.observe(document.getElementById("replybox"))
 	resizeObserver.observe(document.getElementById("pasteimage"))
 	setDynamicHeight()
 
@@ -194,15 +194,16 @@ typebox.addEventListener("keyup", event => {
 			channel.editing.edit(typebox.value)
 			channel.editing = null
 		} else {
-			replyingto = channel.replyingto
-			const replying = replyingto?.all
-			if (replyingto) replyingto.classList.remove("replying")
+			replyingto = thisuser.channelfocus.replyingto
+			const replying = replyingto
+			if (replyingto) replyingto.div.classList.remove("replying")
 
 			channel.replyingto = null
 			channel.sendMessage(typebox.value, {
 				attachments: images,
 				replyingto: replying
 			})
+			thisuser.channelfocus.makereplybox()
 		}
 
 		images = []
@@ -215,25 +216,13 @@ typebox.addEventListener("keydown", event => {
 	if (event.key == "Enter" && !event.shiftKey) event.preventDefault()
 })
 
-const filetohtml = file => {
-	if (file.type.startsWith("image/")) {
-		const img = document.createElement("img")
-		img.crossOrigin = "anonymous"
-		const blob = URL.createObjectURL(file)
-		img.src = blob
-		return img
-	} else {
-		console.log("Unsupported file " + file.name + " for embedding into message")
-		return createunknown(file.name, file.size)
-	}
-}
-
 document.addEventListener("paste", event => {
-	Array.from(event.clipboardData.files).forEach(file => {
+	Array.from(event.clipboardData.files).forEach(f => {
+		const file = File.initFromBlob(f)
 		event.preventDefault()
-		const html = filetohtml(file)
+		const html = file.upHTML(images, f)
 		document.getElementById("pasteimage").appendChild(html)
-		images.push(file)
+		images.push(f)
 	})
 })
 

@@ -41,10 +41,8 @@ class Message {
 		Message.contextmenu.addbutton("Copy raw text", function() {
 			navigator.clipboard.writeText(this.content)
 		})
-		Message.contextmenu.addbutton("Reply", div => {
-			if (this.channel.replyingto) this.channel.replyingto.classList.remove("replying")
-				this.channel.replyingto = div
-			this.channel.replyingto.classList.add("replying")
+		Message.contextmenu.addbutton("Reply", function() {
+			this.channel.setReplying(this)
 		})
 
 		Message.contextmenu.addbutton("Copy message id", function() {
@@ -75,9 +73,19 @@ class Message {
 	constructor(messagejson, owner) {
 		this.owner = owner
 		this.headers = this.owner.headers
+
 		for (const key of Object.keys(messagejson)) {
+			if (key == "attachments") {
+				this.attachments = []
+				for (const thing of messagejson.attachments) {
+					this.attachments.push(new File(thing, this))
+				}
+				continue
+			}
+
 			this[key] = messagejson[key]
 		}
+
 		for (const e in this.embeds) {
 			this.embeds[e] = new Embed(this.embeds[e], this)
 		}
@@ -153,6 +161,7 @@ class Message {
 		if (!premessage) premessage = this.channel.messages[this.channel.messages.indexOf(this) + 1]
 
 		const div = this.div
+		if (this === this.channel.replyingto) div.classList.add("replying")
 		div.innerHTML = ""
 		const build = document.createElement("table")
 
@@ -194,12 +203,10 @@ class Message {
 			line.classList.add("startreply")
 			replyline.classList.add("replyflex")
 
-			fetch(instance.api + "/channels/" + this.message_reference.channel_id + "/messages?limit=1&around=" + this.message_reference.message_id, {
-				headers: this.headers
-			}).then(response => response.json()).then(response => {
-				const author = User.checkuser(response[0].author, this.localuser)
+			this.channel.getmessage(this.message_reference.message_id).then(message => {
+				const author = User.checkuser(message.author, this.localuser)
 
-				reply.appendChild(markdown(response[0].content))
+				reply.appendChild(markdown(message.content, {stdsize: true}))
 
 				minipfp.crossOrigin = "anonymous"
 				minipfp.src = author.getpfpsrc()
@@ -285,24 +292,7 @@ class Message {
 			build.appendChild(text)
 			if (this.attachments.length > 0) {
 				const attach = document.createElement("div")
-				for (const thing of this.attachments) {
-					const array = thing.url.split("/")
-					array.shift()
-					array.shift()
-					array.shift()
-					const src = instance.cdn + "/" + array.join("/")
-					if (thing.content_type.startsWith("image/")) {
-						const img = document.createElement("img")
-						img.classList.add("messageimg")
-						img.onclick = () => {
-							const full = new Dialog(["img", img.src, ["fit"]])
-							full.show()
-						}
-						img.crossOrigin = "anonymous"
-						img.src = src
-						attach.appendChild(img)
-					} else attach.appendChild(this.createunknown(thing.filename, thing.size, src))
-				}
+				for (const thing of this.attachments) attach.appendChild(thing.getHTML())
 				messagedwrap.appendChild(attach)
 			}
 

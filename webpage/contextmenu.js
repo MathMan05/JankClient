@@ -59,15 +59,10 @@ class Contextmenu {
 		const html = document.documentElement.getBoundingClientRect()
 		const docheight = html.height
 		const docwidth = html.width
+
 		const box = obj.getBoundingClientRect()
-		console.log(box, docheight, docwidth)
-		if (box.right > docwidth) {
-			console.log("test")
-			obj.style.left = docwidth - box.width + "px"
-		}
-		if (box.bottom > docheight) {
-			obj.style.top = docheight - box.height + "px"
-		}
+		if (box.right > docwidth) obj.style.left = docwidth - box.width + "px"
+		if (box.bottom > docheight) obj.style.top = docheight - box.height + "px"
 	}
 }
 Contextmenu.setup()

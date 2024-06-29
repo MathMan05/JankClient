@@ -111,6 +111,7 @@ class LocalUser {
 		this.ws.addEventListener("message", event => {
 			const json = JSON.parse(event.data)
 			console.log(json)
+
 			if (json.op == 0) {
 				switch (json.t) {
 					case "MESSAGE_CREATE":
@@ -124,10 +125,8 @@ class LocalUser {
 					case "MESSAGE_UPDATE":
 						if (this.initialized) {
 							if (this.channelfocus.id == json.d.channel_id) {
-								const find = json.d.id
-								const messagelist = document.getElementById("messages").children
-								for (const message of messagelist) {
-									if (message.all.id === find) {
+								for (const message of document.getElementById("messages").children) {
+									if (message.all.id == json.d.id) {
 										message.all.content = json.d.content
 										message.txt.innerHTML = markdown(json.d.content).innerHTML
 										break
@@ -137,7 +136,6 @@ class LocalUser {
 						}
 						break
 					case "MESSAGE_DELETE":
-						console.log("Message delete", json.d)
 						this.guildids[json.d.guild_id].channelids[json.d.channel_id].messageids[json.d.id].deleteEvent()
 						break
 					case "TYPING_START":
@@ -230,13 +228,13 @@ class LocalUser {
 		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
 	}
 	init() {
+		this.buildservers()
 		const loc = location.href.split("/")
 		if (loc[3] == "channels") {
 			const guildLoaded = this.loadGuild(loc[4])
 			guildLoaded.loadChannel(loc[5])
 			this.channelfocus = guildLoaded.channelids[loc[5]]
 		}
-		this.buildservers()
 	}
 	loaduser() {
 		document.getElementById("username").textContent = this.user.username
@@ -249,6 +247,8 @@ class LocalUser {
 	loadGuild(id) {
 		let guild = this.guildids[id]
 		if (!guild) guild = this.guildids["@me"]
+		if (this.lookingguild) this.lookingguild.html.classList.remove("serveropen")
+		if (guild.html) guild.html.classList.add("serveropen")
 
 		this.lookingguild = guild
 		document.getElementById("servername").textContent = guild.properties.name
@@ -257,6 +257,7 @@ class LocalUser {
 		return guild
 	}
 	buildservers() {
+		const outdiv = document.createElement("div")
 		const serverlist = document.getElementById("servers")
 		serverlist.innerHTML = ""
 
@@ -264,11 +265,19 @@ class LocalUser {
 		div.textContent = "⌂"
 		div.classList.add("home", "servericon")
 		div.all = this.guildids["@me"]
-		serverlist.appendChild(div)
+
+		this.guildids["@me"].html = outdiv
+		const unread = document.createElement("div")
+		unread.classList.add("unread")
+		outdiv.append(unread)
+		outdiv.appendChild(div)
+		outdiv.classList.add("servernoti")
+		serverlist.append(outdiv)
 		div.onclick = function() {
 			this.all.loadGuild()
 			this.all.loadChannel()
 		}
+
 		const sentdms = document.createElement("div")
 		sentdms.classList.add("sentdms")
 		serverlist.append(sentdms)

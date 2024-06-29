@@ -1,6 +1,6 @@
 "use strict"
 
-const markdown = (txt, keep = false) => {
+const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 	if (typeof txt == "string") txt = txt.split("")
 
 	const span = document.createElement("span")
@@ -47,15 +47,17 @@ const markdown = (txt, keep = false) => {
 			}
 			if (keepys) {
 				appendcurrent()
-				if (!first) span.appendChild(document.createElement("br"))
+				if (!first && !stdsize) span.appendChild(document.createElement("br"))
 
 				const build = []
 				for (; txt[i] != "\n" && txt[i] !== void 0; i++) {
 					build.push(txt[i])
 				}
 
+				if (stdsize) element = document.createElement("span")
 				if (keep) element.append(keepys)
-				element.appendChild(markdown(build, keep))
+
+				element.appendChild(markdown(build, {keep, stdsize}))
 				span.append(element)
 				i--
 				continue
@@ -64,8 +66,16 @@ const markdown = (txt, keep = false) => {
 		}
 
 		if (txt[i] == "\n") {
-			appendcurrent()
-			span.append(document.createElement("br"))
+			if (stdsize) {
+				const s = document.createElement("span")
+				s.textContent = "..."
+				span.append(s)
+				return span
+			} else {
+				appendcurrent()
+				span.append(document.createElement("br"))
+			}
+
 			continue
 		}
 
@@ -114,7 +124,7 @@ const markdown = (txt, keep = false) => {
 
 					pre.textContent = build
 					span.appendChild(pre)
-				} else {
+				} else if (!stdsize) {
 					const code = document.createElement("code")
 					code.textContent = build
 					span.appendChild(code)
@@ -154,20 +164,20 @@ const markdown = (txt, keep = false) => {
 				if (count == 1) {
 					const iElem = document.createElement("i")
 					if (keep) iElem.append(stars)
-					iElem.appendChild(markdown(build, keep))
+					iElem.appendChild(markdown(build, {keep, stdsize}))
 					if (keep) iElem.append(stars)
 					span.appendChild(iElem)
 				} else if (count == 2) {
 					const bElem = document.createElement("b")
 					if (keep) bElem.append(stars)
-					bElem.appendChild(markdown(build, keep))
+					bElem.appendChild(markdown(build, {keep, stdsize}))
 					if (keep) bElem.append(stars)
 					span.appendChild(bElem)
 				} else {
 					const bElem = document.createElement("b")
 					const iElem = document.createElement("i")
 					if (keep) bElem.append(stars)
-					bElem.appendChild(markdown(build, keep))
+					bElem.appendChild(markdown(build, {keep, stdsize}))
 					if (keep) bElem.append(stars)
 					iElem.appendChild(bElem)
 					span.appendChild(iElem)
@@ -193,7 +203,7 @@ const markdown = (txt, keep = false) => {
 				if (txt[j] == "_") {
 					find++
 				} else {
-					build += txt[j]
+					build.push(txt[j])
 					if (find != 0) {
 						build = build.concat(new Array(find).fill("_"))
 						find = 0
@@ -208,20 +218,20 @@ const markdown = (txt, keep = false) => {
 				if (count == 1) {
 					const iElem = document.createElement("i")
 					if (keep) iElem.append(underscores)
-					iElem.appendChild(markdown(build, keep))
+					iElem.appendChild(markdown(build, {keep, stdsize}))
 					if (keep) iElem.append(underscores)
 					span.appendChild(iElem)
 				} else if (count == 2) {
 					const uElem = document.createElement("u")
 					if (keep) uElem.append(underscores)
-					uElem.appendChild(markdown(build, keep))
+					uElem.appendChild(markdown(build, {keep, stdsize}))
 					if (keep) uElem.append(underscores)
 					span.appendChild(uElem)
 				} else {
 					const uElem = document.createElement("u")
 					const iElem = document.createElement("i")
 					if (keep) iElem.append(underscores)
-					iElem.appendChild(markdown(build, keep))
+					iElem.appendChild(markdown(build, {keep, stdsize}))
 					if (keep) iElem.append(underscores)
 					uElem.appendChild(iElem)
 					span.appendChild(uElem)
@@ -239,7 +249,7 @@ const markdown = (txt, keep = false) => {
 			for (; txt[j] !== void 0 && find != count; j++) {
 				if (txt[j] == "~") find++
 				else {
-					build += txt[j]
+					build.push(txt[j])
 					if (find != 0) {
 						build = build.concat(new Array(find).fill("~"))
 						find = 0
@@ -253,7 +263,7 @@ const markdown = (txt, keep = false) => {
 
 				const sElem = document.createElement("s")
 				if (keep) sElem.append(underscores)
-				sElem.appendChild(markdown(build, keep))
+				sElem.appendChild(markdown(build, {keep, stdsize}))
 				if (keep) sElem.append(underscores)
 				span.appendChild(sElem)
 
@@ -269,7 +279,7 @@ const markdown = (txt, keep = false) => {
 			for (; txt[j] !== void 0 && find != count; j++) {
 				if (txt[j] == "|") find++
 				else {
-					build += txt[j]
+					build.push(txt[j])
 					if (find != 0) {
 						build = build.concat(new Array(find).fill("~"))
 						find = 0
@@ -284,7 +294,7 @@ const markdown = (txt, keep = false) => {
 
 				const spoilerElem = document.createElement("span")
 				if (keep) spoilerElem.append(pipes)
-				spoilerElem.appendChild(markdown(build, keep))
+				spoilerElem.appendChild(markdown(build, {keep, stdsize}))
 				spoilerElem.classList.add("spoiler")
 				spoilerElem.addEventListener("click", markdown.unspoil)
 				if (keep) spoilerElem.append(pipes)

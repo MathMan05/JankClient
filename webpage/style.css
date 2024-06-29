@@ -428,7 +428,7 @@ p {
 	text-indent: .15in;
 }
 
-#channels .active {
+.viewChannel {
 	font-weight: bold;
 	background-color: var(--channel-active);
 }
@@ -1113,4 +1113,34 @@ span {
 }
 .spaceright {
 	margin-right: 3px;
+}
+
+#replybox {
+	display: flex;
+	background: var(--reply-bg);
+	height: .25in;
+	transition: height .2s, padding .2s;
+	border-radius:.1in .1in 0 0;
+	padding-left: .05in;
+	justify-content: space-between;
+	flex-direction: row;
+	align-items: flex-end;
+	padding-top: .05in;
+}
+
+#replybox span {
+	align-self: stretch;
+}
+.cancelReply {
+	align-self: flex-start;
+	color: #F00;
+	margin-right: .1in;
+	height: .25in;
+	width: .25in;
+	text-align: center;
+	padding: 0;
+}
+#replybox.hideReplyBox {
+	height: 0;
+	padding: 0;
 }

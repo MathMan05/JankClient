@@ -129,7 +129,7 @@ class Direct extends Guild {
 		super(-1, owner, null)
 		this.owner = owner
 		this.headers = this.localuser.headers
-        this.message_notifications = 0
+		this.message_notifications = 0
 
 		this.channels = []
 		this.channelids = {}
