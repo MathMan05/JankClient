@@ -1,6 +1,15 @@
-class voice{
-    constructor(wave,freq,volume=1){
-        this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+import {getBulkInfo} from "./login.js";
+
+class Voice{
+    audioCtx:AudioContext;
+    info:{wave:string|Function,freq:number};
+    playing:boolean;
+    myArrayBuffer:AudioBuffer;
+    gainNode:GainNode;
+    buffer:Float32Array;
+    source:AudioBufferSourceNode;
+    constructor(wave:string|Function,freq:number,volume=1){
+        this.audioCtx = new (window.AudioContext)();
         this.info={wave:wave,freq:freq}
         this.playing=false;
         this.myArrayBuffer=this.audioCtx.createBuffer(
@@ -16,61 +25,61 @@ class voice{
         this.source.buffer = this.myArrayBuffer;
         this.source.loop=true;
         this.source.start();
-        this.updateWave(freq);
+        this.updateWave();
     }
-    get wave(){
+    get wave():string|Function{
         return this.info.wave;
     }
-    get freq(){
+    get freq():number{
         return this.info.freq;
     }
-    set wave(wave){
+    set wave(wave:string|Function){
         this.info.wave=wave;
-        this.updateWave()
+        this.updateWave();
     }
-    set freq(freq){
+    set freq(freq:number){
         this.info.freq=freq;
-        this.updateWave()
+        this.updateWave();
     }
-    updateWave(){
+    updateWave():void{
         const func=this.waveFucnion();
         for (let i = 0; i < this.buffer.length; i++) {
             this.buffer[i]=func(i/this.audioCtx.sampleRate,this.freq);
         }
 
     }
-    waveFucnion(){
+    waveFucnion():Function{
         if(typeof this.wave === 'function'){
             return this.wave;
         }
         switch(this.wave){
             case "sin":
-                return (t,freq)=>{
+                return (t:number,freq:number)=>{
                     return Math.sin(t*Math.PI*2*freq);
                 }
             case "triangle":
-                return (t,freq)=>{
+                return (t:number,freq:number)=>{
                     return Math.abs((4*t*freq)%4-2)-1;
                 }
             case "sawtooth":
-                return (t,freq)=>{
+                return (t:number,freq:number)=>{
                     return ((t*freq)%1)*2-1;
                 }
             case "square":
-                return (t,freq)=>{
+                return (t:number,freq:number)=>{
                     return (t*freq)%2<1?1:-1;
                 }
             case "white":
-                return (t,freq)=>{
+                return (_t:number,_freq:number)=>{
                     return Math.random()*2-1;
                 }
             case "noise":
-                return (t,freq)=>{
+                return (_t:number,_freq:number)=>{
                     return 0;
                 }
         }
     }
-    play(){
+    play():void{
         if(this.playing){
             return;
         }
@@ -78,16 +87,16 @@ class voice{
         this.playing=true;
 
     }
-    stop(){
+    stop():void{
         if(this.playing){
             this.source.disconnect();
             this.playing=false;
         }
     }
-    static noises(noise){
+    static noises(noise:string):void{
         switch(noise){
             case "three":{
-                    const voicy=new voice("sin",800);
+                    const voicy=new Voice("sin",800);
                     voicy.play();
                     setTimeout(_=>{voicy.freq=1000},50);
                     setTimeout(_=>{voicy.freq=1300},100);
@@ -95,7 +104,7 @@ class voice{
                     break;
                 }
             case "zip":{
-                    const voicy=new voice((t,freq)=>{
+                    const voicy=new Voice((t:number,freq:number)=>{
                     return Math.sin(((t+2)**(Math.cos(t*4)))*Math.PI*2*freq);
                     },700);
                     voicy.play();
@@ -103,7 +112,7 @@ class voice{
                     break;
                 }
             case "square":{
-                    const voicy=new voice("square",600,.4);
+                    const voicy=new Voice("square",600,.4);
                     voicy.play()
                     setTimeout(_=>{voicy.freq=800},50);
                     setTimeout(_=>{voicy.freq=1000},100);
@@ -111,7 +120,7 @@ class voice{
                     break;
                 }
             case "beep":{
-                const voicy=new voice("sin",800);
+                const voicy=new Voice("sin",800);
                 voicy.play();
                 setTimeout(_=>{voicy.stop()},50);
                 setTimeout(_=>{voicy.play();},100);
@@ -123,7 +132,7 @@ class voice{
     static get sounds(){
         return ["three","zip","square","beep"];
     }
-    static setNotificationSound(sound){
+    static setNotificationSound(sound:string){
         let userinfos=getBulkInfo();
         userinfos.preferances.notisound=sound;
         localStorage.setItem("userinfos",JSON.stringify(userinfos));
@@ -133,3 +142,4 @@ class voice{
         return userinfos.preferances.notisound;
     }
 }
+export {Voice as Voice};

@@ -24,13 +24,13 @@ async function checkCache(){
     if(checkedrecently){
         return;
     }
-    promise=await caches.match("/getupdates");
+    const promise=await caches.match("/getupdates");
     if(promise){
         lastcache= await promise.text();
     }
     console.log(lastcache);
     fetch("/getupdates").then(async data=>{
-        text=await data.clone().text();
+        const text=await data.clone().text();
         console.log(text,lastcache)
         if(lastcache!==text){
             deleteoldcache();
@@ -80,8 +80,8 @@ async function getfile(event){
     return responseFromNetwork;
     }catch(e){console.error(e)}
 }
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', (event:any) => {
     try{
-    event.respondWith(getfile(event));
+        event.respondWith(getfile(event));
     }catch(e){console.error(e)}
 })

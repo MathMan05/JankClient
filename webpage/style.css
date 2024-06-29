@@ -8,6 +8,10 @@ body {
 	margin: 0;
 	padding: 0;
 }
+video{
+	max-width: 3in;
+	max-height: 4in;
+}
 .collapse{
 	width:0px !important;
 	overflow: hidden;
@@ -57,7 +61,12 @@ th {
 .messagediv:hover {
 	background-color: var(--message-bg-hover);
 }
-
+.messagediv{
+	overflow: hidden;
+	max-width:100%;
+	/* width: 9%; */
+	/* display: inline-block; */
+}
 pre {
 	background-color: var(--code-bg);
 	width: 100%;
@@ -138,7 +147,7 @@ h2 {
 
 .pfp {
 	border-radius: 50%;
-	width: .5in;
+	width: 0.5in;
 	height: .5in;
 	user-select: none;
 	cursor: pointer;
@@ -147,11 +156,14 @@ h2 {
 .servericon {
 	transition: border-radius .2s;
 	position: relative;
+	margin: .0in 0in 0.03in 0;
 }
 .servericon:hover {
 	border-radius: 30%;
 }
-
+.serveropen .servericon{
+	border-radius: 30%;
+}
 .contextbutton:hover {
 	background-color: var(--primary-bg);
 }
@@ -172,6 +184,7 @@ h2 {
 	vertical-align: top;
 	height: 100dvh;
 	overflow-x: hidden;
+	padding: 0.02in .05in 0.0in .05in;
 }
 
 #servers::-webkit-scrollbar {
@@ -225,10 +238,11 @@ img {
 	height: 100%;
 	width: 100%;
 	display: inline-block;
+	max-width: 100%;
 }
 
 #messages {
-	width: 100%;
+	max-width: 100%;
 }
 
 p {
@@ -390,6 +404,7 @@ p {
 	/* Move down out of view */
 	opacity: 0;
 	/* Fade out */
+	display: none;
 }
 
 @keyframes fade {
@@ -448,15 +463,25 @@ p {
 }
 
 .replyflex {
+	overflow: hidden;
 	display: flex;
 	align-items: center;
+	max-width: 100%;
+	flex-direction: row;
+	/* width: 00; */
+	flex-wrap: nowrap;
+	justify-content: space-between;
 }
 
 .reply {
-	display: inline-block;
+	display: inline;
 	vertical-align: middle;
 	flex-grow: 1;
 	border-color: var(--reply-border);
+	/* flex: 1; */
+	min-width: 0px;
+	/* max-width: 0px; */
+	/* grid-column-end: 1; */
 }
 
 .startreply {
@@ -477,8 +502,20 @@ p {
 }
 
 .replytext {
-	padding: .05in;
+	padding: 0 .05in;
 	color: var(--reply-text);
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	max-width: fit-content;
+	/* display: block; */
+	/* flex-grow: 1; */
+	flex: 1 1 auto;
+	width: fit-content;
+	min-width: 0;
+	/* display: inline-block !important; */
+	width: 25vw;
+	grid-column: 2;
 }
 
 ::-webkit-scrollbar {
@@ -528,8 +565,12 @@ textarea {
 .channel {
 	user-select: none;
 	cursor: pointer;
+	transition: font-weight .1s;
 }
-
+.viewChannel{
+	font-weight:900;
+	background: color-mix(in srgb, var(--channel-hover) 60%, transparent)
+}
 #servername {
 	margin-top: .1in;
 	margin-bottom: .1in;
@@ -599,9 +640,12 @@ textarea {
 #settings {
 	cursor: pointer;
 	user-select: none;
-	border-radius: .1in;
+	border-radius: .3in;
 	transition: background 1s;
 	text-align: center;
+	font-size: .25in;
+	width: .3in;
+	height: .3in;
 }
 
 #settings:hover {
@@ -762,6 +806,9 @@ input[type="checkbox"] {
 span {
 	word-wrap: break-word;
 	word-break: break-word;
+	/* overflow: clip; */
+	/* width: 2in; */
+	/* max-width: 100%; */
 }
 
 #loading {
@@ -811,17 +858,24 @@ span {
 	background-color: var(--primary-text);
 	height: .075in;
 	width: .075in;
-	transition: transform .2s, background .2s, height .2s, width .2s;
-	transform: translate(-.20in, .2in);
+	transition: transform .2s, background .2s, height .3s, width .2s;
+	transform: translate(-.14in, .2in);
 	z-index: 10;
-	border-radius: 50%;
+	border-radius: .2in;
 	border: solid;
 	border-width: .02in;
 	border-color: var(--black);
 }
-
+.servernoti:hover .unread{
+	transform: translate(-.1in, 0.15in);
+	height:.2in;
+}
+.serveropen .unread{
+	transform: translate(-.1in, 0.1in) !important;
+	height:.3in !important;
+}
 .notiunread {
-	transform: translate(0, .2in);
+	transform: translate(-.1in, .2in);
 }
 
 .pinged {
@@ -974,4 +1028,58 @@ span {
 }
 .spaceright{
 	margin-right:.1in;
+}
+.membererror{
+	display:inline-block;
+	background:#656500;
+	height:.15in;
+	width:.15in;
+	border-radius:.1in;
+	text-align:center;
+	border:solid black .03in;
+	margin-left:.025in;
+}
+.replyflex span{
+	/* display: inline-block; */
+	text-overflow:ellipsis;
+	overflow: hidden;
+	max-width: 100%;
+}
+.controls{
+	position:absolute;
+	top:0px;
+	right:0px;
+}
+.containedFile{
+	position:relative !important;
+	width: fit-content;
+	box-shadow:.02in .02in .05in black;
+}
+#replybox{
+	display:flex;
+	background:var(--reply-bg);
+	height:.25in;
+	transition: height .2s, padding .2s;
+	border-radius:.1in .1in 0 0;
+	padding-left:.05in;
+	justify-content: space-between;
+	flex-direction: row;
+	align-items: flex-end;
+	padding-top: .05in;
+}
+#replybox span{
+	align-self:stretch;
+}
+.cancelReply{
+	align-self:flex-start;
+	color:red;
+	margin-right: .1in;
+	height: .25in;
+	width: .25in;
+	text-align: center;
+	padding: 0in;
+}
+#replybox.hideReplyBox{
+	height: 0in;
+	padding: 0in;
 }

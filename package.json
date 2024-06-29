@@ -9,7 +9,10 @@
   "keywords": [],
   "author": "MathMan05",
   "license": "GPL-3.0",
-  "dependencies":{
-    "express":"latest"
+  "dependencies": {
+    "express": "latest"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2"
   }
 }
