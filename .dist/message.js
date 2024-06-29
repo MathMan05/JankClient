@@ -36,12 +36,7 @@ class Message {
             navigator.clipboard.writeText(this.content);
         });
         Message.contextmenu.addbutton("Reply", function (div) {
-            if (this.channel.replyingto) {
-                this.channel.replyingto.classList.remove("replying");
-            }
-            this.channel.replyingto = div;
-            console.log(div);
-            this.channel.replyingto.classList.add("replying");
+            this.channel.setReplying(this);
         });
         Message.contextmenu.addbutton("Copy message id", function () {
             navigator.clipboard.writeText(this.id);
@@ -163,6 +158,9 @@ class Message {
             premessage = this.channel.messages[this.channel.messages.indexOf(this) + 1];
         }
         const div = this.div;
+        if (this === this.channel.replyingto) {
+            div.classList.add("replying");
+        }
         div.innerHTML = "";
         const build = document.createElement('table');
         if (this.message_reference) {

@@ -12,14 +12,14 @@ async function waitforload(){
 await waitforload();
 
 function setDynamicHeight() {
-    var servertdHeight = document.getElementById('servertd').offsetHeight+document.getElementById('typebox').offsetHeight+document.getElementById('pasteimage').offsetHeight;
+    var servertdHeight = document.getElementById('servertd').offsetHeight+document.getElementById('typediv').offsetHeight+document.getElementById('pasteimage').offsetHeight;
     document.documentElement.style.setProperty('--servertd-height', servertdHeight + 'px');
 }
 const resizeObserver = new ResizeObserver(() => {
     setDynamicHeight();
 });
 resizeObserver.observe(document.getElementById('servertd'));
-resizeObserver.observe(document.getElementById('typebox'));
+resizeObserver.observe(document.getElementById('replybox'));
 resizeObserver.observe(document.getElementById('pasteimage'));
 setDynamicHeight();
 
@@ -143,15 +143,16 @@ async function enter(event){
             channel.editing=null;
         }else{
             replyingto= thisuser.channelfocus.replyingto;
-            let replying=replyingto?.all;
+            let replying=replyingto;
             if(replyingto){
-                replyingto.classList.remove("replying");
+                replyingto.div.classList.remove("replying");
             }
             thisuser.channelfocus.replyingto=null;
             channel.sendMessage(typebox.value,{
                 attachments:images,
                 replyingto:replying,
             })
+            thisuser.channelfocus.makereplybox();
         }
         while(images.length!=0){
             images.pop();
