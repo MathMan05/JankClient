@@ -8,6 +8,10 @@ body {
 	margin: 0;
 	padding: 0;
 }
+video{
+	max-width: 3in;
+	max-height: 4in;
+}
 .collapse{
 	width:0px !important;
 	overflow: hidden;
@@ -152,11 +156,14 @@ h2 {
 .servericon {
 	transition: border-radius .2s;
 	position: relative;
+	margin: .0in 0in 0.03in 0;
 }
 .servericon:hover {
 	border-radius: 30%;
 }
-
+.serveropen .servericon{
+	border-radius: 30%;
+}
 .contextbutton:hover {
 	background-color: var(--primary-bg);
 }
@@ -177,6 +184,7 @@ h2 {
 	vertical-align: top;
 	height: 100dvh;
 	overflow-x: hidden;
+	padding: 0.02in .05in 0.0in .05in;
 }
 
 #servers::-webkit-scrollbar {
@@ -556,8 +564,12 @@ textarea {
 .channel {
 	user-select: none;
 	cursor: pointer;
+	transition: font-weight .1s;
 }
-
+.viewChannel{
+	font-weight:900;
+	background: color-mix(in srgb, var(--channel-hover) 60%, transparent)
+}
 #servername {
 	margin-top: .1in;
 	margin-bottom: .1in;
@@ -845,17 +857,24 @@ span {
 	background-color: var(--primary-text);
 	height: .075in;
 	width: .075in;
-	transition: transform .2s, background .2s, height .2s, width .2s;
-	transform: translate(-.20in, .2in);
+	transition: transform .2s, background .2s, height .3s, width .2s;
+	transform: translate(-.14in, .2in);
 	z-index: 10;
-	border-radius: 50%;
+	border-radius: .2in;
 	border: solid;
 	border-width: .02in;
 	border-color: var(--black);
 }
-
+.servernoti:hover .unread{
+	transform: translate(-.1in, 0.15in);
+	height:.2in;
+}
+.serveropen .unread{
+	transform: translate(-.1in, 0.1in) !important;
+	height:.3in !important;
+}
 .notiunread {
-	transform: translate(0, .2in);
+	transform: translate(-.1in, .2in);
 }
 
 .pinged {
@@ -1024,4 +1043,14 @@ span {
 	text-overflow:ellipsis;
 	overflow: hidden;
 	max-width: 100%;
+}
+.controls{
+	position:absolute;
+	top:0px;
+	right:0px;
+}
+.containedFile{
+	position:relative !important;
+	width: fit-content;
+	box-shadow:.02in .02in .05in black;
 }
