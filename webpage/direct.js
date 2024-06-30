@@ -78,7 +78,7 @@ class Group extends Channel {
 		if (messagez.author == this.localuser.user) return
 		if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) return
 
-		if (this.notification == "all" || (this.notification === "mentions" && messagez.mentionsuser(this.localuser.user))) this.notify(messagez)
+		if (this.notification == "all" || (this.notification == "mentions" && messagez.mentionsuser(this.localuser.user))) this.notify(messagez)
 	}
 	notititle(message) {
 		return message.author.username
@@ -109,9 +109,9 @@ class Group extends Channel {
 			buildpfp.classList.add("mentioned")
 			div.append(buildpfp)
 			sentdms.append(div)
-			div.onclick = function() {
-				this.noti.guild.loadGuild()
-				this.noti.getHTML()
+			div.onclick = () => {
+				div.all.guild.loadGuild()
+				div.all.getHTML()
 			}
 		} else if (current) current.remove()
 	}

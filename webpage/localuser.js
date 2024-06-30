@@ -54,9 +54,8 @@ class LocalUser {
 		}
 
 		for (const thing of ready.d.read_state.entries) {
-			console.log(thing.id)
-			const guild = this.resolveChannelFromID(thing.id).guild
-			if (guild === void 0) continue
+			const guild = this.resolveChannelFromID(thing.id)?.guild
+			if (!guild) continue
 
 			this.guildids[guild.id].channelids[thing.channel_id].readStateInfo(thing)
 		}
@@ -206,7 +205,7 @@ class LocalUser {
 		await promise
 	}
 	resolveChannelFromID(ID) {
-		return this.guilds.find(guild => guild.channelids[ID]).channelids[ID]
+		return this.guilds.find(guild => guild.channelids[ID])?.channelids[ID]
 	}
 	updateChannel(json) {
 		this.guildids[json.guild_id].updateChannel(json)

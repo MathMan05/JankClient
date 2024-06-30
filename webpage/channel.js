@@ -461,7 +461,7 @@ class Channel {
 			return j.json()
 		}).then(response => {
 			let next
-			if (response.length == 0) out.allthewayup = true
+			if (response.length < 100) out.allthewayup = true
 
 			for (const i in response) {
 				let messager
@@ -539,7 +539,7 @@ class Channel {
 	}
 	get notification() {
 		let notinumber = this.message_notifications
-		if (notinumber === 3) notinumber = null
+		if (notinumber == 3) notinumber = null
 		notinumber ??= this.guild.message_notifications
 
 		switch (notinumber) {
@@ -620,7 +620,7 @@ class Channel {
 		if (messagez.author == this.localuser.user) return
 		if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) return
 
-		if (this.notification == "all" || (this.notification === "mentions" && messagez.mentionsuser(this.localuser.user))) this.notify(messagez)
+		if (this.notification == "all" || (this.notification == "mentions" && messagez.mentionsuser(this.localuser.user))) this.notify(messagez)
 	}
 	notititle(message) {
 		return message.author.username + " > " + this.guild.properties.name + " > " + this.name
