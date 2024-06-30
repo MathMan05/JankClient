@@ -62,9 +62,9 @@ class LocalUser {
 		this.typing = []
 	}
 	outoffocus() {
-		document.getElementById("servers").textContent = ""
-		document.getElementById("channels").textContent = ""
-		document.getElementById("messages").textContent = ""
+		document.getElementById("servers").innerHTML = ""
+		document.getElementById("channels").innerHTML = ""
+		document.getElementById("messages").innerHTML = ""
 		this.lookingguild = null
 		this.channelfocus = null
 	}
@@ -125,7 +125,7 @@ class LocalUser {
 						if (this.initialized) {
 							if (this.channelfocus.id == json.d.channel_id) {
 								for (const message of document.getElementById("messages").children) {
-									if (message.all.id == json.d.id) {
+									if (message.all && message.all.id == json.d.id) {
 										message.all.content = json.d.content
 										message.txt.innerHTML = markdown(json.d.content).innerHTML
 										break
@@ -264,18 +264,17 @@ class LocalUser {
 		div.textContent = "⌂"
 		div.classList.add("home", "servericon")
 		div.all = this.guildids["@me"]
+		div.onclick = function() {
+			this.all.loadGuild()
+			this.all.loadChannel()
+		}
 
 		this.guildids["@me"].html = outdiv
 		const unread = document.createElement("div")
 		unread.classList.add("unread")
 		outdiv.append(unread)
 		outdiv.appendChild(div)
-		outdiv.classList.add("servernoti")
 		serverlist.append(outdiv)
-		div.onclick = function() {
-			this.all.loadGuild()
-			this.all.loadChannel()
-		}
 
 		const sentdms = document.createElement("div")
 		sentdms.classList.add("sentdms")
@@ -302,19 +301,25 @@ class LocalUser {
 		br2.id = "bottomseperator"
 		serverlist.appendChild(br2)
 
-		const div2 = document.createElement("div")
-		div2.textContent = "+"
-		div2.classList.add("home", "servericon")
-		serverlist.appendChild(div2)
-		div2.addEventListener("click", () => {
+		const joinCreateContainer = document.createElement("div")
+		joinCreateContainer.textContent = "+"
+		joinCreateContainer.classList.add("home", "servericon")
+		serverlist.appendChild(joinCreateContainer)
+		joinCreateContainer.addEventListener("click", () => {
 			this.createGuild()
+		})
+
+		const guildDirectoryContainer = document.createElement("div")
+		guildDirectoryContainer.textContent = "🧭"
+		guildDirectoryContainer.classList.add("home", "servericon")
+		serverlist.appendChild(guildDirectoryContainer)
+		guildDirectoryContainer.addEventListener("click", () => {
+			this.guildDirectory()
 		})
 	}
 	createGuild() {
 		let inviteurl = ""
 		const inviteError = document.createElement("span")
-
-		const directoryContent = document.createElement("div")
 
 		const full = new Dialog(["tabs", [
 			["Join using invite", [
@@ -350,67 +355,71 @@ class LocalUser {
 			]],
 			["Create Server", [
 				"text", "Not currently implemented, sorry"
-			]],
-			["Guild directory", [
-				"vdiv",
-					["html", directoryContent],
-					["button",
-						"",
-						"Load",
-						async () => {
-							const res = await fetch(instance.api + "/discoverable-guilds?limit=16", {
-								headers: this.headers
-							})
-							const json = await res.json()
-
-							directoryContent.innerHTML = ""
-
-							const title = document.createElement("h2")
-							title.textContent = "Guild directory (" + json.total + " entries)"
-							directoryContent.appendChild(title)
-
-							const guilds = document.createElement("div")
-							guilds.id = "directory-guild-content"
-
-							json.guilds.forEach(guild => {
-								const content = document.createElement("div")
-								content.classList.add("directory-guild")
-
-								if (guild.banner) {
-									const banner = document.createElement("img")
-									banner.classList.add("banner")
-									banner.crossOrigin = "anonymous"
-									banner.src = instance.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png"
-									content.appendChild(banner)
-								}
-
-								const nameContainer = document.createElement("div")
-								nameContainer.classList.add("flex")
-
-								const img = document.createElement("img")
-								img.classList.add("icon")
-								img.crossOrigin = "anonymous"
-								img.src = instance.cdn + (guild.icon ? ("/icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "/embed/avatars/3.png")
-								nameContainer.appendChild(img)
-
-								const name = document.createElement("h3")
-								name.textContent = guild.name
-								nameContainer.appendChild(name)
-								content.appendChild(nameContainer)
-
-								const desc = document.createElement("p")
-								desc.textContent = guild.description
-								content.appendChild(desc)
-
-								guilds.appendChild(content)
-							})
-
-							directoryContent.appendChild(guilds)
-						}
-					]
 			]]
 		]])
 		full.show()
+	}
+	async guildDirectory() {
+		const directoryContent = document.createElement("div")
+		directoryContent.textContent = "Loading..."
+
+		const full = new Dialog(["html", directoryContent])
+		full.show()
+
+		const res = await fetch(instance.api + "/discoverable-guilds?limit=16", {
+			headers: this.headers
+		})
+		const json = await res.json()
+
+		directoryContent.innerHTML = ""
+
+		const title = document.createElement("h2")
+		title.textContent = "Guild directory (" + json.total + " entries)"
+		directoryContent.appendChild(title)
+
+		const guilds = document.createElement("div")
+		guilds.id = "directory-guild-content"
+
+		json.guilds.forEach(guild => {
+			const content = document.createElement("div")
+			content.classList.add("directory-guild")
+
+			if (guild.banner) {
+				const banner = document.createElement("img")
+				banner.classList.add("banner")
+				banner.crossOrigin = "anonymous"
+				banner.src = instance.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256"
+				content.appendChild(banner)
+			}
+
+			const nameContainer = document.createElement("div")
+			nameContainer.classList.add("flex")
+
+			const img = document.createElement("img")
+			img.classList.add("icon")
+			img.crossOrigin = "anonymous"
+			img.src = instance.cdn + "/" + (guild.icon ? ("icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "embed/avatars/3.png")
+			nameContainer.appendChild(img)
+
+			const name = document.createElement("h3")
+			name.textContent = guild.name
+			nameContainer.appendChild(name)
+			content.appendChild(nameContainer)
+
+			const desc = document.createElement("p")
+			desc.textContent = guild.description
+			content.appendChild(desc)
+
+			content.addEventListener("click" , async () => {
+				const joinRes = await fetch(instance.api + "/guilds/" + guild.id + "/members/@me", {
+					method: "PUT",
+					headers: this.headers
+				})
+				if (joinRes.ok) full.hide()
+			})
+			guilds.appendChild(content)
+		})
+		directoryContent.appendChild(guilds)
 	}
 	messageCreate(messagep) {
 		messagep.d.guild_id ??= "@me"

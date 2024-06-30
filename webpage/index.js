@@ -187,6 +187,8 @@ typebox.addEventListener("keyup", event => {
 			channel.editing.edit(typebox.value)
 			channel.editing = null
 		} else {
+			if (typebox.value == "") return
+
 			replyingto = thisuser.channelfocus.replyingto
 			const replying = replyingto
 			if (replyingto) replyingto.div.classList.remove("replying")

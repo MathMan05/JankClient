@@ -428,7 +428,14 @@ class Channel {
 
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "#" + this.name
-		document.getElementById("typebox").disabled = !this.canMessage
+
+		if (this.canMessage) {
+			document.getElementById("typebox").disabled = false
+			document.getElementById("typebox").placeholder = ""
+		} else {
+			document.getElementById("typebox").disabled = true
+			document.getElementById("typebox").placeholder = "You cannot send messages here"
+		}
 	}
 	async putmessages() {
 		if (this.messages.length >= 100 || this.allthewayup) return

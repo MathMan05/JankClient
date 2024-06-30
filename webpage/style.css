@@ -390,14 +390,12 @@ img {
 }
 
 p {
-	margin-top: 0;
-	margin-bottom: 0;
-	padding-top: 0;
-	padding-bottom: 0;
+	margin: 0;
+	padding: 0;
 }
 
 #channels {
-	--top-height: 36px;
+	--top-height: 37px;
 	background-color: var(--channels-bg);
 	position: absolute;
 	top: var(--top-height);
@@ -516,7 +514,7 @@ p {
 }
 
 #typediv {
-	position: relative;
+	margin-top: 6px;
 }
 
 .loading-indicator {
@@ -588,7 +586,6 @@ p {
 #channelw {
 	width: 100%;
 	display: inline-block;
-	grid-template-rows: auto 1fr;
 	height: calc(100dvh - .1in - var(--servertd-height));
 	max-width: 100%;
 }
@@ -1170,8 +1167,7 @@ span {
 }
 
 .directory-guild img.banner {
-	width: 128px;
-	height: 64px;
+	width: 215px;
 }
 
 .directory-guild img.icon {
