@@ -37,6 +37,7 @@ class Group extends Channel {
 		return div
 	}
 	async getHTML() {
+		const id = ++Channel.genid
 		if (this.guild !== this.localuser.lookingguild) this.guild.loadGuild()
 
 		const prom = Message.wipeChanel()
@@ -44,6 +45,8 @@ class Group extends Channel {
 		this.localuser.channelfocus = this
 		await this.putmessages()
 		await prom
+		if (id != Channel.genid) return
+
 		this.buildmessages()
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "@" + this.name

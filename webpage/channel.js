@@ -408,7 +408,9 @@ class Channel {
 		const json = await gety.json()
 		return new Message(json[0], this)
 	}
+	static genid = 0
 	async getHTML() {
+		const id = ++Channel.genid
 		if (this.owner != this.owner.owner.lookingguild) this.owner.loadGuild()
 
 		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) this.localuser.channelfocus.myhtml.classList.remove("viewChannel")
@@ -419,6 +421,8 @@ class Channel {
 		const prom = Message.wipeChanel()
 		await this.putmessages()
 		await prom
+		if (id != Channel.genid) return
+
 		this.makereplybox()
 		this.buildmessages()
 

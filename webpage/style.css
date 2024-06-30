@@ -612,8 +612,8 @@ p {
 .startreply {
 	display: inline-block;
 	vertical-align: middle;
-	width: 22px;
-	margin-left: 25px;
+	width: 25px;
+	margin-left: 26px;
 	border-color: var(--reply-border);
 }
 

@@ -65,7 +65,7 @@ const getBulkUsers = () => {
 }
 
 const setDefaults = () => {
-	const userinfos = getBulkInfo()
+	let userinfos = getBulkInfo()
 	if (!userinfos) {
 		localStorage.setItem("userinfos", JSON.stringify({
 			currentuser: null,
@@ -76,19 +76,20 @@ const setDefaults = () => {
 				notisound: "three"
 			}
 		}))
+		userinfos = getBulkInfo()
 	}
 
 	if (userinfos.users === void 0) userinfos.users = {}
 	if (userinfos.preferences === void 0) {
 		userinfos.preferences = {
-			theme: "Dark",
+			theme: "dark",
 			notifcations: false,
 			notisound: "three"
 		}
 	}
-	if (userinfos.preferences && userinfos.preferences.notisound === void 0) {
+	if (userinfos.preferences && userinfos.preferences.notisound === void 0)
 		userinfos.preferences.notisound = "three"
-	}
+
 	localStorage.setItem("userinfos", JSON.stringify(userinfos))
 }
 setDefaults()
