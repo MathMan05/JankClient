@@ -33,6 +33,7 @@ class User {
 		const pfp = document.createElement("img")
 		pfp.crossOrigin = "anonymous"
 		pfp.src = this.getpfpsrc()
+		pfp.alt = ""
 		pfp.classList.add("pfp")
 		pfp.classList.add("userid:" + this.id)
 		return pfp
@@ -50,7 +51,7 @@ class User {
 		if (this.hypotheticalpfp) return this.avatar
 
 		if (this.avatar === null) return instance.cdn + "/embed/avatars/3.png"
-		return instance.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png"
+		return instance.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png?size=64"
 	}
 	buildprofile(x, y, type = "author") {
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()

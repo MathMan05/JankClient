@@ -41,6 +41,7 @@ class Embed {
 				img.classList.add("embedimg")
 				img.crossOrigin = "anonymous"
 				img.src = this.json.author.icon_url
+				img.alt = ""
 				authorline.append(img)
 			}
 
@@ -92,6 +93,7 @@ class Embed {
 				const img = document.createElement("img")
 				img.crossOrigin = "anonymous"
 				img.src = this.json.footer.icon_url
+				img.alt = ""
 				img.classList.add("embedicon")
 				footer.append(img)
 			}
@@ -132,6 +134,7 @@ class Embed {
 			}
 			img.crossOrigin = "anonymous"
 			img.src = this.json.thumbnail.proxy_url
+			img.alt = ""
 			td.append(img)
 		}
 
@@ -176,6 +179,7 @@ class Embed {
 			})
 			img.crossOrigin = "anonymous"
 			img.src = this.json.image ? this.json.image.proxy_url : this.json.thumbnail.proxy_url
+			img.alt = ""
 			div.append(img)
 		}
 

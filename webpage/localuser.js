@@ -389,6 +389,7 @@ class LocalUser {
 				banner.classList.add("banner")
 				banner.crossOrigin = "anonymous"
 				banner.src = instance.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256"
+				banner.alt = ""
 				content.appendChild(banner)
 			}
 
@@ -399,6 +400,7 @@ class LocalUser {
 			img.classList.add("icon")
 			img.crossOrigin = "anonymous"
 			img.src = instance.cdn + "/" + (guild.icon ? ("icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "embed/avatars/3.png")
+			img.alt = ""
 			nameContainer.appendChild(img)
 
 			const name = document.createElement("h3")

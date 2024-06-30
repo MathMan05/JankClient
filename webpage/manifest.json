@@ -8,5 +8,6 @@
 	],
 	"start_url": "/channels/@me",
 	"display": "standalone",
+	"display_override": ["standalone", "minimal-ui"],
 	"theme_color": "#05050a"
 }

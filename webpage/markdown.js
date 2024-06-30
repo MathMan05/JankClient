@@ -339,7 +339,7 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 				}
 
 				const timeElem = document.createElement("span")
-				timeElem.classList.add("spoiler")
+				timeElem.classList.add("md-timestamp")
 				timeElem.textContent = time
 				span.appendChild(timeElem)
 

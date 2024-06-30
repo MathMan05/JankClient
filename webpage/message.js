@@ -170,6 +170,7 @@ class Message {
 			const line = document.createElement("hr")
 
 			const minipfp = document.createElement("img")
+			minipfp.alt = ""
 			minipfp.classList.add("replypfp")
 			replyline.appendChild(line)
 			replyline.appendChild(minipfp)

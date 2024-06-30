@@ -82,6 +82,7 @@
 
 	--spoiler-hover: #111111;
 	--spoiler-open-bg: #1e1e1e;
+	--timestamp-bg: #2f2f33;
 
 	--unknown-file-bg: #141316;
 	--unknown-file-border: #474555;
@@ -106,7 +107,7 @@
 
 	--message-bg-hover: #dedee2;
 	--typing-bg: #dad8d8;
-	--timestamp-color: #929297;
+	--timestamp-color: #5d5d66;
 	--code-bg: #cbcbcc;
 	--user-info-bg: #b0abc2;
 	--user-dock-bg: #b2b2c4;
@@ -141,6 +142,7 @@
 
 	--spoiler-hover: #b9b9b9;
 	--spoiler-open-bg: #dadada;
+	--timestamp-bg: #c8c8da;
 
 	--unknown-file-bg: #bdbdbd;
 	--unknown-file-border: #adadad;
@@ -494,6 +496,10 @@ p {
 	background-clip: content-box;
 }
 
+.md-timestamp {
+	background-color: var(--timestamp-bg);
+}
+
 .replying {
 	background-color: var(--reply-bg);
 }
@@ -592,8 +598,8 @@ p {
 
 .timestamp {
 	color: var(--timestamp-color);
-	margin-left: 5px;
-	font-size: .14in;
+	margin-left: 4px;
+	font-size: 13px;
 }
 
 .replyflex {
@@ -626,7 +632,7 @@ p {
 }
 
 .replytext {
-	padding: .05in;
+	padding: 0 .05in;
 	color: var(--reply-text);
 }
 

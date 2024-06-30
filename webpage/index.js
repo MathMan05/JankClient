@@ -77,6 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 			const pfp = document.createElement("img")
 			pfp.crossOrigin = "anonymous"
 			pfp.src = thing.pfpsrc
+			pfp.alt = ""
 			pfp.classList.add("pfp")
 			pfpcell.append(pfp)
 

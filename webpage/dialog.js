@@ -20,13 +20,12 @@ class Dialog {
 				const img = document.createElement("img")
 				img.crossOrigin = "anonymous"
 				img.src = array[1]
+				img.alt = array[3] || ""
 				if (array[2] != void 0) {
 					if (array[2].length == 2) {
 						img.width = array[2][0]
 						img.height = array[2][1]
-					} else if (array[2][0] == "fit") {
-						img.classList.add("imgfit")
-					}
+					} else if (array[2][0] == "fit") img.classList.add("imgfit")
 				}
 				return img
 			}

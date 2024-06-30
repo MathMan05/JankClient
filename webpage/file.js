@@ -23,13 +23,17 @@ class File {
 				const full = new Dialog(["img", img.src, ["fit"]])
 				full.show()
 			}
+			img.crossOrigin = "anonymous"
 			img.src = src
+			img.alt = this.description || this.title || "Image: " + this.filename
 			img.height = this.height
 			img.width = this.width
+
 			return img
 		} else if (this.content_type.startsWith("video/")) {
 			const video = document.createElement("video")
 			const source = document.createElement("source")
+			video.crossOrigin = "anonymous"
 			source.src = src
 			video.append(source)
 			source.type = this.content_type

@@ -347,8 +347,11 @@ class Guild {
 		} else {
 			const img = document.createElement("img")
 			img.classList.add("pfp", "servericon")
-			img.src = instance.cdn + "/icons/" + this.properties.id + "/" + this.properties.icon + ".png"
+			img.crossOrigin = "anonymous"
+			img.src = instance.cdn + "/icons/" + this.properties.id + "/" + this.properties.icon + ".png?size=48"
+			img.alt = "Server: " + this.properties.name
 			divy.appendChild(img)
+
 			img.onclick = () => {
 				this.loadGuild()
 				this.loadChannel()
