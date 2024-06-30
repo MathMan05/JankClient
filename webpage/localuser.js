@@ -312,7 +312,9 @@ class LocalUser {
 	}
 	createGuild() {
 		let inviteurl = ""
-		const error = document.createElement("span")
+		const inviteError = document.createElement("span")
+
+		const directoryContent = document.createElement("div")
 
 		const full = new Dialog(["tabs", [
 			["Join using invite", [
@@ -324,7 +326,7 @@ class LocalUser {
 							inviteurl = this.value
 						}
 					],
-					["html", error],
+					["html", inviteError],
 					["button",
 						"",
 						"Submit",
@@ -340,7 +342,7 @@ class LocalUser {
 							if (res.ok) full.hide()
 							else {
 								const json = await res.json()
-								error.textContent = json.message || "An error occurred (response code " + res.status + ")"
+								inviteError.textContent = json.message || "An error occurred (response code " + res.status + ")"
 								console.error("Unable to join guild using " + inviteurl, json)
 							}
 						}
@@ -348,6 +350,64 @@ class LocalUser {
 			]],
 			["Create Server", [
 				"text", "Not currently implemented, sorry"
+			]],
+			["Guild directory", [
+				"vdiv",
+					["html", directoryContent],
+					["button",
+						"",
+						"Load",
+						async () => {
+							const res = await fetch(instance.api + "/discoverable-guilds?limit=16", {
+								headers: this.headers
+							})
+							const json = await res.json()
+
+							directoryContent.innerHTML = ""
+
+							const title = document.createElement("h2")
+							title.textContent = "Guild directory (" + json.total + " entries)"
+							directoryContent.appendChild(title)
+
+							const guilds = document.createElement("div")
+							guilds.id = "directory-guild-content"
+
+							json.guilds.forEach(guild => {
+								const content = document.createElement("div")
+								content.classList.add("directory-guild")
+
+								if (guild.banner) {
+									const banner = document.createElement("img")
+									banner.classList.add("banner")
+									banner.crossOrigin = "anonymous"
+									banner.src = instance.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png"
+									content.appendChild(banner)
+								}
+
+								const nameContainer = document.createElement("div")
+								nameContainer.classList.add("flex")
+
+								const img = document.createElement("img")
+								img.classList.add("icon")
+								img.crossOrigin = "anonymous"
+								img.src = instance.cdn + (guild.icon ? ("/icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "/embed/avatars/3.png")
+								nameContainer.appendChild(img)
+
+								const name = document.createElement("h3")
+								name.textContent = guild.name
+								nameContainer.appendChild(name)
+								content.appendChild(nameContainer)
+
+								const desc = document.createElement("p")
+								desc.textContent = guild.description
+								content.appendChild(desc)
+
+								guilds.appendChild(content)
+							})
+
+							directoryContent.appendChild(guilds)
+						}
+					]
 			]]
 		]])
 		full.show()

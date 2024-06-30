@@ -57,7 +57,6 @@ class User {
 
 		let nickname, username, discriminator, bio, pronouns
 		if (type == "author") {
-			console.log(this)
 			username = this.username
 			nickname = this.username
 

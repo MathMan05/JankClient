@@ -108,7 +108,7 @@ class File {
 		div.appendChild(sizetr)
 		return div
 	}
-	static filesizehuman(fsize) {
+	filesizehuman(fsize) {
 		const i = fsize <= 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024))
 		return (fsize / Math.pow(1024, i)).toFixed(2) + " " + ["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i]
 	}

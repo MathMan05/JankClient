@@ -173,19 +173,12 @@ const editchannel = channel => {
 // eslint-disable-next-line no-unused-vars
 const messagelist = []
 
-const getguildinfo = () => {
-	const path = window.location.pathname.split("/")
-	const channel = path[3]
-	this.ws.send(JSON.stringify({op: 14, d: {guild_id: path[2], channels: {[channel]: [[0, 99]]}}}))
-}
-
 let images = []
 
 let replyingto = null
 const typebox = document.getElementById("typebox")
 typebox.addEventListener("keyup", event => {
 	const channel = thisuser.channelfocus
-	channel.typingstart()
 
 	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
@@ -210,7 +203,7 @@ typebox.addEventListener("keyup", event => {
 		document.getElementById("pasteimage").innerHTML = ""
 
 		typebox.value = ""
-	}
+	} else channel.typingstart()
 })
 typebox.addEventListener("keydown", event => {
 	if (event.key == "Enter" && !event.shiftKey) event.preventDefault()

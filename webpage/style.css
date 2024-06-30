@@ -74,6 +74,7 @@
 
 	--server-border: #1b1b24;
 	--server-bg: #252530;
+	--directory-bg: #37373b;
 
 	--reply-border: #474b76;
 	--reply-bg: #0b0d20;
@@ -132,6 +133,7 @@
 
 	--server-border: #bebed3;
 	--server-bg: #c0c0d4;
+	--directory-bg: #c6c6d8;
 
 	--reply-border: #b1b2bd;
 	--reply-bg: #d4d6e9;
@@ -143,8 +145,8 @@
 	--unknown-file-bg: #bdbdbd;
 	--unknown-file-border: #adadad;
 
-	--login-border: #c3c0e0;
-	--loading-bg: #b5b7cc;
+	--login-border: #c2bfd8;
+	--loading-bg: #b0b2c5;
 
 	--dialog-bg: #c1c8d6;
 	--dialog-border: #b9b7db;
@@ -1143,4 +1145,47 @@ span {
 #replybox.hideReplyBox {
 	height: 0;
 	padding: 0;
+}
+
+#directory-guild-content {
+	display: grid;
+	/*grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));*/
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.directory-guild {
+	width: 220px;
+	height: 175px;
+	margin: 5px;
+	padding: 5px;
+	background-color: var(--directory-bg);
+	border-radius: 5px;
+	box-shadow: 1px 1px 7px var(--primary-text);
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.directory-guild .flex {
+	align-items: center;
+}
+
+.directory-guild img.banner {
+	width: 128px;
+	height: 64px;
+}
+
+.directory-guild img.icon {
+	width: 48px;
+	height: 48px;
+	margin-right: 5px;
+	border-radius: 50%;
+	transition: border-radius .2s;
+}
+.directory-guild img.icon:hover {
+	border-radius: 30%;
+}
+
+.directory-guild p {
+	overflow-wrap: anywhere;
+	max-width: 215px;
 }
