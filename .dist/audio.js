@@ -37,12 +37,12 @@ class Voice {
         this.updateWave();
     }
     updateWave() {
-        const func = this.waveFucnion();
+        const func = this.waveFunction();
         for (let i = 0; i < this.buffer.length; i++) {
             this.buffer[i] = func(i / this.audioCtx.sampleRate, this.freq);
         }
     }
-    waveFucnion() {
+    waveFunction() {
         if (typeof this.wave === 'function') {
             return this.wave;
         }
@@ -127,12 +127,12 @@ class Voice {
     }
     static setNotificationSound(sound) {
         let userinfos = getBulkInfo();
-        userinfos.preferances.notisound = sound;
+        userinfos.preferences.notisound = sound;
         localStorage.setItem("userinfos", JSON.stringify(userinfos));
     }
     static getNotificationSound() {
         let userinfos = getBulkInfo();
-        return userinfos.preferances.notisound;
+        return userinfos.preferences.notisound;
     }
 }
 export { Voice as Voice };

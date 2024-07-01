@@ -127,7 +127,7 @@ class Member {
     }
     isAdmin() {
         for (const role of this.roles) {
-            if (role.permissions.getPermision("ADMINISTRATOR")) {
+            if (role.permissions.getPermission("ADMINISTRATOR")) {
                 return true;
             }
         }

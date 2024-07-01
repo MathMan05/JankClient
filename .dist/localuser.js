@@ -5,6 +5,7 @@ import { User } from "./user.js";
 import { markdown } from "./markdown.js";
 import { Fullscreen } from "./fullscreen.js";
 import { setTheme } from "./login.js";
+const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 class Localuser {
     packets;
     token;
@@ -25,6 +26,8 @@ class Localuser {
     ws;
     typing;
     wsinterval;
+    connectionSucceed = 0;
+    errorBackoff = 0;
     constructor(userinfo) {
         this.packets = 1;
         this.token = userinfo.token;
@@ -162,7 +165,7 @@ class Localuser {
                             break;
                         case "TYPING_START":
                             if (this.initialized) {
-                                this.typeingStart(temp);
+                                this.typingStart(temp);
                             }
                             break;
                         case "USER_UPDATE":
@@ -202,13 +205,15 @@ class Localuser {
                                 const guildy = new Guild(temp.d, this, this.user);
                                 this.guilds.push(guildy);
                                 this.guildids[guildy.id] = guildy;
-                                document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseperator"));
+                                document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"));
                             }
                     }
                 }
                 else if (temp.op === 10) {
                     console.log("heartbeat down");
                     this.wsinterval = setInterval(_ => {
+                        if (this.connectionSucceed === 0)
+                            this.connectionSucceed = Date.now();
                         this.ws.send(JSON.stringify({ op: 1, d: this.packets }));
                     }, temp.d.heartbeat_interval);
                     this.packets = 1;
@@ -221,22 +226,33 @@ class Localuser {
                 console.error(error);
             }
         });
-        this.ws.addEventListener('close', (event) => {
-            clearInterval(this.wsinterval);
-            console.log('WebSocket closed');
-            console.warn(event);
-            if (event.code !== 4000) {
-                this.unload();
-                document.getElementById("loading").classList.remove("doneloading");
-                document.getElementById("loading").classList.add("loading");
-                this.initwebsocket().then(_ => {
-                    this.loaduser();
-                    this.init();
-                    document.getElementById("loading").classList.add("doneloading");
-                    document.getElementById("loading").classList.remove("loading");
-                    console.log("done loading");
-                });
+        this.ws.addEventListener("close", event => {
+            console.log("WebSocket closed with code " + event.code);
+            if (this.wsinterval)
+                clearInterval(this.wsinterval);
+            this.unload();
+            document.getElementById("loading").classList.remove("doneloading");
+            document.getElementById("loading").classList.add("loading");
+            if (((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code))) {
+                if (this.connectionSucceed !== 0 && Date.now() > this.connectionSucceed + 20000)
+                    this.errorBackoff = 0;
+                else
+                    this.errorBackoff++;
+                this.connectionSucceed = 0;
+                document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (this.errorBackoff * 2.8)) + "</b> seconds...";
+                setTimeout(() => {
+                    document.getElementById("load-desc").textContent = "Retrying...";
+                    this.initwebsocket().then(() => {
+                        this.loaduser();
+                        this.init();
+                        document.getElementById("loading").classList.add("doneloading");
+                        document.getElementById("loading").classList.remove("loading");
+                        console.log("done loading");
+                    });
+                }, 200 + (this.errorBackoff * 2800));
             }
+            else
+                document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server. Please try logging out and back in.";
         });
         await promise;
         return;
@@ -340,7 +356,7 @@ class Localuser {
             const br = document.createElement("hr");
             br.classList.add("lightbr");
             serverlist.appendChild(br);
-            br.id = "bottomseperator";
+            br.id = "bottomseparator";
             const div = document.createElement("div");
             div.textContent = "+";
             div.classList.add("addserver", "servericon");
@@ -410,7 +426,7 @@ class Localuser {
             thing.unreads(this.guildhtml[thing.id]);
         }
     }
-    typeingStart(typing) {
+    typingStart(typing) {
         if (this.channelfocus.id === typing.d.channel_id) {
             const memb = typing.d.member;
             let name;
@@ -506,15 +522,15 @@ class Localuser {
         }
     }
     genusersettings() {
-        const hypothetcialprofie = document.createElement("div");
+        const hypotheticalProfile = document.createElement("div");
         let file = null;
         let newprouns = null;
         let newbio = null;
         let hypouser = new User(this.user, this, true);
         function regen() {
-            hypothetcialprofie.textContent = "";
+            hypotheticalProfile.textContent = "";
             const hypoprofile = hypouser.buildprofile(-1, -1);
-            hypothetcialprofie.appendChild(hypoprofile);
+            hypotheticalProfile.appendChild(hypoprofile);
         }
         regen();
         this.usersettings = new Fullscreen(["hdiv",
@@ -560,7 +576,7 @@ class Localuser {
                     }, Voice.sounds.indexOf(Voice.getNotificationSound())]
             ],
             ["vdiv",
-                ["html", hypothetcialprofie]
+                ["html", hypotheticalProfile]
             ]
         ], _ => { }, function () {
             console.log(this);

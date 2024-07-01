@@ -258,11 +258,11 @@ class Message {
             build.appendChild(text);
             if (this.attachments.length) {
                 console.log(this.attachments);
-                const attatch = document.createElement("tr");
+                const attach = document.createElement("tr");
                 for (const thing of this.attachments) {
-                    attatch.appendChild(thing.getHTML());
+                    attach.appendChild(thing.getHTML());
                 }
-                messagedwrap.appendChild(attatch);
+                messagedwrap.appendChild(attach);
             }
             if (this.embeds.length) {
                 const embeds = document.createElement("tr");
