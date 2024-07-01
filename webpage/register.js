@@ -46,11 +46,11 @@ async function tosLogic(){
     const apiurl=new URL(JSON.parse(localStorage.getItem("instanceinfo")).api)
     const tosPage=(await (await fetch(apiurl.toString()+"/ping")).json()).instance.tosPage;
     if(tosPage){
-        document.getElementById("TOSbox").innerHTML="I agree to the <a href=\"\" id=\"TOSa\">TOS</a>:";
+        document.getElementById("TOSbox").innerHTML="I agree to the <a href=\"\" id=\"TOSa\">Terms of Service</a>:";
         TOSa=document.getElementById("TOSa");
         TOSa.href=tosPage;
     }else{
-        document.getElementById("TOSbox").textContent="This instance has no TOS, accept TOS anyways:";
+        document.getElementById("TOSbox").textContent="This instance has no Terms of Service, accept ToS anyways:";
         TOSa=null;
     }
     console.log(tosPage);
