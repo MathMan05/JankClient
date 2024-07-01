@@ -1,5 +1,6 @@
 "use strict"
 
+let connectionSucceed = 0
 let heartbeatInterval = 0
 let errorBackoff = 0
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
@@ -78,8 +79,8 @@ class LocalUser {
 	}
 	async initwebsocket() {
 		let returny = null
-		const promise = new Promise(res => {
-			returny = res
+		const promise = new Promise(resolve => {
+			returny = resolve
 		})
 		this.ws = new WebSocket(instance.gateway + "/?v=9&encoding=json")
 
@@ -173,6 +174,8 @@ class LocalUser {
 				}
 			} else if (json.op == 10) {
 				heartbeatInterval = setInterval(() => {
+					if (connectionSucceed == 0) connectionSucceed = Date.now()
+
 					this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
 				}, json.d.heartbeat_interval)
 				this.packets = 1
@@ -183,11 +186,16 @@ class LocalUser {
 			console.log("WebSocket closed with code " + event.code)
 			if (heartbeatInterval) clearInterval(heartbeatInterval)
 
+			this.unload()
+			document.getElementById("loading").classList.remove("doneloading")
+			document.getElementById("loading").classList.add("loading")
+
 			if (((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code))) {
-				document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server, retrying..."
-				this.unload()
-				document.getElementById("loading").classList.remove("doneloading")
-				document.getElementById("loading").classList.add("loading")
+				if (connectionSucceed != 0 && Date.now() > connectionSucceed + 20000) errorBackoff = 0
+				else errorBackoff++
+				connectionSucceed = 0
+
+				document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (errorBackoff * 2.8)) + "</b> seconds..."
 
 				setTimeout(() => {
 					document.getElementById("load-desc").textContent = "Retrying..."
@@ -198,8 +206,8 @@ class LocalUser {
 						document.getElementById("loading").classList.add("doneloading")
 						document.getElementById("loading").classList.remove("loading")
 					})
-				}, 200 + (errorBackoff++ * 3000))
-			}
+				}, 200 + (errorBackoff * 2800))
+			} else document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server. Please try logging out and back in."
 		})
 
 		await promise
