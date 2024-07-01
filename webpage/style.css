@@ -1244,14 +1244,15 @@ span {
 }
 
 #discovery-guild-content {
-	display: grid;
+	display: flex;
 	/*grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));*/
 	grid-template-columns: 1fr 1fr 1fr 1fr;
+	flex-direction: column;
+	min-height: 0px;
+	overflow: auto;
 }
 
 .discovery-guild {
-	width: 220px;
-	height: 175px;
 	margin: 5px;
 	padding: 5px;
 	background-color: var(--discovery-bg);
@@ -1259,6 +1260,7 @@ span {
 	box-shadow: 1px 1px 7px var(--primary-text);
 	overflow: hidden;
 	cursor: pointer;
+	flex-shrink: 0;
 }
 
 .discovery-guild .flex {
@@ -1283,4 +1285,11 @@ span {
 .discovery-guild p {
 	overflow-wrap: anywhere;
 	max-width: 215px;
+}
+
+.guildy{
+	height:80vh;
+	width:80vw;
+	display: flex;
+	flex-direction: column;
 }

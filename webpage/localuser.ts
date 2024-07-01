@@ -440,6 +440,7 @@ class Localuser{
     }
     async guildDiscovery() {
         const content=document.createElement("div");
+        content.classList.add("guildy");
         content.textContent="Loading...";
         const full=new Fullscreen(["html", content]);
         full.show();
@@ -465,7 +466,7 @@ class Localuser{
                 const banner=document.createElement("img");
                 banner.classList.add("banner");
                 banner.crossOrigin="anonymous";
-                banner.src=this.info.api.toString()+"/v9/icons/"+guild.id+"/"+guild.banner+".png?size=256";
+                banner.src=this.info.cdn.toString()+"icons/"+guild.id+"/"+guild.banner+".png?size=256";
                 banner.alt="";
                 content.appendChild(banner);
             }
@@ -475,7 +476,7 @@ class Localuser{
             const img=document.createElement("img");
             img.classList.add("icon");
             img.crossOrigin="anonymous";
-            img.src=this.info.api.toString()+"/v9/"+(guild.icon ? ("icons/"+guild.id+"/"+guild.icon+".png?size=48") : "embed/avatars/3.png");
+            img.src=this.info.cdn.toString()+(guild.icon ? ("icons/"+guild.id+"/"+guild.icon+".png?size=48") : "embed/avatars/3.png");
             img.alt="";
             nameContainer.appendChild(img);
 
