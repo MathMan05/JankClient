@@ -74,7 +74,7 @@
 
 	--server-border: #1b1b24;
 	--server-bg: #252530;
-	--directory-bg: #37373b;
+	--discovery-bg: #37373b;
 
 	--reply-border: #474b76;
 	--reply-bg: #0b0d20;
@@ -134,7 +134,7 @@
 
 	--server-border: #bebed3;
 	--server-bg: #c0c0d4;
-	--directory-bg: #c6c6d8;
+	--discovery-bg: #c6c6d8;
 
 	--reply-border: #b1b2bd;
 	--reply-bg: #d4d6e9;
@@ -1176,43 +1176,43 @@ span {
 	padding: 0;
 }
 
-#directory-guild-content {
+#discovery-guild-content {
 	display: grid;
 	grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
-.directory-guild {
+.discovery-guild {
 	width: 220px;
 	height: 175px;
 	margin: 5px;
 	padding: 5px;
-	background-color: var(--directory-bg);
+	background-color: var(--discovery-bg);
 	border-radius: 5px;
 	box-shadow: 1px 1px 7px var(--primary-text);
 	overflow: hidden;
 	cursor: pointer;
 }
 
-.directory-guild .flex {
+.discovery-guild .flex {
 	align-items: center;
 }
 
-.directory-guild img.banner {
+.discovery-guild img.banner {
 	width: 215px;
 }
 
-.directory-guild img.icon {
+.discovery-guild img.icon {
 	width: 48px;
 	height: 48px;
 	margin-right: 5px;
 	border-radius: 50%;
 	transition: border-radius .2s;
 }
-.directory-guild img.icon:hover {
+.discovery-guild img.icon:hover {
 	border-radius: 30%;
 }
 
-.directory-guild p {
+.discovery-guild p {
 	overflow-wrap: anywhere;
 	max-width: 215px;
 }

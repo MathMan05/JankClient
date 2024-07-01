@@ -322,7 +322,7 @@ class LocalUser {
 		guildDiscoveryButton.classList.add("home", "servericon")
 		serverlist.appendChild(guildDiscoveryButton)
 		guildDiscoveryButton.addEventListener("click", () => {
-			this.guildDirectory()
+			this.guildDiscovery()
 		})
 	}
 	createGuild() {
@@ -367,30 +367,31 @@ class LocalUser {
 		]])
 		full.show()
 	}
-	async guildDirectory() {
-		const directoryContent = document.createElement("div")
-		directoryContent.textContent = "Loading..."
+	async guildDiscovery() {
+		const container = document.createElement("div")
+		container.textContent = "Loading..."
 
-		const full = new Dialog(["html", directoryContent])
+		const full = new Dialog(["html", container])
 		full.show()
 
 		const res = await fetch(instance.api + "/discoverable-guilds?limit=16", {
 			headers: this.headers
 		})
-		const json = await res.json()
+		if (!res.ok) return container.textContent = "An error occurred (response code " + res.status + ")"
 
-		directoryContent.innerHTML = ""
+		const json = await res.json()
+		container.innerHTML = ""
 
 		const title = document.createElement("h2")
 		title.textContent = "Guild directory (" + json.total + " entries)"
-		directoryContent.appendChild(title)
+		container.appendChild(title)
 
 		const guilds = document.createElement("div")
 		guilds.id = "directory-guild-content"
 
 		json.guilds.forEach(guild => {
 			const content = document.createElement("div")
-			content.classList.add("directory-guild")
+			content.classList.add("discovery-guild")
 
 			if (guild.banner) {
 				const banner = document.createElement("img")
@@ -420,7 +421,7 @@ class LocalUser {
 			desc.textContent = guild.description
 			content.appendChild(desc)
 
-			content.addEventListener("click" , async () => {
+			content.addEventListener("click", async () => {
 				const joinRes = await fetch(instance.api + "/guilds/" + guild.id + "/members/@me", {
 					method: "PUT",
 					headers: this.headers
@@ -429,7 +430,7 @@ class LocalUser {
 			})
 			guilds.appendChild(content)
 		})
-		directoryContent.appendChild(guilds)
+		container.appendChild(guilds)
 	}
 	messageCreate(messagep) {
 		messagep.d.guild_id ??= "@me"
