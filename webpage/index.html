@@ -14,11 +14,12 @@
 
 		<script src="/markdown.js"></script>
 		<script src="/login.js"></script>
-		<script src="/user.js"></script>
 		<script src="/embed.js"></script>
 		<script src="/contextmenu.js"></script>
+		<script src="/user.js"></script>
 		<script src="/member.js"></script>
 		<script src="/message.js"></script>
+		<script src="/settings.js"></script>
 		<script src="/channel.js"></script>
 		<script src="/permissions.js"></script>
 		<script src="/role.js"></script>
@@ -42,55 +43,53 @@
 			<div id="neunence">
 				<div id="servers"></div>
 			</div>
+
 			<div class="flexttb channelflex">
 				<div class="servertd" id="servertd">
 					<h2 id="servername">Server Name</h2>
-				</td>
-				<td colspan="2" class="servertd servernamediv">
-					<span id="mobileback" hidden></span>
-					<span id="channelname">Channel</span>
-				</td>
-			</div>
-			<div id="channels"></div>
-			<div class="flexltr" id="userdock">
-				<div class="flexltr" id="userinfo">
-					<img id="userpfp" class="pfp">
-					<div class="userflex">
-						<p id="username">USERNAME</p>
-						<p id="status">SATUS</p>
+				</div>
+				<div id="channels"></div>
+				<div class="flexltr" id="userdock">
+					<div class="flexltr" id="userinfo">
+						<img id="userpfp" class="pfp" alt="">
+
+						<div class="userflex">
+							<p id="username">USERNAME</p>
+							<p id="status">STATUS</p>
+						</div>
 					</div>
 					<h2 id="settings">⚙</h2>
 				</div>
 			</div>
+
 			<div class="flexttb messageflex">
 				<div class="servertd servernamediv">
-					<span id="mobileback" hidden=true></span><span id="channelname">Channel</span>
+					<span id="mobileback" hidden></span>
+					<span id="channelname">Channel</span>
 				</div>
+
 				<div id="channelw">
 					<div id="messagecontainer">
 						<div id="messages"></div>
 					</div>
 				</div>
+
 				<div id="pasteimage"></div>
 				<div id="replybox" class="hideReplyBox"></div>
 				<div id="typediv">
+					<textarea id="typebox" aria-label="Message"></textarea>
 
-					<div id="typediv">
-						<div id="replybox" class="hideReplyBox"></div>
-
-						<textarea id="typebox" aria-label="Message"></textarea>
-
-						<div id="typing" class="hidden">
-							<p id="typingtext">typing</p>
-							<div class="loading-indicator">
-								<span class="dot">.</span>
-								<span class="dot">.</span>
-								<span class="dot">.</span>
-							</div>
+					<div id="typing" class="hidden">
+						<p id="typingtext">typing</p>
+						<div class="loading-indicator">
+							<span class="dot">.</span>
+							<span class="dot">.</span>
+							<span class="dot">.</span>
 						</div>
 					</div>
 				</div>
 			</div>
+		</div>
 		<script src="/index.js"></script>
 	</body>
 </html>

@@ -1,6 +1,6 @@
 class Permissions {
 	constructor(allow, deny = "") {
-		this.hasDeny = !!deny
+		this.hasDeny = Boolean(deny)
 		this.allow = BigInt(allow)
 		this.deny = BigInt(deny)
 	}
@@ -246,7 +246,7 @@ class Permissions {
 			this.deny = this.setPermissionBit(bit, true, this.deny)
 			this.allow = this.setPermissionBit(bit, false, this.allow)
 		} else {
-			console.error("invalid number entered:" + setto);
+			console.error("invalid number entered:" + setto)
 		}
 	}
 }

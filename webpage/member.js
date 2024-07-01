@@ -1,14 +1,14 @@
 "use strict"
 
-// eslint-disable-next-line no-unused-vars
+
 class Member {
 	static already = {}
 	static contextmenu = new Contextmenu()
 	static setUpContextMenu() {
-		this.contextmenu.addbutton("Copy user id", function () {
+		this.contextmenu.addbutton("Copy user id", function() {
 			navigator.clipboard.writeText(this.id)
 		})
-		this.contextmenu.addbutton("Message user", function () {
+		this.contextmenu.addbutton("Message user", function() {
 			fetch(instance.api + "/users/@me/channels", {
 				method: "POST",
 				body: JSON.stringify({

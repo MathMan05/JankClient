@@ -84,13 +84,14 @@ document.addEventListener("DOMContentLoaded", async () => {
 			const usertd = document.createElement("td")
 			row.append(usertd)
 			const user = document.createElement("div")
-			usertd.append(user)
 			user.append(thing.username)
 			user.append(document.createElement("br"))
+
 			const span = document.createElement("span")
-			span.textContent = thing.serverurls.wellknown.hostname
-			user.append(span)
 			span.classList.add("serverURL")
+			span.textContent = new URL(thing.serverurls.wellknown).hostname
+			user.append(span)
+			usertd.append(user)
 
 			tr.append(td)
 			table.append(tr)
@@ -113,16 +114,16 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 		const tr = document.createElement("tr")
 		const td = document.createElement("td")
-		tr.append(td)
 		td.append("Switch accounts ⇌")
 		td.addEventListener("click", () => {
 			location.href = "/login"
 		})
+		tr.append(td)
 		table.append(tr)
 
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 		Contextmenu.currentmenu = table
-		userdock.insertBefore(table)
+		userdock.before(table)
 		event.stopImmediatePropagation()
 	})
 

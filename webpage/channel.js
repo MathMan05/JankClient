@@ -11,7 +11,7 @@ class Channel {
 			this.readbottom()
 		})
 
-		this.contextmenu.addbutton("Settings[temp]", function () {
+		this.contextmenu.addbutton("Settings[temp]", function() {
 			this.generateSettings()
 		})
 
@@ -32,8 +32,7 @@ class Channel {
 	}
 	sortPerms() {
 		this.permission_overwritesar.sort((a, b) => {
-			const order = this.guild.roles.findIndex(_ => _.id === a[0]) - this.guild.roles.findIndex(_ => _.id === b[0])
-			return order
+			return this.guild.roles.findIndex(_ => _.id === a[0]) - this.guild.roles.findIndex(_ => _.id === b[0])
 		})
 	}
 
@@ -60,11 +59,11 @@ class Channel {
 		this.permission_overwrites = {}
 		this.permission_overwritesar = []
 		for (const override of json.permission_overwrites) {
-			console.log(thing)
-			if (thing.id == "1182819038095799904" || thing.id == "1182820803700625444") continue // TODO
+			console.log(override)
+			if (override.id == "1182819038095799904" || override.id == "1182820803700625444") continue // TODO
 
 			this.permission_overwrites[override.id] = new Permissions(override.allow, override.deny)
-			this.permission_overwritesar.push([thing.id, this.permission_overwrites[thing.id]])
+			this.permission_overwritesar.push([override.id, this.permission_overwrites[override.id]])
 		}
 	}
 
@@ -721,7 +720,7 @@ class Channel {
 			body: JSON.stringify({
 				allow: permision.allow.toString(),
 				deny: permision.deny.toString(),
-				id: id,
+				id,
 				type: 0
 			})
 		})

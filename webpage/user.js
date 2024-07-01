@@ -1,20 +1,19 @@
 "use strict"
 
-// eslint-disable-next-line no-unused-vars
 class User {
-	static contextmenu = new Contextmenu();
+	static contextmenu = new Contextmenu()
 	static setUpContextMenu() {
-		this.contextmenu.addbutton("Copy user id", function () {
-			navigator.clipboard.writeText(this.id);
-		});
-		this.contextmenu.addbutton("Message user", function () {
+		this.contextmenu.addbutton("Copy user id", function() {
+			navigator.clipboard.writeText(this.id)
+		})
+		this.contextmenu.addbutton("Message user", function() {
 			fetch(instance.api + "/users/@me/channels", { method: "POST",
 				body: JSON.stringify({
 					recipients: [this.id]
 				}),
 				headers: this.headers
-			});
-		});
+			})
+		})
 	}
 
 	static userids = {}
@@ -129,22 +128,22 @@ class User {
 			this.buildprofile(event.clientX, event.clientY, author)
 		}
 	}
-	contextMenuBind(html, guild = null) {
-		if (guild && guild.id !== "@me") {
+	contextMenuBind(html, guild) {
+		if (guild && guild.id != "@me") {
 			Member.resolve(this, guild).then(_ => {
-				_.bind(html);
-			}).catch(_ => {
-				console.log(_);
-			});
+				_.bind(html)
+			}).catch(e => {
+				console.log(e)
+			})
 		}
-		this.profileclick(html);
-		User.contextmenu.bind(html, this);
+		this.profileclick(html)
+		User.contextmenu.bind(html, this)
 	}
 	static async resolve(id, localuser) {
-		const json = await fetch(instance.api + "/users/" + id + "/profile", {
+		const res = await fetch(instance.api + "/users/" + id + "/profile", {
 			headers: localuser.headers
-		}).then(_ => _.json())
-		return new User(json, localuser)
+		})
+		return new User(await res.json(), localuser)
 	}
 }
 

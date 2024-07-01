@@ -252,7 +252,7 @@ class Message {
 			if (combine) {
 				const username = document.createElement("span")
 				username.classList.add("username")
-				this.author.bind(username, this.guild)
+				this.author.contextMenuBind(username, this.guild)
 				/*Member.resolve(this.author, this.guild).then(member => {
 					if (!member) return
 

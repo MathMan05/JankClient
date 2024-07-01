@@ -15,7 +15,7 @@ class Guild {
 			console.log(this)
 		}, null, () => true, () => false)
 
-		Guild.contextmenu.addbutton("Settings[temp]", function () {
+		Guild.contextmenu.addbutton("Settings[temp]", function() {
 			this.generateSettings()
 		})
 
@@ -423,7 +423,7 @@ class Guild {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({
-				name: name,
+				name,
 				color: 0,
 				permissions: "0"
 			})
@@ -448,7 +448,7 @@ class Guild {
 				mentionable: role.mentionable,
 				name: role.name,
 				permissions: role.permissions.allow.toString(),
-				unicode_emoji: role.unicode_emoji,
+				unicode_emoji: role.unicode_emoji
 			})
 		})
 	}

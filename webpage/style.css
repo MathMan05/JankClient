@@ -142,7 +142,7 @@
 
 	--spoiler-hover: #b9b9b9;
 	--spoiler-open-bg: #dadada;
-	--timestamp-bg: #c8c8da;
+	--timestamp-bg: #dadae2;
 
 	--unknown-file-bg: #bdbdbd;
 	--unknown-file-border: #adadad;
@@ -461,7 +461,6 @@ div {
 }
 
 #typebox {
-	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 16px;
 	padding: 3px;
 	border-radius: .25cm;
@@ -676,6 +675,7 @@ p {
 }
 
 textarea {
+	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	background-color: var(--textarea-bg);
 	color: var(--primary-text);
 	width: 3.5in;
@@ -712,11 +712,10 @@ textarea {
 	border-color: var(--server-border);
 	border-width: .1cm;
 	border-style: solid;
-	height: .4in;
+	height: 34px;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-evenly;
-	flex-shrink: 0;
 }
 
 .channeleffects {
@@ -750,7 +749,6 @@ textarea {
 }
 
 #userdock {
-	height: .5in;
 	background-color: var(--user-dock-bg);
 	width: 2.5in;
 	position: relative;
@@ -1012,8 +1010,6 @@ span {
 	background-color: var(--settings-hover);
 }
 .tabbed-content td {
-	/* border-color: var(--textarea-bg); */
-	/* border-width:1in; */
 	border-inline: medium solid var(--textarea-bg);
 }
 .tabbed-head td button {
@@ -1022,25 +1018,23 @@ span {
 
 .accountSwitcher {
 	background-color: var(--profile-bg);
-	cursor: pointer;
-	width: 100%;
-	flex-grow: 0;
-	align-self: center;
-	flex-shrink: 1;
-	min-width: 0px;
 	display: inline-block;
 	width: 100%;
+	z-index: 3;
 }
 .accountSwitcher tr {
 	transition: background-color .3s;
 	background-color: var(--profile-bg);
+	cursor: pointer;
 }
 .accountSwitcher tr:hover {
 	background-color: var(--profile-info-bg);
 }
+
 .switchtable tr {
 	background-color: transparent;
 }
+
 .serverURL {
 	color: var(--pronouns);
 	word-wrap: normal;
@@ -1184,7 +1178,6 @@ span {
 
 #directory-guild-content {
 	display: grid;
-	/*grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));*/
 	grid-template-columns: 1fr 1fr 1fr 1fr;
 }
 
@@ -1225,145 +1218,141 @@ span {
 }
 
 .membererror {
-	display:inline-block;
-	background:#656500;
-	height:.15in;
-	width:.15in;
-	border-radius:.1in;
-	text-align:center;
-	border:solid black .03in;
-	margin-left:.025in;
+	display: inline-block;
+	background: #656500;
+	height: .15in;
+	width: .15in;
+	border-radius: .1in;
+	text-align: center;
+	border: solid var(--black) .03in;
+	margin-left: .025in;
 }
-.controls{
-	position:absolute;
-	top:0px;
-	right:0px;
+.controls {
+	position: absolute;
+	top: 0;
+	right: 0;
 }
 .containedFile {
 	position: relative;
 	width: fit-content;
-	box-shadow:.02in .02in .05in black;
+	box-shadow: .02in .02in .05in var(--black);
 	display: inline-block;
 }
 
-.Buttons{
-	background:var(--primary-bg);
+.Buttons {
+	background-color: var(--primary-bg);
 	position: relative;
 }
-.flexltr{
-	display:flex;
-	flex-wrap: nowrap;
-	flex-direction: row;
+.flexltr {
+	display: flex;
 	max-height: 100%;
 	overflow: auto;
 }
-.flexttb{
+.flexttb {
 	display: flex;
 	flex-direction: column;
 	max-height: 100vh;
-	overflow: auto;
-	/* margin-bottom: 1in; */
-	/* padding-bottom: .1in; */
 }
-.settingbuttons{
-	padding-top:.075in;
+
+.settingbuttons {
+	padding-top: .075in;
 	width: 4in;
 	border-right: solid var(--message-bg-hover);
-	gap:.04in;
+	gap: .04in;
 }
-.setting{
-	background:var(--user-info-bg);
-	padding:.075in;
-	border-radius:.075in;
-	box-shadow:0in 0in .1in var(--message-bg-hover);
+.setting {
+	background-color: var(--user-info-bg);
+	padding: .075in;
+	border-radius: .075in;
+	box-shadow: 0 0 .1in var(--message-bg-hover);
 }
-.settingsname{
-	font-size:.25in;
-	font-weight:bold;
-	margin-right:.1in;
+.settingsname {
+	font-size: .25in;
+	font-weight: bold;
+	margin-right: .1in;
 }
-.flexspace{
-	gap:.1in;
+
+.flexspace {
+	gap: .1in;
 }
-.titlediv{
-	height:100%;
+.titlediv {
+	height: 100%;
 	display: flex;
 	flex-direction: column;
 }
-.settingstitle{
-	font-weight:900;
-	font-size:.25in;
-	border-bottom:solid var(--message-bg-hover);
-	background: var(--primary-bg);
+.settingstitle {
+	font-weight: 900;
+	font-size: .25in;
+	border-bottom: solid var(--message-bg-hover);
+	background-color: var(--primary-bg);
 	padding: .02in .1in;
 }
-.exitsettings{
-	position:absolute;
-	top:.05in;
-	right:.05in;
-	background:var(--channel-hover);
-	width:.3in;
-	height:.3in;
-	display:flex;
-	border-radius:1in;
+.exitsettings {
+	position: absolute;
+	top: .05in;
+	right: .05in;
+	background-color: var(--channel-hover);
+	width: .3in;
+	height: .3in;
+	display: flex;
+	border-radius: 1in;
 	justify-content: space-evenly;
 	align-items: center;
-	font-size:.2in;
-	cursor:pointer;
-	border:solid .04in black;
+	font-size: .2in;
+	cursor: pointer;
+	border: solid .04in var(--black);
 }
 
-.tritoggle{
-	display:inline-block;
-	input{
-		height:.15in;
-		width:.15in;
-		margin:.015in;
+.tritoggle {
+	display: inline-block;
+	input {
+		height: .15in;
+		width: .15in;
+		margin: .015in;
 	}
-	:first-child{
-		accent-color:green;
+	:first-child {
+		accent-color: green;
 	}
-	:last-child{
-		accent-color:red;
+	:last-child {
+		accent-color: red;
 	}
 }
 
-.channelflex{
-	flex-shrink:0;
-	flex-grow:0;
-	width:2.5in;
+.channelflex {
+	flex-shrink: 0;
+	width: 2.5in;
 	display: flex;
-	justify-content: space-evenly;
-	align-content: stretch;
 	flex-direction: column;
 	overflow: hidden;
+	justify-content: space-between;
 }
 .messageflex {
-	display:flex;
+	display: flex;
 	justify-content: space-between;
 	width: 100%;
 }
 .userflex {
-	display:flex;
+	display: flex;
 	flex-direction: column;
 	justify-content: center;
 }
+
 .savediv {
-	position:absolute;
-	background:var(--message-bg-hover);
-	border:solid black;
-	border-radius:.075in;
-	padding:.05in .2in;
-	display:flex;
+	position: absolute;
+	background-color: var(--message-bg-hover);
+	border: solid var(--black);
+	border-radius: .075in;
+	padding: .05in .2in;
+	display: flex;
 	align-items: center;
-	right:50%;
-	transform:translate(50%,0);
-	bottom:.1in;
-	font-weight:bold;
-	font-size:.2in;
-	width:5in;
-	height:.5in;
-	button{
-		background:green;
+	right: 50%;
+	transform: translate(50%, 0);
+	bottom: .1in;
+	font-weight: bold;
+	font-size: .2in;
+	width :5in;
+	height: .5in;
+	button {
+		background-color: green;
 	}
 }

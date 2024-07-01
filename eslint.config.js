@@ -27,6 +27,8 @@ const global = {
 	Permissions: "writeable",
 	Role: "writable",
 	User: "writable",
+	Settings: "writable",
+	RoleList: "writable",
 
 	createunknown: "writable",
 	token: "writable",

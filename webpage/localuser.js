@@ -143,7 +143,7 @@ class LocalUser {
 					case "USER_UPDATE":
 						if (this.initialized) {
 							const users = User.userids[json.d.id]
-							console.log(users, json.d.id)
+							console.log(users, json.d)
 
 							if (users) users.userupdate(json.d)
 						}
@@ -260,11 +260,11 @@ class LocalUser {
 		const serverlist = document.getElementById("servers")
 		serverlist.innerHTML = ""
 
-		const div = document.createElement("div")
-		div.textContent = "⌂"
-		div.classList.add("home", "servericon")
-		div.all = this.guildids["@me"]
-		div.onclick = function() {
+		const homeButton = document.createElement("p")
+		homeButton.textContent = "⌂"
+		homeButton.classList.add("home", "servericon")
+		homeButton.all = this.guildids["@me"]
+		homeButton.onclick = function() {
 			this.all.loadGuild()
 			this.all.loadChannel()
 		}
@@ -273,7 +273,7 @@ class LocalUser {
 		const unread = document.createElement("div")
 		unread.classList.add("unread")
 		outdiv.append(unread)
-		outdiv.appendChild(div)
+		outdiv.appendChild(homeButton)
 		serverlist.append(outdiv)
 
 		const sentdms = document.createElement("div")
@@ -301,19 +301,19 @@ class LocalUser {
 		br2.id = "bottomseperator"
 		serverlist.appendChild(br2)
 
-		const joinCreateContainer = document.createElement("div")
-		joinCreateContainer.textContent = "+"
-		joinCreateContainer.classList.add("home", "servericon")
-		serverlist.appendChild(joinCreateContainer)
-		joinCreateContainer.addEventListener("click", () => {
+		const joinCreateButton = document.createElement("p")
+		joinCreateButton.textContent = "+"
+		joinCreateButton.classList.add("home", "servericon")
+		serverlist.appendChild(joinCreateButton)
+		joinCreateButton.addEventListener("click", () => {
 			this.createGuild()
 		})
 
-		const guildDirectoryContainer = document.createElement("div")
-		guildDirectoryContainer.textContent = "🧭"
-		guildDirectoryContainer.classList.add("home", "servericon")
-		serverlist.appendChild(guildDirectoryContainer)
-		guildDirectoryContainer.addEventListener("click", () => {
+		const guildDiscoveryButton = document.createElement("p")
+		guildDiscoveryButton.textContent = "🧭"
+		guildDiscoveryButton.classList.add("home", "servericon")
+		serverlist.appendChild(guildDiscoveryButton)
+		guildDiscoveryButton.addEventListener("click", () => {
 			this.guildDirectory()
 		})
 	}
