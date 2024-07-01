@@ -1,3 +1,4 @@
+import {checkInstance} from "./login.js";
 if(document.getElementById("register")){
 document.getElementById("register").addEventListener("submit", registertry);
 }
@@ -48,7 +49,7 @@ async function tosLogic(){
     if(tosPage){
         document.getElementById("TOSbox").innerHTML="I agree to the <a href=\"\" id=\"TOSa\">Terms of Service</a>:";
         TOSa=document.getElementById("TOSa");
-        TOSa.href=tosPage;
+        (TOSa as HTMLAnchorElement).href=tosPage;
     }else{
         document.getElementById("TOSbox").textContent="This instance has no Terms of Service, accept ToS anyways:";
         TOSa=null;
