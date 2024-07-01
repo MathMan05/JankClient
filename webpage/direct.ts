@@ -22,7 +22,7 @@ class Direct extends Guild{
         this.roles=[];
         this.roleids={};
         this.prevchannel=undefined;
-        this.properties.name="Dirrect Messages";
+        this.properties.name="Direct Messages";
         for(const thing of JSON){
             const temp=new Group(thing,this);
             this.channels.push(temp);
@@ -77,7 +77,7 @@ class Group extends Channel{
         this.name??=this.localuser.user.username;
         this.id=JSON.id;
         this.parent_id=null;
-        this.parrent=null;
+        this.parent=null;
         this.children=[];
         this.guild_id="@me";
         this.messageids={};

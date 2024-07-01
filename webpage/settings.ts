@@ -63,11 +63,11 @@ class Buttons{
     save(){}
 }
 
-class PermisionToggle{
+class PermissionToggle{
     readonly rolejson:{name:string,readableName:string,description:string};
     permissions:Permissions;
     owner:Options;
-    constructor(roleJSON:PermisionToggle["rolejson"],permissions:Permissions,owner:Options){
+    constructor(roleJSON:PermissionToggle["rolejson"],permissions:Permissions,owner:Options){
         this.rolejson=roleJSON;
         this.permissions=permissions;
         this.owner=owner;
@@ -90,7 +90,7 @@ class PermisionToggle{
     generateCheckbox():HTMLElement{
         const div=document.createElement("div");
         div.classList.add("tritoggle");
-        const state=this.permissions.getPermision(this.rolejson.name);
+        const state=this.permissions.getPermission(this.rolejson.name);
 
         const on=document.createElement("input");
         on.type="radio";
@@ -98,7 +98,7 @@ class PermisionToggle{
         div.append(on);
         if(state===1){on.checked=true;};
         on.onclick=_=>{
-            this.permissions.setPermision(this.rolejson.name,1);
+            this.permissions.setPermission(this.rolejson.name,1);
             this.owner.changed();
         }
 
@@ -108,7 +108,7 @@ class PermisionToggle{
         div.append(no);
         if(state===0){no.checked=true;};
         no.onclick=_=>{
-            this.permissions.setPermision(this.rolejson.name,0);
+            this.permissions.setPermission(this.rolejson.name,0);
             this.owner.changed();
         }
         if(this.permissions.hasDeny){
@@ -118,7 +118,7 @@ class PermisionToggle{
             div.append(off);
             if(state===-1){off.checked=true;};
             off.onclick=_=>{
-                this.permissions.setPermision(this.rolejson.name,-1);
+                this.permissions.setPermission(this.rolejson.name,-1);
                 this.owner.changed();
             }
         }
@@ -147,7 +147,7 @@ class RoleList extends Buttons{
             this.permission=new Permissions("0");
         }
         for(const thing of Permissions.info){
-            options.addPermisionToggle(thing,this.permission);//
+            options.addPermissionToggle(thing,this.permission);//
         }
         for(const i of permissions){
             this.buttons.push([guild.getRole(i[0]).name,i[0]])//
@@ -170,7 +170,7 @@ class RoleList extends Buttons{
 class Options{
     name:string;
     haschanged=false;
-    readonly options:(PermisionToggle|Buttons|RoleList)[];
+    readonly options:(PermissionToggle|Buttons|RoleList)[];
     readonly owner:Buttons;
 
     constructor(name:string,owner:Buttons){
@@ -179,8 +179,8 @@ class Options{
         this.owner=owner;
 
     }
-    addPermisionToggle(roleJSON:PermisionToggle["rolejson"],permissions:Permissions){
-        this.options.push(new PermisionToggle(roleJSON,permissions,this));
+    addPermissionToggle(roleJSON:PermissionToggle["rolejson"],permissions:Permissions){
+        this.options.push(new PermissionToggle(roleJSON,permissions,this));
     }
     generateHTML():HTMLElement{
         const div=document.createElement("div");
