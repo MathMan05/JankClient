@@ -44,6 +44,7 @@
 	--scrollbar-thumb-hover: #16161f;
 	--markdown-timestamp: #2f2f33;
 	--embed: #1a1823;
+	--discovery-bg: #37373b;
 }
 .WHITE-theme {
 	color-scheme: light;
@@ -87,6 +88,7 @@
 	--scrollbar-thumb-hover: #a5a5b8;
 	--markdown-timestamp: #c8c8da;
 	--embed: #f2f3f5;
+	--discovery-bg: #c6c6d8;
 }
 .Light-theme {
 	color-scheme: light;
@@ -139,4 +141,5 @@
 	--scrollbar-thumb-hover: #a7a7be;
 	--markdown-timestamp: #c8c8da;
 	--embed: #cdccd1;
+	--discovery-bg: #c6c6d8;
 }
