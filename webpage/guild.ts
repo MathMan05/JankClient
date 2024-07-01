@@ -76,7 +76,6 @@ class Guild{
         settings.show();
     }
     constructor(JSON,owner:Localuser,member){
-
         if(JSON===-1){
             return;
         }

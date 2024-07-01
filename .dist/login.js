@@ -236,3 +236,4 @@ if ("serviceWorker" in navigator) {
         }
     });
 }
+export { checkInstance };
