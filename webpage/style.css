@@ -1242,3 +1242,45 @@ span {
 		background:green;
 	}
 }
+
+#discovery-guild-content {
+	display: grid;
+	/*grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));*/
+	grid-template-columns: 1fr 1fr 1fr 1fr;
+}
+
+.discovery-guild {
+	width: 220px;
+	height: 175px;
+	margin: 5px;
+	padding: 5px;
+	background-color: var(--discovery-bg);
+	border-radius: 5px;
+	box-shadow: 1px 1px 7px var(--primary-text);
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.discovery-guild .flex {
+	align-items: center;
+}
+
+.discovery-guild img.banner {
+	width: 215px;
+}
+
+.discovery-guild img.icon {
+	width: 48px;
+	height: 48px;
+	margin-right: 5px;
+	border-radius: 50%;
+	transition: border-radius .2s;
+}
+.discovery-guild img.icon:hover {
+	border-radius: 30%;
+}
+
+.discovery-guild p {
+	overflow-wrap: anywhere;
+	max-width: 215px;
+}
