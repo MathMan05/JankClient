@@ -3,21 +3,38 @@
 class Channel {
 	static contextmenu = new Contextmenu()
 	static setupcontextmenu() {
-		Channel.contextmenu.addbutton("Copy channel id", function() {
+		this.contextmenu.addbutton("Copy channel id", function() {
 			navigator.clipboard.writeText(this.id)
 		})
 
-		Channel.contextmenu.addbutton("Mark as read", function() {
+		this.contextmenu.addbutton("Mark as read", function() {
 			this.readbottom()
 		})
 
-		Channel.contextmenu.addbutton("Delete channel", function() {
+		this.contextmenu.addbutton("Settings[temp]", function () {
+			this.generateSettings()
+		})
+
+		this.contextmenu.addbutton("Delete channel", function() {
 			this.deleteChannel()
 		}, null, owner => owner.isAdmin())
 
-		Channel.contextmenu.addbutton("Edit channel", function() {
+		this.contextmenu.addbutton("Edit channel", function() {
 			editchannel(this)
 		}, null, owner => owner.isAdmin())
+	}
+	generateSettings() {
+		this.sortPerms()
+		const settings = new Settings("Settings for " + this.name)
+		const s1 = settings.addButton("roles")
+		s1.options.push(new RoleList(this.permission_overwritesar, this.guild, this.updateRolePermissions.bind(this), true))
+		settings.show()
+	}
+	sortPerms() {
+		this.permission_overwritesar.sort((a, b) => {
+			const order = this.guild.roles.findIndex(_ => _.id === a[0]) - this.guild.roles.findIndex(_ => _.id === b[0])
+			return order
+		})
 	}
 
 	constructor(json, owner) {
@@ -41,8 +58,13 @@ class Channel {
 		this.lastmessageid = json.last_message_id
 
 		this.permission_overwrites = {}
+		this.permission_overwritesar = []
 		for (const override of json.permission_overwrites) {
+			console.log(thing)
+			if (thing.id == "1182819038095799904" || thing.id == "1182820803700625444") continue // TODO
+
 			this.permission_overwrites[override.id] = new Permissions(override.allow, override.deny)
+			this.permission_overwritesar.push([thing.id, this.permission_overwrites[thing.id]])
 		}
 	}
 
@@ -82,6 +104,10 @@ class Channel {
 		return this.lastmessageid != this.lastreadmessageid && this.type != 4
 	}
 	get canMessage() {
+		/*if ((0 === this.permission_overwritesar.length) && this.hasPermission("MANAGE_CHANNELS")) {
+			this.addRoleToPerms(this.guild.roles.find(_ => _.name === "@everyone"));
+		}*/ // TODO: Don't enable, this is garbage & breaks channel permission locking
+
 		return this.hasPermission("SEND_MESSAGES")
 	}
 	sortchildren() {
@@ -669,6 +695,36 @@ class Channel {
 			const result = await Notification.requestPermission()
 			if (result == "granted") this.notify(message)
 		}
+	}
+	async addRoleToPerms(role) {
+		await fetch(instance.api + "/channels/" + this.id + "/permissions/" + role.id, {
+			method: "PUT",
+			headers: this.headers,
+			body: JSON.stringify({
+				allow: "0",
+				deny: "0",
+				id: role.id,
+				type: 0
+			})
+		})
+		const perm = new Permissions("0", "0")
+		this.permission_overwrites[role.id] = perm
+		this.permission_overwritesar.push([role.id, perm])
+	}
+	async updateRolePermissions(id, perms) {
+		const permision = this.permission_overwrites[id]
+		permision.allow = perms.allow
+		permision.deny = perms.deny
+		await fetch(instance.api + "/channels/" + this.id + "/permissions/" + id, {
+			method: "PUT",
+			headers: this.headers,
+			body: JSON.stringify({
+				allow: permision.allow.toString(),
+				deny: permision.deny.toString(),
+				id: id,
+				type: 0
+			})
+		})
 	}
 }
 

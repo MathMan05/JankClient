@@ -1,5 +1,6 @@
 class Permissions {
 	constructor(allow, deny = "") {
+		this.hasDeny = !!deny
 		this.allow = BigInt(allow)
 		this.deny = BigInt(deny)
 	}
@@ -81,7 +82,7 @@ class Permissions {
 			},
 			{
 				name: "MANAGE_MESSAGES",
-				readableName: "Manager messages",
+				readableName: "Manage messages",
 				description: "Allows the user to delete messages that aren't their own"
 			},
 			{
@@ -232,6 +233,21 @@ class Permissions {
 		if (this.hasPermissionBit(Permissions.map[name], this.allow)) return 1
 		if (this.hasPermissionBit(Permissions.map[name], this.deny)) return -1
 		return 0
+	}
+	setPermission(name, setto) {
+		const bit = Permissions.map[name]
+		if (setto === 0) {
+			this.deny = this.setPermissionBit(bit, false, this.deny)
+			this.allow = this.setPermissionBit(bit, false, this.allow)
+		} else if (setto === 1) {
+			this.deny = this.setPermissionBit(bit, false, this.deny)
+			this.allow = this.setPermissionBit(bit, true, this.allow)
+		} else if (setto === -1) {
+			this.deny = this.setPermissionBit(bit, true, this.deny)
+			this.allow = this.setPermissionBit(bit, false, this.allow)
+		} else {
+			console.error("invalid number entered:" + setto);
+		}
 	}
 }
 Permissions.makeMap()

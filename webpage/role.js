@@ -3,6 +3,9 @@
 // eslint-disable-next-line no-unused-vars
 class Role {
 	constructor(json, owner) {
+		this.headers = owner.headers
+		this.info = owner.info
+
 		for (const thing of Object.keys(json)) {
 			this[thing] = json[thing]
 		}

@@ -48,7 +48,7 @@ class Message {
 		Message.contextmenu.addbutton("Copy message id", function() {
 			navigator.clipboard.writeText(this.id)
 		})
-		Message.contextmenu.addbutton("Copy user id", function() {
+		/*Message.contextmenu.addbutton("Copy user id", function() {
 			navigator.clipboard.writeText(this.author.id)
 		})
 		Message.contextmenu.addbutton("Message user", function() {
@@ -59,7 +59,7 @@ class Message {
 					recipients: [this.author.id]
 				})
 			})
-		})
+		})*/
 
 		Message.contextmenu.addbutton("Edit", function() {
 			this.channel.editing = this
@@ -176,9 +176,11 @@ class Message {
 			replyline.appendChild(minipfp)
 
 			const username = document.createElement("span")
+			username.classList.add("username")
 			replyline.appendChild(username)
 
-			Member.resolve(this.author, this.guild).then(member => {
+			this.author.contextMenuBind(username, this.guild)
+			/*Member.resolve(this.author, this.guild).then(member => {
 				if (!member) return
 
 				if (member.error) {
@@ -191,10 +193,9 @@ class Message {
 				}
 
 				username.style.color = member.getColor()
-			})
+			})*/
 
 			const reply = document.createElement("div")
-			username.classList.add("username")
 			reply.classList.add("replytext")
 			replyline.appendChild(reply)
 
@@ -211,9 +212,9 @@ class Message {
 
 				minipfp.crossOrigin = "anonymous"
 				minipfp.src = author.getpfpsrc()
-				author.profileclick(minipfp)
+				author.contextMenuBind(minipfp)
 				username.textContent = author.username
-				author.profileclick(username)
+				author.contextMenuBind(username)
 			})
 			div.appendChild(replyline)
 		}
@@ -237,7 +238,7 @@ class Message {
 			const combine = premessage?.author?.id != this.author.id || current || this.message_reference
 			if (combine) {
 				const pfp = this.author.buildpfp()
-				this.author.profileclick(pfp)
+				this.author.contextMenuBind(pfp)
 				pfpRow.appendChild(pfp)
 			} else div.pfpparent = pfpparent
 
@@ -251,7 +252,8 @@ class Message {
 			if (combine) {
 				const username = document.createElement("span")
 				username.classList.add("username")
-				Member.resolve(this.author, this.guild).then(member => {
+				this.author.bind(username, this.guild)
+				/*Member.resolve(this.author, this.guild).then(member => {
 					if (!member) return
 
 					if (member.error) {
@@ -262,7 +264,7 @@ class Message {
 						return
 					}
 					username.style.color = member.getColor()
-				})
+				})*/
 
 				this.author.profileclick(username)
 				username.textContent = this.author.username

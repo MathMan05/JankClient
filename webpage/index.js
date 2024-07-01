@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
 		Contextmenu.currentmenu = table
-		userdock.append(table)
+		userdock.insertBefore(table)
 		event.stopImmediatePropagation()
 	})
 

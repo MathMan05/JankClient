@@ -15,6 +15,10 @@ class Guild {
 			console.log(this)
 		}, null, () => true, () => false)
 
+		Guild.contextmenu.addbutton("Settings[temp]", function () {
+			this.generateSettings()
+		})
+
 		Guild.contextmenu.addbutton("Notifications", function() {
 			this.setnotifcation()
 		})
@@ -26,6 +30,16 @@ class Guild {
 		Guild.contextmenu.addbutton("Delete guild", function() {
 			this.confirmDelete()
 		}, null, g => g.properties.owner_id == g.member.user.id)
+	}
+	generateSettings() {
+		const settings = new Settings("Settings for " + this.properties.name)
+		const s1 = settings.addButton("roles")
+		const permlist = []
+		for (const thing of this.roles) {
+			permlist.push([thing.id, thing.permissions])
+		}
+		s1.options.push(new RoleList(permlist, this, this.updateRolePermissions.bind(this)))
+		settings.show()
 	}
 
 	constructor(json, owner, member) {
@@ -402,6 +416,40 @@ class Guild {
 		return fetch(instance.api.toString() + "/guilds/" + this.id + "/delete", {
 			method: "POST",
 			headers: this.headers
+		})
+	}
+	async createRole(name) {
+		const fetched = await fetch(instance.api + "/guilds/" + this.id + "roles", {
+			method: "POST",
+			headers: this.headers,
+			body: JSON.stringify({
+				name: name,
+				color: 0,
+				permissions: "0"
+			})
+		})
+		const json = await fetched.json()
+		const role = new Role(json, this)
+		this.roleids[role.id] = role
+		this.roles.push(role)
+		return role
+	}
+	async updateRolePermissions(id, perms) {
+		const role = this.roleids[id]
+		role.permissions.allow = perms.allow
+		role.permissions.deny = perms.deny // TODO
+		await fetch(instance.api + "/guilds/" + this.id + "/roles/" + this.id, {
+			method: "PATCH",
+			headers: this.headers,
+			body: JSON.stringify({
+				color: role.color,
+				hoist: role.hoist,
+				icon: role.icon,
+				mentionable: role.mentionable,
+				name: role.name,
+				permissions: role.permissions.allow.toString(),
+				unicode_emoji: role.unicode_emoji,
+			})
 		})
 	}
 }

@@ -2,6 +2,21 @@
 
 // eslint-disable-next-line no-unused-vars
 class User {
+	static contextmenu = new Contextmenu();
+	static setUpContextMenu() {
+		this.contextmenu.addbutton("Copy user id", function () {
+			navigator.clipboard.writeText(this.id);
+		});
+		this.contextmenu.addbutton("Message user", function () {
+			fetch(instance.api + "/users/@me/channels", { method: "POST",
+				body: JSON.stringify({
+					recipients: [this.id]
+				}),
+				headers: this.headers
+			});
+		});
+	}
+
 	static userids = {}
 	static checkuser(userjson, owner) {
 		if (User.userids[userjson.id]) return User.userids[userjson.id]
@@ -114,4 +129,23 @@ class User {
 			this.buildprofile(event.clientX, event.clientY, author)
 		}
 	}
+	contextMenuBind(html, guild = null) {
+		if (guild && guild.id !== "@me") {
+			Member.resolve(this, guild).then(_ => {
+				_.bind(html);
+			}).catch(_ => {
+				console.log(_);
+			});
+		}
+		this.profileclick(html);
+		User.contextmenu.bind(html, this);
+	}
+	static async resolve(id, localuser) {
+		const json = await fetch(instance.api + "/users/" + id + "/profile", {
+			headers: localuser.headers
+		}).then(_ => _.json())
+		return new User(json, localuser)
+	}
 }
+
+User.setUpContextMenu()
