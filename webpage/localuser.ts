@@ -7,6 +7,9 @@ import {Member} from "./member.js";
 import {markdown} from "./markdown.js";
 import {Fullscreen} from "./fullscreen.js";
 import {setTheme, Specialuser} from "./login.js";
+
+const wsCodesRetry=new Set([4000,4003,4005,4007,4008,4009]);
+
 class Localuser{
     packets:number;
     token:string;
@@ -27,6 +30,8 @@ class Localuser{
     ws:WebSocket;
     typing:[string,number][];
     wsinterval:NodeJS.Timeout;
+    connectionSucceed=0;
+    errorBackoff=0;
     constructor(userinfo:Specialuser){
         this.packets=1;
         this.token=userinfo.token;
@@ -215,6 +220,8 @@ class Localuser{
             }else if(temp.op===10){
                 console.log("heartbeat down")
                 this.wsinterval=setInterval(_=>{
+                    if (this.connectionSucceed===0) this.connectionSucceed=Date.now()
+
                     this.ws.send(JSON.stringify({op:1,d:this.packets}))
                 },temp.d.heartbeat_interval)
                 this.packets=1;
@@ -227,23 +234,35 @@ class Localuser{
 
         });
 
-        this.ws.addEventListener('close', (event) => {
-            clearInterval(this.wsinterval);
-            console.log('WebSocket closed');
-            console.warn(event);
-            if(event.code!==4000){
-                this.unload();
-                document.getElementById("loading").classList.remove("doneloading");
-                document.getElementById("loading").classList.add("loading");
-                this.initwebsocket().then(_=>{
-                    this.loaduser();
-                    this.init();
-                    document.getElementById("loading").classList.add("doneloading");
-                    document.getElementById("loading").classList.remove("loading");
-                    console.log("done loading")
-                });
-            }
+        this.ws.addEventListener("close", event => {
+            console.log("WebSocket closed with code " + event.code);
+            if (this.wsinterval) clearInterval(this.wsinterval);
+
+            this.unload();
+            document.getElementById("loading").classList.remove("doneloading");
+            document.getElementById("loading").classList.add("loading");
+
+            if (((event.code>1000 && event.code<1016) || wsCodesRetry.has(event.code))) {
+                if (this.connectionSucceed!==0 && Date.now()>this.connectionSucceed+20000) this.errorBackoff=0;
+                else this.errorBackoff++;
+                this.connectionSucceed=0;
+
+                document.getElementById("load-desc").innerHTML="Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (this.errorBackoff*2.8)) + "</b> seconds...";
+
+                setTimeout(() => {
+                    document.getElementById("load-desc").textContent="Retrying...";
+
+                    this.initwebsocket().then(() => {
+                        this.loaduser();
+                        this.init();
+                        document.getElementById("loading").classList.add("doneloading");
+                        document.getElementById("loading").classList.remove("loading");
+                        console.log("done loading");
+                    });
+                }, 200 + (this.errorBackoff*2800));
+            } else document.getElementById("load-desc").textContent="Unable to connect to the Spacebar server. Please try logging out and back in.";
         });
+
         await promise;
         return;
     }
