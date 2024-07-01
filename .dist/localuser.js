@@ -365,6 +365,13 @@ class Localuser {
                 console.log("clicked :3");
                 this.createGuild();
             };
+            const guildDiscoveryContainer = document.createElement("div");
+            guildDiscoveryContainer.textContent = "🧭";
+            guildDiscoveryContainer.classList.add("home", "servericon");
+            serverlist.appendChild(guildDiscoveryContainer);
+            guildDiscoveryContainer.addEventListener("click", () => {
+                this.guildDiscovery();
+            });
         }
         this.unreads();
     }
@@ -411,6 +418,60 @@ class Localuser {
                     ]]
             ]]);
         full.show();
+    }
+    async guildDiscovery() {
+        const content = document.createElement("div");
+        content.classList.add("guildy");
+        content.textContent = "Loading...";
+        const full = new Fullscreen(["html", content]);
+        full.show();
+        const res = await fetch(this.info.api.toString() + "/v9/discoverable-guilds?limit=16", {
+            headers: this.headers
+        });
+        const json = await res.json();
+        content.innerHTML = "";
+        const title = document.createElement("h2");
+        title.textContent = "Guild discovery (" + json.total + " entries)";
+        content.appendChild(title);
+        const guilds = document.createElement("div");
+        guilds.id = "discovery-guild-content";
+        json.guilds.forEach(guild => {
+            const content = document.createElement("div");
+            content.classList.add("discovery-guild");
+            if (guild.banner) {
+                const banner = document.createElement("img");
+                banner.classList.add("banner");
+                banner.crossOrigin = "anonymous";
+                banner.src = this.info.cdn.toString() + "icons/" + guild.id + "/" + guild.banner + ".png?size=256";
+                banner.alt = "";
+                content.appendChild(banner);
+            }
+            const nameContainer = document.createElement("div");
+            nameContainer.classList.add("flex");
+            const img = document.createElement("img");
+            img.classList.add("icon");
+            img.crossOrigin = "anonymous";
+            img.src = this.info.cdn.toString() + (guild.icon ? ("icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "embed/avatars/3.png");
+            img.alt = "";
+            nameContainer.appendChild(img);
+            const name = document.createElement("h3");
+            name.textContent = guild.name;
+            nameContainer.appendChild(name);
+            content.appendChild(nameContainer);
+            const desc = document.createElement("p");
+            desc.textContent = guild.description;
+            content.appendChild(desc);
+            content.addEventListener("click", async () => {
+                const joinRes = await fetch(this.info.api.toString() + "/v9/guilds/" + guild.id + "/members/@me", {
+                    method: "PUT",
+                    headers: this.headers
+                });
+                if (joinRes.ok)
+                    full.hide();
+            });
+            guilds.appendChild(content);
+        });
+        content.appendChild(guilds);
     }
     messageCreate(messagep) {
         messagep.d.guild_id ??= "@me";
