@@ -585,6 +585,30 @@ class Channel{
             const prev=this.messages[(+i)+1];
             const built=this.messages[i].buildhtml(prev);
             document.getElementById("messages").prepend(built);
+
+            if (prev) {
+                const prevDate=new Date(prev.timestamp);
+                const currentDate=new Date(this.messages[i].timestamp);
+
+                if (prevDate.toLocaleDateString() != currentDate.toLocaleDateString()) {
+                    const dateContainer=document.createElement("div");
+                    dateContainer.classList.add("replyflex");
+
+                    const line=document.createElement("hr");
+                    line.classList.add("reply");
+                    dateContainer.appendChild(line);
+
+                    const date=document.createElement("span");
+                    date.textContent=currentDate.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+                    dateContainer.appendChild(date);
+
+                    const line2=document.createElement("hr");
+                    line2.classList.add("reply");
+                    dateContainer.appendChild(line2);
+
+                    document.getElementById("messages").prepend(dateContainer);
+                }
+            }
         }
         document.getElementById("messagecontainer").scrollTop = document.getElementById("messagecontainer").scrollHeight;
 
