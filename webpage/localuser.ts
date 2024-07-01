@@ -173,7 +173,7 @@ class Localuser{
                         break;
                     case "TYPING_START":
                         if(this.initialized){
-                            this.typeingStart(temp);
+                            this.typingStart(temp);
                         }
                         break;
                     case "USER_UPDATE":
@@ -213,7 +213,7 @@ class Localuser{
                         const guildy=new Guild(temp.d,this,this.user);
                         this.guilds.push(guildy);
                         this.guildids[guildy.id]=guildy;
-                        document.getElementById("servers").insertBefore(guildy.generateGuildIcon(),document.getElementById("bottomseperator"));
+                        document.getElementById("servers").insertBefore(guildy.generateGuildIcon(),document.getElementById("bottomseparator"));
                     }
                 }
 
@@ -370,7 +370,7 @@ class Localuser{
             const br=document.createElement("hr");
             br.classList.add("lightbr");
             serverlist.appendChild(br);
-            br.id="bottomseperator";
+            br.id="bottomseparator";
 
             const div=document.createElement("div");
             div.textContent="+";
@@ -442,7 +442,7 @@ class Localuser{
             thing.unreads(this.guildhtml[thing.id]);
         }
     }
-    typeingStart(typing):void{
+    typingStart(typing):void{
         if(this.channelfocus.id===typing.d.channel_id){
             const memb=typing.d.member;
             let name;
@@ -536,16 +536,16 @@ class Localuser{
         }
     }
     genusersettings():void{
-        const hypothetcialprofie=document.createElement("div");
+        const hypotheticalProfile=document.createElement("div");
         let file=null;
         let newprouns=null;
         let newbio=null;
         let hypouser=new User(this.user,this,true);
         function regen(){
-            hypothetcialprofie.textContent="";
+            hypotheticalProfile.textContent="";
             const hypoprofile=hypouser.buildprofile(-1,-1);
 
-            hypothetcialprofie.appendChild(hypoprofile)
+            hypotheticalProfile.appendChild(hypoprofile)
         }
         regen();
         this.usersettings=new Fullscreen(
@@ -592,7 +592,7 @@ class Localuser{
                 },Voice.sounds.indexOf(Voice.getNotificationSound())]
             ],
             ["vdiv",
-                ["html",hypothetcialprofie]
+                ["html",hypotheticalProfile]
             ]
         ],_=>{},function(){
             console.log(this);
