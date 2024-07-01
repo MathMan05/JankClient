@@ -24,7 +24,7 @@ class Channel{
     name:string;
     id:string;
     parent_id:string;
-    parrent:Channel;
+    parent:Channel;
     children:Channel[];
     guild_id:string;
     messageids:{[key : string]:Message};
@@ -95,7 +95,7 @@ class Channel{
         this.name=JSON.name;
         this.id=JSON.id;
         this.parent_id=JSON.parent_id;
-        this.parrent=null;
+        this.parent=null;
         this.children=[];
         this.guild_id=JSON.guild_id;
         this.messageids={};
@@ -142,12 +142,12 @@ class Channel{
         }
         for(const thing of member.roles){
             if(this.permission_overwrites[thing.id]){
-                let perm=this.permission_overwrites[thing.id].getPermision(name);
+                let perm=this.permission_overwrites[thing.id].getPermission(name);
                 if(perm){
                     return perm===1;
                 }
             }
-            if(thing.permissions.getPermision(name)){
+            if(thing.permissions.getPermission(name)){
                 return true;
             }
         }
@@ -163,12 +163,12 @@ class Channel{
        this.children.sort((a,b)=>{return a.position-b.position});
     }
     resolveparent(guild:Guild){
-        this.parrent=guild.channelids[this.parent_id];
-        this.parrent??=null;
-        if(this.parrent!==null){
-            this.parrent.children.push(this);
+        this.parent=guild.channelids[this.parent_id];
+        this.parent??=null;
+        if(this.parent!==null){
+            this.parent.children.push(this);
         }
-        return this.parrent===null;
+        return this.parent===null;
     }
     calculateReorder(){
         let position=-1;
@@ -298,9 +298,9 @@ class Channel{
         const search=document.getElementById("channels").children[0].children
         if(this.guild!==this.localuser.lookingguild){
             return null
-        }else if(this.parrent){
+        }else if(this.parent){
             for(const thing of search){
-                if(thing["all"]===this.parrent){
+                if(thing["all"]===this.parent){
                     for(const thing2 of thing.children[1].children){
                         if(thing2["all"]===this){
                             return thing2;
@@ -347,30 +347,30 @@ class Channel{
             event.preventDefault();
             if(container){
                 that.move_id=this.id;
-                if(that.parrent){
-                    that.parrent.children.splice(that.parrent.children.indexOf(that),1);
+                if(that.parent){
+                    that.parent.children.splice(that.parent.children.indexOf(that),1);
                 }
-                that.parrent=this;
+                that.parent=this;
                 (container as HTMLElement).prepend(Channel.dragged[1]);
                 this.children.unshift(that);
             }else{
                 console.log(this,Channel.dragged);
                 that.move_id=this.parent_id;
-                if(that.parrent){
-                    that.parrent.children.splice(that.parrent.children.indexOf(that),1);
+                if(that.parent){
+                    that.parent.children.splice(that.parent.children.indexOf(that),1);
                 }else{
                     this.guild.headchannels.splice(this.guild.headchannels.indexOf(that),1);
                 }
-                that.parrent=this.parrent;
-                if(that.parrent){
+                that.parent=this.parent;
+                if(that.parent){
                     const build=[];
-                    for(let i=0;i<that.parrent.children.length;i++){
-                        build.push(that.parrent.children[i])
-                        if(that.parrent.children[i]===this){
+                    for(let i=0;i<that.parent.children.length;i++){
+                        build.push(that.parent.children[i])
+                        if(that.parent.children[i]===this){
                             build.push(that);
                         }
                     }
-                    that.parrent.children=build;
+                    that.parent.children=build;
                 }else{
                     const build=[];
                     for(let i=0;i<this.guild.headchannels.length;i++){
@@ -390,7 +390,7 @@ class Channel{
     }
     createChannel(name:string,type:number){
         fetch(this.info.api.toString()+"/guilds/"+this.guild.id+"/channels",{
-            method:"Post",
+            method:"POST",
             headers:this.headers,
             body:JSON.stringify({
                 name: name,
@@ -511,14 +511,13 @@ class Channel{
     async putmessages(){
         if(this.messages.length>=100||this.allthewayup){return};
         const j=await fetch(this.info.api.toString()+"/channels/"+this.id+"/messages?limit=100",{
-        method: 'GET',
         headers: this.headers,
         })
-        const responce=await j.json();
-        if(responce.length!==100){
+        const response=await j.json();
+        if(response.length!==100){
             this.allthewayup=true;
         }
-        for(const thing of responce){
+        for(const thing of response){
             const messager=new Message(thing,this)
             if(this.messageids[messager.id]===undefined){
                 this.messageids[messager.id]=messager;
@@ -542,24 +541,23 @@ class Channel{
         const out=this;
 
         await fetch(this.info.api.toString()+"/channels/"+this.id+"/messages?before="+this.messages[this.messages.length-1].id+"&limit=100",{
-            method:"GET",
             headers:this.headers
-        }).then((j)=>{return j.json()}).then(responce=>{
+        }).then((j)=>{return j.json()}).then(response=>{
             //messages.innerHTML = '';
-            //responce.reverse()
+            //response.reverse()
             let next:Message;
-            if(responce.length===0){
+            if(response.length===0){
                 out.allthewayup=true;
             }
-            for(const i in responce){
+            for(const i in response){
                 let messager:Message;
                 if(!next){
-                    messager=new Message(responce[i],this)
+                    messager=new Message(response[i],this)
                 }else{
                     messager=next;
                 }
-                if(responce[+i+1]!==undefined){
-                    next=new Message(responce[+i+1],this);
+                if(response[+i+1]!==undefined){
+                    next=new Message(response[+i+1],this);
                 }else{
                     next=undefined;
                     console.log("ohno",+i+1)
@@ -593,7 +591,7 @@ class Channel{
         this.type=JSON.type;
         this.name=JSON.name;
         this.parent_id=JSON.parent_id;
-        this.parrent=null;
+        this.parent=null;
         this.children=[];
         this.guild_id=JSON.guild_id;
         this.messageids={};
@@ -763,15 +761,15 @@ class Channel{
         this.permission_overwritesar.push([role.id,perm]);
     }
     async updateRolePermissions(id:string,perms:Permissions){
-        const permision=this.permission_overwrites[id];
-        permision.allow=perms.allow;
-        permision.deny=perms.deny;
+        const permission=this.permission_overwrites[id];
+        permission.allow=perms.allow;
+        permission.deny=perms.deny;
         await fetch(this.info.api.toString()+"/channels/"+this.id+"/permissions/"+id,{
             method:"PUT",
             headers:this.headers,
             body:JSON.stringify({
-                allow:permision.allow.toString(),
-                deny:permision.deny.toString(),
+                allow:permission.allow.toString(),
+                deny:permission.deny.toString(),
                 id:id,
                 type:0
             })

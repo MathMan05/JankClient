@@ -8,10 +8,10 @@ class Permissions{
         this.allow=BigInt(allow);
         this.deny=BigInt(deny);
     }
-    getPermisionbit(b:number,big:bigint) : boolean{
+    getPermissionbit(b:number,big:bigint) : boolean{
         return Boolean((big>>BigInt(b))&1n);
     }
-    setPermisionbit(b:number,state:boolean,big:bigint) : bigint{
+    setPermissionbit(b:number,state:boolean,big:bigint) : bigint{
         const bit=1n<<BigInt(b);
         return (big & ~bit) | (BigInt(state) << BigInt(b));//thanks to geotale for this code :3
     }
@@ -235,28 +235,28 @@ class Permissions{
             i++;
         }
     }
-    getPermision(name:string):number{
-        if(this.getPermisionbit(Permissions.map[name] as number,this.allow)){
+    getPermission(name:string):number{
+        if(this.getPermissionbit(Permissions.map[name] as number,this.allow)){
             return 1;
-        }else if(this.getPermisionbit(Permissions.map[name] as number,this.deny)){
+        }else if(this.getPermissionbit(Permissions.map[name] as number,this.deny)){
             return -1;
         }else{
             return 0;
         }
     }
-    setPermision(name:string,setto:number):void{
+    setPermission(name:string,setto:number):void{
         const bit=Permissions.map[name] as number;
         if(setto===0){
-            this.deny=this.setPermisionbit(bit,false,this.deny);
-            this.allow=this.setPermisionbit(bit,false,this.allow);
+            this.deny=this.setPermissionbit(bit,false,this.deny);
+            this.allow=this.setPermissionbit(bit,false,this.allow);
         }else if(setto===1){
 
-            this.deny=this.setPermisionbit(bit,false,this.deny);
-            this.allow=this.setPermisionbit(bit,true,this.allow);
+            this.deny=this.setPermissionbit(bit,false,this.deny);
+            this.allow=this.setPermissionbit(bit,true,this.allow);
         }else if(setto===-1){
 
-            this.deny=this.setPermisionbit(bit,true,this.deny);
-            this.allow=this.setPermisionbit(bit,false,this.allow);
+            this.deny=this.setPermissionbit(bit,true,this.deny);
+            this.allow=this.setPermissionbit(bit,false,this.allow);
         }else{
             console.error("invalid number entered:"+setto);
         }

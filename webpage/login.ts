@@ -25,10 +25,10 @@ function setDefaults(){
         localStorage.setItem("userinfos",JSON.stringify({
             currentuser:null,
             users:{},
-            preferances:
+            preferences:
             {
                 theme:"Dark",
-                notifcations:false,
+                notifications:false,
                 notisound:"three",
             },
         }));
@@ -37,15 +37,15 @@ function setDefaults(){
     if(userinfos.users===undefined){
         userinfos.users={};
     }
-    if(userinfos.preferances===undefined){
-        userinfos.preferances={
+    if(userinfos.preferences===undefined){
+        userinfos.preferences={
                 theme:"Dark",
-                notifcations:false,
+                notifications:false,
                 notisound:"three",
             }
     }
-    if(userinfos.preferances&&(userinfos.preferances.notisound===undefined)){
-        userinfos.preferances.notisound="three";
+    if(userinfos.preferences&&(userinfos.preferences.notisound===undefined)){
+        userinfos.preferences.notisound="three";
     }
     localStorage.setItem("userinfos",JSON.stringify(userinfos));
 }
@@ -158,7 +158,7 @@ async function login(username, password){
     try{
         const info=JSON.parse(localStorage.getItem("instanceinfo"));
         const url=new URL(info.login);
-        return await fetch(url.origin+'/api/auth/login',options).then(responce=>responce.json())
+        return await fetch(url.origin+'/api/auth/login',options).then(response=>response.json())
         .then((response) => {
             console.log(response,response.message)
             if("Invalid Form Body"===response.message){
