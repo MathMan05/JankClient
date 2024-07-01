@@ -2,7 +2,9 @@ export {Permissions};
 class Permissions{
     allow:bigint;
     deny:bigint;
+    readonly hasDeny:boolean;
     constructor(allow:string,deny:string=""){
+        this.hasDeny=!!deny;
         this.allow=BigInt(allow);
         this.deny=BigInt(deny);
     }
@@ -86,7 +88,7 @@ class Permissions{
             },
             {
                 name:"MANAGE_MESSAGES",
-                readableName:"Manager messages",
+                readableName:"Manage messages",
                 description:"Allows the user to delete messages that aren't their own"
             },
             {
@@ -240,6 +242,23 @@ class Permissions{
             return -1;
         }else{
             return 0;
+        }
+    }
+    setPermision(name:string,setto:number):void{
+        const bit=Permissions.map[name] as number;
+        if(setto===0){
+            this.deny=this.setPermisionbit(bit,false,this.deny);
+            this.allow=this.setPermisionbit(bit,false,this.allow);
+        }else if(setto===1){
+
+            this.deny=this.setPermisionbit(bit,false,this.deny);
+            this.allow=this.setPermisionbit(bit,true,this.allow);
+        }else if(setto===-1){
+
+            this.deny=this.setPermisionbit(bit,true,this.deny);
+            this.allow=this.setPermisionbit(bit,false,this.allow);
+        }else{
+            console.error("invalid number entered:"+setto);
         }
     }
 }

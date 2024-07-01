@@ -46,16 +46,6 @@ class Message{
         Message.contextmenu.addbutton("Copy message id",function(){
             navigator.clipboard.writeText(this.id);
         });
-        Message.contextmenu.addbutton("Copy user id",function(){
-            navigator.clipboard.writeText(this.author.id);
-        });
-        Message.contextmenu.addbutton("Message user",function(){
-            fetch(this.info.api.toString()+"/v9/users/@me/channels",
-                {method:"POST",
-                    body:JSON.stringify({"recipients":[this.author.id]}),
-                    headers: this.headers
-                });
-        })
         Message.contextmenu.addbutton("Edit",function(){
             this.channel.editing=this;
             (document.getElementById("typebox") as HTMLInputElement).value=this.content;
@@ -179,7 +169,9 @@ class Message{
             replyline.appendChild(username);
             const reply=document.createElement("div");
             username.classList.add("username");
+            this.author.bind(username,this.guild);
 
+            /*
             Member.resolve(this.author,this.guild).then(_=>{
                 if(!_) {return};
                 console.log(_.error);
@@ -197,6 +189,7 @@ class Message{
             }).catch(_=>{
                 console.log(_)
             });
+            */
 
             reply.classList.add("replytext");
             replyline.appendChild(reply);
@@ -209,9 +202,9 @@ class Message{
                 const author=message.author;
                 reply.appendChild(markdown(message.content,{stdsize:true}));
                 minipfp.src=author.getpfpsrc()
-                author.profileclick(minipfp)
+                author.bind(minipfp);
                 username.textContent=author.username;
-                author.profileclick(username)
+                author.bind(username);
             });
             div.appendChild(replyline);
         }
@@ -234,7 +227,7 @@ class Message{
             const combine=(premessage?.author?.id!=this.author.id)||(current)||this.message_reference
             if(combine){
                 const pfp=this.author.buildpfp();
-                this.author.profileclick(pfp);
+                this.author.bind(pfp);
                 pfpRow.appendChild(pfp);
             }else{
                 div["pfpparent"]=pfpparent;
@@ -249,19 +242,8 @@ class Message{
             if(combine){
                 const username=document.createElement("span");
                 username.classList.add("username")
-                this.author.profileclick(username);
-                Member.resolve(this.author,this.guild).then(_=>{
-                    if(!_) {return};
-                    if(_.error){
-                        const error=document.createElement("span");
-                        error.textContent="!";
-                        error.classList.add("membererror");
-                        username.after(error);
+                this.author.bind(username,this.guild);
 
-                        return;
-                    }
-                    username.style.color=_.getColor();
-                })
                 username.textContent=this.author.username;
                 const userwrap=document.createElement("tr")
                 userwrap.appendChild(username)

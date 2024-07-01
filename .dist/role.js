@@ -5,7 +5,16 @@ class Role {
     owner;
     color;
     id;
+    name;
+    info;
+    hoist;
+    icon;
+    mentionable;
+    unicode_emoji;
+    headers;
     constructor(JSON, owner) {
+        this.headers = owner.headers;
+        this.info = owner.info;
         for (const thing of Object.keys(JSON)) {
             this[thing] = JSON[thing];
         }

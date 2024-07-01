@@ -1,11 +1,24 @@
 import { User } from "./user.js";
 import { Guild } from "./guild.js";
+import { Contextmenu } from "./contextmenu.js";
 class Member {
     static already = {};
     owner;
     user;
     roles;
     error;
+    static contextmenu = new Contextmenu("User Menu");
+    static setUpContextMenu() {
+        this.contextmenu.addbutton("Copy user id", function () {
+            navigator.clipboard.writeText(this.id);
+        });
+        this.contextmenu.addbutton("Message user", function () {
+            fetch(this.info.api.toString() + "/v9/users/@me/channels", { method: "POST",
+                body: JSON.stringify({ "recipients": [this.id] }),
+                headers: this.headers
+            });
+        });
+    }
     constructor(memberjson, owner, error = false) {
         this.error = error;
         this.owner = owner;
@@ -54,8 +67,13 @@ class Member {
             console.error(guild);
         }
         let user;
+        let id = "";
         if (unkown instanceof User) {
             user = unkown;
+            id = user.id;
+        }
+        else if (typeof unkown === typeof "") {
+            id = unkown;
         }
         else {
             return new Member(unkown, guild);
@@ -66,26 +84,26 @@ class Member {
         if (!Member.already[guild.id]) {
             Member.already[guild.id] = {};
         }
-        else if (Member.already[guild.id][user.id]) {
-            const memb = Member.already[guild.id][user.id];
+        else if (Member.already[guild.id][id]) {
+            const memb = Member.already[guild.id][id];
             if (memb instanceof Promise) {
                 return await memb;
             }
             return memb;
         }
-        const promoise = fetch(guild.info.api.toString() + "/v9/users/" + user.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + guild.id, { headers: guild.headers }).then(_ => _.json()).then(json => {
+        const promoise = fetch(guild.info.api.toString() + "/v9/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + guild.id, { headers: guild.headers }).then(_ => _.json()).then(json => {
             const memb = new Member(json, guild);
-            Member.already[guild.id][user.id] = memb;
+            Member.already[guild.id][id] = memb;
             console.log("resolved");
             return memb;
         });
-        Member.already[guild.id][user.id] = promoise;
+        Member.already[guild.id][id] = promoise;
         try {
             return await promoise;
         }
         catch (_) {
             const memb = new Member(user, guild, true);
-            Member.already[guild.id][user.id] = memb;
+            Member.already[guild.id][id] = memb;
             return memb;
         }
     }
@@ -115,5 +133,28 @@ class Member {
         }
         return this.guild.properties.owner_id === this.user.id;
     }
+    bind(html) {
+        if (html.tagName === "SPAN") {
+            if (!this) {
+                return;
+            }
+            ;
+            console.log(this.error);
+            if (this.error) {
+                const error = document.createElement("span");
+                error.textContent = "!";
+                error.classList.add("membererror");
+                html.after(error);
+                return;
+            }
+            html.style.color = this.getColor();
+        }
+        this.profileclick(html);
+        Member.contextmenu.bind(html);
+    }
+    profileclick(html) {
+        //to be implemented
+    }
 }
+Member.setUpContextMenu();
 export { Member };

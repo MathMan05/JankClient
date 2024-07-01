@@ -3,6 +3,7 @@ import { Contextmenu } from "./contextmenu.js";
 import { Role } from "./role.js";
 import { Fullscreen } from "./fullscreen.js";
 import { Member } from "./member.js";
+import { Settings, RoleList } from "./settings.js";
 class Guild {
     owner;
     headers;
@@ -42,6 +43,9 @@ class Guild {
         Guild.contextmenu.addbutton("Create invite", function () {
             console.log(this);
         }, null, _ => true, _ => false);
+        Guild.contextmenu.addbutton("Settings[temp]", function () {
+            this.generateSettings();
+        });
         /* -----things left for later-----
         guild.contextmenu.addbutton("Leave Guild",function(){
             console.log(this)
@@ -52,6 +56,16 @@ class Guild {
             editchannelf(this);
         },null,_=>{return thisuser.isAdmin()})
         */
+    }
+    generateSettings() {
+        const settings = new Settings("Settings for " + this.properties.name);
+        const s1 = settings.addButton("roles");
+        const permlist = [];
+        for (const thing of this.roles) {
+            permlist.push([thing.id, thing.permissions]);
+        }
+        s1.options.push(new RoleList(permlist, this, this.updateRolePermissions.bind(this)));
+        settings.show();
     }
     constructor(JSON, owner, member) {
         if (JSON === -1) {
@@ -479,6 +493,40 @@ class Guild {
             method: "Post",
             headers: this.headers,
             body: JSON.stringify({ name: name, type: type })
+        });
+    }
+    async createRole(name) {
+        const fetched = await fetch(this.info.api.toString() + "/guilds/" + this.id + "roles", {
+            method: "POST",
+            headers: this.headers,
+            body: JSON.stringify({
+                name: name,
+                color: 0,
+                permissions: "0"
+            })
+        });
+        const json = await fetched.json();
+        const role = new Role(json, this);
+        this.roleids[role.id] = role;
+        this.roles.push(role);
+        return role;
+    }
+    async updateRolePermissions(id, perms) {
+        const role = this.roleids[id];
+        role.permissions.allow = perms.allow;
+        role.permissions.deny = perms.deny;
+        await fetch(this.info.api.toString() + "/guilds/" + this.id + "/roles/" + this.id, {
+            method: "PATCH",
+            headers: this.headers,
+            body: JSON.stringify({
+                color: role.color,
+                hoist: role.hoist,
+                icon: role.icon,
+                mentionable: role.mentionable,
+                name: role.name,
+                permissions: role.permissions.allow.toString(),
+                unicode_emoji: role.unicode_emoji,
+            })
         });
     }
 }

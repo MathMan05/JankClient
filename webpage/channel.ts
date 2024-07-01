@@ -7,7 +7,9 @@ import {markdown} from "./markdown.js";
 import {Guild} from "./guild.js";
 import { Localuser } from "./localuser.js";
 import { Permissions } from "./permissions.js";
-
+import { Settings, RoleList } from "./settings.js";
+import { Role } from "./role.js";
+Settings;
 declare global {
     interface NotificationOptions {
         image?: string
@@ -27,6 +29,7 @@ class Channel{
     guild_id:string;
     messageids:{[key : string]:Message};
     permission_overwrites:{[key:string]:Permissions};
+    permission_overwritesar:[string,Permissions][]
     topic:string;
     nsfw:boolean;
     position:number;
@@ -41,24 +44,43 @@ class Channel{
     static contextmenu=new Contextmenu("channel menu");
     replyingto:Message;
     static setupcontextmenu(){
-        Channel.contextmenu.addbutton("Copy channel id",function(){
+        this.contextmenu.addbutton("Copy channel id",function(){
             console.log(this)
             navigator.clipboard.writeText(this.id);
         });
 
-        Channel.contextmenu.addbutton("Mark as read",function(){
+        this.contextmenu.addbutton("Mark as read",function(){
             console.log(this)
             this.readbottom();
         });
 
-        Channel.contextmenu.addbutton("Delete channel",function(){
+        this.contextmenu.addbutton("Settings[temp]",function(){
+            this.generateSettings();
+        });
+
+        this.contextmenu.addbutton("Delete channel",function(){
             console.log(this)
             this.deleteChannel();
         },null,_=>{console.log(_);return _.isAdmin()});
 
-        Channel.contextmenu.addbutton("Edit channel",function(){
+        this.contextmenu.addbutton("Edit channel",function(){
             this.editChannel(this);
         },null,_=>{return _.isAdmin()});
+    }
+    generateSettings(){
+        this.sortPerms();
+        const settings=new Settings("Settings for "+this.name);
+
+        const s1=settings.addButton("roles");
+
+        s1.options.push(new RoleList(this.permission_overwritesar,this.guild,this.updateRolePermissions.bind(this),true))
+        settings.show();
+    }
+    sortPerms(){
+        this.permission_overwritesar.sort((a,b)=>{
+            const order=this.guild.roles.findIndex(_=>_.id===a[0])-this.guild.roles.findIndex(_=>_.id===b[0]);
+            return order;
+        })
     }
     constructor(JSON,owner:Guild){
 
@@ -78,9 +100,14 @@ class Channel{
         this.guild_id=JSON.guild_id;
         this.messageids={};
         this.permission_overwrites={};
+        this.permission_overwritesar=[];
         for(const thing of JSON.permission_overwrites){
+            console.log(thing);
+            if(thing.id==="1182819038095799904"||thing.id==="1182820803700625444"){continue;};
             this.permission_overwrites[thing.id]=new Permissions(thing.allow,thing.deny);
+            this.permission_overwritesar.push([thing.id,this.permission_overwrites[thing.id]]);
         }
+
         this.topic=JSON.topic;
         this.nsfw=JSON.nsfw;
         this.position=JSON.position;
@@ -127,6 +154,9 @@ class Channel{
         return false;
     }
     get canMessage():boolean{
+        if((0===this.permission_overwritesar.length)&&this.hasPermission("MANAGE_CHANNELS")){
+            this.addRoleToPerms(this.guild.roles.find(_=>_.name==="@everyone"));
+        }
         return this.hasPermission("SEND_MESSAGES");
     }
     sortchildren(){
@@ -716,6 +746,36 @@ class Channel{
                 this.notify(message,deep+1);
             });
         }
+    }
+    async addRoleToPerms(role:Role){
+        await fetch(this.info.api.toString()+"/channels/"+this.id+"/permissions/"+role.id,{
+            method:"PUT",
+            headers:this.headers,
+            body:JSON.stringify({
+                allow:"0",
+                deny:"0",
+                id:role.id,
+                type:0
+            })
+        })
+        const perm=new Permissions("0","0");
+        this.permission_overwrites[role.id]=perm;
+        this.permission_overwritesar.push([role.id,perm]);
+    }
+    async updateRolePermissions(id:string,perms:Permissions){
+        const permision=this.permission_overwrites[id];
+        permision.allow=perms.allow;
+        permision.deny=perms.deny;
+        await fetch(this.info.api.toString()+"/channels/"+this.id+"/permissions/"+id,{
+            method:"PUT",
+            headers:this.headers,
+            body:JSON.stringify({
+                allow:permision.allow.toString(),
+                deny:permision.deny.toString(),
+                id:id,
+                type:0
+            })
+        })
     }
 }
 Channel.setupcontextmenu();

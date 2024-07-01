@@ -4,6 +4,7 @@ import {markdown} from "./markdown.js";
 import {Contextmenu} from "./contextmenu.js";
 import {Localuser} from "./localuser.js";
 import {Guild} from "./guild.js";
+
 class User{
     static userids={};
     owner:Localuser;
@@ -15,6 +16,19 @@ class User{
     discriminator:string;
     pronouns:string;
     bot:boolean;
+    static contextmenu:Contextmenu=new Contextmenu("User Menu");
+    static setUpContextMenu(){
+        this.contextmenu.addbutton("Copy user id",function(){
+            navigator.clipboard.writeText(this.id);
+        });
+        this.contextmenu.addbutton("Message user",function(){
+            fetch(this.info.api.toString()+"/v9/users/@me/channels",
+                {method:"POST",
+                    body:JSON.stringify({"recipients":[this.id]}),
+                    headers: this.headers
+                });
+        })
+    }
     static checkuser(userjson,owner:Localuser){
         if(User.userids[userjson.id]){
             return User.userids[userjson.id];
@@ -57,6 +71,23 @@ class User{
             console.log
             this.changepfp(json.avatar);
         }
+    }
+    bind(html:HTMLElement,guild:Guild=null){
+        if(guild&&guild.id!=="@me"){
+            Member.resolve(this,guild).then(_=>{
+                _.bind(html);
+            }).catch(_=>{
+                console.log(_)
+            });
+        }
+        this.profileclick(html);
+        User.contextmenu.bind(html,this);
+    }
+    static async resolve(id:string,localuser:Localuser){
+        const json=await fetch(localuser.info.api.toString()+"/v9/users/"+id+"/profile",
+        {headers:localuser.headers}
+        ).then(_=>_.json());
+        return new User(json,localuser);
     }
     changepfp(update:string){
         this.avatar=update;
@@ -140,4 +171,5 @@ class User{
         }
     }
 }
+User.setUpContextMenu();
 export {User};
