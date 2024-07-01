@@ -13,51 +13,40 @@
     <script src="/index.js" type="module"></script>
 
     <div id="loading" class="loading"><div id="centerdiv"><img src="/bitmap.svg" width="1in" height="1in"><h1>Jank Client is loading</h1><h2>This shouldn't take long</h2></div></div>
-    <table id="page" cellspacing="0" cellpadding="0">
-        <tr>
-            <td rowspan="2" id="neunence">
-                <div id="servers"></div>
-            </td>
-            <td class="servertd" id="servertd">
+    <div class="flexltr" id="page">
+        <div id="neunence">
+            <div id="servers"></div>
+        </div>
+        <div class="flexttb channelflex">
+            <div class="servertd" id="servertd">
                 <h2 id="serverName">Server Name</h2>
-            </td>
-            <td colspan="2" class="servertd servernamediv">
-                <span id="mobileback" hidden=true></span><span id="channelname">Channel</span>
-            </td>
+            </div>
+            <div id="channels"></div>
+            <div class="flexltr" id="userdock">
+                <div class="flexltr" id="userinfo">
+                    <img id="userpfp" class="pfp">
 
-        </tr>
-        <tr>
-            <td id="channels-td">
-                <div id="channels"></div>
-                <table id="userdock">
-                    <tr>
-                        <td>
-                        <table id="userinfo"><tr>
-                        <td>
-                            <img id="userpfp" class="pfp">
-                        </td>
-                        <td>
-                            <div>
-                                <p id="username">USERNAME</p>
-                                <p id="status">SATUS</p>
-                            </div>
-                        </td>
-                        </tr></table></td>
-                        <td>
-                            <h2 id="settings">⚙</h2>
-                        </td>
-                    </tr>
-                </table>
+                    <div class="userflex">
+                        <p id="username">USERNAME</p>
+                        <p id="status">SATUS</p>
+                    </div>
                 </div>
-            </td>
-            <td id="channelw">
+                <h2 id="settings">⚙</h2>
+            </div>
+        </div>
+        <div class="flexttb messageflex">
+            <div class="servertd servernamediv">
+                <span id="mobileback" hidden=true></span><span id="channelname">Channel</span>
+            </div>
+            <div id="channelw">
                 <div id="messagecontainer">
                 <div id="messages">
                 </div>
                 </div>
-                <div id="pasteimage"></div>
-                <div id="typediv">
-                    <div id="replybox" class="hideReplyBox"></div>
+            </div>
+            <div id="pasteimage"></div>
+            <div id="replybox" class="hideReplyBox"></div>
+            <div id="typediv">
                     <textarea id="typebox"></textarea>
                     <div id="typing" class="hidden">
                         <p id="typingtext">typing</p>
@@ -67,11 +56,8 @@
                             <span class="dot">.</span>
                         </div>
                     </div>
-                </div>
-            </td>
-            <td id="extra">
-            </td>
-        </tr>
-    </table>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

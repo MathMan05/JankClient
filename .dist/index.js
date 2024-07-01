@@ -10,17 +10,6 @@ async function waitforload() {
     await res;
 }
 await waitforload();
-function setDynamicHeight() {
-    var servertdHeight = document.getElementById('servertd').offsetHeight + document.getElementById('typediv').offsetHeight + document.getElementById('pasteimage').offsetHeight;
-    document.documentElement.style.setProperty('--servertd-height', servertdHeight + 'px');
-}
-const resizeObserver = new ResizeObserver(() => {
-    setDynamicHeight();
-});
-resizeObserver.observe(document.getElementById('servertd'));
-resizeObserver.observe(document.getElementById('replybox'));
-resizeObserver.observe(document.getElementById('pasteimage'));
-setDynamicHeight();
 const users = getBulkUsers();
 if (!users.currentuser) {
     window.location.href = '/login.html';
@@ -101,7 +90,7 @@ thisuser.initwebsocket().then(_ => {
         }
         Contextmenu.currentmenu = table;
         console.log(table);
-        userdock.append(table);
+        userdock.before(table);
         event.stopImmediatePropagation();
     });
 }

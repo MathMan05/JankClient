@@ -1,6 +1,7 @@
 import { Localuser } from "./localuser.js";
 import {Contextmenu} from "./contextmenu.js";
 import {mobile, getBulkUsers,setTheme, Specialuser} from "./login.js";
+
 async function waitforload(){
     let res
     new Promise(r=>{res=r});
@@ -11,17 +12,7 @@ async function waitforload(){
 }
 await waitforload();
 
-function setDynamicHeight() {
-    var servertdHeight = document.getElementById('servertd').offsetHeight+document.getElementById('typediv').offsetHeight+document.getElementById('pasteimage').offsetHeight;
-    document.documentElement.style.setProperty('--servertd-height', servertdHeight + 'px');
-}
-const resizeObserver = new ResizeObserver(() => {
-    setDynamicHeight();
-});
-resizeObserver.observe(document.getElementById('servertd'));
-resizeObserver.observe(document.getElementById('replybox'));
-resizeObserver.observe(document.getElementById('pasteimage'));
-setDynamicHeight();
+
 
 const users=getBulkUsers();
 if(!users.currentuser){
@@ -109,7 +100,7 @@ thisuser.initwebsocket().then(_=>{
         }
         Contextmenu.currentmenu=table;
         console.log(table);
-        userdock.append(table);
+        userdock.before(table);
         event.stopImmediatePropagation();
     })
 }

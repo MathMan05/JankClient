@@ -5,6 +5,7 @@ body {
 	color: var(--primary-text);
 	overflow-y: hidden;
 	overflow-x: hidden;
+	height:100%;
 	margin: 0;
 	padding: 0;
 }
@@ -52,10 +53,13 @@ th {
 .background {
 	position: absolute;
 	width: 100%;
-	height: 100%;
+	height: 100vh;
 	top: 0;
 	background-color: #000000bf;
 	z-index: 11;
+	max-height: 100%;
+	display: flex;
+	flex-direction: column;
 }
 
 .messagediv:hover {
@@ -177,7 +181,7 @@ h2 {
 #neunence {
 	vertical-align: top;
 	overflow: auto;
-	height: 9dvh;
+	flex-shrink: 0;
 }
 
 #servers {
@@ -235,14 +239,16 @@ img {
 
 #messagecontainer {
 	overflow: auto;
-	height: 100%;
-	width: 100%;
-	display: inline-block;
+	display: flex;
 	max-width: 100%;
+	flex-shrink: 1;
+	width: 100%;
+	/* flex-grow: 1; */
 }
 
 #messages {
 	max-width: 100%;
+	/* height: 100%; */
 }
 
 p {
@@ -253,14 +259,17 @@ p {
 }
 
 #channels {
-	--top-height: 28px;
 	background-color: var(--channels-bg);
-	position: absolute;
 	top: var(--top-height);
-	height: calc(100dvh - 53px - var(--top-height));
-	width: 2.5in;
 	overflow: auto;
 	user-select: none;
+	flex-grow: 1;
+	/* display: flex; */
+	flex-shrink: 1;
+	min-height: 0px;
+	min-width: 0px;
+	width: 2.5in;
+	/* height: 100%; */
 }
 
 #userdock {
@@ -308,10 +317,12 @@ div {
 	font-size: 16px;
 	padding: 3px;
 	border-radius: .25cm;
-	width: 99%;
+	width: 100%;
 	height: .5in;
 	z-index: -100;
 	max-width: 99%;
+	display: flex;
+	max-height: fit-content;
 }
 
 p {
@@ -369,6 +380,7 @@ p {
 
 #typediv {
 	position: relative;
+	/* display: flex; */
 }
 
 .loading-indicator {
@@ -451,10 +463,14 @@ p {
 }
 #channelw {
 	width: 100%;
-	display: inline-block;
+	display: flex;
 	grid-template-rows: auto 1fr;
-	height: calc(100dvh - .1in - var(--servertd-height));
 	max-width: 100%;
+	flex-direction: column;
+	flex-shrink: 1;
+	min-height: 0;
+	height: 100%;
+	/* width: 100%; */
 }
 
 .timestamp {
@@ -586,7 +602,11 @@ textarea {
 	border-color: var(--server-border);
 	border-width: .1cm;
 	border-style: solid;
-	height: .2in;
+	height: .4in;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	flex-shrink: 0;
 }
 
 .channeleffects {
@@ -628,13 +648,24 @@ textarea {
 #userdock {
 	background-color: var(--user-dock-bg);
 	width: 2.5in;
-	position: absolute;
-	bottom: 0;
-	/* position: absolute; */
+	position: relative;
+	flex-shrink: 0;
+	height: .6in;
+	display: flex;
+	align-content: stretch;
+	/* flex-direction: row; */
+	justify-content: space-between;
+	align-items: center;
+	padding-top: .02in;
 }
 
 #channels-td {
 	padding-right: 240px;
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	flex-shrink: 1;
 }
 
 #settings {
@@ -646,6 +677,7 @@ textarea {
 	font-size: .25in;
 	width: .3in;
 	height: .3in;
+	overflow: visible;
 }
 
 #settings:hover {
@@ -659,11 +691,13 @@ textarea {
 	background-color: var(--user-info-bg);
 	border-radius: .1in;
 	cursor: pointer;
+	flex-shrink: 0;
+	padding: .03in;
 }
 
 .servernamediv {
-	width: 100%;
-	max-width: 100%;
+	/* width: 100%; */
+	/* max-width: 100%; */
 }
 
 button {
@@ -908,13 +942,14 @@ span {
 .accountSwitcher{
 	background:var(--profile-bg);
 	cursor:pointer;
-	position:absolute;
-	top:0px;
-	transform: translate(0, -100%);
-	/* width:100%; */
 	box-shadow: .00in -.5in 1in #0000006b;
 	border-radius: .05in .05in .0in.0in;
-	/* max-width: 100%; */
+	flex-grow: 0;
+	align-self: center;
+	flex-shrink: 1;
+	min-width: 0px;
+	display: inline-block;
+	width: 100%;
 }
 .accountSwitcher tr{
 	transition: background .3s;
@@ -932,6 +967,7 @@ span {
 	word-break: normal;
 	white-space: nowrap;
 	font-size: .125in;
+	min-width: 0px;
 }
 .title{
 	font-size:.25in;
@@ -941,6 +977,7 @@ span {
 #channelname{
 	font-size:.2in;
 	font-weight:bold;
+	display: flex;
 }
 #mobileback{
 	/* display:inline-block; */
@@ -1051,9 +1088,10 @@ span {
 	right:0px;
 }
 .containedFile{
-	position:relative !important;
+	position: relative;
 	width: fit-content;
 	box-shadow:.02in .02in .05in black;
+	display: inline-block;
 }
 #replybox{
 	display:flex;
@@ -1082,4 +1120,125 @@ span {
 #replybox.hideReplyBox{
 	height: 0in;
 	padding: 0in;
+}
+.Buttons{
+	background:var(--primary-bg);
+	position: relative;
+}
+.flexltr{
+	display:flex;
+	flex-wrap: nowrap;
+	flex-direction: row;
+	max-height: 100%;
+	overflow: auto;
+}
+.flexttb{
+	display: flex;
+	flex-direction: column;
+	max-height: 100vh;
+	overflow: auto;
+	/* margin-bottom: 1in; */
+	/* padding-bottom: .1in; */
+}
+.settingbuttons{
+	padding-top:.075in;
+	width: 4in;
+	border-right: solid var(--message-bg-hover);
+	gap:.04in;
+}
+.setting{
+	background:var(--user-info-bg);
+	padding:.075in;
+	border-radius:.075in;
+	box-shadow:0in 0in .1in var(--message-bg-hover);
+}
+.settingsname{
+	font-size:.25in;
+	font-weight:bold;
+	margin-right:.1in;
+}
+.flexspace{
+	gap:.1in;
+}
+.titlediv{
+	height:100%;
+	display: flex;
+	flex-direction: column;
+}
+.settingstitle{
+	font-weight:900;
+	font-size:.25in;
+	border-bottom:solid var(--message-bg-hover);
+	background: var(--primary-bg);
+	padding: .02in .1in;
+}
+.exitsettings{
+	position:absolute;
+	top:.05in;
+	right:.05in;
+	background:var(--channel-hover);
+	width:.3in;
+	height:.3in;
+	display:flex;
+	border-radius:1in;
+	justify-content: space-evenly;
+	align-items: center;
+	font-size:.2in;
+	cursor:pointer;
+	border:solid .04in black;
+}
+
+.tritoggle{
+	display:inline-block;
+	input{
+		height:.15in;
+		width:.15in;
+		margin:.015in;
+	}
+	:first-child{
+		accent-color:green;
+	}
+	:last-child{
+		accent-color:red;
+	}
+}
+
+.channelflex{
+	flex-shrink:0;
+	flex-grow:0;
+	width:2.5in;
+	display: flex;
+	justify-content: space-evenly;
+	align-content: stretch;
+	flex-direction: column;
+	overflow: hidden;
+}
+.messageflex{
+	display:flex;
+	justify-content: space-between;
+	width: 100%;
+}
+.userflex{
+	display:flex;
+	flex-direction: column;
+	justify-content: center;
+}
+.savediv{
+	position:absolute;
+	background:var(--message-bg-hover);
+	border:solid black;
+	border-radius:.075in;
+	padding:.05in .2in;
+	display:flex;
+	align-items: center;
+	right:50%;
+	transform:translate(50%,0);
+	bottom:.1in;
+	font-weight:bold;
+	font-size:.2in;
+	width:5in;
+	height:.5in;
+	button{
+		background:green;
+	}
 }

@@ -13,6 +13,18 @@ class User {
     discriminator;
     pronouns;
     bot;
+    static contextmenu = new Contextmenu("User Menu");
+    static setUpContextMenu() {
+        this.contextmenu.addbutton("Copy user id", function () {
+            navigator.clipboard.writeText(this.id);
+        });
+        this.contextmenu.addbutton("Message user", function () {
+            fetch(this.info.api.toString() + "/v9/users/@me/channels", { method: "POST",
+                body: JSON.stringify({ "recipients": [this.id] }),
+                headers: this.headers
+            });
+        });
+    }
     static checkuser(userjson, owner) {
         if (User.userids[userjson.id]) {
             return User.userids[userjson.id];
@@ -59,6 +71,21 @@ class User {
             console.log;
             this.changepfp(json.avatar);
         }
+    }
+    bind(html, guild = null) {
+        if (guild && guild.id !== "@me") {
+            Member.resolve(this, guild).then(_ => {
+                _.bind(html);
+            }).catch(_ => {
+                console.log(_);
+            });
+        }
+        this.profileclick(html);
+        User.contextmenu.bind(html, this);
+    }
+    static async resolve(id, localuser) {
+        const json = await fetch(localuser.info.api.toString() + "/v9/users/" + id + "/profile", { headers: localuser.headers }).then(_ => _.json());
+        return new User(json, localuser);
     }
     changepfp(update) {
         this.avatar = update;
@@ -137,4 +164,5 @@ class User {
         };
     }
 }
+User.setUpContextMenu();
 export { User };
