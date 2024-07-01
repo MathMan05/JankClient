@@ -312,6 +312,10 @@ div {
 	transition: background .1s ease-in-out;
 }
 
+.md-timestamp {
+	background-color: var(--markdown-timestamp);
+}
+
 #typebox {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 16px;
