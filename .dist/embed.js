@@ -166,10 +166,10 @@ class Embed {
         const div = document.createElement("div");
         div.classList.add("embed");
         if (this.json.provider) {
-            const providor = document.createElement("p");
-            providor.classList.add("provider");
-            providor.textContent = this.json.provider.name;
-            div.append(providor);
+            const provider = document.createElement("p");
+            provider.classList.add("provider");
+            provider.textContent = this.json.provider.name;
+            div.append(provider);
         }
         const a = document.createElement("a");
         a.href = this.json.url;

@@ -62,7 +62,7 @@ class Buttons {
     }
     save() { }
 }
-class PermisionToggle {
+class PermissionToggle {
     rolejson;
     permissions;
     owner;
@@ -87,7 +87,7 @@ class PermisionToggle {
     generateCheckbox() {
         const div = document.createElement("div");
         div.classList.add("tritoggle");
-        const state = this.permissions.getPermision(this.rolejson.name);
+        const state = this.permissions.getPermission(this.rolejson.name);
         const on = document.createElement("input");
         on.type = "radio";
         on.name = this.rolejson.name;
@@ -97,7 +97,7 @@ class PermisionToggle {
         }
         ;
         on.onclick = _ => {
-            this.permissions.setPermision(this.rolejson.name, 1);
+            this.permissions.setPermission(this.rolejson.name, 1);
             this.owner.changed();
         };
         const no = document.createElement("input");
@@ -109,7 +109,7 @@ class PermisionToggle {
         }
         ;
         no.onclick = _ => {
-            this.permissions.setPermision(this.rolejson.name, 0);
+            this.permissions.setPermission(this.rolejson.name, 0);
             this.owner.changed();
         };
         if (this.permissions.hasDeny) {
@@ -122,7 +122,7 @@ class PermisionToggle {
             }
             ;
             off.onclick = _ => {
-                this.permissions.setPermision(this.rolejson.name, -1);
+                this.permissions.setPermission(this.rolejson.name, -1);
                 this.owner.changed();
             };
         }
@@ -151,7 +151,7 @@ class RoleList extends Buttons {
             this.permission = new Permissions("0");
         }
         for (const thing of Permissions.info) {
-            options.addPermisionToggle(thing, this.permission); //
+            options.addPermissionToggle(thing, this.permission); //
         }
         for (const i of permissions) {
             this.buttons.push([guild.getRole(i[0]).name, i[0]]); //
@@ -181,8 +181,8 @@ class Options {
         this.options = [];
         this.owner = owner;
     }
-    addPermisionToggle(roleJSON, permissions) {
-        this.options.push(new PermisionToggle(roleJSON, permissions, this));
+    addPermissionToggle(roleJSON, permissions) {
+        this.options.push(new PermissionToggle(roleJSON, permissions, this));
     }
     generateHTML() {
         const div = document.createElement("div");

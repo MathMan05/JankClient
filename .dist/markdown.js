@@ -298,15 +298,15 @@ function markdown(text, { keep = false, stdsize = false } = {}) {
             if (find === count) {
                 appendcurrent();
                 i = j;
-                const underscores = "~~";
+                const tildes = "~~";
                 if (count === 2) {
                     const s = document.createElement("s");
                     if (keep) {
-                        s.append(underscores);
+                        s.append(tildes);
                     }
                     s.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                     if (keep) {
-                        s.append(underscores);
+                        s.append(tildes);
                     }
                     span.appendChild(s);
                 }
@@ -333,17 +333,17 @@ function markdown(text, { keep = false, stdsize = false } = {}) {
             if (find === count) {
                 appendcurrent();
                 i = j;
-                const underscores = "||";
+                const pipes = "||";
                 if (count === 2) {
                     const j = document.createElement("j");
                     if (keep) {
-                        j.append(underscores);
+                        j.append(pipes);
                     }
                     j.appendChild(markdown(build, { keep: keep, stdsize: stdsize }));
                     j.classList.add("spoiler");
                     j.onclick = markdown.unspoil;
                     if (keep) {
-                        j.append(underscores);
+                        j.append(pipes);
                     }
                     span.appendChild(j);
                 }

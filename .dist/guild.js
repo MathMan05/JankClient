@@ -417,7 +417,7 @@ class Guild {
         this.channelids[JSON.id] = thischannel;
         this.channels.push(thischannel);
         thischannel.resolveparent(this);
-        if (!thischannel.parrent) {
+        if (!thischannel.parent) {
             this.headchannels.push(thischannel);
         }
         this.calculateReorder();
@@ -479,8 +479,8 @@ class Guild {
                 build.push(thing)
             }else{
                 console.log("fail");
-                if(thing.parrent){
-                    thing.parrent.delChannel(JSON);
+                if(thing.parent){
+                    thing.parent.delChannel(JSON);
                 }
             }
         }
@@ -490,7 +490,7 @@ class Guild {
     }
     createChannel(name, type) {
         fetch(this.info.api.toString() + "/guilds/" + this.id + "/channels", {
-            method: "Post",
+            method: "POST",
             headers: this.headers,
             body: JSON.stringify({ name: name, type: type })
         });
