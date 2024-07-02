@@ -463,7 +463,7 @@ div {
 #typebox {
 	font-size: 16px;
 	padding: 3px;
-	border-radius: .25cm;
+	border-radius: 8px;
 	width: 100%;
 	height: .5in;
 	max-width: 99%;
@@ -750,15 +750,13 @@ textarea {
 
 #userdock {
 	background-color: var(--user-dock-bg);
-	width: 2.5in;
 	position: relative;
-	flex-shrink: 0;
 	height: .6in;
-	display: flex;
-	align-content: stretch;
 	justify-content: space-between;
 	align-items: center;
 	padding-top: .02in;
+	border-top-left-radius: 3px;
+	border-top-right-radius: 3px;
 }
 
 #settings {
@@ -838,7 +836,7 @@ input[type="file"] {
 	background-color: transparent;
 }
 select {
-	transition: background .1s ease-in-out;
+	transition: background-color .1s ease-in-out;
 	background-color: var(--message-bg-hover);
 	color: var(--primary-text);
 	font-weight: bold;
@@ -1082,11 +1080,15 @@ span {
 	max-height: .75in;
 	border-radius: .03in;
 }
+.bigembedimg {
+	max-width: 4in;
+	max-height: 3in;
+}
 
 .embed-color {
 	padding-left: .04in;
 	border-radius: .07in;
-	background-color: black;
+	background-color: var(--black);
 }
 .embed {
 	background-color: var(--embed);
@@ -1108,13 +1110,6 @@ span {
 	max-width: 5in;
 	border: solid;
 	border-color: var(--settings-hover);
-}
-.bigembedimg {
-	cursor: pointer;
-	user-select: none;
-	max-width: 4in;
-	max-height: 3in;
-	border-radius: .03in;
 }
 .embed .title {
 	margin-bottom: .1in;
@@ -1151,7 +1146,7 @@ span {
 	background-color: var(--reply-bg);
 	height: .25in;
 	transition: height .2s, padding .2s;
-	border-radius:.1in .1in 0 0;
+	border-radius: .1in .1in 0 0;
 	padding-left: .05in;
 	justify-content: space-between;
 	flex-direction: row;
@@ -1197,18 +1192,18 @@ span {
 	align-items: center;
 }
 
-.discovery-guild img.banner {
+.discovery-guild .banner {
 	width: 215px;
 }
 
-.discovery-guild img.icon {
+.discovery-guild .icon {
 	width: 48px;
 	height: 48px;
 	margin-right: 5px;
 	border-radius: 50%;
 	transition: border-radius .2s;
 }
-.discovery-guild img.icon:hover {
+.discovery-guild .icon:hover {
 	border-radius: 30%;
 }
 
@@ -1217,9 +1212,13 @@ span {
 	max-width: 215px;
 }
 
+.date-separator {
+	padding: 0 7px;
+}
+
 .membererror {
 	display: inline-block;
-	background: #656500;
+	background-color: #656500;
 	height: .15in;
 	width: .15in;
 	border-radius: .1in;

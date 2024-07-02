@@ -27,8 +27,8 @@ class Embed {
 	}
 	generateRich() {
 		const div = document.createElement("div")
-		if (this.json.color) div.style.backgroundColor = "#" + this.json.color.toString(16)
 		div.classList.add("embed-color")
+		if (this.json.color) div.style.backgroundColor = "#" + this.json.color.toString(16).padStart(6, "0")
 
 		const embedElem = document.createElement("div")
 		embedElem.classList.add("embed")
@@ -41,7 +41,10 @@ class Embed {
 				img.classList.add("embedimg")
 				img.crossOrigin = "anonymous"
 				img.src = this.json.author.icon_url
+				img.width = 32
+				img.height = 32
 				img.alt = ""
+				img.loading = "lazy"
 				authorline.append(img)
 			}
 
@@ -93,7 +96,10 @@ class Embed {
 				const img = document.createElement("img")
 				img.crossOrigin = "anonymous"
 				img.src = this.json.footer.icon_url
+				img.width = 16
+				img.height = 16
 				img.alt = ""
+				img.loading = "lazy"
 				img.classList.add("embedicon")
 				footer.append(img)
 			}
@@ -123,7 +129,6 @@ class Embed {
 		return div
 	}
 	generateImage() {
-		const td = document.createElement("td")
 		const img = document.createElement("img")
 
 		if (this.json.thumbnail) {
@@ -135,14 +140,13 @@ class Embed {
 			img.crossOrigin = "anonymous"
 			img.src = this.json.thumbnail.proxy_url
 			img.alt = ""
-			td.append(img)
+			img.loading = "lazy"
 		}
 
 		return img
 	}
 	generateArticle(type = "article") {
 		const colordiv = document.createElement("div")
-		colordiv.style.backgroundColor = "#000000"
 		colordiv.classList.add("embed-color")
 
 		const div = document.createElement("div")
@@ -172,7 +176,9 @@ class Embed {
 
 		if (this.json.image || this.json.thumbnail) {
 			const img = document.createElement("img")
+			img.classList.add("embedimg")
 			if (this.json.image) img.classList.add("bigembedimg")
+
 			img.addEventListener("click", () => {
 				const full = new Dialog(["img", img.src, ["fit"]])
 				full.show()
@@ -180,12 +186,14 @@ class Embed {
 			img.crossOrigin = "anonymous"
 			img.src = this.json.image ? this.json.image.proxy_url : this.json.thumbnail.proxy_url
 			img.alt = ""
+			img.loading = "lazy"
 			div.append(img)
 		}
 
 		if (type == "video" && this.json.video) {
 			const proxyUrl = new URL(this.json.video.proxy_url)
-			if (proxyUrl.hostname != "youtube.com") { // YouTube isn't a proxy, embedding it would need a privacy notice
+			// YouTube isn't a proxy, embedding it would need a privacy notice
+			if (proxyUrl.hostname != "youtube.com" && proxyUrl.hostname != "www.youtube.com" && proxyUrl.hostname != "youtu.be") {
 				const video = document.createElement("video")
 				video.controls = true
 				video.src = this.json.video.proxy_url

@@ -437,7 +437,7 @@ class Guild {
 	async updateRolePermissions(id, perms) {
 		const role = this.roleids[id]
 		role.permissions.allow = perms.allow
-		role.permissions.deny = perms.deny // TODO
+
 		await fetch(instance.api + "/guilds/" + this.id + "/roles/" + this.id, {
 			method: "PATCH",
 			headers: this.headers,

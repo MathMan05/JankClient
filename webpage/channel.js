@@ -59,9 +59,6 @@ class Channel {
 		this.permission_overwrites = {}
 		this.permission_overwritesar = []
 		for (const override of json.permission_overwrites) {
-			console.log(override)
-			if (override.id == "1182819038095799904" || override.id == "1182820803700625444") continue // TODO
-
 			this.permission_overwrites[override.id] = new Permissions(override.allow, override.deny)
 			this.permission_overwritesar.push([override.id, this.permission_overwrites[override.id]])
 		}
@@ -103,10 +100,6 @@ class Channel {
 		return this.lastmessageid != this.lastreadmessageid && this.type != 4
 	}
 	get canMessage() {
-		/*if ((0 === this.permission_overwritesar.length) && this.hasPermission("MANAGE_CHANNELS")) {
-			this.addRoleToPerms(this.guild.roles.find(_ => _.name === "@everyone"));
-		}*/ // TODO: Don't enable, this is garbage & breaks channel permission locking
-
 		return this.hasPermission("SEND_MESSAGES")
 	}
 	sortchildren() {
@@ -539,6 +532,7 @@ class Channel {
 					dateContainer.appendChild(line)
 
 					const date = document.createElement("span")
+					date.classList.add("date-separator")
 					date.textContent = currentDate.toLocaleDateString(void 0, { weekday: "long", year: "numeric", month: "long", day: "numeric" })
 					dateContainer.appendChild(date)
 
@@ -550,6 +544,7 @@ class Channel {
 				}
 			}
 		}
+
 		document.getElementById("messagecontainer").scrollTop = document.getElementById("messagecontainer").scrollHeight
 	}
 	updateChannel(json) {
@@ -597,39 +592,33 @@ class Channel {
 			message_id: replyingto.id
 		}
 
-		if (attachments.length == 0) {
-			const body = {
-				content,
-				nonce: Math.floor(Math.random() * 1000000000)
-			}
-			if (replyjson) body.message_reference = replyjson
-
-			return await fetch(instance.api + "/channels/" + this.id + "/messages", {
-				method: "POST",
-				headers: this.headers,
-				body: JSON.stringify(body)
-			})
-		} else {
-			const formData = new FormData()
-			const body = {
-				content,
-				nonce: Math.floor(Math.random() * 1000000000)
-			}
-			if (replyjson) body.message_reference = replyjson
-
-			formData.append("payload_json", JSON.stringify(body))
-			for (const i in attachments) {
-				formData.append("files[" + i + "]", attachments[i])
-			}
-
-			return await fetch(instance.api + "/channels/" + this.id + "/messages", {
-				method: "POST",
-				body: formData,
-				headers: {
-					Authorization: this.headers.Authorization
-				}
-			})
+		const body = {
+			content,
+			nonce: Math.floor(Math.random() * 1000000000)
 		}
+		if (replyjson) body.message_reference = replyjson
+
+		if (attachments.length == 0) return await fetch(instance.api + "/channels/" + this.id + "/messages", {
+			method: "POST",
+			headers: this.headers,
+			body: JSON.stringify(body)
+		})
+
+		const formData = new FormData()
+
+		formData.append("payload_json", JSON.stringify(body))
+		for (const i in attachments) {
+			formData.append("files[" + i + "]", attachments[i])
+		}
+
+		return await fetch(instance.api + "/channels/" + this.id + "/messages", {
+			method: "POST",
+			body: formData,
+			headers: {
+				"Content-Type": "multipart/form-data",
+				Authorization: this.headers.Authorization
+			}
+		})
 	}
 	messageCreate(messagep) {
 		if (!this.hasPermission("VIEW_CHANNEL")) return
