@@ -92,10 +92,11 @@ class LocalUser {
 					token: this.token,
 					capabilities: 16381,
 					properties: {
+						os: "Hidden",
+						device: "Hidden",
 						browser: "Jank Client",
 						client_build_number: 0,
-						release_channel: "Custom",
-						browser_user_agent: navigator.userAgent
+						release_channel: "Custom"
 					},
 					compress: false,
 					presence: {
@@ -163,13 +164,18 @@ class LocalUser {
 						delete this.guildids[json.d.id]
 						this.guilds.splice(this.guilds.indexOf(guildy), 1)
 						guildy.html.remove()
+
+						if (Object.keys(this.guildids).length == 0) document.getElementById("bottomseperator").setAttribute("hidden", "")
 						break
 					}
 					case "GUILD_CREATE": {
 						const guildy = new Guild(json.d, this, this.user)
 						this.guilds.push(guildy)
 						this.guildids[guildy.id] = guildy
+
+						document.getElementById("bottomseperator").removeAttribute("hidden")
 						document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseperator"))
+						break
 					}
 				}
 			} else if (json.op == 10) {
@@ -289,9 +295,9 @@ class LocalUser {
 		serverlist.append(sentdms)
 		sentdms.id = "sentdms"
 
-		const br = document.createElement("hr")
-		br.classList.add("lightbr")
-		serverlist.appendChild(br)
+		const hr = document.createElement("hr")
+		hr.classList.add("lightbr")
+		serverlist.appendChild(hr)
 
 		for (const guild of this.guilds) {
 			if (guild instanceof Direct) {
@@ -304,10 +310,11 @@ class LocalUser {
 		}
 		this.unreads()
 
-		const br2 = document.createElement("hr")
-		br2.classList.add("lightbr")
-		br2.id = "bottomseperator"
-		serverlist.appendChild(br2)
+		const hr2 = document.createElement("hr")
+		hr2.id = "bottomseperator"
+		hr2.classList.add("lightbr")
+		if (this.guilds.length == 0) hr2.setAttribute("hidden", "")
+		serverlist.appendChild(hr2)
 
 		const joinCreateButton = document.createElement("p")
 		joinCreateButton.textContent = "+"
