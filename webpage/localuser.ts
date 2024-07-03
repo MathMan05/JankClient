@@ -206,7 +206,7 @@ class Localuser{
                         delete this.guildids[temp.d.id];
                         this.guilds.splice(this.guilds.indexOf(guildy),1);
                         guildy.html.remove();
-						if (Object.keys(this.guildids).length===0) document.getElementById("bottomseparator").setAttribute("hidden", "");
+			            if (this.guilds.length===0) document.getElementById("bottomseparator").setAttribute("hidden", "");
                         break;
                     }
                     case "GUILD_CREATE":
