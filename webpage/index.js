@@ -43,7 +43,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 	resizeObserver.observe(document.getElementById("pasteimage"))
 	setDynamicHeight()
 
-	setTheme(localStorage.getItem("theme"))
+	if (localStorage.getItem("theme")) setTheme(localStorage.getItem("theme"))
+	else if (window.matchMedia("(prefers-color-scheme: light)").matches) setTheme("light")
 
 	const menu = new Contextmenu()
 	menu.addbutton("Create channel", () => {

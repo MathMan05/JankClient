@@ -165,7 +165,7 @@ class LocalUser {
 						this.guilds.splice(this.guilds.indexOf(guildy), 1)
 						guildy.html.remove()
 
-						if (Object.keys(this.guildids).length == 0) document.getElementById("bottomseperator").setAttribute("hidden", "")
+						if (this.guilds.length == 0) document.getElementById("bottomseparator").setAttribute("hidden", "")
 						break
 					}
 					case "GUILD_CREATE": {
@@ -173,8 +173,8 @@ class LocalUser {
 						this.guilds.push(guildy)
 						this.guildids[guildy.id] = guildy
 
-						document.getElementById("bottomseperator").removeAttribute("hidden")
-						document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseperator"))
+						document.getElementById("bottomseparator").removeAttribute("hidden")
+						document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"))
 						break
 					}
 				}
@@ -311,7 +311,7 @@ class LocalUser {
 		this.unreads()
 
 		const hr2 = document.createElement("hr")
-		hr2.id = "bottomseperator"
+		hr2.id = "bottomseparator"
 		hr2.classList.add("lightbr")
 		if (this.guilds.length == 0) hr2.setAttribute("hidden", "")
 		serverlist.appendChild(hr2)

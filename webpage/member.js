@@ -26,6 +26,7 @@ class Member {
 		if (memberjson.code == 404) return
 
 		this.owner = owner
+		this.headers = this.owner.headers
 		let member = memberjson
 		this.roles = []
 		if (!error) {
