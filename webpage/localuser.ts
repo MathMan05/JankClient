@@ -206,6 +206,7 @@ class Localuser{
                         delete this.guildids[temp.d.id];
                         this.guilds.splice(this.guilds.indexOf(guildy),1);
                         guildy.html.remove();
+						if (Object.keys(this.guildids).length===0) document.getElementById("bottomseparator").setAttribute("hidden", "");
                         break;
                     }
                     case "GUILD_CREATE":
@@ -213,7 +214,9 @@ class Localuser{
                         const guildy=new Guild(temp.d,this,this.user);
                         this.guilds.push(guildy);
                         this.guildids[guildy.id]=guildy;
+						document.getElementById("bottomseperator").removeAttribute("hidden");
                         document.getElementById("servers").insertBefore(guildy.generateGuildIcon(),document.getElementById("bottomseparator"));
+                        break;
                     }
                 }
 
@@ -355,9 +358,10 @@ class Localuser{
         serverlist.append(sentdms);
         sentdms.id="sentdms";
 
-        const br=document.createElement("hr")
-        br.classList.add("lightbr");
-        serverlist.appendChild(br)
+        const hr=document.createElement("hr")
+        hr.classList.add("lightbr");
+        serverlist.appendChild(hr);
+
         for(const thing of this.guilds){
             if(thing instanceof Direct){
                 (thing as Direct).unreaddms();
@@ -367,16 +371,17 @@ class Localuser{
             serverlist.append(divy);
         }
         {
-            const br=document.createElement("hr");
-            br.classList.add("lightbr");
-            serverlist.appendChild(br);
-            br.id="bottomseparator";
+            const hr2=document.createElement("hr");
+            hr2.id="bottomseparator";
+            hr2.classList.add("lightbr");
+		    if (this.guilds.length===0) hr2.setAttribute("hidden", "");
+            serverlist.appendChild(hr2);
 
             const div=document.createElement("div");
             div.textContent="+";
             div.classList.add("addserver","servericon")
             serverlist.appendChild(div)
-            div.onclick=_=>{
+            div.onclick=()=>{
                 console.log("clicked :3")
                 this.createGuild();
             }
