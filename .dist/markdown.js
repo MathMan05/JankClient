@@ -120,6 +120,11 @@ function markdown(text, { keep = false, stdsize = false } = {}) {
                     build += txt[j];
                 }
             }
+            if (stdsize) {
+                console.log(build);
+                build = build.replaceAll("\n", "");
+                console.log(build, JSON.stringify(build));
+            }
             if (find === count) {
                 appendcurrent();
                 i = j;
@@ -347,6 +352,50 @@ function markdown(text, { keep = false, stdsize = false } = {}) {
                     }
                     span.appendChild(j);
                 }
+                continue;
+            }
+        }
+        if (txt[i] === "<" && txt[i + 1] === "t" && txt[i + 2] === ":") {
+            let found = false;
+            const build = ["<", "t", ":"];
+            let j = i + 3;
+            for (; txt[j] !== void 0; j++) {
+                build.push(txt[j]);
+                if (txt[j] === ">") {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                appendcurrent();
+                i = j;
+                const parts = build.join("").match(/^<t:([0-9]{1,16})(:([tTdDfFR]))?>$/);
+                const dateInput = new Date(Number.parseInt(parts[1]) * 1000);
+                let time = "";
+                if (Number.isNaN(dateInput.getTime()))
+                    time = build.join("");
+                else {
+                    if (parts[3] === "d")
+                        time = dateInput.toLocaleString(void 0, { day: "2-digit", month: "2-digit", year: "numeric" });
+                    else if (parts[3] === "D")
+                        time = dateInput.toLocaleString(void 0, { day: "numeric", month: "long", year: "numeric" });
+                    else if (!parts[3] || parts[3] === "f")
+                        time = dateInput.toLocaleString(void 0, { day: "numeric", month: "long", year: "numeric" }) + " " +
+                            dateInput.toLocaleString(void 0, { hour: "2-digit", minute: "2-digit" });
+                    else if (parts[3] === "F")
+                        time = dateInput.toLocaleString(void 0, { day: "numeric", month: "long", year: "numeric", weekday: "long" }) + " " +
+                            dateInput.toLocaleString(void 0, { hour: "2-digit", minute: "2-digit" });
+                    else if (parts[3] === "t")
+                        time = dateInput.toLocaleString(void 0, { hour: "2-digit", minute: "2-digit" });
+                    else if (parts[3] === "T")
+                        time = dateInput.toLocaleString(void 0, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+                    else if (parts[3] === "R")
+                        time = Math.round((Date.now() - (Number.parseInt(parts[1]) * 1000)) / 1000 / 60) + " minutes ago";
+                }
+                const timeElem = document.createElement("span");
+                timeElem.classList.add("markdown-timestamp");
+                timeElem.textContent = time;
+                span.appendChild(timeElem);
                 continue;
             }
         }

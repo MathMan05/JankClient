@@ -445,7 +445,7 @@ class Localuser{
         const full=new Fullscreen(["html", content]);
         full.show();
 
-        const res=await fetch(this.info.api.toString()+"/v9/discoverable-guilds?limit=16", {
+        const res=await fetch(this.info.api.toString()+"/v9/discoverable-guilds?limit=50", {
             headers: this.headers
         });
         const json=await res.json();
