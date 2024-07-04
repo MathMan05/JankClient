@@ -633,6 +633,7 @@ textarea {
 	border-width: .1cm;
 	border-style: solid;
 	height: .4in;
+	width:100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-evenly;
