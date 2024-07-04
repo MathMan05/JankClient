@@ -153,7 +153,8 @@ class Message {
             div.classList.add("replying");
         }
         div.innerHTML = "";
-        const build = document.createElement('table');
+        const build = document.createElement('div');
+        build.classList.add("flexltr");
         if (this.message_reference) {
             const replyline = document.createElement("div");
             const line = document.createElement("hr");
@@ -206,7 +207,8 @@ class Message {
         build.classList.add("message");
         div.appendChild(build);
         if ({ 0: true, 19: true }[this.type] || this.attachments.length !== 0) {
-            const pfpRow = document.createElement('th');
+            const pfpRow = document.createElement('div');
+            pfpRow.classList.add("flexltr");
             let pfpparent, current;
             if (premessage != null) {
                 pfpparent ??= premessage;
@@ -227,16 +229,19 @@ class Message {
             }
             pfpRow.classList.add("pfprow");
             build.appendChild(pfpRow);
-            const text = document.createElement("th");
-            const texttxt = document.createElement("table");
-            texttxt.classList.add("commentrow");
+            const text = document.createElement("div");
+            text.classList.add("flexttb");
+            const texttxt = document.createElement("div");
+            texttxt.classList.add("commentrow", "flexttb");
             text.appendChild(texttxt);
             if (combine) {
                 const username = document.createElement("span");
                 username.classList.add("username");
                 this.author.bind(username, this.guild);
+                div.classList.add("topMessage");
                 username.textContent = this.author.username;
-                const userwrap = document.createElement("tr");
+                const userwrap = document.createElement("div");
+                userwrap.classList.add("flexltr");
                 userwrap.appendChild(username);
                 if (this.author.bot) {
                     const username = document.createElement("span");
@@ -250,22 +255,28 @@ class Message {
                 userwrap.appendChild(time);
                 texttxt.appendChild(userwrap);
             }
+            else {
+                div.classList.remove("topMessage");
+            }
             const messaged = markdown(this.content);
             div["txt"] = messaged;
-            const messagedwrap = document.createElement("tr");
+            const messagedwrap = document.createElement("div");
+            messagedwrap.classList.add("flexttb");
             messagedwrap.appendChild(messaged);
             texttxt.appendChild(messagedwrap);
             build.appendChild(text);
             if (this.attachments.length) {
                 console.log(this.attachments);
-                const attach = document.createElement("tr");
+                const attach = document.createElement("div");
+                attach.classList.add("flexltr");
                 for (const thing of this.attachments) {
                     attach.appendChild(thing.getHTML());
                 }
                 messagedwrap.appendChild(attach);
             }
             if (this.embeds.length) {
-                const embeds = document.createElement("tr");
+                const embeds = document.createElement("div");
+                embeds.classList.add("flexltr");
                 for (const thing of this.embeds) {
                     embeds.appendChild(thing.generateHTML());
                 }
@@ -274,20 +285,21 @@ class Message {
             //
         }
         else if (this.type === 7) {
-            const text = document.createElement("th");
-            const texttxt = document.createElement("table");
+            const text = document.createElement("div");
+            text.classList.add("flexttb");
+            const texttxt = document.createElement("div");
             text.appendChild(texttxt);
             build.appendChild(text);
+            texttxt.classList.add("flexltr");
             const messaged = document.createElement("p");
             div["txt"] = messaged;
             messaged.textContent = "welcome: " + this.author.username;
-            const messagedwrap = document.createElement("tr");
-            messagedwrap.appendChild(messaged);
+            texttxt.appendChild(messaged);
             const time = document.createElement("span");
             time.textContent = "  " + formatTime(new Date(this.timestamp));
             time.classList.add("timestamp");
-            messagedwrap.append(time);
-            texttxt.appendChild(messagedwrap);
+            texttxt.append(time);
+            div.classList.add("topMessage");
         }
         div["all"] = this;
         return (div);

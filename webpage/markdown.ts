@@ -118,6 +118,11 @@ function markdown(text : string|string[],{keep=false,stdsize=false} = {}){
                     build+=txt[j];
                 }
             }
+            if(stdsize){
+                console.log(build);
+                build=build.replaceAll("\n","");
+                console.log(build,JSON.stringify(build));
+            }
             if(find===count){
                 appendcurrent();
                 i=j;
