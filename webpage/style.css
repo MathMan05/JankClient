@@ -217,6 +217,14 @@ th {
 	flex-direction: column;
 }
 
+.messagediv {
+	overflow: hidden;
+	max-width:100%;
+	display: flex;
+	flex-wrap: nowrap;
+	flex-direction: column;
+	max-height: 20in;
+}
 .messagediv:hover {
 	background-color: var(--message-bg-hover);
 }
@@ -370,10 +378,13 @@ img {
 
 .message {
 	width: 100%;
+	flex-wrap: nowrap !important;
+	overflow: auto !important;
 }
 
 .pfprow {
 	width: .5in;
+	flex-shrink: 0;
 }
 
 .commentrow {
@@ -386,7 +397,8 @@ img {
 }
 
 #messagecontainer {
-	overflow: auto;
+	overflow-x: clip;
+	overflow-y: auto;
 	max-width: 100%;
 	width: 100%;
 	display: flex;
@@ -395,11 +407,13 @@ img {
 
 #messages {
 	width: 100%;
+	max-width: 100%;
 }
 
 p {
 	margin: 0;
 	padding: 0;
+	transition: background-color .1s ease-in-out, color .1s ease-in-out;
 }
 
 #channels {
@@ -471,11 +485,6 @@ div {
 	max-height: fit-content;
 }
 
-p {
-	transition: background-color .1s ease-in-out, color .1s ease-in-out;
-	width: 100%;
-}
-
 .username {
 	width: fit-content;
 	cursor: pointer;
@@ -531,6 +540,7 @@ p {
 
 #typediv {
 	margin-top: 6px;
+	width: 99%;
 }
 
 .loading-indicator {
@@ -649,6 +659,19 @@ p {
 	color: var(--reply-text);
 }
 
+.replytext pre {
+	padding: 0 .05in;
+	color: var(--reply-text);
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	max-width: fit-content;
+	flex: 1 1 auto;
+	min-width: 0;
+	width: 25vw;
+	grid-column: 2;
+}
+
 ::-webkit-scrollbar {
 	width: .1in;
 	height: .1in;
@@ -716,6 +739,7 @@ textarea {
 	display: flex;
 	flex-direction: column;
 	justify-content: space-evenly;
+	width: 100%;
 }
 
 .channeleffects {
@@ -757,6 +781,7 @@ textarea {
 	padding-top: .02in;
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
+	width: 100%;
 }
 
 #settings {
@@ -1251,6 +1276,8 @@ span {
 	display: flex;
 	flex-direction: column;
 	max-height: 100vh;
+	overflow: auto;
+	align-items: flex-start;
 }
 
 .settingbuttons {
@@ -1329,6 +1356,7 @@ span {
 	display: flex;
 	justify-content: space-between;
 	width: 100%;
+	overflow-x: hidden;
 }
 .userflex {
 	display: flex;
@@ -1354,4 +1382,32 @@ span {
 	button {
 		background-color: green;
 	}
+}
+
+.flex {
+	display: flex;
+	h3 {
+		width: fit-content;
+	}
+}
+.pfprow .pfp{
+	width: .4in;
+	height: .4in;
+}
+.topMessage {
+	padding-top: .1in;
+}
+.messagediv .flexltr {
+	display: flex;
+	flex-wrap: wrap;
+	overflow: hidden !important;
+	max-height: 100in;
+}
+.messagediv .flexttb{
+	display: flex;
+	overflow: hidden;
+	flex-wrap: wrap;
+	width: 100%;
+	flex-direction: row;
+	max-height: 100in;
 }

@@ -106,7 +106,6 @@ class Guild {
 				}
 			}
 		}
-		console.log(build)
 		if (build.length == 0) return
 
 		fetch(instance.api + "/guilds/" + this.id + "/channels", {

@@ -613,11 +613,10 @@ class Channel {
 
 		return await fetch(instance.api + "/channels/" + this.id + "/messages", {
 			method: "POST",
-			body: formData,
 			headers: {
-				"Content-Type": "multipart/form-data",
 				Authorization: this.headers.Authorization
-			}
+			},
+			body: formData
 		})
 	}
 	messageCreate(messagep) {

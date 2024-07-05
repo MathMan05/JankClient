@@ -381,7 +381,7 @@ class LocalUser {
 		const full = new Dialog(["html", container])
 		full.show()
 
-		const res = await fetch(instance.api + "/discoverable-guilds?limit=16", {
+		const res = await fetch(instance.api + "/discoverable-guilds?limit=50", {
 			headers: this.headers
 		})
 		if (!res.ok) return container.textContent = "An error occurred (response code " + res.status + ")"

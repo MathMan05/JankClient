@@ -111,6 +111,9 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 					build += txt[j]
 				}
 			}
+
+			if (stdsize) build = build.replaceAll("\n", "").replace(/\s/g, " ").replaceAll("  ", "")
+
 			if (find == count) {
 				appendcurrent()
 				i = j
