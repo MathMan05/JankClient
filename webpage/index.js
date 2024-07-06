@@ -5,9 +5,6 @@ if (!users.currentuser) location.href = "/login"
 console.log(users)
 let instance = users.users[users.currentuser].serverurls
 
-// eslint-disable-next-line no-unused-vars
-let READY
-
 let thisuser = new LocalUser(users.users[users.currentuser])
 thisuser.initwebsocket().then(() => {
 	thisuser.loaduser()
@@ -16,36 +13,11 @@ thisuser.initwebsocket().then(() => {
 	document.getElementById("loading").classList.remove("loading")
 })
 
-const setTheme = theme => {
-	if (theme == "light") {
-		document.body.classList.remove("dark-theme")
-		document.body.classList.add("light-theme")
-	} else {
-		document.body.classList.remove("light-theme")
-		document.body.classList.add("dark-theme")
-	}
-}
-const setDynamicHeight = () => {
-	const servertdHeight = document.getElementById("servertd").offsetHeight + document.getElementById("typediv").offsetHeight + document.getElementById("pasteimage").offsetHeight
-	document.documentElement.style.setProperty("--servertd-height", servertdHeight + "px")
-}
-
 const userSettings = () => {
 	thisuser.usersettings.show()
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
-	const resizeObserver = new ResizeObserver(() => {
-		setDynamicHeight()
-	})
-	resizeObserver.observe(document.getElementById("servertd"))
-	resizeObserver.observe(document.getElementById("replybox"))
-	resizeObserver.observe(document.getElementById("pasteimage"))
-	setDynamicHeight()
-
-	if (localStorage.getItem("theme")) setTheme(localStorage.getItem("theme"))
-	else if (window.matchMedia("(prefers-color-scheme: light)").matches) setTheme("light")
-
 	const menu = new Contextmenu()
 	menu.addbutton("Create channel", () => {
 		thisuser.lookingguild.createchannels()

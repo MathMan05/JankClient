@@ -30,9 +30,6 @@ const global = {
 	Settings: "writable",
 	RoleList: "writable",
 
-	createunknown: "writable",
-	token: "writable",
-	lacechannel: "writable",
 	thisuser: "writable",
 	messagelist: "writable",
 	instance: "writeable",

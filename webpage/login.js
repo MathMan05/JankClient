@@ -177,7 +177,20 @@ const checkInstance = async () => {
 	}
 }
 
+const setTheme = theme => {
+	if (theme == "light") {
+		document.body.classList.remove("dark-theme")
+		document.body.classList.add("light-theme")
+	} else {
+		document.body.classList.remove("light-theme")
+		document.body.classList.add("dark-theme")
+	}
+}
+
 document.addEventListener("DOMContentLoaded", async () => {
+	if (localStorage.getItem("theme")) setTheme(localStorage.getItem("theme"))
+	else if (window.matchMedia("(prefers-color-scheme: light)").matches) setTheme("light")
+
 	if (!document.getElementById("form")) return
 
 	document.getElementById("form").addEventListener("submit", check)

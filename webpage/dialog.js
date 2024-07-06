@@ -10,9 +10,7 @@ class Dialog {
 		div.appendChild(this.tohtml(layout))
 		this.html = div
 		this.html.classList.add("centeritem")
-		if (layout[0] != "img") {
-			this.html.classList.add("nonimagecenter")
-		}
+		if (layout[0] != "img") this.html.classList.add("nonimagecenter")
 	}
 	tohtml(array) {
 		switch (array[0]) {

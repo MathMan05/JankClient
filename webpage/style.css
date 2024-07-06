@@ -33,11 +33,6 @@
 	font-weight: 400;
 }
 
-:root {
-	--servertd-height: 0px;
-	/* Default value */
-}
-
 .dark-theme {
 	color-scheme: dark;
 

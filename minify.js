@@ -114,7 +114,7 @@ const minify = async () => {
 	await minifyFile("./webpage/embed.js", generateJSOptions(["Embed"]))
 	await minifyFile("./webpage/guild.js", generateJSOptions(["Guild"]))
 	await minifyFile("./webpage/index.js", generateJSOptions([
-		"ws", "requestTestNotif", "editchannel", "messagelist", "createunknown", "setTheme"
+		"editchannel", "messagelist"
 	]))
 	await minifyFile("./webpage/localuser.js", generateJSOptions(["LocalUser"]))
 	await minifyFile("./webpage/login.js", generateJSOptions(["getBulkInfo", "getBulkUsers"]))

@@ -71,11 +71,11 @@ class LocalUser {
 	}
 	unload() {
 		this.initialized = false
-		clearInterval(this.wsinterval)
+		clearInterval(heartbeatInterval)
 		this.outoffocus()
 		this.guilds = []
 		this.guildids = {}
-		this.ws.close(4000)
+		this.ws.close(1000)
 	}
 	async initwebsocket() {
 		let returny = null
@@ -178,18 +178,25 @@ class LocalUser {
 						break
 					}
 				}
-			} else if (json.op == 10) {
-				heartbeatInterval = setInterval(() => {
-					if (connectionSucceed == 0) connectionSucceed = Date.now()
-
-					this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
-				}, json.d.heartbeat_interval)
+			} else if (json.op == 1) this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
+			else if (json.op == 10) {
 				this.packets = 1
+
+				setTimeout(() => {
+					this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
+
+					heartbeatInterval = setInterval(() => {
+						if (connectionSucceed == 0) connectionSucceed = Date.now()
+
+						console.log("Sending heartbeat at " + new Date().toTimeString())
+						this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
+					}, json.d.heartbeat_interval)
+				}, Math.round(json.d.heartbeat_interval * Math.random()))
 			} else if (json.op != 11) this.packets++
 		})
 
 		this.ws.addEventListener("close", event => {
-			console.log("WebSocket closed with code " + event.code)
+			console.log("WebSocket closed with code " + event.code + " at " + new Date().toTimeString())
 			if (heartbeatInterval) clearInterval(heartbeatInterval)
 
 			this.unload()
