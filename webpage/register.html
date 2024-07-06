@@ -21,20 +21,20 @@
 			<h1>Create an account</h1>
 			<br>
 			<form id="register" submit="registertry(event)">
-				<label for="instance">
+				<label for="instancein">
 					<b>Instance:</b>
 				</label>
 				<br>
 				<p id="verify"></p>
-				<input type="text" placeholder="Instance URL" name="instance" value="https://spacebar.vanillaminigames.net/" id="instancein" required>
+				<input type="text" id="instancein" placeholder="Instance URL" value="https://spacebar.vanillaminigames.net/" required>
 				<br>
 				<br>
 
-				<label for="uname">
+				<label for="email">
 					<b>Email:</b>
 				</label>
 				<br>
-				<input type="text" placeholder="Enter Email" name="email" required autocomplete="email">
+				<input type="text" id="email" placeholder="Enter Email" required autocomplete="email">
 				<br>
 				<br>
 
@@ -42,38 +42,39 @@
 					<b>Username:</b>
 				</label>
 				<br>
-				<input type="text" placeholder="Enter Username" name="uname" required autocomplete="username">
+				<input type="text" id="uname" placeholder="Enter Username" required autocomplete="username">
 				<br>
 				<br>
 
-				<label for="psw">
+				<label for="pass1">
 					<b>Password:</b>
 				</label>
 				<br>
-				<input type="password" placeholder="Enter Password" name="psw" required autocomplete="new-password">
+				<input type="password" id="pass1" placeholder="Enter Password" required autocomplete="new-password">
 				<br>
 				<br>
 
-				<label for="psw2">
+				<label for="pass2">
 					<b>Enter password again:</b>
 				</label>
 				<br>
-				<input type="password" placeholder="Enter Password Again" name="psw2" required autocomplete="new-password">
+				<input type="password" id="pass2" placeholder="Enter Password Again" required autocomplete="new-password">
 				<br>
 				<br>
 
-				<label for="date">
+				<label for="birthdate">
 					<b>Date of birth:</b>
 				</label>
 				<br>
-				<input type="date" id="start" name="date">
+				<input type="date" id="birthdate" required>
 				<br>
 				<br>
 
 				<b id="TOSbox">
-					I agree to the <a href="" id="TOSa" target="_blank" rel="noopener">Terms of Service</a>:
+					I agree to the <a id="TOSa" target="_blank" rel="noopener">Terms of Service</a>:
 				</b>
-				<input type="checkbox" id="TOS" name="TOS">
+				<input type="checkbox" id="tos-check">
+
 				<br>
 				<p class="wrongred" id="wrong"></p>
 				<br>
