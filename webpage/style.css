@@ -1331,17 +1331,17 @@ span {
 
 .tritoggle {
 	display: inline-block;
-	input {
-		height: .15in;
-		width: .15in;
-		margin: .015in;
-	}
-	:first-child {
-		accent-color: green;
-	}
-	:last-child {
-		accent-color: red;
-	}
+}
+.tritoggle input {
+	height: .15in;
+	width: .15in;
+	margin: .015in;
+}
+.tritoggle:first-child {
+	accent-color: green;
+}
+.tritoggle:last-child {
+	accent-color: red;
 }
 
 .channelflex {
@@ -1352,12 +1352,18 @@ span {
 	overflow: hidden;
 	justify-content: space-between;
 }
+
 .messageflex {
 	display: flex;
 	justify-content: space-between;
 	width: 100%;
 	overflow-x: hidden;
 }
+
+.message-header {
+	align-items: center;
+}
+
 .userflex {
 	display: flex;
 	flex-direction: column;
@@ -1379,18 +1385,19 @@ span {
 	font-size: .2in;
 	width :5in;
 	height: .5in;
-	button {
-		background-color: green;
-	}
+}
+.savediv button {
+	background-color: green;
 }
 
 .flex {
 	display: flex;
-	h3 {
-		width: fit-content;
-	}
 }
-.pfprow .pfp{
+.flex h3 {
+	width: fit-content;
+}
+
+.pfprow .pfp {
 	width: .4in;
 	height: .4in;
 }
@@ -1403,7 +1410,7 @@ span {
 	overflow: hidden !important;
 	max-height: 100in;
 }
-.messagediv .flexttb{
+.messagediv .flexttb {
 	display: flex;
 	overflow: hidden;
 	flex-wrap: wrap;

@@ -257,23 +257,11 @@ class Message {
 				const username = document.createElement("span")
 				username.classList.add("username")
 				this.author.contextMenuBind(username, this.guild)
-				/*Member.resolve(this.author, this.guild).then(member => {
-					if (!member) return
-
-					if (member.error) {
-						const error = document.createElement("span")
-						error.textContent = "!"
-						error.classList.add("membererror")
-						username.after(error)
-						return
-					}
-					username.style.color = member.getColor()
-				})*/
 
 				this.author.profileclick(username)
 				username.textContent = this.author.username
 				const userwrap = document.createElement("div")
-				userwrap.classList.add("flexltr")
+				userwrap.classList.add("flexltr", "message-header")
 				userwrap.appendChild(username)
 
 				if (this.author.bot) {
@@ -284,7 +272,7 @@ class Message {
 				}
 
 				const time = document.createElement("span")
-				time.textContent = "  " + formatTime(new Date(this.timestamp))
+				time.textContent = formatTime(new Date(this.timestamp))
 				time.classList.add("timestamp")
 				userwrap.appendChild(time)
 

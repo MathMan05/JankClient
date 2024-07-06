@@ -198,7 +198,7 @@ class LocalUser {
 
 			if (((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code))) {
 				if (connectionSucceed != 0 && Date.now() > connectionSucceed + 20000) errorBackoff = 0
-				else errorBackoff++
+				else errorBackoff = Math.min(errorBackoff + 1, 40)
 				connectionSucceed = 0
 
 				document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (errorBackoff * 2.8)) + "</b> seconds..."
