@@ -206,6 +206,7 @@ th {
 	flex-wrap: nowrap;
 	flex-direction: column;
 	max-height: 20in;
+	padding: 2px 8px;
 }
 .messagediv:hover {
 	background-color: var(--message-bg-hover);
@@ -600,7 +601,6 @@ div {
 	flex-shrink: 1;
 	min-height: 0;
 	height: 100%;
-	padding-left: 8px;
 }
 
 .timestamp {
@@ -712,6 +712,7 @@ textarea {
 	overflow-x: hidden;
 	white-space: nowrap;
 	max-width: 220px;
+	font-size: 18px;
 }
 
 .servertd {
@@ -759,7 +760,7 @@ textarea {
 #userdock {
 	background-color: var(--user-dock-bg);
 	position: relative;
-	height: .6in;
+	height: 60px;
 	justify-content: space-between;
 	align-items: center;
 	padding-top: .02in;
@@ -772,15 +773,13 @@ textarea {
 	cursor: pointer;
 	user-select: none;
 	border-radius: .1in;
-	transition: background-color 1s;
+	transition: color .5s;
 	text-align: center;
 	overflow: visible;
+	margin-right: 10px;
 }
-
 #settings:hover {
-	background-color: var(--settings-hover);
-	cursor: pointer;
-	user-select: none;
+	color: var(--timestamp-color);
 }
 
 #userinfo {
@@ -790,6 +789,10 @@ textarea {
 	cursor: pointer;
 	flex-shrink: 0;
 	padding: .03in;
+}
+
+#username {
+	font-weight: 600;
 }
 
 .servernamediv {
@@ -1026,8 +1029,11 @@ span {
 .accountSwitcher {
 	background-color: var(--profile-bg);
 	display: inline-block;
-	width: 100%;
+	width: 240px;
 	z-index: 3;
+	position: absolute;
+	bottom: 60px;
+	left: 56px;
 }
 .accountSwitcher tr {
 	transition: background-color .3s;
@@ -1389,7 +1395,7 @@ video {
 	height: .4in;
 }
 .topMessage {
-	padding-top: .1in;
+	padding-top: 7px;
 }
 .messagediv .flexltr {
 	display: flex;

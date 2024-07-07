@@ -180,22 +180,7 @@ class Message {
 			const username = document.createElement("span")
 			username.classList.add("username")
 			replyline.appendChild(username)
-
 			this.author.contextMenuBind(username, this.guild)
-			/*Member.resolve(this.author, this.guild).then(member => {
-				if (!member) return
-
-				if (member.error) {
-					username.textContent += "Error"
-					const error = document.createElement("span")
-					error.textContent = "!"
-					error.classList.add("membererror")
-					username.after(error)
-					return
-				}
-
-				username.style.color = member.getColor()
-			})*/
 
 			const reply = document.createElement("div")
 			reply.classList.add("replytext")

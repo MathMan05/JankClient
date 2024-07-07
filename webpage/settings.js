@@ -109,10 +109,6 @@ class Options {
 }
 
 class Buttons {
-	name
-	buttons
-	bigtable
-	warndiv
 	constructor(name) {
 		this.buttons = []
 		this.name = name
@@ -123,13 +119,17 @@ class Buttons {
 		return thing
 	}
 	generateHTML() {
+		if (!this.buttons[0]) return console.error("Missing settings data", this)
+
 		const bigtable = document.createElement("div")
 		bigtable.classList.add("Buttons")
 		bigtable.classList.add("flexltr")
 		this.bigtable = bigtable
+
 		const htmlarea = document.createElement("div")
 		const buttonTable = document.createElement("div")
 		buttonTable.classList.add("flexttb", "settingbuttons")
+
 		for (const thing of this.buttons) {
 			const button = document.createElement("button")
 			button.classList.add("SettingsButton")
@@ -152,11 +152,9 @@ class Buttons {
 	}
 	generateHTMLArea(genation, htmlarea) {
 		let html
-		if (genation instanceof Options) {
-			html = genation.generateHTML()
-		} else {
-			html = this.handleString(genation)
-		}
+		if (genation instanceof Options) html = genation.generateHTML()
+		else html = this.handleString(genation)
+
 		htmlarea.innerHTML = ""
 		htmlarea.append(html)
 	}
@@ -169,13 +167,6 @@ class Buttons {
 
 // eslint-disable-next-line no-unused-vars
 class RoleList extends Buttons {
-	permissions
-	permission
-	guild
-	channel
-	options
-	onchange
-	curid
 	constructor(permissions, guild, onchange, channel = false) {
 		super("Roles")
 		this.guild = guild
@@ -216,13 +207,15 @@ class Settings extends Buttons {
 		return options
 	}
 	show() {
-		const background = document.createElement("div")
-		background.classList.add("background")
+		const background = document.createElement("dialog")
+
 		const title = document.createElement("h2")
 		title.textContent = this.name
 		title.classList.add("settingstitle")
 		background.append(title)
+
 		background.append(this.generateHTML())
+
 		const exit = document.createElement("span")
 		exit.textContent = "✖"
 		exit.classList.add("exitsettings")
@@ -232,8 +225,10 @@ class Settings extends Buttons {
 		}
 		document.body.append(background)
 		this.html = background
+		background.showModal()
 	}
 	hide() {
+		this.html.close()
 		this.html.remove()
 		this.html = null
 	}

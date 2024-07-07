@@ -1,7 +1,6 @@
 "use strict"
 
 let connectionSucceed = 0
-let heartbeatInterval = 0
 let errorBackoff = 0
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009])
 
@@ -70,8 +69,8 @@ class LocalUser {
 		this.channelfocus = null
 	}
 	unload() {
+		if (this.heartbeatInterval) clearInterval(this.heartbeatInterval)
 		this.initialized = false
-		clearInterval(heartbeatInterval)
 		this.outoffocus()
 		this.guilds = []
 		this.guildids = {}
@@ -185,10 +184,9 @@ class LocalUser {
 				setTimeout(() => {
 					this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
 
-					heartbeatInterval = setInterval(() => {
+					this.heartbeatInterval = setInterval(() => {
 						if (connectionSucceed == 0) connectionSucceed = Date.now()
 
-						console.log("Sending heartbeat at " + new Date().toTimeString())
 						this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
 					}, json.d.heartbeat_interval)
 				}, Math.round(json.d.heartbeat_interval * Math.random()))
@@ -197,7 +195,6 @@ class LocalUser {
 
 		this.ws.addEventListener("close", event => {
 			console.log("WebSocket closed with code " + event.code + " at " + new Date().toTimeString())
-			if (heartbeatInterval) clearInterval(heartbeatInterval)
 
 			this.unload()
 			document.getElementById("loading").classList.remove("doneloading")
@@ -259,7 +256,7 @@ class LocalUser {
 	loaduser() {
 		document.getElementById("username").textContent = this.user.username
 		document.getElementById("userpfp").src = this.user.getpfpsrc()
-		document.getElementById("status").textContent = this.settings.status
+		document.getElementById("discriminator").textContent = "#" + this.user.discriminator
 	}
 	isAdmin() {
 		return this.lookingguild.isAdmin()
@@ -343,6 +340,9 @@ class LocalUser {
 		let inviteurl = ""
 		const inviteError = document.createElement("span")
 
+		let serverName = ""
+		const serverCreateError = document.createElement("span")
+
 		const full = new Dialog(["tabs", [
 			["Join using invite", [
 				"vdiv",
@@ -375,8 +375,35 @@ class LocalUser {
 						}
 					]
 			]],
-			["Create Server", [
-				"text", "Not currently implemented, sorry"
+			["Create server", [
+				"vdiv",
+					["textbox",
+						"Server name",
+						"",
+						function() {
+							serverName = this.value
+						}
+					],
+					["html", serverCreateError],
+					["button",
+						"",
+						"Submit",
+						async () => {
+							const res = await fetch(instance.api + "/guilds", {
+								method: "POST",
+								headers: this.headers,
+								body: JSON.stringify({
+									name: serverName
+								})
+							})
+							if (res.ok) full.hide()
+							else {
+								const json = await res.json()
+								serverCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
+								console.error("Unable to create guild", json)
+							}
+						}
+					]
 			]]
 		]])
 		full.show()

@@ -11,9 +11,40 @@ class Guild {
 			this.markAsRead()
 		})
 
-		Guild.contextmenu.addbutton("Create Invite", function() {
-			console.log(this)
-		}, null, () => true, () => false)
+		Guild.contextmenu.addbutton("Create Invite", async function() {
+			if (Object.keys(this.channelids).length == 0) return alert("No channels to create invite for")
+
+			let res = await fetch(instance.api + "/channels/" + (this.prevchannel ? this.prevchannel.id : Object.keys(this.channelids)[0]) + "/invites", {
+				method: "POST",
+				headers: this.headers
+			})
+			let json = await res.json()
+			console.log(json)
+
+			const inviteCreateError = document.createElement("span")
+
+			const full = new Dialog(["vdiv",
+				["html", inviteCreateError],
+				["button",
+					"",
+					"Create invite",
+					async () => {
+						res = await fetch(instance.api + "/channels/" + (this.prevchannel ? this.prevchannel.id : Object.keys(this.channelids)[0]) + "/invites", {
+							method: "POST",
+							headers: this.headers
+						})
+						json = await res.json()
+
+						if (res.ok) inviteCreateError.textContent = "Invite created: " + location.protocol + "//" + location.host + "/invite/" + json.code
+						else {
+							inviteCreateError.textContent = json.message || "An error occurred (response code " + res.status + ")"
+							console.error("Unable to create invite", json)
+						}
+					}
+				]
+			])
+			full.show()
+		})
 
 		Guild.contextmenu.addbutton("Settings[temp]", function() {
 			this.generateSettings()
@@ -24,7 +55,7 @@ class Guild {
 		})
 
 		Guild.contextmenu.addbutton("Leave guild", function() {
-			this.confirmleave()
+			this.confirmLeave()
 		}, null, g => g.properties.owner_id != g.member.user.id)
 
 		Guild.contextmenu.addbutton("Delete guild", function() {
@@ -307,7 +338,7 @@ class Guild {
 		])
 		notiselect.show()
 	}
-	confirmleave() {
+	confirmLeave() {
 		const full = new Dialog([
 			"vdiv",
 			["title",
@@ -378,7 +409,7 @@ class Guild {
 		const full = new Dialog([
 			"vdiv",
 			["title",
-				"Are you sure you want to delete " + this.properties.name + "?"
+				"Are you sure you want to delete the server \"" + this.properties.name + "\"?"
 			],
 			["textbox",
 				"Name of server:",
@@ -392,8 +423,7 @@ class Guild {
 				"",
 				"Yes, I'm sure",
 				async () => {
-					console.log(confirmname)
-					if (confirmname == this.properties.name) return
+					if (confirmname != this.properties.name) return
 
 					await this.delete()
 					full.hide()
@@ -406,7 +436,6 @@ class Guild {
 					full.hide()
 				}
 				]
-
 			]
 		])
 		full.show()

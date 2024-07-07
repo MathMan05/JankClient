@@ -384,7 +384,7 @@ class Channel {
 		full.show()
 	}
 	deleteChannel() {
-		fetch(instance.api + "/channels/" + this.id, {
+		if (confirm("Do you really want to delete the channel \"" + this.name + "\"?")) fetch(instance.api + "/channels/" + this.id, {
 			method: "DELETE",
 			headers: this.headers
 		})
