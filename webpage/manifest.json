@@ -2,12 +2,17 @@
 	"name": "Jank Client",
 	"icons": [
 		{
-			"src": "/bitmap.svg",
+			"src": "/icon.svg",
 			"sizes": "512x512"
+		},
+		{
+			"src": "/icon.png",
+			"sizes": "512x510"
 		}
 	],
+	"id": "/",
 	"start_url": "/channels/@me",
 	"display": "standalone",
 	"display_override": ["standalone", "minimal-ui"],
-	"theme_color": "#05050a"
+	"theme_color": "#282832"
 }

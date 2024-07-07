@@ -397,11 +397,11 @@ class LocalUser {
 		container.innerHTML = ""
 
 		const title = document.createElement("h2")
-		title.textContent = "Guild directory (" + json.total + " entries)"
+		title.textContent = "Server discovery (" + json.total + " entries)"
 		container.appendChild(title)
 
 		const guilds = document.createElement("div")
-		guilds.id = "directory-guild-content"
+		guilds.id = "discovery-guild-content"
 
 		json.guilds.forEach(guild => {
 			const content = document.createElement("div")
@@ -413,6 +413,7 @@ class LocalUser {
 				banner.crossOrigin = "anonymous"
 				banner.src = instance.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256"
 				banner.alt = ""
+				banner.loading = "lazy"
 				content.appendChild(banner)
 			}
 
@@ -424,6 +425,7 @@ class LocalUser {
 			img.crossOrigin = "anonymous"
 			img.src = instance.cdn + "/" + (guild.icon ? ("icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "embed/avatars/3.png")
 			img.alt = ""
+			img.loading = "lazy"
 			nameContainer.appendChild(img)
 
 			const name = document.createElement("h3")

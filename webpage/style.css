@@ -172,44 +172,31 @@ body {
 	height: auto;
 }
 
-.centeritem {
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	background-color: var(--dialog-bg);
-	z-index: 12;
-}
-
 .collapse {
 	overflow: hidden;
 	width: 0 !important;
 	max-width: 0 !important;
 }
 
-.nonimagecenter {
-	z-index: 12;
-	border-style: solid;
-	border-radius: .1in;
-	border-color: var(--dialog-border);
-	padding: .03in;
+dialog {
+	max-width: 90%;
+}
+
+dialog .close {
+	color: #AAA;
+	float: right;
+	font-size: 28px;
+	font-weight: 700;
+	transition: .2s;
+	cursor: pointer;
+}
+dialog .close:hover, dialog .close:focus {
+	color: #000;
 }
 
 th {
 	font-weight: 400;
 	padding: 0;
-}
-
-.background {
-	position: absolute;
-	width: 100vw;
-	height: 100vh;
-	top: 0;
-	background-color: #000000bf;
-	z-index: 11;
-	max-height: 100%;
-	display: flex;
-	flex-direction: column;
 }
 
 .messagediv {
@@ -536,6 +523,7 @@ div {
 #typediv {
 	margin-top: 6px;
 	width: 99%;
+	z-index: 2;
 }
 
 .loading-indicator {
@@ -612,6 +600,7 @@ div {
 	flex-shrink: 1;
 	min-height: 0;
 	height: 100%;
+	padding-left: 8px;
 }
 
 .timestamp {
@@ -1164,14 +1153,12 @@ span {
 #replybox {
 	display: flex;
 	background-color: var(--reply-bg);
-	height: .25in;
 	transition: height .2s, padding .2s;
 	border-radius: .1in .1in 0 0;
 	padding-left: .05in;
-	justify-content: space-between;
-	flex-direction: row;
-	align-items: flex-end;
 	padding-top: .05in;
+	bottom: -6px;
+	position: relative;
 }
 
 #replybox span {
@@ -1256,6 +1243,11 @@ span {
 	width: fit-content;
 	box-shadow: .02in .02in .05in var(--black);
 	display: inline-block;
+}
+
+video {
+	max-width: 3in;
+	max-height: 4in;
 }
 
 .Buttons {

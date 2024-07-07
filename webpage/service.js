@@ -10,7 +10,10 @@ const checkCache = async () => {
 
 	fetch("/getupdates").then(async data => {
 		const text = await data.clone().text()
-		if (lastCache != text) caches.delete("cache")
+		if (lastCache != text) {
+			caches.delete("cache")
+			console.warn("Cache has been updated")
+		}
 
 		lastChecked = Date.now()
 	})
@@ -65,9 +68,11 @@ self.addEventListener("fetch", event => {
 
 			const cache = await caches.open("cache")
 
-			const responseFromCache = await cache.match(isindexhtml(event.request.url) ? "/index" : event.request.url)
-			if (responseFromCache) console.log("Found a cached response for " + (isindexhtml(event.request.url) ? "/index" : event.request.url))
-			//if (responseFromCache) return responseFromCache
+			const responseFromCache = await cache.match(isindexhtml(event.request.url) ? "/index" : event.request)
+			if (responseFromCache && (
+				event.request.url.endsWith("/manifest.json") || event.request.url.endsWith("/icon.svg") || event.request.url.endsWith("/icon.png")
+			)) return responseFromCache
+			else if (responseFromCache) console.log("Found a cached response for " + (isindexhtml(event.request.url) ? "/index" : event.request.url))
 
 			const responseFromNetwork = await fetch(isindexhtml(event.request.url) ? "/index" : event.request)
 			cache.put(isindexhtml(event.request.url) ? "/index" : event.request, responseFromNetwork.clone())

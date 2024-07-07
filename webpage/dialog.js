@@ -6,11 +6,16 @@ class Dialog {
 		this.layout = layout
 		this.onclose = onclose
 		this.onopen = onopen
-		const div = document.createElement("div")
-		div.appendChild(this.tohtml(layout))
-		this.html = div
-		this.html.classList.add("centeritem")
-		if (layout[0] != "img") this.html.classList.add("nonimagecenter")
+
+		const dialog = document.createElement("dialog")
+
+		const close = document.createElement("span")
+		close.classList.add("close")
+		close.innerHTML = "&times;"
+		dialog.appendChild(close)
+
+		dialog.appendChild(this.tohtml(layout))
+		this.html = dialog
 	}
 	tohtml(array) {
 		switch (array[0]) {
@@ -219,16 +224,17 @@ class Dialog {
 	}
 	show() {
 		this.onopen()
-		this.background = document.createElement("div")
-		this.background.classList.add("background")
-		document.body.appendChild(this.background)
 		document.body.appendChild(this.html)
-		this.background.onclick = function() {
-			this.hide()
-		}.bind(this)
+		this.html.showModal()
+
+		this.html.querySelector("span.close").addEventListener("click", () => this.hide())
+		this.html.querySelector("span.close").addEventListener("keydown", e => {
+			if (e.key == "Enter") this.hide()
+		})
 	}
 	hide() {
-		document.body.removeChild(this.background)
-		document.body.removeChild(this.html)
+		this.onclose()
+		this.html.close()
+		this.html.remove()
 	}
 }
