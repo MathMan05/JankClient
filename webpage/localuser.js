@@ -91,9 +91,9 @@ class LocalUser {
 					token: this.token,
 					capabilities: 16381,
 					properties: {
-						os: "Hidden",
-						device: "Hidden",
-						browser: "Jank Client",
+						os: "Redacted",
+						device: "Redacted",
+						browser: "Jank Client (Tomato fork)",
 						client_build_number: 0,
 						release_channel: "Custom"
 					},
@@ -215,6 +215,8 @@ class LocalUser {
 						this.init()
 						document.getElementById("loading").classList.add("doneloading")
 						document.getElementById("loading").classList.remove("loading")
+
+						document.getElementById("load-desc").textContent = "This shouldn't take long"
 					})
 				}, 200 + (errorBackoff * 2800))
 			} else document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server. Please try logging out and back in."
@@ -227,16 +229,14 @@ class LocalUser {
 	}
 	updateChannel(json) {
 		this.guildids[json.guild_id].updateChannel(json)
-		if (json.guild_id == this.lookingguild.id) {
-			this.loadGuild(json.guild_id)
-		}
+
+		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
 	}
 	createChannel(json) {
 		json.guild_id ??= "@me"
 		this.guildids[json.guild_id].createChannelpac(json)
-		if (json.guild_id == this.lookingguild.id) {
-			this.loadGuild(json.guild_id)
-		}
+
+		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
 	}
 	delChannel(json) {
 		json.guild_id ??= "@me"

@@ -48,7 +48,7 @@ class Guild {
 
 		Guild.contextmenu.addbutton("Settings[temp]", function() {
 			this.generateSettings()
-		})
+		}, null, this.isAdmin())
 
 		Guild.contextmenu.addbutton("Notifications", function() {
 			this.setnotifcation()
@@ -248,18 +248,19 @@ class Guild {
 		this.calculateReorder()
 	}
 	createchannels(func = this.createChannel) {
+		console.log(func, this.createChannel)
 		let name = ""
 		let type = 0
 		const channelselect = new Dialog(
 			["vdiv",
-				["radio", "select channel type",
-					["voice", "text", "announcement"],
+				["radio", "Choose channel type",
+					["Text", "Voice", "Announcement"],
 					value => {
-						type = { text: 0, voice: 2, announcement: 5, category: 4 }[value]
+						type = { text: 0, voice: 2, announcement: 5 }[value.toLowerCase()]
 					},
-					1
+					0
 				],
-				["textbox", "Name of channel", "", event => {
+				["textbox", "Channel name", "", event => {
 					name = event.target.value
 				}],
 				["button", "", "submit", () => {
@@ -271,14 +272,13 @@ class Guild {
 	}
 	createcategory() {
 		let name = ""
-		const category = 4
 		const channelselect = new Dialog(
 			["vdiv",
 				["textbox", "Name of category", "", event => {
 					name = event.target.value
 				}],
 				["button", "", "submit", () => {
-					this.createChannel(name, category)
+					this.createChannel(name, 4)
 					channelselect.hide()
 				}]
 			])
@@ -290,7 +290,7 @@ class Guild {
 
 		this.channels.splice(this.channels.indexOf(channel), 1)
 		const indexy = this.headchannels.indexOf(channel)
-		if (indexy !== -1) this.headchannels.splice(indexy, 1)
+		if (indexy != -1) this.headchannels.splice(indexy, 1)
 
 		/*const build = []
 		for (const thing of this.channels) {
@@ -316,8 +316,8 @@ class Guild {
 		["vdiv",
 			["radio", "select notifications type",
 				["all", "only mentions", "none"],
-				function(e) {
-					noti = ["all", "only mentions", "none"].indexOf(e)
+				i => {
+					noti = ["all", "only mentions", "none"].indexOf(i)
 				},
 				noti
 			],
