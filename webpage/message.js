@@ -89,6 +89,9 @@ class Message {
 		for (const e in this.embeds) {
 			this.embeds[e] = new Embed(this.embeds[e], this)
 		}
+		for (const e in this.components) {
+			this.components[e] = new Component(this.components[e], this)
+		}
 		this.author = User.checkuser(this.author, this.localuser)
 
 		for (const u in this.mentions) {
@@ -274,6 +277,7 @@ class Message {
 
 			build.appendChild(text)
 			if (this.attachments.length > 0) {
+				messagedwrap.appendChild(document.createElement("br"))
 				const attach = document.createElement("div")
 				attach.classList.add("flexltr")
 				for (const thing of this.attachments) attach.appendChild(thing.getHTML())
@@ -281,12 +285,23 @@ class Message {
 			}
 
 			if (this.embeds.length > 0) {
+				messagedwrap.appendChild(document.createElement("br"))
 				const embeds = document.createElement("div")
 				embeds.classList.add("flexltr")
 				for (const thing of this.embeds) {
 					embeds.appendChild(thing.generateHTML())
 				}
 				messagedwrap.appendChild(embeds)
+			}
+
+			if (this.components.length > 0) {
+				messagedwrap.appendChild(document.createElement("br"))
+				const components = document.createElement("div")
+				components.classList.add("flexltr")
+				for (const thing of this.components) {
+					components.appendChild(thing.generateHTML())
+				}
+				messagedwrap.appendChild(components)
 			}
 		} else if (this.type == 7) {
 			const text = document.createElement("div")
@@ -316,7 +331,7 @@ class Message {
 			console.error(`HTML for ${this} already exists, aborting`)
 			return
 		}
-		//premessage??=messages.lastChild;
+
 		const div = document.createElement("div")
 		this.div = div
 		return this.generateMessage(premessage)

@@ -1393,7 +1393,9 @@ video {
 .pfprow .pfp {
 	width: .4in;
 	height: .4in;
+	margin-top: 3px;
 }
+
 .topMessage {
 	padding-top: 7px;
 }
@@ -1410,4 +1412,76 @@ video {
 	width: 100%;
 	flex-direction: row;
 	max-height: 100in;
+}
+
+
+.actionrow {
+	display: flex;
+	flex-wrap: wrap;
+}
+.actionrow button {
+	border-radius: 5px;
+	margin: 4px 8px 4px 0;
+	padding: 8px 16px;
+	font-size: 14px;
+	border: none;
+	color: var(--white);
+	transition: .2s;
+	max-height: 32px;
+}
+.actionrow button.b-primary {
+	background-color: #5865f2;
+}
+.actionrow button.b-secondary, .actionrow button.b-url {
+	background-color: #4e5058;
+}
+.actionrow button.b-success {
+	background-color: #248045;
+}
+.actionrow button.b-danger {
+	background-color: #da373c;
+}
+
+.actionrow button, .actionrow button a, .actionrow button:not(.select) span {
+	color: #fff;
+}
+
+.actionrow button.b-url {
+	display: flex;
+}
+.actionrow button.b-url svg {
+	margin-left: 5px;
+}
+
+.actionrow button.b-url a {
+	text-decoration: none;
+}
+.actionrow button.b-url:disabled a {
+	pointer-events: none;
+}
+
+.actionrow button:hover {
+	opacity: .8;
+}
+
+.actionrow button:disabled {
+	opacity: .5;
+	cursor: not-allowed;
+}
+
+.actionrow .select {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 8px;
+	margin: 0 16px 0 0;
+	background-color: var(--select-bg);
+	color: var(--select-color);
+	border: 1px solid var(--select-border);
+	width: 400px;
+}
+
+.actionrow .select div {
+	display: flex;
+	align-items: center;
 }

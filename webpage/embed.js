@@ -21,7 +21,7 @@ class Embed {
 			case "video":
 				return this.generateArticle(this.type)
 			default:
-				console.warn(`unsupported embed type ${this.type}, please add support dev :3`, this.json)
+				console.warn("Unsupported embed type " + component.type, component)
 				return document.createElement("div")//prevent errors by giving blank div
 		}
 	}
