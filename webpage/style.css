@@ -74,6 +74,7 @@ th {
 	flex-wrap: nowrap;
 	flex-direction: column;
 	max-height: 20in;
+	padding:.02in .2in;
 }
 pre {
 	background-color: var(--code-bg);
@@ -1009,6 +1010,7 @@ span {
 	font-size:.2in;
 	font-weight:bold;
 	display: flex;
+	padding-left:.2in;
 }
 #mobileback{
 	/* display:inline-block; */
@@ -1337,9 +1339,10 @@ span {
 	height:.4in;
 }
 .topMessage{
-	padding-top:.1in
+	padding-top:.03in;
+	margin-top:.1in;
 }
-.messagediv  .flexltr{
+.messagediv .flexltr{
 	display:flex;
 	flex-wrap:wrap;
 	overflow:hidden !important;
