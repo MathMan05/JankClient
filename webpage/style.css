@@ -109,7 +109,7 @@
 	--blank-bg: #ceccdd;
 	--light-border: #96959e;
 	--settings-hover: #b5b1bb;
-	--quote-bg: #7a798e;
+	--quote-bg: #9595a3;
 	--button-bg: #b7b7cc;
 	--textarea-bg: #b1b6ce;
 	--filename: #47bbff;
@@ -929,11 +929,11 @@ input[type="checkbox"] {
 
 .quoteline {
 	display: inline-block;
-	width: .02in;
-	height: .15in;
-	margin-left: .02in;
-	margin-right: .04in;
+	width: 3px;
+	height: 15px;
+	margin-right: 10px;
 	background-color: var(--quote-bg);
+	border-radius: 3px;
 }
 
 span {

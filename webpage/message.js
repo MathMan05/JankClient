@@ -276,7 +276,7 @@ class Message {
 			texttxt.appendChild(messagedwrap)
 
 			build.appendChild(text)
-			if (this.attachments.length > 0) {
+			if (this.attachments && this.attachments.length > 0) {
 				messagedwrap.appendChild(document.createElement("br"))
 				const attach = document.createElement("div")
 				attach.classList.add("flexltr")
@@ -284,7 +284,7 @@ class Message {
 				messagedwrap.appendChild(attach)
 			}
 
-			if (this.embeds.length > 0) {
+			if (this.embeds && this.embeds.length > 0) {
 				messagedwrap.appendChild(document.createElement("br"))
 				const embeds = document.createElement("div")
 				embeds.classList.add("flexltr")
@@ -294,7 +294,7 @@ class Message {
 				messagedwrap.appendChild(embeds)
 			}
 
-			if (this.components.length > 0) {
+			if (this.components && this.components.length > 0) {
 				messagedwrap.appendChild(document.createElement("br"))
 				const components = document.createElement("div")
 				components.classList.add("flexltr")

@@ -11,7 +11,7 @@ class Channel {
 			this.readbottom()
 		})
 
-		this.contextmenu.addbutton("Settings[temp]", function() {
+		this.contextmenu.addbutton("Settings", function() {
 			this.generateSettings()
 		})
 

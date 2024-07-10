@@ -46,12 +46,12 @@ class Guild {
 			full.show()
 		})
 
-		Guild.contextmenu.addbutton("Settings[temp]", function() {
+		Guild.contextmenu.addbutton("Settings", function() {
 			this.generateSettings()
-		}, null, this.isAdmin())
+		})
 
 		Guild.contextmenu.addbutton("Notifications", function() {
-			this.setnotifcation()
+			this.setNotification()
 		})
 
 		Guild.contextmenu.addbutton("Leave guild", function() {
@@ -310,7 +310,7 @@ class Guild {
 	notisetting(settings) {
 		this.message_notifications = settings.message_notifications
 	}
-	setnotifcation() {
+	setNotification() {
 		let noti = this.message_notifications
 		const notiselect = new Dialog(
 		["vdiv",

@@ -22,7 +22,7 @@ class PermissionToggle {
 	generateCheckbox() {
 		const div = document.createElement("div")
 		div.classList.add("tritoggle")
-		const state = this.permissions.getPermision(this.rolejson.name)
+		const state = this.permissions.hasPermission(this.rolejson.name)
 		const on = document.createElement("input")
 		on.type = "radio"
 		on.name = this.rolejson.name
@@ -178,10 +178,10 @@ class RoleList extends Buttons {
 		if (channel) this.permission = new Permissions("0", "0")
 		else this.permission = new Permissions("0")
 		for (const thing of Permissions.info) {
-			options.addPermissionToggle(thing, this.permission) //
+			options.addPermissionToggle(thing, this.permission)
 		}
 		for (const i of permissions) {
-			this.buttons.push([guild.getRole(i[0]).name, i[0]]) //
+			this.buttons.push([guild.getRole(i[0])?.name || "Unknown 1", i[0]])
 		}
 		this.options = options
 	}
@@ -190,7 +190,7 @@ class RoleList extends Buttons {
 		const perm = this.permissions.find(_ => _[0] === str)[1]
 		this.permission.deny = perm.deny
 		this.permission.allow = perm.allow
-		this.options.name = this.guild.getRole(str).name
+		this.options.name = this.guild.getRole(str)?.name || "Unknown 2"
 		this.options.haschanged = false
 		return this.options.generateHTML()
 	}

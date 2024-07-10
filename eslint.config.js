@@ -29,6 +29,7 @@ const global = {
 	User: "writable",
 	Settings: "writable",
 	RoleList: "writable",
+	Component: "writable",
 
 	thisuser: "writable",
 	messagelist: "writable",
