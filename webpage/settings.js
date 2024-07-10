@@ -23,6 +23,7 @@ class PermissionToggle {
 		const div = document.createElement("div")
 		div.classList.add("tritoggle")
 		const state = this.permissions.hasPermission(this.rolejson.name)
+
 		const on = document.createElement("input")
 		on.type = "radio"
 		on.name = this.rolejson.name
@@ -30,7 +31,7 @@ class PermissionToggle {
 		if (state == 1) on.checked = true
 
 		on.onclick = () => {
-			this.permissions.setPermision(this.rolejson.name, 1)
+			this.permissions.setPermission(this.rolejson.name, 1)
 			this.owner.changed()
 		}
 		const no = document.createElement("input")
@@ -40,20 +41,19 @@ class PermissionToggle {
 		if (state == 0) no.checked = true
 
 		no.onclick = () => {
-			this.permissions.setPermision(this.rolejson.name, 0)
+			this.permissions.setPermission(this.rolejson.name, 0)
 			this.owner.changed()
 		}
+
 		if (this.permissions.hasDeny) {
 			const off = document.createElement("input")
 			off.type = "radio"
 			off.name = this.rolejson.name
 			div.append(off)
-			if (state === -1) {
-				off.checked = true
-			}
+			if (state == -1) off.checked = true
 
 			off.onclick = () => {
-				this.permissions.setPermision(this.rolejson.name, -1)
+				this.permissions.setPermission(this.rolejson.name, -1)
 				this.owner.changed()
 			}
 		}

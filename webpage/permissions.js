@@ -234,20 +234,18 @@ class Permissions {
 		if (this.hasPermissionBit(Permissions.map[name], this.deny)) return -1
 		return 0
 	}
-	setPermission(name, setto) {
+	setPermission(name, newValue) {
 		const bit = Permissions.map[name]
-		if (setto === 0) {
+		if (newValue == 0) {
 			this.deny = this.setPermissionBit(bit, false, this.deny)
 			this.allow = this.setPermissionBit(bit, false, this.allow)
-		} else if (setto === 1) {
+		} else if (newValue == 1) {
 			this.deny = this.setPermissionBit(bit, false, this.deny)
 			this.allow = this.setPermissionBit(bit, true, this.allow)
-		} else if (setto === -1) {
+		} else if (newValue == -1) {
 			this.deny = this.setPermissionBit(bit, true, this.deny)
 			this.allow = this.setPermissionBit(bit, false, this.allow)
-		} else {
-			console.error("invalid number entered:" + setto)
-		}
+		} else throw new TypeError("newValue must be 1, 0, or -1, got: " + newValue)
 	}
 }
 Permissions.makeMap()

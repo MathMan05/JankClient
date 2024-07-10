@@ -201,15 +201,17 @@ th {
 
 .messagediv {
 	overflow: hidden;
-	max-width:100%;
+	max-width: 100%;
 	display: flex;
-	flex-wrap: nowrap;
 	flex-direction: column;
-	max-height: 20in;
-	padding: 2px 8px;
+	padding: 3px 25px 3px 15px;
 }
-.messagediv:hover {
+.messagediv:hover, .messagediv:focus {
 	background-color: var(--message-bg-hover);
+}
+
+.topMessage {
+	margin-top: 13px;
 }
 
 pre {
@@ -239,7 +241,7 @@ code {
 	border-width: 0 0 .03in;
 	margin: .02in .05in;
 }
-.contextbutton:hover {
+.contextbutton:hover, .contextbutton:focus {
 	background-color: var(--primary-bg);
 }
 .contextbutton:active {
@@ -250,7 +252,7 @@ code {
 	cursor: not-allowed;
 	border-width: 0;
 }
-.contextbutton:disabled:hover {
+.contextbutton:disabled:hover, .contextbutton:disabled:focus {
 	background-color: var(--channels-bg);
 }
 
@@ -297,18 +299,17 @@ h2 {
 
 .pfp {
 	border-radius: 50%;
-	width: .5in;
-	height: .5in;
+	width: 48px;
+	height: 48px;
 	user-select: none;
 	cursor: pointer;
 }
 
 .servericon {
 	transition: border-radius .2s;
-	position: relative;
 	margin: 4px;
 }
-.servericon:hover {
+.servericon:hover, .servericon:focus {
 	border-radius: 30%;
 }
 
@@ -474,7 +475,7 @@ div {
 	font-weight: bold;
 	word-break: normal;
 }
-.username:hover {
+.username:hover, .username:focus {
 	text-decoration: underline;
 }
 
@@ -482,8 +483,7 @@ div {
 	background-color: var(--black);
 	color: var(--black);
 }
-
-.spoiler:hover {
+.spoiler:hover, .spoiler:focus {
 	background-color: var(--spoiler-hover);
 	color: var(--spoiler-hover);
 }
@@ -492,7 +492,6 @@ div {
 	background-color: var(--spoiler-open-bg);
 	color: var(--primary-text);
 }
-
 .unspoiled:before {
 	background-color: var(--black);
 	background-clip: content-box;
@@ -641,6 +640,7 @@ div {
 .replytext {
 	padding: 0 .05in;
 	color: var(--reply-text);
+	font-size: 15px;
 }
 
 .replytext pre {
@@ -671,7 +671,7 @@ div {
 	transition: .1s;
 }
 
-::-webkit-scrollbar-thumb:hover {
+::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:focus {
 	background-color: var(--scrollbar-thumb-hover);
 	box-shadow: 0 2px 5px var(--black);
 }
@@ -697,13 +697,12 @@ textarea {
 	cursor: pointer;
 }
 
-.channel:hover {
-	background-color: var(--channel-hover);
-}
-
 .channel {
 	user-select: none;
 	cursor: pointer;
+}
+.channel:hover, .channel:focus {
+	background-color: var(--channel-hover);
 }
 
 #servername, #channelname {
@@ -734,7 +733,7 @@ textarea {
 	align-self: stretch;
 	width: 100%;
 }
-.channeleffects:hover {
+.channeleffects:hover, .channeleffects:focus {
 	background-color: var(--channel-hover);
 }
 
@@ -778,7 +777,7 @@ textarea {
 	overflow: visible;
 	margin-right: 10px;
 }
-#settings:hover {
+#settings:hover, #settings:focus {
 	color: var(--timestamp-color);
 }
 
@@ -810,7 +809,7 @@ button {
 	font-size: .45cm;
 	cursor: pointer;
 	border-width: 0 0 .03in 0;
-	border-radius:.03in;
+	border-radius: .03in;
 	margin: .02in .05in;
 	box-shadow: 0 0 .03in var(--black);
 }
@@ -821,12 +820,12 @@ button:disabled {
 	cursor: not-allowed;
 	border-width: 0;
 }
-button:disabled:hover {
+button:disabled:hover, button:disabled:focus {
 	background-color: var(--message-bg-hover);
 	border-color: var(--timestamp-color);
 	color: var(--primary-text);
 }
-button:hover {
+button:hover, button:focus {
 	background-color: var(--primary-bg);
 }
 
@@ -897,8 +896,7 @@ select {
 	cursor: pointer;
 	user-select: none;
 }
-
-.addchannel:hover {
+.addchannel:hover, .addchannel:focus {
 	background-color: var(--black);
 }
 
@@ -1040,7 +1038,7 @@ span {
 	background-color: var(--profile-bg);
 	cursor: pointer;
 }
-.accountSwitcher tr:hover {
+.accountSwitcher tr:hover, .accountSwitcher tr:focus {
 	background-color: var(--profile-info-bg);
 }
 
@@ -1112,7 +1110,7 @@ span {
 	font-size: .15in;
 }
 .embedp {
-	margin-bottom:.075in;
+	margin-bottom: .075in;
 }
 .embedicon {
 	width: .25in;
@@ -1206,17 +1204,6 @@ span {
 
 .discovery-guild .banner {
 	width: 215px;
-}
-
-.discovery-guild .icon {
-	width: 48px;
-	height: 48px;
-	margin-right: 5px;
-	border-radius: 50%;
-	transition: border-radius .2s;
-}
-.discovery-guild .icon:hover {
-	border-radius: 30%;
 }
 
 .discovery-guild p {
@@ -1375,7 +1362,7 @@ video {
 	bottom: .1in;
 	font-weight: bold;
 	font-size: .2in;
-	width :5in;
+	width: 5in;
 	height: .5in;
 }
 .savediv button {
@@ -1395,9 +1382,6 @@ video {
 	margin-top: 3px;
 }
 
-.topMessage {
-	padding-top: 7px;
-}
 .messagediv .flexltr {
 	display: flex;
 	flex-wrap: wrap;
@@ -1459,7 +1443,7 @@ video {
 	pointer-events: none;
 }
 
-.actionrow button:hover {
+.actionrow button:hover, .actionrow button:focus {
 	opacity: .8;
 }
 

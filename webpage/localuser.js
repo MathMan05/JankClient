@@ -448,7 +448,7 @@ class LocalUser {
 			nameContainer.classList.add("flex")
 
 			const img = document.createElement("img")
-			img.classList.add("icon")
+			img.classList.add("pfp", "servericon")
 			img.crossOrigin = "anonymous"
 			img.src = instance.cdn + "/" + (guild.icon ? ("icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "embed/avatars/3.png")
 			img.alt = ""

@@ -51,10 +51,9 @@ class Component {
 		if (component.emoji) {
 			if (component.emoji.id) {
 				const img = document.createElement("img")
-				img.alt = ""
 				img.crossOrigin = "anonymous"
 				img.src = instance.cdn + "/emojis/" + component.emoji.id + ".png"
-
+				img.alt = ""
 				buttonElement.append(img)
 			} else {
 				const text = document.createElement("span")
@@ -95,7 +94,17 @@ class Component {
 		if (component.options) {
 			const optionContainer = document.createElement("div")
 			component.options.forEach(option => {
+				const optionElement = document.createElement("div")
 
+				const label = document.createElement("p")
+				label.textContent = option.label
+				optionElement.append(label)
+
+				if (option.description) {
+					const description = document.createElement("p")
+					description.textContent = option.description
+					optionElement.append(description)
+				}
 			})
 			buttonElement.append(optionContainer)
 		}
