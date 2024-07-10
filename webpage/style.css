@@ -490,11 +490,14 @@ p {
 
 .timestamp {
 	color: var(--timestamp-color);
-	font-size: .14in;
+	font-size: 0.7rem;
+	line-height: 1.3rem;
 	padding-left: .05in;
 }
 
 .replyflex {
+	color: var(--reply-text); /* for date line */
+	font-size: 0.9rem;
 	overflow: hidden;
 	display: flex;
 	align-items: center;
@@ -521,7 +524,7 @@ p {
 	vertical-align: middle;
 	width: 25px;
 	border-color: var(--reply-border);
-	margin-left: 26px;
+	margin-left: .2in;
 }
 
 .replypfp {
@@ -1257,6 +1260,9 @@ span {
 	display:flex;
 	flex-direction: column;
 	justify-content: center;
+}
+#status {
+	font-size: 0.9em;
 }
 .savediv{
 	position:absolute;
