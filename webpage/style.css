@@ -334,9 +334,9 @@ div {
 	width: 100%;
 	height: .5in;
 	z-index: -100;
-	max-width: 99%;
 	display: flex;
 	max-height: fit-content;
+	box-sizing: border-box;
 }
 
 p {
@@ -395,7 +395,7 @@ p {
 #typediv {
 	position: relative;
 	/* display: flex; */
-	width: 99%;
+	width: 100%;
 }
 
 .loading-indicator {
@@ -639,6 +639,7 @@ textarea {
 	flex-direction: column;
 	justify-content: space-evenly;
 	flex-shrink: 0;
+	box-sizing: border-box;
 }
 
 .channeleffects {
