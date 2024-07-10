@@ -52,8 +52,7 @@ self.addEventListener("push", event => {
 
 const isindexhtml = url => {
 	const parsed = new URL(url)
-	if (parsed.pathname.startsWith("/channels")) return true
-	return false
+	return parsed.pathname.startsWith("/channels")
 }
 
 self.addEventListener("fetch", event => {
@@ -70,7 +69,8 @@ self.addEventListener("fetch", event => {
 
 			const responseFromCache = await cache.match(isindexhtml(event.request.url) ? "/index" : event.request)
 			if (responseFromCache && (
-				event.request.url.endsWith("/manifest.json") || event.request.url.endsWith("/icon.svg") || event.request.url.endsWith("/icon.png")
+				url.pathname == "/manifest.json" || url.pathname == "/icon.svg" || url.pathname == "/icon.png" ||
+				/^\/font\/\w+.ttf$/.test(url.pathname) || /^\/font\/\w+.woff$/.test(url.pathname) || /^\/font\/\w+.woff2$/.test(url.pathname)
 			)) return responseFromCache
 			else if (responseFromCache) console.log("Found a cached response for " + (isindexhtml(event.request.url) ? "/index" : event.request.url))
 
