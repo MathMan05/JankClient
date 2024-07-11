@@ -7,6 +7,7 @@
 	--primary-text: #FFF;
 	--primary-bg: #282832;
 	--black: #000;
+	--shadow: #000;
 	--message-bg-hover: #1e1e28;
 	--typing-bg: #161616;
 	--timestamp-color: #a2a2a2;
@@ -51,6 +52,7 @@
 	--primary-text: #000;
 	--primary-bg: #FFF;
 	--black: #FFF;
+	--shadow: #777;
 	--message-bg-hover: #dedee2;
 	--typing-bg: #dad8d8;
 	--timestamp-color: #929297;
@@ -96,6 +98,7 @@
 	--primary-text: #000;
 	--primary-bg: #8e90c3;
 	--black: #fff;
+	--shadow: #000;
 
 	--message-bg-hover: #5757b5;
 	--typing-bg: #000000;
