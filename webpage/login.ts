@@ -144,13 +144,17 @@ if(instancein){
 }
 
 
-async function login(username, password){
+async function login(username:string, password:string, captcha:string){
+    if(captcha===""){
+        captcha=undefined;
+    }
     const options={
         method: "POST",
         body:JSON.stringify({
             "login": username,
             "password": password,
-            "undelete":false
+            "undelete":false,
+            "captcha_key":captcha
         }),
         headers: {
             "Content-type": "application/json; charset=UTF-8",
@@ -166,9 +170,23 @@ async function login(username, password){
                 console.log("test")
             }
             //this.serverurls||!this.email||!this.token
-            adduser({serverurls:JSON.parse(localStorage.getItem("instanceinfo")),email:username,token:response.token});
-            window.location.href = '/channels/@me';
-            return response.token;
+            console.log(response);
+
+            if(response.captcha_sitekey){
+                const capt=document.getElementById("h-captcha");
+                const capty=document.createElement("div");
+                capty.classList.add("h-captcha");
+
+                capty.setAttribute("data-sitekey", response.captcha_sitekey);
+                const script=document.createElement("script");
+                script.src="https://js.hcaptcha.com/1/api.js";
+                capt.append(script);
+                capt.append(capty);
+            }else{
+                adduser({serverurls:JSON.parse(localStorage.getItem("instanceinfo")),email:username,token:response.token});
+                window.location.href = '/channels/@me';
+                return response.token;
+            }
         })
     }catch(error){
         console.error('Error:', error);
@@ -202,7 +220,7 @@ async function setInstance(url){
 async function check(e){
 
     e.preventDefault();
-    let h=await login(e.srcElement[1].value,e.srcElement[2].value);
+    let h=await login(e.srcElement[1].value,e.srcElement[2].value,e.srcElement[3].value);
     document.getElementById("wrong").textContent=h;
     console.log(h);
 }
