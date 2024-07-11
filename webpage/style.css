@@ -857,16 +857,20 @@ input[type="checkbox"] {
 
 .quote {
 	display: inline-block;
-	width: fit-content;
+	position: relative;
 }
 
 .quoteline {
-	display: inline-block;
 	width: .02in;
-	height: .15in;
-	margin-left: .02in;
-	margin-right: .04in;
+	height: 100%;
+	position: absolute;
 	background-color: var(--quote-bg);
+}
+
+.quote > span {
+	margin-left: 0.5em;
+	display: flex;
+	align-items: center;
 }
 
 span {
