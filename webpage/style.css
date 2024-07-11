@@ -1147,9 +1147,8 @@ span {
 	text-align: center;
 	padding: 0in;
 }
-#replybox.hideReplyBox{
-	height: 0in;
-	padding: 0in;
+#replybox.hideReplyBox {
+	display: none;
 }
 .Buttons{
 	background:var(--primary-bg);
