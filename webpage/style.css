@@ -176,7 +176,7 @@ h2 {
 	border-radius: 30%;
 }
 .contextbutton:hover {
-	background-color: var(--primary-bg);
+	background: var(--primary-bg);
 }
 
 .contextmenu {
@@ -766,7 +766,7 @@ button:disabled:hover{
 	color: var(--primary-text);
 }
 button:hover {
-	background-color: var(--primary-bg);
+	background: var(--primary-bg);
 }
 input::file-selector-button {
 	transition: background .1s ease-in-out;
@@ -1141,29 +1141,31 @@ span {
 #replybox{
 	display:flex;
 	background:var(--reply-bg);
-	height:.25in;
+	width: 100%;
+	height:.3in;
 	transition: height .2s, padding .2s;
 	border-radius:.1in .1in 0 0;
 	padding-left:.05in;
 	justify-content: space-between;
 	flex-direction: row;
 	align-items: flex-end;
-	padding-top: .05in;
+	padding: 0 .05in;
+	box-sizing: border-box;
 }
 #replybox span{
-	align-self:stretch;
+	align-self: center;
 }
 .cancelReply{
 	align-self:flex-start;
 	color:red;
-	margin-right: .1in;
 	height: .25in;
 	width: .25in;
 	text-align: center;
 	padding: 0in;
+	border: none;
 }
 #replybox.hideReplyBox {
-	display: none;
+	height: 0;
 }
 .Buttons{
 	background:var(--primary-bg);
