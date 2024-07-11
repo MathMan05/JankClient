@@ -444,6 +444,12 @@ p {
 	}
 }
 
+hr {
+	border-style: solid;
+	border-width: .01in;
+	border-color: var(--primary-text);
+}
+
 .lightbr {
 	border-color: var(--light-border);
 	color: var(--black);
@@ -593,7 +599,7 @@ p {
 }
 
 textarea {
-	background-color: var(--textarea-bg);
+	background: var(--textarea-bg);
 	color: var(--primary-text);
 	width: 3.5in;
 	resize: none;
@@ -741,6 +747,7 @@ button {
 	text-align: left;
 	font-size: .45cm;
 	cursor: pointer;
+	border-style: solid;
 	border-width: 0px .00in .03in 0in;
 	border-radius:.03in;
 	margin: .02in .05in;
@@ -770,6 +777,7 @@ input::file-selector-button {
 	text-align: left;
 	font-size: .45cm;
 	cursor: pointer;
+	border-style: solid;
 	border-width: 0px .00in .03in 0;
 	border-radius:.03in;
 	margin: .02in .05in;
