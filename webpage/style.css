@@ -1,7 +1,7 @@
 body {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 400;
-	background-color: var(--primary-bg);
+	background: var(--primary-bg);
 	color: var(--primary-text);
 	overflow-y: hidden;
 	overflow-x: hidden;
@@ -78,6 +78,7 @@ th {
 }
 pre {
 	background-color: var(--code-bg);
+	color: var(--code-text);
 	width: 100%;
 	overflow-wrap: break-word;
 	word-wrap: break-word;
@@ -87,6 +88,7 @@ pre {
 
 samp {
 	background-color: var(--code-bg);
+	color: var(--code-text);
 }
 
 .contextbutton {
@@ -194,6 +196,7 @@ h2 {
 	height: 100dvh;
 	overflow-x: hidden;
 	padding: 0.02in .05in 0.0in .05in;
+	background: var(--servers-bg);
 }
 
 #servers::-webkit-scrollbar {
@@ -269,7 +272,7 @@ p {
 }
 
 #channels {
-	background-color: var(--channels-bg);
+	background: var(--channels-bg);
 	top: var(--top-height);
 	overflow: auto;
 	user-select: none;
@@ -486,7 +489,7 @@ p {
 
 .timestamp {
 	color: var(--timestamp-color);
-	font-size: 0.7rem;
+	font-size: 0.75rem;
 	line-height: 1.3rem;
 	padding-left: .05in;
 }
@@ -626,7 +629,7 @@ textarea {
 }
 
 .servertd {
-	background-color: var(--server-bg);
+	background: var(--server-bg);
 	border-color: var(--server-border);
 	border-width: .04in;
 	border-style: solid;
@@ -971,7 +974,7 @@ span {
 .accountSwitcher{
 	background:var(--profile-bg);
 	cursor:pointer;
-	box-shadow: .00in -.5in 1in #0000006b;
+	box-shadow: .00in -.5in 1in color-mix(in srgb, var(--shadow) 42%, transparent);
 	border-radius: .05in .05in .0in.0in;
 	flex-grow: 0;
 	align-self: center;
