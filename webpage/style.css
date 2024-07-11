@@ -120,8 +120,10 @@ samp {
 	background-color: var(--profile-info-bg);
 	border-radius: 10%;
 	padding: .3cm;
-	width: calc(100% - .6cm);
-	height: calc(100% - .75in);
+	width: 100%;
+	height: calc(100% - .5in - .2cm);
+	margin-top: .1cm;
+	box-sizing: border-box;
 }
 
 .profile {
@@ -315,6 +317,7 @@ input {
 	border-color: var(--settings-hover);
 	border-width:0 0 .04in 0;
 	border-radius:.05in;
+	font-size: 1rem;
 }
 
 div {
@@ -604,6 +607,7 @@ textarea {
 	width: 3.5in;
 	resize: none;
 	height: 1.5in;
+	font-size: 1rem;
 }
 
 .channels {
@@ -798,6 +802,7 @@ select{
 	border-color:var(--timestamp-color);
 	margin: .02in .05in;
 	box-shadow: 0px 0px .03in var(--black);
+	-webkit-appearance: none;
 }
 #logindiv {
 	position: absolute;
@@ -937,7 +942,7 @@ span {
 	height: .075in;
 	width: .075in;
 	transition: transform .2s, background .2s, height .3s, width .2s;
-	transform: translate(-.14in, .2in);
+	transform: translate(-.16in, .2in);
 	z-index: 10;
 	border-radius: .2in;
 	border: solid;
@@ -1158,7 +1163,7 @@ span {
 .cancelReply{
 	align-self:flex-start;
 	color:red;
-	height: .25in;
+	height: auto;
 	width: .25in;
 	text-align: center;
 	padding: 0in;
@@ -1166,6 +1171,9 @@ span {
 }
 #replybox.hideReplyBox {
 	height: 0;
+}
+#replybox.hideReplyBox span, #replybox.hideReplyBox button {
+	display: none;
 }
 .Buttons{
 	background:var(--primary-bg);
