@@ -588,7 +588,7 @@ class Channel {
 		let replyjson
 		if (replyingto) replyjson = {
 			guild_id: replyingto.guild.id,
-			channel_id: replyingto.channel.id,
+			channel_id: replyingto.channel.id, // TODO: remove both ^
 			message_id: replyingto.id
 		}
 

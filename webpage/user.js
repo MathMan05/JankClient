@@ -112,8 +112,7 @@ class User {
 
 		const rule = document.createElement("hr")
 		userbody.appendChild(rule)
-		const biohtml = markdown(bio)
-		userbody.appendChild(biohtml)
+		userbody.appendChild(markdown(bio))
 
 		if (x != -1) {
 			Contextmenu.currentmenu = div

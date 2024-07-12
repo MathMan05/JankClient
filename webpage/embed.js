@@ -21,8 +21,8 @@ class Embed {
 			case "video":
 				return this.generateArticle(this.type)
 			default:
-				console.warn("Unsupported embed type " + component.type, component)
-				return document.createElement("div")//prevent errors by giving blank div
+				console.warn("Unsupported embed type " + this.type, this)
+				return document.createElement("div")
 		}
 	}
 	generateRich() {
@@ -68,11 +68,7 @@ class Embed {
 			embedElem.append(title)
 		}
 
-		if (this.json.description) {
-			const p = document.createElement("p")
-			p.textContent = this.json.description
-			embedElem.append(p)
-		}
+		if (this.json.description) embedElem.append(markdown(this.json.description))
 
 		if (this.json.fields) for (const field of this.json.fields) {
 			const divField = document.createElement("div")
@@ -82,7 +78,7 @@ class Embed {
 			divField.append(b)
 
 			const p = document.createElement("p")
-			p.textContent = field.value
+			p.innerHTML = markdown(field.value)
 			p.classList.add("embedp")
 			divField.append(p)
 

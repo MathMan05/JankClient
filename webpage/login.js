@@ -102,7 +102,7 @@ const adduser = user => {
 	localStorage.setItem("userinfos", JSON.stringify(info))
 }
 
-const login = async (username, password) => {
+const login = async (username, password, captcha) => {
 	const info = JSON.parse(localStorage.getItem("instanceEndpoints"))
 	const url = new URL(info.login)
 
@@ -114,7 +114,8 @@ const login = async (username, password) => {
 		body: JSON.stringify({
 			login: username,
 			password,
-			undelete: false
+			undelete: false,
+			captcha_key: captcha
 		})
 	})
 
@@ -122,10 +123,23 @@ const login = async (username, password) => {
 	console.log(json)
 	if (json.message == "Invalid Form Body") return Object.values(json.errors)[0]._errors[0].message
 
-	//this.serverurls||!this.email||!this.token
-	adduser({serverurls: info, email: username, token: json.token})
-	location.href = "/channels/@me"
-	return json.token
+	if (json.captcha_sitekey) {
+		const capt = document.getElementById("h-captcha")
+		const capty = document.createElement("div")
+		capty.classList.add("h-captcha")
+		capty.setAttribute("data-sitekey", json.captcha_sitekey)
+
+		const script = document.createElement("script")
+		if (json.captcha_service == "recaptcha") script.src = "https://www.google.com/recaptcha/api.js?render=" + json.captcha_sitekey
+		else if (json.captcha_service == "hcaptcha") script.src = "https://js.hcaptcha.com/1/api.js"
+		else console.error("Unknown captcha service " + json.captcha_service + " found in login response!")
+
+		capt.append(script)
+		capt.append(capty)
+	} else {
+		adduser({serverurls: info, email: username, token: json.token})
+		location.href = "/channels/@me"
+	}
 }
 
 const setInstance = async url => {
@@ -155,8 +169,8 @@ const setInstance = async url => {
 
 const check = async event => {
 	event.preventDefault()
-	const h = await login(event.srcElement[1].value, event.srcElement[2].value)
-	document.getElementById("wrong").textContent = h
+	const error = await login(event.srcElement[1].value, event.srcElement[2].value, event.srcElement[3].value)
+	document.getElementById("wrong").textContent = error || ""
 }
 
 let instancein
