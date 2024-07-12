@@ -577,23 +577,28 @@ hr {
 	grid-column: 2;
 }
 ::-webkit-scrollbar {
-	width: .1in;
+	width: .16in;
 	height: .1in;
 }
 
 ::-webkit-scrollbar-track {
+	background-color: transparent;
+}
+
+::-webkit-scrollbar-track:hover {
 	background-color: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
 	background-color: var(--scrollbar-thumb);
-	box-shadow: 0 2px 5px var(--black);
+	border-radius: .08in;
+	border: .03in solid transparent;
+	background-clip: padding-box;
 	transition: .1s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
 	background-color: var(--scrollbar-thumb-hover);
-	box-shadow: 0 2px 5px var(--black);
 }
 
 .pronouns {

@@ -40,9 +40,9 @@
 	--loading-bg: #22232c;
 	--dialog-bg: #33363d;
 	--dialog-border: #1c1b31;
-	--scrollbar-track: #34313c;
-	--scrollbar-thumb: #201f29;
-	--scrollbar-thumb-hover: #16161f;
+	--scrollbar-track: #37373b;
+	--scrollbar-thumb: #92929B;
+	--scrollbar-thumb-hover: #a2a2a2;
 	--markdown-timestamp: #2f2f33;
 	--embed: #1a1823;
 	--discovery-bg: #37373b;
@@ -103,6 +103,7 @@
 	--message-bg-hover: #5757b5;
 	--typing-bg: #000000;
 	--profile-bg: #8075bf;
+	--profile-info-bg: #8075bf;
 	--timestamp-color: #000000;
 	--code-bg: #a89adf;
 	--info-bg: #6060a3;
