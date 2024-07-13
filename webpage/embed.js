@@ -58,7 +58,7 @@ class Embed {
 
 		if (this.json.title) {
 			const title = document.createElement(this.json.url ? "a" : "span")
-			title.innerHTML = markdown(this.json.title)
+			title.innerHTML = markdown(this.json.title).innerHTML
 			title.classList.add("embedtitle")
 
 			if (this.json.url) {
@@ -79,7 +79,7 @@ class Embed {
 			divField.append(b)
 
 			const p = document.createElement("p")
-			p.innerHTML = markdown(field.value)
+			p.innerHTML = markdown(field.value).innerHTML
 			p.classList.add("embedp")
 			divField.append(p)
 
