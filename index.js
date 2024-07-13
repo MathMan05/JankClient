@@ -12,7 +12,8 @@ app.disable("x-powered-by")
 
 app.get("/getupdates", async (req, res) => {
 	const out = await fsPromises.stat(path.join(__dirname, "webpage"))
-	res.send("" + out.mtimeMs)
+	res.setHeader("Content-Type", "text/plain")
+	res.send("" + Math.round(out.mtimeMs))
 })
 
 app.use("/", (req, res) => {

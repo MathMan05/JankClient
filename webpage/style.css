@@ -614,7 +614,7 @@ hr {
 .timestamp {
 	color: var(--timestamp-color);
 	margin-left: 4px;
-	font-size: 13px;
+	font-size: 12.5px;
 }
 
 .replyflex {
