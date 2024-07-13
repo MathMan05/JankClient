@@ -39,6 +39,7 @@
 	--primary-text: #FFF;
 	--primary-bg: #282832;
 	--black: #000;
+	--shadow: #000;
 
 	--message-bg-hover: #1e1e28;
 	--typing-bg: #161616;
@@ -90,7 +91,6 @@
 
 	--scrollbar-track: #34313c;
 	--scrollbar-thumb: #201f29;
-	--scrollbar-thumb-hover: #16161f;
 }
 
 .light-theme {
@@ -99,6 +99,7 @@
 	--primary-text: #000;
 	--primary-bg: #FFF;
 	--black: #FFF;
+	--shadow: #777;
 
 	--message-bg-hover: #dedee2;
 	--typing-bg: #dad8d8;
@@ -148,9 +149,8 @@
 	--dialog-bg: #c1c8d6;
 	--dialog-border: #b9b7db;
 
-	--scrollbar-track: #d5d1e2;
-	--scrollbar-thumb: #b0afc0;
-	--scrollbar-thumb-hover: #a5a5b8;
+	--scrollbar-track: #dddddf;
+	--scrollbar-thumb: #a9a9af;
 }
 
 body {
@@ -211,11 +211,13 @@ th {
 }
 
 .topMessage {
-	margin-top: 13px;
+	padding-top: .03in;
+	margin-top: .1in;
 }
 
 pre {
 	background-color: var(--code-bg);
+	color: var(--code-text);
 	width: 100vw;
 	max-width: max-content;
 	overflow-wrap: break-word;
@@ -226,6 +228,7 @@ pre {
 
 code {
 	background-color: var(--code-bg);
+	color: var(--code-text);
 }
 
 .contextbutton {
@@ -261,8 +264,10 @@ code {
 	background-color: var(--profile-info-bg);
 	border-radius: 10%;
 	padding: .3cm;
-	width: calc(100% - .6cm);
-	height: calc(100% - .75in);
+	width: 100%;
+	height: calc(100% - .5in - .2cm);
+	margin-top: .1cm;
+	box-sizing: border-box;
 }
 
 .profile {
@@ -317,6 +322,7 @@ h2 {
 	position: absolute;
 	background-color: var(--profile-info-bg);
 	border-radius: .05in;
+	z-index: 5;
 }
 
 #neunence {
@@ -461,10 +467,15 @@ div {
 	padding: 3px;
 	border-radius: 8px;
 	width: 100%;
-	height: .5in;
-	max-width: 99%;
+	height: 52px;
 	display: flex;
 	max-height: fit-content;
+}
+
+hr {
+	border-style: solid;
+	border-width: .01in;
+	border-color: var(--primary-text);
 }
 
 .username {
@@ -609,6 +620,8 @@ div {
 .replyflex {
 	display: flex;
 	align-items: center;
+	color: var(--reply-text); /* for date line */
+	font-size: 0.9rem;
 }
 
 .reply {
@@ -665,13 +678,10 @@ div {
 
 ::-webkit-scrollbar-thumb {
 	background-color: var(--scrollbar-thumb);
-	box-shadow: 0 2px 5px var(--black);
+	border-radius: .08in;
+	border: .03in solid transparent;
+	background-clip: padding-box;
 	transition: .1s;
-}
-
-::-webkit-scrollbar-thumb:hover, ::-webkit-scrollbar-thumb:focus {
-	background-color: var(--scrollbar-thumb-hover);
-	box-shadow: 0 2px 5px var(--black);
 }
 
 .pronouns {
@@ -757,10 +767,9 @@ textarea {
 #userdock {
 	background-color: var(--user-dock-bg);
 	position: relative;
-	height: 60px;
 	justify-content: space-between;
 	align-items: center;
-	padding-top: .02in;
+	padding: 3px;
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
 	width: 100%;
@@ -920,16 +929,21 @@ input[type="checkbox"] {
 
 .quote {
 	display: inline-block;
-	width: fit-content;
+	position: relative;
 }
 
 .quoteline {
-	display: inline-block;
 	width: 3px;
-	height: 15px;
-	margin-right: 10px;
+	height: 100%;
+	position: absolute;
 	background-color: var(--quote-bg);
 	border-radius: 3px;
+}
+
+.quote > span {
+	margin-left: 0.5em;
+	display: flex;
+	align-items: center;
 }
 
 span {
@@ -1025,6 +1039,8 @@ span {
 .accountSwitcher {
 	background-color: var(--profile-bg);
 	display: inline-block;
+	cursor: pointer;
+	box-shadow: 0 -.5in 1in color-mix(in srgb, var(--shadow) 42%, transparent);
 	width: 240px;
 	z-index: 3;
 	position: absolute;
@@ -1153,30 +1169,34 @@ span {
 
 #replybox {
 	display: flex;
+	width: 100%;
+	height: .3in;
 	background-color: var(--reply-bg);
 	transition: height .2s, padding .2s;
 	border-radius: .1in .1in 0 0;
-	padding-left: .05in;
-	padding-top: .05in;
+	padding: 0 .05in;
+	box-sizing: border-box;
 	bottom: -6px;
 	position: relative;
 }
 
 #replybox span {
-	align-self: stretch;
+	align-self: center;
 }
 .cancelReply {
 	align-self: flex-start;
 	color: #F00;
-	margin-right: .1in;
-	height: .25in;
+	height: auto;
 	width: .25in;
 	text-align: center;
 	padding: 0;
+	border: none;
 }
 #replybox.hideReplyBox {
 	height: 0;
-	padding: 0;
+}
+#replybox.hideReplyBox span, #replybox.hideReplyBox button {
+	display: none;
 }
 
 #discovery-guild-content {
@@ -1345,6 +1365,10 @@ video {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
+	padding-left: 0.1in;
+}
+#status {
+	font-size: 0.8em;
 }
 
 .savediv {
