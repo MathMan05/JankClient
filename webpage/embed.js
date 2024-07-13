@@ -58,8 +58,9 @@ class Embed {
 
 		if (this.json.title) {
 			const title = document.createElement(this.json.url ? "a" : "span")
-			title.textContent = this.json.title
+			title.innerHTML = markdown(this.json.title)
 			title.classList.add("embedtitle")
+
 			if (this.json.url) {
 				title.href = this.json.url
 				title.target = "_blank"

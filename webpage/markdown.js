@@ -194,18 +194,15 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 			let count = 1
 			if (txt[i + 1] == "_") {
 				count++
-				if (txt[i + 2] == "_") {
-					count++
-				}
+				if (txt[i + 2] == "_") count++
 			}
 
 			let build = []
 			let find = 0
 			let j = i + count
 			for (; txt[j] !== void 0 && find != count; j++) {
-				if (txt[j] == "_") {
-					find++
-				} else {
+				if (txt[j] == "_") find++
+				else {
 					build.push(txt[j])
 					if (find != 0) {
 						build = build.concat(new Array(find).fill("_"))
@@ -324,7 +321,7 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 				appendcurrent()
 				i = j
 
-				const parts = build.join("").match(/^<t:([0-9]{1,16})(:([tTdDfFR]))?>$/)
+				const parts = build.join("").match(/^<t:(\d{1,16})(:([tTdDfFR]))?>$/)
 
 				const dateInput = new Date(Number.parseInt(parts[1]) * 1000)
 				let time = ""
@@ -347,6 +344,42 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 				span.appendChild(timeElem)
 
 				continue
+			}
+		}
+
+		if (txt[i] == "<" && txt[i + 1] == ":") {
+			let found = false
+			const build = ["<", ":"]
+			let j = i + 2
+			for (; txt[j] !== void 0; j++) {
+				build.push(txt[j])
+
+				if (txt[j] == ">") {
+					found = true
+					break
+				}
+			}
+
+			if (found) {
+				const parts = build.join("").match(/^<:\w+:(\d{10,30})>$/)
+				if (parts && parts[1]) {
+					appendcurrent()
+					i = j
+
+					const isEmojiOnly = txt.join("").trim() == build.join("").trim()
+
+					const emojiElem = document.createElement("img")
+					emojiElem.classList.add("md-emoji")
+					emojiElem.width = isEmojiOnly ? 48 : 22
+					emojiElem.height = isEmojiOnly ? 48 : 22
+					emojiElem.crossOrigin = "anonymous"
+					emojiElem.src = instance.cdn + "/emojis/" + parts[1] + ".png?size=32"
+					emojiElem.alt = ""
+					emojiElem.loading = "lazy"
+					span.appendChild(emojiElem)
+
+					continue
+				}
 			}
 		}
 
