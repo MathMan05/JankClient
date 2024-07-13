@@ -360,22 +360,22 @@ function markdown(text : string|string[],{keep=false,stdsize=false} = {}){
             }
         }
 
-        if (txt[i] == "<" && txt[i + 1] == ":") {
+        if (txt[i] === "<" && (txt[i + 1] === ":" || (txt[i + 1] === "a" && txt[i + 2] === ":"))) {
             let found=false;
-            const build=["<", ":"];
-            let j=i + 2;
+            const build = txt[i + 1] === "a" ? ["<","a",":"] : ["<",":"];
+            let j = i+build.length;
             for (; txt[j] !== void 0; j++) {
                 build.push(txt[j]);
 
-                if (txt[j] == ">") {
+                if (txt[j]===">") {
                     found=true;
                     break;
                 }
             }
 
             if (found) {
-                const parts=build.join("").match(/^<:\w+:(\d{10,30})>$/);
-                if (parts && parts[1]) {
+                const parts=build.join("").match(/^<(a)?:\w+:(\d{10,30})>$/);
+                if (parts && parts[2]) {
                     appendcurrent();
                     i=j;
 
@@ -386,7 +386,7 @@ function markdown(text : string|string[],{keep=false,stdsize=false} = {}){
                     emojiElem.width=isEmojiOnly ? 48 : 22;
                     emojiElem.height=isEmojiOnly ? 48 : 22;
                     emojiElem.crossOrigin="anonymous";
-                    emojiElem.src=this.info.cdn.toString() + "/emojis/" + parts[1] + ".png?size=32";
+                    emojiElem.src=this.info.cdn.toString() + "/emojis/" + parts[2] + "." + (parts[1] ? "gif" : "png") + "?size=32";
                     emojiElem.alt="";
                     emojiElem.loading="lazy";
                     span.appendChild(emojiElem);
