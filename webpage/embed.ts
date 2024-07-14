@@ -59,7 +59,7 @@ class Embed{
             embed.append(authorline);
         }
         const title=document.createElement("a");
-        title.innerHTML=markdown(this.json.title).innerHTML;
+        title.append(markdown(this.json.title));
         if(this.json.url){
             title.href=this.json.url;
         }
@@ -68,7 +68,7 @@ class Embed{
 
         if(this.json.description){
             const p=document.createElement("p");
-            p.innerHTML=markdown(this.json.description).innerHTML;
+            p.append(markdown(this.json.description));
             embed.append(p);
         }
 
@@ -80,7 +80,7 @@ class Embed{
                 b.textContent=thing.name;
                 div.append(b);
                 const p=document.createElement("p")
-                p.innerHTML=markdown(thing.value).innerHTML;
+                p.append(markdown(thing.value));
                 p.classList.add("embedp");
                 div.append(p);
 
