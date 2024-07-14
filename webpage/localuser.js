@@ -69,7 +69,7 @@ class LocalUser {
 		this.channelfocus = null
 	}
 	unload() {
-		if (this.heartbeatInterval) clearInterval(this.heartbeatInterval)
+		if (this.heartbeatTimeout) clearTimeout(this.heartbeatTimeout)
 		this.initialized = false
 		this.outoffocus()
 		this.guilds = []
@@ -111,6 +111,8 @@ class LocalUser {
 		this.ws.addEventListener("message", event => {
 			const json = JSON.parse(event.data)
 			console.log(json)
+
+			if (json.op != 11) this.packets++
 
 			if (json.op == 0) {
 				switch (json.t) {
@@ -180,17 +182,18 @@ class LocalUser {
 			} else if (json.op == 1) this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
 			else if (json.op == 10) {
 				this.packets = 1
+				this.heartbeatInterval = json.d.heartbeat_interval
 
 				setTimeout(() => {
 					this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
-
-					this.heartbeatInterval = setInterval(() => {
-						if (connectionSucceed == 0) connectionSucceed = Date.now()
-
-						this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
-					}, json.d.heartbeat_interval)
 				}, Math.round(json.d.heartbeat_interval * Math.random()))
-			} else if (json.op != 11) this.packets++
+			} else if (json.op == 11) {
+				this.heartbeatTimeout = setTimeout(() => {
+					if (connectionSucceed == 0) connectionSucceed = Date.now()
+
+					this.ws.send(JSON.stringify({ op: 1, d: this.packets }))
+				}, this.heartbeatInterval)
+			}
 		})
 
 		this.ws.addEventListener("close", event => {

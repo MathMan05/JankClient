@@ -749,8 +749,10 @@ textarea {
 	display: flex;
 	flex-direction: column;
 }
-.dm-container div img {
+.dm-container .pfp {
 	padding: 5px;
+	width: 32px;
+	height: 32px;
 }
 
 .messageimg {
