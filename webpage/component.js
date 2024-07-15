@@ -11,8 +11,8 @@ const buttonStyles = {
 // eslint-disable-next-line no-unused-vars
 class Component {
 	constructor(json, owner) {
-		this.type = this.getType(json)
 		this.owner = owner
+		this.headers = this.owner.headers
 		this.json = json
 	}
 	generateHTML() {
@@ -37,7 +37,19 @@ class Component {
 					console.warn("Unsupported component type " + component.type, component)
 			}
 
-			if (elem) actionrow.append(elem)
+			if (elem) {
+				elem.addEventListener("click", async () => {
+					const res = await fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
+						method: "POST",
+						headers: this.headers,
+						body: JSON.stringify({})
+					})
+					const json = await res.json()
+					console.warn("interaction response", json)
+				})
+
+				actionrow.append(elem)
+			}
 		})
 
 		return actionrow
@@ -52,13 +64,14 @@ class Component {
 			if (component.emoji.id) {
 				const img = document.createElement("img")
 				img.crossOrigin = "anonymous"
-				img.src = instance.cdn + "/emojis/" + component.emoji.id + ".png"
+				img.src = instance.cdn + "/emojis/" + component.emoji.id + ".png?size=32"
+				img.width = 32
+				img.height = 32
 				img.alt = ""
 				buttonElement.append(img)
 			} else {
 				const text = document.createElement("span")
 				text.textContent = component.emoji.name
-
 				buttonElement.append(text)
 			}
 		}
@@ -104,6 +117,22 @@ class Component {
 					const description = document.createElement("p")
 					description.textContent = option.description
 					optionElement.append(description)
+				}
+
+				if (option.emoji) {
+					if (option.emoji.id) {
+						const img = document.createElement("img")
+						img.crossOrigin = "anonymous"
+						img.src = instance.cdn + "/emojis/" + option.emoji.id + ".png?size=32"
+						img.width = 32
+						img.height = 32
+						img.alt = ""
+						buttonElement.append(img)
+					} else {
+						const text = document.createElement("span")
+						text.textContent = option.emoji.name
+						buttonElement.append(text)
+					}
 				}
 			})
 			buttonElement.append(optionContainer)

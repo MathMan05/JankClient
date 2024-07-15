@@ -229,6 +229,7 @@ pre {
 code {
 	background-color: var(--code-bg);
 	color: var(--code-text);
+	font-size: 16px;
 }
 
 .contextbutton {
@@ -491,6 +492,7 @@ hr {
 .spoiler {
 	background-color: var(--black);
 	color: var(--black);
+	cursor: pointer;
 }
 .spoiler:hover, .spoiler:focus {
 	background-color: var(--spoiler-hover);
@@ -635,7 +637,7 @@ hr {
 	display: inline-block;
 	vertical-align: middle;
 	width: 25px;
-	margin-left: 26px;
+	margin-left: 20px;
 	border-color: var(--reply-border);
 }
 

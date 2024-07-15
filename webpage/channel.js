@@ -133,7 +133,7 @@ class Channel {
 		return build
 	}
 	static dragged = []
-	createguildHTML(admin = false) {
+	createGuildHTML(admin = false) {
 		const div = document.createElement("div")
 		if (!this.hasPermission("VIEW_CHANNEL")) {
 			let quit = true
@@ -185,7 +185,7 @@ class Channel {
 			decdiv.all = this
 
 			for (const channel2 of this.children) {
-				childrendiv.appendChild(channel2.createguildHTML(admin))
+				childrendiv.appendChild(channel2.createGuildHTML(admin))
 			}
 			childrendiv.classList.add("channels")
 			setTimeout(() => {

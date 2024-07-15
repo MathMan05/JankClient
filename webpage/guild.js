@@ -176,7 +176,7 @@ class Guild {
 		const build = document.createElement("div")
 		if (this.id == "@me") build.classList.add("dm-container")
 		for (const thing of this.headchannels) {
-			build.appendChild(thing.createguildHTML(this.isAdmin()))
+			build.appendChild(thing.createGuildHTML(this.isAdmin()))
 		}
 		return build
 	}

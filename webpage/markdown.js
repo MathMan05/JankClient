@@ -294,7 +294,7 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 
 				const spoilerElem = document.createElement("span")
 				if (keep) spoilerElem.append(pipes)
-				spoilerElem.appendChild(markdown(build, {keep, stdsize}))
+				spoilerElem.innerHTML = markdown(build, {keep, stdsize}).innerHTML // TODO: Does this reduce the HTML depth from "<span class="spoiler"><span><span class="spoiler">"?
 				spoilerElem.classList.add("spoiler")
 				spoilerElem.addEventListener("click", markdown.unspoil)
 				if (keep) spoilerElem.append(pipes)

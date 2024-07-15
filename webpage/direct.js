@@ -22,7 +22,7 @@ class Group extends Channel {
 		this.lastmessageid ??= "0"
 		this.mentions = 0
 	}
-	createguildHTML() {
+	createGuildHTML() {
 		const div = document.createElement("div")
 		div.classList.add("channeleffects")
 		const myhtml = document.createElement("span")
@@ -39,6 +39,9 @@ class Group extends Channel {
 	async getHTML() {
 		const id = ++Channel.genid
 		if (this.guild !== this.localuser.lookingguild) this.guild.loadGuild()
+
+		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) this.localuser.channelfocus.myhtml.classList.remove("viewChannel")
+		this.myhtml.classList.add("viewChannel")
 
 		const prom = Message.wipeChanel()
 		this.guild.prevchannel = this
