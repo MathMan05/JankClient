@@ -30,9 +30,9 @@ class Group extends Channel {
 		div.appendChild(this.user.buildpfp())
 		div.appendChild(myhtml)
 
-		div.myinfo = this
+		div.all = this
 		div.onclick = function() {
-			this.myinfo.getHTML()
+			this.all.getHTML()
 		}
 		return div
 	}
@@ -73,7 +73,7 @@ class Group extends Channel {
 		if (this.localuser.lookingguild === this.guild) {
 			const channellist = document.getElementById("channels").children[0]
 			for (const thing of channellist.children) {
-				if (thing.myinfo === this) {
+				if (thing.all === this) {
 					channellist.prepend(thing)
 					break
 				}

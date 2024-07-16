@@ -167,20 +167,20 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 				if (count == 1) {
 					const iElem = document.createElement("i")
 					if (keep) iElem.append(stars)
-					iElem.appendChild(markdown(build, {keep, stdsize}))
+					iElem.innerHTML = markdown(build, {keep, stdsize}).innerHTML
 					if (keep) iElem.append(stars)
 					span.appendChild(iElem)
 				} else if (count == 2) {
 					const bElem = document.createElement("b")
 					if (keep) bElem.append(stars)
-					bElem.appendChild(markdown(build, {keep, stdsize}))
+					bElem.innerHTML = markdown(build, {keep, stdsize}).innerHTML
 					if (keep) bElem.append(stars)
 					span.appendChild(bElem)
 				} else {
 					const bElem = document.createElement("b")
 					const iElem = document.createElement("i")
 					if (keep) bElem.append(stars)
-					bElem.appendChild(markdown(build, {keep, stdsize}))
+					bElem.innerHTML = markdown(build, {keep, stdsize}).innerHTML
 					if (keep) bElem.append(stars)
 					iElem.appendChild(bElem)
 					span.appendChild(iElem)
@@ -218,20 +218,20 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 				if (count == 1) {
 					const iElem = document.createElement("i")
 					if (keep) iElem.append(underscores)
-					iElem.appendChild(markdown(build, {keep, stdsize}))
+					iElem.innerHTML = markdown(build, {keep, stdsize}).innerHTML
 					if (keep) iElem.append(underscores)
 					span.appendChild(iElem)
 				} else if (count == 2) {
 					const uElem = document.createElement("u")
 					if (keep) uElem.append(underscores)
-					uElem.appendChild(markdown(build, {keep, stdsize}))
+					uElem.innerHTML = markdown(build, {keep, stdsize}).innerHTML
 					if (keep) uElem.append(underscores)
 					span.appendChild(uElem)
 				} else {
 					const uElem = document.createElement("u")
 					const iElem = document.createElement("i")
 					if (keep) iElem.append(underscores)
-					iElem.appendChild(markdown(build, {keep, stdsize}))
+					iElem.innerHTML = markdown(build, {keep, stdsize}).innerHTML
 					if (keep) iElem.append(underscores)
 					uElem.appendChild(iElem)
 					span.appendChild(uElem)
@@ -263,7 +263,7 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 
 				const sElem = document.createElement("s")
 				if (keep) sElem.append(underscores)
-				sElem.appendChild(markdown(build, {keep, stdsize}))
+				sElem.innerHTML = markdown(build, {keep, stdsize}).innerHTML
 				if (keep) sElem.append(underscores)
 				span.appendChild(sElem)
 
@@ -294,7 +294,7 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 
 				const spoilerElem = document.createElement("span")
 				if (keep) spoilerElem.append(pipes)
-				spoilerElem.innerHTML = markdown(build, {keep, stdsize}).innerHTML // TODO: Does this reduce the HTML depth from "<span class="spoiler"><span><span class="spoiler">"?
+				spoilerElem.innerHTML = markdown(build, {keep, stdsize}).innerHTML
 				spoilerElem.classList.add("spoiler")
 				spoilerElem.addEventListener("click", markdown.unspoil)
 				if (keep) spoilerElem.append(pipes)

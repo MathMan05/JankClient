@@ -26,8 +26,7 @@ class File {
 			img.crossOrigin = "anonymous"
 			img.src = src
 			img.alt = this.description || this.title || "Image: " + this.filename
-			img.height = this.height
-			img.width = this.width
+			if (this.width) img.width = this.width
 
 			return img
 		} else if (this.content_type.startsWith("video/")) {
@@ -75,10 +74,7 @@ class File {
 			size: file.size,
 			id: null,
 			content_type: file.type,
-			width: void 0,
-			height: void 0,
-			url: URL.createObjectURL(file),
-			proxy_url: void 0
+			url: URL.createObjectURL(file)
 		}, null)
 	}
 	createunknown() {
