@@ -786,17 +786,20 @@ textarea {
 	width: 100%;
 }
 
-#settings {
+#settings, #connections {
 	cursor: pointer;
 	user-select: none;
 	border-radius: .1in;
 	transition: color .5s;
 	text-align: center;
 	overflow: visible;
-	margin-right: 10px;
 }
-#settings:hover, #settings:focus {
+#settings:hover, #connections:hover, #settings:focus, #connections:focus {
 	color: var(--timestamp-color);
+}
+
+#connections {
+	margin-right: 10px;
 }
 
 #userinfo {
@@ -1500,4 +1503,22 @@ video {
 .actionrow .select div {
 	display: flex;
 	align-items: center;
+}
+
+#connection-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	max-width: 700px;
+}
+
+#connection-container div {
+	padding: 5px 10px;
+	border-radius: 5px;
+	background-color: var(--textarea-bg);
+	cursor: pointer;
+}
+#connection-container .disabled {
+	background-color: var(--embed-fallback);
+	cursor: not-allowed;
 }

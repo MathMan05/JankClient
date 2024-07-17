@@ -576,10 +576,7 @@ class LocalUser {
 
 		let hypouser = new User(this.user, this, true)
 		const regen = () => {
-			hypothetcialprofie.textContent = ""
-			const hypoprofile = hypouser.buildprofile(-1, -1)
-
-			hypothetcialprofie.appendChild(hypoprofile)
+			hypothetcialprofie.innerHTML = hypouser.buildprofile(-1, -1).innerHTML
 		}
 		regen()
 
@@ -627,13 +624,49 @@ class LocalUser {
 						setTheme(newTheme)
 					}
 				}]
-			], () => {}, (() => {
+			], () => {}, () => {
 				hypouser = User.checkuser(this.user, this)
 				regen()
 				file = null
 				newprouns = null
 				newbio = null
 				newTheme = null
-			}))
+			})
+
+		const connectionContainer = document.createElement("div")
+		connectionContainer.id = "connection-container"
+		this.userConnections = new Dialog(
+			["html",
+				connectionContainer
+			], () => {}, async () => {
+				connectionContainer.innerHTML = ""
+
+				const res = await fetch(instance.api + "/connections", {
+					headers: this.headers
+				})
+				const json = await res.json()
+
+				Object.keys(json).sort(key => json[key].enabled ? -1 : 1).forEach(key => {
+					const connection = json[key]
+
+					const container = document.createElement("div")
+					container.textContent = key.charAt(0).toUpperCase() + key.slice(1)
+
+					if (connection.enabled) {
+						container.addEventListener("click", async () => {
+							const connectionRes = await fetch(instance.api + "/connections/" + key + "/authorize", {
+								headers: this.headers
+							})
+							const connectionJSON = await connectionRes.json()
+							window.open(connectionJSON.url, "_blank", "noopener noreferrer")
+						})
+					} else {
+						container.classList.add("disabled")
+						container.title = "This connection has been disabled server-side."
+					}
+
+					connectionContainer.appendChild(container)
+				})
+			})
 	}
 }

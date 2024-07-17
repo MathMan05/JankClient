@@ -16,6 +16,9 @@ thisuser.initwebsocket().then(() => {
 const userSettings = () => {
 	thisuser.usersettings.show()
 }
+const userConnections = () => {
+	thisuser.userConnections.show()
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
 	const menu = new Contextmenu()
@@ -101,6 +104,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 	})
 
 	document.getElementById("settings").addEventListener("click", userSettings)
+	document.getElementById("connections").addEventListener("click", userConnections)
 
 	if ("serviceWorker" in navigator) {
 		navigator.serviceWorker.register("/service.js")

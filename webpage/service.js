@@ -9,13 +9,13 @@ const checkCache = async () => {
 	if (prevCache) lastCache = await prevCache.text()
 
 	fetch("/getupdates").then(async data => {
+		lastChecked = Date.now()
+
 		const text = await data.clone().text()
 		if (lastCache != text) {
 			caches.delete("cache")
 			console.warn("Cache has been updated")
 		}
-
-		lastChecked = Date.now()
 	})
 }
 
