@@ -383,6 +383,58 @@ const markdown = (txt, { keep = false, stdsize = false } = {}) => {
 			}
 		}
 
+		if (txt[i] == "<" && (txt[i + 1] == "#" || txt[i + 1] == "@")) {
+			let found = false
+			const build = ["<", txt[i + 1]]
+			let j = i + 2
+			for (; txt[j] !== void 0; j++) {
+				build.push(txt[j])
+
+				if (txt[j] == ">") {
+					found = true
+					break
+				}
+			}
+
+			if (found) {
+				const parts = build.join("").match(/^<(#|@)&?(\d{10,30})>$/)
+				if (parts && parts[2]) {
+					appendcurrent()
+					i = j
+
+					const mentionElem = document.createElement("span")
+					mentionElem.classList.add("md-mention")
+
+					let mentionText = parts[2]
+					if (build[1] == "#") {
+						if (thisuser.lookingguild?.channelids[parts[2]]) mentionText = thisuser.lookingguild.channelids[parts[2]].name
+						else {
+							thisuser.guilds.forEach(guild => {
+								if (guild.channelids[parts[2]]) mentionText = guild.channelids[parts[2]].name
+							})
+						}
+
+						mentionElem.textContent = "#" + mentionText
+					} else if (build[1] == "@") {
+						if (build[2] == "&") {
+							if (thisuser.lookingguild?.roleids[parts[2]]) mentionText = thisuser.lookingguild.roleids[parts[2]].name
+							else {
+								thisuser.guilds.forEach(guild => {
+									if (guild.roleids[parts[2]]) mentionText = guild.roleids[parts[2]].name
+								})
+							}
+						} else if (User.userids[parts[2]]) mentionText = User.userids[parts[2]].username
+
+						mentionElem.textContent = "@" + mentionText
+					}
+
+					span.appendChild(mentionElem)
+
+					continue
+				}
+			}
+		}
+
 		current.textContent += txt[i]
 	}
 

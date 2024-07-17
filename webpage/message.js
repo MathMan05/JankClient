@@ -183,7 +183,7 @@ class Message {
 			const username = document.createElement("span")
 			username.classList.add("username")
 			replyline.appendChild(username)
-			this.author.contextMenuBind(username, this.guild)
+			this.author.contextMenuBind(username)
 
 			const reply = document.createElement("div")
 			reply.classList.add("replytext")
@@ -244,7 +244,7 @@ class Message {
 			if (combine) {
 				const username = document.createElement("span")
 				username.classList.add("username")
-				this.author.contextMenuBind(username, this.guild)
+				this.author.contextMenuBind(username)
 
 				this.author.profileclick(username)
 				username.textContent = this.author.username

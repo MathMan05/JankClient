@@ -54,7 +54,7 @@
 	--button-bg: #1b1b28;
 	--textarea-bg: #26272c;
 	--filename: #47bbff;
-	--mention-bg: #fc7537;
+	--mention-bg: #8ea6ca;
 	--notify-bg: #fc7537;
 	--pronouns: #797979;
 	--error-color: #ff4949;
@@ -77,7 +77,8 @@
 	--reply-text: #acacac;
 
 	--spoiler-hover: #111111;
-	--spoiler-open-bg: #1e1e1e;
+	--spoiler-closed: #1e1e1e;
+	--spoiler-open-bg: #424242;
 	--timestamp-bg: #2f2f33;
 
 	--unknown-file-bg: #141316;
@@ -114,7 +115,7 @@
 	--button-bg: #b7b7cc;
 	--textarea-bg: #b1b6ce;
 	--filename: #47bbff;
-	--mention-bg: #ff6b31;
+	--mention-bg: #b3d1ee;
 	--notify-bg: #ff170f;
 	--pronouns: #6a6a6d;
 	--error-color: #d40404;
@@ -137,7 +138,8 @@
 	--reply-text: #2e2e30;
 
 	--spoiler-hover: #b9b9b9;
-	--spoiler-open-bg: #dadada;
+	--spoiler-closed: #c4c4c4;
+	--spoiler-open-bg: #c2c2c2;
 	--timestamp-bg: #dadae2;
 
 	--unknown-file-bg: #bdbdbd;
@@ -490,8 +492,9 @@ hr {
 }
 
 .spoiler {
-	background-color: var(--black);
-	color: var(--black);
+	background-color: var(--spoiler-closed);
+	color: var(--spoiler-closed);
+	border-radius: 3px;
 	cursor: pointer;
 }
 .spoiler:hover, .spoiler:focus {
@@ -502,14 +505,18 @@ hr {
 .unspoiled {
 	background-color: var(--spoiler-open-bg);
 	color: var(--primary-text);
-}
-.unspoiled:before {
-	background-color: var(--black);
-	background-clip: content-box;
+	border-radius: 3px;
+	cursor: auto;
 }
 
 .md-timestamp {
 	background-color: var(--timestamp-bg);
+	border-radius: 3px;
+}
+.md-mention {
+	background-color: var(--mention-bg);
+	cursor: pointer;
+	border-radius: 3px;
 }
 
 .replying {

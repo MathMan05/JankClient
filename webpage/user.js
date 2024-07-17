@@ -127,14 +127,7 @@ class User {
 			this.buildprofile(event.clientX, event.clientY, author)
 		}
 	}
-	contextMenuBind(html, guild) {
-		if (guild && guild.id != "@me") {
-			Member.resolve(this, guild).then(_ => {
-				_.bind(html)
-			}).catch(e => {
-				console.log(e)
-			})
-		}
+	contextMenuBind(html) {
 		this.profileclick(html)
 		User.contextmenu.bind(html, this)
 	}
