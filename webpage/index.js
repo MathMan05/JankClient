@@ -192,7 +192,7 @@ typebox.addEventListener("keydown", event => {
 
 document.addEventListener("paste", event => {
 	Array.from(event.clipboardData.files).forEach(f => {
-		const file = File.initFromBlob(f)
+		const file = Attachment.initFromBlob(f)
 		event.preventDefault()
 		const html = file.upHTML(images, f)
 		document.getElementById("pasteimage").appendChild(html)

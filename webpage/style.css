@@ -305,12 +305,14 @@ h2 {
 	font-size: .25in;
 }
 
-.pfp {
+.pfp, #userpfp {
 	border-radius: 50%;
-	width: 48px;
-	height: 48px;
 	user-select: none;
 	cursor: pointer;
+}
+.pfp {
+	width: 48px;
+	height: 48px;
 }
 
 .servericon {
@@ -796,10 +798,6 @@ textarea {
 }
 #settings:hover, #connections:hover, #settings:focus, #connections:focus {
 	color: var(--timestamp-color);
-}
-
-#connections {
-	margin-right: 10px;
 }
 
 #userinfo {
@@ -1379,10 +1377,10 @@ video {
 	display: flex;
 	flex-direction: column;
 	justify-content: center;
-	padding-left: 0.1in;
+	padding-left: 3px;
 }
-#status {
-	font-size: 0.8em;
+.userflex p {
+	font-size: 15px;
 }
 
 .savediv {

@@ -1,7 +1,7 @@
 "use strict"
 
 // eslint-disable-next-line no-unused-vars
-class File {
+class Attachment {
 	constructor(fileJSON, owner) {
 		this.owner = owner
 		this.id = fileJSON.id
@@ -13,6 +13,8 @@ class File {
 		this.proxy_url = fileJSON.proxy_url
 		this.content_type = fileJSON.content_type
 		this.size = fileJSON.size
+		this.title = fileJSON.title
+		this.description = fileJSON.description
 	}
 	getHTML(temp = false) {
 		const src = this.proxy_url || this.url
@@ -69,7 +71,7 @@ class File {
 		return div
 	}
 	static initFromBlob(file) {
-		return new File({
+		return new Attachment({
 			filename: file.name,
 			size: file.size,
 			id: null,

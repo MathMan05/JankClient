@@ -11,8 +11,6 @@ class Permissions {
 		const bit = 1n << BigInt(b)
 		return (big & ~bit) | (BigInt(state) << BigInt(b)) //thanks to geotale for this code :3
 	}
-	static map
-	static info
 	static makeMap() {
 		Permissions.info = [//for people in the future, do not reorder these, the creation of the map realize on the order
 			{

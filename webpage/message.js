@@ -48,18 +48,6 @@ class Message {
 		Message.contextmenu.addbutton("Copy message id", function() {
 			navigator.clipboard.writeText(this.id)
 		})
-		/*Message.contextmenu.addbutton("Copy user id", function() {
-			navigator.clipboard.writeText(this.author.id)
-		})
-		Message.contextmenu.addbutton("Message user", function() {
-			fetch(instance.api + "/users/@me/channels", {
-				method: "POST",
-				headers: this.headers,
-				body: JSON.stringify({
-					recipients: [this.author.id]
-				})
-			})
-		})*/
 
 		Message.contextmenu.addbutton("Edit", function() {
 			this.channel.editing = this
@@ -78,7 +66,7 @@ class Message {
 			if (key == "attachments") {
 				this.attachments = []
 				for (const thing of messagejson.attachments) {
-					this.attachments.push(new File(thing, this))
+					this.attachments.push(new Attachment(thing, this))
 				}
 				continue
 			}

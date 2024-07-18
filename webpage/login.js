@@ -205,9 +205,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 	if (localStorage.getItem("theme")) setTheme(localStorage.getItem("theme"))
 	else if (window.matchMedia("(prefers-color-scheme: light)").matches) setTheme("light")
 
-	if (!document.getElementById("form")) return
+	if (!document.getElementById("instancein")) return
 
-	document.getElementById("form").addEventListener("submit", check)
+	if (document.getElementById("form")) document.getElementById("form").addEventListener("submit", check)
 
 	instancein = document.getElementById("instancein")
 	verify = document.getElementById("verify")

@@ -12,6 +12,7 @@ const linterOptions = {
 const global = {
 	...globals.browser,
 
+	Attachment: "writable",
 	Audio: "writeable",
 	Channel: "writable",
 	Group: "writable",

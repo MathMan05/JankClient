@@ -484,30 +484,28 @@ class Channel {
 		if (this.messages.length == 0 || this.allthewayup) return
 		const out = this
 
-		await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + this.messages.at(-1).id + "&limit=100", {
+		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + this.messages.at(-1).id + "&limit=100", {
 			headers: this.headers
-		}).then(j => {
-			return j.json()
-		}).then(response => {
-			let next
-			if (response.length < 100) out.allthewayup = true
-
-			for (const i in response) {
-				let messager
-				if (next) messager = next
-				else messager = new Message(response[i], this)
-
-				if (response[Number(i) + 1] === void 0) next = void 0
-				else next = new Message(response[Number(i) + 1], this)
-
-				if (out.messageids[messager.id] === void 0) {
-					out.messageids[messager.id] = messager
-					out.buildmessage(messager, next)
-					out.messages.push(messager)
-				} else console.trace("How???")
-			}
-			//out.buildmessages()
 		})
+		const json = await res.json()
+
+		let next
+		if (json.length < 100) out.allthewayup = true
+
+		for (const i in json) {
+			let messager
+			if (next) messager = next
+			else messager = new Message(json[i], this)
+
+			if (json[Number(i) + 1] === void 0) next = void 0
+			else next = new Message(json[Number(i) + 1], this)
+
+			if (out.messageids[messager.id] === void 0) {
+				out.messageids[messager.id] = messager
+				out.buildmessage(messager, next)
+				out.messages.push(messager)
+			} else console.trace("How???")
+		}
 	}
 	buildmessage(message, next) {
 		const built = message.buildhtml(next)
@@ -587,8 +585,6 @@ class Channel {
 	async sendMessage(content, {attachments = [], replyingto = null}) {
 		let replyjson
 		if (replyingto) replyjson = {
-			guild_id: replyingto.guild.id,
-			channel_id: replyingto.channel.id, // TODO: remove both ^
 			message_id: replyingto.id
 		}
 
@@ -631,9 +627,9 @@ class Channel {
 
 		this.guild.unreads()
 		this.messages.unshift(messagez)
-		const scrolly = document.getElementById("messagecontainer")
 		this.messageids[messagez.id] = messagez
 
+		const scrolly = document.getElementById("messagecontainer")
 		let shouldScroll = false
 		if (this.localuser.lookingguild.prevchannel === this) {
 			shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20
@@ -641,7 +637,7 @@ class Channel {
 		}
 		if (shouldScroll) scrolly.scrollTop = scrolly.scrollHeight
 
-		if (messagez.author == this.localuser.user) return
+		if (messagez.author === this.localuser.user) return
 		if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) return
 
 		if (this.notification == "all" || (this.notification == "mentions" && messagez.mentionsuser(this.localuser.user))) this.notify(messagez)

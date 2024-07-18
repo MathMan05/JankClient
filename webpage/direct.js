@@ -60,9 +60,9 @@ class Group extends Channel {
 		if (messagez.author === this.localuser.user) this.lastreadmessageid = messagez.id
 
 		this.messages.unshift(messagez)
-		const scrolly = document.getElementById("messagecontainer")
 		this.messageids[messagez.id] = messagez
 
+		const scrolly = document.getElementById("messagecontainer")
 		let shouldScroll = false
 		if (this.localuser.lookingguild.prevchannel === this) {
 			shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20

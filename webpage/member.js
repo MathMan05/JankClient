@@ -110,11 +110,7 @@ class Member {
 		return ""
 	}
 	isAdmin() {
-		for (const role of this.roles) {
-			if (role.permissions.hasPermission("ADMINISTRATOR")) return true
-		}
-
-		return this.guild.properties.owner_id == this.user.id
+		return this.guild.properties.owner_id == this.user.id || this.roles.some(role => role.permissions.hasPermission("ADMINISTRATOR"))
 	}
 	contextMenuBind(html) {
 		if (html.tagName === "SPAN") {
@@ -128,6 +124,7 @@ class Member {
 
 			html.style.color = this.getColor()
 		}
+
 		this.profileclick(html)
 		Member.contextmenu.bind(html)
 	}

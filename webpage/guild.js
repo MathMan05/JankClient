@@ -285,7 +285,7 @@ class Guild {
 		channelselect.show()
 	}
 	delChannel(json) {
-		const channel = this.channelids[JSON.id]
+		const channel = this.channelids[json.id]
 		delete this.channelids[json.id]
 
 		this.channels.splice(this.channels.indexOf(channel), 1)

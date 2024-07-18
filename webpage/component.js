@@ -39,7 +39,7 @@ class Component {
 
 			if (elem) {
 				elem.addEventListener("click", async () => {
-					const res = await fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
+					const res = await fetch(instance.api + "/channels/" + this.owner.channel.id + "/messages/" + this.owner.id, {
 						method: "POST",
 						headers: this.headers,
 						body: JSON.stringify({})

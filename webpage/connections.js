@@ -25,7 +25,7 @@ const main = async () => {
 
 		setTimeout(() => {
 			location.href = "/channels/@me"
-		}, 2000)
+		}, 2500)
 	} else {
 		const json = await res.json()
 		console.log(json)
