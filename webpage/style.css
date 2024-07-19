@@ -1417,10 +1417,9 @@ video {
 }
 
 .messagediv .flexltr {
-	display: flex;
 	flex-wrap: wrap;
-	overflow: hidden !important;
 	max-height: 100in;
+	overflow: hidden !important;
 }
 .messagediv .flexttb {
 	display: flex;

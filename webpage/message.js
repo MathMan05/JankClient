@@ -62,28 +62,48 @@ class Message {
 		this.owner = owner
 		this.headers = this.owner.headers
 
-		for (const key of Object.keys(messagejson)) {
-			if (key == "attachments") {
-				this.attachments = []
-				for (const thing of messagejson.attachments) {
-					this.attachments.push(new Attachment(thing, this))
-				}
-				continue
+		this.type = messagejson.type
+		this.id = messagejson.id
+		this.author = User.checkuser(messagejson.author, this.localuser)
+		this.member = messagejson.member
+		this.content = messagejson.content
+		this.tts = messagejson.tts
+		this.timestamp = messagejson.timestamp
+		this.edited_timestamp = messagejson.edited_timestamp
+		this.message_reference = messagejson.message_reference
+		this.channel_id = messagejson.channel_id
+		this.guild_id = messagejson.guild_id
+		this.mention_everyone = messagejson.mention_everyone
+		this.pinned = messagejson.pinned
+		this.reactions = messagejson.reactions
+
+		this.attachments = []
+		for (const thing of messagejson.attachments) {
+			this.attachments.push(new Attachment(thing, this))
+		}
+
+		if (messagejson.embeds) {
+			this.embeds = []
+			for (const thing of messagejson.embeds) {
+				this.embeds.push(new Embed(thing, this))
 			}
-
-			this[key] = messagejson[key]
 		}
 
-		for (const e in this.embeds) {
-			this.embeds[e] = new Embed(this.embeds[e], this)
+		if (messagejson.components) {
+			this.components = []
+			for (const thing of messagejson.components) {
+				this.components.push(new Component(thing, this))
+			}
 		}
-		for (const e in this.components) {
-			this.components[e] = new Component(this.components[e], this)
-		}
-		this.author = User.checkuser(this.author, this.localuser)
 
-		for (const u in this.mentions) {
-			this.mentions[u] = new User(this.mentions[u], this.localuser)
+		this.mentions = []
+		for (const thing of messagejson.mentions) {
+			this.mentions.push(new User(thing, this.localuser))
+		}
+
+		this.mention_roles = []
+		for (const thing of messagejson.mention_roles) {
+			this.mention_roles.push(new Role(thing, this))
 		}
 	}
 	canDelete() {
@@ -265,31 +285,28 @@ class Message {
 
 			build.appendChild(text)
 			if (this.attachments && this.attachments.length > 0) {
-				messagedwrap.appendChild(document.createElement("br"))
 				const attach = document.createElement("div")
 				attach.classList.add("flexltr")
 				for (const thing of this.attachments) attach.appendChild(thing.getHTML())
-				messagedwrap.appendChild(attach)
+				texttxt.appendChild(attach)
 			}
 
 			if (this.embeds && this.embeds.length > 0) {
-				messagedwrap.appendChild(document.createElement("br"))
 				const embeds = document.createElement("div")
 				embeds.classList.add("flexltr")
 				for (const thing of this.embeds) {
 					embeds.appendChild(thing.generateHTML())
 				}
-				messagedwrap.appendChild(embeds)
+				texttxt.appendChild(embeds)
 			}
 
 			if (this.components && this.components.length > 0) {
-				messagedwrap.appendChild(document.createElement("br"))
 				const components = document.createElement("div")
 				components.classList.add("flexltr")
 				for (const thing of this.components) {
 					components.appendChild(thing.generateHTML())
 				}
-				messagedwrap.appendChild(components)
+				texttxt.appendChild(components)
 			}
 		} else if (this.type == 7) {
 			const text = document.createElement("div")

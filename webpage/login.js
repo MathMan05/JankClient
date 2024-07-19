@@ -17,7 +17,7 @@ class SpecialUser {
 		Object.keys(instanceURLs).forEach(key => {
 			if (instanceURLs[key].endsWith("/")) instanceURLs[key] = instanceURLs[key].slice(0, -1)
 		})
-		instanceURLs.api = instanceURLs.api + "/v9"
+		if (!/\/v\d+$/.test(instanceURLs.api)) instanceURLs.api += "/v9"
 		this.serverurls = instanceURLs
 
 		this.email = json.email

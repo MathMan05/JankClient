@@ -39,10 +39,22 @@ class Component {
 
 			if (elem) {
 				elem.addEventListener("click", async () => {
-					const res = await fetch(instance.api + "/channels/" + this.owner.channel.id + "/messages/" + this.owner.id, {
+					const res = await fetch(instance.api + "/interactions", {
 						method: "POST",
 						headers: this.headers,
-						body: JSON.stringify({})
+						body: JSON.stringify({
+							type: 3,
+							nonce: Math.floor(Math.random() * 1000000000),
+							guild_id: this.owner.guild.id,
+							channel_id: this.owner.channel.id,
+							message_flags: 0,
+							message_id: this.owner.id,
+							application_id: this.owner.author.id,
+							data: {
+								component_type: component.type,
+								custom_id: component.custom_id
+							}
+						})
 					})
 					const json = await res.json()
 					console.warn("interaction response", json)
