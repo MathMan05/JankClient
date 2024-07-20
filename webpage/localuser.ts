@@ -531,7 +531,7 @@ class Localuser{
         reader.readAsDataURL(file);
         console.log(this.headers);
         reader.onload = ()=>{
-            fetch(this.info.api.toString()+"/v9/users/@me",{
+            fetch(this.info.api.toString()+"/users/@me",{
                 method:"PATCH",
                 headers:this.headers,
                 body:JSON.stringify({
@@ -543,7 +543,7 @@ class Localuser{
 
     }
     updatepronouns(pronouns:string):void{
-        fetch(this.info.api.toString()+"/v9/users/@me/profile",{
+        fetch(this.info.api.toString()+"/users/@me/profile",{
             method:"PATCH",
             headers:this.headers,
             body:JSON.stringify({
@@ -626,7 +626,7 @@ class Localuser{
                     newbio=this.value;
                     regen();
                 }],
-                ["button","update user content:","submit",function(){
+                ["button","update user content:","submit",()=>{
                     if(file!==null){
                         this.updatepfp(file);
                     }
