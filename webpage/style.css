@@ -551,18 +551,18 @@ p {
 	grid-column: 2;
 }
 .replytext pre {
-	padding: 0 .05in;
+	/* padding: 0 .05in; */
 	color: var(--reply-text);
-	overflow: hidden;
+	/* overflow: hidden; */
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	max-width: fit-content;
 	/* display: block; */
 	/* flex-grow: 1; */
 	flex: 1 1 auto;
-	width: fit-content;
+	/* width: fit-content; */
 	min-width: 0;
-	/* display: inline-block !important; */
+	display: inline-block !important;
 	width: 25vw;
 	grid-column: 2;
 }
