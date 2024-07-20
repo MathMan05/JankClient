@@ -2,7 +2,6 @@ import { Guild } from "./guild.js";
 import { Direct } from "./direct.js";
 import { Voice } from "./audio.js";
 import { User } from "./user.js";
-import { markdown } from "./markdown.js";
 import { Fullscreen } from "./fullscreen.js";
 import { setTheme } from "./login.js";
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
@@ -85,7 +84,7 @@ class Localuser {
     outoffocus() {
         document.getElementById("servers").textContent = "";
         document.getElementById("channels").textContent = "";
-        document.getElementById("messages").textContent = "";
+        this.channelfocus.infinite.delete();
         this.lookingguild = null;
         this.channelfocus = null;
     }
@@ -145,23 +144,8 @@ class Localuser {
                             returny();
                             break;
                         case "MESSAGE_UPDATE":
-                            if (this.initialized) {
-                                if (this.channelfocus.id === temp.d.channel_id) {
-                                    const find = temp.d.id;
-                                    const messagelist = document.getElementById("messages").children;
-                                    for (const message of messagelist) {
-                                        const all = message["all"];
-                                        if (all.id === find) {
-                                            all.content = temp.d.content;
-                                            message["txt"].innerHTML = markdown(temp.d.content).innerHTML;
-                                            break;
-                                        }
-                                    }
-                                }
-                                else {
-                                    this.resolveChannelFromID(temp.d.channel_id).messages.find(e => e.id === temp.d.channel_id).content = temp.d.content;
-                                }
-                            }
+                            const message = this.resolveChannelFromID(temp.d.channel_id).messageids[temp.d.id];
+                            message.giveData(temp.d);
                             break;
                         case "TYPING_START":
                             if (this.initialized) {

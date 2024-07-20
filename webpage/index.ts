@@ -3,7 +3,7 @@ import {Contextmenu} from "./contextmenu.js";
 import {mobile, getBulkUsers,setTheme, Specialuser} from "./login.js";
 
 async function waitforload(){
-    let res
+    let res;
     new Promise(r=>{res=r});
     document.addEventListener("DOMContentLoaded", function(){
         res();
@@ -18,9 +18,6 @@ const users=getBulkUsers();
 if(!users.currentuser){
     window.location.href = '/login.html';
 }
-var info=users.users[users.currentuser].serverurls;
-let token=users.users[users.currentuser].token;
-let READY;
 
 let thisuser=new Localuser(users.users[users.currentuser]);
 thisuser.initwebsocket().then(_=>{
@@ -117,11 +114,6 @@ thisuser.initwebsocket().then(_=>{
     menu.bind(document.getElementById("channels"))
 }
 
-
-function editchannelf(channel){channel.editChannel();}
-
-
-
 const pasteimage=document.getElementById("pasteimage");
 let replyingto=null;
 async function enter(event){
@@ -163,17 +155,6 @@ console.log(typebox)
 typebox.onclick=console.log;
 
 
-
-
-let serverz=0;
-let serverid=[];
-
-
-
-
-let cchanel=0;
-
-
 function getguildinfo(){
     const path=window.location.pathname.split("/");
     const channel=path[3];
@@ -183,50 +164,7 @@ function getguildinfo(){
 
 const images:Blob[]=[];
 const imageshtml=[];
-function createunknown(fname,fsize){
-    const div=document.createElement("table");
-    div.classList.add("unknownfile");
-    const nametr=document.createElement("tr");
-    div.append(nametr);
-    const fileicon=document.createElement("td");
-    nametr.append(fileicon);
-    fileicon.append("🗎");
-    fileicon.classList.add("fileicon");
-    fileicon.rowSpan=2;
-    const nametd=document.createElement("td");
-    {
-        nametd.textContent=fname;
-    }
 
-    nametd.classList.add("filename");
-    nametr.append(nametd);
-    const sizetr=document.createElement("tr");
-    const size=document.createElement("td");
-    sizetr.append(size);
-    size.textContent="Size:"+filesizehuman(fsize);
-    size.classList.add("filesize");
-    div.appendChild(sizetr)
-    return div;
-}
-function filesizehuman(fsize){
-    var i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024));
-    return +((fsize / Math.pow(1024, i)).toFixed(2)) * 1 + ' ' + ['Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'Terabytes'][i];
-}
-function createunknownfile(file){
-    return createunknown(file.name,file.size)
-}
-function filetohtml(file){
-    if (file.type.startsWith('image/')) {
-        const img = document.createElement('img');
-        const blob = URL.createObjectURL(file);
-        img.src = blob;
-        return img;
-    }else{
-        console.log(file.name);
-
-        return createunknownfile(file);
-    }
-}
 import { File } from "./file.js";
 document.addEventListener('paste', async (e) => {
     Array.from(e.clipboardData.files).forEach(async (f) => {
@@ -245,26 +183,7 @@ function userSettings(){
     thisuser.usersettings.show();
 }
 document.getElementById("settings").onclick=userSettings;
-let triggered=false;
-document.getElementById("messagecontainer").addEventListener("scroll",(e)=>{
-    const messagecontainer=document.getElementById("messagecontainer")
-    if(messagecontainer.scrollTop<2000){
-        if(!triggered){
-            thisuser.lookingguild.prevchannel.grabmoremessages().then(()=>{
-                triggered=false;
-                if(messagecontainer.scrollTop===0){
-                    messagecontainer.scrollTop=1;
-                }
-            });
-        }
-        triggered=true;
-    }else{
-        if(Math.abs(messagecontainer.scrollHeight-messagecontainer.scrollTop-messagecontainer.clientHeight) < 3){
-            thisuser.lookingguild.prevchannel.readbottom();
-        }
-    }
-    //
-})
+
 if(mobile){
     document.getElementById("channelw").onclick=function(){
         (document.getElementById("channels").parentNode as HTMLElement).classList.add("collapse");
@@ -278,20 +197,3 @@ if(mobile){
         document.getElementById("servers").classList.remove("collapse");
     }
 }
-/*
-{
-    const messages=document.getElementById("messages");
-    let height=messages.clientHeight;
-    //
-    const resizeObserver=new ResizeObserver(()=>{
-        console.log(messages.scrollTop,messages.clientHeight-height-messages.scrollHeight);
-        messages.scrollTop-=height-messages.scrollHeight;
-        console.log(messages.scrollTop)
-        //if(shouldsnap){
-        //    document.getElementById("messagecontainer").scrollTop = document.getElementById("messagecontainer").scrollHeight;
-        //}
-        height=messages.scrollHeight;
-    })
-    resizeObserver.observe(messages)
-}
-*/

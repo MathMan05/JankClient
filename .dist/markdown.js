@@ -1,11 +1,14 @@
 export { markdown };
 function markdown(text, { keep = false, stdsize = false } = {}) {
     let txt;
-    if ((typeof txt) === "string") {
+    if ((typeof text) === (typeof "")) {
         txt = text.split("");
     }
     else {
         txt = text;
+    }
+    if (txt === undefined) {
+        txt = [];
     }
     const span = document.createElement("span");
     let current = document.createElement("span");
@@ -397,6 +400,38 @@ function markdown(text, { keep = false, stdsize = false } = {}) {
                 timeElem.textContent = time;
                 span.appendChild(timeElem);
                 continue;
+            }
+        }
+        if (txt[i] === "<" && (txt[i + 1] === ":" || (txt[i + 1] === "a" && txt[i + 2] === ":"))) {
+            let found = false;
+            const build = txt[i + 1] === "a" ? ["<", "a", ":"] : ["<", ":"];
+            let j = i + build.length;
+            for (; txt[j] !== void 0; j++) {
+                build.push(txt[j]);
+                if (txt[j] === ">") {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) {
+                const parts = build.join("").match(/^<(a)?:\w+:(\d{10,30})>$/);
+                if (parts && parts[2]) {
+                    appendcurrent();
+                    i = j;
+                    console.log(typeof txt, txt);
+                    const isEmojiOnly = txt.join("").trim() === build.join("").trim();
+                    const emojiElem = document.createElement("img");
+                    emojiElem.classList.add("md-emoji");
+                    emojiElem.width = isEmojiOnly ? 48 : 22;
+                    emojiElem.height = isEmojiOnly ? 48 : 22;
+                    emojiElem.crossOrigin = "anonymous";
+                    //emojiElem.src=this.info.cdn.toString() + "/emojis/" + parts[2] + "." + (parts[1] ? "gif" : "png") + "?size=32";
+                    //must uncomment later
+                    emojiElem.alt = "";
+                    emojiElem.loading = "lazy";
+                    span.appendChild(emojiElem);
+                    continue;
+                }
             }
         }
         current.textContent += txt[i];
