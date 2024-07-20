@@ -1502,14 +1502,14 @@ video {
 	align-items: center;
 }
 
-#connection-container {
+#connection-container, #app-list-container {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 10px;
 	max-width: 700px;
 }
 
-#connection-container div {
+#connection-container div, #app-list-container div {
 	padding: 5px 10px;
 	border-radius: 5px;
 	background-color: var(--textarea-bg);

@@ -631,7 +631,8 @@ class LocalUser {
 				newprouns = null
 				newbio = null
 				newTheme = null
-			})
+			}
+		)
 
 		const connectionContainer = document.createElement("div")
 		connectionContainer.id = "connection-container"
@@ -667,6 +668,206 @@ class LocalUser {
 
 					connectionContainer.appendChild(container)
 				})
-			})
+			}
+		)
+
+		let appName = ""
+		const appListContainer = document.createElement("div")
+		appListContainer.id = "app-list-container"
+		this.devPortal = new Dialog(
+			["vdiv",
+				["hdiv",
+					["textbox", "Name:", appName, event => {
+						appName = event.target.value
+					}],
+					["button",
+						"",
+						"Create application",
+						async () => {
+							if (appName.trim().length == 0) return alert("Please enter a name for the application.")
+
+							const res = await fetch(instance.api + "/applications", {
+								method: "POST",
+								headers: this.headers,
+								body: JSON.stringify({
+									name: appName
+								})
+							})
+							const json = await res.json()
+							this.manageApplication(json.id)
+							this.devPortal.hide()
+						}
+					]
+				],
+				["html",
+					appListContainer
+				]
+			], () => {}, async () => {
+				appListContainer.innerHTML = ""
+
+				const res = await fetch(instance.api + "/applications", {
+					headers: this.headers
+				})
+				const json = await res.json()
+
+				json.forEach(application => {
+					const container = document.createElement("div")
+
+					if (application.cover_image) {
+						const cover = document.createElement("img")
+						cover.crossOrigin = "anonymous"
+						cover.src = instance.cdn + "/app-icons/" + application.id + "/" + application.cover_image + ".png?size=256"
+						cover.alt = ""
+						cover.loading = "lazy"
+						container.appendChild(cover)
+					}
+
+					const name = document.createElement("h2")
+					name.textContent = application.name + (application.bot ? " (Bot)" : "")
+					container.appendChild(name)
+
+					container.addEventListener("click", async () => {
+						this.devPortal.hide()
+						this.manageApplication(application.id)
+					})
+					appListContainer.appendChild(container)
+				})
+			}
+		)
+	}
+	async manageApplication(appId) {
+		const res = await fetch(instance.api + "/applications/" + appId, {
+			headers: this.headers
+		})
+		const json = await res.json()
+
+		const fields = {}
+		const appDialog = new Dialog(
+			["vdiv",
+				["title",
+					"Editing " + json.name
+				],
+				["hdiv",
+					["textbox", "Application name:", json.name, event => {
+						fields.name = event.target.value
+					}],
+					["mdbox", "Description:", json.description, event => {
+						fields.description = event.target.value
+					}],
+					["fileupload", "Application icon:", event => {
+						const blob = URL.createObjectURL(event.target.files[0])
+						fields.icon = blob
+					}]
+				],
+				["hdiv",
+					["textbox", "Privacy policy URL:", json.privacy_policy_url || "", event => {
+						fields.privacy_policy_url = event.target.value
+					}],
+					["textbox", "Terms of Service URL:", json.terms_of_service_url || "", event => {
+						fields.terms_of_service_url = event.target.value
+					}]
+				],
+				["hdiv",
+					["checkbox", "Make bot publicly inviteable?", json.bot_public, event => {
+						fields.bot_public = event.target.checked
+					}],
+					["checkbox", "Require code grant to invite the bot?", json.bot_require_code_grant, event => {
+						fields.bot_require_code_grant = event.target.checked
+					}]
+				],
+				["hdiv",
+					["button",
+						"",
+						"Save changes",
+						async () => {
+							const updateRes = await fetch(instance.api + "/applications/" + appId, {
+								method: "PATCH",
+								headers: this.headers,
+								body: JSON.stringify(fields)
+							})
+							if (updateRes.ok) appDialog.hide()
+							else {
+								const updateJSON = await updateRes.json()
+								alert("An error occurred: " + updateJSON.message)
+							}
+						}
+					],
+					["button",
+						"",
+						json.bot ? "Reset token" : "Add bot",
+						async () => {
+							if (!confirm("Are you sure you want to reset the bot token?" + (json.bot ? "\nYour bot will stop working until you update it." : ""))) return
+
+							const updateRes = await fetch(instance.api + "/applications/" + appId + "/bot" + (json.bot ? "/reset" : ""), {
+								method: "POST",
+								headers: this.headers
+							})
+							const updateJSON = await updateRes.json()
+							alert("New token:\n" + updateJSON.token)
+							appDialog.hide()
+						}
+					]
+				]
+			]
+		)
+		appDialog.show()
+	}
+	async manageBot(appId) {
+		const res = await fetch(instance.api + "/applications/" + appId + "/bot", {
+			headers: this.headers
+		})
+		const json = await res.json()
+
+		const fields = {}
+		const botDialog = new Dialog(
+			["vdiv",
+				["title",
+					"Editing bot"
+				],
+				["hdiv",
+					["textbox", "Bot username:", json.name, event => {
+						fields.username = event.target.value
+					}],
+					["fileupload", "Bot avatar:", event => {
+						const blob = URL.createObjectURL(event.target.files[0])
+						fields.avatar = blob
+					}]
+				],
+				["hdiv",
+					["button",
+						"",
+						"Save changes",
+						async () => {
+							const updateRes = await fetch(instance.api + "/applications/" + appId + "/bot", {
+								method: "PATCH",
+								headers: this.headers,
+								body: JSON.stringify(fields)
+							})
+							if (updateRes.ok) botDialog.hide()
+							else {
+								const updateJSON = await updateRes.json()
+								alert("An error occurred: " + updateJSON.message)
+							}
+						}
+					],
+					["button",
+						"",
+						"Reset token",
+						async () => {
+							if (!confirm("Are you sure you want to reset the bot token? Your bot will stop working until you update it.")) return
+
+							const updateRes = await fetch(instance.api + "/applications/" + appId + "/bot/reset", {
+								method: "POST",
+								headers: this.headers
+							})
+							const updateJSON = await updateRes.json()
+							alert("New token:\n" + updateJSON.token)
+							botDialog.hide()
+						}
+					]
+				]
+			]
+		)
+		botDialog.show()
 	}
 }

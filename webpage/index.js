@@ -19,6 +19,9 @@ const userSettings = () => {
 const userConnections = () => {
 	thisuser.userConnections.show()
 }
+const devPortal = () => {
+	thisuser.devPortal.show()
+}
 
 document.addEventListener("DOMContentLoaded", async () => {
 	const menu = new Contextmenu()
