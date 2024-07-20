@@ -206,7 +206,7 @@ class Localuser{
                         delete this.guildids[temp.d.id];
                         this.guilds.splice(this.guilds.indexOf(guildy),1);
                         guildy.html.remove();
-			            if (this.guilds.length===0) document.getElementById("bottomseparator").setAttribute("hidden", "");
+			            if (this.guilds.length<=1) document.getElementById("bottomseparator").setAttribute("hidden", "");
                         break;
                     }
                     case "GUILD_CREATE":
@@ -374,7 +374,7 @@ class Localuser{
             const hr2=document.createElement("hr");
             hr2.id="bottomseparator";
             hr2.classList.add("lightbr");
-		    if (this.guilds.length===0) hr2.setAttribute("hidden", "");
+		    if (this.guilds.length<=1) hr2.setAttribute("hidden", "");
             serverlist.appendChild(hr2);
 
             const div=document.createElement("div");
