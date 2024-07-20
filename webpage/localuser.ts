@@ -91,7 +91,7 @@ class Localuser{
     outoffocus():void{
         document.getElementById("servers").textContent="";
         document.getElementById("channels").textContent="";
-        this.channelfocus.infinate.delete();
+        this.channelfocus.infinite.delete();
         this.lookingguild=null;
         this.channelfocus=null;
     }
