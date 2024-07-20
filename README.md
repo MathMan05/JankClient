@@ -1,5 +1,5 @@
 # Jank Client
-Jank Client is a [Spacebar](https://spacebar.chat) Client written in JS, HTML, and CSS.
+Jank Client is a [Spacebar](https://spacebar.chat) Client written in TS, HTML, and CSS.
 
 To run it, clone the repo and do `npm install express`, then either
 `node index.js`
