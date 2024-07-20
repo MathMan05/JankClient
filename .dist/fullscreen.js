@@ -62,7 +62,7 @@ class Fullscreen {
                     const checkbox = document.createElement('input');
                     div.appendChild(checkbox);
                     const label = document.createElement("span");
-                    checkbox.value = array[2];
+                    checkbox.checked = array[2];
                     label.textContent = array[1];
                     div.appendChild(label);
                     checkbox.addEventListener("change", array[3]);

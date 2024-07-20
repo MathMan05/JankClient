@@ -1,4 +1,5 @@
 import { Fullscreen } from "./fullscreen.js";
+import { markdown } from "./markdown.js";
 class Embed {
     type;
     owner;
@@ -45,7 +46,7 @@ class Embed {
                 authorline.append(img);
             }
             const a = document.createElement("a");
-            a.innerText = this.json.author.name;
+            a.textContent = this.json.author.name;
             if (this.json.author.url) {
                 a.href = this.json.author.url;
             }
@@ -54,7 +55,7 @@ class Embed {
             embed.append(authorline);
         }
         const title = document.createElement("a");
-        title.textContent = this.json.title;
+        title.append(markdown(this.json.title));
         if (this.json.url) {
             title.href = this.json.url;
         }
@@ -62,7 +63,7 @@ class Embed {
         embed.append(title);
         if (this.json.description) {
             const p = document.createElement("p");
-            p.textContent = this.json.description;
+            p.append(markdown(this.json.description));
             embed.append(p);
         }
         embed.append(document.createElement("br"));
@@ -72,9 +73,8 @@ class Embed {
                 const b = document.createElement("b");
                 b.textContent = thing.name;
                 div.append(b);
-                let p;
-                p = document.createElement("p");
-                p.textContent = thing.value;
+                const p = document.createElement("p");
+                p.append(markdown(thing.value));
                 p.classList.add("embedp");
                 div.append(p);
                 if (thing.inline) {

@@ -57,4 +57,4 @@ async function tosLogic() {
     console.log(tosPage);
 }
 tosLogic();
-checkInstance.alt = tosLogic;
+checkInstance["alt"] = tosLogic;

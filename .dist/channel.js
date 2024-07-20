@@ -6,13 +6,13 @@ import { Fullscreen } from "./fullscreen.js";
 import { markdown } from "./markdown.js";
 import { Permissions } from "./permissions.js";
 import { Settings, RoleList } from "./settings.js";
+import { InfiniteScroller } from "./infiniteScroller.js";
 Settings;
 class Channel {
     editing;
     type;
     owner;
     headers;
-    messages;
     name;
     id;
     parent_id;
@@ -35,6 +35,9 @@ class Channel {
     allthewayup;
     static contextmenu = new Contextmenu("channel menu");
     replyingto;
+    infinite;
+    idToPrev = {};
+    idToNext = {};
     static setupcontextmenu() {
         this.contextmenu.addbutton("Copy channel id", function () {
             console.log(this);
@@ -68,6 +71,33 @@ class Channel {
             return order;
         });
     }
+    setUpInfiniteScroller() {
+        const ids = {};
+        this.infinite = new InfiniteScroller(async function (id, offset) {
+            if (offset === 1) {
+                if (this.idToPrev[id]) {
+                    return this.idToPrev[id];
+                }
+                else {
+                    await this.grabmoremessages(id);
+                    return this.idToPrev[id];
+                }
+            }
+            else {
+                return this.idToNext[id];
+            }
+        }.bind(this), function (id) {
+            let res;
+            const promise = new Promise(_ => { res = _; });
+            const html = this.messageids[id].buildhtml(this.messageids[this.idToPrev[id]], promise);
+            ids[id] = res;
+            return html;
+        }.bind(this), async function (id) {
+            ids[id]();
+            delete ids[id];
+            return true;
+        }.bind(this), this.readbottom.bind(this));
+    }
     constructor(JSON, owner) {
         if (JSON === -1) {
             return;
@@ -76,7 +106,6 @@ class Channel {
         this.type = JSON.type;
         this.owner = owner;
         this.headers = this.owner.headers;
-        this.messages = [];
         this.name = JSON.name;
         this.id = JSON.id;
         this.parent_id = JSON.parent_id;
@@ -100,6 +129,7 @@ class Channel {
         this.position = JSON.position;
         this.lastreadmessageid = null;
         this.lastmessageid = JSON.last_message_id;
+        this.setUpInfiniteScroller();
     }
     isAdmin() {
         return this.guild.isAdmin();
@@ -487,7 +517,7 @@ class Channel {
         this.myhtml.classList.add("viewChannel");
         this.guild.prevchannel = this;
         this.localuser.channelfocus = this;
-        const prom = Message.wipeChanel();
+        const prom = this.infinite.delete();
         await this.putmessages();
         await prom;
         if (id !== Channel.genid) {
@@ -501,7 +531,7 @@ class Channel {
         document.getElementById("typebox").disabled = !this.canMessage;
     }
     async putmessages() {
-        if (this.messages.length >= 100 || this.allthewayup) {
+        if (this.allthewayup) {
             return;
         }
         ;
@@ -512,11 +542,16 @@ class Channel {
         if (response.length !== 100) {
             this.allthewayup = true;
         }
+        let prev = undefined;
         for (const thing of response) {
-            const messager = new Message(thing, this);
-            if (this.messageids[messager.id] === undefined) {
-                this.messageids[messager.id] = messager;
-                this.messages.push(messager);
+            const message = new Message(thing, this);
+            if (prev) {
+                this.idToNext[message.id] = prev.id;
+                this.idToPrev[prev.id] = message.id;
+            }
+            prev = message;
+            if (this.messageids[message.id] === undefined) {
+                this.messageids[message.id] = message;
             }
         }
     }
@@ -529,20 +564,18 @@ class Channel {
         }
         this.children = build;
     }
-    async grabmoremessages() {
-        if (this.messages.length === 0 || this.allthewayup) {
+    async grabmoremessages(id) {
+        if (this.allthewayup) {
             return;
         }
-        const out = this;
-        await fetch(this.info.api.toString() + "/channels/" + this.id + "/messages?before=" + this.messages[this.messages.length - 1].id + "&limit=100", {
+        await fetch(this.info.api.toString() + "/channels/" + this.id + "/messages?before=" + id + "&limit=100", {
             headers: this.headers
         }).then((j) => { return j.json(); }).then(response => {
-            //messages.innerHTML = '';
-            //response.reverse()
             let next;
             if (response.length === 0) {
-                out.allthewayup = true;
+                this.allthewayup = true;
             }
+            let previd = id;
             for (const i in response) {
                 let messager;
                 if (!next) {
@@ -558,10 +591,11 @@ class Channel {
                     next = undefined;
                     console.log("ohno", +i + 1);
                 }
-                if (out.messageids[messager.id] == undefined) {
-                    out.messageids[messager.id] = messager;
-                    out.buildmessage(messager, next);
-                    out.messages.push(messager);
+                if (this.messageids[messager.id] === undefined) {
+                    this.idToNext[messager.id] = previd;
+                    this.idToPrev[previd] = messager.id;
+                    previd = messager.id;
+                    this.messageids[messager.id] = messager;
                 }
                 else {
                     console.log("How???");
@@ -576,30 +610,9 @@ class Channel {
         document.getElementById("messages").prepend(built);
     }
     buildmessages() {
-        for (const i in this.messages) {
-            const prev = this.messages[(+i) + 1];
-            const built = this.messages[i].buildhtml(prev);
-            document.getElementById("messages").prepend(built);
-            if (prev) {
-                const prevDate = new Date(prev.timestamp);
-                const currentDate = new Date(this.messages[i].timestamp);
-                if (prevDate.toLocaleDateString() != currentDate.toLocaleDateString()) {
-                    const dateContainer = document.createElement("div");
-                    dateContainer.classList.add("replyflex");
-                    const line = document.createElement("hr");
-                    line.classList.add("reply");
-                    dateContainer.appendChild(line);
-                    const date = document.createElement("span");
-                    date.textContent = currentDate.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
-                    dateContainer.appendChild(date);
-                    const line2 = document.createElement("hr");
-                    line2.classList.add("reply");
-                    dateContainer.appendChild(line2);
-                    document.getElementById("messages").prepend(dateContainer);
-                }
-            }
-        }
-        document.getElementById("messagecontainer").scrollTop = document.getElementById("messagecontainer").scrollHeight;
+        const messages = document.getElementById("channelw");
+        messages.innerHTML = "";
+        messages.append(this.infinite.getDiv(this.lastmessageid));
     }
     updateChannel(JSON) {
         this.type = JSON.type;
@@ -694,7 +707,10 @@ class Channel {
             return;
         }
         const messagez = new Message(messagep.d, this);
+        this.idToNext[this.lastmessageid] = messagez.id;
+        this.idToPrev[messagez.id] = this.lastmessageid;
         this.lastmessageid = messagez.id;
+        this.messageids[messagez.id] = messagez;
         if (messagez.author === this.localuser.user) {
             this.lastreadmessageid = messagez.id;
             if (this.myhtml) {
@@ -707,16 +723,7 @@ class Channel {
             }
         }
         this.guild.unreads();
-        this.messages.unshift(messagez);
-        const scrolly = document.getElementById("messagecontainer");
-        this.messageids[messagez.id] = messagez;
-        if (this.localuser.lookingguild.prevchannel === this) {
-            var shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20;
-            document.getElementById("messages").appendChild(messagez.buildhtml(this.messages[1]));
-        }
-        if (shouldScroll) {
-            scrolly.scrollTop = scrolly.scrollHeight;
-        }
+        this.infinite.addedBottom();
         if (messagez.author === this.localuser.user) {
             return;
         }

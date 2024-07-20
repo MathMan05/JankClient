@@ -34,8 +34,10 @@ class File{
                 full.show();
             }
             img.src=src;
-            img.height=this.height;
-            img.width=this.width;
+            if(this.width){
+                img.height=this.height;
+                img.width=this.width;
+            }
             console.log(this.width,this.height)
             return img;
         }else if(this.content_type.startsWith('video/')){
