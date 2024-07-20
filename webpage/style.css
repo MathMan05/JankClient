@@ -33,7 +33,7 @@ video{
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	background-color: var(--dialog-bg);
+	background: var(--dialog-bg);
 	z-index: 12;
 }
 
@@ -63,7 +63,7 @@ th {
 }
 
 .messagediv:hover {
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 }
 .messagediv{
 	overflow: hidden;
@@ -77,9 +77,10 @@ th {
 	padding:.02in .2in;
 	flex-shrink: 0;
 	width: 100%;
+	box-sizing: border-box;
 }
 pre {
-	background-color: var(--code-bg);
+	background: var(--code-bg);
 	color: var(--code-text);
 	width: 100%;
 	overflow-wrap: break-word;
@@ -89,13 +90,13 @@ pre {
 }
 
 samp {
-	background-color: var(--code-bg);
+	background: var(--code-bg);
 	color: var(--code-text);
 }
 
 .contextbutton {
 	transition: background .1s ease-in-out;
-	background-color: var(--channels-bg);
+	background: var(--channels-bg);
 	color: var(--primary-text);
 	font-weight: bold;
 	width: 5cm;
@@ -114,12 +115,12 @@ samp {
 	border-width:0px;
 }
 .contextbutton:disabled:hover{
-	background-color: var(--channels-bg);
+	background: var(--channels-bg);
 }
 
 .infosection {
 	display: inline-block;
-	background-color: var(--profile-info-bg);
+	background: var(--profile-info-bg);
 	border-radius: 10%;
 	padding: .3cm;
 	width: 100%;
@@ -131,7 +132,7 @@ samp {
 .profile {
 	display: inline-block;
 	position: absolute;
-	background-color: var(--profile-bg);
+	background: var(--profile-bg);
 	border-radius: 10%;
 	padding: .2cm;
 	width: 7cm;
@@ -140,7 +141,7 @@ samp {
 
 .hypoprofile {
 	display: inline-block;
-	background-color: var(--profile-bg);
+	background: var(--profile-bg);
 	border-radius: 10%;
 	padding: .2cm;
 	width: 7cm;
@@ -185,7 +186,7 @@ h2 {
 
 .contextmenu {
 	position: absolute;
-	background-color: var(--profile-info-bg);
+	background: var(--profile-info-bg);
 	border-radius: .05in;
 }
 
@@ -211,7 +212,7 @@ h2 {
 	border-radius: 50%;
 	width: .5in;
 	height: .5in;
-	background-color: var(--blank-bg);
+	background: var(--blank-bg);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -275,6 +276,15 @@ p {
 	padding-bottom: 0;
 }
 
+a {
+	color: var(--link);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
 #channels {
 	background: var(--channels-bg);
 	top: var(--top-height);
@@ -312,7 +322,7 @@ p {
 }
 
 input {
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 	color: var(--primary-text);
 	height: .4in;
 	width: 97.5%;
@@ -327,7 +337,7 @@ div {
 }
 
 .md-timestamp {
-	background-color: var(--markdown-timestamp);
+	background: var(--markdown-timestamp);
 }
 
 #typebox {
@@ -359,27 +369,27 @@ p {
 }
 
 .spoiler {
-	background-color: var(--black);
+	background: var(--black);
 	color: var(--black);
 }
 
 .spoiler:hover {
-	background-color: var(--spoiler-hover);
+	background: var(--spoiler-hover);
 	color: var(--spoiler-hover);
 }
 
 .unspoiled {
-	background-color: var(--spoiler-open-bg);
+	background: var(--spoiler-open-bg);
 	color: var(--primary-text);
 }
 
 .unspoiled:before {
-	background-color: var(--black);
+	background: var(--black);
 	background-clip: content-box;
 }
 
 .replying {
-	background-color: var(--reply-bg);
+	background: var(--reply-bg);
 }
 
 #typing {
@@ -387,7 +397,7 @@ p {
 	position: absolute;
 	top: 0;
 	right: 4px;
-	background-color: var(--typing-bg);
+	background: var(--typing-bg);
 	width: fit-content;
 	transform: translateY(-100%);
 	border-radius: 5px 5px 0 0;
@@ -458,7 +468,7 @@ hr {
 .lightbr {
 	border-color: var(--light-border);
 	color: var(--black);
-	background-color: var(--black);
+	background: var(--black);
 	width: 80%;
 }
 
@@ -466,7 +476,7 @@ hr {
 	border-radius: 50%;
 	width: .5in;
 	height: .5in;
-	background-color: var(--blank-bg);
+	background: var(--blank-bg);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -478,7 +488,7 @@ hr {
 	border-radius: 50%;
 	width: .5in;
 	height: .5in;
-	background-color: var(--blank-bg);
+	background: var(--blank-bg);
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -588,11 +598,11 @@ hr {
 }
 
 ::-webkit-scrollbar-track:hover {
-	background-color: var(--scrollbar-track);
+	background: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: var(--scrollbar-thumb);
+	background: var(--scrollbar-thumb);
 	border-radius: .08in;
 	border: .03in solid transparent;
 	background-clip: padding-box;
@@ -600,7 +610,7 @@ hr {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background-color: var(--scrollbar-thumb-hover);
+	background: var(--scrollbar-thumb-hover);
 }
 
 .pronouns {
@@ -617,6 +627,10 @@ textarea {
 	font-size: 1rem;
 }
 
+textarea:focus-visible {
+	outline: 2px solid var(--focus);
+}
+
 .channels {
 	overflow: auto;
 	transition: height .2s ease-in-out;
@@ -625,7 +639,7 @@ textarea {
 }
 
 .channel:hover {
-	background-color: var(--channel-hover);
+	background: var(--channel-hover);
 }
 
 .channel {
@@ -667,7 +681,7 @@ textarea {
 	width: 100%;
 }
 .channeleffects:hover {
-	background-color: var(--channel-hover);
+	background: var(--channel-hover);
 }
 
 .dm-container {
@@ -696,7 +710,7 @@ textarea {
 }
 
 #userdock {
-	background-color: var(--user-dock-bg);
+	background: var(--user-dock-bg);
 	width: 2.5in;
 	position: relative;
 	flex-shrink: 0;
@@ -730,14 +744,14 @@ textarea {
 }
 
 #settings:hover {
-	background-color: var(--settings-hover);
+	background: var(--settings-hover);
 	cursor: pointer;
 	user-select: none;
 }
 
 #userinfo {
 	position:relative;
-	background-color: var(--user-info-bg);
+	background: var(--user-info-bg);
 	border-radius: .1in;
 	cursor: pointer;
 	flex-shrink: 0;
@@ -751,7 +765,7 @@ textarea {
 
 button {
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 	color: var(--primary-text);
 	border-color:var(--timestamp-color);
 	font-weight: bold;
@@ -772,7 +786,7 @@ button:disabled{
 	border-width:0px;
 }
 button:disabled:hover{
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 	border-color:var(--timestamp-color);
 	color: var(--primary-text);
 }
@@ -781,7 +795,7 @@ button:hover {
 }
 input::file-selector-button {
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 	border-color:var(--timestamp-color);
 	color: var(--primary-text);
 	font-weight: bold;
@@ -798,7 +812,7 @@ input[type="file"] {
 }
 select{
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background: var(--message-bg-hover);
 	color: var(--primary-text);
 	font-weight: bold;
 	text-align: left;
@@ -816,7 +830,7 @@ select{
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	background-color: var(--dialog-bg);
+	background: var(--dialog-bg);
 	min-width: max(min(70%, calc(50% + .5in)), min(3in, 100%));
 	min-height: 70%;
 	border-radius: .1in;
@@ -848,7 +862,7 @@ select{
 }
 
 .addchannel:hover {
-	background-color: var(--black);
+	background: var(--black);
 }
 
 .capsflex {
@@ -884,7 +898,7 @@ input[type="checkbox"] {
 	width: .02in;
 	height: 100%;
 	position: absolute;
-	background-color: var(--quote-bg);
+	background: var(--quote-bg);
 }
 
 .quote > span {
@@ -905,7 +919,7 @@ span {
 	position: absolute;
 	width: 100%;
 	height: 100%;
-	background-color: var(--loading-bg);
+	background: var(--loading-bg);
 	z-index: 100;
 	text-align: center;
 	transition: transform .2s;
@@ -924,7 +938,7 @@ span {
 }
 
 .unknownfile {
-	background-color: var(--unknown-file-bg);
+	background: var(--unknown-file-bg);
 	border-style: solid;
 	border-radius: .1in;
 	border-color: var(--unknown-file-border);
@@ -945,7 +959,7 @@ span {
 .unread {
 	aspect-ratio: 1 / 1;
 	position: absolute;
-	background-color: var(--primary-text);
+	background: var(--primary-text);
 	height: .075in;
 	width: .075in;
 	transition: transform .2s, background .2s, height .3s, width .2s;
@@ -971,7 +985,7 @@ span {
 .pinged {
 	aspect-ratio: 1 / 1;
 	transform: translate(0, .4in);
-	background-color: var(--mention-bg);
+	background: var(--mention-bg);
 	height: .15in;
 	width: .15in;
 	text-align: center;
@@ -1098,7 +1112,6 @@ span {
 .embed a{
 	margin-bottom:.1in;
 	display: block;
-	text-decoration:none;
 	font-size:.2in;
 }
 .provider{
@@ -1169,7 +1182,7 @@ span {
 }
 .cancelReply{
 	align-self:flex-start;
-	color:red;
+	color:var(--red);
 	height: auto;
 	width: .25in;
 	text-align: center;
@@ -1259,10 +1272,10 @@ span {
 		margin:.015in;
 	}
 	:first-child{
-		accent-color:green;
+		accent-color:var(--green);
 	}
 	:last-child{
-		accent-color:red;
+		accent-color:var(--red);
 	}
 }
 
@@ -1306,7 +1319,7 @@ span {
 	width:5in;
 	height:.5in;
 	button{
-		background:green;
+		background:var(--green);
 	}
 }
 
@@ -1322,7 +1335,7 @@ span {
 .discovery-guild {
 	margin: 5px;
 	padding: 5px;
-	background-color: var(--discovery-bg);
+	background: var(--discovery-bg);
 	border-radius: 5px;
 	box-shadow: 1px 1px 7px var(--primary-text);
 	overflow: hidden;
