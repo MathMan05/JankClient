@@ -64,7 +64,6 @@ class Group extends Channel {
         super(-1, owner);
         this.owner = owner;
         this.headers = this.guild.headers;
-        this.messages = [];
         this.name = JSON.recipients[0]?.username;
         if (JSON.recipients[0]) {
             this.user = new User(JSON.recipients[0], this.localuser);
@@ -83,6 +82,7 @@ class Group extends Channel {
         this.lastmessageid = JSON.last_message_id;
         this.lastmessageid ??= "0";
         this.mentions = 0;
+        this.setUpInfinateScroller();
     }
     createguildHTML() {
         const div = document.createElement("div");
@@ -102,9 +102,9 @@ class Group extends Channel {
         if (this.guild !== this.localuser.lookingguild) {
             this.guild.loadGuild();
         }
-        const prom = Message.wipeChanel();
         this.guild.prevchannel = this;
         this.localuser.channelfocus = this;
+        const prom = this.infinate.delete();
         await this.putmessages();
         await prom;
         if (id !== Channel.genid) {
@@ -116,38 +116,29 @@ class Group extends Channel {
     }
     messageCreate(messagep) {
         const messagez = new Message(messagep.d, this);
+        this.idToNext[this.lastmessageid] = messagez.id;
+        this.idToPrev[messagez.id] = this.lastmessageid;
         this.lastmessageid = messagez.id;
+        this.messageids[messagez.id] = messagez;
         if (messagez.author === this.localuser.user) {
             this.lastreadmessageid = messagez.id;
+            if (this.myhtml) {
+                this.myhtml.classList.remove("cunread");
+            }
         }
-        this.messages.unshift(messagez);
-        const scrolly = document.getElementById("messagecontainer");
-        this.messageids[messagez.id] = messagez;
-        if (this.localuser.lookingguild.prevchannel === this) {
-            var shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20;
-            document.getElementById("messages").appendChild(messagez.buildhtml(this.messages[1]));
-        }
-        if (shouldScroll) {
-            scrolly.scrollTop = scrolly.scrollHeight;
-        }
-        console.log(document.getElementById("channels").children);
-        if (this.localuser.lookingguild === this.guild) {
-            const channellist = document.getElementById("channels").children[0];
-            for (const thing of channellist.children) {
-                if (thing["myinfo"] === this) {
-                    channellist.prepend(thing);
-                    break;
-                }
+        else {
+            if (this.myhtml) {
+                this.myhtml.classList.add("cunread");
             }
         }
         this.unreads();
+        this.infinate.addedBottom();
         if (messagez.author === this.localuser.user) {
             return;
         }
         if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) {
             return;
         }
-        console.log(this.notification);
         if (this.notification === "all") {
             this.notify(messagez);
         }
@@ -185,9 +176,9 @@ class Group extends Channel {
             console.log(this);
             div.append(buildpfp);
             sentdms.append(div);
-            div.onclick = function () {
-                this["noti"].guild.loadGuild();
-                this["noti"].getHTML();
+            div.onclick = _ => {
+                this.guild.loadGuild();
+                this.getHTML();
             };
         }
         else if (current) {

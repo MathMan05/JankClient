@@ -58,4 +58,4 @@ async function tosLogic(){
 }
 tosLogic();
 
-checkInstance.alt=tosLogic;
+checkInstance["alt"]=tosLogic;
