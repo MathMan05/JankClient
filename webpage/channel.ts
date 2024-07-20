@@ -43,7 +43,7 @@ class Channel{
     allthewayup:boolean;
     static contextmenu=new Contextmenu("channel menu");
     replyingto:Message;
-    infinate:InfiniteScroller;
+    infinite:InfiniteScroller;
     idToPrev:{[key:string]:string}={};
     idToNext:{[key:string]:string}={};
     static setupcontextmenu(){
@@ -85,9 +85,9 @@ class Channel{
             return order;
         })
     }
-    setUpInfinateScroller(){
+    setUpInfiniteScroller(){
         const ids:{[key:string]:Function}={};
-        this.infinate=new InfiniteScroller(async function(id:string,offset:number){
+        this.infinite=new InfiniteScroller(async function(id:string,offset:number){
             if(offset===1){
                 if(this.idToPrev[id]){
                 return this.idToPrev[id];
@@ -145,7 +145,7 @@ class Channel{
         this.position=JSON.position;
         this.lastreadmessageid=null;
         this.lastmessageid=JSON.last_message_id;
-        this.setUpInfinateScroller();
+        this.setUpInfiniteScroller();
     }
     isAdmin(){
         return this.guild.isAdmin();
@@ -528,7 +528,7 @@ class Channel{
         this.myhtml.classList.add("viewChannel")
         this.guild.prevchannel=this;
         this.localuser.channelfocus=this;
-        const prom=this.infinate.delete();
+        const prom=this.infinite.delete();
         await this.putmessages();
         await prom;
         if(id!==Channel.genid){
@@ -618,7 +618,7 @@ class Channel{
     buildmessages(){
         const messages=document.getElementById("channelw");
         messages.innerHTML="";
-        messages.append(this.infinate.getDiv(this.lastmessageid));
+        messages.append(this.infinite.getDiv(this.lastmessageid));
     }
     updateChannel(JSON){
         this.type=JSON.type;
@@ -722,7 +722,7 @@ class Channel{
             }
         }
         this.guild.unreads();
-        this.infinate.addedBottom();
+        this.infinite.addedBottom();
         if(messagez.author===this.localuser.user){
             return;
         }
