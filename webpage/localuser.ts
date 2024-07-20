@@ -91,7 +91,7 @@ class Localuser{
     outoffocus():void{
         document.getElementById("servers").textContent="";
         document.getElementById("channels").textContent="";
-        document.getElementById("messages").textContent="";
+        this.channelfocus.infinate.delete();
         this.lookingguild=null;
         this.channelfocus=null;
     }
@@ -154,22 +154,8 @@ class Localuser{
                         returny();
                         break;
                     case "MESSAGE_UPDATE":
-                        if(this.initialized){
-                            if(this.channelfocus.id===temp.d.channel_id){
-                                const find=temp.d.id;
-                                const messagelist=document.getElementById("messages").children;
-                                for(const message of messagelist){
-                                    const all = message["all"];
-                                    if(all.id===find){
-                                        all.content=temp.d.content;
-                                        message["txt"].innerHTML=markdown(temp.d.content).innerHTML;
-                                        break;
-                                    }
-                                }
-                            }else{
-                                this.resolveChannelFromID(temp.d.channel_id).messages.find(e=>e.id===temp.d.channel_id).content=temp.d.content;
-                            }
-                        }
+                        const message=this.resolveChannelFromID(temp.d.channel_id).messageids[temp.d.id];
+                        message.giveData(temp.d);
                         break;
                     case "TYPING_START":
                         if(this.initialized){
