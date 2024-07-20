@@ -54,25 +54,27 @@
 	--button-bg: #1b1b28;
 	--textarea-bg: #26272c;
 	--filename: #47bbff;
-	--mention-bg: #8ea6ca;
 	--notify-bg: #fc7537;
 	--pronouns: #797979;
 	--error-color: #ff4949;
 	--embed: #1a1823;
 	--embed-fallback: #6b717c;
 
-	--channels-bg: #32323c;
-	--channel-hover: #27272e;
-	--channel-active: #35353b;
+	--channels-bg: #2f2f36;
+	--channel-hover: #3e3e47;
+	--channel-active: #4e4e55;
 
 	--profile-bg: #2e2d33;
 	--profile-info-bg: #1a1a1e;
+
+	--mention-color: #b7c5db;
+	--mention-bg: #4f60be;
 
 	--server-border: #1b1b24;
 	--server-bg: #252530;
 	--discovery-bg: #37373b;
 
-	--reply-border: #474b76;
+	--reply-border: #585a68;
 	--reply-bg: #0b0d20;
 	--reply-text: #acacac;
 
@@ -106,16 +108,15 @@
 	--typing-bg: #dad8d8;
 	--timestamp-color: #5d5d66;
 	--code-bg: #cbcbcc;
-	--user-info-bg: #b0abc2;
-	--user-dock-bg: #b2b2c4;
+	--user-info-bg: #b3b1c2;
+	--user-dock-bg: #bdbdc9;
 	--blank-bg: #ceccdd;
-	--light-border: #96959e;
+	--light-border: #98979e;
 	--settings-hover: #b5b1bb;
 	--quote-bg: #9595a3;
-	--button-bg: #b7b7cc;
-	--textarea-bg: #b1b6ce;
+	--button-bg: #b7b7c7;
+	--textarea-bg: #b4b7c7;
 	--filename: #47bbff;
-	--mention-bg: #b3d1ee;
 	--notify-bg: #ff170f;
 	--pronouns: #6a6a6d;
 	--error-color: #d40404;
@@ -123,18 +124,21 @@
 	--embed-fallback: #6b717c;
 
 	--channels-bg: #d6d6db;
-	--channel-hover: #bebecc;
-	--channel-active: #aeacbd;
+	--channel-hover: #c2c2cc;
+	--channel-active: #b1afbd;
 
-	--profile-bg: #cacad8;
-	--profile-info-bg: #bbbbce;
+	--profile-bg: #ccccd3;
+	--profile-info-bg: #bdbdc9;
 
-	--server-border: #bebed3;
-	--server-bg: #c0c0d4;
-	--discovery-bg: #c6c6d8;
+	--mention-color: #4351d1;
+	--mention-bg: #ccd2f3;
+
+	--server-border: #c2c2ce;
+	--server-bg: #bfbfcf;
+	--discovery-bg: #c8c8d4;
 
 	--reply-border: #b1b2bd;
-	--reply-bg: #d4d6e9;
+	--reply-bg: #d1d3e4;
 	--reply-text: #2e2e30;
 
 	--spoiler-hover: #b9b9b9;
@@ -145,11 +149,11 @@
 	--unknown-file-bg: #bdbdbd;
 	--unknown-file-border: #adadad;
 
-	--login-border: #c2bfd8;
-	--loading-bg: #b0b2c5;
+	--login-border: #bebccf;
+	--loading-bg: #b1b3c2;
 
-	--dialog-bg: #c1c8d6;
-	--dialog-border: #b9b7db;
+	--dialog-bg: #bec2d1;
+	--dialog-border: #bbbad1;
 
 	--scrollbar-track: #dddddf;
 	--scrollbar-thumb: #a9a9af;
@@ -456,7 +460,7 @@ p {
 input {
 	background-color: var(--message-bg-hover);
 	color: var(--primary-text);
-	height: .4in;
+	padding: 8px 3px;
 	width: 97.5%;
 	border-color: var(--settings-hover);
 	border-width: 0 0 .04in 0;
@@ -517,6 +521,7 @@ hr {
 }
 .md-mention {
 	background-color: var(--mention-bg);
+	color: var(--mention-color);
 	cursor: pointer;
 	border-radius: 3px;
 }
@@ -707,6 +712,7 @@ textarea {
 	width: 3.5in;
 	resize: none;
 	height: 1.5in;
+	border-radius: 3px;
 }
 
 .channels {
@@ -788,7 +794,12 @@ textarea {
 	width: 100%;
 }
 
-#settings, #connections {
+#user-actions {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+#user-actions h2 {
 	cursor: pointer;
 	user-select: none;
 	border-radius: .1in;
@@ -796,7 +807,7 @@ textarea {
 	text-align: center;
 	overflow: visible;
 }
-#settings:hover, #connections:hover, #settings:focus, #connections:focus {
+#user-actions h2:hover, #user-actions h2:focus {
 	color: var(--timestamp-color);
 }
 
@@ -818,10 +829,10 @@ textarea {
 	max-width: 100%;
 }
 
-button {
+button, input::file-selector-button {
 	transition: background-color .1s ease-in-out;
 	background-color: var(--message-bg-hover);
-	border-color: var(--timestamp-color);
+	border-color: var(--settings-hover);
 	color: var(--primary-text);
 	font-weight: bold;
 	text-align: left;
@@ -841,25 +852,10 @@ button:disabled {
 }
 button:disabled:hover, button:disabled:focus {
 	background-color: var(--message-bg-hover);
-	border-color: var(--timestamp-color);
 	color: var(--primary-text);
 }
 button:hover, button:focus {
 	background-color: var(--primary-bg);
-}
-
-input::file-selector-button {
-	transition: background-color .1s ease-in-out;
-	background-color: var(--message-bg-hover);
-	border-color: var(--timestamp-color);
-	color: var(--primary-text);
-	font-weight: bold;
-	text-align: left;
-	font-size: .45cm;
-	cursor: pointer;
-	border-width: 0 0 .03in 0;
-	border-radius: .03in;
-	margin: .02in .05in;
 }
 
 input[type="file"] {

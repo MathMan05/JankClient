@@ -108,6 +108,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 	document.getElementById("settings").addEventListener("click", userSettings)
 	document.getElementById("connections").addEventListener("click", userConnections)
+	document.getElementById("dev-portal").addEventListener("click", devPortal)
 
 	if ("serviceWorker" in navigator) {
 		navigator.serviceWorker.register("/service.js")

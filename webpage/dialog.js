@@ -14,10 +14,10 @@ class Dialog {
 		close.innerHTML = "&times;"
 		dialog.appendChild(close)
 
-		dialog.appendChild(this.tohtml(layout))
+		this.tohtml(layout, dialog)
 		this.html = dialog
 	}
-	tohtml(array) {
+	tohtml(array, parent) {
 		switch (array[0]) {
 			case "img": {
 				const img = document.createElement("img")
@@ -30,21 +30,23 @@ class Dialog {
 						img.height = array[2][1]
 					} else if (array[2][0] == "fit") img.classList.add("imgfit")
 				}
-				return img
+				parent.appendChild(img)
+				break
 			}
 			case "hdiv": {
 				const hdiv = document.createElement("table")
 				const tr = document.createElement("tr")
-				hdiv.appendChild(tr)
 
 				for (const thing of array) {
 					if (thing == "hdiv") continue
 
 					const td = document.createElement("td")
-					td.appendChild(this.tohtml(thing))
+					this.tohtml(thing, td)
 					tr.appendChild(td)
 				}
-				return hdiv
+				hdiv.appendChild(tr)
+				parent.appendChild(hdiv)
+				break
 			}
 			case "vdiv": {
 				const vdiv = document.createElement("table")
@@ -52,83 +54,98 @@ class Dialog {
 					if (thing == "vdiv") continue
 
 					const tr = document.createElement("tr")
-					tr.appendChild(this.tohtml(thing))
+					this.tohtml(thing, tr)
 					vdiv.appendChild(tr)
 				}
-				return vdiv
+				parent.appendChild(vdiv)
+				break
 			}
 			case "checkbox": {
-				const div = document.createElement("div")
 				const checkbox = document.createElement("input")
-				div.appendChild(checkbox)
-				const label = document.createElement("span")
+				checkbox.id = "random-" + Math.random().toString(36).slice(5)
+				checkbox.type = "checkbox"
 				checkbox.checked = array[2]
+				parent.appendChild(checkbox)
+
+				const label = document.createElement("label")
 				label.textContent = array[1]
-				div.appendChild(label)
+				label.htmlFor = checkbox.id
+				parent.appendChild(label)
 
 				checkbox.addEventListener("change", array[3])
-				checkbox.type = "checkbox"
-				return div
+				break
 			}
 			case "button": {
-				const div = document.createElement("div")
 				const input = document.createElement("button")
-
-				const label = document.createElement("span")
+				input.id = "random-" + Math.random().toString(36).slice(5)
 				input.textContent = array[2]
+				parent.appendChild(input)
+
+				const label = document.createElement("label")
 				label.textContent = array[1]
-				div.appendChild(label)
-				div.appendChild(input)
+				label.htmlFor = input.id
+				parent.appendChild(label)
+
 				input.addEventListener("click", array[3])
-				return div
+				break
 			}
 			case "mdbox": {
-				const div = document.createElement("div")
 				const input = document.createElement("textarea")
+				input.id = "random-" + Math.random().toString(36).slice(5)
 				input.value = array[2]
-				const label = document.createElement("span")
+
+				const label = document.createElement("label")
 				label.textContent = array[1]
+				label.htmlFor = input.id
+
 				input.addEventListener("input", array[3])
-				div.appendChild(label)
-				div.appendChild(document.createElement("br"))
-				div.appendChild(input)
-				return div
+				parent.appendChild(label)
+				parent.appendChild(document.createElement("br"))
+				parent.appendChild(input)
+				break
 			}
 			case "textbox": {
-				const div = document.createElement("div")
 				const input = document.createElement("input")
-				input.value = array[2]
+				input.id = "random-" + Math.random().toString(36).slice(5)
 				input.type = "text"
-				const label = document.createElement("span")
+				input.value = array[2]
+
+				const label = document.createElement("label")
 				label.textContent = array[1]
+				label.htmlFor = input.id
+
 				input.addEventListener("input", array[3])
-				div.appendChild(label)
-				div.appendChild(input)
-				return div
+				parent.appendChild(label)
+				parent.appendChild(input)
+				break
 			}
 			case "fileupload": {
-				const div = document.createElement("div")
 				const input = document.createElement("input")
+				input.id = "random-" + Math.random().toString(36).slice(5)
 				input.type = "file"
-				const label = document.createElement("span")
+
+				const label = document.createElement("label")
 				label.textContent = array[1]
-				div.appendChild(label)
-				div.appendChild(input)
+				label.htmlFor = input.id
+
+				parent.appendChild(label)
+				parent.appendChild(input)
 				input.addEventListener("change", array[2])
-				return div
+				break
 			}
 			case "text": {
 				const span = document.createElement("span")
 				span.textContent = array[1]
-				return span
+				parent.appendChild(span)
+				break
 			}
 			case "title": {
 				const span = document.createElement("h2")
 				span.textContent = array[1]
-				return span
+				parent.appendChild(span)
+				break
 			}
 			case "radio": {
-				const div = document.createElement("div")
 				const fieldset = document.createElement("fieldset")
 				fieldset.addEventListener("change", () => {
 					let i = -1
@@ -139,6 +156,7 @@ class Dialog {
 						if (thing.children[0].children[0].checked) array[3](thing.children[0].children[0].value)
 					}
 				})
+
 				const legend = document.createElement("legend")
 				legend.textContent = array[1]
 				fieldset.appendChild(legend)
@@ -164,27 +182,31 @@ class Dialog {
 					div2.appendChild(label)
 					fieldset.appendChild(div2)
 				}
-				div.appendChild(fieldset)
-				return div
+				parent.appendChild(fieldset)
+				break
 			}
 			case "html":
-				return array[1]
+				parent.appendChild(array[1])
+				break
 			case "select":
-				const div = document.createElement("div")
-				const label = document.createElement("label")
 				const select = document.createElement("select")
+				select.id = "random-" + Math.random().toString(36).slice(5)
 
+				const label = document.createElement("label")
+				label.htmlFor = select.id
 				label.textContent = array[1]
-				div.append(label)
-				div.appendChild(select)
+				parent.append(label)
+
 				for (const thing of array[2]) {
 					const option = document.createElement("option")
 					option.textContent = thing
 					select.appendChild(option)
 				}
 				select.selectedIndex = array[4]
+				parent.appendChild(select)
+
 				select.addEventListener("change", array[3])
-				return div
+				break
 			case "tabs": {
 				const table = document.createElement("table")
 				const tabs = document.createElement("tr")
@@ -204,7 +226,7 @@ class Dialog {
 
 					const tdcontent = document.createElement("td")
 					tdcontent.colSpan = array[1].length
-					tdcontent.appendChild(this.tohtml(thing[1]))
+					this.tohtml(thing[1], tdcontent)
 					content.appendChild(tdcontent)
 					if (shown) tdcontent.hidden = true
 					else shown = tdcontent
@@ -215,7 +237,8 @@ class Dialog {
 						shown = tdcontent
 					})
 				}
-				return table
+				parent.appendChild(table)
+				break
 			}
 			default:
 				console.error("Can't find element:" + array[0] + ", full element:", array)

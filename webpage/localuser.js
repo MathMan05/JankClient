@@ -512,13 +512,12 @@ class LocalUser {
 		}
 	}
 	updatepfp(file) {
-		const headers = this.headers
 		const reader = new FileReader()
 		reader.readAsDataURL(file)
-		reader.onload = function() {
+		reader.onload = () => {
 			fetch(instance.api + "/users/@me", {
 				method: "PATCH",
-				headers,
+				headers: this.headers,
 				body: JSON.stringify({
 					avatar: reader.result
 				})
@@ -754,10 +753,16 @@ class LocalUser {
 					["mdbox", "Description:", json.description, event => {
 						fields.description = event.target.value
 					}],
-					["fileupload", "Application icon:", event => {
-						const blob = URL.createObjectURL(event.target.files[0])
-						fields.icon = blob
-					}]
+					["vdiv",
+						json.icon ? ["img", instance.cdn + "/app-icons/" + appId + "/" + json.icon + ".png?size=256", [128, 128]] : ["text", "No icon"],
+						["fileupload", "Application icon:", event => {
+							const reader = new FileReader()
+							reader.readAsDataURL(event.target.files[0])
+							reader.onload = () => {
+								fields.icon = reader.result
+							}
+						}]
+					]
 				],
 				["hdiv",
 					["textbox", "Privacy policy URL:", json.privacy_policy_url || "", event => {
@@ -794,17 +799,21 @@ class LocalUser {
 					],
 					["button",
 						"",
-						json.bot ? "Reset token" : "Add bot",
+						(json.bot ? "Manage" : "Add") + " bot",
 						async () => {
-							if (!confirm("Are you sure you want to reset the bot token?" + (json.bot ? "\nYour bot will stop working until you update it." : ""))) return
+							if (!json.bot) {
+								if (!confirm("Are you sure you want to add a bot to this application? There's no going back.")) return
 
-							const updateRes = await fetch(instance.api + "/applications/" + appId + "/bot" + (json.bot ? "/reset" : ""), {
-								method: "POST",
-								headers: this.headers
-							})
-							const updateJSON = await updateRes.json()
-							alert("New token:\n" + updateJSON.token)
+								const updateRes = await fetch(instance.api + "/applications/" + appId + "/bot", {
+									method: "POST",
+									headers: this.headers
+								})
+								const updateJSON = await updateRes.json()
+								alert("Bot token:\n" + updateJSON.token)
+							}
+
 							appDialog.hide()
+							this.manageBot(appId)
 						}
 					]
 				]
@@ -813,25 +822,35 @@ class LocalUser {
 		appDialog.show()
 	}
 	async manageBot(appId) {
-		const res = await fetch(instance.api + "/applications/" + appId + "/bot", {
+		const res = await fetch(instance.api + "/applications/" + appId, {
 			headers: this.headers
 		})
 		const json = await res.json()
+		if (!json.bot) return alert("For some reason, this application doesn't have a bot (yet).")
 
-		const fields = {}
+		const fields = {
+			username: json.bot.username,
+			avatar: json.bot.avatar ? (instance.cdn + "/app-icons/" + appId + "/" + json.bot.avatar + ".png?size=256") : ""
+		}
 		const botDialog = new Dialog(
 			["vdiv",
 				["title",
-					"Editing bot"
+					"Editing bot: " + json.bot.username
 				],
 				["hdiv",
-					["textbox", "Bot username:", json.name, event => {
+					["textbox", "Bot username:", json.bot.username, event => {
 						fields.username = event.target.value
 					}],
-					["fileupload", "Bot avatar:", event => {
-						const blob = URL.createObjectURL(event.target.files[0])
-						fields.avatar = blob
-					}]
+					["vdiv",
+						fields.avatar ? ["img", fields.avatar, [128, 128]] : ["text", "No avatar"],
+						["fileupload", "Bot avatar:", event => {
+							const reader = new FileReader()
+							reader.readAsDataURL(event.target.files[0])
+							reader.onload = () => {
+								fields.avatar = reader.result
+							}
+						}]
+					]
 				],
 				["hdiv",
 					["button",
