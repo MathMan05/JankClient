@@ -708,22 +708,20 @@ textarea {
 	flex-shrink: 1;
 }
 
-#settings {
+#user-actions {
+	display: flex;
+	flex-wrap: wrap;
+}
+#user-actions h2 {
 	cursor: pointer;
 	user-select: none;
-	border-radius: .3in;
-	transition: background 1s;
+	border-radius: .1in;
+	transition: color .5s;
 	text-align: center;
-	font-size: .25in;
-	width: .3in;
-	height: .3in;
 	overflow: visible;
 }
-
-#settings:hover {
-	background-color: var(--settings-hover);
-	cursor: pointer;
-	user-select: none;
+#user-actions h2:hover, #user-actions h2:focus {
+	color: var(--timestamp-color);
 }
 
 #userinfo {
@@ -1363,6 +1361,24 @@ span {
 	flex-direction: column;
 	max-height:100in;
 }
+
+#connection-container, #app-list-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	max-width: 700px;
+}
+#connection-container div, #app-list-container div {
+	padding: 5px 10px;
+	border-radius: 5px;
+	background-color: var(--textarea-bg);
+	cursor: pointer;
+}
+#connection-container .disabled {
+	background-color: var(--embed-fallback);
+	cursor: not-allowed;
+}
+
 .sizeupdown{
 	height:4in;
 }
