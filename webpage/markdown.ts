@@ -414,9 +414,7 @@ class MarkDown{
                     if (parts && parts[2]) {
                         appendcurrent();
                         i=j;
-                        console.log(typeof txt,txt);
                         const isEmojiOnly = txt.join("").trim()===buildjoin.trim();
-                        console.log(isEmojiOnly,":3");
 
                         const emojiElem=document.createElement("img");
                         emojiElem.classList.add("md-emoji");
