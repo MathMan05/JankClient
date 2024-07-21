@@ -71,7 +71,7 @@ class Embed{
             embed.append(authorline);
         }
         const title=document.createElement("a");
-        title.append(new MarkDown(this.json.title,this.localuser).makeHTML());
+        title.append(new MarkDown(this.json.title,this.channel).makeHTML());
         if(this.json.url){
             title.href=this.json.url;
         }

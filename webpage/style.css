@@ -146,6 +146,7 @@ h1,
 h2,
 h3 {
 	margin: 0;
+	display: inline-block;
 }
 
 h2 {
@@ -329,15 +330,17 @@ div {
 
 #typebox {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 16px;
+	/* font-size: 16px; */
 	padding: 3px;
 	border-radius: .25cm;
 	width: 100%;
-	height: .5in;
+	min-height: .5in;
 	z-index: -100;
 	max-width: 99%;
 	display: flex;
 	max-height: fit-content;
+	max-height: 1.5in;
+	overflow-y: scroll;
 }
 
 p {
@@ -598,7 +601,11 @@ textarea {
 	resize: none;
 	height: 1.5in;
 }
-
+#typebox{
+	color: var(--primary-text);
+	background: var(--textarea-bg);
+	border: 1px solid;
+}
 .channels {
 	overflow: auto;
 	transition: height .2s ease-in-out;

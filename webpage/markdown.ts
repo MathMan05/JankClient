@@ -23,7 +23,7 @@ class MarkDown{
         this.stdsize=stdsize;
     }
     get rawString(){
-        return this.txt.concat("");
+        return this.txt.join("");
     }
     get textContent(){
         return this.makeHTML().textContent;
@@ -103,7 +103,8 @@ class MarkDown{
                     }
                     element.appendChild(this.markdown(build,{keep:keep,stdsize:stdsize}));
                     span.append(element);
-                    i--;
+                    i-=1;
+                    console.log(txt[i]);
                     continue;
                 }
                 if(first){
@@ -309,7 +310,7 @@ class MarkDown{
                 }
                 if(find===count){
                     appendcurrent();
-                    i=j;
+                    i=j-1;
                     const tildes="~~";
                     if(count===2){
                         const s=document.createElement("s");
@@ -339,7 +340,7 @@ class MarkDown{
                 }
                 if(find===count){
                     appendcurrent();
-                    i=j;
+                    i=j-1;
                     const pipes="||";
                     if(count===2){
                         const j=document.createElement("j");
@@ -437,8 +438,94 @@ class MarkDown{
         return span;
     }
     static unspoil(e:any) : void{
-        e.target.classList.remove("spoiler")
-        e.target.classList.add("unspoiled")
+        e.target.classList.remove("spoiler");
+        e.target.classList.add("unspoiled");
+    }
+    giveBox(box:HTMLDivElement){
+        box.onkeydown=_=>{
+            //console.log(_);
+        };
+        let prevcontent="";
+        box.onkeyup=_=>{
+            const content=MarkDown.gatherBoxText(box);
+            if(content!==prevcontent){
+                prevcontent=content;
+                this.txt=content.split("");
+                this.boxupdate(box);
+            }
+        };
+        box.onpaste=_=>{
+            console.log(_.clipboardData.types)
+            const data=_.clipboardData.getData("text");
+
+            document.execCommand('insertHTML', false, data);
+            _.preventDefault();
+            box.onkeyup(new KeyboardEvent("_"))
+        }
+    }
+    boxupdate(box:HTMLElement){
+        var restore = saveCaretPosition(box);
+        box.innerHTML="";
+        box.append(this.makeHTML({keep:true}))
+        restore();
+    }
+    static gatherBoxText(element:HTMLElement){
+        const children=element.childNodes;
+        if(element.tagName.toLowerCase()==="img"){
+            return (element as HTMLImageElement).alt;
+        }
+        if(element.tagName.toLowerCase()==="br"){
+            return "\n";
+        }
+        if(children.length!==0){
+            let build="";
+            for(const thing of children){
+
+                if(thing instanceof Text){
+
+                    const text=thing.textContent;
+                    build+=text;
+                    continue;
+                }
+                const text=this.gatherBoxText(thing as HTMLElement);
+                if(text){
+                    build+=text;
+                }
+            }
+            return build;
+        }
     }
 }
 
+//solution from https://stackoverflow.com/questions/4576694/saving-and-restoring-caret-position-for-contenteditable-div
+function saveCaretPosition(context){
+    var selection = window.getSelection();
+    var range = selection.getRangeAt(0);
+    range.setStart(  context, 0 );
+    var len = range.toString().length;
+
+    return function restore(){
+        var pos = getTextNodeAtPosition(context, len);
+        selection.removeAllRanges();
+        var range = new Range();
+        range.setStart(pos.node ,pos.position);
+        selection.addRange(range);
+
+    }
+}
+
+function getTextNodeAtPosition(root, index){
+    const NODE_TYPE = NodeFilter.SHOW_TEXT;
+    var treeWalker = document.createTreeWalker(root, NODE_TYPE, function next(elem) {
+        if(index > elem.textContent.length){
+            index -= elem.textContent.length;
+            return NodeFilter.FILTER_REJECT
+        }
+        return NodeFilter.FILTER_ACCEPT;
+    });
+    var c = treeWalker.nextNode();
+    return {
+        node: c? c: root,
+        position: index
+    };
+}

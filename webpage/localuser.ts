@@ -91,7 +91,9 @@ class Localuser{
     outoffocus():void{
         document.getElementById("servers").textContent="";
         document.getElementById("channels").textContent="";
-        this.channelfocus.infinite.delete();
+        if(this.channelfocus){
+            this.channelfocus.infinite.delete();
+        }
         this.lookingguild=null;
         this.channelfocus=null;
     }
@@ -620,7 +622,7 @@ class Localuser{
                     newprouns=this.value;
                     regen();
                 }],
-                ["mdbox","Bio:",this.user.bio,function(e){
+                ["mdbox","Bio:",this.user.bio.rawString,function(e){
                     console.log(this.value);
                     hypouser.bio=this.value;
                     newbio=this.value;
