@@ -486,8 +486,6 @@ class LocalUser {
 			const memb = typing.d.member
 			if (memb.id == this.user.id) return
 
-			const name = memb.nick || memb.user.global_name || memb.user.username
-
 			let already = false
 			for (const thing of this.typing) {
 				if (thing[0] == memb.id) {
@@ -496,7 +494,7 @@ class LocalUser {
 					break
 				}
 			}
-			if (!already) this.typing.push([memb.id, name, Date.now()])
+			if (!already) this.typing.push([memb.id, memb.nick || memb.user.global_name || memb.user.username, Date.now()])
 
 			this.rendertyping()
 			setTimeout(this.rendertyping.bind(this), 5000)

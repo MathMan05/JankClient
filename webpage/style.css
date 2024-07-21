@@ -536,7 +536,7 @@ hr {
 #typing {
 	display: flex;
 	position: absolute;
-	top: 0;
+	bottom: 28px;
 	right: 4px;
 	background-color: var(--typing-bg);
 	width: fit-content;

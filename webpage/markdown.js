@@ -1,5 +1,6 @@
 "use strict"
 
+// eslint-disable-next-line no-unused-vars
 class MarkDown {
 	constructor(text, owner, { keep = false, stdsize = false } = {}) {
 		if (typeof text == "string") this.txt = text.split("")
