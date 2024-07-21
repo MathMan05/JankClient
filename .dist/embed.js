@@ -1,4 +1,5 @@
 import { Fullscreen } from "./fullscreen.js";
+import { MarkDown } from "./markdown.js";
 class Embed {
     type;
     owner;
@@ -26,6 +27,18 @@ class Embed {
                 return document.createElement("div"); //prevent errors by giving blank div
         }
     }
+    get message() {
+        return this.owner;
+    }
+    get channel() {
+        return this.message.channel;
+    }
+    get guild() {
+        return this.channel.guild;
+    }
+    get localuser() {
+        return this.guild.localuser;
+    }
     generateRich() {
         console.log(this.json);
         const div = document.createElement("div");
@@ -45,7 +58,7 @@ class Embed {
                 authorline.append(img);
             }
             const a = document.createElement("a");
-            a.innerText = this.json.author.name;
+            a.textContent = this.json.author.name;
             if (this.json.author.url) {
                 a.href = this.json.author.url;
             }
@@ -54,7 +67,7 @@ class Embed {
             embed.append(authorline);
         }
         const title = document.createElement("a");
-        title.textContent = this.json.title;
+        title.append(new MarkDown(this.json.title, this.localuser).makeHTML());
         if (this.json.url) {
             title.href = this.json.url;
         }
@@ -62,7 +75,7 @@ class Embed {
         embed.append(title);
         if (this.json.description) {
             const p = document.createElement("p");
-            p.textContent = this.json.description;
+            p.append(new MarkDown(this.json.description, this.channel).makeHTML());
             embed.append(p);
         }
         embed.append(document.createElement("br"));
@@ -72,9 +85,8 @@ class Embed {
                 const b = document.createElement("b");
                 b.textContent = thing.name;
                 div.append(b);
-                let p;
-                p = document.createElement("p");
-                p.textContent = thing.value;
+                const p = document.createElement("p");
+                p.append(new MarkDown(thing.value, this.channel).makeHTML());
                 p.classList.add("embedp");
                 div.append(p);
                 if (thing.inline) {
