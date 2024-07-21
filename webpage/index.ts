@@ -183,26 +183,15 @@ function userSettings(){
     thisuser.usersettings.show();
 }
 document.getElementById("settings").onclick=userSettings;
-let triggered=false;
-document.getElementById("messagecontainer").addEventListener("scroll",(e)=>{
-    const messagecontainer=document.getElementById("messagecontainer")
-    if(messagecontainer.scrollTop<2000){
-        if(!triggered){
-            thisuser.lookingguild.prevchannel.grabmoremessages().then(()=>{
-                triggered=false;
-                if(messagecontainer.scrollTop===0){
-                    messagecontainer.scrollTop=1;
-                }
-            });
-        }
-        triggered=true;
-    }else{
-        if(Math.abs(messagecontainer.scrollHeight-messagecontainer.scrollTop-messagecontainer.clientHeight) < 3){
-            thisuser.lookingguild.prevchannel.readbottom();
-        }
-    }
-    //
-})
+function userConnections(){
+    thisuser.userConnections.show();
+}
+document.getElementById("connections").onclick=userConnections;
+function devPortal(){
+    thisuser.devPortal.show();
+}
+document.getElementById("dev-portal").onclick=devPortal;
+
 if(mobile){
     document.getElementById("channelw").onclick=function(){
         (document.getElementById("channels").parentNode as HTMLElement).classList.add("collapse");
