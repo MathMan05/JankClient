@@ -32,6 +32,8 @@ const global = {
 	Component: "writable",
 	InfiniteScroller: "writable",
 	MarkDown: "writable",
+	emojis: "writable",
+	emojiRegex: "writable",
 
 	thisuser: "writable",
 	messagelist: "writable",

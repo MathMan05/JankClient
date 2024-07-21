@@ -166,18 +166,21 @@ typebox.addEventListener("keyup", event => {
 	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
 
+		const content = typebox.value.trim()
+			.replace(/:([-+\w]+):/g, (match, p1) => emojis[p1] || match)
+
 		if (channel.editing) {
-			channel.editing.edit(typebox.value)
+			channel.editing.edit(content)
 			channel.editing = null
 		} else {
-			if (typebox.value == "" && images.length == 0) return
+			if (content == "" && images.length == 0) return
 
 			replyingto = thisuser.channelfocus.replyingto
 			const replying = replyingto
 			if (replyingto) replyingto.div.classList.remove("replying")
 
 			channel.replyingto = null
-			channel.sendMessage(typebox.value, {
+			channel.sendMessage(content, {
 				attachments: images,
 				replyingto: replying
 			})

@@ -34,7 +34,7 @@ class Channel {
 	}
 	sortPerms() {
 		this.permission_overwritesar.sort((a, b) => {
-			return this.guild.roles.findIndex(_ => _.id === a[0]) - this.guild.roles.findIndex(_ => _.id === b[0])
+			return this.guild.roles.findIndex(role => role.id == a[0]) - this.guild.roles.findIndex(role => role.id == b[0])
 		})
 	}
 
@@ -459,13 +459,13 @@ class Channel {
 	static genid = 0
 	async getHTML() {
 		const id = ++Channel.genid
-		if (this.owner != this.owner.owner.lookingguild) this.owner.loadGuild()
+		if (this.owner != this.localuser.lookingguild) this.owner.loadGuild()
 
 		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) this.localuser.channelfocus.myhtml.classList.remove("viewChannel")
 		this.myhtml.classList.add("viewChannel")
 
 		this.owner.prevchannel = this
-		this.owner.owner.channelfocus = this
+		this.localuser.channelfocus = this
 		const prom = this.infinite.delete()
 		await this.putmessages()
 		await prom

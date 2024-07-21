@@ -119,11 +119,8 @@ class Buttons {
 		return thing
 	}
 	generateHTML() {
-		if (!this.buttons[0]) return console.error("Missing settings data", this)
-
 		const bigtable = document.createElement("div")
-		bigtable.classList.add("Buttons")
-		bigtable.classList.add("flexltr")
+		bigtable.classList.add("Buttons", "flexltr")
 		this.bigtable = bigtable
 
 		const htmlarea = document.createElement("div")
@@ -140,6 +137,7 @@ class Buttons {
 			}
 			buttonTable.append(button)
 		}
+
 		this.generateHTMLArea(this.buttons[0][1], htmlarea)
 		bigtable.append(buttonTable)
 		bigtable.append(htmlarea)
@@ -177,6 +175,7 @@ class RoleList extends Buttons {
 		const options = new Options("", this)
 		if (channel) this.permission = new Permissions("0", "0")
 		else this.permission = new Permissions("0")
+
 		for (const thing of Permissions.info) {
 			options.addPermissionToggle(thing, this.permission)
 		}
@@ -187,7 +186,7 @@ class RoleList extends Buttons {
 	}
 	handleString(str) {
 		this.curid = str
-		const perm = this.permissions.find(_ => _[0] === str)[1]
+		const perm = this.permissions.find(_ => _[0] == str)[1]
 		this.permission.deny = perm.deny
 		this.permission.allow = perm.allow
 		this.options.name = this.guild.getRole(str)?.name || "Unknown 2"

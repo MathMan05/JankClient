@@ -13,7 +13,7 @@ class MarkDown {
 		this.stdsize = stdsize
 	}
 	get rawString() {
-		return this.txt.concat("")
+		return this.txt.join("")
 	}
 	get textContent() {
 		return this.makeHTML().textContent
@@ -22,8 +22,6 @@ class MarkDown {
 		return this.markdown(this.txt, { keep, stdsize })
 	}
 	markdown(txt, { keep = false, stdsize = false } = {}) {
-		if (typeof txt == "string") txt = txt.split("")
-
 		const span = document.createElement("span")
 		let current = document.createElement("span")
 		const appendcurrent = () => {
@@ -403,6 +401,32 @@ class MarkDown {
 				}
 			}
 
+			if (!txt[i - 1] || txt[i - 1] != "\\") {
+				const twEmoji = emojiRegex.exec(txt[i] + (txt[i + 1] || "") + (txt[i + 2] || ""))
+				if (twEmoji) {
+					const alt = twEmoji[0]
+					const icon = twEmoji[1]
+					const variant = twEmoji[2]
+
+					i++
+					if (variant != "\uFE0E") {
+						appendcurrent()
+
+						const img = document.createElement("img")
+						img.crossOrigin = "anonymous"
+						img.src = "https://cdnjs.cloudflare.com/ajax/libs/twemoji/15.0.3/72x72/" +
+							MarkDown.toCodePoint(icon.length == 3 && icon.charAt(1) == "\uFE0F" ? icon.charAt(0) + icon.charAt(2) : icon) + ".png"
+						img.width = 22
+						img.height = 22
+						img.alt = "Emoji: " + Object.keys(emojis)[Object.values(emojis).findIndex(e => e == alt)]
+
+						span.appendChild(img)
+					}
+
+					continue
+				}
+			}
+
 			if (txt[i] == "<" && (txt[i + 1] == "#" || txt[i + 1] == "@")) {
 				let found = false
 				const build = ["<", txt[i + 1]]
@@ -464,5 +488,26 @@ class MarkDown {
 	static unspoil(e) {
 		e.target.classList.remove("spoiler")
 		e.target.classList.add("unspoiled")
+	}
+	static toCodePoint(unicodeSurrogates) {
+		// Modified by TomatoCake from https://github.com/twitter/twemoji/blob/81040856868a62d378e9afdb56aa6e8ae2418435/twemoji.js#L570-L588
+		// License: https://github.com/twitter/twemoji/blob/81040856868a62d378e9afdb56aa6e8ae2418435/LICENSE
+		const r = []
+		let
+			c = 0,
+			p = 0,
+			i = 0
+		while (i < unicodeSurrogates.length) {
+			c = unicodeSurrogates.charCodeAt(i++)
+			if (p) {
+				r.push((0x10000 + ((p - 0xD800) << 10) + (c - 0xDC00)).toString(16))
+				p = 0
+			} else if (c >= 0xD800 && c <= 0xDBFF) {
+				p = c
+			} else {
+				r.push(c.toString(16))
+			}
+		}
+		return r.join("-")
 	}
 }

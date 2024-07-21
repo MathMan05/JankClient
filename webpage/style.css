@@ -213,6 +213,7 @@ th {
 	padding: 3px 25px 3px 15px;
 	max-height: 20in;
 	flex-shrink: 0;
+	width: 96%;
 }
 .messagediv:hover, .messagediv:focus {
 	background-color: var(--message-bg-hover);
@@ -479,7 +480,7 @@ div {
 	padding: 3px;
 	border-radius: 8px;
 	width: 100%;
-	height: 52px;
+	height: 46px;
 	display: flex;
 	max-height: fit-content;
 }
@@ -536,7 +537,7 @@ hr {
 #typing {
 	display: flex;
 	position: absolute;
-	bottom: 28px;
+	bottom: 23px;
 	right: 4px;
 	background-color: var(--typing-bg);
 	width: fit-content;

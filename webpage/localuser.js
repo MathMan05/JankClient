@@ -64,8 +64,8 @@ class LocalUser {
 	outoffocus() {
 		document.getElementById("servers").innerHTML = ""
 		document.getElementById("channels").innerHTML = ""
-		this.channelfocus.infinite.delete()
 		this.lookingguild = null
+		if (this.channelfocus) this.channelfocus.infinite.delete()
 		this.channelfocus = null
 	}
 	unload() {
@@ -584,8 +584,8 @@ class LocalUser {
 							newprouns = event.target.value
 							regen()
 						}],
-						["mdbox", "Bio:", this.user.bio, event => {
-							hypouser.bio = event.target.value
+						["mdbox", "Bio:", this.user.bio.rawString, event => {
+							hypouser.bio = new MarkDown(event.target.value, thisuser)
 							newbio = event.target.value
 							regen()
 						}]
