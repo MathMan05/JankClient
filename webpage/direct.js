@@ -5,7 +5,6 @@ class Group extends Channel {
 		this.message_notifications = 0
 		this.owner = owner
 		this.headers = this.guild.headers
-		this.messages = []
 		this.name = json.recipients[0]?.username
 		if (json.recipients[0]) this.user = User.checkuser(json.recipients[0], this.localuser)
 		else this.user = this.localuser.user
@@ -21,6 +20,8 @@ class Group extends Channel {
 		this.lastmessageid = json.last_message_id
 		this.lastmessageid ??= "0"
 		this.mentions = 0
+
+		this.setUpInfiniteScroller()
 	}
 	createGuildHTML() {
 		const div = document.createElement("div")
@@ -43,9 +44,9 @@ class Group extends Channel {
 		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) this.localuser.channelfocus.myhtml.classList.remove("viewChannel")
 		this.myhtml.classList.add("viewChannel")
 
-		const prom = Message.wipeChanel()
 		this.guild.prevchannel = this
 		this.localuser.channelfocus = this
+		const prom = this.infinite.delete()
 		await this.putmessages()
 		await prom
 		if (id != Channel.genid) return
@@ -56,30 +57,18 @@ class Group extends Channel {
 	}
 	messageCreate(messagep) {
 		const messagez = new Message(messagep.d, this)
+		this.idToNext[this.lastmessageid] = messagez.id
+		this.idToPrev[messagez.id] = this.lastmessageid
 		this.lastmessageid = messagez.id
-		if (messagez.author === this.localuser.user) this.lastreadmessageid = messagez.id
-
-		this.messages.unshift(messagez)
 		this.messageids[messagez.id] = messagez
 
-		const scrolly = document.getElementById("messagecontainer")
-		let shouldScroll = false
-		if (this.localuser.lookingguild.prevchannel === this) {
-			shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20
-			document.getElementById("messages").appendChild(messagez.buildhtml(this.messages[1]))
-		}
-		if (shouldScroll) scrolly.scrollTop = scrolly.scrollHeight
+		if (messagez.author === this.localuser.user) {
+			this.lastreadmessageid = messagez.id
 
-		if (this.localuser.lookingguild === this.guild) {
-			const channellist = document.getElementById("channels").children[0]
-			for (const thing of channellist.children) {
-				if (thing.all === this) {
-					channellist.prepend(thing)
-					break
-				}
-			}
-		}
+			if (this.myhtml) this.myhtml.classList.remove("cunread")
+		} else if (this.myhtml) this.myhtml.classList.add("cunread")
 		this.unreads()
+		this.infinite.addedBottom()
 
 		if (messagez.author == this.localuser.user) return
 		if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) return
@@ -115,9 +104,9 @@ class Group extends Channel {
 			buildpfp.classList.add("mentioned")
 			div.append(buildpfp)
 			sentdms.append(div)
-			div.onclick = () => {
-				div.all.guild.loadGuild()
-				div.all.getHTML()
+			div.onclick = notif => {
+				notif.guild.loadGuild()
+				notif.getHTML()
 			}
 		} else if (current) current.remove()
 	}

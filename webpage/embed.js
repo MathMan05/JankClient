@@ -25,6 +25,18 @@ class Embed {
 				return document.createElement("div")
 		}
 	}
+    get message() {
+        return this.owner
+    }
+    get channel() {
+        return this.message.channel
+    }
+    get guild() {
+        return this.channel.guild
+    }
+    get localuser() {
+        return this.guild.localuser
+    }
 	generateRich() {
 		const div = document.createElement("div")
 		div.classList.add("embed-color")
@@ -58,7 +70,7 @@ class Embed {
 
 		if (this.json.title) {
 			const title = document.createElement(this.json.url ? "a" : "span")
-			title.innerHTML = markdown(this.json.title).innerHTML
+			title.append(new MarkDown(this.json.title, this.channel).makeHTML())
 			title.classList.add("embedtitle")
 
 			if (this.json.url) {
@@ -69,7 +81,7 @@ class Embed {
 			embedElem.append(title)
 		}
 
-		if (this.json.description) embedElem.append(markdown(this.json.description))
+		if (this.json.description) embedElem.append(new MarkDown(this.json.description, this.channel).makeHTML())
 
 		if (this.json.fields) for (const field of this.json.fields) {
 			const divField = document.createElement("div")
@@ -79,7 +91,7 @@ class Embed {
 			divField.append(b)
 
 			const p = document.createElement("p")
-			p.innerHTML = markdown(field.value).innerHTML
+			p.append(new MarkDown(field.value, this.channel).makeHTML())
 			p.classList.add("embedp")
 			divField.append(p)
 

@@ -22,7 +22,6 @@ const global = {
 	Dialog: "writable",
 	Guild: "writable",
 	LocalUser: "writable",
-	markdown: "writable",
 	Member: "writable",
 	Message: "writable",
 	Permissions: "writeable",
@@ -31,6 +30,8 @@ const global = {
 	Settings: "writable",
 	RoleList: "writable",
 	Component: "writable",
+	InfiniteScroller: "writable",
+	MarkDown: "writable",
 
 	thisuser: "writable",
 	messagelist: "writable",

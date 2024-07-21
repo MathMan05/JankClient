@@ -1,6 +1,8 @@
 "use strict"
 
 class Channel {
+	idToPrev = {}
+	idToNext = {}
 	static contextmenu = new Contextmenu()
 	static setupcontextmenu() {
 		this.contextmenu.addbutton("Copy channel id", function() {
@@ -36,13 +38,40 @@ class Channel {
 		})
 	}
 
+	setUpInfiniteScroller() {
+		const ids = {}
+		this.infinite = new InfiniteScroller((async (id, offset) => {
+			if (offset === 1) {
+				if (this.idToPrev[id]) {
+					return this.idToPrev[id]
+				} else {
+					await this.grabmoremessages(id)
+					return this.idToPrev[id]
+				}
+			} else {
+				return this.idToNext[id]
+			}
+		}), (id => {
+			let res
+			const promise = new Promise(_ => {
+				res = _
+			})
+			const html = this.messageids[id].buildhtml(this.messageids[this.idToPrev[id]], promise)
+			ids[id] = res
+			return html
+		}), (id => {
+			ids[id]()
+			delete ids[id]
+			return true
+		}), this.readbottom.bind(this))
+	}
+
 	constructor(json, owner) {
 		if (json == -1) return
 
 		this.type = json.type
 		this.owner = owner
 		this.headers = this.owner.headers
-		this.messages = []
 		this.name = json.name
 		this.id = json.id
 		this.parent_id = json.parent_id
@@ -55,6 +84,7 @@ class Channel {
 		this.position = json.position
 		this.lastreadmessageid = null
 		this.lastmessageid = json.last_message_id
+		this.setUpInfiniteScroller()
 
 		this.permission_overwrites = {}
 		this.permission_overwritesar = []
@@ -436,7 +466,7 @@ class Channel {
 
 		this.owner.prevchannel = this
 		this.owner.owner.channelfocus = this
-		const prom = Message.wipeChanel()
+		const prom = this.infinite.delete()
 		await this.putmessages()
 		await prom
 		if (id != Channel.genid) return
@@ -456,7 +486,7 @@ class Channel {
 		}
 	}
 	async putmessages() {
-		if (this.messages.length >= 100 || this.allthewayup) return
+		if (this.allthewayup) return
 
 		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?limit=100", {
 			headers: this.headers
@@ -465,11 +495,16 @@ class Channel {
 		const json = await res.json()
 		if (json.length != 100) this.allthewayup = true
 
+		let prev
 		for (const thing of json) {
-			const messager = new Message(thing, this)
-			if (this.messageids[messager.id] === void 0) {
-				this.messageids[messager.id] = messager
-				this.messages.push(messager)
+			const message = new Message(thing, this)
+			if (prev) {
+				this.idToNext[message.id] = prev.id
+				this.idToPrev[prev.id] = message.id
+			}
+			prev = message
+			if (this.messageids[message.id] === void 0) {
+				this.messageids[message.id] = message
 			}
 		}
 	}
@@ -480,18 +515,18 @@ class Channel {
 		}
 		this.children = build
 	}
-	async grabmoremessages() {
-		if (this.messages.length == 0 || this.allthewayup) return
-		const out = this
+	async grabmoremessages(id) {
+		if (this.allthewayup) return
 
-		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + this.messages.at(-1).id + "&limit=100", {
+		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + id + "&limit=100", {
 			headers: this.headers
 		})
 		const json = await res.json()
 
 		let next
-		if (json.length < 100) out.allthewayup = true
+		if (json.length < 100) this.allthewayup = true
 
+		let previd = id
 		for (const i in json) {
 			let messager
 			if (next) messager = next
@@ -500,10 +535,11 @@ class Channel {
 			if (json[Number(i) + 1] === void 0) next = void 0
 			else next = new Message(json[Number(i) + 1], this)
 
-			if (out.messageids[messager.id] === void 0) {
-				out.messageids[messager.id] = messager
-				out.buildmessage(messager, next)
-				out.messages.push(messager)
+			if (this.messageids[messager.id] === void 0) {
+				this.idToNext[messager.id] = previd
+				this.idToPrev[previd] = messager.id
+				previd = messager.id
+				this.messageids[messager.id] = messager
 			} else console.trace("How???")
 		}
 	}
@@ -512,38 +548,9 @@ class Channel {
 		document.getElementById("messages").prepend(built)
 	}
 	buildmessages() {
-		for (const i in this.messages) {
-			const prev = this.messages[Number(i) + 1]
-			const built = this.messages[i].buildhtml(prev)
-			document.getElementById("messages").prepend(built)
-
-			if (prev) {
-				const prevDate = new Date(prev.timestamp)
-				const currentDate = new Date(this.messages[i].timestamp)
-
-				if (prevDate.toLocaleDateString() != currentDate.toLocaleDateString()) {
-					const dateContainer = document.createElement("div")
-					dateContainer.classList.add("replyflex")
-
-					const line = document.createElement("hr")
-					line.classList.add("reply")
-					dateContainer.appendChild(line)
-
-					const date = document.createElement("span")
-					date.classList.add("date-separator")
-					date.textContent = currentDate.toLocaleDateString(void 0, { weekday: "long", year: "numeric", month: "long", day: "numeric" })
-					dateContainer.appendChild(date)
-
-					const line2 = document.createElement("hr")
-					line2.classList.add("reply")
-					dateContainer.appendChild(line2)
-
-					document.getElementById("messages").prepend(dateContainer)
-				}
-			}
-		}
-
-		document.getElementById("messagecontainer").scrollTop = document.getElementById("messagecontainer").scrollHeight
+		const messages = document.getElementById("channelw")
+		messages.innerHTML = ""
+		messages.append(this.infinite.getDiv(this.lastmessageid))
 	}
 	updateChannel(json) {
 		this.type = json.type
@@ -619,23 +626,18 @@ class Channel {
 		if (!this.hasPermission("VIEW_CHANNEL")) return
 
 		const messagez = new Message(messagep.d, this)
+		this.idToNext[this.lastmessageid] = messagez.id
+		this.idToPrev[messagez.id] = this.lastmessageid
 		this.lastmessageid = messagez.id
+		this.messageids[messagez.id] = messagez
+
 		if (messagez.author === this.localuser.user) {
 			this.lastreadmessageid = messagez.id
 			if (this.myhtml) this.myhtml.classList.remove("cunread")
 		} else if (this.myhtml) this.myhtml.classList.add("cunread")
 
 		this.guild.unreads()
-		this.messages.unshift(messagez)
-		this.messageids[messagez.id] = messagez
-
-		const scrolly = document.getElementById("messagecontainer")
-		let shouldScroll = false
-		if (this.localuser.lookingguild.prevchannel === this) {
-			shouldScroll = scrolly.scrollTop + scrolly.clientHeight > scrolly.scrollHeight - 20
-			document.getElementById("messages").appendChild(messagez.buildhtml(this.messages[1]))
-		}
-		if (shouldScroll) scrolly.scrollTop = scrolly.scrollHeight
+		this.infinite.addedBottom()
 
 		if (messagez.author === this.localuser.user) return
 		if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) return
@@ -650,10 +652,11 @@ class Channel {
 		if (!("Notification" in window)) return
 
 		if (Notification.permission == "granted") {
-			let noticontent = markdown(message.content).textContent
-			if (message.embeds[0] && !noticontent)
+			let noticontent = message.content.textContent
+			// TODO: Sync from upstream
+			/*if (message.embeds[0] && !noticontent)
 				noticontent = message.embeds.find(embed => embed.json.title)?.json.title ||
-					markdown(message.embeds.find(embed => embed.json.description)?.json.description).textContent
+					markdown(message.embeds.find(embed => embed.json.description)?.json.description).textContent*/
 
 			if (message.system) noticontent ||= "System Message"
 			else noticontent ||= "Blank Message"

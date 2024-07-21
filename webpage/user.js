@@ -37,6 +37,8 @@ class User {
 
 		for (const thing of Object.keys(userjson)) {
 			this[thing] = userjson[thing]
+
+			if (thing == "bio") this.bio = new MarkDown(userjson[thing], this.localuser)
 		}
 		this.hypotheticalpfp = false
 	}
@@ -112,7 +114,7 @@ class User {
 
 		const rule = document.createElement("hr")
 		userbody.appendChild(rule)
-		userbody.appendChild(markdown(bio))
+		userbody.appendChild(bio.makeHTML())
 
 		if (x != -1) {
 			Contextmenu.currentmenu = div

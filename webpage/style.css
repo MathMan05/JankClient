@@ -211,6 +211,8 @@ th {
 	display: flex;
 	flex-direction: column;
 	padding: 3px 25px 3px 15px;
+	max-height: 20in;
+	flex-shrink: 0;
 }
 .messagediv:hover, .messagediv:focus {
 	background-color: var(--message-bg-hover);
@@ -285,6 +287,7 @@ code {
 	padding: .2cm;
 	width: 7cm;
 	height: 8cm;
+	z-index: 5;
 }
 
 .hypoprofile {
@@ -393,9 +396,9 @@ img {
 	font-weight: normal;
 }
 
-#messagecontainer {
+.messagecontainer {
 	overflow-x: clip;
-	overflow-y: auto;
+	overflow-y: hidden;
 	max-width: 100%;
 	width: 100%;
 	display: flex;
@@ -671,9 +674,7 @@ hr {
 }
 
 .replytext pre {
-	padding: 0 .05in;
 	color: var(--reply-text);
-	overflow: hidden;
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	max-width: fit-content;
@@ -681,6 +682,7 @@ hr {
 	min-width: 0;
 	width: 25vw;
 	grid-column: 2;
+	display: inline-block !important;
 }
 
 ::-webkit-scrollbar {
@@ -1283,6 +1285,7 @@ video {
 	max-height: 100vh;
 	overflow: auto;
 	align-items: flex-start;
+	width: 100%;
 }
 
 .settingbuttons {
@@ -1413,16 +1416,18 @@ video {
 }
 
 .messagediv .flexltr {
+	display: flex;
 	flex-wrap: wrap;
 	max-height: 100in;
 	overflow: hidden !important;
 }
+
 .messagediv .flexttb {
 	display: flex;
 	overflow: hidden;
 	flex-wrap: wrap;
 	width: 100%;
-	flex-direction: row;
+	flex-direction: column;
 	max-height: 100in;
 }
 
@@ -1514,4 +1519,17 @@ video {
 #connection-container .disabled {
 	background-color: var(--embed-fallback);
 	cursor: not-allowed;
+}
+
+.sizeupdown {
+	height: 4in;
+}
+
+.bigemoji {
+	width: 48px;
+	height: 48px;
+}
+.smallemoji {
+	width: 22px;
+	height: 22px;
 }

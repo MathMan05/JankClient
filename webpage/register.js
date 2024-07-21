@@ -19,12 +19,26 @@ const registertry = async event => {
 			email,
 			username: document.getElementById("uname").value,
 			password: document.getElementById("pass1").value,
-			consent: document.getElementById("tos-check").checked
+			consent: document.getElementById("tos-check").checked,
+			captcha_key: event.srcElement[7].value
 		})
 	})
 
 	const json = await res.json()
-	if (json.token) {
+	if (json.captcha_sitekey) {
+		const capt = document.getElementById("h-captcha")
+		const capty = document.createElement("div")
+		capty.classList.add("h-captcha")
+		capty.setAttribute("data-sitekey", json.captcha_sitekey)
+
+		const script = document.createElement("script")
+		if (json.captcha_service == "recaptcha") script.src = "https://www.google.com/recaptcha/api.js?render=" + json.captcha_sitekey
+		else if (json.captcha_service == "hcaptcha") script.src = "https://js.hcaptcha.com/1/api.js"
+		else console.error("Unknown captcha service " + json.captcha_service + " found in login response!")
+
+		capt.append(script)
+		capt.append(capty)
+	} else if (json.token) {
 		localStorage.setItem("userinfos", JSON.stringify({
 			currentuser: email + apiUrl,
 			users: {

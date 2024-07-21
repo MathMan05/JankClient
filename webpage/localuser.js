@@ -64,7 +64,7 @@ class LocalUser {
 	outoffocus() {
 		document.getElementById("servers").innerHTML = ""
 		document.getElementById("channels").innerHTML = ""
-		document.getElementById("messages").innerHTML = ""
+		this.channelfocus.infinite.delete()
 		this.lookingguild = null
 		this.channelfocus = null
 	}
@@ -125,17 +125,8 @@ class LocalUser {
 						returny()
 						break
 					case "MESSAGE_UPDATE":
-						if (this.initialized) {
-							if (this.channelfocus.id == json.d.channel_id) {
-								for (const message of document.getElementById("messages").children) {
-									if (message.all && message.all.id == json.d.id) {
-										message.all.content = json.d.content
-										message.txt.innerHTML = markdown(json.d.content).innerHTML
-										break
-									}
-								}
-							} else this.resolveChannelFromID(json.d.channel_id).messages.find(msg => msg.id == json.d.channel_id).content = json.d.content
-						}
+						const message = this.resolveChannelFromID(json.d.channel_id).messageids[json.d.id]
+						message.giveData(json.d)
 						break
 					case "MESSAGE_DELETE":
 						this.guildids[json.d.guild_id].channelids[json.d.channel_id].messageids[json.d.id].deleteEvent()
