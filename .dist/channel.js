@@ -3,7 +3,6 @@ import { Message } from "./message.js";
 import { Voice } from "./audio.js";
 import { Contextmenu } from "./contextmenu.js";
 import { Fullscreen } from "./fullscreen.js";
-import { markdown } from "./markdown.js";
 import { Permissions } from "./permissions.js";
 import { Settings, RoleList } from "./settings.js";
 import { InfiniteScroller } from "./infiniteScroller.js";
@@ -745,10 +744,10 @@ class Channel {
         if (!("Notification" in window)) {
         }
         else if (Notification.permission === "granted") {
-            let noticontent = markdown(message.content).textContent;
+            let noticontent = message.content.textContent;
             if (message.embeds[0]) {
                 noticontent ||= message.embeds[0].json.title;
-                noticontent ||= markdown(message.embeds[0].json.description).textContent;
+                noticontent ||= message.content.textContent;
             }
             noticontent ||= "Blank Message";
             let imgurl = null;

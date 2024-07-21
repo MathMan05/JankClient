@@ -4,7 +4,7 @@ import {Direct} from "./direct.js";
 import {Voice} from "./audio.js";
 import {User} from "./user.js";
 import {Member} from "./member.js";
-import {markdown} from "./markdown.js";
+import {MarkDown} from "./markdown.js";
 import {Fullscreen} from "./fullscreen.js";
 import {setTheme, Specialuser} from "./login.js";
 

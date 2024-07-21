@@ -1,7 +1,7 @@
 import {Contextmenu} from "./contextmenu.js";
 import {User} from "./user.js";
 import {Member} from "./member.js";
-import {markdown} from "./markdown.js";
+import {MarkDown} from "./markdown.js";
 import {Embed} from "./embed.js";
 import { Channel } from "./channel.js";
 import {Localuser} from "./localuser.js";
@@ -21,7 +21,7 @@ class Message{
     message_reference;
     type:number;
     timestamp:number;
-    content:string;
+    content:MarkDown;
     static del:Promise<void>;
     static resolve:Function;
     div:HTMLDivElement;
@@ -37,7 +37,7 @@ class Message{
     }
     static setupcmenu(){
         Message.contextmenu.addbutton("Copy raw text",function(){
-            navigator.clipboard.writeText(this.content);
+            navigator.clipboard.writeText(this.content.rawString);
         });
         Message.contextmenu.addbutton("Reply",function(this:Message,div:HTMLDivElement){
             this.channel.setReplying(this);
@@ -66,6 +66,9 @@ class Message{
                 for(const thing of messagejson.attachments){
                     this.attachments.push(new File(thing,this));
                 }
+                continue;
+            }else if(thing==="content"){
+                this.content=new MarkDown(messagejson[thing],this.channel);
                 continue;
             }
             this[thing]=messagejson[thing];
@@ -210,7 +213,7 @@ class Message{
             replyline.classList.add("replyflex")
             this.channel.getmessage(this.message_reference.message_id).then(message=>{
                 const author=message.author;
-                reply.appendChild(markdown(message.content,{stdsize:true}));
+                reply.appendChild(message.content.makeHTML({stdsize:true}));
                 minipfp.src=author.getpfpsrc()
                 author.bind(minipfp);
                 username.textContent=author.username;
@@ -271,7 +274,7 @@ class Message{
             }else{
                 div.classList.remove("topMessage");
             }
-            const messaged=markdown(this.content);
+            const messaged=this.content.makeHTML();
             div["txt"]=messaged;
             const messagedwrap=document.createElement("div");
             messagedwrap.classList.add("flexttb")
