@@ -47,7 +47,9 @@ class Message{
         });
         Message.contextmenu.addbutton("Edit",function(){
             this.channel.editing=this;
-            (document.getElementById("typebox") as HTMLInputElement).value=this.content;
+            const markdown=(document.getElementById("typebox"))["markdown"] as MarkDown;
+            markdown.txt=this.content.rawString;
+            markdown.boxupdate(document.getElementById("typebox"));
         },null,_=>{return _.author.id===_.localuser.user.id});
         Message.contextmenu.addbutton("Delete message",function(){
             this.delete();

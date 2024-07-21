@@ -109,7 +109,7 @@ async function enter(event) {
     if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
         if (channel.editing) {
-            channel.editing.edit((typebox).value);
+            channel.editing.edit(markdown.rawString);
             channel.editing = null;
         }
         else {
@@ -119,7 +119,7 @@ async function enter(event) {
                 replyingto.div.classList.remove("replying");
             }
             thisuser.channelfocus.replyingto = null;
-            channel.sendMessage(typebox.value, {
+            channel.sendMessage(markdown.rawString, {
                 attachments: images,
                 replyingto: replying,
             });
@@ -129,11 +129,14 @@ async function enter(event) {
             images.pop();
             pasteimage.removeChild(imageshtml.pop());
         }
-        typebox.value = "";
+        typebox.innerHTML = "";
         return;
     }
 }
 const typebox = document.getElementById("typebox");
+const markdown = new MarkDown("", thisuser);
+markdown.giveBox(typebox);
+typebox["markdown"] = markdown;
 typebox.addEventListener("keyup", enter);
 typebox.addEventListener("keydown", event => {
     if (event.key === "Enter" && !event.shiftKey)
@@ -149,6 +152,7 @@ function getguildinfo() {
 const images = [];
 const imageshtml = [];
 import { File } from "./file.js";
+import { MarkDown } from "./markdown.js";
 document.addEventListener('paste', async (e) => {
     Array.from(e.clipboardData.files).forEach(async (f) => {
         const file = File.initFromBlob(f);
