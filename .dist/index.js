@@ -168,6 +168,14 @@ function userSettings() {
     thisuser.usersettings.show();
 }
 document.getElementById("settings").onclick = userSettings;
+function userConnections() {
+    thisuser.userConnections.show();
+}
+document.getElementById("connections").onclick = userConnections;
+function devPortal() {
+    thisuser.devPortal.show();
+}
+document.getElementById("dev-portal").onclick = devPortal;
 if (mobile) {
     document.getElementById("channelw").onclick = function () {
         document.getElementById("channels").parentNode.classList.add("collapse");

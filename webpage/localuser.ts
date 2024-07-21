@@ -775,7 +775,7 @@ class Localuser{
 				["title",
 					"Editing " + json.name
 				],
-				["hdiv",
+				["vdiv",
 					["textbox", "Application name:", json.name, event => {
 						fields.name=event.target.value;
 					}],

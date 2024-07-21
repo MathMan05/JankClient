@@ -14,6 +14,8 @@ class Localuser {
     info;
     headers;
     usersettings;
+    userConnections;
+    devPortal;
     ready;
     guilds;
     guildids;
@@ -633,6 +635,243 @@ class Localuser {
             newprouns = null;
             newbio = null;
         }.bind(this));
+        const connectionContainer = document.createElement("div");
+        connectionContainer.id = "connection-container";
+        this.userConnections = new Fullscreen(["html",
+            connectionContainer
+        ], () => { }, async () => {
+            connectionContainer.innerHTML = "";
+            const res = await fetch(this.info.api.toString() + "/v9/connections", {
+                headers: this.headers
+            });
+            const json = await res.json();
+            Object.keys(json).sort(key => json[key].enabled ? -1 : 1).forEach(key => {
+                const connection = json[key];
+                const container = document.createElement("div");
+                container.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+                if (connection.enabled) {
+                    container.addEventListener("click", async () => {
+                        const connectionRes = await fetch(this.info.api.toString() + "/v9/connections/" + key + "/authorize", {
+                            headers: this.headers
+                        });
+                        const connectionJSON = await connectionRes.json();
+                        window.open(connectionJSON.url, "_blank", "noopener noreferrer");
+                    });
+                }
+                else {
+                    container.classList.add("disabled");
+                    container.title = "This connection has been disabled server-side.";
+                }
+                connectionContainer.appendChild(container);
+            });
+        });
+        let appName = "";
+        const appListContainer = document.createElement("div");
+        appListContainer.id = "app-list-container";
+        this.devPortal = new Fullscreen(["vdiv",
+            ["hdiv",
+                ["textbox", "Name:", appName, event => {
+                        appName = event.target.value;
+                    }],
+                ["button",
+                    "",
+                    "Create application",
+                    async () => {
+                        if (appName.trim().length == 0)
+                            return alert("Please enter a name for the application.");
+                        const res = await fetch(this.info.api.toString() + "/v9/applications", {
+                            method: "POST",
+                            headers: this.headers,
+                            body: JSON.stringify({
+                                name: appName
+                            })
+                        });
+                        const json = await res.json();
+                        this.manageApplication(json.id);
+                        this.devPortal.hide();
+                    }
+                ]
+            ],
+            ["html",
+                appListContainer
+            ]
+        ], () => { }, async () => {
+            appListContainer.innerHTML = "";
+            const res = await fetch(this.info.api.toString() + "/v9/applications", {
+                headers: this.headers
+            });
+            const json = await res.json();
+            json.forEach(application => {
+                const container = document.createElement("div");
+                if (application.cover_image) {
+                    const cover = document.createElement("img");
+                    cover.crossOrigin = "anonymous";
+                    cover.src = this.info.cdn.toString() + "/app-icons/" + application.id + "/" + application.cover_image + ".png?size=256";
+                    cover.alt = "";
+                    cover.loading = "lazy";
+                    container.appendChild(cover);
+                }
+                const name = document.createElement("h2");
+                name.textContent = application.name + (application.bot ? " (Bot)" : "");
+                container.appendChild(name);
+                container.addEventListener("click", async () => {
+                    this.devPortal.hide();
+                    this.manageApplication(application.id);
+                });
+                appListContainer.appendChild(container);
+            });
+        });
+    }
+    async manageApplication(appId = "") {
+        const res = await fetch(this.info.api.toString() + "/v9/applications/" + appId, {
+            headers: this.headers
+        });
+        const json = await res.json();
+        const fields = {};
+        const appDialog = new Fullscreen(["vdiv",
+            ["title",
+                "Editing " + json.name
+            ],
+            ["vdiv",
+                ["textbox", "Application name:", json.name, event => {
+                        fields.name = event.target.value;
+                    }],
+                ["mdbox", "Description:", json.description, event => {
+                        fields.description = event.target.value;
+                    }],
+                ["vdiv",
+                    json.icon ? ["img", this.info.cdn.toString() + "/app-icons/" + appId + "/" + json.icon + ".png?size=128", [128, 128]] : ["text", "No icon"],
+                    ["fileupload", "Application icon:", event => {
+                            const reader = new FileReader();
+                            reader.readAsDataURL(event.target.files[0]);
+                            reader.onload = () => {
+                                fields.icon = reader.result;
+                            };
+                        }]
+                ]
+            ],
+            ["hdiv",
+                ["textbox", "Privacy policy URL:", json.privacy_policy_url || "", event => {
+                        fields.privacy_policy_url = event.target.value;
+                    }],
+                ["textbox", "Terms of Service URL:", json.terms_of_service_url || "", event => {
+                        fields.terms_of_service_url = event.target.value;
+                    }]
+            ],
+            ["hdiv",
+                ["checkbox", "Make bot publicly inviteable?", json.bot_public, event => {
+                        fields.bot_public = event.target.checked;
+                    }],
+                ["checkbox", "Require code grant to invite the bot?", json.bot_require_code_grant, event => {
+                        fields.bot_require_code_grant = event.target.checked;
+                    }]
+            ],
+            ["hdiv",
+                ["button",
+                    "",
+                    "Save changes",
+                    async () => {
+                        const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId, {
+                            method: "PATCH",
+                            headers: this.headers,
+                            body: JSON.stringify(fields)
+                        });
+                        if (updateRes.ok)
+                            appDialog.hide();
+                        else {
+                            const updateJSON = await updateRes.json();
+                            alert("An error occurred: " + updateJSON.message);
+                        }
+                    }
+                ],
+                ["button",
+                    "",
+                    (json.bot ? "Manage" : "Add") + " bot",
+                    async () => {
+                        if (!json.bot) {
+                            if (!confirm("Are you sure you want to add a bot to this application? There's no going back."))
+                                return;
+                            const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId + "/bot", {
+                                method: "POST",
+                                headers: this.headers
+                            });
+                            const updateJSON = await updateRes.json();
+                            alert("Bot token:\n" + updateJSON.token);
+                        }
+                        appDialog.hide();
+                        this.manageBot(appId);
+                    }
+                ]
+            ]
+        ]);
+        appDialog.show();
+    }
+    async manageBot(appId = "") {
+        const res = await fetch(this.info.api.toString() + "/v9/applications/" + appId, {
+            headers: this.headers
+        });
+        const json = await res.json();
+        if (!json.bot)
+            return alert("For some reason, this application doesn't have a bot (yet).");
+        const fields = {
+            username: json.bot.username,
+            avatar: json.bot.avatar ? (this.info.cdn.toString() + "/app-icons/" + appId + "/" + json.bot.avatar + ".png?size=256") : ""
+        };
+        const botDialog = new Fullscreen(["vdiv",
+            ["title",
+                "Editing bot: " + json.bot.username
+            ],
+            ["hdiv",
+                ["textbox", "Bot username:", json.bot.username, event => {
+                        fields.username = event.target.value;
+                    }],
+                ["vdiv",
+                    fields.avatar ? ["img", fields.avatar, [128, 128]] : ["text", "No avatar"],
+                    ["fileupload", "Bot avatar:", event => {
+                            const reader = new FileReader();
+                            reader.readAsDataURL(event.target.files[0]);
+                            reader.onload = () => {
+                                fields.avatar = reader.result;
+                            };
+                        }]
+                ]
+            ],
+            ["hdiv",
+                ["button",
+                    "",
+                    "Save changes",
+                    async () => {
+                        const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId + "/bot", {
+                            method: "PATCH",
+                            headers: this.headers,
+                            body: JSON.stringify(fields)
+                        });
+                        if (updateRes.ok)
+                            botDialog.hide();
+                        else {
+                            const updateJSON = await updateRes.json();
+                            alert("An error occurred: " + updateJSON.message);
+                        }
+                    }
+                ],
+                ["button",
+                    "",
+                    "Reset token",
+                    async () => {
+                        if (!confirm("Are you sure you want to reset the bot token? Your bot will stop working until you update it."))
+                            return;
+                        const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId + "/bot/reset", {
+                            method: "POST",
+                            headers: this.headers
+                        });
+                        const updateJSON = await updateRes.json();
+                        alert("New token:\n" + updateJSON.token);
+                        botDialog.hide();
+                    }
+                ]
+            ]
+        ]);
+        botDialog.show();
     }
 }
 export { Localuser };
