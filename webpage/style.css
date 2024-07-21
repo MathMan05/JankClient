@@ -74,6 +74,8 @@ th {
 	flex-wrap: nowrap;
 	flex-direction: column;
 	max-height: 20in;
+	flex-shrink: 0;
+	width: 100%;
 }
 pre {
 	background-color: var(--code-bg);
@@ -215,6 +217,8 @@ img {
 	vertical-align: middle;
 	max-width: 3in;
 	max-height: 3in;
+	width: auto;
+	height: auto;
 }
 
 #page {
@@ -242,8 +246,8 @@ img {
 	font-weight: normal;
 }
 
-#messagecontainer {
-	overflow-y: auto;
+.messagecontainer {
+	overflow-y: hidden;
 	display: flex;
 	max-width: 100%;
 	flex-shrink: 1;
@@ -547,18 +551,18 @@ p {
 	grid-column: 2;
 }
 .replytext pre {
-	padding: 0 .05in;
+	/* padding: 0 .05in; */
 	color: var(--reply-text);
-	overflow: hidden;
+	/* overflow: hidden; */
 	white-space: nowrap;
 	text-overflow: ellipsis;
 	max-width: fit-content;
 	/* display: block; */
 	/* flex-grow: 1; */
 	flex: 1 1 auto;
-	width: fit-content;
+	/* width: fit-content; */
 	min-width: 0;
-	/* display: inline-block !important; */
+	display: inline-block !important;
 	width: 25vw;
 	grid-column: 2;
 }
@@ -723,7 +727,7 @@ textarea {
 }
 
 .servernamediv {
-	/* width: 100%; */
+	width: 99%;
 	/* max-width: 100%; */
 }
 
@@ -1167,6 +1171,7 @@ span {
 	/* margin-bottom: 1in; */
 	/* padding-bottom: .1in; */
 	align-items: flex-start;
+	width: 100%;
 }
 .settingbuttons{
 	padding-top:.075in;
@@ -1346,7 +1351,7 @@ span {
 	overflow: hidden;
 	flex-wrap: wrap;
 	width: 100%;
-	flex-direction: row;
+	flex-direction: column;
 	max-height:100in;
 }
 
@@ -1365,4 +1370,16 @@ span {
 #connection-container .disabled {
 	background-color: var(--embed-fallback);
 	cursor: not-allowed;
+}
+
+.sizeupdown{
+	height:4in;
+}
+.bigemoji{
+	width:48px;
+	height:48px;
+}
+.smallemoji{
+	width:22px;
+	height:22px;
 }

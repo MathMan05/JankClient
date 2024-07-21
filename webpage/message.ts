@@ -1,9 +1,8 @@
 import {Contextmenu} from "./contextmenu.js";
 import {User} from "./user.js";
 import {Member} from "./member.js";
-import {markdown} from "./markdown.js";
+import {MarkDown} from "./markdown.js";
 import {Embed} from "./embed.js";
-import {Fullscreen} from "./fullscreen.js";
 import { Channel } from "./channel.js";
 import {Localuser} from "./localuser.js";
 import { Role } from "./role.js";
@@ -22,7 +21,7 @@ class Message{
     message_reference;
     type:number;
     timestamp:number;
-    content:string;
+    content:MarkDown;
     static del:Promise<void>;
     static resolve:Function;
     div:HTMLDivElement;
@@ -38,7 +37,7 @@ class Message{
     }
     static setupcmenu(){
         Message.contextmenu.addbutton("Copy raw text",function(){
-            navigator.clipboard.writeText(this.content);
+            navigator.clipboard.writeText(this.content.rawString);
         });
         Message.contextmenu.addbutton("Reply",function(this:Message,div:HTMLDivElement){
             this.channel.setReplying(this);
@@ -57,12 +56,19 @@ class Message{
     constructor(messagejson,owner:Channel){
         this.owner=owner;
         this.headers=this.owner.headers;
+        this.giveData(messagejson);
+
+    }
+    giveData(messagejson){
         for(const thing of Object.keys(messagejson)){
             if(thing==="attachments"){
                 this.attachments=[];
                 for(const thing of messagejson.attachments){
                     this.attachments.push(new File(thing,this));
                 }
+                continue;
+            }else if(thing==="content"){
+                this.content=new MarkDown(messagejson[thing],this.channel);
                 continue;
             }
             this[thing]=messagejson[thing];
@@ -81,6 +87,9 @@ class Message{
         if(this.mentionsuser(this.localuser.user)){
             console.log(this);
         }
+        if(this.div){
+            this.generateMessage();
+        }
     }
     canDelete(){
         return this.channel.hasPermission("MANAGE_MESSAGES")||this.author.id===this.localuser.user.id;
@@ -97,11 +106,12 @@ class Message{
     get info(){
         return this.owner.info;
     }
-    messageevents(obj:HTMLDivElement){
+    messageevents(obj:HTMLDivElement,del=Message.del){
         const func=Message.contextmenu.bind(obj,this);
         this.div=obj;
-        Message.del.then(_=>{
+        del.then(_=>{
             obj.removeEventListener("click",func);
+            this.div.remove();
             this.div=null;
         })
         obj.classList.add("messagediv");
@@ -140,17 +150,19 @@ class Message{
             this.div.innerHTML="";
             this.div=null;
         }
-        const index=this.channel.messages.indexOf(this);
-        this.channel.messages.splice(this.channel.messages.indexOf(this),1);
+        const prev=this.channel.idToPrev[this.id];
+        const next=this.channel.idToNext[this.id];
+        this.channel.idToNext[prev]=next;
+        this.channel.idToPrev[next]=prev;
         delete this.channel.messageids[this.id];
-        const regen=this.channel.messages[index-1]
+        const regen=this.channel.messageids[prev]
         if(regen){
             regen.generateMessage();
         }
     }
     generateMessage(premessage:Message=null){
         if(!premessage){
-            premessage=this.channel.messages[this.channel.messages.indexOf(this)+1];
+            premessage=this.channel.messageids[this.channel.idToNext[this.id]];
         }
         const div=this.div;
         if(this===this.channel.replyingto){
@@ -201,7 +213,7 @@ class Message{
             replyline.classList.add("replyflex")
             this.channel.getmessage(this.message_reference.message_id).then(message=>{
                 const author=message.author;
-                reply.appendChild(markdown(message.content,{stdsize:true}));
+                reply.appendChild(message.content.makeHTML({stdsize:true}));
                 minipfp.src=author.getpfpsrc()
                 author.bind(minipfp);
                 username.textContent=author.username;
@@ -209,8 +221,6 @@ class Message{
             });
             div.appendChild(replyline);
         }
-
-        this.messageevents(div);
         build.classList.add("message");
         div.appendChild(build);
         if({0:true,19:true}[this.type]||this.attachments.length!==0){
@@ -264,7 +274,7 @@ class Message{
             }else{
                 div.classList.remove("topMessage");
             }
-            const messaged=markdown(this.content);
+            const messaged=this.content.makeHTML();
             div["txt"]=messaged;
             const messagedwrap=document.createElement("div");
             messagedwrap.classList.add("flexttb")
@@ -313,11 +323,13 @@ class Message{
         div["all"]=this;
         return(div)
     }
-    buildhtml(premessage:Message){
-        if(this.div){console.error(`HTML for ${this} already exists, aborting`);return;}
+    buildhtml(premessage:Message,del:Promise<void>=Message.del){
+        if(this.div){console.error(`HTML for ${this.id} already exists, aborting`);return;}
         //premessage??=messages.lastChild;
         const div=document.createElement("div");
         this.div=div;
+
+        this.messageevents(div,del);
         return this.generateMessage(premessage);
     }
 }
