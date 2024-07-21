@@ -1359,3 +1359,11 @@ span {
 .sizeupdown{
 	height:4in;
 }
+.bigemoji{
+	width:48px;
+	height:48px;
+}
+.smallemoji{
+	width:22px;
+	height:22px;
+}

@@ -1,5 +1,5 @@
 import { Fullscreen } from "./fullscreen.js";
-import { markdown } from "./markdown.js";
+import { MarkDown } from "./markdown.js";
 class Embed {
     type;
     owner;
@@ -26,6 +26,18 @@ class Embed {
                 console.warn(`unsupported embed type ${this.type}, please add support dev :3`, this.json);
                 return document.createElement("div"); //prevent errors by giving blank div
         }
+    }
+    get message() {
+        return this.owner;
+    }
+    get channel() {
+        return this.message.channel;
+    }
+    get guild() {
+        return this.channel.guild;
+    }
+    get localuser() {
+        return this.guild.localuser;
     }
     generateRich() {
         console.log(this.json);
@@ -55,7 +67,7 @@ class Embed {
             embed.append(authorline);
         }
         const title = document.createElement("a");
-        title.append(markdown(this.json.title));
+        title.append(new MarkDown(this.json.title, this.localuser).makeHTML());
         if (this.json.url) {
             title.href = this.json.url;
         }
@@ -63,7 +75,7 @@ class Embed {
         embed.append(title);
         if (this.json.description) {
             const p = document.createElement("p");
-            p.append(markdown(this.json.description));
+            p.append(new MarkDown(this.json.description, this.channel).makeHTML());
             embed.append(p);
         }
         embed.append(document.createElement("br"));
@@ -74,7 +86,7 @@ class Embed {
                 b.textContent = thing.name;
                 div.append(b);
                 const p = document.createElement("p");
-                p.append(markdown(thing.value));
+                p.append(new MarkDown(thing.value, this.channel).makeHTML());
                 p.classList.add("embedp");
                 div.append(p);
                 if (thing.inline) {

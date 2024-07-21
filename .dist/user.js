@@ -1,6 +1,6 @@
 //const usercache={};
 import { Member } from "./member.js";
-import { markdown } from "./markdown.js";
+import { MarkDown } from "./markdown.js";
 import { Contextmenu } from "./contextmenu.js";
 class User {
     static userids = {};
@@ -48,6 +48,10 @@ class User {
         }
         if (dontclone) {
             for (const thing of Object.keys(userjson)) {
+                if (thing === "bio") {
+                    this.bio = new MarkDown(userjson[thing], this.localuser);
+                    continue;
+                }
                 this[thing] = userjson[thing];
             }
             this.hypotheticalpfp = false;
@@ -146,7 +150,7 @@ class User {
             userbody.appendChild(pronounshtml);
             const rule = document.createElement("hr");
             userbody.appendChild(rule);
-            const biohtml = markdown(this.bio);
+            const biohtml = this.bio.makeHTML();
             userbody.appendChild(biohtml);
         }
         console.log(div);
