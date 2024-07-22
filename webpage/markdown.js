@@ -24,9 +24,9 @@ const saveCaretPosition = context => {
 	return () => {
 		const pos = getTextNodeAtPosition(context, len)
 		selection.removeAllRanges()
-		const range = new Range()
-		range.setStart(pos.node, pos.position)
-		selection.addRange(range)
+		const range2 = new Range()
+		range2.setStart(pos.node, pos.position)
+		selection.addRange(range2)
 	}
 }
 
@@ -215,20 +215,20 @@ class MarkDown {
 					if (count == 1) {
 						const iElem = document.createElement("i")
 						if (keep) iElem.append(stars)
-						iElem.innerHTML = this.markdown(build, {keep, stdsize}).innerHTML
+						iElem.append(this.markdown(build, {keep, stdsize}))
 						if (keep) iElem.append(stars)
 						span.appendChild(iElem)
 					} else if (count == 2) {
 						const bElem = document.createElement("b")
 						if (keep) bElem.append(stars)
-						bElem.innerHTML = this.markdown(build, {keep, stdsize}).innerHTML
+						bElem.append(this.markdown(build, {keep, stdsize}))
 						if (keep) bElem.append(stars)
 						span.appendChild(bElem)
 					} else {
 						const bElem = document.createElement("b")
 						const iElem = document.createElement("i")
 						if (keep) bElem.append(stars)
-						bElem.innerHTML = this.markdown(build, {keep, stdsize}).innerHTML
+						bElem.append(this.markdown(build, {keep, stdsize}))
 						if (keep) bElem.append(stars)
 						iElem.appendChild(bElem)
 						span.appendChild(iElem)
@@ -266,20 +266,20 @@ class MarkDown {
 					if (count == 1) {
 						const iElem = document.createElement("i")
 						if (keep) iElem.append(underscores)
-						iElem.innerHTML = this.markdown(build, {keep, stdsize}).innerHTML
+						iElem.append(this.markdown(build, {keep, stdsize}))
 						if (keep) iElem.append(underscores)
 						span.appendChild(iElem)
 					} else if (count == 2) {
 						const uElem = document.createElement("u")
 						if (keep) uElem.append(underscores)
-						uElem.innerHTML = this.markdown(build, {keep, stdsize}).innerHTML
+						uElem.append(this.markdown(build, {keep, stdsize}))
 						if (keep) uElem.append(underscores)
 						span.appendChild(uElem)
 					} else {
 						const uElem = document.createElement("u")
 						const iElem = document.createElement("i")
 						if (keep) iElem.append(underscores)
-						iElem.innerHTML = this.markdown(build, {keep, stdsize}).innerHTML
+						iElem.append(this.markdown(build, {keep, stdsize}))
 						if (keep) iElem.append(underscores)
 						uElem.appendChild(iElem)
 						span.appendChild(uElem)
@@ -304,6 +304,7 @@ class MarkDown {
 						}
 					}
 				}
+
 				if (find == count) {
 					appendcurrent()
 					i = j - 1
@@ -311,7 +312,7 @@ class MarkDown {
 
 					const sElem = document.createElement("s")
 					if (keep) sElem.append(tildes)
-					sElem.innerHTML = this.markdown(build, {keep, stdsize}).innerHTML
+					sElem.append(this.markdown(build, {keep, stdsize}))
 					if (keep) sElem.append(tildes)
 					span.appendChild(sElem)
 
@@ -341,10 +342,11 @@ class MarkDown {
 					const pipes = "||"
 
 					const spoilerElem = document.createElement("span")
-					if (keep) spoilerElem.append(pipes)
-					spoilerElem.innerHTML = this.markdown(build, {keep, stdsize}).innerHTML
 					spoilerElem.classList.add("spoiler")
 					spoilerElem.addEventListener("click", MarkDown.unspoil)
+
+					if (keep) spoilerElem.append(pipes)
+					spoilerElem.append(this.markdown(build, {keep, stdsize}))
 					if (keep) spoilerElem.append(pipes)
 					span.appendChild(spoilerElem)
 
@@ -539,8 +541,8 @@ class MarkDown {
 	}
 	giveBox(box) {
 		let prevcontent = ""
-		box.onkeyup = event => {
-			const content = MarkDown.gatherBoxText(box);
+		box.onkeyup = () => {
+			const content = MarkDown.gatherBoxText(box)
 			if (content != prevcontent) {
 				prevcontent = content
 				this.txt = content.split("")
@@ -551,7 +553,7 @@ class MarkDown {
 		box.onpaste = event => {
 			console.log(event.clipboardData.types)
 			const data = event.clipboardData.getData("text")
-			document.execCommand('insertHTML', false, data)
+			document.execCommand("insertHTML", false, data)
 			event.preventDefault()
 			box.onkeyup(new KeyboardEvent("_"))
 		}
@@ -566,8 +568,8 @@ class MarkDown {
 		if (element.tagName == "IMG") return element.alt
 		if (element.tagName == "BR") return "\n"
 
-		const children = element.childNodes;
-		if (children.length !== 0) {
+		const children = element.childNodes
+		if (children.length != 0) {
 			let build = ""
 			for (const thing of children) {
 				if (thing instanceof Text) {

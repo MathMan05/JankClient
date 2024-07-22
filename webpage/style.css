@@ -477,7 +477,6 @@ div {
 }
 
 #typebox {
-	/*font-size: 16px;*/
 	padding: 3px;
 	border-radius: 8px;
 	width: 100%;
@@ -543,7 +542,7 @@ hr {
 	display: flex;
 	position: absolute;
 	bottom: 23px;
-	right: 4px;
+	right: 11px;
 	background-color: var(--typing-bg);
 	width: fit-content;
 	transform: translateY(-100%);
