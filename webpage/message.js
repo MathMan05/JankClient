@@ -51,7 +51,9 @@ class Message {
 
 		Message.contextmenu.addbutton("Edit", function() {
 			this.channel.editing = this
-			document.getElementById("typebox").value = this.content
+			const markdown = document.getElementById("typebox").markdown
+			markdown.txt = this.content.rawString
+			markdown.boxupdate(document.getElementById("typebox"))
 		}, null, m => m.author.id == m.localuser.user.id)
 		Message.contextmenu.addbutton("Delete message", function() {
 			this.delete()
@@ -83,6 +85,13 @@ class Message {
 		this.attachments = []
 		for (const thing of messagejson.attachments) {
 			this.attachments.push(new Attachment(thing, this))
+		}
+
+		if (messagejson.reactions) {
+			this.reactions = []
+			for (const thing of messagejson.reactions) {
+				this.reactions.push(new Reaction(thing, this))
+			}
 		}
 
 		if (messagejson.embeds) {

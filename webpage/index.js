@@ -157,16 +157,20 @@ const editchannel = channel => {
 const messagelist = []
 
 let images = []
-
 let replyingto = null
+
 const typebox = document.getElementById("typebox")
+const markdown = new MarkDown("", thisuser)
+markdown.giveBox(typebox)
+typebox.markdown = markdown
+
 typebox.addEventListener("keyup", event => {
 	const channel = thisuser.channelfocus
 
 	if (event.key == "Enter" && !event.shiftKey) {
 		event.preventDefault()
 
-		const content = typebox.value.trim()
+		const content = markdown.rawString.trim()
 			.replace(/:([-+\w]+):/g, (match, p1) => emojis[p1] || match)
 
 		if (channel.editing) {
@@ -189,8 +193,7 @@ typebox.addEventListener("keyup", event => {
 
 		images = []
 		document.getElementById("pasteimage").innerHTML = ""
-
-		typebox.value = ""
+		typebox.innerHTML = ""
 	} else channel.typingstart()
 })
 typebox.addEventListener("keydown", event => {

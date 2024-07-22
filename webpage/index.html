@@ -25,13 +25,14 @@
 		<script src="/channel.js"></script>
 		<script src="/permissions.js"></script>
 		<script src="/role.js"></script>
-		<script src="/attachment.js"></script>
-		<script src="/component.js"></script>
 		<script src="/guild.js"></script>
 		<script src="/direct.js"></script>
 		<script src="/localuser.js"></script>
 		<script src="/dialog.js"></script>
 		<script src="/audio.js"></script>
+		<script src="/attachment.js"></script>
+		<script src="/component.js"></script>
+		<script src="/reaction.js"></script>
 		<script src="/emojis.js"></script>
 	</head>
 	<body class="dark-theme">
@@ -86,7 +87,7 @@
 				<div id="pasteimage"></div>
 				<div id="replybox" class="hideReplyBox"></div>
 				<div id="typediv">
-					<textarea id="typebox" aria-label="Message"></textarea>
+					<div id="typebox" aria-label="Type a message" contentEditable="true"></div>
 
 					<div id="typing" class="hidden">
 						<p id="typingtext">typing</p>

@@ -1,5 +1,35 @@
 "use strict"
 
+// Solution from https://stackoverflow.com/questions/4576694/saving-and-restoring-caret-position-for-contenteditable-div
+const getTextNodeAtPosition = (root, index) => {
+	const treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, elem => {
+		if (index > elem.textContent.length) {
+			index -= elem.textContent.length
+			return NodeFilter.FILTER_REJECT
+		}
+		return NodeFilter.FILTER_ACCEPT
+	})
+
+	return {
+		node: treeWalker.nextNode() || root,
+		position: index
+	}
+}
+
+const saveCaretPosition = context => {
+	const selection = window.getSelection()
+	const range = selection.getRangeAt(0)
+	range.setStart(context, 0)
+	const len = range.toString().length
+	return () => {
+		const pos = getTextNodeAtPosition(context, len)
+		selection.removeAllRanges()
+		const range = new Range()
+		range.setStart(pos.node, pos.position)
+		selection.addRange(range)
+	}
+}
+
 // eslint-disable-next-line no-unused-vars
 class MarkDown {
 	constructor(text, owner, { keep = false, stdsize = false } = {}) {
@@ -276,13 +306,13 @@ class MarkDown {
 				}
 				if (find == count) {
 					appendcurrent()
-					i = j
-					const underscores = "~~"
+					i = j - 1
+					const tildes = "~~"
 
 					const sElem = document.createElement("s")
-					if (keep) sElem.append(underscores)
+					if (keep) sElem.append(tildes)
 					sElem.innerHTML = this.markdown(build, {keep, stdsize}).innerHTML
-					if (keep) sElem.append(underscores)
+					if (keep) sElem.append(tildes)
 					span.appendChild(sElem)
 
 					continue
@@ -307,7 +337,7 @@ class MarkDown {
 
 				if (find == count) {
 					appendcurrent()
-					i = j
+					i = j - 1
 					const pipes = "||"
 
 					const spoilerElem = document.createElement("span")
@@ -502,12 +532,54 @@ class MarkDown {
 			if (p) {
 				r.push((0x10000 + ((p - 0xD800) << 10) + (c - 0xDC00)).toString(16))
 				p = 0
-			} else if (c >= 0xD800 && c <= 0xDBFF) {
-				p = c
-			} else {
-				r.push(c.toString(16))
-			}
+			} else if (c >= 0xD800 && c <= 0xDBFF) p = c
+			else r.push(c.toString(16))
 		}
 		return r.join("-")
+	}
+	giveBox(box) {
+		let prevcontent = ""
+		box.onkeyup = event => {
+			const content = MarkDown.gatherBoxText(box);
+			if (content != prevcontent) {
+				prevcontent = content
+				this.txt = content.split("")
+				this.boxupdate(box)
+			}
+		}
+
+		box.onpaste = event => {
+			console.log(event.clipboardData.types)
+			const data = event.clipboardData.getData("text")
+			document.execCommand('insertHTML', false, data)
+			event.preventDefault()
+			box.onkeyup(new KeyboardEvent("_"))
+		}
+	}
+	boxupdate(box) {
+		const restore = saveCaretPosition(box)
+		box.innerHTML = ""
+		box.append(this.makeHTML({ keep: true }))
+		restore()
+	}
+	static gatherBoxText(element) {
+		if (element.tagName == "IMG") return element.alt
+		if (element.tagName == "BR") return "\n"
+
+		const children = element.childNodes;
+		if (children.length !== 0) {
+			let build = ""
+			for (const thing of children) {
+				if (thing instanceof Text) {
+					const text = thing.textContent
+					build += text
+					continue
+				}
+
+				const text = this.gatherBoxText(thing)
+				if (text) build += text
+			}
+			return build
+		}
 	}
 }
