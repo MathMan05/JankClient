@@ -129,23 +129,21 @@ class User{
         }
 
 
-        const div=document.createElement("table");
+        const div=document.createElement("div");
         if(x!==-1){
             div.style.left=x+"px";
             div.style.top=y+"px";
-            div.classList.add("profile");
+            div.classList.add("profile","flexttb");
         }else{
             div.classList.add("hypoprofile");
         }
 
         {
             const pfp=this.buildpfp();
-            const pfprow=document.createElement("tr");
-            div.appendChild(pfprow);
-            pfprow.appendChild(pfp);
+            div.appendChild(pfp);
         }
         {
-            const userbody=document.createElement("tr");
+            const userbody=document.createElement("div");
             userbody.classList.add("infosection");
             div.appendChild(userbody);
             const usernamehtml=document.createElement("h2");

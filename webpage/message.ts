@@ -320,10 +320,17 @@ class Message{
             text.appendChild(texttxt);
             build.appendChild(text);
             texttxt.classList.add("flexltr");
-            const messaged=document.createElement("p");
+            const messaged=document.createElement("span");
             div["txt"]=messaged;
-            messaged.textContent="welcome: "+this.author.username;
+            messaged.textContent="welcome: ";
             texttxt.appendChild(messaged);
+
+            const username=document.createElement("span");
+            username.textContent=this.author.username;
+            this.author.profileclick(username);
+            this.author.bind(username,this.guild);
+            texttxt.appendChild(username);
+            username.classList.add("username");
 
             const time=document.createElement("span");
             time.textContent="  "+formatTime(new Date(this.timestamp));
