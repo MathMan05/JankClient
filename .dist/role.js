@@ -1,5 +1,6 @@
 export { Role };
 import { Permissions } from "./permissions.js";
+import { SnowFlake } from "./snowflake.js";
 class Role {
     permissions;
     owner;
@@ -16,6 +17,10 @@ class Role {
         this.headers = owner.headers;
         this.info = owner.info;
         for (const thing of Object.keys(JSON)) {
+            if (thing === "id") {
+                this.id = new SnowFlake(JSON.id, this);
+                continue;
+            }
             this[thing] = JSON[thing];
         }
         this.permissions = new Permissions(JSON.permissions);

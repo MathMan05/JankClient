@@ -1,5 +1,7 @@
 import { Permissions } from "./permissions.js";
 import { Guild } from "./guild.js";
+import { SnowFlake } from "./snowflake.js";
+import { Role } from "./role.js";
 
 class Buttons{
     readonly name:string;
@@ -126,7 +128,7 @@ class PermissionToggle{
     }
 }
 class RoleList extends Buttons{
-    readonly permissions:[string,Permissions][];
+    readonly permissions:[SnowFlake<Role>,Permissions][];
     permission:Permissions;
     readonly guild:Guild;
     readonly channel:boolean;
@@ -134,7 +136,7 @@ class RoleList extends Buttons{
     readonly options:Options;
     onchange:Function;
     curid:string;
-    constructor(permissions:[string,Permissions][],guild:Guild,onchange:Function,channel=false){
+    constructor(permissions:[SnowFlake<Role>,Permissions][],guild:Guild,onchange:Function,channel=false){
         super("Roles");
         this.guild=guild;
         this.permissions=permissions;
@@ -150,16 +152,17 @@ class RoleList extends Buttons{
             options.addPermissionToggle(thing,this.permission);//
         }
         for(const i of permissions){
-            this.buttons.push([guild.getRole(i[0]).name,i[0]])//
+            console.log(i);
+            this.buttons.push([i[0].getObject().name,i[0].id])//
         }
         this.options=options;
     }
     handleString(str:string):HTMLElement{
         this.curid=str;
-        const perm=this.permissions.find(_=>_[0]===str)[1];
+        const perm=this.permissions.find(_=>_[0].id===str)[1];
         this.permission.deny=perm.deny;
         this.permission.allow=perm.allow;
-        this.options.name=this.guild.getRole(str).name;
+        this.options.name=SnowFlake.getSnowFlakeFromID(str,Role).getObject().name;
         this.options.haschanged=false;
         return this.options.generateHTML();
     }

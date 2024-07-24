@@ -4,6 +4,8 @@ import { Voice } from "./audio.js";
 import { User } from "./user.js";
 import { Fullscreen } from "./fullscreen.js";
 import { setTheme } from "./login.js";
+import { SnowFlake } from "./snowflake.js";
+import { Message } from "./message.js";
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 class Localuser {
     packets;
@@ -43,14 +45,14 @@ class Localuser {
         this.initialized = true;
         this.ready = ready;
         this.guilds = [];
-        this.guildids = {};
+        this.guildids = new Map();
         this.user = new User(ready.d.user, this);
         this.userinfo.username = this.user.username;
         this.userinfo.pfpsrc = this.user.getpfpsrc();
         this.status = this.ready.d.user_settings.status;
         this.channelfocus = null;
         this.lookingguild = null;
-        this.guildhtml = {};
+        this.guildhtml = new Map();
         const members = {};
         for (const thing of ready.d.merged_members) {
             members[thing[0].guild_id] = thing[0];
@@ -58,12 +60,12 @@ class Localuser {
         for (const thing of ready.d.guilds) {
             const temp = new Guild(thing, this, members[thing.id]);
             this.guilds.push(temp);
-            this.guildids[temp.id] = temp;
+            this.guildids[temp.id.id] = temp;
         }
         {
             const temp = new Direct(ready.d.private_channels, this);
             this.guilds.push(temp);
-            this.guildids[temp.id] = temp;
+            this.guildids[temp.id.id] = temp;
         }
         console.log(ready.d.user_guild_settings.entries);
         for (const thing of ready.d.user_guild_settings.entries) {
@@ -79,7 +81,7 @@ class Localuser {
                 continue;
             }
             const guildid = guild.id;
-            this.guildids[guildid].channelids[thing.channel_id].readStateInfo(thing);
+            this.guildids[guildid.id].channelids[thing.channel_id].readStateInfo(thing);
         }
         this.typing = [];
     }
@@ -97,7 +99,7 @@ class Localuser {
         clearInterval(this.wsinterval);
         this.outoffocus();
         this.guilds = [];
-        this.guildids = {};
+        this.guildids = new Map();
         this.ws.close(4000);
     }
     async initwebsocket() {
@@ -128,90 +130,85 @@ class Localuser {
             }));
         });
         this.ws.addEventListener('message', (event) => {
-            try {
-                const temp = JSON.parse(event.data);
-                console.log(temp);
-                if (temp.op == 0) {
-                    switch (temp.t) {
-                        case "MESSAGE_CREATE":
-                            if (this.initialized) {
-                                this.messageCreate(temp);
+            const temp = JSON.parse(event.data);
+            console.log(temp);
+            if (temp.op == 0) {
+                switch (temp.t) {
+                    case "MESSAGE_CREATE":
+                        if (this.initialized) {
+                            this.messageCreate(temp);
+                        }
+                        break;
+                    case "MESSAGE_DELETE":
+                        console.log(temp.d);
+                        SnowFlake.getSnowFlakeFromID(temp.d.id, Message).getObject().deleteEvent();
+                        break;
+                    case "READY":
+                        this.gottenReady(temp);
+                        this.genusersettings();
+                        returny();
+                        break;
+                    case "MESSAGE_UPDATE":
+                        const message = SnowFlake.getSnowFlakeFromID(temp.d.id, Message).getObject();
+                        message.giveData(temp.d);
+                        break;
+                    case "TYPING_START":
+                        if (this.initialized) {
+                            this.typingStart(temp);
+                        }
+                        break;
+                    case "USER_UPDATE":
+                        if (this.initialized) {
+                            const users = SnowFlake.getSnowFlakeFromID(temp.d.id, User).getObject();
+                            console.log(users, temp.d.id);
+                            if (users) {
+                                users.userupdate(temp.d);
                             }
+                        }
+                        break;
+                    case "CHANNEL_UPDATE":
+                        if (this.initialized) {
+                            this.updateChannel(temp.d);
+                        }
+                        break;
+                    case "CHANNEL_CREATE":
+                        if (this.initialized) {
+                            this.createChannel(temp.d);
+                        }
+                        break;
+                    case "CHANNEL_DELETE":
+                        if (this.initialized) {
+                            this.delChannel(temp.d);
+                        }
+                        break;
+                    case "GUILD_DELETE":
+                        {
+                            const guildy = this.guildids[temp.d.id];
+                            delete this.guildids[temp.d.id];
+                            this.guilds.splice(this.guilds.indexOf(guildy), 1);
+                            guildy.html.remove();
                             break;
-                        case "MESSAGE_DELETE":
-                            console.log(temp.d);
-                            this.guildids[temp.d.guild_id].channelids[temp.d.channel_id].messageids[temp.d.id].deleteEvent();
-                            break;
-                        case "READY":
-                            this.gottenReady(temp);
-                            this.genusersettings();
-                            returny();
-                            break;
-                        case "MESSAGE_UPDATE":
-                            const message = this.resolveChannelFromID(temp.d.channel_id).messageids[temp.d.id];
-                            message.giveData(temp.d);
-                            break;
-                        case "TYPING_START":
-                            if (this.initialized) {
-                                this.typingStart(temp);
-                            }
-                            break;
-                        case "USER_UPDATE":
-                            if (this.initialized) {
-                                const users = User.userids[temp.d.id];
-                                console.log(users, temp.d.id);
-                                if (users) {
-                                    users.userupdate(temp.d);
-                                }
-                            }
-                            break;
-                        case "CHANNEL_UPDATE":
-                            if (this.initialized) {
-                                this.updateChannel(temp.d);
-                            }
-                            break;
-                        case "CHANNEL_CREATE":
-                            if (this.initialized) {
-                                this.createChannel(temp.d);
-                            }
-                            break;
-                        case "CHANNEL_DELETE":
-                            if (this.initialized) {
-                                this.delChannel(temp.d);
-                            }
-                            break;
-                        case "GUILD_DELETE":
-                            {
-                                const guildy = this.guildids[temp.d.id];
-                                delete this.guildids[temp.d.id];
-                                this.guilds.splice(this.guilds.indexOf(guildy), 1);
-                                guildy.html.remove();
-                                break;
-                            }
-                        case "GUILD_CREATE":
-                            {
-                                const guildy = new Guild(temp.d, this, this.user);
-                                this.guilds.push(guildy);
-                                this.guildids[guildy.id] = guildy;
-                                document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"));
-                            }
-                    }
-                }
-                else if (temp.op === 10) {
-                    console.log("heartbeat down");
-                    this.wsinterval = setInterval(_ => {
-                        if (this.connectionSucceed === 0)
-                            this.connectionSucceed = Date.now();
-                        this.ws.send(JSON.stringify({ op: 1, d: this.packets }));
-                    }, temp.d.heartbeat_interval);
-                    this.packets = 1;
-                }
-                else if (temp.op != 11) {
-                    this.packets++;
+                        }
+                    case "GUILD_CREATE":
+                        {
+                            const guildy = new Guild(temp.d, this, this.user);
+                            this.guilds.push(guildy);
+                            this.guildids[guildy.id.id] = guildy;
+                            document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"));
+                        }
                 }
             }
-            catch (error) {
-                console.error(error);
+            else if (temp.op === 10) {
+                console.log("heartbeat down");
+                this.wsinterval = setInterval(_ => {
+                    if (this.connectionSucceed === 0)
+                        this.connectionSucceed = Date.now();
+                    this.ws.send(JSON.stringify({ op: 1, d: this.packets }));
+                }, temp.d.heartbeat_interval);
+                this.packets = 1;
+            }
+            else if (temp.op != 11) {
+                this.packets++;
             }
         });
         this.ws.addEventListener("close", event => {
@@ -253,15 +250,15 @@ class Localuser {
         return undefined;
     }
     updateChannel(JSON) {
-        this.guildids[JSON.guild_id].updateChannel(JSON);
-        if (JSON.guild_id === this.lookingguild.id) {
+        SnowFlake.getSnowFlakeFromID(JSON.guild_id, Guild).getObject().updateChannel(JSON);
+        if (JSON.guild_id === this.lookingguild.id.id) {
             this.loadGuild(JSON.guild_id);
         }
     }
     createChannel(JSON) {
         JSON.guild_id ??= "@me";
-        this.guildids[JSON.guild_id].createChannelpac(JSON);
-        if (JSON.guild_id === this.lookingguild.id) {
+        SnowFlake.getSnowFlakeFromID(JSON.guild_id, Guild).getObject().createChannelpac(JSON);
+        if (JSON.guild_id === this.lookingguild.id.id) {
             this.loadGuild(JSON.guild_id);
         }
     }
@@ -469,10 +466,10 @@ class Localuser {
     unreads() {
         console.log(this.guildhtml);
         for (const thing of this.guilds) {
-            if (thing.id === "@me") {
+            if (thing.id.id === "@me") {
                 continue;
             }
-            thing.unreads(this.guildhtml[thing.id]);
+            thing.unreads(this.guildhtml[thing.id.id]);
         }
     }
     typingStart(typing) {

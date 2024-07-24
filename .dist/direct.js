@@ -2,6 +2,7 @@ import { Guild } from "./guild.js";
 import { Channel } from "./channel.js";
 import { Message } from "./message.js";
 import { User } from "./user.js";
+import { SnowFlake } from "./snowflake.js";
 class Direct extends Guild {
     constructor(JSON, owner) {
         super(-1, owner, null);
@@ -14,16 +15,16 @@ class Direct extends Guild {
         this.headers = this.localuser.headers;
         this.channels = [];
         this.channelids = {};
-        this.id = "@me";
+        this.id = new SnowFlake("@me", this);
         this.properties = {};
         this.roles = [];
-        this.roleids = {};
+        this.roleids = new Map();
         this.prevchannel = undefined;
         this.properties.name = "Direct Messages";
         for (const thing of JSON) {
             const temp = new Group(thing, this);
             this.channels.push(temp);
-            this.channelids[temp.id] = temp;
+            this.channelids[temp.id.id] = temp;
         }
         this.headchannels = this.channels;
     }
@@ -36,7 +37,7 @@ class Direct extends Guild {
     }
     sortchannels() {
         this.headchannels.sort((a, b) => {
-            const result = (BigInt(a.lastmessageid) - BigInt(b.lastmessageid));
+            const result = (a.lastmessageid.getUnixTime() - b.lastmessageid.getUnixTime());
             return Number(-result);
         });
     }
@@ -72,15 +73,15 @@ class Group extends Channel {
             this.user = this.localuser.user;
         }
         this.name ??= this.localuser.user.username;
-        this.id = JSON.id;
+        this.id = new SnowFlake(JSON.id, this);
         this.parent_id = null;
         this.parent = null;
         this.children = [];
         this.guild_id = "@me";
-        this.messageids = {};
-        this.permission_overwrites = {};
-        this.lastmessageid = JSON.last_message_id;
-        this.lastmessageid ??= "0";
+        this.messageids = new Map();
+        this.permission_overwrites = new Map();
+        this.lastmessageid = SnowFlake.getSnowFlakeFromID(JSON.last_message_id, Message);
+        this.lastmessageid ??= new SnowFlake("0", undefined);
         this.mentions = 0;
         this.setUpInfiniteScroller();
     }
@@ -116,10 +117,10 @@ class Group extends Channel {
     }
     messageCreate(messagep) {
         const messagez = new Message(messagep.d, this);
-        this.idToNext[this.lastmessageid] = messagez.id;
-        this.idToPrev[messagez.id] = this.lastmessageid;
+        this.idToNext.set(this.lastmessageid, messagez.id);
+        this.idToPrev.set(messagez.id, this.lastmessageid);
         this.lastmessageid = messagez.id;
-        this.messageids[messagez.id] = messagez;
+        this.messageids.set(messagez.id, messagez);
         if (messagez.author === this.localuser.user) {
             this.lastreadmessageid = messagez.id;
             if (this.myhtml) {
