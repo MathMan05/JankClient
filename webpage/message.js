@@ -177,16 +177,16 @@ class Message {
 			this.div = null
 		}
 
-		const prev = this.channel.idToPrev[this.id]
-		const next = this.channel.idToNext[this.id]
-		this.channel.idToNext[prev] = next
-		this.channel.idToPrev[next] = prev
-		delete this.channel.messageids[this.id]
-		const regen = this.channel.messageids[prev]
+		const prev = this.channel.idToPrev.get(this.id)
+		const next = this.channel.idToNext.get(this.id)
+		this.channel.idToNext.set(prev, next)
+		this.channel.idToPrev(next, prev)
+		this.channel.messageids.delete(this.id)
+		const regen = this.channel.messageids.get(prev)
 		if (regen) regen.generateMessage()
 	}
 	generateMessage(premessage = null) {
-		if (!premessage) premessage = this.channel.messageids[this.channel.idToNext[this.id]]
+		if (!premessage) premessage = this.channel.messageids.get(this.channel.idToNext[this.id])
 
 		const div = this.div
 		if (this === this.channel.replyingto) div.classList.add("replying")

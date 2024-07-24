@@ -125,11 +125,11 @@ class LocalUser {
 						returny()
 						break
 					case "MESSAGE_UPDATE":
-						const message = this.resolveChannelFromID(json.d.channel_id).messageids[json.d.id]
+						const message = this.resolveChannelFromID(json.d.channel_id).messageids.get(json.d.id)
 						message.giveData(json.d)
 						break
 					case "MESSAGE_DELETE":
-						this.guildids[json.d.guild_id].channelids[json.d.channel_id].messageids[json.d.id].deleteEvent()
+						this.guildids[json.d.guild_id].channelids[json.d.channel_id].messageids.get(json.d.id).deleteEvent()
 						break
 					case "TYPING_START":
 						if (this.initialized) this.typingStart(json)

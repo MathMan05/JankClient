@@ -1,8 +1,8 @@
 "use strict"
 
 class Channel {
-	idToPrev = {}
-	idToNext = {}
+	idToPrev = new Map()
+	idToNext = new Map()
 	static contextmenu = new Contextmenu()
 	static setupcontextmenu() {
 		this.contextmenu.addbutton("Copy channel id", function() {
@@ -41,22 +41,21 @@ class Channel {
 	setUpInfiniteScroller() {
 		const ids = {}
 		this.infinite = new InfiniteScroller((async (id, offset) => {
-			if (offset === 1) {
-				if (this.idToPrev[id]) {
-					return this.idToPrev[id]
-				} else {
+			if (offset == 1) {
+				if (this.idToPrev.has(id)) return this.idToPrev.get(id)
+				else {
 					await this.grabmoremessages(id)
-					return this.idToPrev[id]
+					return this.idToPrev.get(id)
 				}
 			} else {
-				return this.idToNext[id]
+				return this.idToNext.get(id)
 			}
 		}), (id => {
 			let res
 			const promise = new Promise(_ => {
 				res = _
 			})
-			const html = this.messageids[id].buildhtml(this.messageids[this.idToPrev[id]], promise)
+			const html = this.messageids.get(id).buildhtml(this.messageids.get(this.idToPrev.get(id)), promise)
 			ids[id] = res
 			return html
 		}), (id => {
@@ -78,7 +77,7 @@ class Channel {
 		this.parent = null
 		this.children = []
 		this.guild_id = json.guild_id
-		this.messageids = {}
+		this.messageids = new Map()
 		this.topic = json.topic
 		this.nsfw = json.nsfw
 		this.position = json.position
@@ -448,7 +447,7 @@ class Channel {
 		} else replybox.classList.add("hideReplyBox")
 	}
 	async getmessage(id) {
-		if (this.messageids[id]) return this.messageids[id]
+		if (this.messageids.has(id)) return this.messageids.get(id)
 
 		const gety = await fetch(instance.api + "/channels/" + this.id + "/messages?limit=1&around=" + id, {
 			headers: this.headers
@@ -499,13 +498,12 @@ class Channel {
 		for (const thing of json) {
 			const message = new Message(thing, this)
 			if (prev) {
-				this.idToNext[message.id] = prev.id
-				this.idToPrev[prev.id] = message.id
+				this.idToNext.set(message.id, prev.id)
+				this.idToPrev.set(prev.id, message.id)
 			}
 			prev = message
-			if (this.messageids[message.id] === void 0) {
-				this.messageids[message.id] = message
-			}
+
+			if (this.messageids.get(message.id) === void 0) this.messageids.get(message.id) = message
 		}
 	}
 	delChannel(json) {
@@ -535,11 +533,11 @@ class Channel {
 			if (json[Number(i) + 1] === void 0) next = void 0
 			else next = new Message(json[Number(i) + 1], this)
 
-			if (this.messageids[messager.id] === void 0) {
-				this.idToNext[messager.id] = previd
-				this.idToPrev[previd] = messager.id
+			if (this.messageids.get(messager.id) === void 0) {
+				this.idToNext.set(messager.id, previd)
+				this.idToPrev.set(previd, messager.id)
 				previd = messager.id
-				this.messageids[messager.id] = messager
+				this.messageids.set(messager.id, messager)
 			} else console.trace("How???")
 		}
 	}
@@ -559,7 +557,7 @@ class Channel {
 		this.parent = null
 		this.children = []
 		this.guild_id = json.guild_id
-		this.messageids = {}
+		this.messageids = new Map()
 		this.permission_overwrites = json.permission_overwrites
 		this.topic = json.topic
 		this.nsfw = json.nsfw
@@ -626,10 +624,10 @@ class Channel {
 		if (!this.hasPermission("VIEW_CHANNEL")) return
 
 		const messagez = new Message(messagep.d, this)
-		this.idToNext[this.lastmessageid] = messagez.id
-		this.idToPrev[messagez.id] = this.lastmessageid
+		this.idToNext.set(this.lastmessageid, messagez.id)
+		this.idToPrev.set(messagez.id, this.lastmessageid)
 		this.lastmessageid = messagez.id
-		this.messageids[messagez.id] = messagez
+		this.messageids.set(messagez.id, messagez)
 
 		if (messagez.author === this.localuser.user) {
 			this.lastreadmessageid = messagez.id

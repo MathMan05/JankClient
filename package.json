@@ -5,7 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "minify": "node minify.js"
+    "minify": "node minify.js",
+    "taiko": "taiko",
+    "test": "taiko index.js",
+    "dev": "taiko index.js --observe"
   },
   "keywords": [
     "spacebar"
@@ -38,6 +41,7 @@
     "eslint-plugin-html": "^8.1.1",
     "eslint-plugin-sonarjs": "^1.0.3",
     "eslint-plugin-unicorn": "^54.0.0",
-    "globals": "^15.8.0"
+    "globals": "^15.8.0",
+    "taiko": "^1.4.1"
   }
 }

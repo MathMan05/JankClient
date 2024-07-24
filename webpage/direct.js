@@ -15,7 +15,7 @@ class Group extends Channel {
 		this.parent = null
 		this.children = []
 		this.guild_id = "@me"
-		this.messageids = {}
+		this.messageids = new Map()
 		this.permission_overwrites = {}
 		this.lastmessageid = json.last_message_id
 		this.lastmessageid ??= "0"
@@ -57,10 +57,10 @@ class Group extends Channel {
 	}
 	messageCreate(messagep) {
 		const messagez = new Message(messagep.d, this)
-		this.idToNext[this.lastmessageid] = messagez.id
-		this.idToPrev[messagez.id] = this.lastmessageid
+		this.idToNext(this.lastmessageid, messagez.id)
+		this.idToPrev.set(messagez.id, this.lastmessageid)
 		this.lastmessageid = messagez.id
-		this.messageids[messagez.id] = messagez
+		this.messageids.set(messagez.id, messagez)
 
 		if (messagez.author === this.localuser.user) {
 			this.lastreadmessageid = messagez.id

@@ -24,9 +24,6 @@ class SpecialUser {
 		this.token = json.token
 		this.loggedin = json.loggedin
 		this.json = json
-		if (!this.serverurls || !this.email || !this.token) {
-			console.error("There are fundamentally missing pieces of info missing from this user")
-		}
 	}
 	set pfpsrc(newPfp) {
 		this.json.pfpsrc = newPfp
