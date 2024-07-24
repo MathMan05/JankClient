@@ -83,6 +83,7 @@ th {
 	flex-wrap: nowrap;
 	flex-direction: column;
 	max-height: 20in;
+	padding:.02in .2in;
 	flex-shrink: 0;
 	width: 100%;
 	box-sizing: border-box;
@@ -137,7 +138,8 @@ samp {
 	padding: .3cm;
 	width: 100%;
 	flex-grow:1;
-    /*margin-top: .1cm;*/
+	margin-top: .1cm;
+	height: calc(100% - .5in - .2cm);
 	display: flex;
 	flex-direction: column;
 	box-sizing: border-box;
@@ -303,10 +305,6 @@ p {
 	/* height: 100%; */
 }
 
-#userdock {
-	height: .5in;
-}
-
 #channels p {
 	text-indent: 10px;
 }
@@ -353,7 +351,7 @@ div {
 	padding: 3px;
 	border-radius: .25cm;
 	width: 100%;
-	min-height: .5in;
+	min-height: .6in;
 	z-index: -100;
 	display: flex;
 	max-height: 1.5in;
@@ -524,7 +522,6 @@ hr {
 	/* width: 00; */
 	flex-wrap: nowrap;
 	justify-content: space-between;
-	margin-left: .2in;
 }
 
 .reply {
@@ -543,7 +540,7 @@ hr {
 	vertical-align: middle;
 	width: 25px;
 	border-color: var(--reply-border);
-	margin-left: 26px;
+	margin-left: .2in;
 }
 
 .replypfp {
@@ -718,6 +715,7 @@ textarea:focus-visible {
 	justify-content: space-between;
 	align-items: center;
 	padding: .02in;
+	box-sizing: border-box;
 }
 
 #channels-td {
@@ -1047,6 +1045,7 @@ span {
 	font-size:.2in;
 	font-weight:bold;
 	display: flex;
+	padding-left:.2in;
 }
 #mobileback{
 	/* display:inline-block; */
@@ -1173,7 +1172,6 @@ span {
 	justify-content: space-between;
 	flex-direction: row;
 	align-items: flex-end;
-	padding-top: .05in;
 	box-sizing: border-box;
 }
 #replybox span{
@@ -1295,6 +1293,7 @@ span {
 	display:flex;
 	flex-direction: column;
 	justify-content: center;
+	padding-left: 0.1in;
 }
 .savediv{
 	position:absolute;
@@ -1314,7 +1313,6 @@ span {
 	button{
 		background:var(--green);
 	}
-	padding-left: 0.1in;
 }
 #status {
 	font-size: 0.8em;
