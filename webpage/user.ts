@@ -4,12 +4,13 @@ import {MarkDown} from "./markdown.js";
 import {Contextmenu} from "./contextmenu.js";
 import {Localuser} from "./localuser.js";
 import {Guild} from "./guild.js";
+import { SnowFlake } from "./snowflake.js";
 
 class User{
     static userids={};
     owner:Localuser;
     hypotheticalpfp:boolean;
-    id:string;
+    id:SnowFlake<User>;
     avatar:string;
     username:string;
     bio:MarkDown;
@@ -19,13 +20,13 @@ class User{
     static contextmenu:Contextmenu=new Contextmenu("User Menu");
     static setUpContextMenu(){
         this.contextmenu.addbutton("Copy user id",function(){
-            navigator.clipboard.writeText(this.id);
+            navigator.clipboard.writeText(this.id.id);
         });
         this.contextmenu.addbutton("Message user",function(){
             fetch(this.info.api.toString()+"/v9/users/@me/channels",
                 {method:"POST",
-                    body:JSON.stringify({"recipients":[this.id]}),
-                    headers: this.headers
+                    body:JSON.stringify({"recipients":[this.id.id]}),
+                    headers: this.localuser.headers
                 });
         })
     }
@@ -53,6 +54,10 @@ class User{
                     this.bio=new MarkDown(userjson[thing],this.localuser);
                     continue;
                 }
+                if(thing === "id"){
+                    this.id=new SnowFlake(userjson[thing],this);
+                    continue;
+                }
                 this[thing]=userjson[thing];
             }
             this.hypotheticalpfp=false;
@@ -67,7 +72,7 @@ class User{
         const pfp=document.createElement('img');
         pfp.src=this.getpfpsrc();
         pfp.classList.add("pfp");
-        pfp.classList.add("userid:"+this.id);
+        pfp.classList.add("userid:"+this.id.id);
         return pfp;
     }
     userupdate(json){
@@ -77,7 +82,7 @@ class User{
         }
     }
     bind(html:HTMLElement,guild:Guild=null){
-        if(guild&&guild.id!=="@me"){
+        if(guild&&guild.id.id!=="@me"){
             Member.resolve(this,guild).then(_=>{
                 _.bind(html);
             }).catch(_=>{
@@ -98,7 +103,7 @@ class User{
         this.hypotheticalpfp=false;
         const src=this.getpfpsrc();
         console.log(src)
-        for(const thing of document.getElementsByClassName("userid:"+this.id)){
+        for(const thing of document.getElementsByClassName("userid:"+this.id.id)){
             (thing as HTMLImageElement).src=src;
         }
     }
@@ -107,7 +112,7 @@ class User{
             return this.avatar;
         }
         if(this.avatar!=null){
-            return this.info.cdn.toString()+"avatars/"+this.id+"/"+this.avatar+".png";
+            return this.info.cdn.toString()+"avatars/"+this.id.id+"/"+this.avatar+".png";
         }else{
             return this.info.cdn.toString()+"embed/avatars/3.png";
         }

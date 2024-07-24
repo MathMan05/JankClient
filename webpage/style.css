@@ -115,12 +115,17 @@ samp {
 }
 
 .infosection {
+	hr{
+		width:100%;
+	}
 	display: inline-block;
 	background-color: var(--profile-info-bg);
 	border-radius: 10%;
 	padding: .3cm;
 	width: calc(100% - .6cm);
 	height: calc(100% - .75in);
+	display: flex;
+	flex-direction: column;
 }
 
 .profile {
@@ -1389,4 +1394,13 @@ span {
 .smallemoji{
 	width:22px;
 	height:22px;
+}
+#typebox[contenteditable=false]{
+	
+	cursor:not-allowed;
+	
+}
+#typebox[contenteditable=false]:before{
+	content:'You can\'t chat here';
+	color:color-mix(in hsl, var(--primary-bg),var(--primary-text));
 }

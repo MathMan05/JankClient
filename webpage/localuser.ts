@@ -7,6 +7,8 @@ import {Member} from "./member.js";
 import {MarkDown} from "./markdown.js";
 import {Fullscreen} from "./fullscreen.js";
 import {setTheme, Specialuser} from "./login.js";
+import { SnowFlake } from "./snowflake.js";
+import { Message } from "./message.js";
 
 const wsCodesRetry=new Set([4000,4003,4005,4007,4008,4009]);
 
@@ -23,12 +25,12 @@ class Localuser{
     devPortal:Fullscreen;
     ready;
     guilds:Guild[];
-    guildids:{ [key: string]: Guild };
+    guildids:Map<string,Guild>;
     user:User;
     status:string;
     channelfocus:Channel;
     lookingguild:Guild;
-    guildhtml:Record<string, HTMLDivElement>;
+    guildhtml:Map<string, HTMLDivElement>;
     ws:WebSocket;
     typing:[string,number][];
     wsinterval:NodeJS.Timeout;
@@ -48,14 +50,14 @@ class Localuser{
         this.initialized=true;
         this.ready=ready;
         this.guilds=[];
-        this.guildids={};
+        this.guildids=new Map();
         this.user=new User(ready.d.user,this);
         this.userinfo.username=this.user.username;
         this.userinfo.pfpsrc=this.user.getpfpsrc();
         this.status=this.ready.d.user_settings.status;
         this.channelfocus=null;
         this.lookingguild=null;
-        this.guildhtml={};
+        this.guildhtml=new Map();
         const members={};
         for(const thing of ready.d.merged_members){
             members[thing[0].guild_id]=thing[0];
@@ -64,12 +66,12 @@ class Localuser{
         for(const thing of ready.d.guilds){
             const temp=new Guild(thing,this,members[thing.id]);
             this.guilds.push(temp);
-            this.guildids[temp.id]=temp;
+            this.guildids[temp.id.id]=temp;
         }
         {
             const temp=new Direct(ready.d.private_channels,this);
             this.guilds.push(temp);
-            this.guildids[temp.id]=temp;
+            this.guildids[temp.id.id]=temp;
         }
         console.log(ready.d.user_guild_settings.entries);
 
@@ -86,7 +88,7 @@ class Localuser{
                 continue
             }
             const guildid=guild.id;
-            this.guildids[guildid].channelids[thing.channel_id].readStateInfo(thing);
+            this.guildids[guildid.id].channelids[thing.channel_id].readStateInfo(thing);
         }
         this.typing=[];
     }
@@ -104,7 +106,7 @@ class Localuser{
         clearInterval(this.wsinterval);
         this.outoffocus();
         this.guilds=[];
-        this.guildids={};
+        this.guildids=new Map();
         this.ws.close(4000)
     }
     async initwebsocket():Promise<void>{
@@ -138,7 +140,7 @@ class Localuser{
         this.ws.addEventListener('message', (event) => {
 
 
-        try{
+
             const temp=JSON.parse(event.data);
             console.log(temp)
             if(temp.op==0){
@@ -150,7 +152,7 @@ class Localuser{
                         break;
                     case "MESSAGE_DELETE":
                         console.log(temp.d);
-                        this.guildids[temp.d.guild_id].channelids[temp.d.channel_id].messageids[temp.d.id].deleteEvent();
+                        SnowFlake.getSnowFlakeFromID(temp.d.id,Message).getObject().deleteEvent();
                         break;
                     case "READY":
                         this.gottenReady(temp);
@@ -158,7 +160,7 @@ class Localuser{
                         returny();
                         break;
                     case "MESSAGE_UPDATE":
-                        const message=this.resolveChannelFromID(temp.d.channel_id).messageids[temp.d.id];
+                        const message=SnowFlake.getSnowFlakeFromID(temp.d.id,Message).getObject();
                         message.giveData(temp.d);
                         break;
                     case "TYPING_START":
@@ -168,7 +170,7 @@ class Localuser{
                         break;
                     case "USER_UPDATE":
                         if(this.initialized){
-                            const users=User.userids[temp.d.id];
+                            const users=SnowFlake.getSnowFlakeFromID(temp.d.id,User).getObject() as User;
                             console.log(users,temp.d.id)
                             if(users){
                                 users.userupdate(temp.d);
@@ -202,7 +204,7 @@ class Localuser{
                     {
                         const guildy=new Guild(temp.d,this,this.user);
                         this.guilds.push(guildy);
-                        this.guildids[guildy.id]=guildy;
+                        this.guildids[guildy.id.id]=guildy;
                         document.getElementById("servers").insertBefore(guildy.generateGuildIcon(),document.getElementById("bottomseparator"));
                     }
                 }
@@ -218,9 +220,7 @@ class Localuser{
             }else if(temp.op!=11){
                 this.packets++
             }
-        }catch(error){
-            console.error(error)
-        }
+
 
         });
 
@@ -264,15 +264,15 @@ class Localuser{
         return undefined;
     }
     updateChannel(JSON):void{
-        this.guildids[JSON.guild_id].updateChannel(JSON);
-        if(JSON.guild_id===this.lookingguild.id){
+        SnowFlake.getSnowFlakeFromID(JSON.guild_id,Guild).getObject().updateChannel(JSON);
+        if(JSON.guild_id===this.lookingguild.id.id){
             this.loadGuild(JSON.guild_id);
         }
     }
     createChannel(JSON):void{
         JSON.guild_id??="@me";
-        this.guildids[JSON.guild_id].createChannelpac(JSON);
-        if(JSON.guild_id===this.lookingguild.id){
+        SnowFlake.getSnowFlakeFromID(JSON.guild_id,Guild).getObject().createChannelpac(JSON);
+        if(JSON.guild_id===this.lookingguild.id.id){
             this.loadGuild(JSON.guild_id);
         }
     }
@@ -497,8 +497,8 @@ class Localuser{
     unreads():void{
         console.log(this.guildhtml)
         for(const thing of this.guilds){
-            if(thing.id==="@me"){continue;}
-            thing.unreads(this.guildhtml[thing.id]);
+            if(thing.id.id==="@me"){continue;}
+            thing.unreads(this.guildhtml[thing.id.id]);
         }
     }
     typingStart(typing):void{
