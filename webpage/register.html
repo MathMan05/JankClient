@@ -26,7 +26,7 @@
 				</label>
 				<br>
 				<p id="verify"></p>
-				<input type="text" id="instancein" placeholder="Instance URL" value="https://spacebar.vanillaminigames.net/" required>
+				<input type="text" id="instancein" placeholder="Instance URL" value="https://spacebar.vanillaminigames.net/" required pattern="^https?://.+\..+">
 				<br>
 				<br>
 
@@ -34,15 +34,15 @@
 					<b>Email:</b>
 				</label>
 				<br>
-				<input type="text" id="email" placeholder="Enter Email" required autocomplete="email">
+				<input type="email" id="email" placeholder="Enter email address" required autocomplete="email">
 				<br>
 				<br>
 
-				<label for="username">
+				<label for="uname">
 					<b>Username:</b>
 				</label>
 				<br>
-				<input type="text" id="username" placeholder="Enter Username" required autocomplete="username">
+				<input type="text" id="uname" placeholder="Enter username" required autocomplete="username">
 				<br>
 				<br>
 
@@ -50,7 +50,7 @@
 					<b>Password:</b>
 				</label>
 				<br>
-				<input type="password" id="pass1" placeholder="Enter Password" required autocomplete="new-password">
+				<input type="password" id="pass1" placeholder="Enter password" required autocomplete="new-password">
 				<br>
 				<br>
 
@@ -58,7 +58,7 @@
 					<b>Enter password again:</b>
 				</label>
 				<br>
-				<input type="password" id="pass2" placeholder="Enter Password Again" required autocomplete="new-password">
+				<input type="password" id="pass2" placeholder="Enter password again" required autocomplete="new-password">
 				<br>
 				<br>
 
@@ -76,7 +76,7 @@
 				<input type="checkbox" id="tos-check">
 
 				<br>
-				<p class="wrongred" id="wrong"></p>
+				<p class="wrongred" id="wrong" role="alert"></p>
 
 				<div id="h-captcha"></div>
 				<br>

@@ -1,2 +1,5 @@
-# Dependency directories
+# Dependency directory
 node_modules/
+
+# Test files
+accountData.json

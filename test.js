@@ -89,7 +89,7 @@ const main = async () => {
 					username,
 					email: "no-reply+" + username + "@vanillaminigames.net",
 					password
-				}))
+				}, null, "\t"))
 			})
 		}
 
