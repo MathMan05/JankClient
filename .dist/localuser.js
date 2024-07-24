@@ -60,16 +60,16 @@ class Localuser {
         for (const thing of ready.d.guilds) {
             const temp = new Guild(thing, this, members[thing.id]);
             this.guilds.push(temp);
-            this.guildids[temp.id] = temp;
+            this.guildids.set(temp.id, temp);
         }
         {
             const temp = new Direct(ready.d.private_channels, this);
             this.guilds.push(temp);
-            this.guildids[temp.id] = temp;
+            this.guildids.set(temp.id, temp);
         }
         console.log(ready.d.user_guild_settings.entries);
         for (const thing of ready.d.user_guild_settings.entries) {
-            this.guildids[thing.guild_id].notisetting(thing);
+            this.guildids.get(thing.guild_id).notisetting(thing);
         }
         for (const thing of ready.d.read_state.entries) {
             const channel = this.resolveChannelFromID(thing.id);
@@ -81,7 +81,7 @@ class Localuser {
                 continue;
             }
             const guildid = guild.snowflake;
-            this.guildids[guildid.id].channelids[thing.channel_id].readStateInfo(thing);
+            this.guildids.get(guildid.id).channelids[thing.channel_id].readStateInfo(thing);
         }
         this.typing = [];
     }
@@ -183,8 +183,8 @@ class Localuser {
                         break;
                     case "GUILD_DELETE":
                         {
-                            const guildy = this.guildids[temp.d.id];
-                            delete this.guildids[temp.d.id];
+                            const guildy = this.guildids.get(temp.d.id);
+                            this.guildids.delete(temp.d.id);
                             this.guilds.splice(this.guilds.indexOf(guildy), 1);
                             guildy.html.remove();
                             break;
@@ -193,7 +193,7 @@ class Localuser {
                         {
                             const guildy = new Guild(temp.d, this, this.user);
                             this.guilds.push(guildy);
-                            this.guildids[guildy.id] = guildy;
+                            this.guildids.set(guildy.id, guildy);
                             document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"));
                         }
                 }
@@ -264,7 +264,7 @@ class Localuser {
     }
     delChannel(JSON) {
         JSON.guild_id ??= "@me";
-        this.guildids[JSON.guild_id].delChannel(JSON);
+        this.guildids.get(JSON.guild_id).delChannel(JSON);
         if (JSON.guild_id === this.lookingguild.snowflake) {
             this.loadGuild(JSON.guild_id);
         }
@@ -287,10 +287,11 @@ class Localuser {
         return this.lookingguild.isAdmin();
     }
     loadGuild(id) {
-        let guild = this.guildids[id];
+        let guild = this.guildids.get(id);
         if (!guild) {
-            guild = this.guildids["@me"];
+            guild = this.guildids.get("@me");
         }
+        console.log(this.guildids, id, guild);
         if (this.lookingguild) {
             this.lookingguild.html.classList.remove("serveropen");
         }
@@ -310,8 +311,8 @@ class Localuser {
         const div = document.createElement("div");
         div.textContent = "⌂";
         div.classList.add("home", "servericon");
-        div["all"] = this.guildids["@me"];
-        this.guildids["@me"].html = outdiv;
+        div["all"] = this.guildids.get("@me");
+        this.guildids.get("@me").html = outdiv;
         const unread = document.createElement("div");
         unread.classList.add("unread");
         outdiv.append(unread);
@@ -358,6 +359,7 @@ class Localuser {
                 this.guildDiscovery();
             });
         }
+        console.log("test");
         this.unreads();
     }
     createGuild() {
@@ -460,7 +462,7 @@ class Localuser {
     }
     messageCreate(messagep) {
         messagep.d.guild_id ??= "@me";
-        this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep);
+        this.guildids.get(messagep.d.guild_id).channelids[messagep.d.channel_id].messageCreate(messagep);
         this.unreads();
     }
     unreads() {
@@ -469,7 +471,9 @@ class Localuser {
             if (thing.id === "@me") {
                 continue;
             }
-            thing.unreads(this.guildhtml[thing.id]);
+            const html = this.guildhtml.get(thing.id);
+            console.log(html);
+            thing.unreads(html);
         }
     }
     typingStart(typing) {
