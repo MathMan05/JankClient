@@ -1174,6 +1174,7 @@ span {
 	flex-direction: row;
 	align-items: flex-end;
 	padding-top: .05in;
+	box-sizing: border-box;
 }
 #replybox span{
 	align-self:center;
