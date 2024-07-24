@@ -49,11 +49,6 @@ class Channel {
 				}
 			} else return this.idToNext.get(id)
 		}), (id => {
-			if (!this.messageids[id]) {
-				console.warn("Message " + id + " not found")
-				return document.createElement("div")
-			}
-
 			let res
 			const promise = new Promise(_ => {
 				res = _
@@ -509,7 +504,7 @@ class Channel {
 			}
 			prev = message
 
-			if (this.messageids.get(message.id) === void 0) this.messageids.get(message.id) = message
+			if (this.messageids.get(message.id) === void 0) this.messageids.set(message.id, message)
 		}
 	}
 	delChannel(json) {

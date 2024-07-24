@@ -25,7 +25,9 @@ const {
 	checkBox,
 	accept,
 	closeTab,
-	currentURL
+	currentURL,
+	waitFor,
+	dropDown
 } = require("taiko")
 const taiko = require("taiko")
 
@@ -46,7 +48,7 @@ const main = async () => {
 		if (prevAccount.username) {
 			await goto(baseUrl + "login")
 
-			await test("Login", async () => {
+			await test("Login", async t => {
 				await write(prevAccount.email, textBox("Email"))
 				await write(prevAccount.password, textBox("Password"))
 
