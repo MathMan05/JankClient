@@ -8,25 +8,28 @@ class Reaction {
 		this.json = json
 	}
 	generateHTML() {
-		const reactionContainer = document.createElement("button")
+		const reactionContainer = document.createElement("div")
+		reactionContainer.classList.add("reaction")
 
-		if (this.json.id) {
+		if (this.json.me) reactionContainer.classList.add("me")
+
+		if (this.json.emoji.id) {
 			const img = document.createElement("img")
 			img.crossOrigin = "anonymous"
-			img.src = instance.cdn + "/emojis/" + this.json.id + ".png?size=32"
-			img.width = 32
-			img.height = 32
+			img.src = instance.cdn + "/emojis/" + this.json.emoji.id + ".png?size=16"
+			img.width = 16
+			img.height = 16
 			img.alt = ""
-			reactionContainer.append(img)
+			reactionContainer.appendChild(img)
 		} else {
 			const text = document.createElement("span")
 
-			if (Object.values(emojis).findIndex(e => e == this.json.name) != -1) {
-				console.warn("twemoji reaction found", emoji)
-				text.textContent = this.json.name
-			} else text.textContent = this.json.name
+			if (Object.values(emojis).some(e => e == this.json.emoji.name)) {
+				console.warn("twemoji reaction found", this.json)
+				text.textContent = this.json.emoji.name
+			} else text.textContent = this.json.emoji.name
 
-			reactionContainer.append(text)
+			reactionContainer.appendChild(text)
 		}
 
 		return reactionContainer

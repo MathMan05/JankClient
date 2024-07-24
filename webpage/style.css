@@ -483,7 +483,7 @@ div {
 	min-height: 46px;
 	display: flex;
 	max-height: 1.5in;
-	overflow-y: scroll;
+	overflow-y: auto;
 	color: var(--primary-text);
 	background-color: var(--textarea-bg);
 	border: 1px solid;
@@ -782,6 +782,8 @@ textarea {
 .messageimg {
 	cursor: pointer;
 	user-select: none;
+	max-width: 4in;
+	max-height: unset;
 }
 
 .tag {
@@ -1191,6 +1193,7 @@ span {
 	border-radius: .1in .1in 0 0;
 	padding: 0 .05in;
 	box-sizing: border-box;
+	top: 6px;
 	position: relative;
 }
 
@@ -1525,15 +1528,17 @@ video {
 	cursor: not-allowed;
 }
 
-.sizeupdown {
-	height: 4in;
+.reaction {
+	padding: 1px 8px;
+	border-radius: 5px;
+	border: 2px solid var(--light-border);
+	background-color: var(--code-bg);
+}
+.reaction.me {
+	border: 2px solid var(--mention-color);
+	background-color: var(--mention-bg);
 }
 
-.bigemoji {
-	width: 48px;
-	height: 48px;
-}
-.smallemoji {
-	width: 22px;
-	height: 22px;
+.reaction span {
+	font-size: 13px;
 }

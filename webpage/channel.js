@@ -49,6 +49,11 @@ class Channel {
 				}
 			} else return this.idToNext.get(id)
 		}), (id => {
+			if (!this.messageids[id]) {
+				console.warn("Message " + id + " not found")
+				return document.createElement("div")
+			}
+
 			let res
 			const promise = new Promise(_ => {
 				res = _
@@ -451,7 +456,10 @@ class Channel {
 			headers: this.headers
 		})
 		const json = await gety.json()
-		return new Message(json[0], this)
+
+		const msg = new Message(json[0], this)
+		this.messageids[msg.id] = msg
+		return msg
 	}
 	static genid = 0
 	async getHTML() {

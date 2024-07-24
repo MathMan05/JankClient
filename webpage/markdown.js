@@ -541,22 +541,22 @@ class MarkDown {
 	}
 	giveBox(box) {
 		let prevcontent = ""
-		box.onkeyup = () => {
+		box.addEventListener("keyup", () => {
 			const content = MarkDown.gatherBoxText(box)
 			if (content != prevcontent) {
 				prevcontent = content
 				this.txt = content.split("")
 				this.boxupdate(box)
 			}
-		}
+		})
 
-		box.onpaste = event => {
+		box.addEventListener("paste", event => {
 			console.log(event.clipboardData.types)
 			const data = event.clipboardData.getData("text")
 			document.execCommand("insertHTML", false, data)
 			event.preventDefault()
 			box.onkeyup(new KeyboardEvent("_"))
-		}
+		})
 	}
 	boxupdate(box) {
 		const restore = saveCaretPosition(box)

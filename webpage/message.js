@@ -49,12 +49,17 @@ class Message {
 			navigator.clipboard.writeText(this.id)
 		})
 
+		Message.contextmenu.addbutton("React", function() {
+			this.react()
+		})
+
 		Message.contextmenu.addbutton("Edit", function() {
 			this.channel.editing = this
 			const markdown = document.getElementById("typebox").markdown
 			markdown.txt = this.content.rawString
 			markdown.boxupdate(document.getElementById("typebox"))
 		}, null, m => m.author.id == m.localuser.user.id)
+
 		Message.contextmenu.addbutton("Delete message", function() {
 			this.delete()
 		}, null, msg => msg.canDelete())
@@ -87,13 +92,6 @@ class Message {
 			this.attachments.push(new Attachment(thing, this))
 		}
 
-		if (messagejson.reactions) {
-			this.reactions = []
-			for (const thing of messagejson.reactions) {
-				this.reactions.push(new Reaction(thing, this))
-			}
-		}
-
 		if (messagejson.embeds) {
 			this.embeds = []
 			for (const thing of messagejson.embeds) {
@@ -105,6 +103,13 @@ class Message {
 			this.components = []
 			for (const thing of messagejson.components) {
 				this.components.push(new Component(thing, this))
+			}
+		}
+
+		if (messagejson.reactions) {
+			this.reactions = []
+			for (const thing of messagejson.reactions) {
+				this.reactions.push(new Reaction(thing, this))
 			}
 		}
 
@@ -167,8 +172,8 @@ class Message {
 	}
 	delete() {
 		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
-			headers: this.headers,
-			method: "DELETE"
+			method: "DELETE",
+			headers: this.headers
 		})
 	}
 	deleteEvent() {
@@ -184,6 +189,12 @@ class Message {
 		this.channel.messageids.delete(this.id)
 		const regen = this.channel.messageids.get(prev)
 		if (regen) regen.generateMessage()
+	}
+	react(emoji = "🎭") {
+		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + emoji + "/@me", {
+			method: "PUT",
+			headers: this.headers
+		})
 	}
 	generateMessage(premessage = null) {
 		if (!premessage) premessage = this.channel.messageids.get(this.channel.idToNext[this.id])
@@ -323,6 +334,15 @@ class Message {
 					components.appendChild(thing.generateHTML())
 				}
 				texttxt.appendChild(components)
+			}
+
+			if (this.reactions && this.reactions.length > 0) {
+				const reactions = document.createElement("div")
+				reactions.classList.add("flexltr")
+				for (const thing of this.reactions) {
+					reactions.appendChild(thing.generateHTML())
+				}
+				texttxt.appendChild(reactions)
 			}
 		} else if (this.type == 7) {
 			const text = document.createElement("div")
