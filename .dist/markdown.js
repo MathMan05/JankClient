@@ -500,28 +500,25 @@ class MarkDown {
         restore();
     }
     static gatherBoxText(element) {
-        const children = element.childNodes;
         if (element.tagName.toLowerCase() === "img") {
             return element.alt;
         }
         if (element.tagName.toLowerCase() === "br") {
             return "\n";
         }
-        if (children.length !== 0) {
-            let build = "";
-            for (const thing of children) {
-                if (thing instanceof Text) {
-                    const text = thing.textContent;
-                    build += text;
-                    continue;
-                }
-                const text = this.gatherBoxText(thing);
-                if (text) {
-                    build += text;
-                }
+        let build = "";
+        for (const thing of element.childNodes) {
+            if (thing instanceof Text) {
+                const text = thing.textContent;
+                build += text;
+                continue;
             }
-            return build;
+            const text = this.gatherBoxText(thing);
+            if (text) {
+                build += text;
+            }
         }
+        return build;
     }
 }
 //solution from https://stackoverflow.com/questions/4576694/saving-and-restoring-caret-position-for-contenteditable-div
