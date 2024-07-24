@@ -335,7 +335,6 @@ div {
 
 #typebox {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	/* font-size: 16px; */
 	padding: 3px;
 	border-radius: .25cm;
 	width: 100%;
@@ -343,9 +342,8 @@ div {
 	z-index: -100;
 	max-width: 99%;
 	display: flex;
-	max-height: fit-content;
 	max-height: 1.5in;
-	overflow-y: scroll;
+	overflow-y: auto;
 }
 
 p {
@@ -1385,9 +1383,9 @@ span {
 	height:22px;
 }
 #typebox[contenteditable=false]{
-	
+
 	cursor:not-allowed;
-	
+
 }
 #typebox[contenteditable=false]:before{
 	content:'You can\'t chat here';
