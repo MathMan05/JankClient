@@ -628,7 +628,6 @@ textarea {
 textarea:focus-visible {
 	outline: 2px solid var(--focus);
 }
-
 .channels {
 	overflow: auto;
 	transition: height .2s ease-in-out;
