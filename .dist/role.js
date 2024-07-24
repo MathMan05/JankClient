@@ -5,7 +5,7 @@ class Role {
     permissions;
     owner;
     color;
-    id;
+    snowflake;
     name;
     info;
     hoist;
@@ -13,12 +13,15 @@ class Role {
     mentionable;
     unicode_emoji;
     headers;
+    get id() {
+        return this.snowflake.id;
+    }
     constructor(JSON, owner) {
         this.headers = owner.headers;
         this.info = owner.info;
         for (const thing of Object.keys(JSON)) {
             if (thing === "id") {
-                this.id = new SnowFlake(JSON.id, this);
+                this.snowflake = new SnowFlake(JSON.id, this);
                 continue;
             }
             this[thing] = JSON[thing];

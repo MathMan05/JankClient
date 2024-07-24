@@ -3,8 +3,6 @@ import {Channel} from "./channel.js";
 import {Direct} from "./direct.js";
 import {Voice} from "./audio.js";
 import {User} from "./user.js";
-import {Member} from "./member.js";
-import {MarkDown} from "./markdown.js";
 import {Fullscreen} from "./fullscreen.js";
 import {setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
@@ -66,12 +64,12 @@ class Localuser{
         for(const thing of ready.d.guilds){
             const temp=new Guild(thing,this,members[thing.id]);
             this.guilds.push(temp);
-            this.guildids[temp.id.id]=temp;
+            this.guildids[temp.id]=temp;
         }
         {
             const temp=new Direct(ready.d.private_channels,this);
             this.guilds.push(temp);
-            this.guildids[temp.id.id]=temp;
+            this.guildids[temp.id]=temp;
         }
         console.log(ready.d.user_guild_settings.entries);
 
@@ -87,7 +85,7 @@ class Localuser{
             if(guild===undefined){
                 continue
             }
-            const guildid=guild.id;
+            const guildid=guild.snowflake;
             this.guildids[guildid.id].channelids[thing.channel_id].readStateInfo(thing);
         }
         this.typing=[];
@@ -204,7 +202,7 @@ class Localuser{
                     {
                         const guildy=new Guild(temp.d,this,this.user);
                         this.guilds.push(guildy);
-                        this.guildids[guildy.id.id]=guildy;
+                        this.guildids[guildy.id]=guildy;
                         document.getElementById("servers").insertBefore(guildy.generateGuildIcon(),document.getElementById("bottomseparator"));
                     }
                 }
@@ -265,14 +263,14 @@ class Localuser{
     }
     updateChannel(JSON):void{
         SnowFlake.getSnowFlakeFromID(JSON.guild_id,Guild).getObject().updateChannel(JSON);
-        if(JSON.guild_id===this.lookingguild.id.id){
+        if(JSON.guild_id===this.lookingguild.id){
             this.loadGuild(JSON.guild_id);
         }
     }
     createChannel(JSON):void{
         JSON.guild_id??="@me";
         SnowFlake.getSnowFlakeFromID(JSON.guild_id,Guild).getObject().createChannelpac(JSON);
-        if(JSON.guild_id===this.lookingguild.id.id){
+        if(JSON.guild_id===this.lookingguild.id){
             this.loadGuild(JSON.guild_id);
         }
     }
@@ -280,7 +278,7 @@ class Localuser{
         JSON.guild_id??="@me";
         this.guildids[JSON.guild_id].delChannel(JSON);
 
-        if(JSON.guild_id===this.lookingguild.id){
+        if(JSON.guild_id===this.lookingguild.snowflake){
             this.loadGuild(JSON.guild_id);
         }
     }
@@ -497,15 +495,15 @@ class Localuser{
     unreads():void{
         console.log(this.guildhtml)
         for(const thing of this.guilds){
-            if(thing.id.id==="@me"){continue;}
-            thing.unreads(this.guildhtml[thing.id.id]);
+            if(thing.id==="@me"){continue;}
+            thing.unreads(this.guildhtml[thing.id]);
         }
     }
     typingStart(typing):void{
-        if(this.channelfocus.id===typing.d.channel_id){
+        if(this.channelfocus.snowflake===typing.d.channel_id){
             const memb=typing.d.member;
             let name;
-            if(memb.id===this.user.id){
+            if(memb.id===this.user.snowflake){
                 console.log("you is typing")
                 return;
             }

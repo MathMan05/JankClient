@@ -10,13 +10,16 @@ class User{
     static userids={};
     owner:Localuser;
     hypotheticalpfp:boolean;
-    id:SnowFlake<User>;
+    snowflake:SnowFlake<User>;
     avatar:string;
     username:string;
     bio:MarkDown;
     discriminator:string;
     pronouns:string;
     bot:boolean;
+    get id(){
+        return this.snowflake.id;
+    }
     static contextmenu:Contextmenu=new Contextmenu("User Menu");
     static setUpContextMenu(){
         this.contextmenu.addbutton("Copy user id",function(){
@@ -55,7 +58,7 @@ class User{
                     continue;
                 }
                 if(thing === "id"){
-                    this.id=new SnowFlake(userjson[thing],this);
+                    this.snowflake=new SnowFlake(userjson[thing],this);
                     continue;
                 }
                 this[thing]=userjson[thing];
@@ -72,7 +75,7 @@ class User{
         const pfp=document.createElement('img');
         pfp.src=this.getpfpsrc();
         pfp.classList.add("pfp");
-        pfp.classList.add("userid:"+this.id.id);
+        pfp.classList.add("userid:"+this.id);
         return pfp;
     }
     userupdate(json){
@@ -82,7 +85,7 @@ class User{
         }
     }
     bind(html:HTMLElement,guild:Guild=null){
-        if(guild&&guild.id.id!=="@me"){
+        if(guild&&guild.id!=="@me"){
             Member.resolve(this,guild).then(_=>{
                 _.bind(html);
             }).catch(_=>{
@@ -103,7 +106,7 @@ class User{
         this.hypotheticalpfp=false;
         const src=this.getpfpsrc();
         console.log(src)
-        for(const thing of document.getElementsByClassName("userid:"+this.id.id)){
+        for(const thing of document.getElementsByClassName("userid:"+this.id)){
             (thing as HTMLImageElement).src=src;
         }
     }
@@ -112,7 +115,7 @@ class User{
             return this.avatar;
         }
         if(this.avatar!=null){
-            return this.info.cdn.toString()+"avatars/"+this.id.id+"/"+this.avatar+".png";
+            return this.info.cdn.toString()+"avatars/"+this.id+"/"+this.avatar+".png";
         }else{
             return this.info.cdn.toString()+"embed/avatars/3.png";
         }

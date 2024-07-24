@@ -15,7 +15,7 @@ class Direct extends Guild {
         this.headers = this.localuser.headers;
         this.channels = [];
         this.channelids = {};
-        this.id = new SnowFlake("@me", this);
+        this.snowflake = new SnowFlake("@me", this);
         this.properties = {};
         this.roles = [];
         this.roleids = new Map();
@@ -24,7 +24,7 @@ class Direct extends Guild {
         for (const thing of JSON) {
             const temp = new Group(thing, this);
             this.channels.push(temp);
-            this.channelids[temp.id.id] = temp;
+            this.channelids[temp.id] = temp;
         }
         this.headchannels = this.channels;
     }
@@ -73,7 +73,7 @@ class Group extends Channel {
             this.user = this.localuser.user;
         }
         this.name ??= this.localuser.user.username;
-        this.id = new SnowFlake(JSON.id, this);
+        this.snowflake = new SnowFlake(JSON.id, this);
         this.parent_id = null;
         this.parent = null;
         this.children = [];
@@ -112,17 +112,17 @@ class Group extends Channel {
             return;
         }
         this.buildmessages();
-        history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.id);
+        history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.snowflake);
         document.getElementById("channelname").textContent = "@" + this.name;
     }
     messageCreate(messagep) {
         const messagez = new Message(messagep.d, this);
-        this.idToNext.set(this.lastmessageid, messagez.id);
-        this.idToPrev.set(messagez.id, this.lastmessageid);
-        this.lastmessageid = messagez.id;
-        this.messageids.set(messagez.id, messagez);
+        this.idToNext.set(this.lastmessageid, messagez.snowflake);
+        this.idToPrev.set(messagez.snowflake, this.lastmessageid);
+        this.lastmessageid = messagez.snowflake;
+        this.messageids.set(messagez.snowflake, messagez);
         if (messagez.author === this.localuser.user) {
-            this.lastreadmessageid = messagez.id;
+            this.lastreadmessageid = messagez.snowflake;
             if (this.myhtml) {
                 this.myhtml.classList.remove("cunread");
             }

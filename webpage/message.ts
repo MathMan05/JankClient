@@ -18,7 +18,7 @@ class Message{
     mentions:User[];
     mention_roles:Role[];
     attachments:File[];//probably should be its own class tbh, should be Attachments[]
-    id:SnowFlake<Message>;
+    snowflake:SnowFlake<Message>;
     message_reference;
     type:number;
     timestamp:number;
@@ -26,6 +26,9 @@ class Message{
     static del:Promise<void>;
     static resolve:Function;
     div:HTMLDivElement;
+    get id(){
+        return this.snowflake.id;
+    }
     static setup(){
         this.del=new Promise(_=>{this.resolve=_});
         Message.setupcmenu();
@@ -74,7 +77,7 @@ class Message{
                 this.content=new MarkDown(messagejson[thing],this.channel);
                 continue;
             }else if(thing ==="id"){
-                this.id=new SnowFlake(messagejson.id,this);
+                this.snowflake=new SnowFlake(messagejson.id,this);
                 continue;
             }
             this[thing]=messagejson[thing];
@@ -98,7 +101,7 @@ class Message{
         }
     }
     canDelete(){
-        return this.channel.hasPermission("MANAGE_MESSAGES")||this.author.id===this.localuser.user.id;
+        return this.channel.hasPermission("MANAGE_MESSAGES")||this.author.snowflake===this.localuser.user.snowflake;
     }
     get channel(){
         return this.owner;
@@ -139,14 +142,14 @@ class Message{
         return build;
     }
     async edit(content){
-        return await fetch(this.info.api.toString()+"/channels/"+this.channel.id+"/messages/"+this.id.id,{
+        return await fetch(this.info.api.toString()+"/channels/"+this.channel.snowflake+"/messages/"+this.id,{
             method: "PATCH",
             headers: this.headers,
             body:JSON.stringify({content:content})
         });
     }
     delete(){
-        fetch(`${this.info.api.toString()}/channels/${this.channel.id}/messages/${this.id.id}`,{
+        fetch(`${this.info.api.toString()}/channels/${this.channel.snowflake}/messages/${this.id}`,{
             headers:this.headers,
             method:"DELETE",
         })
@@ -156,22 +159,22 @@ class Message{
             this.div.innerHTML="";
             this.div=null;
         }
-        const prev=this.channel.idToPrev[this.id.id];
-        const next=this.channel.idToNext[this.id.id];
-        this.channel.idToNext[prev]=next;
-        this.channel.idToPrev[next]=prev;
-        delete this.channel.messageids[this.id.id];
-        const regen=this.channel.messageids[prev]
+        const prev=this.channel.idToPrev.get(this.snowflake);
+        const next=this.channel.idToNext.get(this.snowflake);
+        this.channel.idToNext.set(prev,next);
+        this.channel.idToPrev.set(next,prev);
+        this.channel.messageids.delete(this.snowflake);
+        const regen=prev.getObject();
         if(regen){
             regen.generateMessage();
         }
         if(this.channel.lastmessage===this){
-            this.channel.lastmessage=this.channel.messageids[prev];
+            this.channel.lastmessage=prev.getObject();
         }
     }
     generateMessage(premessage:Message=null){
         if(!premessage){
-            premessage=this.channel.messageids[this.channel.idToNext[this.id.id]];
+            premessage=this.channel.idToNext.get(this.snowflake)?.getObject();
         }
         const div=this.div;
         if(this===this.channel.replyingto){
@@ -244,7 +247,7 @@ class Message{
                 const newt=(new Date(this.timestamp).getTime())/1000;
                 current=(newt-old)>600;
             }
-            const combine=(premessage?.author?.id!=this.author.id)||(current)||this.message_reference
+            const combine=(premessage?.author?.snowflake!=this.author.snowflake)||(current)||this.message_reference
             if(combine){
                 const pfp=this.author.buildpfp();
                 this.author.bind(pfp);
@@ -333,7 +336,7 @@ class Message{
         return(div)
     }
     buildhtml(premessage:Message,del:Promise<void>=Message.del){
-        if(this.div){console.error(`HTML for ${this.id} already exists, aborting`);return;}
+        if(this.div){console.error(`HTML for ${this.snowflake} already exists, aborting`);return;}
         //premessage??=messages.lastChild;
         const div=document.createElement("div");
         this.div=div;

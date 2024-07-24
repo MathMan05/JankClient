@@ -69,42 +69,42 @@ class Member{
         let id:SnowFlake<User>;
         if(unkown instanceof User){
             user=unkown as User;
-            id=user.id;
+            id=user.snowflake;
         }else if(typeof unkown===typeof ""){
             id=new SnowFlake(unkown as string,undefined);
         }else{
             return new Member(unkown,guild);
         }
-        if(guild.id.id==="@me"){return null}
-        if(!Member.already[guild.id.id]){
-            Member.already[guild.id.id]={};
-        }else if(Member.already[guild.id.id][id]){
-            const memb=Member.already[guild.id.id][id]
+        if(guild.id==="@me"){return null}
+        if(!Member.already[guild.id]){
+            Member.already[guild.id]={};
+        }else if(Member.already[guild.id][id]){
+            const memb=Member.already[guild.id][id]
             if(memb instanceof Promise){
                 return await memb;
             }
             return memb;
         }
-        const promoise= fetch(guild.info.api.toString()+"/users/"+id+"/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id="+guild.id,{headers:guild.headers}).then(_=>_.json()).then(json=>{
+        const promoise= fetch(guild.info.api.toString()+"/users/"+id+"/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id="+guild.snowflake,{headers:guild.headers}).then(_=>_.json()).then(json=>{
             const memb=new Member(json,guild);
-            Member.already[guild.id.id][id]=memb;
+            Member.already[guild.id][id]=memb;
             console.log("resolved")
             return memb
         })
-        Member.already[guild.id.id][id]=promoise;
+        Member.already[guild.id][id]=promoise;
         try{
             return await promoise
         }catch(_){
 
             const memb=new Member(user,guild,true);
-            Member.already[guild.id.id][id]=memb;
+            Member.already[guild.id][id]=memb;
             return memb;
         }
     }
     hasRole(ID:string){
         console.log(this.roles,ID);
         for(const thing of this.roles){
-            if(thing.id.id===ID){
+            if(thing.id===ID){
                 return true;
             }
         }
@@ -125,7 +125,7 @@ class Member{
                 return true;
             }
         }
-        return this.guild.properties.owner_id===this.user.id.id;
+        return this.guild.properties.owner_id===this.user.id;
     }
     bind(html:HTMLElement){
         if(html.tagName==="SPAN"){
