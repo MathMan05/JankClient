@@ -10,7 +10,7 @@ class Guild {
     headers;
     channels;
     channelids;
-    id;
+    snowflake;
     properties;
     roles;
     roleids;
@@ -21,6 +21,9 @@ class Guild {
     parent_id;
     member;
     html;
+    get id() {
+        return this.snowflake.id;
+    }
     static contextmenu = new Contextmenu("guild menu");
     static setupcontextmenu() {
         Guild.contextmenu.addbutton("Copy Guild id", function () {
@@ -63,7 +66,7 @@ class Guild {
         const s1 = settings.addButton("roles");
         const permlist = [];
         for (const thing of this.roles) {
-            permlist.push([thing.id, thing.permissions]);
+            permlist.push([thing.snowflake, thing.permissions]);
         }
         s1.options.push(new RoleList(permlist, this, this.updateRolePermissions.bind(this)));
         settings.show();
@@ -76,7 +79,7 @@ class Guild {
         this.headers = this.owner.headers;
         this.channels = [];
         this.channelids = {};
-        this.id = new SnowFlake(json.id, this);
+        this.snowflake = new SnowFlake(json.id, this);
         this.properties = json.properties;
         this.roles = [];
         this.roleids = new Map();
@@ -85,13 +88,13 @@ class Guild {
         for (const roley of json.roles) {
             const roleh = new Role(roley, this);
             this.roles.push(roleh);
-            this.roleids.set(roleh.id, roleh);
+            this.roleids.set(roleh.snowflake, roleh);
         }
         Member.resolve(member, this).then(_ => this.member = _);
         for (const thing of json.channels) {
             const temp = new Channel(thing, this);
             this.channels.push(temp);
-            this.channelids[temp.id.id] = temp;
+            this.channelids[temp.id] = temp;
         }
         this.headchannels = [];
         for (const thing of this.channels) {
@@ -119,7 +122,7 @@ class Guild {
                         headers: this.headers,
                         body: JSON.stringify({
                             "guilds": {
-                                [this.id.id]: {
+                                [this.id]: {
                                     "message_notifications": noti
                                 }
                             }
@@ -158,7 +161,7 @@ class Guild {
         full.show();
     }
     async leave() {
-        return fetch(this.info.api.toString() + "/users/@me/guilds/" + this.id, {
+        return fetch(this.info.api.toString() + "/users/@me/guilds/" + this.snowflake, {
             method: "DELETE",
             headers: this.headers
         });
@@ -177,7 +180,7 @@ class Guild {
         let position = -1;
         let build = [];
         for (const thing of this.headchannels) {
-            const thisthing = { id: thing.id, position: undefined, parent_id: undefined };
+            const thisthing = { id: thing.snowflake, position: undefined, parent_id: undefined };
             if (thing.position <= position) {
                 thing.position = (thisthing.position = position + 1);
             }
@@ -208,7 +211,7 @@ class Guild {
         if (serverbug) {
             for (const thing of build) {
                 console.log(build, thing);
-                fetch(this.info.api.toString() + "/v9/guilds/" + this.id + "/channels", {
+                fetch(this.info.api.toString() + "/v9/guilds/" + this.snowflake + "/channels", {
                     method: "PATCH",
                     headers: this.headers,
                     body: JSON.stringify([thing])
@@ -216,7 +219,7 @@ class Guild {
             }
         }
         else {
-            fetch(this.info.api.toString() + "/v9/guilds/" + this.id + "/channels", {
+            fetch(this.info.api.toString() + "/v9/guilds/" + this.snowflake + "/channels", {
                 method: "PATCH",
                 headers: this.headers,
                 body: JSON.stringify(build)
@@ -238,7 +241,7 @@ class Guild {
         const noti = document.createElement("div");
         noti.classList.add("unread");
         divy.append(noti);
-        this.localuser.guildhtml[this.id.id] = divy;
+        this.localuser.guildhtml.set(this.id, divy);
         if (this.properties.icon != null) {
             const img = document.createElement("img");
             img.classList.add("pfp", "servericon");
@@ -308,7 +311,7 @@ class Guild {
         full.show();
     }
     async delete() {
-        return fetch(this.info.api.toString() + "/guilds/" + this.id + "/delete", {
+        return fetch(this.info.api.toString() + "/guilds/" + this.snowflake + "/delete", {
             method: "POST",
             headers: this.headers,
         });
@@ -355,7 +358,7 @@ class Guild {
         const build = { read_states: [] };
         for (const thing of this.channels) {
             if (thing.hasunreads) {
-                build.read_states.push({ channel_id: thing.id, message_id: thing.lastmessageid, read_state_type: 0 });
+                build.read_states.push({ channel_id: thing.snowflake, message_id: thing.lastmessageid, read_state_type: 0 });
                 thing.lastreadmessageid = thing.lastmessageid;
                 thing.myhtml.classList.remove("cunread");
             }
@@ -370,7 +373,7 @@ class Guild {
     hasRole(r) {
         console.log("this should run");
         if (r instanceof Role) {
-            r = r.id.id;
+            r = r.id;
         }
         return this.member.hasRole(r);
     }
@@ -392,7 +395,7 @@ class Guild {
         }
     }
     loadGuild() {
-        this.localuser.loadGuild(this.id.id);
+        this.localuser.loadGuild(this.id);
     }
     updateChannel(JSON) {
         SnowFlake.getSnowFlakeFromID(JSON.id, Channel).getObject().updateChannel(JSON);
@@ -484,14 +487,14 @@ class Guild {
         this.printServers();
     }
     createChannel(name, type) {
-        fetch(this.info.api.toString() + "/guilds/" + this.id + "/channels", {
+        fetch(this.info.api.toString() + "/guilds/" + this.snowflake + "/channels", {
             method: "POST",
             headers: this.headers,
             body: JSON.stringify({ name: name, type: type })
         });
     }
     async createRole(name) {
-        const fetched = await fetch(this.info.api.toString() + "/guilds/" + this.id + "roles", {
+        const fetched = await fetch(this.info.api.toString() + "/guilds/" + this.snowflake + "roles", {
             method: "POST",
             headers: this.headers,
             body: JSON.stringify({
@@ -502,7 +505,7 @@ class Guild {
         });
         const json = await fetched.json();
         const role = new Role(json, this);
-        this.roleids[role.id.id] = role;
+        this.roleids.set(role.snowflake, role);
         this.roles.push(role);
         return role;
     }
@@ -510,7 +513,7 @@ class Guild {
         const role = this.roleids[id];
         role.permissions.allow = perms.allow;
         role.permissions.deny = perms.deny;
-        await fetch(this.info.api.toString() + "/guilds/" + this.id + "/roles/" + this.id, {
+        await fetch(this.info.api.toString() + "/guilds/" + this.snowflake + "/roles/" + this.snowflake, {
             method: "PATCH",
             headers: this.headers,
             body: JSON.stringify({

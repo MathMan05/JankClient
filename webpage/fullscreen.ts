@@ -18,7 +18,7 @@ class Fullscreen{
             this.html.classList.add("nonimagecenter");
         }
     }
-    tohtml(array){
+    tohtml(array:any[]){
         switch(array[0]){
             case "img":
                 const img=document.createElement("img");
