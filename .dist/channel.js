@@ -693,9 +693,9 @@ class Channel {
         if (replyingto) {
             replyjson =
                 {
-                    "guild_id": replyingto.guild.id,
-                    "channel_id": replyingto.channel.id,
-                    "message_id": replyingto.id,
+                    "guild_id": replyingto.guild.id.id,
+                    "channel_id": replyingto.channel.id.id,
+                    "message_id": replyingto.id.id,
                 };
         }
         ;
