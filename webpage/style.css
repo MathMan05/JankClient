@@ -76,18 +76,22 @@ th {
 	max-height: 20in;
 	flex-shrink: 0;
 	width: 100%;
+	box-sizing: border-box;
 }
 pre {
-	background-color: var(--code-bg);
+	background: var(--code-bg);
+	color: var(--code-text);
 	width: 100%;
 	overflow-wrap: break-word;
 	word-wrap: break-word;
 	word-break: break-word;
 	white-space: pre-wrap;
+	margin: 0px;
 }
 
 samp {
 	background-color: var(--code-bg);
+	color: var(--code-text);
 }
 
 .contextbutton {
@@ -122,10 +126,12 @@ samp {
 	background-color: var(--profile-info-bg);
 	border-radius: 10%;
 	padding: .3cm;
-	width: calc(100% - .6cm);
-	height: calc(100% - .75in);
+	width: 100%;
+	flex-grow:1;
+    /*margin-top: .1cm;*/
 	display: flex;
 	flex-direction: column;
+	box-sizing: border-box;
 }
 
 .profile {
@@ -137,7 +143,14 @@ samp {
 	width: 7cm;
 	height: 8cm;
 }
+a {
+	color: var(--link);
+	text-decoration: none;
+}
 
+a:hover {
+	text-decoration: underline;
+}
 .hypoprofile {
 	display: inline-block;
 	background-color: var(--profile-bg);
@@ -323,6 +336,7 @@ input {
 	border-color: var(--settings-hover);
 	border-width:0 0 .04in 0;
 	border-radius:.05in;
+	font-size: 1rem;
 }
 
 div {
@@ -340,10 +354,13 @@ div {
 	width: 100%;
 	min-height: .5in;
 	z-index: -100;
-	max-width: 99%;
 	display: flex;
 	max-height: 1.5in;
 	overflow-y: auto;
+	color: var(--primary-text);
+	background: var(--textarea-bg);
+	border: 1px solid;
+	box-sizing: border-box;
 }
 
 p {
@@ -402,9 +419,13 @@ p {
 #typediv {
 	position: relative;
 	/* display: flex; */
-	width: 99%;
+	width: 100%;
 }
-
+hr {
+	border-style: solid;
+	border-width: .01in;
+	border-color: var(--primary-text);
+}
 .loading-indicator {
 	font-size: 24px;
 	display: flex;
@@ -486,11 +507,14 @@ p {
 
 .timestamp {
 	color: var(--timestamp-color);
-	font-size: .14in;
+	font-size: 0.75rem;
+	line-height: 1.3rem;
 	padding-left: .05in;
 }
 
 .replyflex {
+	color: var(--reply-text); /* for date line */
+	font-size: 0.9rem;
 	overflow: hidden;
 	display: flex;
 	align-items: center;
@@ -499,6 +523,7 @@ p {
 	/* width: 00; */
 	flex-wrap: nowrap;
 	justify-content: space-between;
+	margin-left: .2in;
 }
 
 .reply {
@@ -567,18 +592,24 @@ p {
 }
 
 ::-webkit-scrollbar-track {
+	background-color: transparent;
+}
+
+::-webkit-scrollbar-track:hover {
+	background: var(--scrollbar-track);
 	background-color: var(--scrollbar-track);
 }
 
 ::-webkit-scrollbar-thumb {
-	background-color: var(--scrollbar-thumb);
-	box-shadow: 0 2px 5px var(--black);
+	background: var(--scrollbar-thumb);
+	border-radius: .08in;
+	border: .03in solid transparent;
+	background-clip: padding-box;
 	transition: .1s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background-color: var(--scrollbar-thumb-hover);
-	box-shadow: 0 2px 5px var(--black);
+	background: var(--scrollbar-thumb-hover);
 }
 
 .pronouns {
@@ -593,10 +624,8 @@ textarea {
 	resize: none;
 	height: 1.5in;
 }
-#typebox{
-	color: var(--primary-text);
-	background: var(--textarea-bg);
-	border: 1px solid;
+textarea:focus-visible {
+	outline: 2px solid var(--focus);
 }
 
 .channels {
@@ -620,9 +649,7 @@ textarea {
 	background: color-mix(in srgb, var(--channel-hover) 60%, transparent)
 }
 #servername {
-	margin-top: .1in;
-	margin-bottom: .1in;
-	padding-left: 5px;
+	padding-left: 0.1in;
 	text-overflow: ellipsis;
 	overflow-x: hidden;
 	white-space: nowrap;
@@ -632,14 +659,15 @@ textarea {
 .servertd {
 	background-color: var(--server-bg);
 	border-color: var(--server-border);
-	border-width: .1cm;
+	border-width: .04in;
 	border-style: solid;
-	height: .4in;
+	height: .48in;
 	width:100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-evenly;
 	flex-shrink: 0;
+	box-sizing: border-box;
 }
 
 .channeleffects {
@@ -689,7 +717,7 @@ textarea {
 	/* flex-direction: row; */
 	justify-content: space-between;
 	align-items: center;
-	padding-top: .02in;
+	padding: .02in;
 }
 
 #channels-td {
@@ -708,12 +736,15 @@ textarea {
 #user-actions h2 {
 	cursor: pointer;
 	user-select: none;
-	border-radius: .1in;
+	border-radius: .3in;
 	transition: color .5s;
 	text-align: center;
 	overflow: visible;
+	width: .28in;
+	height: .28in;
 }
 #user-actions h2:hover, #user-actions h2:focus {
+	background: var(--settings-hover);
 	color: var(--timestamp-color);
 }
 
@@ -769,6 +800,7 @@ input::file-selector-button {
 	text-align: left;
 	font-size: .45cm;
 	cursor: pointer;
+	border-style: solid;
 	border-width: 0px .00in .03in 0;
 	border-radius:.03in;
 	margin: .02in .05in;
@@ -857,17 +889,22 @@ input[type="checkbox"] {
 .quote {
 	display: inline-block;
 	width: fit-content;
+	position: relative;
 }
 
 .quoteline {
 	display: inline-block;
 	width: .02in;
-	height: .15in;
-	margin-left: .02in;
-	margin-right: .04in;
-	background-color: var(--quote-bg);
+	height: 100%;
+	position: absolute;
+	background: var(--quote-bg);
 }
 
+.quote > span {
+	margin-left: 0.5em;
+	display: flex;
+	align-items: center;
+}
 span {
 	word-wrap: break-word;
 	word-break: break-word;
@@ -924,7 +961,7 @@ span {
 	height: .075in;
 	width: .075in;
 	transition: transform .2s, background .2s, height .3s, width .2s;
-	transform: translate(-.14in, .2in);
+	transform: translate(-.16in, .2in);
 	z-index: 10;
 	border-radius: .2in;
 	border: solid;
@@ -973,7 +1010,7 @@ span {
 .accountSwitcher{
 	background:var(--profile-bg);
 	cursor:pointer;
-	box-shadow: .00in -.5in 1in #0000006b;
+	box-shadow: .00in -.5in 1in color-mix(in srgb, var(--shadow) 42%, transparent);
 	border-radius: .05in .05in .0in.0in;
 	flex-grow: 0;
 	align-self: center;
@@ -981,6 +1018,7 @@ span {
 	min-width: 0px;
 	display: inline-block;
 	width: 100%;
+	padding-left:.025in;
 }
 .accountSwitcher tr{
 	transition: background .3s;
@@ -1127,7 +1165,8 @@ span {
 #replybox{
 	display:flex;
 	background:var(--reply-bg);
-	height:.25in;
+	width: 100%;
+	height:.3in;
 	transition: height .2s, padding .2s;
 	border-radius:.1in .1in 0 0;
 	padding-left:.05in;
@@ -1137,13 +1176,12 @@ span {
 	padding-top: .05in;
 }
 #replybox span{
-	align-self:stretch;
+	align-self:center;
 }
 .cancelReply{
 	align-self:flex-start;
-	color:red;
-	margin-right: .1in;
-	height: .25in;
+	color:var(--red);
+	height: auto;
 	width: .25in;
 	text-align: center;
 	padding: 0in;
@@ -1229,10 +1267,10 @@ span {
 		margin:.015in;
 	}
 	:first-child{
-		accent-color:green;
+		accent-color:var(--green);
 	}
 	:last-child{
-		accent-color:red;
+		accent-color:var(--red);
 	}
 }
 
@@ -1272,8 +1310,12 @@ span {
 	width:5in;
 	height:.5in;
 	button{
-		background:green;
+		background:var(--green);
 	}
+	padding-left: 0.1in;
+}
+#status {
+	font-size: 0.8em;
 }
 
 #discovery-guild-content {
@@ -1337,8 +1379,10 @@ span {
 	width:.4in;
 	height:.4in;
 }
+
 .topMessage{
-	padding-top:.1in
+	padding-top:.03in;
+	margin-top:.1in;
 }
 .messagediv  .flexltr{
 	display:flex;

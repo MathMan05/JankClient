@@ -1,6 +1,8 @@
 :root {
 	--servertd-height: 0px;
 	/* Default value */
+	--red: red;
+	--green: green;
 }
 .Dark-theme { /* thanks to TomatoCake for the updated CSS vars and such*/
 	color-scheme: dark;
