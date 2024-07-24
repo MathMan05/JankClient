@@ -1190,6 +1190,7 @@ span {
 #replybox.hideReplyBox{
 	height: 0in;
 	padding: 0in;
+	overflow: hidden;
 }
 .Buttons{
 	background:var(--primary-bg);
