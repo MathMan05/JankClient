@@ -135,7 +135,7 @@ class User{
             div.style.top=y+"px";
             div.classList.add("profile","flexttb");
         }else{
-            div.classList.add("hypoprofile");
+            div.classList.add("hypoprofile","flexttb");
         }
 
         {

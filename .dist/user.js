@@ -133,7 +133,7 @@ class User {
             div.classList.add("profile", "flexttb");
         }
         else {
-            div.classList.add("hypoprofile");
+            div.classList.add("hypoprofile", "flexttb");
         }
         {
             const pfp = this.buildpfp();
