@@ -11,10 +11,10 @@ class Member {
 		this.contextmenu.addbutton("Message user", function() {
 			fetch(instance.api + "/users/@me/channels", {
 				method: "POST",
+				headers: this.localuser.headers,
 				body: JSON.stringify({
 					recipients: [this.id]
-				}),
-				headers: this.headers
+				})
 			})
 		})
 	}

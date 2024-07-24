@@ -551,11 +551,10 @@ class MarkDown {
 		})
 
 		box.addEventListener("paste", event => {
-			console.log(event.clipboardData.types)
 			const data = event.clipboardData.getData("text")
 			document.execCommand("insertHTML", false, data)
 			event.preventDefault()
-			box.onkeyup(new KeyboardEvent("_"))
+			box.dispatchEvent(new KeyboardEvent("keyup"))
 		})
 	}
 	boxupdate(box) {
@@ -568,20 +567,17 @@ class MarkDown {
 		if (element.tagName == "IMG") return element.alt
 		if (element.tagName == "BR") return "\n"
 
-		const children = element.childNodes
-		if (children.length != 0) {
-			let build = ""
-			for (const thing of children) {
-				if (thing instanceof Text) {
-					const text = thing.textContent
-					build += text
-					continue
-				}
-
-				const text = this.gatherBoxText(thing)
-				if (text) build += text
+		let build = ""
+		for (const thing of element.childNodes) {
+			if (thing instanceof Text) {
+				const text = thing.textContent
+				build += text
+				continue
 			}
-			return build
+
+			const text = this.gatherBoxText(thing)
+			if (text) build += text
 		}
+		return build
 	}
 }

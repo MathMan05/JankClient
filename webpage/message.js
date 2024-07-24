@@ -187,8 +187,10 @@ class Message {
 		this.channel.idToNext.set(prev, next)
 		this.channel.idToPrev(next, prev)
 		this.channel.messageids.delete(this.id)
+
 		const regen = this.channel.messageids.get(prev)
 		if (regen) regen.generateMessage()
+		if (this.channel.lastmessage === this) this.channel.lastmessage = this.channel.messageids[prev]
 	}
 	react(emoji = "🎭") {
 		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + emoji + "/@me", {

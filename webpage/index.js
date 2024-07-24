@@ -215,7 +215,7 @@ document.getElementById("messagecontainer").addEventListener("scroll", () => {
 	const messagecontainer = document.getElementById("messagecontainer")
 	if (messagecontainer.scrollTop < 2000) {
 		if (!triggered && thisuser.lookingguild) {
-			thisuser.lookingguild.prevchannel.grabmoremessages().then(() => {
+			thisuser.lookingguild.prevchannel.grabBefore().then(() => {
 				triggered = false
 				if (messagecontainer.scrollTop == 0) messagecontainer.scrollTop = 1
 			})

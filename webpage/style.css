@@ -1542,3 +1542,12 @@ video {
 .reaction span {
 	font-size: 13px;
 }
+
+#typebox[contenteditable=false] {
+	cursor: not-allowed;
+}
+#typebox[contenteditable=false]:before {
+	content: "You can\'t chat here";
+	color: color-mix(in hsl, var(--primary-bg), var(--primary-text));
+}
+

@@ -44,7 +44,7 @@ class Channel {
 			if (offset == 1) {
 				if (this.idToPrev.has(id)) return this.idToPrev.get(id)
 				else {
-					await this.grabmoremessages(id)
+					await this.grabBefore(id)
 					return this.idToPrev.get(id)
 				}
 			} else return this.idToNext.get(id)
@@ -477,12 +477,13 @@ class Channel {
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "#" + this.name
 
+		const typebox = document.getElementById("typebox")
 		if (this.canMessage) {
-			document.getElementById("typebox").disabled = false
-			document.getElementById("typebox").placeholder = ""
+			typebox.contentEditable = true
+			typebox.textContent = ""
 		} else {
-			document.getElementById("typebox").disabled = true
-			document.getElementById("typebox").placeholder = "You cannot send messages here"
+			typebox.contentEditable = false
+			typebox.textContent = "You cannot send messages here"
 		}
 	}
 	async putmessages() {
@@ -501,7 +502,7 @@ class Channel {
 			if (prev) {
 				this.idToNext.set(message.id, prev.id)
 				this.idToPrev.set(prev.id, message.id)
-			}
+			} else this.lastmessage = message
 			prev = message
 
 			if (this.messageids.get(message.id) === void 0) this.messageids.set(message.id, message)
@@ -514,7 +515,7 @@ class Channel {
 		}
 		this.children = build
 	}
-	async grabmoremessages(id) {
+	async grabBefore(id) {
 		if (this.allthewayup) return
 
 		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + id + "&limit=100", {
@@ -549,7 +550,23 @@ class Channel {
 	buildmessages() {
 		const messages = document.getElementById("channelw")
 		messages.innerHTML = ""
-		messages.append(this.infinite.getDiv(this.lastmessageid))
+		let id
+		if (this.messageids.has(this.lastreadmessageid)) id = this.lastreadmessageid
+		else if (this.lastmessage) {
+			id = this.goBackIds(this.lastmessage, 50)
+			console.log("shouldn't")
+		}
+		messages.append(this.infinite.getDiv(id))
+	}
+	goBackIds(id, back) {
+		while (back != 0) {
+			const nextid = this.idToPrev.get(id)
+			if (nextid) {
+				id = nextid
+				back--
+			} else break
+		}
+		return id
 	}
 	updateChannel(json) {
 		this.type = json.type
@@ -559,9 +576,15 @@ class Channel {
 		this.children = []
 		this.guild_id = json.guild_id
 		this.messageids = new Map()
-		this.permission_overwrites = json.permission_overwrites
 		this.topic = json.topic
 		this.nsfw = json.nsfw
+
+		this.permission_overwrites = {}
+		this.permission_overwritesar = []
+		for (const override of json.permission_overwrites) {
+			this.permission_overwrites[override.id] = new Permissions(override.allow, override.deny)
+			this.permission_overwritesar.push([override.id, this.permission_overwrites[override.id]])
+		}
 	}
 	typingstart() {
 		if (this.typing > Date.now()) return

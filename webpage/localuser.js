@@ -188,7 +188,7 @@ class LocalUser {
 		})
 
 		this.ws.addEventListener("close", event => {
-			console.log("WebSocket closed with code " + event.code + " at " + new Date().toTimeString())
+			console.log("WebSocket closed with code " + event.code)
 
 			this.unload()
 			document.getElementById("loading").classList.remove("doneloading")
