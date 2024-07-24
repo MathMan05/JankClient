@@ -598,6 +598,7 @@ textarea {
 	background: var(--textarea-bg);
 	border: 1px solid;
 }
+
 .channels {
 	overflow: auto;
 	transition: height .2s ease-in-out;
