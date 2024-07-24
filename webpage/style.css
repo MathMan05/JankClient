@@ -9,6 +9,15 @@ body {
 	margin: 0;
 	padding: 0;
 }
+.profile {
+	display: inline-block;
+	position: absolute;
+	background-color: var(--profile-bg);
+	border-radius: 10%;
+	padding: .2cm;
+	width: 7cm !important;
+	height: 8cm;
+}
 video{
 	max-width: 3in;
 	max-height: 4in;
@@ -134,15 +143,7 @@ samp {
 	box-sizing: border-box;
 }
 
-.profile {
-	display: inline-block;
-	position: absolute;
-	background-color: var(--profile-bg);
-	border-radius: 10%;
-	padding: .2cm;
-	width: 7cm;
-	height: 8cm;
-}
+
 a {
 	color: var(--link);
 	text-decoration: none;
