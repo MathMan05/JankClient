@@ -47,8 +47,8 @@ const main = async () => {
 			await goto(baseUrl + "login")
 
 			await test("Login", async () => {
-				await write(prevAccount.email, $("input[name='uname']"))//textBox("Email"))
-				await write(prevAccount.password, $("input[name='psw']"))//textBox("Password"))
+				await write(prevAccount.email, textBox("Email"))
+				await write(prevAccount.password, textBox("Password"))
 
 				await click(button("Login"))
 				await waitFor(3000)

@@ -17,7 +17,7 @@ const registertry = async event => {
 		body: JSON.stringify({
 			date_of_birth: document.getElementById("birthdate").value,
 			email,
-			username: document.getElementById("uname").value,
+			username: document.getElementById("username").value,
 			password: document.getElementById("pass1").value,
 			consent: document.getElementById("tos-check").checked,
 			captcha_key: event.srcElement[7].value
@@ -46,7 +46,7 @@ const registertry = async event => {
 					email,
 					pfpsrc: null,
 					serverurls: JSON.parse(localStorage.getItem("instanceEndpoints")),
-					username: document.getElementById("uname").value,
+					username: document.getElementById("username").value,
 					token: json.token
 				}
 			},

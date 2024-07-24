@@ -322,7 +322,7 @@ class Guild {
 				noti
 			],
 			["button", "", "submit", () => {
-				fetch(instance.api.toString() + "/v9/users/@me/guilds/settings", {
+				fetch(instance.api + "/users/@me/guilds/settings", {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify({
@@ -366,7 +366,7 @@ class Guild {
 		full.show()
 	}
 	async leave() {
-		return fetch(instance.api.toString() + "/users/@me/guilds/" + this.id, {
+		return fetch(instance.api + "/users/@me/guilds/" + this.id, {
 			method: "DELETE",
 			headers: this.headers
 		})
@@ -441,7 +441,7 @@ class Guild {
 		full.show()
 	}
 	async delete() {
-		return fetch(instance.api.toString() + "/guilds/" + this.id + "/delete", {
+		return fetch(instance.api + "/guilds/" + this.id + "/delete", {
 			method: "POST",
 			headers: this.headers
 		})

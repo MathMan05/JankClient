@@ -39,7 +39,7 @@ class Channel {
 	}
 
 	setUpInfiniteScroller() {
-		const ids = {}
+		const ids = new Map()
 		this.infinite = new InfiniteScroller((async (id, offset) => {
 			if (offset == 1) {
 				if (this.idToPrev.has(id)) return this.idToPrev.get(id)
@@ -47,20 +47,18 @@ class Channel {
 					await this.grabmoremessages(id)
 					return this.idToPrev.get(id)
 				}
-			} else {
-				return this.idToNext.get(id)
-			}
+			} else return this.idToNext.get(id)
 		}), (id => {
 			let res
 			const promise = new Promise(_ => {
 				res = _
 			})
 			const html = this.messageids.get(id).buildhtml(this.messageids.get(this.idToPrev.get(id)), promise)
-			ids[id] = res
+			ids.set(id, res)
 			return html
 		}), (id => {
-			ids[id]()
-			delete ids[id]
+			ids.get(id)()
+			ids.delete(id)
 			return true
 		}), this.readbottom.bind(this))
 	}

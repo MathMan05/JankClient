@@ -166,8 +166,6 @@ class Direct extends Guild {
 		return false
 	}
 	unreaddms() {
-		for (const thing of this.channels) {
-			thing.unreads()
-		}
+		for (const thing of this.channels) thing.unreads()
 	}
 }
