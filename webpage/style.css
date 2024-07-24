@@ -473,18 +473,7 @@ p {
 	user-select: none;
 	cursor: pointer;
 }
-.addserver{
-	border-radius: 50%;
-	width: .5in;
-	height: .5in;
-	background-color: var(--blank-bg);
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 200%;
-	user-select: none;
-	cursor: pointer;
-}
+
 #channelw {
 	width: 100%;
 	display: flex;

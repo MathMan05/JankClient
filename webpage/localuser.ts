@@ -364,7 +364,7 @@ class Localuser{
 
             const div=document.createElement("div");
             div.textContent="+";
-            div.classList.add("addserver","servericon")
+            div.classList.add("home","servericon")
             serverlist.appendChild(div)
             div.onclick=_=>{
                 console.log("clicked :3")
