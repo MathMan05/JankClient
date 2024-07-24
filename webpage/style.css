@@ -126,10 +126,12 @@ samp {
 	background: var(--profile-info-bg);
 	border-radius: 10%;
 	padding: .3cm;
-	width: calc(100% - .6cm);
-	height: calc(100% - .75in);
+	width: 100%;
+	height: calc(100% - .5in - .2cm);
+	margin-top: .1cm;
 	display: flex;
 	flex-direction: column;
+	box-sizing: border-box;
 }
 
 .profile {
@@ -350,12 +352,16 @@ div {
 	padding: 3px;
 	border-radius: .25cm;
 	width: 100%;
-	min-height: .5in;
+	min-height: .6in;
 	z-index: -100;
 	display: flex;
 	max-height: fit-content;
 	max-height: 1.5in;
 	overflow-y: scroll;
+	color: var(--primary-text);
+	background: var(--textarea-bg);
+	border: 1px solid;
+	box-sizing: border-box;
 }
 
 p {
@@ -635,11 +641,6 @@ textarea {
 textarea:focus-visible {
 	outline: 2px solid var(--focus);
 }
-#typebox{
-	color: var(--primary-text);
-	background: var(--textarea-bg);
-	border: 1px solid;
-}
 .channels {
 	overflow: auto;
 	transition: height .2s ease-in-out;
@@ -747,12 +748,15 @@ textarea:focus-visible {
 #user-actions h2 {
 	cursor: pointer;
 	user-select: none;
-	border-radius: .1in;
+	border-radius: .3in;
 	transition: color .5s;
 	text-align: center;
 	overflow: visible;
+	width: .28in;
+	height: .28in;
 }
 #user-actions h2:hover, #user-actions h2:focus {
+	background: var(--settings-hover);
 	color: var(--timestamp-color);
 }
 
