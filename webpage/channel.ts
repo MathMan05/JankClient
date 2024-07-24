@@ -557,12 +557,12 @@ class Channel{
         if(response.length!==100){
             this.allthewayup=true;
         }
-        let prev=undefined;
+        let prev:Message=undefined;
         for(const thing of response){
             const message=new Message(thing,this);
             if(prev){
-                this.idToNext.set(message.snowflake,prev.id);
-                this.idToPrev.set(prev.id,message.snowflake);
+                this.idToNext.set(message.snowflake,prev.snowflake);
+                this.idToPrev.set(prev.snowflake,message.snowflake);
             }else{
                 this.lastmessage=message;
             }
