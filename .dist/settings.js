@@ -1,4 +1,6 @@
 import { Permissions } from "./permissions.js";
+import { SnowFlake } from "./snowflake.js";
+import { Role } from "./role.js";
 class Buttons {
     name;
     buttons;
@@ -154,16 +156,17 @@ class RoleList extends Buttons {
             options.addPermissionToggle(thing, this.permission); //
         }
         for (const i of permissions) {
-            this.buttons.push([guild.getRole(i[0]).name, i[0]]); //
+            console.log(i);
+            this.buttons.push([i[0].getObject().name, i[0].id]); //
         }
         this.options = options;
     }
     handleString(str) {
         this.curid = str;
-        const perm = this.permissions.find(_ => _[0] === str)[1];
+        const perm = this.permissions.find(_ => _[0].id === str)[1];
         this.permission.deny = perm.deny;
         this.permission.allow = perm.allow;
-        this.options.name = this.guild.getRole(str).name;
+        this.options.name = SnowFlake.getSnowFlakeFromID(str, Role).getObject().name;
         this.options.haschanged = false;
         return this.options.generateHTML();
     }

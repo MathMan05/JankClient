@@ -1,9 +1,10 @@
 import { Contextmenu } from "./contextmenu.js";
 import { User } from "./user.js";
 import { Member } from "./member.js";
-import { markdown } from "./markdown.js";
+import { MarkDown } from "./markdown.js";
 import { Embed } from "./embed.js";
 import { File } from "./file.js";
+import { SnowFlake } from "./snowflake.js";
 class Message {
     static contextmenu = new Contextmenu("message menu");
     owner;
@@ -33,17 +34,19 @@ class Message {
     }
     static setupcmenu() {
         Message.contextmenu.addbutton("Copy raw text", function () {
-            navigator.clipboard.writeText(this.content);
+            navigator.clipboard.writeText(this.content.rawString);
         });
         Message.contextmenu.addbutton("Reply", function (div) {
             this.channel.setReplying(this);
         });
         Message.contextmenu.addbutton("Copy message id", function () {
-            navigator.clipboard.writeText(this.id);
+            navigator.clipboard.writeText(this.id.id);
         });
         Message.contextmenu.addbutton("Edit", function () {
             this.channel.editing = this;
-            document.getElementById("typebox").value = this.content;
+            const markdown = (document.getElementById("typebox"))["markdown"];
+            markdown.txt = this.content.rawString;
+            markdown.boxupdate(document.getElementById("typebox"));
         }, null, _ => { return _.author.id === _.localuser.user.id; });
         Message.contextmenu.addbutton("Delete message", function () {
             this.delete();
@@ -61,6 +64,14 @@ class Message {
                 for (const thing of messagejson.attachments) {
                     this.attachments.push(new File(thing, this));
                 }
+                continue;
+            }
+            else if (thing === "content") {
+                this.content = new MarkDown(messagejson[thing], this.channel);
+                continue;
+            }
+            else if (thing === "id") {
+                this.id = new SnowFlake(messagejson.id, this);
                 continue;
             }
             this[thing] = messagejson[thing];
@@ -126,14 +137,14 @@ class Message {
         return build;
     }
     async edit(content) {
-        return await fetch(this.info.api.toString() + "/channels/" + this.channel.id + "/messages/" + this.id, {
+        return await fetch(this.info.api.toString() + "/channels/" + this.channel.id + "/messages/" + this.id.id, {
             method: "PATCH",
             headers: this.headers,
             body: JSON.stringify({ content: content })
         });
     }
     delete() {
-        fetch(`${this.info.api.toString()}/channels/${this.channel.id}/messages/${this.id}`, {
+        fetch(`${this.info.api.toString()}/channels/${this.channel.id}/messages/${this.id.id}`, {
             headers: this.headers,
             method: "DELETE",
         });
@@ -143,19 +154,22 @@ class Message {
             this.div.innerHTML = "";
             this.div = null;
         }
-        const prev = this.channel.idToPrev[this.id];
-        const next = this.channel.idToNext[this.id];
+        const prev = this.channel.idToPrev[this.id.id];
+        const next = this.channel.idToNext[this.id.id];
         this.channel.idToNext[prev] = next;
         this.channel.idToPrev[next] = prev;
-        delete this.channel.messageids[this.id];
+        delete this.channel.messageids[this.id.id];
         const regen = this.channel.messageids[prev];
         if (regen) {
             regen.generateMessage();
         }
+        if (this.channel.lastmessage === this) {
+            this.channel.lastmessage = this.channel.messageids[prev];
+        }
     }
     generateMessage(premessage = null) {
         if (!premessage) {
-            premessage = this.channel.messageids[this.channel.idToNext[this.id]];
+            premessage = this.channel.messageids[this.channel.idToNext[this.id.id]];
         }
         const div = this.div;
         if (this === this.channel.replyingto) {
@@ -204,7 +218,7 @@ class Message {
             replyline.classList.add("replyflex");
             this.channel.getmessage(this.message_reference.message_id).then(message => {
                 const author = message.author;
-                reply.appendChild(markdown(message.content, { stdsize: true }));
+                reply.appendChild(message.content.makeHTML({ stdsize: true }));
                 minipfp.src = author.getpfpsrc();
                 author.bind(minipfp);
                 username.textContent = author.username;
@@ -266,7 +280,7 @@ class Message {
             else {
                 div.classList.remove("topMessage");
             }
-            const messaged = markdown(this.content);
+            const messaged = this.content.makeHTML();
             div["txt"] = messaged;
             const messagedwrap = document.createElement("div");
             messagedwrap.classList.add("flexttb");

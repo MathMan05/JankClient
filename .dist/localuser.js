@@ -4,6 +4,8 @@ import { Voice } from "./audio.js";
 import { User } from "./user.js";
 import { Fullscreen } from "./fullscreen.js";
 import { setTheme } from "./login.js";
+import { SnowFlake } from "./snowflake.js";
+import { Message } from "./message.js";
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 class Localuser {
     packets;
@@ -14,6 +16,8 @@ class Localuser {
     info;
     headers;
     usersettings;
+    userConnections;
+    devPortal;
     ready;
     guilds;
     guildids;
@@ -41,14 +45,14 @@ class Localuser {
         this.initialized = true;
         this.ready = ready;
         this.guilds = [];
-        this.guildids = {};
+        this.guildids = new Map();
         this.user = new User(ready.d.user, this);
         this.userinfo.username = this.user.username;
         this.userinfo.pfpsrc = this.user.getpfpsrc();
         this.status = this.ready.d.user_settings.status;
         this.channelfocus = null;
         this.lookingguild = null;
-        this.guildhtml = {};
+        this.guildhtml = new Map();
         const members = {};
         for (const thing of ready.d.merged_members) {
             members[thing[0].guild_id] = thing[0];
@@ -56,12 +60,12 @@ class Localuser {
         for (const thing of ready.d.guilds) {
             const temp = new Guild(thing, this, members[thing.id]);
             this.guilds.push(temp);
-            this.guildids[temp.id] = temp;
+            this.guildids[temp.id.id] = temp;
         }
         {
             const temp = new Direct(ready.d.private_channels, this);
             this.guilds.push(temp);
-            this.guildids[temp.id] = temp;
+            this.guildids[temp.id.id] = temp;
         }
         console.log(ready.d.user_guild_settings.entries);
         for (const thing of ready.d.user_guild_settings.entries) {
@@ -77,14 +81,16 @@ class Localuser {
                 continue;
             }
             const guildid = guild.id;
-            this.guildids[guildid].channelids[thing.channel_id].readStateInfo(thing);
+            this.guildids[guildid.id].channelids[thing.channel_id].readStateInfo(thing);
         }
         this.typing = [];
     }
     outoffocus() {
         document.getElementById("servers").textContent = "";
         document.getElementById("channels").textContent = "";
-        this.channelfocus.infinite.delete();
+        if (this.channelfocus) {
+            this.channelfocus.infinite.delete();
+        }
         this.lookingguild = null;
         this.channelfocus = null;
     }
@@ -93,7 +99,7 @@ class Localuser {
         clearInterval(this.wsinterval);
         this.outoffocus();
         this.guilds = [];
-        this.guildids = {};
+        this.guildids = new Map();
         this.ws.close(4000);
     }
     async initwebsocket() {
@@ -124,90 +130,85 @@ class Localuser {
             }));
         });
         this.ws.addEventListener('message', (event) => {
-            try {
-                const temp = JSON.parse(event.data);
-                console.log(temp);
-                if (temp.op == 0) {
-                    switch (temp.t) {
-                        case "MESSAGE_CREATE":
-                            if (this.initialized) {
-                                this.messageCreate(temp);
+            const temp = JSON.parse(event.data);
+            console.log(temp);
+            if (temp.op == 0) {
+                switch (temp.t) {
+                    case "MESSAGE_CREATE":
+                        if (this.initialized) {
+                            this.messageCreate(temp);
+                        }
+                        break;
+                    case "MESSAGE_DELETE":
+                        console.log(temp.d);
+                        SnowFlake.getSnowFlakeFromID(temp.d.id, Message).getObject().deleteEvent();
+                        break;
+                    case "READY":
+                        this.gottenReady(temp);
+                        this.genusersettings();
+                        returny();
+                        break;
+                    case "MESSAGE_UPDATE":
+                        const message = SnowFlake.getSnowFlakeFromID(temp.d.id, Message).getObject();
+                        message.giveData(temp.d);
+                        break;
+                    case "TYPING_START":
+                        if (this.initialized) {
+                            this.typingStart(temp);
+                        }
+                        break;
+                    case "USER_UPDATE":
+                        if (this.initialized) {
+                            const users = SnowFlake.getSnowFlakeFromID(temp.d.id, User).getObject();
+                            console.log(users, temp.d.id);
+                            if (users) {
+                                users.userupdate(temp.d);
                             }
+                        }
+                        break;
+                    case "CHANNEL_UPDATE":
+                        if (this.initialized) {
+                            this.updateChannel(temp.d);
+                        }
+                        break;
+                    case "CHANNEL_CREATE":
+                        if (this.initialized) {
+                            this.createChannel(temp.d);
+                        }
+                        break;
+                    case "CHANNEL_DELETE":
+                        if (this.initialized) {
+                            this.delChannel(temp.d);
+                        }
+                        break;
+                    case "GUILD_DELETE":
+                        {
+                            const guildy = this.guildids[temp.d.id];
+                            delete this.guildids[temp.d.id];
+                            this.guilds.splice(this.guilds.indexOf(guildy), 1);
+                            guildy.html.remove();
                             break;
-                        case "MESSAGE_DELETE":
-                            console.log(temp.d);
-                            this.guildids[temp.d.guild_id].channelids[temp.d.channel_id].messageids[temp.d.id].deleteEvent();
-                            break;
-                        case "READY":
-                            this.gottenReady(temp);
-                            this.genusersettings();
-                            returny();
-                            break;
-                        case "MESSAGE_UPDATE":
-                            const message = this.resolveChannelFromID(temp.d.channel_id).messageids[temp.d.id];
-                            message.giveData(temp.d);
-                            break;
-                        case "TYPING_START":
-                            if (this.initialized) {
-                                this.typingStart(temp);
-                            }
-                            break;
-                        case "USER_UPDATE":
-                            if (this.initialized) {
-                                const users = User.userids[temp.d.id];
-                                console.log(users, temp.d.id);
-                                if (users) {
-                                    users.userupdate(temp.d);
-                                }
-                            }
-                            break;
-                        case "CHANNEL_UPDATE":
-                            if (this.initialized) {
-                                this.updateChannel(temp.d);
-                            }
-                            break;
-                        case "CHANNEL_CREATE":
-                            if (this.initialized) {
-                                this.createChannel(temp.d);
-                            }
-                            break;
-                        case "CHANNEL_DELETE":
-                            if (this.initialized) {
-                                this.delChannel(temp.d);
-                            }
-                            break;
-                        case "GUILD_DELETE":
-                            {
-                                const guildy = this.guildids[temp.d.id];
-                                delete this.guildids[temp.d.id];
-                                this.guilds.splice(this.guilds.indexOf(guildy), 1);
-                                guildy.html.remove();
-                                break;
-                            }
-                        case "GUILD_CREATE":
-                            {
-                                const guildy = new Guild(temp.d, this, this.user);
-                                this.guilds.push(guildy);
-                                this.guildids[guildy.id] = guildy;
-                                document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"));
-                            }
-                    }
-                }
-                else if (temp.op === 10) {
-                    console.log("heartbeat down");
-                    this.wsinterval = setInterval(_ => {
-                        if (this.connectionSucceed === 0)
-                            this.connectionSucceed = Date.now();
-                        this.ws.send(JSON.stringify({ op: 1, d: this.packets }));
-                    }, temp.d.heartbeat_interval);
-                    this.packets = 1;
-                }
-                else if (temp.op != 11) {
-                    this.packets++;
+                        }
+                    case "GUILD_CREATE":
+                        {
+                            const guildy = new Guild(temp.d, this, this.user);
+                            this.guilds.push(guildy);
+                            this.guildids[guildy.id.id] = guildy;
+                            document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"));
+                        }
                 }
             }
-            catch (error) {
-                console.error(error);
+            else if (temp.op === 10) {
+                console.log("heartbeat down");
+                this.wsinterval = setInterval(_ => {
+                    if (this.connectionSucceed === 0)
+                        this.connectionSucceed = Date.now();
+                    this.ws.send(JSON.stringify({ op: 1, d: this.packets }));
+                }, temp.d.heartbeat_interval);
+                this.packets = 1;
+            }
+            else if (temp.op != 11) {
+                this.packets++;
             }
         });
         this.ws.addEventListener("close", event => {
@@ -249,15 +250,15 @@ class Localuser {
         return undefined;
     }
     updateChannel(JSON) {
-        this.guildids[JSON.guild_id].updateChannel(JSON);
-        if (JSON.guild_id === this.lookingguild.id) {
+        SnowFlake.getSnowFlakeFromID(JSON.guild_id, Guild).getObject().updateChannel(JSON);
+        if (JSON.guild_id === this.lookingguild.id.id) {
             this.loadGuild(JSON.guild_id);
         }
     }
     createChannel(JSON) {
         JSON.guild_id ??= "@me";
-        this.guildids[JSON.guild_id].createChannelpac(JSON);
-        if (JSON.guild_id === this.lookingguild.id) {
+        SnowFlake.getSnowFlakeFromID(JSON.guild_id, Guild).getObject().createChannelpac(JSON);
+        if (JSON.guild_id === this.lookingguild.id.id) {
             this.loadGuild(JSON.guild_id);
         }
     }
@@ -465,10 +466,10 @@ class Localuser {
     unreads() {
         console.log(this.guildhtml);
         for (const thing of this.guilds) {
-            if (thing.id === "@me") {
+            if (thing.id.id === "@me") {
                 continue;
             }
-            thing.unreads(this.guildhtml[thing.id]);
+            thing.unreads(this.guildhtml[thing.id.id]);
         }
     }
     typingStart(typing) {
@@ -506,7 +507,7 @@ class Localuser {
         reader.readAsDataURL(file);
         console.log(this.headers);
         reader.onload = () => {
-            fetch(this.info.api.toString() + "/v9/users/@me", {
+            fetch(this.info.api.toString() + "/users/@me", {
                 method: "PATCH",
                 headers: this.headers,
                 body: JSON.stringify({
@@ -517,7 +518,7 @@ class Localuser {
         };
     }
     updatepronouns(pronouns) {
-        fetch(this.info.api.toString() + "/v9/users/@me/profile", {
+        fetch(this.info.api.toString() + "/users/@me/profile", {
             method: "PATCH",
             headers: this.headers,
             body: JSON.stringify({
@@ -594,13 +595,13 @@ class Localuser {
                         newprouns = this.value;
                         regen();
                     }],
-                ["mdbox", "Bio:", this.user.bio, function (e) {
+                ["mdbox", "Bio:", this.user.bio.rawString, function (e) {
                         console.log(this.value);
                         hypouser.bio = this.value;
                         newbio = this.value;
                         regen();
                     }],
-                ["button", "update user content:", "submit", function () {
+                ["button", "update user content:", "submit", () => {
                         if (file !== null) {
                             this.updatepfp(file);
                         }
@@ -631,6 +632,243 @@ class Localuser {
             newprouns = null;
             newbio = null;
         }.bind(this));
+        const connectionContainer = document.createElement("div");
+        connectionContainer.id = "connection-container";
+        this.userConnections = new Fullscreen(["html",
+            connectionContainer
+        ], () => { }, async () => {
+            connectionContainer.innerHTML = "";
+            const res = await fetch(this.info.api.toString() + "/v9/connections", {
+                headers: this.headers
+            });
+            const json = await res.json();
+            Object.keys(json).sort(key => json[key].enabled ? -1 : 1).forEach(key => {
+                const connection = json[key];
+                const container = document.createElement("div");
+                container.textContent = key.charAt(0).toUpperCase() + key.slice(1);
+                if (connection.enabled) {
+                    container.addEventListener("click", async () => {
+                        const connectionRes = await fetch(this.info.api.toString() + "/v9/connections/" + key + "/authorize", {
+                            headers: this.headers
+                        });
+                        const connectionJSON = await connectionRes.json();
+                        window.open(connectionJSON.url, "_blank", "noopener noreferrer");
+                    });
+                }
+                else {
+                    container.classList.add("disabled");
+                    container.title = "This connection has been disabled server-side.";
+                }
+                connectionContainer.appendChild(container);
+            });
+        });
+        let appName = "";
+        const appListContainer = document.createElement("div");
+        appListContainer.id = "app-list-container";
+        this.devPortal = new Fullscreen(["vdiv",
+            ["hdiv",
+                ["textbox", "Name:", appName, event => {
+                        appName = event.target.value;
+                    }],
+                ["button",
+                    "",
+                    "Create application",
+                    async () => {
+                        if (appName.trim().length == 0)
+                            return alert("Please enter a name for the application.");
+                        const res = await fetch(this.info.api.toString() + "/v9/applications", {
+                            method: "POST",
+                            headers: this.headers,
+                            body: JSON.stringify({
+                                name: appName
+                            })
+                        });
+                        const json = await res.json();
+                        this.manageApplication(json.id);
+                        this.devPortal.hide();
+                    }
+                ]
+            ],
+            ["html",
+                appListContainer
+            ]
+        ], () => { }, async () => {
+            appListContainer.innerHTML = "";
+            const res = await fetch(this.info.api.toString() + "/v9/applications", {
+                headers: this.headers
+            });
+            const json = await res.json();
+            json.forEach(application => {
+                const container = document.createElement("div");
+                if (application.cover_image) {
+                    const cover = document.createElement("img");
+                    cover.crossOrigin = "anonymous";
+                    cover.src = this.info.cdn.toString() + "/app-icons/" + application.id + "/" + application.cover_image + ".png?size=256";
+                    cover.alt = "";
+                    cover.loading = "lazy";
+                    container.appendChild(cover);
+                }
+                const name = document.createElement("h2");
+                name.textContent = application.name + (application.bot ? " (Bot)" : "");
+                container.appendChild(name);
+                container.addEventListener("click", async () => {
+                    this.devPortal.hide();
+                    this.manageApplication(application.id);
+                });
+                appListContainer.appendChild(container);
+            });
+        });
+    }
+    async manageApplication(appId = "") {
+        const res = await fetch(this.info.api.toString() + "/v9/applications/" + appId, {
+            headers: this.headers
+        });
+        const json = await res.json();
+        const fields = {};
+        const appDialog = new Fullscreen(["vdiv",
+            ["title",
+                "Editing " + json.name
+            ],
+            ["vdiv",
+                ["textbox", "Application name:", json.name, event => {
+                        fields.name = event.target.value;
+                    }],
+                ["mdbox", "Description:", json.description, event => {
+                        fields.description = event.target.value;
+                    }],
+                ["vdiv",
+                    json.icon ? ["img", this.info.cdn.toString() + "/app-icons/" + appId + "/" + json.icon + ".png?size=128", [128, 128]] : ["text", "No icon"],
+                    ["fileupload", "Application icon:", event => {
+                            const reader = new FileReader();
+                            reader.readAsDataURL(event.target.files[0]);
+                            reader.onload = () => {
+                                fields.icon = reader.result;
+                            };
+                        }]
+                ]
+            ],
+            ["hdiv",
+                ["textbox", "Privacy policy URL:", json.privacy_policy_url || "", event => {
+                        fields.privacy_policy_url = event.target.value;
+                    }],
+                ["textbox", "Terms of Service URL:", json.terms_of_service_url || "", event => {
+                        fields.terms_of_service_url = event.target.value;
+                    }]
+            ],
+            ["hdiv",
+                ["checkbox", "Make bot publicly inviteable?", json.bot_public, event => {
+                        fields.bot_public = event.target.checked;
+                    }],
+                ["checkbox", "Require code grant to invite the bot?", json.bot_require_code_grant, event => {
+                        fields.bot_require_code_grant = event.target.checked;
+                    }]
+            ],
+            ["hdiv",
+                ["button",
+                    "",
+                    "Save changes",
+                    async () => {
+                        const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId, {
+                            method: "PATCH",
+                            headers: this.headers,
+                            body: JSON.stringify(fields)
+                        });
+                        if (updateRes.ok)
+                            appDialog.hide();
+                        else {
+                            const updateJSON = await updateRes.json();
+                            alert("An error occurred: " + updateJSON.message);
+                        }
+                    }
+                ],
+                ["button",
+                    "",
+                    (json.bot ? "Manage" : "Add") + " bot",
+                    async () => {
+                        if (!json.bot) {
+                            if (!confirm("Are you sure you want to add a bot to this application? There's no going back."))
+                                return;
+                            const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId + "/bot", {
+                                method: "POST",
+                                headers: this.headers
+                            });
+                            const updateJSON = await updateRes.json();
+                            alert("Bot token:\n" + updateJSON.token);
+                        }
+                        appDialog.hide();
+                        this.manageBot(appId);
+                    }
+                ]
+            ]
+        ]);
+        appDialog.show();
+    }
+    async manageBot(appId = "") {
+        const res = await fetch(this.info.api.toString() + "/v9/applications/" + appId, {
+            headers: this.headers
+        });
+        const json = await res.json();
+        if (!json.bot)
+            return alert("For some reason, this application doesn't have a bot (yet).");
+        const fields = {
+            username: json.bot.username,
+            avatar: json.bot.avatar ? (this.info.cdn.toString() + "/app-icons/" + appId + "/" + json.bot.avatar + ".png?size=256") : ""
+        };
+        const botDialog = new Fullscreen(["vdiv",
+            ["title",
+                "Editing bot: " + json.bot.username
+            ],
+            ["hdiv",
+                ["textbox", "Bot username:", json.bot.username, event => {
+                        fields.username = event.target.value;
+                    }],
+                ["vdiv",
+                    fields.avatar ? ["img", fields.avatar, [128, 128]] : ["text", "No avatar"],
+                    ["fileupload", "Bot avatar:", event => {
+                            const reader = new FileReader();
+                            reader.readAsDataURL(event.target.files[0]);
+                            reader.onload = () => {
+                                fields.avatar = reader.result;
+                            };
+                        }]
+                ]
+            ],
+            ["hdiv",
+                ["button",
+                    "",
+                    "Save changes",
+                    async () => {
+                        const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId + "/bot", {
+                            method: "PATCH",
+                            headers: this.headers,
+                            body: JSON.stringify(fields)
+                        });
+                        if (updateRes.ok)
+                            botDialog.hide();
+                        else {
+                            const updateJSON = await updateRes.json();
+                            alert("An error occurred: " + updateJSON.message);
+                        }
+                    }
+                ],
+                ["button",
+                    "",
+                    "Reset token",
+                    async () => {
+                        if (!confirm("Are you sure you want to reset the bot token? Your bot will stop working until you update it."))
+                            return;
+                        const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId + "/bot/reset", {
+                            method: "POST",
+                            headers: this.headers
+                        });
+                        const updateJSON = await updateRes.json();
+                        alert("New token:\n" + updateJSON.token);
+                        botDialog.hide();
+                    }
+                ]
+            ]
+        ]);
+        botDialog.show();
     }
 }
 export { Localuser };

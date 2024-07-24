@@ -122,7 +122,7 @@ async function enter(event){
     if(event.key === "Enter"&&!event.shiftKey){
         event.preventDefault();
         if(channel.editing){
-            channel.editing.edit((typebox).value);
+            channel.editing.edit(markdown.rawString);
             channel.editing=null;
         }else{
             replyingto= thisuser.channelfocus.replyingto;
@@ -131,7 +131,7 @@ async function enter(event){
                 replyingto.div.classList.remove("replying");
             }
             thisuser.channelfocus.replyingto=null;
-            channel.sendMessage(typebox.value,{
+            channel.sendMessage(markdown.rawString,{
                 attachments:images,
                 replyingto:replying,
             })
@@ -141,12 +141,15 @@ async function enter(event){
             images.pop();
             pasteimage.removeChild(imageshtml.pop());
         }
-        typebox.value="";
+        typebox.innerHTML="";
         return;
     }
 }
 
-const typebox=document.getElementById("typebox") as HTMLInputElement;
+const typebox=document.getElementById("typebox") as HTMLDivElement;
+const markdown=new MarkDown("",thisuser);
+markdown.giveBox(typebox);
+typebox["markdown"]=markdown;
 typebox.addEventListener("keyup",enter);
 typebox.addEventListener("keydown",event=>{
     if(event.key === "Enter"&&!event.shiftKey) event.preventDefault();
@@ -166,6 +169,7 @@ const images:Blob[]=[];
 const imageshtml=[];
 
 import { File } from "./file.js";
+import { MarkDown } from "./markdown.js";
 document.addEventListener('paste', async (e) => {
     Array.from(e.clipboardData.files).forEach(async (f) => {
         const file=File.initFromBlob(f);
@@ -183,6 +187,14 @@ function userSettings(){
     thisuser.usersettings.show();
 }
 document.getElementById("settings").onclick=userSettings;
+function userConnections(){
+    thisuser.userConnections.show();
+}
+document.getElementById("connections").onclick=userConnections;
+function devPortal(){
+    thisuser.devPortal.show();
+}
+document.getElementById("dev-portal").onclick=devPortal;
 
 if(mobile){
     document.getElementById("channelw").onclick=function(){

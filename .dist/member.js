@@ -1,6 +1,8 @@
 import { User } from "./user.js";
+import { Role } from "./role.js";
 import { Guild } from "./guild.js";
 import { Contextmenu } from "./contextmenu.js";
+import { SnowFlake } from "./snowflake.js";
 class Member {
     static already = {};
     owner;
@@ -39,7 +41,7 @@ class Member {
             }
             if (thing === "roles") {
                 for (const strrole of membery["roles"]) {
-                    const role = this.guild.getRole(strrole);
+                    const role = SnowFlake.getSnowFlakeFromID(strrole, Role).getObject();
                     this.roles.push(role);
                 }
                 continue;
@@ -67,50 +69,50 @@ class Member {
             console.error(guild);
         }
         let user;
-        let id = "";
+        let id;
         if (unkown instanceof User) {
             user = unkown;
             id = user.id;
         }
         else if (typeof unkown === typeof "") {
-            id = unkown;
+            id = new SnowFlake(unkown, undefined);
         }
         else {
             return new Member(unkown, guild);
         }
-        if (guild.id === "@me") {
+        if (guild.id.id === "@me") {
             return null;
         }
-        if (!Member.already[guild.id]) {
-            Member.already[guild.id] = {};
+        if (!Member.already[guild.id.id]) {
+            Member.already[guild.id.id] = {};
         }
-        else if (Member.already[guild.id][id]) {
-            const memb = Member.already[guild.id][id];
+        else if (Member.already[guild.id.id][id]) {
+            const memb = Member.already[guild.id.id][id];
             if (memb instanceof Promise) {
                 return await memb;
             }
             return memb;
         }
-        const promoise = fetch(guild.info.api.toString() + "/v9/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + guild.id, { headers: guild.headers }).then(_ => _.json()).then(json => {
+        const promoise = fetch(guild.info.api.toString() + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + guild.id, { headers: guild.headers }).then(_ => _.json()).then(json => {
             const memb = new Member(json, guild);
-            Member.already[guild.id][id] = memb;
+            Member.already[guild.id.id][id] = memb;
             console.log("resolved");
             return memb;
         });
-        Member.already[guild.id][id] = promoise;
+        Member.already[guild.id.id][id] = promoise;
         try {
             return await promoise;
         }
         catch (_) {
             const memb = new Member(user, guild, true);
-            Member.already[guild.id][id] = memb;
+            Member.already[guild.id.id][id] = memb;
             return memb;
         }
     }
     hasRole(ID) {
         console.log(this.roles, ID);
         for (const thing of this.roles) {
-            if (thing.id === ID) {
+            if (thing.id.id === ID) {
                 return true;
             }
         }
@@ -131,7 +133,7 @@ class Member {
                 return true;
             }
         }
-        return this.guild.properties.owner_id === this.user.id;
+        return this.guild.properties.owner_id === this.user.id.id;
     }
     bind(html) {
         if (html.tagName === "SPAN") {
