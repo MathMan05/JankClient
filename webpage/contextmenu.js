@@ -17,22 +17,22 @@ class Contextmenu {
 		this.buttons = []
 	}
 	addbutton(text, onclick, img = null, shown = () => true, enabled = () => true) {
-		this.buttons.push([text, onclick, img, shown, enabled])
+		this.buttons.push({text, onclick, img, shown, enabled})
 		return {}
 	}
 	makemenu(x, y, addinfo, obj) {
 		const div = document.createElement("table")
 		div.classList.add("contextmenu")
 		for (const button of this.buttons) {
-			if (!button[3](addinfo)) continue
+			if (!button.shown(addinfo)) continue
 			const textb = document.createElement("tr")
 			const intext = document.createElement("button")
-			intext.disabled = !button[4]()
+			intext.disabled = !button.enabled()
 			textb.button = intext
 			intext.classList.add("contextbutton")
-			intext.textContent = button[0]
+			intext.textContent = button.text
 			textb.appendChild(intext)
-			intext.onclick = button[1].bind(addinfo, obj)
+			intext.onclick = button.onclick.bind(addinfo, obj)
 			div.appendChild(textb)
 		}
 		if (Contextmenu.currentmenu != "") Contextmenu.currentmenu.remove()
