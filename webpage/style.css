@@ -119,14 +119,17 @@ samp {
 }
 
 .infosection {
+	hr{
+		width:100%;
+	}
 	display: inline-block;
 	background: var(--profile-info-bg);
 	border-radius: 10%;
 	padding: .3cm;
-	width: 100%;
-	height: calc(100% - .5in - .2cm);
-	margin-top: .1cm;
-	box-sizing: border-box;
+	width: calc(100% - .6cm);
+	height: calc(100% - .75in);
+	display: flex;
+	flex-direction: column;
 }
 
 .profile {
@@ -152,6 +155,7 @@ h1,
 h2,
 h3 {
 	margin: 0;
+	display: inline-block;
 }
 
 h2 {
@@ -342,15 +346,16 @@ div {
 
 #typebox {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 16px;
+	/* font-size: 16px; */
 	padding: 3px;
 	border-radius: .25cm;
 	width: 100%;
-	height: .6in;
+	min-height: .5in;
 	z-index: -100;
 	display: flex;
 	max-height: fit-content;
-	box-sizing: border-box;
+	max-height: 1.5in;
+	overflow-y: scroll;
 }
 
 p {
@@ -630,7 +635,11 @@ textarea {
 textarea:focus-visible {
 	outline: 2px solid var(--focus);
 }
-
+#typebox{
+	color: var(--primary-text);
+	background: var(--textarea-bg);
+	border: 1px solid;
+}
 .channels {
 	overflow: auto;
 	transition: height .2s ease-in-out;
@@ -731,22 +740,20 @@ textarea:focus-visible {
 	flex-shrink: 1;
 }
 
-#settings {
+#user-actions {
+	display: flex;
+	flex-wrap: wrap;
+}
+#user-actions h2 {
 	cursor: pointer;
 	user-select: none;
-	border-radius: .3in;
-	transition: background 1s;
+	border-radius: .1in;
+	transition: color .5s;
 	text-align: center;
-	font-size: .25in;
-	width: .3in;
-	height: .3in;
 	overflow: visible;
 }
-
-#settings:hover {
-	background: var(--settings-hover);
-	cursor: pointer;
-	user-select: none;
+#user-actions h2:hover, #user-actions h2:focus {
+	color: var(--timestamp-color);
 }
 
 #userinfo {
@@ -1402,6 +1409,41 @@ span {
 	flex-direction: column;
 	max-height:100in;
 }
+
+#connection-container, #app-list-container {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 10px;
+	max-width: 700px;
+}
+#connection-container div, #app-list-container div {
+	padding: 5px 10px;
+	border-radius: 5px;
+	background-color: var(--textarea-bg);
+	cursor: pointer;
+}
+#connection-container .disabled {
+	background-color: var(--embed-fallback);
+	cursor: not-allowed;
+}
+
 .sizeupdown{
 	height:4in;
+}
+.bigemoji{
+	width:48px;
+	height:48px;
+}
+.smallemoji{
+	width:22px;
+	height:22px;
+}
+#typebox[contenteditable=false]{
+	
+	cursor:not-allowed;
+	
+}
+#typebox[contenteditable=false]:before{
+	content:'You can\'t chat here';
+	color:color-mix(in hsl, var(--primary-bg),var(--primary-text));
 }

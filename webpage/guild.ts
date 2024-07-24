@@ -6,15 +6,16 @@ import {Fullscreen} from "./fullscreen.js";
 import {Member} from "./member.js";
 import {Settings,RoleList} from "./settings.js";
 import {Permissions} from "./permissions.js";
+import { SnowFlake } from "./snowflake.js";
 class Guild{
     owner:Localuser;
     headers:Localuser["headers"];
     channels:Channel[];
     channelids:{[key:string]:Channel};
-    id:string;
+    id:SnowFlake<Guild>;
     properties
     roles:Role[];
-    roleids:{[key:string]:Role};
+    roleids:Map<SnowFlake<Role>,Role>;
     prevchannel:Channel;
     message_notifications:number;
     headchannels:Channel[];
@@ -75,30 +76,30 @@ class Guild{
         s1.options.push(new RoleList(permlist,this,this.updateRolePermissions.bind(this)));
         settings.show();
     }
-    constructor(JSON,owner:Localuser,member){
-        if(JSON===-1){
+    constructor(json,owner:Localuser,member){
+        if(json===-1){
             return;
         }
         this.owner=owner;
         this.headers=this.owner.headers;
         this.channels=[];
         this.channelids={};
-        this.id=JSON.id;
-        this.properties=JSON.properties;
+        this.id=new SnowFlake(json.id,this);
+        this.properties=json.properties;
         this.roles=[];
-        this.roleids={};
+        this.roleids=new Map();
         this.prevchannel=undefined;
         this.message_notifications=0;
-        for(const roley of JSON.roles){
+        for(const roley of json.roles){
             const roleh=new Role(roley,this);
             this.roles.push(roleh)
-            this.roleids[roleh.id]=roleh;
+            this.roleids.set(roleh.id,roleh);
         }
         Member.resolve(member,this).then(_=>this.member=_);
-        for(const thing of JSON.channels){
+        for(const thing of json.channels){
             const temp=new Channel(thing,this);
             this.channels.push(temp);
-            this.channelids[temp.id]=temp;
+            this.channelids[temp.id.id]=temp;
         }
         this.headchannels=[];
         for(const thing of this.channels){
@@ -128,7 +129,7 @@ class Guild{
                 headers:this.headers,
                 body:JSON.stringify({
                     "guilds":{
-                        [this.id]:{
+                        [this.id.id]:{
                             "message_notifications": noti
                         }
                     }
@@ -247,7 +248,7 @@ class Guild{
         const noti=document.createElement("div");
         noti.classList.add("unread");
         divy.append(noti);
-        this.localuser.guildhtml[this.id]=divy;
+        this.localuser.guildhtml[this.id.id]=divy;
         if(this.properties.icon!=null){
             const img=document.createElement("img");
             img.classList.add("pfp","servericon");
@@ -373,16 +374,12 @@ class Guild{
             body:JSON.stringify(build)
         })
     }
-    getRole(ID:string):Role{
-        if(!this.roleids[ID]){console.error(`role id ${ID} does not exist`,this.roleids)}
-        return this.roleids[ID];
-    }
     hasRole(r:Role|string){
         console.log("this should run");
-        if((typeof r)!==(typeof "")){
-            r=(r as Role).id;
+        if(r instanceof Role){
+            r=r.id.id;
         }
-        return this.member.hasRole(r as string);
+        return this.member.hasRole(r);
     }
     loadChannel(ID:string=undefined){
         if(ID&&this.channelids[ID]){
@@ -402,10 +399,10 @@ class Guild{
         }
     }
     loadGuild(){
-        this.localuser.loadGuild(this.id);
+        this.localuser.loadGuild(this.id.id);
     }
     updateChannel(JSON){
-        this.channelids[JSON.id].updateChannel(JSON);
+        SnowFlake.getSnowFlakeFromID(JSON.id,Channel).getObject().updateChannel(JSON);
         this.headchannels=[];
         for(const thing of this.channels){
             thing.children=[];
@@ -516,7 +513,7 @@ class Guild{
         })
         const json=await fetched.json();
         const role=new Role(json,this);
-        this.roleids[role.id]=role;
+        this.roleids[role.id.id]=role;
         this.roles.push(role);
         return role;
     }
