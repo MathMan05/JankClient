@@ -172,7 +172,7 @@ class Message {
     }
     generateMessage(premessage = null) {
         if (!premessage) {
-            premessage = this.channel.idToNext.get(this.snowflake)?.getObject();
+            premessage = this.channel.idToPrev.get(this.snowflake)?.getObject();
         }
         const div = this.div;
         if (this === this.channel.replyingto) {
