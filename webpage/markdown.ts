@@ -470,30 +470,28 @@ class MarkDown{
         restore();
     }
     static gatherBoxText(element:HTMLElement){
-        const children=element.childNodes;
         if(element.tagName.toLowerCase()==="img"){
             return (element as HTMLImageElement).alt;
         }
         if(element.tagName.toLowerCase()==="br"){
             return "\n";
         }
-        if(children.length!==0){
-            let build="";
-            for(const thing of children){
 
-                if(thing instanceof Text){
+        let build="";
+        for(const thing of element.childNodes){
 
-                    const text=thing.textContent;
-                    build+=text;
-                    continue;
-                }
-                const text=this.gatherBoxText(thing as HTMLElement);
-                if(text){
-                    build+=text;
-                }
+            if(thing instanceof Text){
+
+                const text=thing.textContent;
+                build+=text;
+                continue;
             }
-            return build;
+            const text=this.gatherBoxText(thing as HTMLElement);
+            if(text){
+                build+=text;
+            }
         }
+        return build;
     }
 }
 
