@@ -646,7 +646,7 @@ textarea:focus-visible {
 	font-weight:900;
 	background: color-mix(in srgb, var(--channel-hover) 60%, transparent)
 }
-#servername {
+#serverName {
 	padding-left: 0.1in;
 	text-overflow: ellipsis;
 	overflow-x: hidden;
