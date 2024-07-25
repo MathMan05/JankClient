@@ -25,18 +25,18 @@ class Embed {
 				return document.createElement("div")
 		}
 	}
-    get message() {
-        return this.owner
-    }
-    get channel() {
-        return this.message.channel
-    }
-    get guild() {
-        return this.channel.guild
-    }
-    get localuser() {
-        return this.guild.localuser
-    }
+	get message() {
+		return this.owner
+	}
+	get channel() {
+		return this.message.channel
+	}
+	get guild() {
+		return this.channel.guild
+	}
+	get localuser() {
+		return this.guild.localuser
+	}
 	generateRich() {
 		const div = document.createElement("div")
 		div.classList.add("embed-color")

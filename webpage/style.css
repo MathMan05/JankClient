@@ -41,6 +41,10 @@
 	--black: #000;
 	--shadow: #000;
 
+	--red: red;
+	--green: green;
+	--focus: #8888ff;
+
 	--message-bg-hover: #1e1e28;
 	--typing-bg: #161616;
 	--timestamp-color: #a2a2a2;
@@ -51,14 +55,17 @@
 	--light-border: #929292;
 	--settings-hover: #0e0d10;
 	--quote-bg: #7a798e;
-	--button-bg: #1b1b28;
 	--textarea-bg: #26272c;
 	--filename: #47bbff;
 	--notify-bg: #fc7537;
 	--pronouns: #797979;
 	--error-color: #ff4949;
 	--embed: #1a1823;
+	--link: #8888ff;
 	--embed-fallback: #6b717c;
+
+	--button-bg: #1b1b28;
+	--button-hover: #282832;
 
 	--channels-bg: #2f2f36;
 	--channel-hover: #3e3e47;
@@ -104,6 +111,10 @@
 	--black: #FFF;
 	--shadow: #777;
 
+	--red: #dd6c6c;
+	--green: #639d63;
+	--focus: #47bbff;
+
 	--message-bg-hover: #dedee2;
 	--typing-bg: #dad8d8;
 	--timestamp-color: #5d5d66;
@@ -114,14 +125,17 @@
 	--light-border: #98979e;
 	--settings-hover: #b5b1bb;
 	--quote-bg: #9595a3;
-	--button-bg: #b7b7c7;
 	--textarea-bg: #b4b7c7;
 	--filename: #47bbff;
 	--notify-bg: #ff170f;
 	--pronouns: #6a6a6d;
 	--error-color: #d40404;
 	--embed: #f2f3f5;
+	--link: #3333ee;
 	--embed-fallback: #6b717c;
+
+	--button-bg: #b7b7c7;
+	--button-hover: #FFF;
 
 	--channels-bg: #d6d6db;
 	--channel-hover: #c2c2cc;
@@ -278,26 +292,6 @@ code {
 	height: calc(100% - .5in - .2cm);
 	margin-top: .1cm;
 	box-sizing: border-box;
-}
-
-.profile {
-	display: inline-block;
-	position: absolute;
-	background-color: var(--profile-bg);
-	border-radius: 10%;
-	padding: .2cm;
-	width: 7cm;
-	height: 8cm;
-	z-index: 5;
-}
-
-.hypoprofile {
-	display: inline-block;
-	background-color: var(--profile-bg);
-	border-radius: 10%;
-	padding: .2cm;
-	width: 7cm;
-	height: 8cm;
 }
 
 h1,
@@ -790,6 +784,7 @@ textarea {
 	font-size: .13in;
 	font-weight: 500;
 	color: var(--primary-text);
+	display: block;
 }
 
 #userdock {
@@ -1200,6 +1195,7 @@ span {
 #replybox span {
 	align-self: center;
 }
+
 .cancelReply {
 	align-self: flex-start;
 	color: #F00;
@@ -1209,6 +1205,7 @@ span {
 	padding: 0;
 	border: none;
 }
+
 #replybox.hideReplyBox {
 	height: 0;
 }
@@ -1311,6 +1308,26 @@ video {
 	font-size: .25in;
 	font-weight: bold;
 	margin-right: .1in;
+}
+
+.profile {
+	display: inline-block;
+	position: absolute;
+	background-color: var(--profile-bg);
+	border-radius: 10%;
+	padding: .2cm;
+	width: 7cm;
+	height: 8cm;
+	z-index: 5;
+}
+
+.hypoprofile {
+	display: inline-block;
+	background-color: var(--profile-bg);
+	border-radius: 10%;
+	padding: .2cm;
+	width: 7cm;
+	height: 8cm;
 }
 
 .flexspace {
@@ -1547,7 +1564,7 @@ video {
 	cursor: not-allowed;
 }
 #typebox[contenteditable=false]:before {
-	content: "You can\'t chat here";
+	content: "You can't chat here";
 	color: color-mix(in hsl, var(--primary-bg), var(--primary-text));
 }
 

@@ -7,6 +7,10 @@ class Role {
 		this.info = owner.info
 
 		for (const thing of Object.keys(json)) {
+			if (thing == "id") {
+				this.snowflake = new SnowFlake(json.id, this)
+				continue
+			}
 			this[thing] = json[thing]
 		}
 		this.permissions = new Permissions(json.permissions)
@@ -17,6 +21,9 @@ class Role {
 	}
 	get localuser() {
 		return this.guild.localuser
+	}
+	get id() {
+		return this.snowflake.id
 	}
 	getColor() {
 		if (this.color == 0) return null

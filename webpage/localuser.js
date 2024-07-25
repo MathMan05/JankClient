@@ -21,14 +21,14 @@ class LocalUser {
 		this.initialized = true
 		this.ready = ready
 		this.guilds = []
-		this.guildids = {}
+		this.guildids = new Map()
+		this.guildhtml = new Map()
 		this.user = User.checkuser(ready.d.user, this)
 		this.userinfo.username = this.user.username
 		this.userinfo.pfpsrc = this.user.getpfpsrc()
 		this.usersettings = null
 		this.channelfocus = null
 		this.lookingguild = null
-		this.guildhtml = {}
 
 		const members = {}
 		for (const thing of ready.d.merged_members) {
@@ -42,22 +42,22 @@ class LocalUser {
 		for (const thing of ready.d.guilds) {
 			const temp = new Guild(thing, this, members[thing.id])
 			this.guilds.push(temp)
-			this.guildids[temp.id] = temp
+			this.guildids.set(temp.id, temp)
 		}
 
 		const dmChannels = new Direct(ready.d.private_channels, this)
 		this.guilds.push(dmChannels)
-		this.guildids[dmChannels.id] = dmChannels
+		this.guildids.set(dmChannels.id, dmChannels)
 
 		for (const guildSettings of ready.d.user_guild_settings.entries) {
-			this.guildids[guildSettings.guild_id].notisetting(guildSettings)
+			this.guildids.get(guildSettings.guild_id).notisetting(guildSettings)
 		}
 
 		for (const thing of ready.d.read_state.entries) {
 			const guild = this.resolveChannelFromID(thing.id)?.guild
 			if (!guild) continue
 
-			this.guildids[guild.id].channelids[thing.channel_id].readStateInfo(thing)
+			this.guildids.get(guild.id).channelids[thing.channel_id].readStateInfo(thing)
 		}
 		this.typing = []
 	}
@@ -73,7 +73,7 @@ class LocalUser {
 		this.initialized = false
 		this.outoffocus()
 		this.guilds = []
-		this.guildids = {}
+		this.guildids = new Map()
 		this.ws.close(1000)
 	}
 	async initwebsocket() {
@@ -118,6 +118,8 @@ class LocalUser {
 				switch (json.t) {
 					case "MESSAGE_CREATE":
 						if (this.initialized) this.messageCreate(json)
+					case "MESSAGE_DELETE":
+						SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject().deleteEvent()
 						break
 					case "READY":
 						this.gottenReady(json)
@@ -125,21 +127,18 @@ class LocalUser {
 						returny()
 						break
 					case "MESSAGE_UPDATE":
-						const message = this.resolveChannelFromID(json.d.channel_id).messageids.get(json.d.id)
+						const message = SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject()
 						message.giveData(json.d)
-						break
-					case "MESSAGE_DELETE":
-						this.guildids[json.d.guild_id].channelids[json.d.channel_id].messageids.get(json.d.id).deleteEvent()
 						break
 					case "TYPING_START":
 						if (this.initialized) this.typingStart(json)
 						break
 					case "USER_UPDATE":
 						if (this.initialized) {
-							const users = User.userids[json.d.id]
 							console.log(users, json.d)
 
 							if (users) users.userupdate(json.d)
+							const users = SnowFlake.getSnowFlakeFromID(json.d.id, User).getObject()
 						}
 						break
 					case "CHANNEL_UPDATE":
@@ -152,8 +151,8 @@ class LocalUser {
 						if (this.initialized) this.delChannel(json.d)
 						break
 					case "GUILD_DELETE": {
-						const guildy = this.guildids[json.d.id]
-						delete this.guildids[json.d.id]
+						const guildy = this.guildids.get(json.d.id)
+						this.guildids.delete(json.d.id)
 						this.guilds.splice(this.guilds.indexOf(guildy), 1)
 						guildy.html.remove()
 
@@ -163,9 +162,9 @@ class LocalUser {
 					case "GUILD_CREATE": {
 						const guildy = new Guild(json.d, this, this.user)
 						this.guilds.push(guildy)
-						this.guildids[guildy.id] = guildy
 
 						document.getElementById("bottomseparator").removeAttribute("hidden")
+						this.guildids.set(guildy.id, guildy)
 						document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"))
 						break
 					}
@@ -222,21 +221,21 @@ class LocalUser {
 		return this.guilds.find(guild => guild.channelids[ID])?.channelids[ID]
 	}
 	updateChannel(json) {
-		this.guildids[json.guild_id].updateChannel(json)
+		SnowFlake.getSnowFlakeFromID(json.guild_id, Guild).getObject().updateChannel(json)
 
-		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
+		if (json.guild_id == this.lookingguild.snowflake) this.loadGuild(json.guild_id)
 	}
 	createChannel(json) {
 		json.guild_id ??= "@me"
-		this.guildids[json.guild_id].createChannelpac(json)
+		SnowFlake.getSnowFlakeFromID(json.guild_id, Guild).getObject().createChannelpac(json)
 
-		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
+		if (json.guild_id == this.lookingguild.snowflake) this.loadGuild(json.guild_id)
 	}
 	delChannel(json) {
 		json.guild_id ??= "@me"
-		this.guildids[json.guild_id].delChannel(json)
+		this.guildids.get(json.guild_id).delChannel(json)
 
-		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
+		if (json.guild_id == this.lookingguild.snowflake) this.loadGuild(json.guild_id)
 	}
 	init() {
 		this.buildservers()
@@ -256,8 +255,8 @@ class LocalUser {
 		return this.lookingguild.isAdmin()
 	}
 	loadGuild(id) {
-		let guild = this.guildids[id]
-		if (!guild) guild = this.guildids["@me"]
+		let guild = this.guildids.get(id)
+		if (!guild) guild = this.guildids.get("@me")
 		if (this.lookingguild) this.lookingguild.html.classList.remove("serveropen")
 		if (guild.html) guild.html.classList.add("serveropen")
 
@@ -275,13 +274,13 @@ class LocalUser {
 		const homeButton = document.createElement("p")
 		homeButton.textContent = "⌂"
 		homeButton.classList.add("home", "servericon")
-		homeButton.all = this.guildids["@me"]
+		homeButton.all = this.guildids.get("@me")
 		homeButton.onclick = function() {
 			this.all.loadGuild()
 			this.all.loadChannel()
 		}
 
-		this.guildids["@me"].html = outdiv
+		this.guildids.get("@me").html = outdiv
 		const unread = document.createElement("div")
 		unread.classList.add("unread")
 		outdiv.append(unread)
@@ -471,18 +470,18 @@ class LocalUser {
 	}
 	messageCreate(messagep) {
 		messagep.d.guild_id ??= "@me"
-		this.guildids[messagep.d.guild_id].channelids[messagep.d.channel_id].messageCreate(messagep)
+		this.guildids.get(messagep.d.guild_id).channelids[messagep.d.channel_id].messageCreate(messagep)
 		this.unreads()
 	}
 	unreads() {
 		for (const thing of this.guilds) {
 			if (thing.id == "@me") continue
 
-			thing.unreads(this.guildhtml[thing.id])
+			thing.unreads(this.guildhtml.get(thing.id))
 		}
 	}
 	typingStart(typing) {
-		if (this.channelfocus.id == typing.d.channel_id) {
+		if (this.channelfocus.snowflake == typing.d.channel_id) {
 			const memb = typing.d.member
 			if (memb.id == this.user.id) return
 

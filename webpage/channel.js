@@ -34,26 +34,28 @@ class Channel {
 	}
 	sortPerms() {
 		this.permission_overwritesar.sort((a, b) => {
-			return this.guild.roles.findIndex(role => role.id == a[0]) - this.guild.roles.findIndex(role => role.id == b[0])
+			return this.guild.roles.findIndex(role => role.snowflake == a[0]) - this.guild.roles.findIndex(role => role.snowflake == b[0])
 		})
 	}
 
 	setUpInfiniteScroller() {
 		const ids = new Map()
 		this.infinite = new InfiniteScroller((async (id, offset) => {
+			const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
 			if (offset == 1) {
-				if (this.idToPrev.has(id)) return this.idToPrev.get(id)
+				if (this.idToPrev.get(snowflake)) return this.idToPrev.get(snowflake)?.id
 				else {
 					await this.grabBefore(id)
-					return this.idToPrev.get(id)
+					return this.idToPrev.get(snowflake)?.id
 				}
-			} else return this.idToNext.get(id)
+			} else return this.idToNext.get(snowflake)?.id
 		}), (id => {
 			let res
 			const promise = new Promise(_ => {
 				res = _
 			})
-			const html = this.messageids.get(id).buildhtml(this.messageids.get(this.idToPrev.get(id)), promise)
+			const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
+			const html = this.messageids.get(snowflake).buildhtml(this.messageids.get(this.idToPrev.get(snowflake)), promise)
 			ids.set(id, res)
 			return html
 		}), (id => {
@@ -70,8 +72,8 @@ class Channel {
 		this.owner = owner
 		this.headers = this.owner.headers
 		this.name = json.name
-		this.id = json.id
-		this.parent_id = json.parent_id
+		this.snowflake = new SnowFlake(json.id, this)
+		this.parent_id = new SnowFlake(json.parent_id, void 0)
 		this.parent = null
 		this.children = []
 		this.guild_id = json.guild_id
@@ -80,14 +82,14 @@ class Channel {
 		this.nsfw = json.nsfw
 		this.position = json.position
 		this.lastreadmessageid = null
-		this.lastmessageid = json.last_message_id
+		this.lastmessageid = SnowFlake.getSnowFlakeFromID(json.last_message_id, Message)
 		this.setUpInfiniteScroller()
 
-		this.permission_overwrites = {}
+		this.permission_overwrites = new Map()
 		this.permission_overwritesar = []
 		for (const override of json.permission_overwrites) {
-			this.permission_overwrites[override.id] = new Permissions(override.allow, override.deny)
-			this.permission_overwritesar.push([override.id, this.permission_overwrites[override.id]])
+			this.permission_overwrites.set(override.id, new Permissions(override.allow, override.deny))
+			this.permission_overwritesar.push([override.id, this.permission_overwrites.get(override.id)])
 		}
 	}
 
@@ -103,8 +105,11 @@ class Channel {
 	get info() {
 		return this.owner.info
 	}
+	get id() {
+		return this.snowflake.id
+	}
 	readStateInfo(json) {
-		this.lastreadmessageid = json.last_message_id
+		this.lastreadmessageid = SnowFlake.getSnowFlakeFromID(json.last_message_id, Message)
 		this.mentions = json.mention_count
 		this.mentions ??= 0
 		this.lastpin = json.last_pin_timestamp
@@ -113,8 +118,8 @@ class Channel {
 		if (member.isAdmin()) return true
 
 		for (const thing of member.roles) {
-			if (this.permission_overwrites[thing.id]) {
-				const perm = this.permission_overwrites[thing.id].hasPermission(name)
+			if (this.permission_overwrites.has(thing.id)) {
+				const perm = this.permission_overwrites.get(thing.id).hasPermission(name)
 				if (perm) return perm == 1
 			}
 			if (thing.permissions.hasPermission(name)) return true
@@ -124,18 +129,16 @@ class Channel {
 	get hasunreads() {
 		if (!this.hasPermission("VIEW_CHANNEL")) return false
 
-		return this.lastmessageid != this.lastreadmessageid && this.type != 4
+		return this.lastmessageid != this.lastreadmessageid && this.type != 4 && Boolean(this.lastmessageid.id)
 	}
 	get canMessage() {
 		return this.hasPermission("SEND_MESSAGES")
 	}
 	sortchildren() {
-		this.children.sort((a, b) => {
-			return a.position - b.position
-		})
+		this.children.sort((a, b) => a.position - b.position)
 	}
 	resolveparent(guild) {
-		this.parent = guild.channelids[this.parent_id]
+		this.parent = guild.channelids[this.parent_id?.id]
 		this.parent ??= null
 		if (this.parent !== null) this.parent.children.push(this)
 		return this.parent === null
@@ -144,7 +147,7 @@ class Channel {
 		let position = -1
 		const build = []
 		for (const thing of this.children) {
-			const thisthing = { id: thing.id }
+			const thisthing = { id: thing.snowflake }
 			if (thing.position < position) {
 				thisthing.position = position + 1
 				thing.position = thisthing.position
@@ -189,9 +192,10 @@ class Channel {
 			decoration.textContent = "▼"
 			decdiv.appendChild(decoration)
 
-			const myhtml = document.createElement("p2")
+			const myhtml = document.createElement("span")
 			myhtml.textContent = this.name
 			decdiv.appendChild(myhtml)
+
 			caps.appendChild(decdiv)
 			const childrendiv = document.createElement("div")
 			if (admin) {
@@ -279,9 +283,8 @@ class Channel {
 	}
 	get myhtml() {
 		const search = document.getElementById("channels").children[0].children
-		if (this.guild !== this.localuser.lookingguild) {
-			return null
-		} else if (this.parent) {
+		if (this.guild !== this.localuser.lookingguild) return null
+		else if (this.parent) {
 			for (const thing of search) {
 				if (thing.all === this.parent) {
 					for (const thing2 of thing.children[1].children) {
@@ -322,7 +325,7 @@ class Channel {
 			const that = Channel.dragged[0]
 			event.preventDefault()
 			if (container) {
-				that.move_id = this.id
+				that.move_id = this.snowflake
 				if (that.parent) that.parent.children.splice(that.parent.children.indexOf(that), 1)
 
 				that.parent = this
@@ -388,7 +391,7 @@ class Channel {
 					["checkbox", "NSFW Channel", this.nsfw, event => {
 						nsfw = event.target.checked
 					}],
-					["button", "", "submit", function() {
+					["button", "", "submit", () => {
 						fetch(instance.api + "/channels/" + thisid, {
 							method: "PATCH",
 							headers: this.headers,
@@ -396,11 +399,11 @@ class Channel {
 								name,
 								type: thistype,
 								topic,
+								nsfw/*,
 								bitrate: 64000,
 								user_limit: 0,
-								nsfw,
 								flags: 0,
-								rate_limit_per_user: 0
+								rate_limit_per_user: 0*/
 							})
 						})
 						full.hide()
@@ -445,7 +448,10 @@ class Channel {
 		} else replybox.classList.add("hideReplyBox")
 	}
 	async getmessage(id) {
-		if (this.messageids.has(id)) return this.messageids.get(id)
+		const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
+		if (snowflake.getObject()) {
+			return snowflake.getObject()
+		}
 
 		const gety = await fetch(instance.api + "/channels/" + this.id + "/messages?limit=1&around=" + id, {
 			headers: this.headers
@@ -477,14 +483,8 @@ class Channel {
 		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id)
 		document.getElementById("channelname").textContent = "#" + this.name
 
-		const typebox = document.getElementById("typebox")
-		if (this.canMessage) {
-			typebox.contentEditable = true
-			typebox.textContent = ""
-		} else {
-			typebox.contentEditable = false
-			typebox.textContent = "You cannot send messages here"
-		}
+		if (this.canMessage) document.getElementById("typebox").contentEditable = true
+		else document.getElementById("typebox").contentEditable = false
 	}
 	async putmessages() {
 		if (this.allthewayup) return
@@ -500,12 +500,12 @@ class Channel {
 		for (const thing of json) {
 			const message = new Message(thing, this)
 			if (prev) {
-				this.idToNext.set(message.id, prev.id)
-				this.idToPrev.set(prev.id, message.id)
+				this.idToNext.set(message.snowflake, prev.snowflake)
+				this.idToPrev.set(prev.snowflake, message.snowflake)
 			} else this.lastmessage = message
 			prev = message
 
-			if (this.messageids.get(message.id) === void 0) this.messageids.set(message.id, message)
+			if (!this.messageids.has(message.snowflake)) this.messageids.set(message.snowflake, message)
 		}
 	}
 	delChannel(json) {
@@ -526,7 +526,7 @@ class Channel {
 		let next
 		if (json.length < 100) this.allthewayup = true
 
-		let previd = id
+		let previd = SnowFlake.getSnowFlakeFromID(id, Message)
 		for (const i in json) {
 			let messager
 			if (next) messager = next
@@ -535,12 +535,12 @@ class Channel {
 			if (json[Number(i) + 1] === void 0) next = void 0
 			else next = new Message(json[Number(i) + 1], this)
 
-			if (this.messageids.get(messager.id) === void 0) {
-				this.idToNext.set(messager.id, previd)
-				this.idToPrev.set(previd, messager.id)
-				previd = messager.id
-				this.messageids.set(messager.id, messager)
-			} else console.trace("How???")
+			if (!this.messageids.has(messager.id)) {
+				this.idToNext.set(messager.snowflake, previd)
+				this.idToPrev.set(previd, messager.snowflake)
+				previd = messager.snowflake
+				this.messageids.set(messager.snowflake, messager)
+			}
 		}
 	}
 	buildmessage(message, next) {
@@ -553,10 +553,12 @@ class Channel {
 		let id
 		if (this.messageids.has(this.lastreadmessageid)) id = this.lastreadmessageid
 		else if (this.lastmessage) {
-			id = this.goBackIds(this.lastmessage, 50)
+			id = this.goBackIds(this.lastmessage.snowflake, 50)
 			console.log("shouldn't")
 		}
-		messages.append(this.infinite.getDiv(id))
+
+		if (!id) return console.error("Missing id for building messages on " + this.name + " in " + this.guild.name)
+		messages.append(this.infinite.getDiv(id.id))
 	}
 	goBackIds(id, back) {
 		while (back != 0) {
@@ -571,7 +573,7 @@ class Channel {
 	updateChannel(json) {
 		this.type = json.type
 		this.name = json.name
-		this.parent_id = json.parent_id
+		this.parent_id = new SnowFlake(json.parent_id, void 0)
 		this.parent = null
 		this.children = []
 		this.guild_id = json.guild_id
@@ -579,11 +581,11 @@ class Channel {
 		this.topic = json.topic
 		this.nsfw = json.nsfw
 
-		this.permission_overwrites = {}
+		this.permission_overwrites = new Map()
 		this.permission_overwritesar = []
 		for (const override of json.permission_overwrites) {
-			this.permission_overwrites[override.id] = new Permissions(override.allow, override.deny)
-			this.permission_overwritesar.push([override.id, this.permission_overwrites[override.id]])
+			this.permission_overwrites.set(override.id, new Permissions(override.allow, override.deny))
+			this.permission_overwritesar.push([override.id, this.permission_overwrites.get(override.id)])
 		}
 	}
 	typingstart() {
@@ -648,13 +650,13 @@ class Channel {
 		if (!this.hasPermission("VIEW_CHANNEL")) return
 
 		const messagez = new Message(messagep.d, this)
-		this.idToNext.set(this.lastmessageid, messagez.id)
-		this.idToPrev.set(messagez.id, this.lastmessageid)
-		this.lastmessageid = messagez.id
-		this.messageids.set(messagez.id, messagez)
+		this.idToNext.set(this.lastmessageid, messagez.snowflake)
+		this.idToPrev.set(messagez.snowflake, this.lastmessageid)
+		this.lastmessageid = messagez.snowflake
+		this.messageids.set(messagez.snowflake, messagez)
 
 		if (messagez.author === this.localuser.user) {
-			this.lastreadmessageid = messagez.id
+			this.lastreadmessageid = messagez.snowflake
 			if (this.myhtml) this.myhtml.classList.remove("cunread")
 		} else if (this.myhtml) this.myhtml.classList.add("cunread")
 
@@ -716,19 +718,19 @@ class Channel {
 			})
 		})
 		const perm = new Permissions("0", "0")
-		this.permission_overwrites[role.id] = perm
-		this.permission_overwritesar.push([role.id, perm])
+		this.permission_overwrites.set(role.id, perm)
+		this.permission_overwritesar.push([role.snowflake, perm])
 	}
 	async updateRolePermissions(id, perms) {
-		const permision = this.permission_overwrites[id]
-		permision.allow = perms.allow
-		permision.deny = perms.deny
+		const permission = this.permission_overwrites.get(id)
+		permission.allow = perms.allow
+		permission.deny = perms.deny
 		await fetch(instance.api + "/channels/" + this.id + "/permissions/" + id, {
 			method: "PUT",
 			headers: this.headers,
 			body: JSON.stringify({
-				allow: permision.allow.toString(),
-				deny: permision.deny.toString(),
+				allow: permission.allow.toString(),
+				deny: permission.deny.toString(),
 				id,
 				type: 0
 			})

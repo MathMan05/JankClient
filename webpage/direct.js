@@ -10,15 +10,15 @@ class Group extends Channel {
 		else this.user = this.localuser.user
 
 		this.name ??= this.localuser.user.username
-		this.id = json.id
+		this.snowflake = new SnowFlake(json.id, this)
 		this.parent_id = null
 		this.parent = null
 		this.children = []
 		this.guild_id = "@me"
 		this.messageids = new Map()
-		this.permission_overwrites = {}
-		this.lastmessageid = json.last_message_id
-		this.lastmessageid ??= "0"
+		this.permission_overwrites = new Map()
+		this.lastmessageid = SnowFlake.getSnowFlakeFromID(json.last_message_id, Message)
+		this.lastmessageid ??= new SnowFlake("0", void 0)
 		this.mentions = 0
 
 		this.setUpInfiniteScroller()
@@ -57,13 +57,13 @@ class Group extends Channel {
 	}
 	messageCreate(messagep) {
 		const messagez = new Message(messagep.d, this)
-		this.idToNext(this.lastmessageid, messagez.id)
-		this.idToPrev.set(messagez.id, this.lastmessageid)
-		this.lastmessageid = messagez.id
-		this.messageids.set(messagez.id, messagez)
+		this.idToNext.set(this.lastmessageid, messagez.snowflake)
+		this.idToPrev.set(messagez.snowflake, this.lastmessageid)
+		this.lastmessageid = messagez.snowflake
+		this.messageids.set(messagez.snowflake, messagez)
 
 		if (messagez.author === this.localuser.user) {
-			this.lastreadmessageid = messagez.id
+			this.lastreadmessageid = messagez.snowflake
 
 			if (this.myhtml) this.myhtml.classList.remove("cunread")
 		} else if (this.myhtml) this.myhtml.classList.add("cunread")
@@ -128,10 +128,10 @@ class Direct extends Guild {
 
 		this.channels = []
 		this.channelids = {}
-		this.id = "@me"
+		this.snowflake = new SnowFlake("@me", this)
 		this.properties = {}
 		this.roles = []
-		this.roleids = {}
+		this.roleids = new Map()
 		this.prevchannel = void 0
 		this.properties.name = "Direct Messages"
 		for (const thing of json) {
@@ -149,7 +149,7 @@ class Direct extends Guild {
 	}
 	sortchannels() {
 		this.headchannels.sort((a, b) => {
-			const result = (BigInt(a.lastmessageid) - BigInt(b.lastmessageid))
+			const result = a.lastmessageid.getUnixTime() - b.lastmessageid.getUnixTime()
 			return Number(-result)
 		})
 	}

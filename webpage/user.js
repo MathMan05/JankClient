@@ -31,15 +31,25 @@ class User {
 	get localuser() {
 		return this.owner
 	}
+	get id() {
+		return this.snowflake.id
+	}
 
 	constructor(userjson, owner) {
 		this.owner = owner
 		if (!owner) console.error("missing localuser")
 
 		for (const thing of Object.keys(userjson)) {
-			this[thing] = userjson[thing]
+			if (thing == "bio") {
+				this.bio = new MarkDown(userjson[thing], this.localuser)
+				continue
+			}
+			if (thing === "id") {
+				this.snowflake = new SnowFlake(userjson[thing], this)
+				continue
+			}
 
-			if (thing == "bio") this.bio = new MarkDown(userjson[thing], this.localuser)
+			this[thing] = userjson[thing]
 		}
 		this.hypotheticalpfp = false
 	}
@@ -83,20 +93,18 @@ class User {
 			pronouns = this.pronouns
 		}
 
-		const div = document.createElement("table")
-		if (x == -1) div.classList.add("hypoprofile")
+		const div = document.createElement("div")
+		if (x == -1) div.classList.add("hypoprofile", "flexttb")
 		else {
 			div.style.left = x + "px"
 			div.style.top = y + "px"
-			div.classList.add("profile")
+			div.classList.add("profile", "flexttb")
 		}
 
 		const pfp = this.buildpfp()
-		const pfprow = document.createElement("tr")
-		div.appendChild(pfprow)
-		pfprow.appendChild(pfp)
+		div.appendChild(pfp)
 
-		const userbody = document.createElement("tr")
+		const userbody = document.createElement("div")
 		userbody.classList.add("infosection")
 		div.appendChild(userbody)
 		const usernamehtml = document.createElement("h2")

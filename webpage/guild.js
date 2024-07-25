@@ -67,7 +67,7 @@ class Guild {
 		const s1 = settings.addButton("roles")
 		const permlist = []
 		for (const thing of this.roles) {
-			permlist.push([thing.id, thing.permissions])
+			permlist.push([thing.snowflake, thing.permissions])
 		}
 		s1.options.push(new RoleList(permlist, this, this.updateRolePermissions.bind(this)))
 		settings.show()
@@ -81,17 +81,17 @@ class Guild {
 
 		this.channels = []
 		this.channelids = {}
-		this.id = json.id
+		this.snowflake = new SnowFlake(json.id, this)
 		this.properties = json.properties
 		this.roles = []
-		this.roleids = {}
+		this.roleids = new Map()
 		this.prevchannel = void 0
 		this.message_notifications = 0
 
 		for (const roley of json.roles) {
 			const roleh = new Role(roley, this)
 			this.roles.push(roleh)
-			this.roleids[roleh.id] = roleh
+			this.roleids.set(roleh.snowflake, roleh)
 		}
 
 		Member.resolve(member, this).then(m => this.member = m)
@@ -111,7 +111,7 @@ class Guild {
 		const build = []
 		for (const thing of this.headchannels) {
 			const thisthing = {
-				id: thing.id,
+				id: thing.snowflake,
 				position: void 0,
 				parent_id: void 0
 			}
@@ -150,6 +150,9 @@ class Guild {
 	}
 	get info() {
 		return this.owner.info
+	}
+	get id() {
+		return this.snowflake.id
 	}
 	sortchannels() {
 		this.headchannels.sort((a, b) => a.position - b.position)
@@ -199,18 +202,13 @@ class Guild {
 			body: JSON.stringify(build)
 		})
 	}
-	getRole(ID) {
-		if (!this.roleids[ID]) console.error("Role id " + ID + " does not exist", this.roleids)
-
-		return this.roleids[ID]
-	}
 	hasRole(r) {
-		if (typeof r != "string") r = r.id
+		if (r instanceof Role) r = r.id
 		return this.member.hasRole(r)
 	}
-	loadChannel(ID) {
-		if (ID && this.channelids[ID]) {
-			this.channelids[ID].getHTML()
+	loadChannel(id) {
+		if (id && this.channelids[id]) {
+			this.channelids[id].getHTML()
 			return
 		}
 		if (this.prevchannel) {
@@ -229,7 +227,7 @@ class Guild {
 		this.localuser.loadGuild(this.id)
 	}
 	updateChannel(json) {
-		this.channelids[json.id].updateChannel(json)
+		SnowFlake.getSnowFlakeFromID(json.id, Channel).getObject().updateChannel(json)
 		this.headchannels = []
 		for (const thing of this.channels) {
 			thing.children = []
@@ -377,7 +375,7 @@ class Guild {
 		const noti = document.createElement("div")
 		noti.classList.add("unread")
 		divy.append(noti)
-		this.localuser.guildhtml[this.id] = divy
+		this.localuser.guildhtml.set(this.id, divy)
 		if (this.properties.icon === null) {
 			const div = document.createElement("div")
 			div.textContent = this.properties.name.split(" ").map(e => e[0]).join("")
@@ -458,7 +456,7 @@ class Guild {
 		})
 		const json = await fetched.json()
 		const role = new Role(json, this)
-		this.roleids[role.id] = role
+		this.roleids.set(role.snowflake, role)
 		this.roles.push(role)
 		return role
 	}

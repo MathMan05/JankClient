@@ -39,7 +39,7 @@ class Member {
 
 			if (thing == "roles") {
 				for (const strrole of member.roles) {
-					const role = this.guild.getRole(strrole)
+					const role = SnowFlake.getSnowFlakeFromID(strrole, Role).getObject()
 					this.roles.push(role)
 				}
 			}
@@ -61,11 +61,11 @@ class Member {
 		if (!(guild instanceof Guild)) console.error(guild)
 
 		let user
-		let id = ""
+		let id
 		if (unknown instanceof User) {
 			user = unknown
-			id = user.id
-		} else if (typeof unknown == "string") id = unknown
+			id = user.snowflake
+		} else if (typeof unknown == "string") id = new SnowFlake(unknown, void 0)
 		else return new Member(unknown, guild)
 
 		if (!Member.already[guild.id]) Member.already[guild.id] = {}

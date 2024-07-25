@@ -73,7 +73,7 @@ class Message {
 	}
 	giveData(messagejson) {
 		this.type = messagejson.type
-		this.id = messagejson.id
+		this.snowflake = new SnowFlake(messagejson.id, this)
 		this.author = User.checkuser(messagejson.author, this.localuser)
 		this.member = messagejson.member
 		this.content = new MarkDown(messagejson.content, this.channel)
@@ -126,7 +126,7 @@ class Message {
 		if (this.div) this.generateMessage()
 	}
 	canDelete() {
-		return this.channel.hasPermission("MANAGE_MESSAGES") || this.author.id == this.localuser.user.id
+		return this.channel.hasPermission("MANAGE_MESSAGES") || this.author.snowflake === this.localuser.user.snowflake
 	}
 	get channel() {
 		return this.owner
@@ -139,6 +139,9 @@ class Message {
 	}
 	get info() {
 		return this.owner.info
+	}
+	get id() {
+		return this.snowflake.id
 	}
 	messageevents(obj, del = Message.del) {
 		const func = Message.contextmenu.bind(obj, this)
@@ -182,14 +185,20 @@ class Message {
 			this.div = null
 		}
 
-		const prev = this.channel.idToPrev.get(this.id)
-		const next = this.channel.idToNext.get(this.id)
+		const prev = this.channel.idToPrev.get(this.snowflake)
+		const next = this.channel.idToNext.get(this.snowflake)
 		this.channel.idToNext.set(prev, next)
-		this.channel.idToPrev(next, prev)
-		this.channel.messageids.delete(this.id)
+		this.channel.idToPrev.set(next, prev)
+		this.channel.messageids.delete(this.snowflake)
+		const regen = prev.getObject()
 
-		const regen = this.channel.messageids.get(prev)
-		if (regen) regen.generateMessage()
+		if (regen) {
+			regen.generateMessage()
+		}
+		if (this.channel.lastmessage === this) {
+			this.channel.lastmessage = prev.getObject()
+		}
+
 		if (this.channel.lastmessage === this) this.channel.lastmessage = this.channel.messageids[prev]
 	}
 	react(emoji = "🎭") {
@@ -199,7 +208,7 @@ class Message {
 		})
 	}
 	generateMessage(premessage = null) {
-		if (!premessage) premessage = this.channel.messageids.get(this.channel.idToNext[this.id])
+		if (!premessage) premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()
 
 		const div = this.div
 		if (this === this.channel.replyingto) div.classList.add("replying")
@@ -263,7 +272,7 @@ class Message {
 				current = (newt - old) > 600
 			}
 
-			const combine = premessage?.author?.id != this.author.id || current || this.message_reference
+			const combine = premessage?.author?.snowflake != this.author.snowflake || current || this.message_reference
 			if (combine) {
 				const pfp = this.author.buildpfp()
 				this.author.contextMenuBind(pfp)
@@ -282,8 +291,8 @@ class Message {
 				const username = document.createElement("span")
 				username.classList.add("username")
 				this.author.contextMenuBind(username)
-
 				this.author.profileclick(username)
+
 				username.textContent = this.author.username
 				const userwrap = document.createElement("div")
 				userwrap.classList.add("flexltr", "message-header")
@@ -355,10 +364,17 @@ class Message {
 			text.appendChild(texttxt)
 			build.appendChild(text)
 
-			const messaged = document.createElement("p")
+			const messaged = document.createElement("span")
 			div.txt = messaged
-			messaged.textContent = "welcome: " + this.author.username
+			messaged.textContent = "welcome: "
 			texttxt.appendChild(messaged)
+
+			const username = document.createElement("span")
+			username.textContent = this.author.username
+			this.author.contextMenuBind(username)
+			this.author.profileclick(username)
+			texttxt.appendChild(username)
+			username.classList.add("username")
 
 			const time = document.createElement("span")
 			time.textContent = formatTime(new Date(this.timestamp))
