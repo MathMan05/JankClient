@@ -116,6 +116,7 @@ class Group extends Channel{
         this.buildmessages();
         history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.snowflake);
         document.getElementById("channelname").textContent="@"+this.name;
+        document.getElementById("typebox").contentEditable=""+true;
     }
     messageCreate(messagep){
         const messagez=new Message(messagep.d,this);
