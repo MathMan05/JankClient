@@ -11,7 +11,7 @@ import { Message } from "./message.js";
 const wsCodesRetry=new Set([4000,4003,4005,4007,4008,4009]);
 
 class Localuser{
-    packets:number;
+    lastSequence:number|null=null;
     token:string;
     userinfo:Specialuser;
     serverurls;
@@ -35,7 +35,6 @@ class Localuser{
     connectionSucceed=0;
     errorBackoff=0;
     constructor(userinfo:Specialuser){
-        this.packets=1;
         this.token=userinfo.token;
         this.userinfo=userinfo;
         this.serverurls=this.userinfo.serverurls;
@@ -141,6 +140,8 @@ class Localuser{
 
             const temp=JSON.parse(event.data);
             console.log(temp)
+
+            if (temp.s) this.lastSequence=temp.s;
             if(temp.op==0){
                 switch(temp.t){
                     case "MESSAGE_CREATE":
@@ -212,13 +213,9 @@ class Localuser{
                 this.wsinterval=setInterval(_=>{
                     if (this.connectionSucceed===0) this.connectionSucceed=Date.now()
 
-                    this.ws.send(JSON.stringify({op:1,d:this.packets}))
+                    this.ws.send(JSON.stringify({op:1,d:this.lastSequence}))
                 },temp.d.heartbeat_interval)
-                this.packets=1;
-            }else if(temp.op!=11){
-                this.packets++
             }
-
 
         });
 
