@@ -261,25 +261,25 @@ class Localuser{
         }
         return undefined;
     }
-    updateChannel(JSON):void{
-        SnowFlake.getSnowFlakeFromID(JSON.guild_id,Guild).getObject().updateChannel(JSON);
-        if(JSON.guild_id===this.lookingguild.id){
-            this.loadGuild(JSON.guild_id);
+    updateChannel(json):void{
+        SnowFlake.getSnowFlakeFromID(json.guild_id,Guild).getObject().updateChannel(json);
+        if(json.guild_id===this.lookingguild.id){
+            this.loadGuild(json.guild_id);
         }
     }
-    createChannel(JSON):void{
-        JSON.guild_id??="@me";
-        SnowFlake.getSnowFlakeFromID(JSON.guild_id,Guild).getObject().createChannelpac(JSON);
-        if(JSON.guild_id===this.lookingguild.id){
-            this.loadGuild(JSON.guild_id);
+    createChannel(json):void{
+        json.guild_id??="@me";
+        SnowFlake.getSnowFlakeFromID(json.guild_id,Guild).getObject().createChannelpac(json);
+        if(json.guild_id===this.lookingguild.id){
+            this.loadGuild(json.guild_id);
         }
     }
-    delChannel(JSON):void{
-        JSON.guild_id??="@me";
-        this.guildids.get(JSON.guild_id).delChannel(JSON);
+    delChannel(json):void{
+        json.guild_id??="@me";
+        this.guildids.get(json.guild_id).delChannel(json);
 
-        if(JSON.guild_id===this.lookingguild.snowflake){
-            this.loadGuild(JSON.guild_id);
+        if(json.guild_id===this.lookingguild.snowflake){
+            this.loadGuild(json.guild_id);
         }
     }
     init():void{
