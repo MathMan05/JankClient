@@ -83,7 +83,7 @@ th {
 	flex-wrap: nowrap;
 	flex-direction: column;
 	max-height: 20in;
-	padding:.02in .2in;
+	padding: .02in .2in 0 .1in;
 	flex-shrink: 0;
 	width: 100%;
 	box-sizing: border-box;
@@ -621,7 +621,7 @@ textarea {
 	width: 3.5in;
 	resize: none;
 	height: 1.5in;
-	font-size: 1rem;
+	font-size: .75rem;
 }
 textarea:focus-visible {
 	outline: 2px solid var(--focus);
