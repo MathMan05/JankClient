@@ -102,24 +102,24 @@ class Channel {
             return true;
         }.bind(this), this.readbottom.bind(this));
     }
-    constructor(JSON, owner) {
-        if (JSON === -1) {
+    constructor(json, owner) {
+        if (json === -1) {
             return;
         }
         this.editing;
-        this.type = JSON.type;
+        this.type = json.type;
         this.owner = owner;
         this.headers = this.owner.headers;
-        this.name = JSON.name;
-        this.snowflake = new SnowFlake(JSON.id, this);
-        this.parent_id = new SnowFlake(JSON.parent_id, undefined);
+        this.name = json.name;
+        this.snowflake = new SnowFlake(json.id, this);
+        this.parent_id = new SnowFlake(json.parent_id, undefined);
         this.parent = null;
         this.children = [];
-        this.guild_id = JSON.guild_id;
+        this.guild_id = json.guild_id;
         this.messageids = new Map();
         this.permission_overwrites = new Map();
         this.permission_overwritesar = [];
-        for (const thing of JSON.permission_overwrites) {
+        for (const thing of json.permission_overwrites) {
             if (thing.id === "1182819038095799904" || thing.id === "1182820803700625444") {
                 continue;
             }
@@ -127,11 +127,11 @@ class Channel {
             this.permission_overwrites.set(thing.id, new Permissions(thing.allow, thing.deny));
             this.permission_overwritesar.push([thing.id, this.permission_overwrites.get(thing.id)]);
         }
-        this.topic = JSON.topic;
-        this.nsfw = JSON.nsfw;
-        this.position = JSON.position;
+        this.topic = json.topic;
+        this.nsfw = json.nsfw;
+        this.position = json.position;
         this.lastreadmessageid = null;
-        this.lastmessageid = SnowFlake.getSnowFlakeFromID(JSON.last_message_id, Message);
+        this.lastmessageid = SnowFlake.getSnowFlakeFromID(json.last_message_id, Message);
         this.setUpInfiniteScroller();
     }
     isAdmin() {
@@ -563,10 +563,10 @@ class Channel {
             }
         }
     }
-    delChannel(JSON) {
+    delChannel(json) {
         const build = [];
         for (const thing of this.children) {
-            if (thing.snowflake !== JSON.id) {
+            if (thing.snowflake !== json.id) {
                 build.push(thing);
             }
         }
@@ -644,16 +644,16 @@ class Channel {
         }
         return id;
     }
-    updateChannel(JSON) {
-        this.type = JSON.type;
-        this.name = JSON.name;
-        this.parent_id = new SnowFlake(JSON.parent_id, undefined);
+    updateChannel(json) {
+        this.type = json.type;
+        this.name = json.name;
+        this.parent_id = new SnowFlake(json.parent_id, undefined);
         this.parent = null;
         this.children = [];
-        this.guild_id = JSON.guild_id;
+        this.guild_id = json.guild_id;
         this.messageids = new Map();
         this.permission_overwrites = new Map();
-        for (const thing of JSON.permission_overwrites) {
+        for (const thing of json.permission_overwrites) {
             if (thing.id === "1182819038095799904" || thing.id === "1182820803700625444") {
                 continue;
             }
@@ -661,8 +661,8 @@ class Channel {
             this.permission_overwrites.set(thing.id, new Permissions(thing.allow, thing.deny));
             this.permission_overwritesar.push([thing.id, this.permission_overwrites.get(thing.id)]);
         }
-        this.topic = JSON.topic;
-        this.nsfw = JSON.nsfw;
+        this.topic = json.topic;
+        this.nsfw = json.nsfw;
     }
     typingstart() {
         if (this.typing > new Date().getTime()) {

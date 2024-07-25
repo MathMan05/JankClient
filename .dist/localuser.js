@@ -8,7 +8,7 @@ import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 class Localuser {
-    packets;
+    lastSequence = null;
     token;
     userinfo;
     serverurls;
@@ -32,7 +32,6 @@ class Localuser {
     connectionSucceed = 0;
     errorBackoff = 0;
     constructor(userinfo) {
-        this.packets = 1;
         this.token = userinfo.token;
         this.userinfo = userinfo;
         this.serverurls = this.userinfo.serverurls;
@@ -132,6 +131,8 @@ class Localuser {
         this.ws.addEventListener('message', (event) => {
             const temp = JSON.parse(event.data);
             console.log(temp);
+            if (temp.s)
+                this.lastSequence = temp.s;
             if (temp.op == 0) {
                 switch (temp.t) {
                     case "MESSAGE_CREATE":
@@ -203,12 +204,8 @@ class Localuser {
                 this.wsinterval = setInterval(_ => {
                     if (this.connectionSucceed === 0)
                         this.connectionSucceed = Date.now();
-                    this.ws.send(JSON.stringify({ op: 1, d: this.packets }));
+                    this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }));
                 }, temp.d.heartbeat_interval);
-                this.packets = 1;
-            }
-            else if (temp.op != 11) {
-                this.packets++;
             }
         });
         this.ws.addEventListener("close", event => {
@@ -249,24 +246,24 @@ class Localuser {
         }
         return undefined;
     }
-    updateChannel(JSON) {
-        SnowFlake.getSnowFlakeFromID(JSON.guild_id, Guild).getObject().updateChannel(JSON);
-        if (JSON.guild_id === this.lookingguild.id) {
-            this.loadGuild(JSON.guild_id);
+    updateChannel(json) {
+        SnowFlake.getSnowFlakeFromID(json.guild_id, Guild).getObject().updateChannel(json);
+        if (json.guild_id === this.lookingguild.id) {
+            this.loadGuild(json.guild_id);
         }
     }
-    createChannel(JSON) {
-        JSON.guild_id ??= "@me";
-        SnowFlake.getSnowFlakeFromID(JSON.guild_id, Guild).getObject().createChannelpac(JSON);
-        if (JSON.guild_id === this.lookingguild.id) {
-            this.loadGuild(JSON.guild_id);
+    createChannel(json) {
+        json.guild_id ??= "@me";
+        SnowFlake.getSnowFlakeFromID(json.guild_id, Guild).getObject().createChannelpac(json);
+        if (json.guild_id === this.lookingguild.id) {
+            this.loadGuild(json.guild_id);
         }
     }
-    delChannel(JSON) {
-        JSON.guild_id ??= "@me";
-        this.guildids.get(JSON.guild_id).delChannel(JSON);
-        if (JSON.guild_id === this.lookingguild.snowflake) {
-            this.loadGuild(JSON.guild_id);
+    delChannel(json) {
+        json.guild_id ??= "@me";
+        this.guildids.get(json.guild_id).delChannel(json);
+        if (json.guild_id === this.lookingguild.snowflake) {
+            this.loadGuild(json.guild_id);
         }
     }
     init() {
