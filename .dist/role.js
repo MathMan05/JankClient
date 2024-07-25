@@ -16,17 +16,17 @@ class Role {
     get id() {
         return this.snowflake.id;
     }
-    constructor(JSON, owner) {
+    constructor(json, owner) {
         this.headers = owner.headers;
         this.info = owner.info;
-        for (const thing of Object.keys(JSON)) {
+        for (const thing of Object.keys(json)) {
             if (thing === "id") {
-                this.snowflake = new SnowFlake(JSON.id, this);
+                this.snowflake = new SnowFlake(json.id, this);
                 continue;
             }
-            this[thing] = JSON[thing];
+            this[thing] = json[thing];
         }
-        this.permissions = new Permissions(JSON.permissions);
+        this.permissions = new Permissions(json.permissions);
         this.owner = owner;
     }
     get guild() {
