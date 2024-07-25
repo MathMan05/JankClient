@@ -544,7 +544,7 @@ class Channel{
         history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.snowflake);
         document.getElementById("channelname").textContent="#"+this.name;
         console.log(this);
-        (document.getElementById("typebox") as HTMLInputElement).contentEditable=""+this.canMessage;
+        document.getElementById("typebox").contentEditable=""+this.canMessage;
     }
     lastmessage:Message;
     async putmessages(){
