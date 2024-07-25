@@ -23,6 +23,10 @@ class SnowFlake {
         SnowFlake.FinalizationRegistry.register(this, [id, obj.constructor]);
         this.obj = obj;
     }
+    /**
+     *  Just to clarify bc TS, it returns a SnowFlake\<type> which is what you entered with the type parameter
+     *
+     **/
     static getSnowFlakeFromID(id, type) {
         if (!SnowFlake.SnowFlakes.get(type)) {
             SnowFlake.SnowFlakes.set(type, new Map());
