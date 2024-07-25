@@ -117,7 +117,7 @@ const rules = {
 	"@stylistic/function-call-spacing": 2,
 	"@stylistic/generator-star-spacing": 2,
 	"@stylistic/key-spacing": 2,
-	//"@stylistic/indent": [1, "tab"],
+	"@stylistic/indent": [1, "tab"],
 	"@stylistic/keyword-spacing": [1, { before: false, after: false }],
 	"@stylistic/new-parens": 2,
 	"@stylistic/no-mixed-operators": [2, {
