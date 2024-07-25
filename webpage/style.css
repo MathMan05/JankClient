@@ -1111,7 +1111,6 @@ span {
 .embed a{
 	margin-bottom:.1in;
 	display: block;
-	text-decoration:none;
 	font-size:.2in;
 }
 .provider{
@@ -1186,6 +1185,7 @@ span {
 	width: .25in;
 	text-align: center;
 	padding: 0in;
+	border: none;
 }
 #replybox.hideReplyBox{
 	height: 0in;
