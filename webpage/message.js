@@ -160,9 +160,7 @@ class Message {
 	getimages() {
 		const build = []
 		for (const thing of this.attachments) {
-			if (thing.content_type.startsWith("image/")) {
-				build.push(thing)
-			}
+			if (thing.content_type.startsWith("image/")) build.push(thing)
 		}
 		return build
 	}
@@ -200,12 +198,6 @@ class Message {
 		}
 
 		if (this.channel.lastmessage === this) this.channel.lastmessage = this.channel.messageids[prev]
-	}
-	react(emoji = "🎭") {
-		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + emoji + "/@me", {
-			method: "PUT",
-			headers: this.headers
-		})
 	}
 	generateMessage(premessage = null) {
 		if (!premessage) premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()
@@ -395,6 +387,21 @@ class Message {
 		this.div = div
 		this.messageevents(div, del)
 		return this.generateMessage(premessage)
+	}
+	react(emoji = "🎭") {
+		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + emoji + "/@me", {
+			method: "PUT",
+			headers: this.headers
+		})
+	}
+	handleReactionAdd(json) {
+		if (this.reactions.some(reaction => reaction.json.emoji.name == json.emoji.name))
+			this.reactions.find(reaction => reaction.json.emoji.name == json.emoji.name).json.count++
+		else {
+			this.reactions.push(new Reaction(json, this))
+		}
+
+		this.generateMessage()
 	}
 }
 

@@ -11,9 +11,9 @@ const app = express()
 app.disable("x-powered-by")
 
 app.use((req, res, next) => {
-	res.setHeader("X-Frame-Options", "DENY")
-	res.setHeader("X-Content-Type-Options", "nosniff")
-	res.setHeader("Report-To", JSON.stringify({
+	res.header("X-Frame-Options", "DENY")
+	res.header("X-Content-Type-Options", "nosniff")
+	res.header("Report-To", JSON.stringify({
 		group: "default",
 		max_age: 2592000,
 		endpoints: [{
@@ -21,15 +21,15 @@ app.use((req, res, next) => {
 		}],
 		include_subdomains: true
 	}))
-	res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin")
-	res.setHeader("Cross-Origin-Opener-Policy", "same-origin")
+	res.header("Referrer-Policy", "no-referrer")
+	res.header("Cross-Origin-Opener-Policy", "same-origin")
 
 	next()
 })
 
 app.get("/getupdates", async (req, res) => {
 	const out = await fsPromises.stat(path.join(__dirname, "webpage"))
-	res.setHeader("Content-Type", "text/plain")
+	res.header("Content-Type", "text/plain")
 	res.send("" + Math.round(out.mtimeMs))
 })
 

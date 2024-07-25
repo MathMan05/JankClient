@@ -6,6 +6,9 @@ class Reaction {
 		this.owner = owner
 		this.headers = this.owner.headers
 		this.json = json
+
+		if (this.json.user_id == this.owner.localuser.user.id) this.json.me = true
+		if (!this.json.count) this.json.count = 1
 	}
 	generateHTML() {
 		const reactionContainer = document.createElement("div")
@@ -24,10 +27,25 @@ class Reaction {
 		} else {
 			const text = document.createElement("span")
 
-			if (Object.values(emojis).some(e => e == this.json.emoji.name)) {
-				console.warn("twemoji reaction found", this.json)
-				text.textContent = this.json.emoji.name
-			} else text.textContent = this.json.emoji.name
+			const twEmoji = emojiRegex.exec(this.json.emoji.name)
+			if (twEmoji) {
+				const alt = twEmoji[0]
+				const icon = twEmoji[1]
+				const variant = twEmoji[2]
+
+				if (variant != "\uFE0E") {
+					const img = document.createElement("img")
+					img.crossOrigin = "anonymous"
+					img.src = "https://cdnjs.cloudflare.com/ajax/libs/twemoji/15.0.3/72x72/" +
+						MarkDown.toCodePoint(icon.length == 3 && icon.charAt(1) == "\uFE0F" ? icon.charAt(0) + icon.charAt(2) : icon) + ".png"
+					img.width = 22
+					img.height = 22
+					img.alt = "Emoji: " + Object.keys(emojis)[Object.values(emojis).findIndex(e => e == alt)]
+
+					text.textContent = this.json.count
+					text.appendChild(img)
+				}
+			} else text.textContent = this.json.count + " " + this.json.emoji.name
 
 			reactionContainer.appendChild(text)
 		}
