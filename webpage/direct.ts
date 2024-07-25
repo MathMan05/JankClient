@@ -7,10 +7,10 @@ import { Member } from "./member.js";
 import { SnowFlake } from "./snowflake.js";
 
 class Direct extends Guild{
-    constructor(JSON,owner:Localuser){
+    constructor(json,owner:Localuser){
         super(-1,owner,null);
         this.message_notifications=0;
-        console.log(JSON);
+        console.log(json);
         this.owner=owner;
         if(!this.localuser){
             console.error("Owner was not included, please fix")
@@ -24,16 +24,16 @@ class Direct extends Guild{
         this.roleids=new Map();
         this.prevchannel=undefined;
         this.properties.name="Direct Messages";
-        for(const thing of JSON){
+        for(const thing of json){
             const temp=new Group(thing,this);
             this.channels.push(temp);
             this.channelids[temp.id]=temp;
         }
         this.headchannels=this.channels;
     }
-    createChannelpac(JSON){
-        const thischannel=new Group(JSON,this);
-        this.channelids[JSON.id]=thischannel;
+    createChannelpac(json){
+        const thischannel=new Group(json,this);
+        this.channelids[json.id]=thischannel;
         this.channels.push(thischannel);
         this.calculateReorder();
         this.printServers();
@@ -64,25 +64,25 @@ class Direct extends Guild{
 }
 class Group extends Channel{
     user:User;
-    constructor(JSON,owner:Direct){
+    constructor(json,owner:Direct){
         super(-1,owner);
         this.owner=owner;
         this.headers=this.guild.headers;
-        this.name=JSON.recipients[0]?.username;
-        if(JSON.recipients[0]){
-            this.user=new User(JSON.recipients[0],this.localuser);
+        this.name=json.recipients[0]?.username;
+        if(json.recipients[0]){
+            this.user=new User(json.recipients[0],this.localuser);
         }else{
             this.user=this.localuser.user;
         }
         this.name??=this.localuser.user.username;
-        this.snowflake=new SnowFlake(JSON.id,this);
+        this.snowflake=new SnowFlake(json.id,this);
         this.parent_id=null;
         this.parent=null;
         this.children=[];
         this.guild_id="@me";
         this.messageids=new Map();
         this.permission_overwrites=new Map();
-        this.lastmessageid=SnowFlake.getSnowFlakeFromID(JSON.last_message_id,Message);
+        this.lastmessageid=SnowFlake.getSnowFlakeFromID(json.last_message_id,Message);
         this.lastmessageid??=new SnowFlake("0",undefined);
         this.mentions=0;
         this.setUpInfiniteScroller();
