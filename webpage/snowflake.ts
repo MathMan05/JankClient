@@ -23,7 +23,7 @@ class SnowFlake<x>{
         SnowFlake.FinalizationRegistry.register(this,[id,obj.constructor]);
         this.obj=obj;
     }
-    static getSnowFlakeFromID(id:string,type:any):SnowFlake<any>{
+    static getSnowFlakeFromID<T extends {}>(id:string,type: abstract new(...args: never) => T): SnowFlake<T>{
         if(!SnowFlake.SnowFlakes.get(type)){
             SnowFlake.SnowFlakes.set(type,new Map());
         }
