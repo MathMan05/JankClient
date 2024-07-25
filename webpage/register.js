@@ -59,7 +59,7 @@ const registertry = async event => {
 		location.href = "/channels/@me"
 	} else {
 		console.log(json)
-		document.getElementById("wrong").textContent = json.message || json.errors[Object.keys(json.errors)[0]]._errors[0].message
+		document.getElementById("wrong").textContent = json.errors ? json.errors[Object.keys(json.errors)[0]]._errors[0].message : json.message
 	}
 }
 

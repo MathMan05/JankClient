@@ -92,22 +92,23 @@ class Group extends Channel {
 			}
 
 			const div = document.createElement("div")
-			div.classList.add("servericon")
+
 			const noti = document.createElement("div")
 			noti.classList.add("unread", "notiunread", "pinged")
 			noti.textContent = this.mentions
 
 			div.noti = noti
 			div.append(noti)
+
 			const buildpfp = this.user.buildpfp()
 			div.all = this
-			buildpfp.classList.add("mentioned")
+			buildpfp.classList.add("mentioned", "servericon")
 			div.append(buildpfp)
 			sentdms.append(div)
-			div.onclick = notif => {
-				notif.guild.loadGuild()
-				notif.getHTML()
-			}
+			div.addEventListener("click", () => {
+				this.guild.loadGuild()
+				this.getHTML()
+			})
 		} else if (current) current.remove()
 	}
 	isAdmin() {

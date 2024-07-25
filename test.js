@@ -120,6 +120,7 @@ const main = async () => {
 			await dropDown("Theme").select("Light")
 
 			await click(button("submit"))
+			await click($("dialog .close"))
 		})
 
 		await test("Usage: Connections", {skip: true}, async t => {
@@ -137,10 +138,10 @@ const main = async () => {
 			await click($("dialog .close"))
 		})
 
-		await test("Usage: Developer Portal", {skip: true}, async t => {
+		await test("Usage: Developer Portal", async t => {
 			await click($("#dev-portal"))
 
-			await waitFor(3000)
+			await waitFor(2000)
 
 			if (await $("#app-list-container div h2").exists()) {
 				await click($("#app-list-container div h2"))
@@ -151,7 +152,7 @@ const main = async () => {
 				const appName = await textBox("Application name").value()
 				await click(button("Manage bot"))
 
-				await waitFor(3000)
+				await waitFor(2000)
 
 				await expectEqual(t, "Bot name",
 					await $("dialog > table > tr > h2").text(), "Editing bot: " + appName)
@@ -165,9 +166,9 @@ const main = async () => {
 				await write("automated-bot-" + Date.now(), textBox("Name"))
 				await click(button("Create application"))
 
-				await waitFor(3000)
+				await waitFor(2000)
 
-				await checkBox("Make bot publicly inviteable").uncheck()
+				await click(checkBox("Make bot publicly inviteable"))
 				await click(button("Save changes"))
 
 				await t.test("Create new application")
