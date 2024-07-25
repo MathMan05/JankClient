@@ -9,6 +9,8 @@
 	--primary-text: #FFF;
 	--primary-bg: #282832;
 	--black: #000;
+	--shadow: #000;
+	--focus: #8888ff;
 	--message-bg-hover: #1e1e28;
 	--typing-bg: #161616;
 	--timestamp-color: #a2a2a2;
@@ -22,6 +24,7 @@
 	--settings-hover: #0e0d10;
 	--quote-bg: #7a798e;
 	--button-bg: #1b1b28;
+	--button-hover: #282832;
 	--textarea-bg: #26272c;
 	--filename: #47bbff;
 	--mention-bg: #F00;
@@ -46,6 +49,7 @@
 	--scrollbar-thumb-hover: #16161f;
 	--markdown-timestamp: #2f2f33;
 	--embed: #1a1823;
+	--link: #8888ff;
 	--discovery-bg: #37373b;
 }
 .WHITE-theme {
@@ -53,6 +57,10 @@
 	--primary-text: #000;
 	--primary-bg: #FFF;
 	--black: #FFF;
+	--red: #dd6c6c;
+	--green: #639d63;
+	--shadow: #777;
+	--focus: #47bbff;
 	--message-bg-hover: #dedee2;
 	--typing-bg: #dad8d8;
 	--timestamp-color: #929297;
@@ -66,6 +74,7 @@
 	--settings-hover: #b5b1bb;
 	--quote-bg: #7a798e;
 	--button-bg: #b7b7cc;
+	--button-hover: #FFF;
 	--textarea-bg: #b1b6ce;
 	--filename: #47bbff;
 	--mention-bg: #F00;
@@ -90,6 +99,7 @@
 	--scrollbar-thumb-hover: #a5a5b8;
 	--markdown-timestamp: #c8c8da;
 	--embed: #f2f3f5;
+	--link: #3333ee;
 	--discovery-bg: #c6c6d8;
 }
 .Light-theme {
@@ -98,10 +108,13 @@
 	--primary-text: #000;
 	--primary-bg: #8e90c3;
 	--black: #fff;
+	--shadow: #000;
+	--focus: #5e50c5;
 
 	--message-bg-hover: #5757b5;
-	--typing-bg: #000000;
+	--typing-bg: #d4d6e9;
 	--profile-bg: #8075bf;
+	--profile-info-bg: #8075bf;
 	--timestamp-color: #000000;
 	--code-bg: #a89adf;
 	--info-bg: #6060a3;
@@ -114,6 +127,7 @@
 	--settings-hover: #b5b1bb;
 	--quote-bg: #7a798e;
 	--button-bg: #96969e;
+	--button-hover: #8e90c3;
 	--textarea-bg: #abb1cd;
 	--filename: #47bbff;
 	--mention-bg: #F00;
@@ -143,5 +157,6 @@
 	--scrollbar-thumb-hover: #a7a7be;
 	--markdown-timestamp: #c8c8da;
 	--embed: #cdccd1;
+	--link: #5566cc;
 	--discovery-bg: #c6c6d8;
 }
