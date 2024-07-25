@@ -1,8 +1,8 @@
 class SnowFlake {
     id;
     static SnowFlakes = new Map();
-    static FinalizationRegistry = new FinalizationRegistry((id) => {
-        SnowFlake.SnowFlakes.delete(id);
+    static FinalizationRegistry = new FinalizationRegistry((a) => {
+        SnowFlake.SnowFlakes.get(a[1]).delete(a[0]);
     });
     obj;
     constructor(id, obj) {
@@ -20,7 +20,7 @@ class SnowFlake {
         }
         this.id = id;
         SnowFlake.SnowFlakes.get(obj.constructor).set(id, new WeakRef(this));
-        SnowFlake.FinalizationRegistry.register(this, id);
+        SnowFlake.FinalizationRegistry.register(this, [id, obj.constructor]);
         this.obj = obj;
     }
     static getSnowFlakeFromID(id, type) {
@@ -34,7 +34,7 @@ class SnowFlake {
         {
             const snowflake = new SnowFlake(id, undefined);
             SnowFlake.SnowFlakes.get(type).set(id, new WeakRef(snowflake));
-            SnowFlake.FinalizationRegistry.register(snowflake, id);
+            SnowFlake.FinalizationRegistry.register(this, [id, type]);
             return snowflake;
         }
     }

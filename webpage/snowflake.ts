@@ -1,8 +1,8 @@
 class SnowFlake<x>{
     public readonly id:string;
     private static readonly SnowFlakes:Map<any,Map<string,WeakRef<SnowFlake<any>>>>=new Map();
-    private static readonly FinalizationRegistry=new FinalizationRegistry((id:string)=>{
-        SnowFlake.SnowFlakes.delete(id);
+    private static readonly FinalizationRegistry=new FinalizationRegistry((a:[string,any])=>{
+        SnowFlake.SnowFlakes.get(a[1]).delete(a[0]);
     });
     private obj:x;
     constructor(id:string,obj:x){
@@ -20,7 +20,7 @@ class SnowFlake<x>{
         }
         this.id=id;
         SnowFlake.SnowFlakes.get(obj.constructor).set(id,new WeakRef(this));
-        SnowFlake.FinalizationRegistry.register(this,id);
+        SnowFlake.FinalizationRegistry.register(this,[id,obj.constructor]);
         this.obj=obj;
     }
     static getSnowFlakeFromID(id:string,type:any):SnowFlake<any>{
@@ -35,7 +35,7 @@ class SnowFlake<x>{
             const snowflake=new SnowFlake(id,undefined);
 
             SnowFlake.SnowFlakes.get(type).set(id,new WeakRef(snowflake));
-            SnowFlake.FinalizationRegistry.register(snowflake,id);
+            SnowFlake.FinalizationRegistry.register(this,[id,type]);
 
             return snowflake;
         }
