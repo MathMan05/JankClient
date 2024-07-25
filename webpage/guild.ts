@@ -404,8 +404,8 @@ class Guild{
     loadGuild(){
         this.localuser.loadGuild(this.id);
     }
-    updateChannel(JSON){
-        SnowFlake.getSnowFlakeFromID(JSON.id,Channel).getObject().updateChannel(JSON);
+    updateChannel(json){
+        SnowFlake.getSnowFlakeFromID(json.id,Channel).getObject().updateChannel(json);
         this.headchannels=[];
         for(const thing of this.channels){
             thing.children=[];
@@ -417,9 +417,9 @@ class Guild{
         }
         this.printServers();
     }
-    createChannelpac(JSON){
-        const thischannel=new Channel(JSON,this);
-        this.channelids[JSON.id]=thischannel;
+    createChannelpac(json){
+        const thischannel=new Channel(json,this);
+        this.channelids[json.id]=thischannel;
         this.channels.push(thischannel);
         thischannel.resolveparent(this);
         if(!thischannel.parent){
@@ -470,9 +470,9 @@ class Guild{
         ]);
         channelselect.show();
     }
-    delChannel(JSON){
-        const channel=this.channelids[JSON.id];
-        delete this.channelids[JSON.id];
+    delChannel(json){
+        const channel=this.channelids[json.id];
+        delete this.channelids[json.id];
 
         this.channels.splice(this.channels.indexOf(channel),1);
         const indexy=this.headchannels.indexOf(channel);
@@ -489,7 +489,7 @@ class Guild{
             }else{
                 console.log("fail");
                 if(thing.parent){
-                    thing.parent.delChannel(JSON);
+                    thing.parent.delChannel(json);
                 }
             }
         }
