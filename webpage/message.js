@@ -50,7 +50,10 @@ class Message {
 		})
 
 		Message.contextmenu.addbutton("React", function() {
-			this.react()
+			this.react("🎭")
+		})
+		Message.contextmenu.addbutton("Unreact", function() {
+			this.unreact("🎭")
 		})
 
 		Message.contextmenu.addbutton("Edit", function() {
@@ -388,18 +391,29 @@ class Message {
 		this.messageevents(div, del)
 		return this.generateMessage(premessage)
 	}
-	react(emoji = "🎭") {
+	react(emoji = "") {
 		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + emoji + "/@me", {
 			method: "PUT",
 			headers: this.headers
 		})
 	}
+	unreact(emoji = "") {
+		fetch(instance.api + "/channels/" + this.channel.id + "/messages/" + this.id + "/reactions/" + emoji + "/@me", {
+			method: "DELETE",
+			headers: this.headers
+		})
+	}
 	handleReactionAdd(json) {
-		if (this.reactions.some(reaction => reaction.json.emoji.name == json.emoji.name))
-			this.reactions.find(reaction => reaction.json.emoji.name == json.emoji.name).json.count++
-		else {
-			this.reactions.push(new Reaction(json, this))
-		}
+		if (this.reactions.some(react => react.json.emoji.name == json.emoji.name))
+			this.reactions.find(react => react.json.emoji.name == json.emoji.name).json.count++
+		else this.reactions.push(new Reaction(json, this))
+
+		this.generateMessage()
+	}
+	handleReactionRemove(json) {
+		const reaction = this.reactions.find(react => react.json.emoji.name == json.emoji.name)
+		if (reaction.json.count == 1) this.reactions.splice(this.reactions.indexOf(reaction), 1)
+		else reaction.json.count--
 
 		this.generateMessage()
 	}

@@ -1047,6 +1047,15 @@ span {
 	box-shadow: inset .024in 0 var(--primary-text);
 }
 
+.serveropen .servericon {
+	border-radius: 30%;
+}
+.serveropen .unread {
+	transform: translate(-5px, 7px);
+	height: 34px;
+	border-radius: 30%;
+}
+
 .tabbed-head {
 	background-color: var(--settings-hover);
 }

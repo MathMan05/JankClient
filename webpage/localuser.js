@@ -138,6 +138,7 @@ class LocalUser {
 						break
 					case "MESSAGE_REACTION_REMOVE":
 						const messageReactionRemove = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
+						messageReactionRemove.handleReactionRemove(json.d)
 						break
 					case "TYPING_START":
 						if (this.initialized) this.typingStart(json)
@@ -261,12 +262,16 @@ class LocalUser {
 		return this.lookingguild.isAdmin()
 	}
 	loadGuild(id) {
-		let guild = this.guildids.get(id)
-		if (!guild) guild = this.guildids.get("@me")
-		if (this.lookingguild) this.lookingguild.html.classList.remove("serveropen")
-		if (guild.html) guild.html.classList.add("serveropen")
+		const guild = this.guildids.get(id) || this.guildids.get("@me")
 
+		if (this.lookingguild) this.lookingguild.html.classList.remove("serveropen")
 		this.lookingguild = guild
+
+		if (guild.html) guild.html.classList.add("serveropen")
+		else setTimeout(() => {
+			if (guild.html) guild.html.classList.add("serveropen")
+		}, 200)
+
 		document.getElementById("servername").textContent = guild.properties.name
 		document.getElementById("channels").innerHTML = ""
 		document.getElementById("channels").appendChild(guild.getHTML())
