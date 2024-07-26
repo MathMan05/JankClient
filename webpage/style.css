@@ -55,7 +55,7 @@
 	--light-border: #929292;
 	--settings-hover: #0e0d10;
 	--quote-bg: #7a798e;
-	--textarea-bg: #26272c;
+	--textarea-bg: #424244;
 	--filename: #47bbff;
 	--notify-bg: #fc7537;
 	--pronouns: #797979;
@@ -299,6 +299,10 @@ h2,
 h3 {
 	margin: 0;
 	display: inline-block;
+}
+
+#centerdiv h1, #centerdiv h2 {
+	display: block;
 }
 
 h2 {
@@ -796,6 +800,7 @@ textarea {
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
 	width: 100%;
+	gap: .1in;
 }
 
 #user-actions {

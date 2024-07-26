@@ -18,11 +18,12 @@ class Attachment {
 	}
 	getHTML(temp = false) {
 		const src = this.proxy_url || this.url
+
 		if (this.content_type.startsWith("image/")) {
 			const img = document.createElement("img")
 			img.classList.add("messageimg")
 			img.onclick = function() {
-				const full = new Dialog(["img", img.src, ["fit"]])
+				const full = new Dialog(["img", src, ["fit"]])
 				full.show()
 			}
 			img.crossOrigin = "anonymous"

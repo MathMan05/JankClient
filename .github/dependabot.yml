@@ -15,6 +15,7 @@ updates:
           - "@html-parser/eslint-plugin"
           - "@html-parser/parser"
           - "@stylistic/eslint-plugin-js"
+          - "eslint"
           - "eslint-plugin-*"
   - package-ecosystem: "github-actions"
     directory: "/"

@@ -567,7 +567,7 @@ class LocalUser {
 		let newbio = null
 		let newTheme = null
 
-		let hypouser = new User(this.user, this, true)
+		let hypouser = new User(this.user, this)
 		const regen = () => {
 			hypothetcialprofie.innerHTML = hypouser.buildprofile(-1, -1).innerHTML
 		}

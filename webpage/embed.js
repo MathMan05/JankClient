@@ -143,7 +143,7 @@ class Embed {
 		if (this.json.thumbnail) {
 			img.classList.add("embedimg")
 			img.onclick = function() {
-				const full = new Dialog(["img", img.src, ["fit"]])
+				const full = new Dialog(["img", this.json.thumbnail.proxy_url, ["fit"]])
 				full.show()
 			}
 			img.crossOrigin = "anonymous"
@@ -189,7 +189,7 @@ class Embed {
 			if (this.json.image) img.classList.add("bigembedimg")
 
 			img.addEventListener("click", () => {
-				const full = new Dialog(["img", img.src, ["fit"]])
+				const full = new Dialog(["img", this.json.image ? this.json.image.proxy_url : this.json.thumbnail.proxy_url, ["fit"]])
 				full.show()
 			})
 			img.crossOrigin = "anonymous"
