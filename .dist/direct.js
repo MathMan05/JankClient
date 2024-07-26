@@ -41,7 +41,7 @@ class Direct extends Guild {
             return Number(-result);
         });
     }
-    giveMember(member) {
+    giveMember(_member) {
         console.error("not a real guild, can't give member object");
     }
     getRole(ID) {

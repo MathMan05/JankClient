@@ -5,6 +5,7 @@ class Embed {
     owner;
     json;
     constructor(json, owner) {
+        console.log(json);
         this.type = this.getType(json);
         this.owner = owner;
         this.json = json;

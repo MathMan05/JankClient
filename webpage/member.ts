@@ -3,6 +3,7 @@ import {Role} from "./role.js";
 import {Guild} from "./guild.js";
 import { Contextmenu } from "./contextmenu.js";
 import { SnowFlake } from "./snowflake.js";
+import { memberjson, userjson } from "./jsontypes.js";
 
 class Member{
     static already={};
@@ -23,17 +24,19 @@ class Member{
                 });
         });
     }
-    constructor(memberjson,owner:Guild,error=false){
+    constructor(memberjson:memberjson|User|{guild_member:memberjson,user:userjson},owner:Guild,error=false){
         this.error=error;
         this.owner=owner;
         let membery=memberjson;
         this.roles=[];
         if(!error){
-            if(memberjson.guild_member){
+            if(memberjson["guild_member"]){
+                memberjson=memberjson as {guild_member:memberjson,user:userjson};
                 membery=memberjson.guild_member;
-                this.user=memberjson.user;
+                this.user=new User(memberjson.user,this.localuser);
             }
         }
+        membery=membery as User|memberjson;
         for(const thing of Object.keys(membery)){
             if(thing==="guild"){continue}
             if(thing==="owner"){continue}
@@ -61,7 +64,7 @@ class Member{
     get info(){
         return this.owner.info;
     }
-    static async resolve(unkown:User|object|string,guild:Guild):Promise<Member>{
+    static async resolve(unkown:User|memberjson|string,guild:Guild):Promise<Member>{
         if(!(guild instanceof Guild)){
             console.error(guild)
         }
@@ -73,7 +76,7 @@ class Member{
         }else if(typeof unkown===typeof ""){
             id=new SnowFlake(unkown as string,undefined);
         }else{
-            return new Member(unkown,guild);
+            return new Member(unkown as User|memberjson,guild);
         }
         if(guild.id==="@me"){return null}
         if(!Member.already[guild.id]){

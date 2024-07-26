@@ -7,6 +7,7 @@ import {Member} from "./member.js";
 import {Settings,RoleList} from "./settings.js";
 import {Permissions} from "./permissions.js";
 import { SnowFlake } from "./snowflake.js";
+import { channeljson, guildjson } from "./jsontypes.js";
 class Guild{
     owner:Localuser;
     headers:Localuser["headers"];
@@ -79,7 +80,7 @@ class Guild{
         s1.options.push(new RoleList(permlist,this,this.updateRolePermissions.bind(this)));
         settings.show();
     }
-    constructor(json,owner:Localuser,member){
+    constructor(json:guildjson|-1,owner:Localuser,member){
         if(json===-1){
             return;
         }
@@ -404,7 +405,7 @@ class Guild{
     loadGuild(){
         this.localuser.loadGuild(this.id);
     }
-    updateChannel(json){
+    updateChannel(json:channeljson){
         SnowFlake.getSnowFlakeFromID(json.id,Channel).getObject().updateChannel(json);
         this.headchannels=[];
         for(const thing of this.channels){
@@ -417,7 +418,7 @@ class Guild{
         }
         this.printServers();
     }
-    createChannelpac(json){
+    createChannelpac(json:channeljson){
         const thischannel=new Channel(json,this);
         this.channelids[json.id]=thischannel;
         this.channels.push(thischannel);
@@ -470,7 +471,7 @@ class Guild{
         ]);
         channelselect.show();
     }
-    delChannel(json){
+    delChannel(json:channeljson){
         const channel=this.channelids[json.id];
         delete this.channelids[json.id];
 

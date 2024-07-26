@@ -8,6 +8,7 @@ import {Localuser} from "./localuser.js";
 import { Role } from "./role.js";
 import {File} from "./file.js";
 import { SnowFlake } from "./snowflake.js";
+import { messagejson } from "./jsontypes.js";
 
 class Message{
     static contextmenu=new Contextmenu("message menu");
@@ -26,6 +27,7 @@ class Message{
     static del:Promise<void>;
     static resolve:Function;
     div:HTMLDivElement;
+    member:Member;
     get id(){
         return this.snowflake.id;
     }
@@ -59,13 +61,14 @@ class Message{
             this.delete();
         },null,_=>{return _.canDelete()})
     }
-    constructor(messagejson,owner:Channel){
+    constructor(messagejson:messagejson,owner:Channel){
         this.owner=owner;
         this.headers=this.owner.headers;
         this.giveData(messagejson);
 
     }
-    giveData(messagejson){
+    giveData(messagejson:messagejson){
+        console.log(messagejson);
         for(const thing of Object.keys(messagejson)){
             if(thing==="attachments"){
                 this.attachments=[];
@@ -79,9 +82,13 @@ class Message{
             }else if(thing ==="id"){
                 this.snowflake=new SnowFlake(messagejson.id,this);
                 continue;
+            }else if(thing==="member"){
+                this.member=new Member(messagejson.member,this.guild);
+                continue;
             }
             this[thing]=messagejson[thing];
         }
+
         for(const thing in this.embeds){
             console.log(thing,this.embeds)
             this.embeds[thing]=new Embed(this.embeds[thing],this);
@@ -89,6 +96,11 @@ class Message{
         this.author=new User(this.author,this.localuser);
         for(const thing in this.mentions){
             this.mentions[thing]=new User(this.mentions[thing],this.localuser);
+        }
+        if(!this.member&&this.guild.id!=="@me"){
+            this.author.resolvemember(this.guild).then(_=>{
+                this.member=_;
+            })
         }
         if(this.mentions.length||this.mention_roles.length){//currently mention_roles isn't implemented on the spacebar servers
             console.log(this.mentions,this.mention_roles)
