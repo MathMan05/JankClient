@@ -210,7 +210,7 @@ class Channel {
 			}
 			div.appendChild(caps)
 			caps.classList.add("flex")
-			decdiv.classList.add("channel", "channeleffects")
+			decdiv.classList.add("channeleffects")
 
 			Channel.contextmenu.bind(decdiv, this)
 			decdiv.all = this

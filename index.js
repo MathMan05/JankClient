@@ -24,6 +24,22 @@ app.use((req, res, next) => {
 	res.header("Referrer-Policy", "no-referrer")
 	res.header("Cross-Origin-Opener-Policy", "same-origin")
 
+	res.header("Content-Security-Policy",
+		"default-src 'none' 'report-sample'; " +
+		"img-src 'self' https: http:; " +
+		"script-src-elem 'self' https://www.google.com/recaptcha/api.js https://www.gstatic.com/recaptcha/ https://js.hcaptcha.com/1/api.js; " +
+		"style-src-elem 'self'; " +
+		"font-src 'self'; " +
+		"media-src https: http:; " +
+		"connect-src https: wss: http: ws:; " +
+		"form-action 'none'; " +
+		"frame-ancestors 'none'; " +
+		"frame-src https://newassets.hcaptcha.com https://www.google.com/recaptcha/ https://recaptcha.google.com/recaptcha/; " +
+		"manifest-src " + req.get("host") + "/manifest.json; " +
+		"worker-src " + req.get("host") + "/service.js; " +
+		"report-uri https://api.tomatenkuchen.com/csp-violation"
+	)
+
 	next()
 })
 
@@ -41,6 +57,10 @@ app.use("/", (req, res) => {
 	else if (fs.existsSync(path.join(__dirname, "webpage", "font", reqPath.replace("font", "")))) {
 		res.sendFile(path.join(__dirname, "webpage", "font", reqPath.replace("font", "")), {
 			maxAge: 1000 * 60 * 60 * 24 * 90
+		})
+	} else if (fs.existsSync(path.join(__dirname, "webpage", "img", reqPath.replace("img", "")))) {
+		res.sendFile(path.join(__dirname, "webpage", "img", reqPath.replace("img", "")), {
+			maxAge: 1000 * 60 * 60 * 24
 		})
 	} else if (fs.existsSync(path.join(__dirname, "webpage", reqPath + ".html"))) res.sendFile(path.join(__dirname, "webpage", reqPath + ".html"))
 	else if (/^connections[a-z]{1,30}callback$/.test(reqPath)) res.sendFile(path.join(__dirname, "webpage", "connections.html"))

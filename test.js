@@ -37,7 +37,7 @@ const suffix = "@vanillaminigames.net"
 const main = async () => {
 	let prevAccount = {}
 	try {
-		prevAccount = require("./accountData.json")
+		prevAccount = require("./testAccount.json")
 	} catch {}
 
 	const username = prevAccount.username || "automated-user-" + Date.now()
@@ -85,7 +85,7 @@ const main = async () => {
 
 				await expectEqual(t, "Username", await $("#username").text(), username)
 
-				fs.writeFile("./accountData.json", JSON.stringify({
+				fs.writeFile("./testAccount.json", JSON.stringify({
 					username,
 					email: "no-reply+" + username + "@vanillaminigames.net",
 					password

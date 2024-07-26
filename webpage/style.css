@@ -301,10 +301,6 @@ h3 {
 	display: inline-block;
 }
 
-#centerdiv h1, #centerdiv h2 {
-	display: block;
-}
-
 h2 {
 	font-size: 19px;
 }
@@ -643,7 +639,7 @@ hr {
 	display: flex;
 	align-items: center;
 	color: var(--reply-text); /* for date line */
-	font-size: 0.9rem;
+	font-size: .9rem;
 }
 
 .reply {
@@ -730,6 +726,10 @@ textarea {
 .channel {
 	user-select: none;
 	cursor: pointer;
+	transition: font-weight .1s;
+	height: 30px;
+	display: flex;
+	align-items: center;
 }
 .channel:hover, .channel:focus {
 	background-color: var(--channel-hover);
@@ -958,7 +958,7 @@ input[type="checkbox"] {
 }
 
 .quote > span {
-	margin-left: 0.5em;
+	margin-left: .5em;
 	display: flex;
 	align-items: center;
 }
@@ -979,6 +979,10 @@ span {
 	vertical-align: middle;
 }
 
+#loading.doneloading {
+	transform: translate(0%, -100%);
+}
+
 #centerdiv {
 	position: absolute;
 	top: 50%;
@@ -986,8 +990,8 @@ span {
 	transform: translate(-50%, -50%);
 }
 
-#loading.doneloading {
-	transform: translate(0%, -100%);
+#centerdiv > h1, #centerdiv > h2 {
+	display: block;
 }
 
 .unknownfile {

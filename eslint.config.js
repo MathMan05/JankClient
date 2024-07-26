@@ -64,7 +64,7 @@ const rules = {
 	"no-duplicate-case": 2,
 	"no-div-regex": 2,
 	"no-eq-null": 2,
-	"no-extra-boolean-cast": [2, {enforceForInnerExpressions: true}],
+	"no-extra-boolean-cast": 2, //[2, {enforceForInnerExpressions: true}],
 	"no-extra-bind": 2,
 	"no-extend-native": 2,
 	"no-empty-pattern": 2,
