@@ -20,25 +20,25 @@ class Contextmenu {
         this.buttons = [];
     }
     addbutton(text, onclick, img = null, shown = _ => true, enabled = _ => true) {
-        this.buttons.push([text, onclick, img, shown, enabled]);
+        this.buttons.push({ text, onclick, img, shown, enabled });
         return {};
     }
     makemenu(x, y, addinfo, obj) {
         const div = document.createElement("table");
         div.classList.add("contextmenu");
-        for (const thing of this.buttons) {
-            if (!thing[3](addinfo)) {
+        for (const button of this.buttons) {
+            if (!button.shown(addinfo)) {
                 continue;
             }
             const textb = document.createElement("tr");
             const intext = document.createElement("button");
-            intext.disabled = !thing[4]();
+            intext.disabled = !button.enabled();
             textb["button"] = intext;
             intext.classList.add("contextbutton");
-            intext.textContent = thing[0];
+            intext.textContent = button.text;
             textb.appendChild(intext);
-            console.log(thing);
-            intext.onclick = thing[1].bind(addinfo, obj);
+            console.log(button);
+            intext.onclick = button.onclick.bind(addinfo, obj);
             div.appendChild(textb);
         }
         if (Contextmenu.currentmenu != "") {

@@ -46,10 +46,7 @@ function samedomain(url) {
 }
 function isindexhtml(url) {
     console.log(url);
-    if (new URL(url).pathname.startsWith("/channels")) {
-        return true;
-    }
-    return false;
+    return new URL(url).pathname.startsWith("/channels");
 }
 async function getfile(event) {
     checkCache();
