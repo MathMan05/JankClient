@@ -272,14 +272,14 @@ class LocalUser {
 		document.getElementById("channels").appendChild(guild.getHTML())
 		return guild
 	}
-	buildservers() {
+	async buildservers() {
 		const outdiv = document.createElement("div")
 		const serverlist = document.getElementById("servers")
 		serverlist.innerHTML = ""
 
 		const homeButton = document.createElement("p")
-		homeButton.textContent = "⌂"
 		homeButton.classList.add("home", "servericon")
+		homeButton.appendChild(await LocalUser.loadSVG("home"))
 		homeButton.all = this.guildids.get("@me")
 		homeButton.onclick = function() {
 			this.all.loadGuild()
@@ -320,16 +320,16 @@ class LocalUser {
 		serverlist.appendChild(hr2)
 
 		const joinCreateButton = document.createElement("p")
-		joinCreateButton.textContent = "+"
 		joinCreateButton.classList.add("home", "servericon")
+		joinCreateButton.appendChild(await LocalUser.loadSVG("add"))
 		serverlist.appendChild(joinCreateButton)
 		joinCreateButton.addEventListener("click", () => {
 			this.createGuild()
 		})
 
-		const guildDiscoveryButton = document.createElement("p")
-		guildDiscoveryButton.textContent = "🧭"
+		const guildDiscoveryButton = document.createElement("div")
 		guildDiscoveryButton.classList.add("home", "servericon")
+		guildDiscoveryButton.appendChild(await LocalUser.loadSVG("guildDiscovery"))
 		serverlist.appendChild(guildDiscoveryButton)
 		guildDiscoveryButton.addEventListener("click", () => {
 			this.guildDiscovery()
@@ -882,5 +882,16 @@ class LocalUser {
 			]
 		)
 		botDialog.show()
+	}
+	static async loadSVG(name = "") {
+		const res = await fetch("/img/" + name + ".svg", {
+			headers: {
+				Accept: "image/svg+xml"
+			},
+			cache: "force-cache"
+		})
+		const xml = await res.text()
+		const parser = new DOMParser()
+		return parser.parseFromString(xml, "image/svg+xml").documentElement
 	}
 }
