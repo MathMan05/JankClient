@@ -7,6 +7,7 @@ import {Fullscreen} from "./fullscreen.js";
 import {setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
+import { channeljson, readyjson } from "./jsontypes.js";
 
 const wsCodesRetry=new Set([4000,4003,4005,4007,4008,4009]);
 
@@ -21,7 +22,7 @@ class Localuser{
     usersettings:Fullscreen;
     userConnections:Fullscreen;
     devPortal:Fullscreen;
-    ready;
+    ready:readyjson;
     guilds:Guild[];
     guildids:Map<string,Guild>;
     user:User;
@@ -42,7 +43,7 @@ class Localuser{
         this.info=this.serverurls;
         this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.userinfo.token};
     }
-    gottenReady(ready):void{
+    gottenReady(ready:readyjson):void{
         this.usersettings=null;
         this.initialized=true;
         this.ready=ready;
@@ -119,7 +120,7 @@ class Localuser{
                 "capabilities": 16381,
                 "properties": {
                     "browser": "Jank Client",
-                    "client_build_number": 0,
+                    "client_build_number": 0,//might update this eventually lol
                     "release_channel": "Custom",
                     "browser_user_agent": navigator.userAgent
                 },
@@ -154,7 +155,7 @@ class Localuser{
                         SnowFlake.getSnowFlakeFromID(temp.d.id,Message).getObject().deleteEvent();
                         break;
                     case "READY":
-                        this.gottenReady(temp);
+                        this.gottenReady(temp as readyjson);
                         this.genusersettings();
                         returny();
                         break;
@@ -258,24 +259,24 @@ class Localuser{
         }
         return undefined;
     }
-    updateChannel(json):void{
+    updateChannel(json:channeljson):void{
         SnowFlake.getSnowFlakeFromID(json.guild_id,Guild).getObject().updateChannel(json);
         if(json.guild_id===this.lookingguild.id){
             this.loadGuild(json.guild_id);
         }
     }
-    createChannel(json):void{
+    createChannel(json:channeljson):void{
         json.guild_id??="@me";
         SnowFlake.getSnowFlakeFromID(json.guild_id,Guild).getObject().createChannelpac(json);
         if(json.guild_id===this.lookingguild.id){
             this.loadGuild(json.guild_id);
         }
     }
-    delChannel(json):void{
+    delChannel(json:channeljson):void{
         json.guild_id??="@me";
         this.guildids.get(json.guild_id).delChannel(json);
 
-        if(json.guild_id===this.lookingguild.snowflake){
+        if(json.guild_id===this.lookingguild.id){
             this.loadGuild(json.guild_id);
         }
     }

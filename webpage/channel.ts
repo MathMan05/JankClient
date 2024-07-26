@@ -10,6 +10,7 @@ import { Settings, RoleList } from "./settings.js";
 import { Role } from "./role.js";
 import {InfiniteScroller} from "./infiniteScroller.js";
 import { SnowFlake } from "./snowflake.js";
+import { channeljson, readyjson } from "./jsontypes.js";
 
 declare global {
     interface NotificationOptions {
@@ -119,12 +120,11 @@ class Channel{
         this.readbottom.bind(this)
         );
     }
-    constructor(json,owner:Guild){
+    constructor(json:channeljson|-1,owner:Guild){
 
         if(json===-1){
             return;
         }
-
         this.editing;
         this.type=json.type;
         this.owner=owner;
@@ -141,7 +141,7 @@ class Channel{
         for(const thing of json.permission_overwrites){
             if(thing.id==="1182819038095799904"||thing.id==="1182820803700625444"){continue;};
             this.permission_overwrites.set(thing.id,new Permissions(thing.allow,thing.deny));
-            this.permission_overwritesar.push([thing.id,this.permission_overwrites.get(thing.id)]);
+            this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id,Role),this.permission_overwrites.get(thing.id)]);
         }
 
         this.topic=json.topic;
@@ -163,7 +163,7 @@ class Channel{
     get info(){
         return this.owner.info;
     }
-    readStateInfo(json){
+    readStateInfo(json:readyjson["d"]["read_state"]["entries"][0]){
         this.lastreadmessageid=SnowFlake.getSnowFlakeFromID(json.last_message_id,Message);
         this.mentions=json.mention_count;
         this.mentions??=0;
@@ -572,10 +572,10 @@ class Channel{
             }
         }
     }
-    delChannel(json){
+    delChannel(json:channeljson){
         const build=[];
         for(const thing of this.children){
-            if(thing.snowflake!==json.id){
+            if(thing.id!==json.id){
                 build.push(thing)
             }
         }
@@ -649,7 +649,7 @@ class Channel{
         }
         return id;
     }
-    updateChannel(json){
+    updateChannel(json:channeljson){
         this.type=json.type;
         this.name=json.name;
         this.parent_id=new SnowFlake(json.parent_id,undefined);
@@ -661,7 +661,7 @@ class Channel{
         for(const thing of json.permission_overwrites){
             if(thing.id==="1182819038095799904"||thing.id==="1182820803700625444"){continue;};
             this.permission_overwrites.set(thing.id,new Permissions(thing.allow,thing.deny));
-            this.permission_overwritesar.push([thing.id,this.permission_overwrites.get(thing.id)]);
+            this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id,Role),this.permission_overwrites.get(thing.id)]);
         }
         this.topic=json.topic;
         this.nsfw=json.nsfw;

@@ -3,6 +3,7 @@ import {Permissions} from "./permissions.js";
 import {Localuser} from "./localuser.js";
 import {Guild} from "./guild.js";
 import { SnowFlake } from "./snowflake.js";
+import { rolesjson } from "./jsontypes.js";
 class Role{
     permissions:Permissions;
     owner:Guild;
@@ -18,7 +19,7 @@ class Role{
     get id(){
         return this.snowflake.id;
     }
-    constructor(json, owner:Guild){
+    constructor(json:rolesjson, owner:Guild){
         this.headers=owner.headers;
         this.info=owner.info;
         for(const thing of Object.keys(json)){

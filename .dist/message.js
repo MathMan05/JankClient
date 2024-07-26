@@ -22,6 +22,7 @@ class Message {
     static del;
     static resolve;
     div;
+    member;
     get id() {
         return this.snowflake.id;
     }
@@ -61,6 +62,7 @@ class Message {
         this.giveData(messagejson);
     }
     giveData(messagejson) {
+        console.log(messagejson);
         for (const thing of Object.keys(messagejson)) {
             if (thing === "attachments") {
                 this.attachments = [];
@@ -77,6 +79,10 @@ class Message {
                 this.snowflake = new SnowFlake(messagejson.id, this);
                 continue;
             }
+            else if (thing === "member") {
+                this.member = new Member(messagejson.member, this.guild);
+                continue;
+            }
             this[thing] = messagejson[thing];
         }
         for (const thing in this.embeds) {
@@ -86,6 +92,11 @@ class Message {
         this.author = new User(this.author, this.localuser);
         for (const thing in this.mentions) {
             this.mentions[thing] = new User(this.mentions[thing], this.localuser);
+        }
+        if (!this.member && this.guild.id !== "@me") {
+            this.author.resolvemember(this.guild).then(_ => {
+                this.member = _;
+            });
         }
         if (this.mentions.length || this.mention_roles.length) { //currently mention_roles isn't implemented on the spacebar servers
             console.log(this.mentions, this.mention_roles);

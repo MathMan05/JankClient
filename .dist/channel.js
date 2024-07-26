@@ -5,6 +5,7 @@ import { Contextmenu } from "./contextmenu.js";
 import { Fullscreen } from "./fullscreen.js";
 import { Permissions } from "./permissions.js";
 import { Settings, RoleList } from "./settings.js";
+import { Role } from "./role.js";
 import { InfiniteScroller } from "./infiniteScroller.js";
 import { SnowFlake } from "./snowflake.js";
 class Channel {
@@ -125,7 +126,7 @@ class Channel {
             }
             ;
             this.permission_overwrites.set(thing.id, new Permissions(thing.allow, thing.deny));
-            this.permission_overwritesar.push([thing.id, this.permission_overwrites.get(thing.id)]);
+            this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id, Role), this.permission_overwrites.get(thing.id)]);
         }
         this.topic = json.topic;
         this.nsfw = json.nsfw;
@@ -566,7 +567,7 @@ class Channel {
     delChannel(json) {
         const build = [];
         for (const thing of this.children) {
-            if (thing.snowflake !== json.id) {
+            if (thing.id !== json.id) {
                 build.push(thing);
             }
         }
@@ -659,7 +660,7 @@ class Channel {
             }
             ;
             this.permission_overwrites.set(thing.id, new Permissions(thing.allow, thing.deny));
-            this.permission_overwritesar.push([thing.id, this.permission_overwrites.get(thing.id)]);
+            this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id, Role), this.permission_overwrites.get(thing.id)]);
         }
         this.topic = json.topic;
         this.nsfw = json.nsfw;

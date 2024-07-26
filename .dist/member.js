@@ -27,11 +27,13 @@ class Member {
         let membery = memberjson;
         this.roles = [];
         if (!error) {
-            if (memberjson.guild_member) {
+            if (memberjson["guild_member"]) {
+                memberjson = memberjson;
                 membery = memberjson.guild_member;
-                this.user = memberjson.user;
+                this.user = new User(memberjson.user, this.localuser);
             }
         }
+        membery = membery;
         for (const thing of Object.keys(membery)) {
             if (thing === "guild") {
                 continue;

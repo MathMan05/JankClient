@@ -114,7 +114,7 @@ class Localuser {
                     "capabilities": 16381,
                     "properties": {
                         "browser": "Jank Client",
-                        "client_build_number": 0,
+                        "client_build_number": 0, //might update this eventually lol
                         "release_channel": "Custom",
                         "browser_user_agent": navigator.userAgent
                     },
@@ -262,7 +262,7 @@ class Localuser {
     delChannel(json) {
         json.guild_id ??= "@me";
         this.guildids.get(json.guild_id).delChannel(json);
-        if (json.guild_id === this.lookingguild.snowflake) {
+        if (json.guild_id === this.lookingguild.id) {
             this.loadGuild(json.guild_id);
         }
     }
