@@ -625,6 +625,7 @@ textarea {
 }
 input[type=text]:focus-visible,
 input[type=password]:focus-visible,
+textarea:focus-visible,
 #typebox:focus-visible {
 	outline: 2px solid var(--focus);
 }
