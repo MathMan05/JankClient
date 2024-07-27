@@ -269,7 +269,7 @@ class Channel {
 				decoration.textContent = "📸"
 				decoration.classList.add("space", "spacee")
 			} else {
-				decoration.textContent = "❓"
+				decoration.textContent = "❓  "
 				console.warn("Unable to handle channel type " + this.type)
 			}
 			div.appendChild(decoration)

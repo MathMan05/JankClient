@@ -103,6 +103,7 @@
 	--scrollbar-thumb: #201f29;
 }
 
+
 .light-theme {
 	color-scheme: light;
 
@@ -428,9 +429,10 @@ p {
 	top: var(--top-height);
 	height: calc(100dvh - 54px - var(--top-height));
 	width: 2.5in;
-	overflow: auto;
+	overflow-y: auto; /* Allows vertical scrolling */
+	overflow-x: hidden; /* Prevents horizontal overflow */
 	user-select: none;
-}
+  }
 
 #channels-td {
 	padding-right: 245px;
@@ -495,6 +497,12 @@ div {
 	background: var(--profile-info-bg);
 	border: 0px solid;
 	box-sizing: border-box;
+}
+
+/* Conditionally remove border radius from the top when hidereplybox is not present */
+#replybox:not(.hidereplybox) ~ #typediv #typebox {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
 }
 
 hr {
@@ -1231,8 +1239,10 @@ span {
 
 #replybox {
 	display: flex;
-	width: 100%;
+	width: 98%;
 	height: .3in;
+	margin-left: 10px;
+	margin-right: 10px;
 	background-color: var(--reply-bg);
 	transition: height .2s, padding .2s;
 	border-radius: .1in .1in 0 0;
@@ -1241,7 +1251,7 @@ span {
 	top: 6px;
 	position: relative;
 }
-
+  
 #replybox span {
 	align-self: center;
 }
