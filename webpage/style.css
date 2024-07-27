@@ -308,6 +308,10 @@ h2 {
 	font-size: .25in;
 }
 
+small.subtext {
+	font-size: 13px;
+}
+
 .pfp, #userpfp {
 	border-radius: 50%;
 	user-select: none;

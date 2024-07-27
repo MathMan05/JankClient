@@ -29,9 +29,9 @@ class Member {
 		this.headers = this.owner.headers
 		let member = memberjson
 		this.roles = []
-		if (!error && memberjson.guild_member) {
-			member = memberjson.guild_member
-			this.user = new User(memberjson.user, this.localuser)
+		if (!error) {
+			if (memberjson.guild_member) member = memberjson.guild_member
+			this.user = memberjson.user //new User(memberjson.user, this.localuser)
 		}
 
 		for (const thing of Object.keys(member)) {

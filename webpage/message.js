@@ -80,7 +80,7 @@ class Message {
 		this.guild_id = messagejson.guild_id
 		this.snowflake = new SnowFlake(messagejson.id, this)
 		this.author = User.checkuser(messagejson.author, this.localuser)
-		this.member = new Member(messagejson.member, this.guild)
+		this.member = messagejson.member //? new Member(messagejson.member, this.guild) : null
 		this.content = new MarkDown(messagejson.content, this.channel)
 		this.tts = messagejson.tts
 		this.timestamp = messagejson.timestamp

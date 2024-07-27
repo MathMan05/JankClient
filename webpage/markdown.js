@@ -85,6 +85,11 @@ class MarkDown {
 						keepys = "# "
 						i += 3
 					}
+				} else if (txt[i + 1] == "-" && txt[i + 2] == "#" && txt[i + 3] == " ") {
+					element = document.createElement("small")
+					element.classList.add("subtext")
+					keepys = "-# "
+					i += 4
 				} else if (txt[i + 1] == ">" && txt[i + 2] == " ") {
 					element = document.createElement("div")
 					const line = document.createElement("div")
@@ -94,6 +99,7 @@ class MarkDown {
 					keepys = "> "
 					i += 3
 				}
+
 				if (keepys) {
 					appendcurrent()
 					if (!first && !stdsize) span.appendChild(document.createElement("br"))
