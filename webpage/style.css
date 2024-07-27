@@ -1438,3 +1438,6 @@ span {
 	content:'You can\'t chat here';
 	color:color-mix(in hsl, var(--primary-bg),var(--primary-text));
 }
+.scroller{
+	padding-bottom:.2in;
+}
