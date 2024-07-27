@@ -475,16 +475,25 @@ div {
 }
 
 #typebox {
-	padding: 3px;
+	padding: 7px;
+	margin: 0 0 8px 10px;
 	border-radius: 8px;
-	width: 100%;
-	min-height: 46px;
+	min-height: 40px;
 	display: flex;
 	max-height: 1.5in;
 	overflow-y: auto;
 	color: var(--primary-text);
 	background-color: var(--textarea-bg);
 	border: 1px solid;
+	box-sizing: border-box;
+}
+
+#typebox[contenteditable=false] {
+	cursor: not-allowed;
+}
+#typebox[contenteditable=false]:before {
+	content: "You can't chat here";
+	color: color-mix(in hsl, var(--primary-bg), var(--primary-text));
 }
 
 hr {
@@ -1584,11 +1593,9 @@ video {
 	font-size: 13px;
 }
 
-#typebox[contenteditable=false] {
-	cursor: not-allowed;
+input[type=text]:focus-visible,
+input[type=password]:focus-visible,
+textarea:focus-visible,
+#typebox:focus-visible {
+	outline: 2px solid var(--focus);
 }
-#typebox[contenteditable=false]:before {
-	content: "You can't chat here";
-	color: color-mix(in hsl, var(--primary-bg), var(--primary-text));
-}
-

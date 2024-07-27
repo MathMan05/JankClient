@@ -23,15 +23,13 @@ class Member {
 		this.error = error
 		if (!owner) console.error("Guild not included in the creation of a member object")
 
-		if (memberjson.code == 404) return
-
 		this.owner = owner
 		this.headers = this.owner.headers
 		let member = memberjson
 		this.roles = []
 		if (!error) {
 			if (memberjson.guild_member) member = memberjson.guild_member
-			this.user = memberjson.user //new User(memberjson.user, this.localuser)
+			this.user = memberjson.user
 		}
 
 		for (const thing of Object.keys(member)) {
@@ -42,11 +40,20 @@ class Member {
 					const role = SnowFlake.getSnowFlakeFromID(strrole, Role).getObject()
 					this.roles.push(role)
 				}
+				continue
 			}
+
+			this[thing] = memberjson[thing]
 		}
 
 		if (error) this.user = memberjson
-		else this.user = User.checkuser(this.user, owner.localuser)
+		else {
+			if (SnowFlake.getSnowFlakeFromID(this?.id, User)) {
+				this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject()
+				return
+			}
+			this.user = User.checkuser(this.user, owner.localuser)
+		}
 	}
 	get guild() {
 		return this.owner
@@ -113,7 +120,7 @@ class Member {
 		return this.guild.properties.owner_id == this.user.id || this.roles.some(role => role.permissions.hasPermission("ADMINISTRATOR"))
 	}
 	contextMenuBind(html) {
-		if (html.tagName === "SPAN") {
+		if (html.tagName == "SPAN") {
 			if (this.error) {
 				const error = document.createElement("span")
 				error.textContent = "!"

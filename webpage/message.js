@@ -80,7 +80,7 @@ class Message {
 		this.guild_id = messagejson.guild_id
 		this.snowflake = new SnowFlake(messagejson.id, this)
 		this.author = User.checkuser(messagejson.author, this.localuser)
-		this.member = messagejson.member //? new Member(messagejson.member, this.guild) : null
+		this.member = messagejson.member ? new Member(messagejson.member, this.guild) : void 0
 		this.content = new MarkDown(messagejson.content, this.channel)
 		this.tts = messagejson.tts
 		this.timestamp = messagejson.timestamp
@@ -157,7 +157,7 @@ class Message {
 		this.div = obj
 		del.then(() => {
 			obj.removeEventListener("click", func)
-			this.div.remove()
+			if (this.div) this.div.remove()
 			this.div = null
 		})
 		obj.classList.add("messagediv")
@@ -231,7 +231,7 @@ class Message {
 			const username = document.createElement("span")
 			username.classList.add("username")
 			replyline.appendChild(username)
-			this.author.contextMenuBind(username)
+			this.author.contextMenuBind(username, this.guild)
 
 			const reply = document.createElement("div")
 			reply.classList.add("replytext")
@@ -250,9 +250,9 @@ class Message {
 
 				minipfp.crossOrigin = "anonymous"
 				minipfp.src = author.getpfpsrc()
-				author.contextMenuBind(minipfp)
+				author.contextMenuBind(minipfp, this.guild)
 				username.textContent = author.username
-				author.contextMenuBind(username)
+				author.contextMenuBind(username, this.guild)
 			})
 			div.appendChild(replyline)
 		}
@@ -276,7 +276,7 @@ class Message {
 			const combine = premessage?.author?.snowflake != this.author.snowflake || current || this.message_reference
 			if (combine) {
 				const pfp = this.author.buildpfp()
-				this.author.contextMenuBind(pfp)
+				this.author.contextMenuBind(pfp, this.guild)
 				pfpRow.appendChild(pfp)
 			} else div.pfpparent = pfpparent
 
@@ -291,7 +291,7 @@ class Message {
 			if (combine) {
 				const username = document.createElement("span")
 				username.classList.add("username")
-				this.author.contextMenuBind(username)
+				this.author.contextMenuBind(username, this.guild)
 				this.author.profileclick(username)
 
 				username.textContent = this.author.username
@@ -372,7 +372,7 @@ class Message {
 
 			const username = document.createElement("span")
 			username.textContent = this.author.username
-			this.author.contextMenuBind(username)
+			this.author.contextMenuBind(username, this.guild)
 			this.author.profileclick(username)
 			texttxt.appendChild(username)
 			username.classList.add("username")
