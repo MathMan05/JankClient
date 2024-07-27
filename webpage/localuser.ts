@@ -7,7 +7,7 @@ import {Fullscreen} from "./fullscreen.js";
 import {setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
-import { channeljson, readyjson } from "./jsontypes.js";
+import { channeljson, readyjson, userjson } from "./jsontypes.js";
 
 const wsCodesRetry=new Set([4000,4003,4005,4007,4008,4009]);
 
@@ -303,7 +303,6 @@ class Localuser{
         if(!guild){
             guild=this.guildids.get("@me");
         }
-        console.log(this.guildids,id,guild);
         if(this.lookingguild){
             this.lookingguild.html.classList.remove("serveropen");
         }
@@ -364,7 +363,6 @@ class Localuser{
             div.classList.add("home","servericon")
             serverlist.appendChild(div)
             div.onclick=_=>{
-                console.log("clicked :3")
                 this.createGuild();
             }
 
@@ -377,7 +375,6 @@ class Localuser{
             });
 
         }
-        console.log("test");
         this.unreads();
     }
     createGuild(){
@@ -391,7 +388,6 @@ class Localuser{
                         "Invite Link/Code",
                         "",
                         function(){
-                            console.log(this)
                             inviteurl=this.value;
                         }
                     ],
@@ -411,7 +407,6 @@ class Localuser{
                                 method:"POST",
                                 headers:this.headers,
                             }).then(r=>r.json()).then(_=>{
-                                console.log(_);
                                 if(_.message){
                                     error.textContent=_.message;
                                 }
@@ -493,11 +488,9 @@ class Localuser{
         this.unreads();
     }
     unreads():void{
-        console.log(this.guildhtml)
         for(const thing of this.guilds){
             if(thing.id==="@me"){continue;}
             const html=this.guildhtml.get(thing.id);
-            console.log(html);
             thing.unreads(html);
         }
     }
@@ -533,7 +526,6 @@ class Localuser{
     updatepfp(file:Blob):void{
         var reader = new FileReader();
         reader.readAsDataURL(file);
-        console.log(this.headers);
         reader.onload = ()=>{
             fetch(this.info.api.toString()+"/users/@me",{
                 method:"PATCH",
@@ -542,7 +534,6 @@ class Localuser{
                     avatar:reader.result,
                 })
             });
-            console.log(reader.result);
         };
 
     }
@@ -586,7 +577,6 @@ class Localuser{
         }else{
             build+=" is typing";
         }
-        console.log(typingtext.classList);
         if(showing){
             typingtext.classList.remove("hidden");
             document.getElementById("typingtext").textContent=build;
@@ -599,7 +589,7 @@ class Localuser{
         let file=null;
         let newprouns=null;
         let newbio=null;
-        let hypouser=new User(this.user,this,true);
+        let hypouser=this.user.clone();
         function regen(){
             hypotheticalProfile.textContent="";
             const hypoprofile=hypouser.buildprofile(-1,-1);

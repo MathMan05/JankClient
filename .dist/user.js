@@ -14,6 +14,31 @@ class User {
     discriminator;
     pronouns;
     bot;
+    public_flags;
+    accent_color;
+    banner;
+    premium_since;
+    premium_type;
+    theme_colors;
+    badge_ids;
+    clone() {
+        return new User({
+            username: this.username,
+            id: this.id + "#clone",
+            public_flags: this.public_flags,
+            discriminator: this.discriminator,
+            avatar: this.avatar,
+            accent_color: this.accent_color,
+            banner: this.banner,
+            bio: this.bio.rawString,
+            premium_since: this.premium_since,
+            premium_type: this.premium_type,
+            bot: this.bot,
+            theme_colors: this.theme_colors,
+            pronouns: this.pronouns,
+            badge_ids: this.badge_ids
+        }, this.owner);
+    }
     get id() {
         return this.snowflake.id;
     }
@@ -29,13 +54,13 @@ class User {
             });
         });
     }
-    static checkuser(userjson, owner) {
-        if (User.userids[userjson.id]) {
-            return User.userids[userjson.id];
+    static checkuser(user, owner) {
+        if (User.userids[user.id]) {
+            return User.userids[user.id];
         }
         else {
-            const tempuser = new User(userjson, owner, true);
-            User.userids[userjson.id] = tempuser;
+            const tempuser = new User(user, owner, true);
+            User.userids[user.id] = tempuser;
             return tempuser;
         }
     }

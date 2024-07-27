@@ -10,7 +10,6 @@ class File {
     url;
     size;
     constructor(fileJSON, owner) {
-        console.log(fileJSON);
         this.owner = owner;
         this.id = fileJSON.id;
         this.filename = fileJSON.filename;

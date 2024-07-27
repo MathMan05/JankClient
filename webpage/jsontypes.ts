@@ -267,13 +267,54 @@ type messagejson={
     edited_timestamp: string,
     tts: boolean,
     mention_everyone: boolean,
-    mentions: [],
-    mention_roles: [],
-    attachments: [],
-    embeds: [],
-    reactions: [],
+    mentions: [], //need examples to fix
+    mention_roles: [], //need examples to fix
+    attachments: filejson[],
+    embeds: embedjson[],
+    reactions: [], //ToDo
     nonce: string,
     pinned: boolean,
     type: number
 }
-export {readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson};
+type filejson={
+    id:string,
+    filename:string,
+    content_type:string,
+    width:number,
+    height:number,
+    proxy_url:string|undefined,
+    url:string,
+    size:number
+};
+type embedjson={
+    type:string|null,
+    color?:number,
+    author:{
+        icon_url?:string,
+        name?:string,
+        url?:string,
+        title?:string,
+    },
+    title?:string,
+    url?:string,
+    description?:string,
+    fields?:{
+        name:string,
+        value:string,
+        inline:boolean,
+    }[],
+    footer?:{
+        icon_url?:string,
+        text?:string,
+        thumbnail?:string,
+    },
+    timestamp?:string,
+    thumbnail:{
+        proxy_url:string,
+        url:string,
+    },
+    provider:{
+        name:string,
+    }
+}
+export {readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson};

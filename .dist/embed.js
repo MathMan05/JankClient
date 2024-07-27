@@ -5,7 +5,6 @@ class Embed {
     owner;
     json;
     constructor(json, owner) {
-        console.log(json);
         this.type = this.getType(json);
         this.owner = owner;
         this.json = json;
@@ -41,7 +40,6 @@ class Embed {
         return this.guild.localuser;
     }
     generateRich() {
-        console.log(this.json);
         const div = document.createElement("div");
         if (this.json.color) {
             div.style.backgroundColor = "#" + this.json.color.toString(16);

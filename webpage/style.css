@@ -83,7 +83,7 @@ th {
 	flex-wrap: nowrap;
 	flex-direction: column;
 	max-height: 20in;
-	padding: .02in .2in 0 .1in;
+	padding: .02in .1in 0 .1in;
 	flex-shrink: 0;
 	width: 100%;
 	box-sizing: border-box;

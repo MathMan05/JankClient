@@ -11,7 +11,6 @@ class Direct extends Guild{
     constructor(json:dirrectjson[],owner:Localuser){
         super(-1,owner,null);
         this.message_notifications=0;
-        console.log(json);
         this.owner=owner;
         if(!this.localuser){
             console.error("Owner was not included, please fix")
@@ -167,13 +166,11 @@ class Group extends Channel{
             const noti=document.createElement("div");
             noti.classList.add("unread","notiunread","pinged");
             noti.textContent=""+this.mentions;
-            console.log(this.mentions)
             div["noti"]=noti;
             div.append(noti)
             const buildpfp=this.user.buildpfp();
             div["all"]=this;
             buildpfp.classList.add("mentioned");
-            console.log(this);
             div.append(buildpfp)
             sentdms.append(div);
             div.onclick=_=>{
