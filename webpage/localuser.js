@@ -242,7 +242,7 @@ class LocalUser {
 		json.guild_id ??= "@me"
 		this.guildids.get(json.guild_id).delChannel(json)
 
-		if (json.guild_id == this.lookingguild.snowflake) this.loadGuild(json.guild_id)
+		if (json.guild_id == this.lookingguild.id) this.loadGuild(json.guild_id)
 	}
 	init() {
 		this.buildservers()

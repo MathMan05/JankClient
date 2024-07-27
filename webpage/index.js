@@ -106,6 +106,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 		event.stopImmediatePropagation()
 	})
 
+	Array.from(document.getElementsByClassName("theme-icon"))
+		.forEach(async elem => {
+			elem.appendChild(await LocalUser.loadSVG(elem.getAttribute("data-icon")))
+		})
+
 	document.getElementById("settings").addEventListener("click", userSettings)
 	document.getElementById("connections").addEventListener("click", userConnections)
 	document.getElementById("dev-portal").addEventListener("click", devPortal)

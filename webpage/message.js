@@ -76,16 +76,16 @@ class Message {
 	}
 	giveData(messagejson) {
 		this.type = messagejson.type
+		this.channel_id = messagejson.channel_id
+		this.guild_id = messagejson.guild_id
 		this.snowflake = new SnowFlake(messagejson.id, this)
 		this.author = User.checkuser(messagejson.author, this.localuser)
-		this.member = messagejson.member
+		this.member = new Member(messagejson.member, this.guild)
 		this.content = new MarkDown(messagejson.content, this.channel)
 		this.tts = messagejson.tts
 		this.timestamp = messagejson.timestamp
 		this.edited_timestamp = messagejson.edited_timestamp
 		this.message_reference = messagejson.message_reference
-		this.channel_id = messagejson.channel_id
-		this.guild_id = messagejson.guild_id
 		this.mention_everyone = messagejson.mention_everyone
 		this.pinned = messagejson.pinned
 		this.reactions = messagejson.reactions
@@ -119,6 +119,12 @@ class Message {
 		this.mentions = []
 		for (const thing of messagejson.mentions) {
 			this.mentions.push(new User(thing, this.localuser))
+		}
+
+		if (!this.member && this.guild.id != "@me") {
+			this.author.resolvemember(this.guild).then(member => {
+				this.member = member
+			})
 		}
 
 		this.mention_roles = []

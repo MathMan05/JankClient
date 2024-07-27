@@ -806,6 +806,8 @@ textarea {
 #user-actions {
 	display: flex;
 	flex-wrap: wrap;
+	gap: 3px;
+	margin-right: 10px;
 }
 
 #user-actions h2 {

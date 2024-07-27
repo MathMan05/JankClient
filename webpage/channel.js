@@ -89,7 +89,7 @@ class Channel {
 		this.permission_overwritesar = []
 		for (const override of json.permission_overwrites) {
 			this.permission_overwrites.set(override.id, new Permissions(override.allow, override.deny))
-			this.permission_overwritesar.push([override.id, this.permission_overwrites.get(override.id)])
+			this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(override.id, Role), this.permission_overwrites.get(override.id)])
 		}
 	}
 
@@ -585,7 +585,7 @@ class Channel {
 		this.permission_overwritesar = []
 		for (const override of json.permission_overwrites) {
 			this.permission_overwrites.set(override.id, new Permissions(override.allow, override.deny))
-			this.permission_overwritesar.push([override.id, this.permission_overwrites.get(override.id)])
+			this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(override.id, Role), this.permission_overwrites.get(override.id)])
 		}
 	}
 	typingstart() {

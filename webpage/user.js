@@ -54,7 +54,7 @@ class User {
 		this.hypotheticalpfp = false
 	}
 	async resolvemember(guild) {
-		await Member.resolve(this, guild)
+		return await Member.resolve(this, guild)
 	}
 	buildpfp() {
 		const pfp = document.createElement("img")
