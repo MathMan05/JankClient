@@ -54,12 +54,11 @@ class Member {
             this.user = memberjson;
         }
         else {
-            console.log(this.user, memberjson);
             if (SnowFlake.getSnowFlakeFromID(this?.id, User)) {
                 this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject();
                 return;
             }
-            this.user = new User(this.user, owner.localuser);
+            this.user = new User(membery.user, owner.localuser);
         }
     }
     get guild() {

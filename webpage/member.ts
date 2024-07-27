@@ -52,12 +52,11 @@ class Member{
         if(error){
             this.user=memberjson as User;
         }else{
-            console.log(this.user,memberjson);
             if(SnowFlake.getSnowFlakeFromID(this?.id,User)){
                 this.user=SnowFlake.getSnowFlakeFromID(this.id,User).getObject();
                 return;
             }
-            this.user=new User(this.user,owner.localuser);
+            this.user=new User((membery as memberjson).user,owner.localuser);
         }
     }
     get guild(){

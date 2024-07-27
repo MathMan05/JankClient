@@ -62,7 +62,6 @@ class Message {
         this.giveData(messagejson);
     }
     giveData(messagejson) {
-        console.log(messagejson);
         for (const thing of Object.keys(messagejson)) {
             if (thing === "attachments") {
                 this.attachments = [];
@@ -83,15 +82,19 @@ class Message {
                 this.member = new Member(messagejson.member, this.guild);
                 continue;
             }
+            else if (thing === "embeds") {
+                this.embeds = [];
+                for (const thing in messagejson.embeds) {
+                    console.log(thing, messagejson.embeds);
+                    this.embeds[thing] = new Embed(messagejson.embeds[thing], this);
+                }
+                continue;
+            }
             this[thing] = messagejson[thing];
         }
-        for (const thing in this.embeds) {
-            console.log(thing, this.embeds);
-            this.embeds[thing] = new Embed(this.embeds[thing], this);
-        }
-        this.author = new User(this.author, this.localuser);
-        for (const thing in this.mentions) {
-            this.mentions[thing] = new User(this.mentions[thing], this.localuser);
+        this.author = new User(messagejson.author, this.localuser);
+        for (const thing in messagejson.mentions) {
+            this.mentions[thing] = new User(messagejson.mentions[thing], this.localuser);
         }
         if (!this.member && this.guild.id !== "@me") {
             this.author.resolvemember(this.guild).then(_ => {
@@ -311,6 +314,7 @@ class Message {
                 messagedwrap.appendChild(attach);
             }
             if (this.embeds.length) {
+                console.log(this.embeds);
                 const embeds = document.createElement("div");
                 embeds.classList.add("flexltr");
                 for (const thing of this.embeds) {
