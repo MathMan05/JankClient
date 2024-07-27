@@ -219,23 +219,28 @@ th {
 	padding: 0;
 }
 
-.messagediv {
+.messagediv{
 	overflow: hidden;
-	max-width: 100%;
+	max-width:100%;
+	/* width: 9%; */
+	/* display: inline-block; */
 	display: flex;
+	flex-wrap: nowrap;
 	flex-direction: column;
-	padding: 3px 25px 3px 15px;
 	max-height: 20in;
+	padding: .05in .2in .05in .1in;
 	flex-shrink: 0;
-	width: 96%;
+	width: 100%;
+	box-sizing: border-box;
 }
 .messagediv:hover, .messagediv:focus {
 	background-color: var(--message-bg-hover);
 }
 
-.topMessage {
-	padding-top: .03in;
-	margin-top: .1in;
+.topMessage{
+	padding-top:.03in;
+	margin-top:.1in;
+	padding-bottom: .1in;
 }
 
 pre {
@@ -476,15 +481,20 @@ div {
 
 #typebox {
 	padding: 3px;
-	border-radius: 8px;
-	width: 100%;
-	min-height: 46px;
+	margin-bottom: 10px;
+	margin-left: 10px;
+	margin-right: 10px;
+	border-radius: .15cm;
+	width: 99%;
+	min-height: .5in;
+	z-index: -100;
 	display: flex;
 	max-height: 1.5in;
 	overflow-y: auto;
 	color: var(--primary-text);
-	background-color: var(--textarea-bg);
-	border: 1px solid;
+	background: var(--profile-info-bg);
+	border: 0px solid;
+	box-sizing: border-box;
 }
 
 hr {
@@ -798,9 +808,11 @@ textarea {
 #userdock {
 	background-color: var(--user-dock-bg);
 	position: relative;
-	justify-content: space-between;
+	justify-content: center;
 	align-items: center;
-	padding: 3px;
+	padding: 2px;
+	padding-top: 10px;
+	padding-bottom: 10px;
 	border-top-left-radius: 3px;
 	border-top-right-radius: 3px;
 	width: 100%;
@@ -808,22 +820,36 @@ textarea {
 }
 
 #user-actions {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 3px;
-	margin-right: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: .001in; /* Space from userinfo */
+    gap: .05in; /* Space between actions */
 }
 
 #user-actions h2 {
-	cursor: pointer;
-	user-select: none;
-	border-radius: .1in;
-	transition: color .5s;
-	text-align: center;
-	overflow: visible;
+    cursor: pointer;
+    user-select: none;
+    border-radius: .3in;
+    transition: color .5s;
+    text-align: center;
+    overflow: visible;
+    width: .2in; /* Adjust size as needed */
+    height: .2in; /* Adjust size as needed */
+    padding: .02in; /* Adjust padding as needed */
+    margin: 0; /* Remove default margins */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
 #user-actions h2:hover, #user-actions h2:focus {
-	color: var(--timestamp-color);
+    background: var(--settings-hover);
+    color: var(--timestamp-color);
+}
+
+#user-actions img {
+    width: 100%;
+    height: auto;
 }
 
 #userinfo {
