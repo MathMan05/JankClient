@@ -11,6 +11,7 @@ class Member{
     user:User;
     roles:Role[];
     error:boolean;
+    id:string;
     static contextmenu:Contextmenu=new Contextmenu("User Menu");
     static setUpContextMenu(){
         this.contextmenu.addbutton("Copy user id",function(){
@@ -33,7 +34,6 @@ class Member{
             if(memberjson["guild_member"]){
                 memberjson=memberjson as {guild_member:memberjson,user:userjson};
                 membery=memberjson.guild_member;
-                this.user=new User(memberjson.user,this.localuser);
             }
         }
         membery=membery as User|memberjson;
@@ -52,6 +52,11 @@ class Member{
         if(error){
             this.user=memberjson as User;
         }else{
+            console.log(this.user,memberjson);
+            if(SnowFlake.getSnowFlakeFromID(this?.id,User)){
+                this.user=SnowFlake.getSnowFlakeFromID(this.id,User).getObject();
+                return;
+            }
             this.user=new User(this.user,owner.localuser);
         }
     }
