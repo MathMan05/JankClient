@@ -90,9 +90,11 @@ class Message {
 		this.pinned = messagejson.pinned
 		this.reactions = messagejson.reactions
 
-		this.attachments = []
-		for (const thing of messagejson.attachments) {
-			this.attachments.push(new Attachment(thing, this))
+		if (messagejson.attachments) {
+			this.attachments = []
+			for (const thing of messagejson.attachments) {
+				this.attachments.push(new Attachment(thing, this))
+			}
 		}
 
 		if (messagejson.embeds) {
@@ -116,20 +118,24 @@ class Message {
 			}
 		}
 
-		this.mentions = []
-		for (const thing of messagejson.mentions) {
-			this.mentions.push(new User(thing, this.localuser))
-		}
-
 		if (!this.member && this.guild.id != "@me") {
 			this.author.resolvemember(this.guild).then(member => {
 				this.member = member
 			})
 		}
 
-		this.mention_roles = []
-		for (const thing of messagejson.mention_roles) {
-			this.mention_roles.push(new Role(thing, this))
+		if (messagejson.mentions) {
+			this.mentions = []
+			for (const thing of messagejson.mentions) {
+				this.mentions.push(new User(thing, this.localuser))
+			}
+		}
+
+		if (messagejson.mention_roles) {
+			this.mention_roles = []
+			for (const thing of messagejson.mention_roles) {
+				this.mention_roles.push(new Role(thing, this))
+			}
 		}
 
 		if (this.div) this.generateMessage()
@@ -197,16 +203,10 @@ class Message {
 		this.channel.idToNext.set(prev, next)
 		this.channel.idToPrev.set(next, prev)
 		this.channel.messageids.delete(this.snowflake)
+
 		const regen = prev.getObject()
-
-		if (regen) {
-			regen.generateMessage()
-		}
-		if (this.channel.lastmessage === this) {
-			this.channel.lastmessage = prev.getObject()
-		}
-
-		if (this.channel.lastmessage === this) this.channel.lastmessage = this.channel.messageids[prev]
+		if (regen) regen.generateMessage()
+		if (this.channel.lastmessage === this) this.channel.lastmessage = prev.getObject()
 	}
 	generateMessage(premessage = null) {
 		if (!premessage) premessage = this.channel.idToPrev.get(this.snowflake)?.getObject()

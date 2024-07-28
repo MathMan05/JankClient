@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 
 	res.header("Content-Security-Policy",
 		"default-src 'none' 'report-sample'; " +
-		"img-src 'self' https: http:; " +
+		"img-src 'self' https: http: blob:; " +
 		"script-src-elem 'self' https://www.google.com/recaptcha/api.js https://www.gstatic.com/recaptcha/ https://js.hcaptcha.com/1/api.js; " +
 		"style-src-elem 'self'; " +
 		"font-src 'self'; " +

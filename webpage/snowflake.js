@@ -12,12 +12,12 @@ class SnowFlake {
 			this.id = id
 			return
 		}
-		if (!SnowFlake.SnowFlakes.get(obj.constructor)) {
-			SnowFlake.SnowFlakes.set(obj.constructor, new Map())
-		}
+		if (!SnowFlake.SnowFlakes.get(obj.constructor)) SnowFlake.SnowFlakes.set(obj.constructor, new Map())
+
 		if (SnowFlake.SnowFlakes.get(obj.constructor).get(id)) {
 			const snowflake = SnowFlake.SnowFlakes.get(obj.constructor).get(id).deref()
 			snowflake.obj = obj
+			// eslint-disable-next-line no-constructor-return
 			return snowflake
 		}
 		this.id = id
@@ -30,9 +30,7 @@ class SnowFlake {
 			SnowFlake.SnowFlakes.set(type, new Map())
 		}
 		const snowflake = SnowFlake.SnowFlakes.get(type).get(id)
-		if (snowflake) {
-			return snowflake.deref()
-		}
+		if (snowflake) return snowflake.deref()
 
 		const newSnowflake = new SnowFlake(id, void 0)
 		SnowFlake.SnowFlakes.get(type).set(id, new WeakRef(newSnowflake))

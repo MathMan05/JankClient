@@ -449,18 +449,24 @@ class Channel {
 	}
 	async getmessage(id) {
 		const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
-		if (snowflake.getObject()) {
-			return snowflake.getObject()
-		}
+		if (snowflake.getObject()) return snowflake.getObject()
 
-		const gety = await fetch(instance.api + "/channels/" + this.id + "/messages?limit=1&around=" + id, {
+		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?limit=1&around=" + id, {
 			headers: this.headers
 		})
-		const json = await gety.json()
 
-		const msg = new Message(json[0], this)
-		this.messageids[msg.id] = msg
-		return msg
+		const json = await res.json()
+		if (!json[0]) json[0] = {
+			id,
+			content: "*<Message not found>*",
+			author: {
+				id: "0",
+				username: "Spacebar Ghost",
+				avatar: null
+			}
+		}
+
+		return new Message(json[0], this)
 	}
 	static genid = 0
 	async getHTML() {
