@@ -49,7 +49,7 @@ class Message{
             this.channel.setReplying(this);
         });
         Message.contextmenu.addbutton("Copy message id",function(){
-            navigator.clipboard.writeText(this.id.id);
+            navigator.clipboard.writeText(this.id);
         });
         Message.contextmenu.addbutton("Edit",function(){
             this.channel.editing=this;
@@ -246,6 +246,10 @@ class Message{
                 username.textContent=author.username;
                 author.bind(username);
             });
+            reply.onclick=_=>{
+                console.log("this got clicked :3")
+                this.channel.infinite.focus(this.message_reference.message_id);
+            }
             div.appendChild(replyline);
         }
         build.classList.add("message");
