@@ -21,6 +21,7 @@ async function registertry(e) {
             username: username,
             password: password,
             consent: elements[6].checked,
+            captcha_key: elements[7]?.value
         }),
         headers: {
             "content-type": "application/json"
@@ -28,6 +29,17 @@ async function registertry(e) {
         method: "POST"
     }).then(e => {
         e.json().then(e => {
+            if (e.captcha_sitekey) {
+                const capt = document.getElementById("h-captcha");
+                const capty = document.createElement("div");
+                capty.classList.add("h-captcha");
+                capty.setAttribute("data-sitekey", e.captcha_sitekey);
+                const script = document.createElement("script");
+                script.src = "https://js.hcaptcha.com/1/api.js";
+                capt.append(script);
+                capt.append(capty);
+                return;
+            }
             if (!e.token) {
                 console.log(e);
                 document.getElementById("wrong").textContent = e.errors[Object.keys(e.errors)[0]]._errors[0].message;
