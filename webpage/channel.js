@@ -249,10 +249,10 @@ class Channel {
 
 			if (this.type == 0) {
 				decoration.textContent = "#"
-				decoration.classList.add("space")
+				decoration.classList.add("space", "accent")
 			} else if (this.type == 2) {
 				decoration.textContent = "🕪"
-				decoration.classList.add("space", "spacee")
+				decoration.classList.add("space", "spacee", "accent")
 			} else if (this.type == 5) {
 				decoration.textContent = "📣"
 				decoration.classList.add("space", "spacee")

@@ -230,6 +230,8 @@ th {
 	flex-direction: column;
 	max-height: 20in;
 	padding: .05in .2in .05in .1in;
+	padding-top: 0;
+	padding-bottom: 0.1in;
 	flex-shrink: 0;
 	width: 100%;
 	box-sizing: border-box;
@@ -448,7 +450,7 @@ p {
 }
 
 .space {
-	margin-right: .02in;
+	margin-right: 0.06in;
 	font-size: .25in;
 	display: inline-block;
 	text-indent: .05in;
@@ -500,9 +502,13 @@ div {
 }
 
 /* Conditionally remove border radius from the top when hidereplybox is not present */
-#replybox:not(.hidereplybox) ~ #typediv #typebox {
+#replybox:not(.hideReplyBox) ~ #typediv #typebox {
 	border-top-left-radius: 0;
 	border-top-right-radius: 0;
+}
+
+.accent {
+	color: var(--link);
 }
 
 hr {
@@ -558,7 +564,7 @@ hr {
 	display: flex;
 	position: absolute;
 	bottom: 23px;
-	right: 11px;
+	right: 12px;
 	background-color: var(--typing-bg);
 	width: fit-content;
 	transform: translateY(-100%);
@@ -784,6 +790,7 @@ textarea {
 	flex-direction: row;
 	align-self: stretch;
 	width: 100%;
+	color: var(--link);
 }
 .channeleffects:hover, .channeleffects:focus {
 	background-color: var(--channel-hover);
@@ -1238,40 +1245,43 @@ span {
 }
 
 #replybox {
-	display: flex;
-	width: 98%;
-	height: .3in;
-	margin-left: 10px;
-	margin-right: 10px;
-	background-color: var(--reply-bg);
-	transition: height .2s, padding .2s;
-	border-radius: .1in .1in 0 0;
-	padding: 0 .05in;
-	box-sizing: border-box;
-	top: 6px;
-	position: relative;
+    display: flex;
+    justify-content: space-between; /* Ensures space between the span and button */
+    width: 98%;
+    height: .3in;
+    margin-left: 10px;
+    margin-right: 10px;
+    background-color: var(--reply-bg);
+    transition: height .2s, padding .2s;
+    border-radius: .1in .1in 0 0;
+    padding: 0 .05in;
+    box-sizing: border-box;
+    top: 6px;
+    position: relative;
 }
-  
+
 #replybox span {
-	align-self: center;
+    align-self: center;
 }
 
 .cancelReply {
-	align-self: flex-start;
-	color: #F00;
-	height: auto;
-	width: .25in;
-	text-align: center;
-	padding: 0;
-	border: none;
+    align-self: center; /* Center vertically in the replybox */
+    color: #F00;
+    height: auto;
+    width: .25in;
+    text-align: center;
+    padding: 0;
+    border: none;
+    background: none; /* Ensure no background for the button */
 }
 
 #replybox.hideReplyBox {
-	height: 0;
+    height: 0;
 }
 #replybox.hideReplyBox span, #replybox.hideReplyBox button {
-	display: none;
+    display: none;
 }
+
 
 #discovery-guild-content {
 	display: grid;
