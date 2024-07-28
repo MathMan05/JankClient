@@ -8,33 +8,45 @@
 <div id="logindiv">
 <h1>Create an account</h1><br>
 <form id="register" submit="registertry(e)">
-    <label for="instance"><b>Instance:</b></label><br>
-    <p id="verify"></p>
-    <input type="text" placeholder="Instance URL" name="instance" value="https://spacebar.chat/" id="instancein" required><br><br>
+    <div>
+        <label for="instance"><b>Instance:</b></label><br>
+        <p id="verify"></p>
+        <input type="text" placeholder="Instance URL" name="instance" value="https://spacebar.chat/" id="instancein" required>
+    </div>
+    <div>
+        <label for="uname"><b>Email:</b></label><br>
+        <input type="text" placeholder="Enter Email" name="email" required>
+    </div>
 
-    <label for="uname"><b>Email:</b></label><br>
-    <input type="text" placeholder="Enter Email" name="email" required><br><br>
+    <div>
+        <label for="uname"><b>Username:</b></label><br>
+        <input type="text" placeholder="Enter Username" name="uname" required>
+    </div>
+    <div>
+        <label for="psw"><b>Password:</b></label><br>
+        <input type="password" placeholder="Enter Password" name="psw" required>
+    </div>
 
-    <label for="uname"><b>Username:</b></label><br>
-    <input type="text" placeholder="Enter Username" name="uname" required><br><br>
+    <div>
+        <label for="psw2"><b>Enter password again:</b></label><br>
+        <input type="password" placeholder="Enter Password Again" name="psw2" required>
+    </div>
 
-    <label for="psw"><b>Password:</b></label><br>
-    <input type="password" placeholder="Enter Password" name="psw" required><br><br>
+    <div>
+        <label for="date"><b>Date of birth:</b></label><br>
+        <input type="date" id="start" name="date"/>
+    </div>
 
-    <label for="psw2"><b>Enter password again:</b></label><br>
-    <input type="password" placeholder="Enter Password Again" name="psw2" required><br><br>
+    <div>
+        <b id="TOSbox">I agree to the <a href="" id="TOSa">Terms of Service</a>:</b>
+        <input type="checkbox" id="TOS" name="TOS"/>
+    </div>
 
-    <label for="date"><b>Date of birth:</b></label><br>
-    <input type="date" id="start" name="date"/><br><br>
-
-
-    <b id="TOSbox">I agree to the <a href="" id="TOSa">Terms of Service</a>:</b>
-    <input type="checkbox" id="TOS" name="TOS"/><br>
-    <p class="wrongred" id="wrong"></p><br>
+    <p class="wrongred" id="wrong"></p>
     <div id="h-captcha">
 
     </div>
-    <button type="submit">Create account</button>
+    <button type="submit" class="dontgrow">Create account</button>
 </form>
 <a href="/login.html">Already have an account?</a>
 </div>

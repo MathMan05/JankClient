@@ -3,6 +3,7 @@
 	/* Default value */
 	--red: red;
 	--green: green;
+	--yellow:yellow;
 }
 .Dark-theme { /* thanks to TomatoCake for the updated CSS vars and such*/
 	color-scheme: dark;

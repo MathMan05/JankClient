@@ -175,13 +175,19 @@ async function login(username, password, captcha) {
             console.log(response);
             if (response.captcha_sitekey) {
                 const capt = document.getElementById("h-captcha");
-                const capty = document.createElement("div");
-                capty.classList.add("h-captcha");
-                capty.setAttribute("data-sitekey", response.captcha_sitekey);
-                const script = document.createElement("script");
-                script.src = "https://js.hcaptcha.com/1/api.js";
-                capt.append(script);
-                capt.append(capty);
+                if (!capt.children.length) {
+                    const capty = document.createElement("div");
+                    capty.classList.add("h-captcha");
+                    capty.setAttribute("data-sitekey", response.captcha_sitekey);
+                    const script = document.createElement("script");
+                    script.src = "https://js.hcaptcha.com/1/api.js";
+                    capt.append(script);
+                    capt.append(capty);
+                }
+                else {
+                    eval("hcaptcha.reset()");
+                }
+                return;
             }
             else {
                 adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: username, token: response.token });
