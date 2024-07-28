@@ -851,6 +851,10 @@ select{
 	border-style: solid;
 	border-color: var(--login-border);
 	text-align: center;
+	height: 90%;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
 }
 
 #logindiv input {
@@ -1457,4 +1461,53 @@ span {
 }
 .scroller{
 	padding-bottom: .2in;
+}
+.suberror{
+	animation: goout 6s forwards;
+}
+.suberrora{
+	background:var(--channel-hover);
+	border-radius:.1in;
+	position:absolute;
+	border:solid var(--primary-text) .02in;
+	color:color-mix(in hsl,var(--yellow),var(--red));
+	font-weight:bold;
+	opacity:0;
+	cursor:default;
+	/* height: .4in; */
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: space-evenly;
+	padding: .075in;
+}
+@keyframes goout {
+	0%{
+		opacity:0;
+	}
+	5%{
+		opacity:1;
+	}
+	90%{
+		opacity:1;
+	}
+	100%{
+		opacity:0;
+	}
+}
+
+#register{
+	display:flex;
+	flex-direction: column;
+	align-items: center;
+	flex-grow: 1;
+	justify-content: space-between;
+}
+.dontgrow{
+	flex-grow:0;
+	width: 1.6in;
+	text-align: center;
+}
+form div{
+	width:100%;
 }
