@@ -51,16 +51,16 @@ async function registertry(e) {
                     error(elements[6], e.errors.consent._errors[0].message);
                 }
                 else if (e.errors.password) {
-                    error(elements[3], e.errors.password._errors[0].message);
+                    error(elements[3], "Password: " + e.errors.password._errors[0].message);
                 }
                 else if (e.errors.username) {
-                    error(elements[2], e.errors.username._errors[0].message);
+                    error(elements[2], "Username: " + e.errors.username._errors[0].message);
                 }
                 else if (e.errors.email) {
-                    error(elements[1], e.errors.email._errors[0].message);
+                    error(elements[1], "Email: " + e.errors.email._errors[0].message);
                 }
                 else if (e.errors.date_of_birth) {
-                    error(elements[5], e.errors.date_of_birth._errors[0].message);
+                    error(elements[5], "Date of Birth: " + e.errors.date_of_birth._errors[0].message);
                 }
                 else {
                     document.getElementById("wrong").textContent = e.errors[Object.keys(e.errors)[0]]._errors[0].message;
