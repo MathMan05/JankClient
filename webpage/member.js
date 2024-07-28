@@ -102,10 +102,7 @@ class Member {
 		}
 	}
 	hasRole(ID) {
-		for (const role of this.roles) {
-			if (role.id == ID) return true
-		}
-		return false
+		return this.roles.some(role => role.id == ID)
 	}
 	getColor() {
 		if (!this.roles) return ""

@@ -142,9 +142,7 @@ class User {
 		if (guild && guild.id != "@me") {
 			Member.resolve(this, guild).then(member => {
 				member.contextMenuBind(html)
-			}).catch(e => {
-				console.log(e)
-			})
+			}).catch(() => {})
 		}
 
 		this.profileclick(html)

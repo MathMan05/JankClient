@@ -557,9 +557,8 @@ class MarkDown {
 		})
 
 		box.addEventListener("paste", event => {
-			const data = event.clipboardData.getData("text")
-			document.execCommand("insertHTML", false, data)
 			event.preventDefault()
+			document.execCommand("insertText", false, event.clipboardData.getData("text"))
 			box.dispatchEvent(new KeyboardEvent("keyup"))
 		})
 	}
