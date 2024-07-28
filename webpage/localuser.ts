@@ -91,8 +91,8 @@ class Localuser{
         this.typing=[];
     }
     outoffocus():void{
-        document.getElementById("servers").textContent="";
-        document.getElementById("channels").textContent="";
+        document.getElementById("servers").innerHTML="";
+        document.getElementById("channels").innerHTML="";
         if(this.channelfocus){
             this.channelfocus.infinite.delete();
         }
@@ -100,16 +100,18 @@ class Localuser{
         this.channelfocus=null;
     }
     unload():void{
+        console.log("please say this ran");
         this.initialized=false;
         clearInterval(this.wsinterval);
         this.outoffocus();
         this.guilds=[];
         this.guildids=new Map();
-        this.ws.close(4000)
+        this.ws.close(4001)
     }
     async initwebsocket():Promise<void>{
         let returny=null
         const promise=new Promise((res)=>{returny=res});
+        console.warn("info");
         this.ws = new WebSocket(this.serverurls.gateway.toString());
         this.ws.addEventListener('open', (event) => {
         console.log('WebSocket connected');
@@ -227,7 +229,6 @@ class Localuser{
             this.unload();
             document.getElementById("loading").classList.remove("doneloading");
             document.getElementById("loading").classList.add("loading");
-
             if (((event.code>1000 && event.code<1016) || wsCodesRetry.has(event.code))) {
                 if (this.connectionSucceed!==0 && Date.now()>this.connectionSucceed+20000) this.errorBackoff=0;
                 else this.errorBackoff++;
@@ -643,9 +644,9 @@ class Localuser{
             ["vdiv",
                 ["html",hypotheticalProfile]
             ]
-        ],_=>{},function(){
+        ],_=>{},function(this:Localuser){
             console.log(this);
-            hypouser=new User(this.user,this);
+            hypouser=this.user.clone();
             regen();
             file=null;
             newprouns=null;

@@ -1,7 +1,7 @@
-class SnowFlake<x>{
+class SnowFlake<x extends WeakKey>{
     public readonly id:string;
     private static readonly SnowFlakes:Map<any,Map<string,WeakRef<SnowFlake<any>>>>=new Map();
-    private static readonly FinalizationRegistry=new FinalizationRegistry((a:[string,any])=>{
+    private static readonly FinalizationRegistry=new FinalizationRegistry((a:[string,WeakKey])=>{
         SnowFlake.SnowFlakes.get(a[1]).delete(a[0]);
     });
     private obj:x;
@@ -15,8 +15,12 @@ class SnowFlake<x>{
         }
         if(SnowFlake.SnowFlakes.get(obj.constructor).get(id)){
             const snowflake=SnowFlake.SnowFlakes.get(obj.constructor).get(id).deref();
-            snowflake.obj=obj;
-            return snowflake;
+            if(snowflake){
+                snowflake.obj=obj;
+                return snowflake;
+            }else{
+                SnowFlake.SnowFlakes.get(obj.constructor).delete(id);
+            }
         }
         this.id=id;
         SnowFlake.SnowFlakes.get(obj.constructor).set(id,new WeakRef(this));
@@ -33,7 +37,12 @@ class SnowFlake<x>{
         }
         const snowflake=SnowFlake.SnowFlakes.get(type).get(id);
         if(snowflake){
-            return snowflake.deref();
+            const obj=snowflake.deref();
+            if(obj){
+                return obj;
+            }else{
+                SnowFlake.SnowFlakes.get(type).delete(id);
+            }
         }
         {
             const snowflake=new SnowFlake(id,undefined);

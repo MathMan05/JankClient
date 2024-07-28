@@ -74,6 +74,22 @@ th {
 .messagediv:hover {
 	background-color: var(--message-bg-hover);
 }
+
+.jumped{
+	animation-duration: .5s;
+	animation-name: jumped;
+}
+@keyframes jumped{
+	0% {
+		background-color: transparent;
+	}
+	50% {
+		background-color: var(--message-jump);
+	}
+	100% {
+		background-color: transparent;
+	}
+}
 .messagediv{
 	overflow: hidden;
 	max-width:100%;
@@ -546,7 +562,7 @@ hr {
 .replypfp {
 	border-radius: 50%;
 	width: .2in;
-	height: 2.in;
+	height: .2in;
 	padding: .05in;
 	user-select: none;
 	cursor: pointer;
@@ -567,6 +583,7 @@ hr {
 	/* display: inline-block !important; */
 	width: 25vw;
 	grid-column: 2;
+	cursor: pointer;
 }
 .replytext pre {
 	/* padding: 0 .05in; */
@@ -1395,7 +1412,7 @@ span {
 .messagediv .flexttb{
 	display:flex;
 	overflow: hidden;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	width: 100%;
 	flex-direction: column;
 	max-height:100in;
@@ -1439,5 +1456,5 @@ span {
 	color:color-mix(in hsl, var(--primary-bg),var(--primary-text));
 }
 .scroller{
-	padding-bottom:.2in;
+	padding-bottom: .2in;
 }

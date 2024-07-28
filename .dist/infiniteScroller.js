@@ -15,7 +15,7 @@ class InfiniteScroller {
         this.reachesBottom = reachesBottom;
     }
     interval;
-    getDiv(initialId, bottom = true) {
+    async getDiv(initialId, bottom = true) {
         const div = document.createElement("div");
         div.classList.add("messagecontainer");
         //div.classList.add("flexttb")
@@ -28,10 +28,10 @@ class InfiniteScroller {
         this.scroll.addEventListener("scroll", this.watchForChange.bind(this));
         new ResizeObserver(this.watchForChange.bind(this)).observe(div);
         new ResizeObserver(this.watchForChange.bind(this)).observe(scroll);
-        this.firstElement(initialId);
+        await this.firstElement(initialId);
         this.updatestuff();
-        this.watchForChange().then(_ => {
-            this.scroll.scrollTop = this.scroll.scrollHeight;
+        await this.watchForChange().then(_ => {
+            this.updatestuff();
         });
         return div;
     }
@@ -45,8 +45,8 @@ class InfiniteScroller {
         }
         //this.watchForChange();
     }
-    firstElement(id) {
-        const html = this.getHTMLFromID(id);
+    async firstElement(id) {
+        const html = await this.getHTMLFromID(id);
         this.scroll.append(html);
         this.HTMLElements.push([html, id]);
     }
@@ -87,7 +87,7 @@ class InfiniteScroller {
             }
             else {
                 again = true;
-                const html = this.getHTMLFromID(nextid);
+                const html = await this.getHTMLFromID(nextid);
                 this.scroll.prepend(html);
                 this.HTMLElements.unshift([html, nextid]);
                 this.scrollTop += 60;
@@ -108,7 +108,7 @@ class InfiniteScroller {
             }
             else {
                 again = true;
-                const html = this.getHTMLFromID(nextid);
+                const html = await this.getHTMLFromID(nextid);
                 this.scroll.append(html);
                 this.HTMLElements.push([html, nextid]);
                 this.scrollBottom += 60;
@@ -129,6 +129,34 @@ class InfiniteScroller {
             await this.watchForChange();
         }
         this.currrunning = false;
+    }
+    async focus(id, flash = true) {
+        let element;
+        for (const thing of this.HTMLElements) {
+            if (thing[1] === id) {
+                element = thing[0];
+            }
+        }
+        console.log(element, id, ":3");
+        if (element) {
+            element.scrollIntoView();
+            if (flash) {
+                element.classList.remove("jumped");
+                await new Promise(resolve => setTimeout(resolve, 100));
+                element.classList.add("jumped");
+            }
+        }
+        else {
+            for (const thing of this.HTMLElements) {
+                await this.destroyFromID(thing[1]);
+            }
+            this.HTMLElements = [];
+            await this.firstElement(id);
+            this.updatestuff();
+            await this.watchForChange();
+            await new Promise(resolve => setTimeout(resolve, 100));
+            await this.focus(id, true);
+        }
     }
     async delete() {
         for (const thing of this.HTMLElements) {

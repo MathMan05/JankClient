@@ -15,8 +15,13 @@ class SnowFlake {
         }
         if (SnowFlake.SnowFlakes.get(obj.constructor).get(id)) {
             const snowflake = SnowFlake.SnowFlakes.get(obj.constructor).get(id).deref();
-            snowflake.obj = obj;
-            return snowflake;
+            if (snowflake) {
+                snowflake.obj = obj;
+                return snowflake;
+            }
+            else {
+                SnowFlake.SnowFlakes.get(obj.constructor).delete(id);
+            }
         }
         this.id = id;
         SnowFlake.SnowFlakes.get(obj.constructor).set(id, new WeakRef(this));
@@ -33,7 +38,13 @@ class SnowFlake {
         }
         const snowflake = SnowFlake.SnowFlakes.get(type).get(id);
         if (snowflake) {
-            return snowflake.deref();
+            const obj = snowflake.deref();
+            if (obj) {
+                return obj;
+            }
+            else {
+                SnowFlake.SnowFlakes.get(type).delete(id);
+            }
         }
         {
             const snowflake = new SnowFlake(id, undefined);
