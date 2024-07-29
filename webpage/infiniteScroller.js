@@ -26,8 +26,8 @@ class InfiniteScroller {
 
 		await this.firstElement(initialId)
 		this.updatestuff()
-        await this.watchForChange().then(() => {
-            this.updatestuff()
+		await this.watchForChange().then(() => {
+			this.updatestuff()
 		})
 		return div
 	}
@@ -108,32 +108,35 @@ class InfiniteScroller {
 		if (again) await this.watchForChange()
 		this.currrunning = false
 	}
-    async focus(id, flash = true) {
-        let element
-        for (const thing of this.HTMLElements) {
-            if (thing[1] == id) element = thing[0]
-        }
+	async focus(id, flash = true) {
+		let element
+		for (const thing of this.HTMLElements) {
+			if (thing[1] == id) element = thing[0]
+		}
 
-        if (element) {
-            element.scrollIntoView();
-            if (flash) {
-                element.classList.remove("jumped")
-                await new Promise(resolve => setTimeout(resolve, 100))
-                element.classList.add("jumped")
-            }
-        }
-        else {
-            for (const thing of this.HTMLElements) {
-                await this.destroyFromID(thing[1])
-            }
-            this.HTMLElements = []
-            await this.firstElement(id)
-            this.updatestuff()
-            await this.watchForChange()
-            await new Promise(resolve => setTimeout(resolve, 100))
-            await this.focus(id, true)
-        }
-    }
+		if (element) {
+			element.scrollIntoView()
+			if (flash) {
+				element.classList.remove("jumped")
+				await new Promise(resolve => {
+					setTimeout(resolve, 100)
+				})
+				element.classList.add("jumped")
+			}
+		} else {
+			for (const thing of this.HTMLElements) {
+				await this.destroyFromID(thing[1])
+			}
+			this.HTMLElements = []
+			await this.firstElement(id)
+			this.updatestuff()
+			await this.watchForChange()
+			await new Promise(resolve => {
+				setTimeout(resolve, 100)
+			})
+			await this.focus(id, true)
+		}
+	}
 	async delete() {
 		for (const thing of this.HTMLElements) {
 			await this.destroyFromID(thing[1])

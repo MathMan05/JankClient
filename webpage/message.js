@@ -255,9 +255,9 @@ class Message {
 				author.contextMenuBind(username, this.guild)
 			})
 
-            reply.onclick = () => {
-                this.channel.infinite.focus(this.message_reference.message_id)
-            }
+			reply.onclick = () => {
+				this.channel.infinite.focus(this.message_reference.message_id)
+			}
 			div.appendChild(replyline)
 		}
 

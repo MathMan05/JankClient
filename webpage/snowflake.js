@@ -18,11 +18,11 @@ class SnowFlake {
 			const snowflake = SnowFlake.SnowFlakes.get(obj.constructor).get(id).deref()
 			snowflake.obj = obj
 
-            if (snowflake) {
-                snowflake.obj = obj
+			if (snowflake) {
+				snowflake.obj = obj
 				// eslint-disable-next-line no-constructor-return
-                return snowflake
-            }
+				return snowflake
+			}
 			SnowFlake.SnowFlakes.get(obj.constructor).delete(id)
 		}
 		this.id = id
@@ -36,8 +36,8 @@ class SnowFlake {
 		}
 		const snowflake = SnowFlake.SnowFlakes.get(type).get(id)
 		if (snowflake) {
-            const obj = snowflake.deref()
-            if (obj) return obj
+			const obj = snowflake.deref()
+			if (obj) return obj
 
 			SnowFlake.SnowFlakes.get(type).delete(id)
 		}

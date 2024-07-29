@@ -1,3 +1,21 @@
+"use strict"
+
+const error = (e, message = "") => {
+	let element = e.parentElement.getElementsByClassName("suberror")[0]
+	if (element) {
+		element.classList.remove("suberror")
+		setTimeout(() => {
+			element.classList.add("suberror")
+		}, 100)
+	} else {
+		const div = document.createElement("div")
+		div.classList.add("suberror", "suberrora")
+		e.parentElement.append(div)
+		element = div
+	}
+	element.textContent = message
+}
+
 const registertry = async event => {
 	event.preventDefault()
 
@@ -64,35 +82,13 @@ const registertry = async event => {
 		location.href = "/channels/@me"
 	} else {
 		console.log(json)
-		if (json.errors.consent) {
-			error(elements[6], json.errors.consent._errors[0].message)
-		} else if (json.errors.password) {
-			error(elements[3], "Password: " + json.errors.password._errors[0].message)
-		} else if (json.errors.username) {
-			error(elements[2], "Username: " + json.errors.username._errors[0].message)
-		} else if (json.errors.email) {
-			error(elements[1], "Email: " + json.errors.email._errors[0].message)
-		} else if (json.errors.date_of_birth) {
-			error(elements[5], "Date of Birth: " + json.errors.date_of_birth._errors[0].message)
-		} else {
-			document.getElementById("wrong").textContent = json.errors ? json.errors[Object.keys(json.errors)[0]]._errors[0].message : json.message
-		}
+		if (json.errors.consent) error(document.getElementById("tos-check"), json.errors.consent._errors[0].message)
+		else if (json.errors.password) error(document.getElementById("pass1"), "Password: " + json.errors.password._errors[0].message)
+		else if (json.errors.username) error(document.getElementById("uname"), "Username: " + json.errors.username._errors[0].message)
+		else if (json.errors.email) error(document.getElementById("email"), "Email: " + json.errors.email._errors[0].message)
+		else if (json.errors.date_of_birth) error(document.getElementById("birthdate"), "Date of Birth: " + json.errors.date_of_birth._errors[0].message)
+		else document.getElementById("wrong").textContent = json.errors ? json.errors[Object.keys(json.errors)[0]]._errors[0].message : json.message
 	}
-}
-
-function error(e, message) {
-    const p = e.parentElement;
-    let element = p.getElementsByClassName("suberror")[0];
-    if (!element) {
-        const div = document.createElement("div");
-        div.classList.add("suberror", "suberrora");
-        p.append(div);
-        element = div;
-    } else {
-        element.classList.remove("suberror");
-        setTimeout(_ => { element.classList.add("suberror"); }, 100);
-    }
-    element.textContent = message;
 }
 
 document.addEventListener("DOMContentLoaded", () => {

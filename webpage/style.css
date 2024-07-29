@@ -136,7 +136,7 @@
 	--embed: #f2f3f5;
 	--link: #3333ee;
 	--embed-fallback: #6b717c;
-	--message-jump: #52558a;
+	--message-jump: #ccceff;
 
 	--button-bg: #b7b7c7;
 	--button-hover: #FFF;
@@ -1608,11 +1608,11 @@ textarea:focus-visible,
 	outline: 2px solid var(--focus);
 }
 
-.jumped{
-	animation-duration: .5s;
+.jumped {
+	animation-duration: 1.3s;
 	animation-name: jumped;
 }
-@keyframes jumped{
+@keyframes jumped {
 	0% {
 		background-color: transparent;
 	}
@@ -1625,19 +1625,18 @@ textarea:focus-visible,
 }
 
 
-.suberror{
+.suberror {
 	animation: goout 6s forwards;
 }
-.suberrora{
-	background:var(--channel-hover);
-	border-radius:.1in;
-	position:absolute;
-	border:solid var(--primary-text) .02in;
-	color:color-mix(in hsl,var(--yellow),var(--red));
-	font-weight:bold;
-	opacity:0;
-	cursor:default;
-	/* height: .4in; */
+.suberrora {
+	background-color: var(--channel-hover);
+	border-radius: .1in;
+	position: absolute;
+	border: solid var(--primary-text) .02in;
+	color: color-mix(in hsl,var(--yellow),var(--red));
+	font-weight: bold;
+	opacity: 0;
+	cursor: auto;
 	display: flex;
 	flex-direction: column;
 	align-items: flex-start;
@@ -1645,32 +1644,31 @@ textarea:focus-visible,
 	padding: .075in;
 }
 @keyframes goout {
-	0%{
-		opacity:0;
+	0% {
+		opacity: 0;
 	}
-	5%{
-		opacity:1;
+	5%, 90% {
+		opacity: 1;
 	}
-	90%{
-		opacity:1;
-	}
-	100%{
-		opacity:0;
+	100% {
+		opacity: 0;
 	}
 }
 
-#register{
-	display:flex;
+#register {
+	display: flex;
 	flex-direction: column;
 	align-items: center;
 	flex-grow: 1;
 	justify-content: space-between;
 }
-.dontgrow{
+
+.dontgrow {
 	flex-grow:0;
 	width: 1.6in;
 	text-align: center;
 }
-form div{
+
+form div {
 	width: 100%;
 }

@@ -33,9 +33,9 @@ class Channel {
 		settings.show()
 	}
 	sortPerms() {
-		this.permission_overwritesar.sort((a, b) => {
-			return this.guild.roles.findIndex(role => role.snowflake == a[0]) - this.guild.roles.findIndex(role => role.snowflake == b[0])
-		})
+		this.permission_overwritesar.sort((a, b) =>
+			this.guild.roles.findIndex(role => role.snowflake == a[0]) - this.guild.roles.findIndex(role => role.snowflake == b[0])
+		)
 	}
 
 	setUpInfiniteScroller() {
@@ -49,25 +49,22 @@ class Channel {
 					return this.idToPrev.get(snowflake)?.id
 				}
 			} else {
-                if (this.idToNext.has(snowflake)) {
-                    return this.idToNext.get(snowflake)?.id;
-                } else if (this.lastmessage.id !== id) {
-                    await this.grabAfter(id);
-                    return this.idToNext.get(snowflake)?.id;
-                } else {
-                    console.log("at bottom");
-                }
+				if (this.idToNext.has(snowflake)) return this.idToNext.get(snowflake)?.id
+				if (this.lastmessage.id != id) {
+					await this.grabAfter(id)
+					return this.idToNext.get(snowflake)?.id
+				}
 			}
-		}), (id => {
+		}), (async id => {
 			let res
 			const promise = new Promise(_ => {
 				res = _
 			})
 			const snowflake = SnowFlake.getSnowFlakeFromID(id, Message)
-            if (!snowflake.getObject()) {
-                await this.grabAround(id);
-            }
-            const html = snowflake.getObject().buildhtml(this.messageids.get(this.idToPrev.get(snowflake)), promise)
+			if (!snowflake.getObject()) {
+				await this.grabAround(id)
+			}
+			const html = snowflake.getObject().buildhtml(this.messageids.get(this.idToPrev.get(snowflake)), promise)
 			ids.set(id, res)
 			return html
 		}), (id => {
@@ -561,82 +558,63 @@ class Channel {
 			}
 		}
 	}
-    async grabAfter(id) {
-        if (id === this.lastmessage.id) {
-            return;
-        }
-        await fetch(this.info.api.toString() + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
-            headers: this.headers
-        }).then((j) => { return j.json(); }).then(response => {
-            let next;
-            let previd = undefined;
-            for (const i in response) {
-                let messager;
-                if (!next) {
-                    messager = new Message(response[i], this);
-                }
-                else {
-                    messager = next;
-                }
-                if (response[+i + 1] !== undefined) {
-                    next = new Message(response[+i + 1], this);
-                }
-                else {
-                    next = undefined;
-                    console.log("ohno", +i + 1);
-                }
-                if (this.messageids.get(messager.snowflake) === undefined) {
-                    this.idToNext.set(messager.snowflake, previd);
-                    this.idToPrev.set(previd, messager.snowflake);
-                    previd = messager.snowflake;
-                    this.messageids.set(messager.snowflake, messager);
-                }
-                else {
-                    console.log("How???");
-                }
-            }
-            //out.buildmessages();
-        });
-        return;
-    }
-    async grabAround(id) {
-        await fetch(this.info.api.toString() + "/channels/" + this.snowflake + "/messages?around=" + id + "&limit=100", {
-            headers: this.headers
-        }).then((j) => { return j.json(); }).then(response => {
-            let next;
-            if (response.length === 0) {
-                this.allthewayup = true;
-            }
-            let previd = SnowFlake.getSnowFlakeFromID(id, Message);
-            for (const i in response) {
-                let messager;
-                if (!next) {
-                    messager = new Message(response[i], this);
-                }
-                else {
-                    messager = next;
-                }
-                if (response[+i + 1] !== undefined) {
-                    next = new Message(response[+i + 1], this);
-                }
-                else {
-                    next = undefined;
-                    console.log("ohno", +i + 1);
-                }
-                if (this.messageids.get(messager.snowflake) === undefined) {
-                    this.idToNext.set(messager.snowflake, previd);
-                    this.idToPrev.set(previd, messager.snowflake);
-                    previd = messager.snowflake;
-                    this.messageids.set(messager.snowflake, messager);
-                }
-                else {
-                    console.log("How???");
-                }
-            }
-            //out.buildmessages();
-        });
-        return;
-    }
+	async grabAfter(id) {
+		if (id === this.lastmessage.id) return
+
+		await fetch(this.info.api.toString() + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
+			headers: this.headers
+		}).then(j => j.json()).then(response => {
+			let next
+			let previd
+			for (const i in response) {
+				let messager
+				if (next) messager = next
+				else messager = new Message(response[i], this)
+
+				if (response[Number(i) + 1] === void 0) {
+					next = void 0
+					console.log("ohno", Number(i) + 1)
+				} else next = new Message(response[Number(i) + 1], this)
+
+				if (this.messageids.get(messager.snowflake) === void 0) {
+					this.idToNext.set(messager.snowflake, previd)
+					this.idToPrev.set(previd, messager.snowflake)
+					previd = messager.snowflake
+					this.messageids.set(messager.snowflake, messager)
+				} else console.log("How???")
+			}
+		})
+	}
+	async grabAround(id) {
+		await fetch(this.info.api.toString() + "/channels/" + this.snowflake + "/messages?around=" + id + "&limit=100", {
+			headers: this.headers
+		}).then(j => j.json()).then(response => {
+			let next
+			if (response.length == 0) this.allthewayup = true
+
+			let previd = SnowFlake.getSnowFlakeFromID(id, Message)
+			for (const i in response) {
+				let messager
+				if (next) messager = next
+				else messager = new Message(response[i], this)
+
+				if (response[Number(i) + 1] === void 0) {
+					next = void 0
+					console.log("ohno", Number(i) + 1)
+				} else next = new Message(response[Number(i) + 1], this)
+
+				if (this.messageids.get(messager.snowflake) === void 0) {
+					this.idToNext.set(messager.snowflake, previd)
+					this.idToPrev.set(previd, messager.snowflake)
+					previd = messager.snowflake
+					this.messageids.set(messager.snowflake, messager)
+				} else {
+					console.log("How???")
+				}
+			}
+			//out.buildmessages();
+		})
+	}
 	buildmessage(message, next) {
 		const built = message.buildhtml(next)
 		document.getElementById("messages").prepend(built)
@@ -645,7 +623,7 @@ class Channel {
 		const messages = document.getElementById("channelw")
 		messages.innerHTML = ""
 		let id
-        if (this.lastreadmessageid && this.lastreadmessageid.getObject()) id = this.lastreadmessageid
+		if (this.lastreadmessageid && this.lastreadmessageid.getObject()) id = this.lastreadmessageid
 		else if (this.lastmessage) {
 			id = this.goBackIds(this.lastmessage.snowflake, 50)
 			console.log("shouldn't")
@@ -656,7 +634,9 @@ class Channel {
 		messages.append(await this.infinite.getDiv(id.id))
 		this.infinite.updatestuff()
 		this.infinite.watchForChange().then(async () => {
-			await new Promise(resolve => setTimeout(resolve, 100))
+			await new Promise(resolve => {
+				setTimeout(resolve, 100)
+			})
 			this.infinite.focus(id.id, false) //if someone could figure out how to make this work correctly without this, that's be great :P
 		})
 	}
