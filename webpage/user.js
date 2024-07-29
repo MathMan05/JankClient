@@ -56,6 +56,24 @@ class User {
 	async resolvemember(guild) {
 		return await Member.resolve(this, guild)
 	}
+	clone() {
+		return new User({
+			username: this.username,
+			id: this.id + "#clone",
+			public_flags: this.public_flags,
+			discriminator: this.discriminator,
+			avatar: this.avatar,
+			accent_color: this.accent_color,
+			banner: this.banner,
+			bio: this.bio.rawString,
+			premium_since: this.premium_since,
+			premium_type: this.premium_type,
+			bot: this.bot,
+			theme_colors: this.theme_colors,
+			pronouns: this.pronouns,
+			badge_ids: this.badge_ids
+		}, this.owner)
+	}
 	buildpfp() {
 		const pfp = document.createElement("img")
 		pfp.crossOrigin = "anonymous"

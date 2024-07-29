@@ -29,7 +29,7 @@ class Member {
 		this.roles = []
 		if (!error) {
 			if (memberjson.guild_member) member = memberjson.guild_member
-			this.user = memberjson.user
+			//this.user = memberjson.user
 		}
 
 		for (const thing of Object.keys(member)) {
@@ -52,7 +52,7 @@ class Member {
 				this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject()
 				return
 			}
-			this.user = User.checkuser(this.user, owner.localuser)
+			this.user = User.checkuser(member.user, owner.localuser)
 		}
 	}
 	get guild() {

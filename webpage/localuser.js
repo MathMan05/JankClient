@@ -572,7 +572,7 @@ class LocalUser {
 		let newbio = null
 		let newTheme = null
 
-		let hypouser = new User(this.user, this)
+		let hypouser = this.user.clone()
 		const regen = () => {
 			hypothetcialprofie.innerHTML = hypouser.buildprofile(-1, -1).innerHTML
 		}
@@ -623,7 +623,7 @@ class LocalUser {
 					}
 				}]
 			], () => {}, () => {
-				hypouser = User.checkuser(this.user, this)
+				hypouser = this.user.clone()
 				regen()
 				file = null
 				newprouns = null

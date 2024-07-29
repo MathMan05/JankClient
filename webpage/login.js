@@ -122,17 +122,22 @@ const login = async (username, password, captcha) => {
 
 	if (json.captcha_sitekey) {
 		const capt = document.getElementById("h-captcha")
-		const capty = document.createElement("div")
-		capty.classList.add("h-captcha")
-		capty.setAttribute("data-sitekey", json.captcha_sitekey)
+		if (capt.children.length) {
+			if (json.captcha_servicejson.captcha_service == "hcaptcha") hcaptcha.reset()
+			else location.reload()
+		} else {
+			const capty = document.createElement("div")
+			capty.classList.add("h-captcha")
+			capty.setAttribute("data-sitekey", json.captcha_sitekey)
 
-		const script = document.createElement("script")
-		if (json.captcha_service == "recaptcha") script.src = "https://www.google.com/recaptcha/api.js?render=" + json.captcha_sitekey
-		else if (json.captcha_service == "hcaptcha") script.src = "https://js.hcaptcha.com/1/api.js"
-		else console.error("Unknown captcha service " + json.captcha_service + " found in login response!")
+			const script = document.createElement("script")
+			if (json.captcha_service == "recaptcha") script.src = "https://www.google.com/recaptcha/api.js?render=" + json.captcha_sitekey
+			else if (json.captcha_service == "hcaptcha") script.src = "https://js.hcaptcha.com/1/api.js"
+			else console.error("Unknown captcha service " + json.captcha_service + " found in login response!")
 
-		capt.append(script)
-		capt.append(capty)
+			capt.append(script)
+			capt.append(capty)
+		}
 	} else {
 		adduser({serverurls: info, email: username, token: json.token})
 		location.href = "/channels/@me"

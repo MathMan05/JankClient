@@ -43,6 +43,7 @@
 
 	--red: red;
 	--green: green;
+	--yellow: yellow;
 	--focus: #8888ff;
 
 	--message-bg-hover: #1e1e28;
@@ -63,6 +64,7 @@
 	--embed: #1a1823;
 	--link: #8888ff;
 	--embed-fallback: #6b717c;
+	--message-jump: #7678b0;
 
 	--button-bg: #1b1b28;
 	--button-hover: #282832;
@@ -113,6 +115,7 @@
 
 	--red: #dd6c6c;
 	--green: #639d63;
+	--yellow: yellow;
 	--focus: #47bbff;
 
 	--message-bg-hover: #dedee2;
@@ -133,6 +136,7 @@
 	--embed: #f2f3f5;
 	--link: #3333ee;
 	--embed-fallback: #6b717c;
+	--message-jump: #52558a;
 
 	--button-bg: #b7b7c7;
 	--button-hover: #FFF;
@@ -673,7 +677,7 @@ hr {
 .replypfp {
 	border-radius: 50%;
 	width: .2in;
-	height: 2.in;
+	height: .2in;
 	padding: .05in;
 	user-select: none;
 	cursor: pointer;
@@ -683,6 +687,7 @@ hr {
 	padding: 0 .05in;
 	color: var(--reply-text);
 	font-size: 15px;
+	cursor: pointer;
 }
 
 .replytext pre {
@@ -912,6 +917,10 @@ select {
 	border-style: solid;
 	border-color: var(--login-border);
 	text-align: center;
+	height: 90%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 
 #logindiv input {
@@ -1482,7 +1491,6 @@ video {
 .messagediv .flexttb {
 	display: flex;
 	overflow: hidden;
-	flex-wrap: wrap;
 	width: 100%;
 	flex-direction: column;
 	max-height: 100in;
@@ -1598,4 +1606,71 @@ input[type=password]:focus-visible,
 textarea:focus-visible,
 #typebox:focus-visible {
 	outline: 2px solid var(--focus);
+}
+
+.jumped{
+	animation-duration: .5s;
+	animation-name: jumped;
+}
+@keyframes jumped{
+	0% {
+		background-color: transparent;
+	}
+	50% {
+		background-color: var(--message-jump);
+	}
+	100% {
+		background-color: transparent;
+	}
+}
+
+
+.suberror{
+	animation: goout 6s forwards;
+}
+.suberrora{
+	background:var(--channel-hover);
+	border-radius:.1in;
+	position:absolute;
+	border:solid var(--primary-text) .02in;
+	color:color-mix(in hsl,var(--yellow),var(--red));
+	font-weight:bold;
+	opacity:0;
+	cursor:default;
+	/* height: .4in; */
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: space-evenly;
+	padding: .075in;
+}
+@keyframes goout {
+	0%{
+		opacity:0;
+	}
+	5%{
+		opacity:1;
+	}
+	90%{
+		opacity:1;
+	}
+	100%{
+		opacity:0;
+	}
+}
+
+#register{
+	display:flex;
+	flex-direction: column;
+	align-items: center;
+	flex-grow: 1;
+	justify-content: space-between;
+}
+.dontgrow{
+	flex-grow:0;
+	width: 1.6in;
+	text-align: center;
+}
+form div{
+	width: 100%;
 }

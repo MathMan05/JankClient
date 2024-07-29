@@ -11,7 +11,7 @@ class InfiniteScroller {
 		this.destroyFromID = destroyFromID
 		this.reachesBottom = reachesBottom
 	}
-	getDiv(initialId) {
+	async getDiv(initialId) {
 		const div = document.createElement("div")
 		div.classList.add("messagecontainer")
 		const scroll = document.createElement("div")
@@ -23,10 +23,11 @@ class InfiniteScroller {
 		this.scroll.addEventListener("scroll", this.watchForChange.bind(this))
 		new ResizeObserver(this.watchForChange.bind(this)).observe(div)
 		new ResizeObserver(this.watchForChange.bind(this)).observe(scroll)
-		this.firstElement(initialId)
+
+		await this.firstElement(initialId)
 		this.updatestuff()
-		this.watchForChange().then(() => {
-			this.scroll.scrollTop = this.scroll.scrollHeight
+        await this.watchForChange().then(() => {
+            this.updatestuff()
 		})
 		return div
 	}
@@ -35,8 +36,8 @@ class InfiniteScroller {
 		this.scrollTop = this.scroll.scrollTop
 		if (this.scrollBottom) this.reachesBottom()
 	}
-	firstElement(id) {
-		const html = this.getHTMLFromID(id)
+	async firstElement(id) {
+		const html = await this.getHTMLFromID(id)
 		this.scroll.append(html)
 		this.HTMLElements.push([html, id])
 	}
@@ -70,7 +71,7 @@ class InfiniteScroller {
 			const nextid = await this.getIDFromOffset(previd, 1)
 			if (nextid) {
 				again = true
-				const html = this.getHTMLFromID(nextid)
+				const html = await this.getHTMLFromID(nextid)
 				this.scroll.prepend(html)
 				this.HTMLElements.unshift([html, nextid])
 				this.scrollTop += 60
@@ -88,7 +89,7 @@ class InfiniteScroller {
 			const nextid = await this.getIDFromOffset(previd, -1)
 			if (nextid) {
 				again = true
-				const html = this.getHTMLFromID(nextid)
+				const html = await this.getHTMLFromID(nextid)
 				this.scroll.append(html)
 				this.HTMLElements.push([html, nextid])
 				this.scrollBottom += 60
@@ -107,6 +108,32 @@ class InfiniteScroller {
 		if (again) await this.watchForChange()
 		this.currrunning = false
 	}
+    async focus(id, flash = true) {
+        let element
+        for (const thing of this.HTMLElements) {
+            if (thing[1] == id) element = thing[0]
+        }
+
+        if (element) {
+            element.scrollIntoView();
+            if (flash) {
+                element.classList.remove("jumped")
+                await new Promise(resolve => setTimeout(resolve, 100))
+                element.classList.add("jumped")
+            }
+        }
+        else {
+            for (const thing of this.HTMLElements) {
+                await this.destroyFromID(thing[1])
+            }
+            this.HTMLElements = []
+            await this.firstElement(id)
+            this.updatestuff()
+            await this.watchForChange()
+            await new Promise(resolve => setTimeout(resolve, 100))
+            await this.focus(id, true)
+        }
+    }
 	async delete() {
 		for (const thing of this.HTMLElements) {
 			await this.destroyFromID(thing[1])

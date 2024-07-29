@@ -17,8 +17,13 @@ class SnowFlake {
 		if (SnowFlake.SnowFlakes.get(obj.constructor).get(id)) {
 			const snowflake = SnowFlake.SnowFlakes.get(obj.constructor).get(id).deref()
 			snowflake.obj = obj
-			// eslint-disable-next-line no-constructor-return
-			return snowflake
+
+            if (snowflake) {
+                snowflake.obj = obj
+				// eslint-disable-next-line no-constructor-return
+                return snowflake
+            }
+			SnowFlake.SnowFlakes.get(obj.constructor).delete(id)
 		}
 		this.id = id
 		SnowFlake.SnowFlakes.get(obj.constructor).set(id, new WeakRef(this))
@@ -30,7 +35,12 @@ class SnowFlake {
 			SnowFlake.SnowFlakes.set(type, new Map())
 		}
 		const snowflake = SnowFlake.SnowFlakes.get(type).get(id)
-		if (snowflake) return snowflake.deref()
+		if (snowflake) {
+            const obj = snowflake.deref()
+            if (obj) return obj
+
+			SnowFlake.SnowFlakes.get(type).delete(id)
+		}
 
 		const newSnowflake = new SnowFlake(id, void 0)
 		SnowFlake.SnowFlakes.get(type).set(id, new WeakRef(newSnowflake))

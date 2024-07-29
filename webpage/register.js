@@ -27,17 +27,22 @@ const registertry = async event => {
 	const json = await res.json()
 	if (json.captcha_sitekey) {
 		const capt = document.getElementById("h-captcha")
-		const capty = document.createElement("div")
-		capty.classList.add("h-captcha")
-		capty.setAttribute("data-sitekey", json.captcha_sitekey)
+		if (capt.children.length) {
+			if (json.captcha_servicejson.captcha_service == "hcaptcha") hcaptcha.reset()
+			else location.reload()
+		} else {
+			const capty = document.createElement("div")
+			capty.classList.add("h-captcha")
+			capty.setAttribute("data-sitekey", json.captcha_sitekey)
 
-		const script = document.createElement("script")
-		if (json.captcha_service == "recaptcha") script.src = "https://www.google.com/recaptcha/api.js?render=" + json.captcha_sitekey
-		else if (json.captcha_service == "hcaptcha") script.src = "https://js.hcaptcha.com/1/api.js"
-		else console.error("Unknown captcha service " + json.captcha_service + " found in login response!")
+			const script = document.createElement("script")
+			if (json.captcha_service == "recaptcha") script.src = "https://www.google.com/recaptcha/api.js?render=" + json.captcha_sitekey
+			else if (json.captcha_service == "hcaptcha") script.src = "https://js.hcaptcha.com/1/api.js"
+			else console.error("Unknown captcha service " + json.captcha_service + " found in login response!")
 
-		capt.append(script)
-		capt.append(capty)
+			capt.append(script)
+			capt.append(capty)
+		}
 	} else if (json.token) {
 		localStorage.setItem("userinfos", JSON.stringify({
 			currentuser: email + apiUrl,
@@ -59,8 +64,35 @@ const registertry = async event => {
 		location.href = "/channels/@me"
 	} else {
 		console.log(json)
-		document.getElementById("wrong").textContent = json.errors ? json.errors[Object.keys(json.errors)[0]]._errors[0].message : json.message
+		if (json.errors.consent) {
+			error(elements[6], json.errors.consent._errors[0].message)
+		} else if (json.errors.password) {
+			error(elements[3], "Password: " + json.errors.password._errors[0].message)
+		} else if (json.errors.username) {
+			error(elements[2], "Username: " + json.errors.username._errors[0].message)
+		} else if (json.errors.email) {
+			error(elements[1], "Email: " + json.errors.email._errors[0].message)
+		} else if (json.errors.date_of_birth) {
+			error(elements[5], "Date of Birth: " + json.errors.date_of_birth._errors[0].message)
+		} else {
+			document.getElementById("wrong").textContent = json.errors ? json.errors[Object.keys(json.errors)[0]]._errors[0].message : json.message
+		}
 	}
+}
+
+function error(e, message) {
+    const p = e.parentElement;
+    let element = p.getElementsByClassName("suberror")[0];
+    if (!element) {
+        const div = document.createElement("div");
+        div.classList.add("suberror", "suberrora");
+        p.append(div);
+        element = div;
+    } else {
+        element.classList.remove("suberror");
+        setTimeout(_ => { element.classList.add("suberror"); }, 100);
+    }
+    element.textContent = message;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
