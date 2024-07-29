@@ -76,18 +76,15 @@ th {
 }
 
 .jumped{
-	animation-duration: .5s;
+	animation-duration: 1.3s;
 	animation-name: jumped;
 }
 @keyframes jumped{
-	0% {
+	0%,100% {
 		background-color: transparent;
 	}
 	50% {
 		background-color: var(--message-jump);
-	}
-	100% {
-		background-color: transparent;
 	}
 }
 .messagediv{
@@ -1483,17 +1480,11 @@ span {
 	box-sizing: border-box;
 }
 @keyframes goout {
-	0%{
+	0%,100%{
 		opacity:0;
 	}
-	5%{
+	5%,90%{
 		opacity:1;
-	}
-	90%{
-		opacity:1;
-	}
-	100%{
-		opacity:0;
 	}
 }
 
