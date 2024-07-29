@@ -1480,6 +1480,7 @@ span {
 	align-items: flex-start;
 	justify-content: space-evenly;
 	padding: .075in;
+	box-sizing: border-box;
 }
 @keyframes goout {
 	0%{
