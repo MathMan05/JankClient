@@ -94,7 +94,6 @@ class Localuser {
         this.channelfocus = null;
     }
     unload() {
-        console.log("please say this ran");
         this.initialized = false;
         clearInterval(this.wsinterval);
         this.outoffocus();
@@ -105,7 +104,6 @@ class Localuser {
     async initwebsocket() {
         let returny = null;
         const promise = new Promise((res) => { returny = res; });
-        console.warn("info");
         this.ws = new WebSocket(this.serverurls.gateway.toString());
         this.ws.addEventListener('open', (event) => {
             console.log('WebSocket connected');

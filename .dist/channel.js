@@ -592,115 +592,74 @@ class Channel {
         await fetch(this.info.api.toString() + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
             headers: this.headers
         }).then((j) => { return j.json(); }).then(response => {
-            let next;
-            let previd = undefined;
+            let previd = SnowFlake.getSnowFlakeFromID(id, Message);
             for (const i in response) {
                 let messager;
-                if (!next) {
+                let willbreak = false;
+                if (!SnowFlake.hasSnowFlakeFromID(response[i].id, Message)) {
                     messager = new Message(response[i], this);
                 }
                 else {
-                    messager = next;
+                    messager = SnowFlake.getSnowFlakeFromID(response[i].id, Message).getObject();
+                    willbreak = true;
                 }
-                if (response[+i + 1] !== undefined) {
-                    next = new Message(response[+i + 1], this);
-                }
-                else {
-                    next = undefined;
-                    console.log("ohno", +i + 1);
-                }
-                if (this.messageids.get(messager.snowflake) === undefined) {
-                    this.idToNext.set(messager.snowflake, previd);
-                    this.idToPrev.set(previd, messager.snowflake);
-                    previd = messager.snowflake;
-                    this.messageids.set(messager.snowflake, messager);
-                }
-                else {
-                    console.log("How???");
+                this.idToPrev.set(messager.snowflake, previd);
+                this.idToNext.set(previd, messager.snowflake);
+                previd = messager.snowflake;
+                this.messageids.set(messager.snowflake, messager);
+                if (willbreak) {
+                    break;
                 }
             }
             //out.buildmessages();
         });
         return;
     }
+    topid;
     async grabBefore(id) {
-        if (this.allthewayup) {
+        if (this.topid && id === this.topid.id) {
             return;
         }
         await fetch(this.info.api.toString() + "/channels/" + this.snowflake + "/messages?before=" + id + "&limit=100", {
             headers: this.headers
-        }).then((j) => { return j.json(); }).then(response => {
-            let next;
-            if (response.length === 0) {
+        }).then((j) => { return j.json(); }).then((response) => {
+            if (response.length < 100) {
                 this.allthewayup = true;
+                if (response.length === 0) {
+                    this.topid = SnowFlake.getSnowFlakeFromID(id, Message);
+                }
             }
             let previd = SnowFlake.getSnowFlakeFromID(id, Message);
             for (const i in response) {
                 let messager;
-                if (!next) {
+                let willbreak = false;
+                if (!SnowFlake.hasSnowFlakeFromID(response[i].id, Message)) {
                     messager = new Message(response[i], this);
                 }
                 else {
-                    messager = next;
+                    console.log("flaky");
+                    messager = SnowFlake.getSnowFlakeFromID(response[i].id, Message).getObject();
+                    willbreak = true;
                 }
-                if (response[+i + 1] !== undefined) {
-                    next = new Message(response[+i + 1], this);
+                this.idToNext.set(messager.snowflake, previd);
+                this.idToPrev.set(previd, messager.snowflake);
+                previd = messager.snowflake;
+                this.messageids.set(messager.snowflake, messager);
+                if (+i === response.length - 1 && response.length < 100) {
+                    this.topid = previd;
                 }
-                else {
-                    next = undefined;
-                    console.log("ohno", +i + 1);
-                }
-                if (this.messageids.get(messager.snowflake) === undefined) {
-                    this.idToNext.set(messager.snowflake, previd);
-                    this.idToPrev.set(previd, messager.snowflake);
-                    previd = messager.snowflake;
-                    this.messageids.set(messager.snowflake, messager);
-                }
-                else {
-                    console.log("How???");
+                if (willbreak) {
+                    break;
                 }
             }
-            //out.buildmessages();
         });
         return;
     }
+    /**
+     * Please dont use this, its not implemented.
+     **/
     async grabArround(id) {
-        await fetch(this.info.api.toString() + "/channels/" + this.snowflake + "/messages?around=" + id + "&limit=100", {
-            headers: this.headers
-        }).then((j) => { return j.json(); }).then(response => {
-            let next;
-            if (response.length === 0) {
-                this.allthewayup = true;
-            }
-            let previd = SnowFlake.getSnowFlakeFromID(id, Message);
-            for (const i in response) {
-                let messager;
-                if (!next) {
-                    messager = new Message(response[i], this);
-                }
-                else {
-                    messager = next;
-                }
-                if (response[+i + 1] !== undefined) {
-                    next = new Message(response[+i + 1], this);
-                }
-                else {
-                    next = undefined;
-                    console.log("ohno", +i + 1);
-                }
-                if (this.messageids.get(messager.snowflake) === undefined) {
-                    this.idToNext.set(messager.snowflake, previd);
-                    this.idToPrev.set(previd, messager.snowflake);
-                    previd = messager.snowflake;
-                    this.messageids.set(messager.snowflake, messager);
-                }
-                else {
-                    console.log("How???");
-                }
-            }
-            //out.buildmessages();
-        });
-        return;
+        throw new Error("please don't call this, no one has implmented it :P");
     }
     buildmessage(message, next) {
         const built = message.buildhtml(next);

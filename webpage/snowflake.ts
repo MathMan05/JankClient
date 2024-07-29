@@ -53,6 +53,22 @@ class SnowFlake<x extends WeakKey>{
             return snowflake;
         }
     }
+    static hasSnowFlakeFromID(id:string,type:any){
+        if(!SnowFlake.SnowFlakes.get(type)){
+            return false;
+        }
+        const flake=SnowFlake.SnowFlakes.get(type).get(id);
+        if(flake){
+            const flake2=flake.deref()?.getObject();
+            if(flake2){
+                return true;
+            }else{
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
     getUnixTime():number{
         return Number((BigInt(this.id)>>22n)+1420070400000n);
     }
