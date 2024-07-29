@@ -61,19 +61,8 @@ class InfiniteScroller{
             this.scroll.scrollTop=this.scroll.scrollHeight;
         }
     }
-    async watchForChange():Promise<void>{
-        if(this.currrunning){
-            return;
-        }else{
-            this.currrunning=true;
-        }
+    private async watchForTop():Promise<void>{
         let again=false;
-        if(!this.div){this.currrunning=false;return}
-        /*
-        if(this.scrollTop===0){
-            this.scrollTop=10;
-        }
-        */
         if(this.scrollTop===0){
             this.scrollTop=1;
             this.scroll.scrollTop=1;
@@ -98,6 +87,12 @@ class InfiniteScroller{
             await this.destroyFromID(html[1]);
             this.scrollTop-=60;
         }
+        if(again){
+            await this.watchForTop();
+        }
+    }
+    async watchForBottom():Promise<void>{
+        let again=false;
         const scrollBottom = this.scrollBottom;
         if(scrollBottom<this.minDist){
 
@@ -123,11 +118,18 @@ class InfiniteScroller{
             await this.destroyFromID(html[1]);
             this.scrollBottom-=60;
         }
-
-        this.currrunning=false;
         if(again){
-            await this.watchForChange();
+            await this.watchForBottom();
         }
+    }
+    async watchForChange():Promise<void>{
+        if(this.currrunning){
+            return;
+        }else{
+            this.currrunning=true;
+        }
+        if(!this.div){this.currrunning=false;return}
+        await Promise.allSettled([this.watchForBottom(),this.watchForTop()])
         this.currrunning=false;
     }
     async focus(id:string,flash=true){
