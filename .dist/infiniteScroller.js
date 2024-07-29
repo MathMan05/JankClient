@@ -142,11 +142,18 @@ class InfiniteScroller {
         }
         console.log(element, id, ":3");
         if (element) {
-            element.scrollIntoView();
             if (flash) {
+                element.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+                await new Promise(resolve => setTimeout(resolve, 1000));
                 element.classList.remove("jumped");
                 await new Promise(resolve => setTimeout(resolve, 100));
                 element.classList.add("jumped");
+            }
+            else {
+                element.scrollIntoView();
             }
         }
         else {
