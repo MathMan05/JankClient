@@ -40,7 +40,6 @@ class Embed {
         return this.guild.localuser;
     }
     generateRich() {
-        console.log(this.json);
         const div = document.createElement("div");
         if (this.json.color) {
             div.style.backgroundColor = "#" + this.json.color.toString(16);

@@ -5,6 +5,7 @@ import { Contextmenu } from "./contextmenu.js";
 import { Fullscreen } from "./fullscreen.js";
 import { Permissions } from "./permissions.js";
 import { Settings, RoleList } from "./settings.js";
+import { Role } from "./role.js";
 import { InfiniteScroller } from "./infiniteScroller.js";
 import { SnowFlake } from "./snowflake.js";
 class Channel {
@@ -78,7 +79,7 @@ class Channel {
         this.infinite = new InfiniteScroller(async function (id, offset) {
             const snowflake = SnowFlake.getSnowFlakeFromID(id, Message);
             if (offset === 1) {
-                if (this.idToPrev.get(snowflake)) {
+                if (this.idToPrev.has(snowflake)) {
                     return this.idToPrev.get(snowflake)?.id;
                 }
                 else {
@@ -87,13 +88,25 @@ class Channel {
                 }
             }
             else {
-                return this.idToNext.get(snowflake)?.id;
+                if (this.idToNext.has(snowflake)) {
+                    return this.idToNext.get(snowflake)?.id;
+                }
+                else if (this.lastmessage.id !== id) {
+                    await this.grabAfter(id);
+                    return this.idToNext.get(snowflake)?.id;
+                }
+                else {
+                    console.log("at bottom");
+                }
             }
-        }.bind(this), function (id) {
+        }.bind(this), async function (id) {
             let res;
             const promise = new Promise(_ => { res = _; });
             const snowflake = SnowFlake.getSnowFlakeFromID(id, Message);
-            const html = this.messageids.get(snowflake).buildhtml(this.messageids.get(this.idToPrev.get(snowflake)), promise);
+            if (!snowflake.getObject()) {
+                await this.grabArround(id);
+            }
+            const html = snowflake.getObject().buildhtml(this.messageids.get(this.idToPrev.get(snowflake)), promise);
             ids[id] = res;
             return html;
         }.bind(this), async function (id) {
@@ -125,7 +138,7 @@ class Channel {
             }
             ;
             this.permission_overwrites.set(thing.id, new Permissions(thing.allow, thing.deny));
-            this.permission_overwritesar.push([thing.id, this.permission_overwrites.get(thing.id)]);
+            this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id, Role), this.permission_overwrites.get(thing.id)]);
         }
         this.topic = json.topic;
         this.nsfw = json.nsfw;
@@ -528,7 +541,7 @@ class Channel {
             return;
         }
         this.makereplybox();
-        this.buildmessages();
+        await this.buildmessages();
         history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.snowflake);
         document.getElementById("channelname").textContent = "#" + this.name;
         console.log(this);
@@ -566,69 +579,111 @@ class Channel {
     delChannel(json) {
         const build = [];
         for (const thing of this.children) {
-            if (thing.snowflake !== json.id) {
+            if (thing.id !== json.id) {
                 build.push(thing);
             }
         }
         this.children = build;
     }
-    async grabBefore(id) {
-        if (this.allthewayup) {
+    async grabAfter(id) {
+        console.log(id, this.lastmessage.id);
+        if (id === this.lastmessage.id) {
             return;
         }
-        await fetch(this.info.api.toString() + "/channels/" + this.snowflake + "/messages?before=" + id + "&limit=100", {
+        await fetch(this.info.api.toString() + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
             headers: this.headers
         }).then((j) => { return j.json(); }).then(response => {
-            let next;
-            if (response.length === 0) {
-                this.allthewayup = true;
-            }
             let previd = SnowFlake.getSnowFlakeFromID(id, Message);
             for (const i in response) {
                 let messager;
-                if (!next) {
+                let willbreak = false;
+                if (!SnowFlake.hasSnowFlakeFromID(response[i].id, Message)) {
                     messager = new Message(response[i], this);
                 }
                 else {
-                    messager = next;
+                    messager = SnowFlake.getSnowFlakeFromID(response[i].id, Message).getObject();
+                    willbreak = true;
                 }
-                if (response[+i + 1] !== undefined) {
-                    next = new Message(response[+i + 1], this);
-                }
-                else {
-                    next = undefined;
-                    console.log("ohno", +i + 1);
-                }
-                if (this.messageids.get(messager.snowflake) === undefined) {
-                    this.idToNext.set(messager.snowflake, previd);
-                    this.idToPrev.set(previd, messager.snowflake);
-                    previd = messager.snowflake;
-                    this.messageids.set(messager.snowflake, messager);
-                }
-                else {
-                    console.log("How???");
+                this.idToPrev.set(messager.snowflake, previd);
+                this.idToNext.set(previd, messager.snowflake);
+                previd = messager.snowflake;
+                this.messageids.set(messager.snowflake, messager);
+                if (willbreak) {
+                    break;
                 }
             }
             //out.buildmessages();
         });
         return;
     }
+    topid;
+    async grabBefore(id) {
+        if (this.topid && id === this.topid.id) {
+            return;
+        }
+        await fetch(this.info.api.toString() + "/channels/" + this.snowflake + "/messages?before=" + id + "&limit=100", {
+            headers: this.headers
+        }).then((j) => { return j.json(); }).then((response) => {
+            if (response.length < 100) {
+                this.allthewayup = true;
+                if (response.length === 0) {
+                    this.topid = SnowFlake.getSnowFlakeFromID(id, Message);
+                }
+            }
+            let previd = SnowFlake.getSnowFlakeFromID(id, Message);
+            for (const i in response) {
+                let messager;
+                let willbreak = false;
+                if (!SnowFlake.hasSnowFlakeFromID(response[i].id, Message)) {
+                    messager = new Message(response[i], this);
+                }
+                else {
+                    console.log("flaky");
+                    messager = SnowFlake.getSnowFlakeFromID(response[i].id, Message).getObject();
+                    willbreak = true;
+                }
+                this.idToNext.set(messager.snowflake, previd);
+                this.idToPrev.set(previd, messager.snowflake);
+                previd = messager.snowflake;
+                this.messageids.set(messager.snowflake, messager);
+                if (+i === response.length - 1 && response.length < 100) {
+                    this.topid = previd;
+                }
+                if (willbreak) {
+                    break;
+                }
+            }
+        });
+        return;
+    }
+    /**
+     * Please dont use this, its not implemented.
+     **/
+    async grabArround(id) {
+        throw new Error("please don't call this, no one has implmented it :P");
+    }
     buildmessage(message, next) {
         const built = message.buildhtml(next);
         document.getElementById("messages").prepend(built);
     }
-    buildmessages() {
+    async buildmessages() {
         const messages = document.getElementById("channelw");
         messages.innerHTML = "";
         let id;
-        if (this.messageids.get(this.lastreadmessageid)) {
+        if (this.lastreadmessageid && this.lastreadmessageid.getObject()) {
             id = this.lastreadmessageid;
         }
         else if (this.lastmessage.snowflake) {
             id = this.goBackIds(this.lastmessage.snowflake, 50);
             console.log("shouldn't");
         }
-        messages.append(this.infinite.getDiv(id.id));
+        console.log(this.lastreadmessageid, id.id);
+        messages.append(await this.infinite.getDiv(id.id));
+        this.infinite.updatestuff();
+        this.infinite.watchForChange().then(async (_) => {
+            await new Promise(resolve => setTimeout(resolve, 100));
+            this.infinite.focus(id.id, false); //if someone could figure out how to make this work correctly without this, that's be great :P
+        });
     }
     goBackIds(id, back) {
         while (back !== 0) {
@@ -659,7 +714,7 @@ class Channel {
             }
             ;
             this.permission_overwrites.set(thing.id, new Permissions(thing.allow, thing.deny));
-            this.permission_overwritesar.push([thing.id, this.permission_overwrites.get(thing.id)]);
+            this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id, Role), this.permission_overwrites.get(thing.id)]);
         }
         this.topic = json.topic;
         this.nsfw = json.nsfw;
@@ -745,6 +800,7 @@ class Channel {
             return;
         }
         const messagez = new Message(messagep.d, this);
+        this.lastmessage = messagez;
         console.log(this.lastmessageid, messagez.snowflake, ":3");
         this.idToNext.set(this.lastmessageid, messagez.snowflake);
         this.idToPrev.set(messagez.snowflake, this.lastmessageid);
@@ -762,7 +818,9 @@ class Channel {
             }
         }
         this.guild.unreads();
-        this.infinite.addedBottom();
+        if (this === this.localuser.channelfocus) {
+            this.infinite.addedBottom();
+        }
         if (messagez.author === this.localuser.user) {
             return;
         }

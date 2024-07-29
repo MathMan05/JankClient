@@ -5,12 +5,12 @@ import { Localuser } from "./localuser.js";
 import {User} from "./user.js";
 import { Member } from "./member.js";
 import { SnowFlake } from "./snowflake.js";
+import { dirrectjson, memberjson } from "./jsontypes.js";
 
 class Direct extends Guild{
-    constructor(json,owner:Localuser){
+    constructor(json:dirrectjson[],owner:Localuser){
         super(-1,owner,null);
         this.message_notifications=0;
-        console.log(json);
         this.owner=owner;
         if(!this.localuser){
             console.error("Owner was not included, please fix")
@@ -44,13 +44,13 @@ class Direct extends Guild{
             return Number(-result);
         });
     }
-    giveMember(member){
+    giveMember(_member:memberjson){
         console.error("not a real guild, can't give member object")
     }
-    getRole(ID){
+    getRole(ID:string){
         return null;
     }
-    hasRole(r){
+    hasRole(r:string){
         return false;
     }
     isAdmin(){
@@ -64,7 +64,7 @@ class Direct extends Guild{
 }
 class Group extends Channel{
     user:User;
-    constructor(json,owner:Direct){
+    constructor(json:dirrectjson,owner:Direct){
         super(-1,owner);
         this.owner=owner;
         this.headers=this.guild.headers;
@@ -166,13 +166,11 @@ class Group extends Channel{
             const noti=document.createElement("div");
             noti.classList.add("unread","notiunread","pinged");
             noti.textContent=""+this.mentions;
-            console.log(this.mentions)
             div["noti"]=noti;
             div.append(noti)
             const buildpfp=this.user.buildpfp();
             div["all"]=this;
             buildpfp.classList.add("mentioned");
-            console.log(this);
             div.append(buildpfp)
             sentdms.append(div);
             div.onclick=_=>{

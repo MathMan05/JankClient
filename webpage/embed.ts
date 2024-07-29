@@ -1,17 +1,18 @@
 import {Fullscreen} from "./fullscreen.js";
 import {Message} from "./message.js";
 import {MarkDown} from "./markdown.js";
+import { embedjson } from "./jsontypes.js";
 
 class Embed{
     type:string;
     owner:Message;
-    json;
-    constructor(json, owner:Message){
+    json:embedjson;
+    constructor(json:embedjson, owner:Message){
         this.type=this.getType(json);
         this.owner=owner;
         this.json=json;
     }
-    getType(json){
+    getType(json:embedjson){
         return json.type||"rich";
     }
     generateHTML(){
@@ -42,7 +43,6 @@ class Embed{
         return this.guild.localuser;
     }
     generateRich(){
-        console.log(this.json)
         const div=document.createElement("div");
         if(this.json.color){
             div.style.backgroundColor="#"+this.json.color.toString(16);

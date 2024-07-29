@@ -7,6 +7,7 @@ import {Fullscreen} from "./fullscreen.js";
 import {setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
+import { channeljson, readyjson, userjson } from "./jsontypes.js";
 
 const wsCodesRetry=new Set([4000,4003,4005,4007,4008,4009]);
 
@@ -21,7 +22,7 @@ class Localuser{
     usersettings:Fullscreen;
     userConnections:Fullscreen;
     devPortal:Fullscreen;
-    ready;
+    ready:readyjson;
     guilds:Guild[];
     guildids:Map<string,Guild>;
     user:User;
@@ -42,7 +43,7 @@ class Localuser{
         this.info=this.serverurls;
         this.headers={"Content-type": "application/json; charset=UTF-8",Authorization:this.userinfo.token};
     }
-    gottenReady(ready):void{
+    gottenReady(ready:readyjson):void{
         this.usersettings=null;
         this.initialized=true;
         this.ready=ready;
@@ -90,8 +91,8 @@ class Localuser{
         this.typing=[];
     }
     outoffocus():void{
-        document.getElementById("servers").textContent="";
-        document.getElementById("channels").textContent="";
+        document.getElementById("servers").innerHTML="";
+        document.getElementById("channels").innerHTML="";
         if(this.channelfocus){
             this.channelfocus.infinite.delete();
         }
@@ -104,7 +105,7 @@ class Localuser{
         this.outoffocus();
         this.guilds=[];
         this.guildids=new Map();
-        this.ws.close(4000)
+        this.ws.close(4001)
     }
     async initwebsocket():Promise<void>{
         let returny=null
@@ -119,7 +120,7 @@ class Localuser{
                 "capabilities": 16381,
                 "properties": {
                     "browser": "Jank Client",
-                    "client_build_number": 0,
+                    "client_build_number": 0,//might update this eventually lol
                     "release_channel": "Custom",
                     "browser_user_agent": navigator.userAgent
                 },
@@ -154,7 +155,7 @@ class Localuser{
                         SnowFlake.getSnowFlakeFromID(temp.d.id,Message).getObject().deleteEvent();
                         break;
                     case "READY":
-                        this.gottenReady(temp);
+                        this.gottenReady(temp as readyjson);
                         this.genusersettings();
                         returny();
                         break;
@@ -226,7 +227,6 @@ class Localuser{
             this.unload();
             document.getElementById("loading").classList.remove("doneloading");
             document.getElementById("loading").classList.add("loading");
-
             if (((event.code>1000 && event.code<1016) || wsCodesRetry.has(event.code))) {
                 if (this.connectionSucceed!==0 && Date.now()>this.connectionSucceed+20000) this.errorBackoff=0;
                 else this.errorBackoff++;
@@ -258,24 +258,24 @@ class Localuser{
         }
         return undefined;
     }
-    updateChannel(json):void{
+    updateChannel(json:channeljson):void{
         SnowFlake.getSnowFlakeFromID(json.guild_id,Guild).getObject().updateChannel(json);
         if(json.guild_id===this.lookingguild.id){
             this.loadGuild(json.guild_id);
         }
     }
-    createChannel(json):void{
+    createChannel(json:channeljson):void{
         json.guild_id??="@me";
         SnowFlake.getSnowFlakeFromID(json.guild_id,Guild).getObject().createChannelpac(json);
         if(json.guild_id===this.lookingguild.id){
             this.loadGuild(json.guild_id);
         }
     }
-    delChannel(json):void{
+    delChannel(json:channeljson):void{
         json.guild_id??="@me";
         this.guildids.get(json.guild_id).delChannel(json);
 
-        if(json.guild_id===this.lookingguild.snowflake){
+        if(json.guild_id===this.lookingguild.id){
             this.loadGuild(json.guild_id);
         }
     }
@@ -302,7 +302,6 @@ class Localuser{
         if(!guild){
             guild=this.guildids.get("@me");
         }
-        console.log(this.guildids,id,guild);
         if(this.lookingguild){
             this.lookingguild.html.classList.remove("serveropen");
         }
@@ -363,7 +362,6 @@ class Localuser{
             div.classList.add("home","servericon")
             serverlist.appendChild(div)
             div.onclick=_=>{
-                console.log("clicked :3")
                 this.createGuild();
             }
 
@@ -376,7 +374,6 @@ class Localuser{
             });
 
         }
-        console.log("test");
         this.unreads();
     }
     createGuild(){
@@ -390,7 +387,6 @@ class Localuser{
                         "Invite Link/Code",
                         "",
                         function(){
-                            console.log(this)
                             inviteurl=this.value;
                         }
                     ],
@@ -410,7 +406,6 @@ class Localuser{
                                 method:"POST",
                                 headers:this.headers,
                             }).then(r=>r.json()).then(_=>{
-                                console.log(_);
                                 if(_.message){
                                     error.textContent=_.message;
                                 }
@@ -492,11 +487,9 @@ class Localuser{
         this.unreads();
     }
     unreads():void{
-        console.log(this.guildhtml)
         for(const thing of this.guilds){
             if(thing.id==="@me"){continue;}
             const html=this.guildhtml.get(thing.id);
-            console.log(html);
             thing.unreads(html);
         }
     }
@@ -532,7 +525,6 @@ class Localuser{
     updatepfp(file:Blob):void{
         var reader = new FileReader();
         reader.readAsDataURL(file);
-        console.log(this.headers);
         reader.onload = ()=>{
             fetch(this.info.api.toString()+"/users/@me",{
                 method:"PATCH",
@@ -541,7 +533,6 @@ class Localuser{
                     avatar:reader.result,
                 })
             });
-            console.log(reader.result);
         };
 
     }
@@ -585,7 +576,6 @@ class Localuser{
         }else{
             build+=" is typing";
         }
-        console.log(typingtext.classList);
         if(showing){
             typingtext.classList.remove("hidden");
             document.getElementById("typingtext").textContent=build;
@@ -598,7 +588,7 @@ class Localuser{
         let file=null;
         let newprouns=null;
         let newbio=null;
-        let hypouser=new User(this.user,this,true);
+        let hypouser=this.user.clone();
         function regen(){
             hypotheticalProfile.textContent="";
             const hypoprofile=hypouser.buildprofile(-1,-1);
@@ -652,9 +642,9 @@ class Localuser{
             ["vdiv",
                 ["html",hypotheticalProfile]
             ]
-        ],_=>{},function(){
+        ],_=>{},function(this:Localuser){
             console.log(this);
-            hypouser=new User(this.user,this);
+            hypouser=this.user.clone();
             regen();
             file=null;
             newprouns=null;

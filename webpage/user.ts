@@ -5,6 +5,7 @@ import {Contextmenu} from "./contextmenu.js";
 import {Localuser} from "./localuser.js";
 import {Guild} from "./guild.js";
 import { SnowFlake } from "./snowflake.js";
+import { userjson } from "./jsontypes.js";
 
 class User{
     static userids={};
@@ -17,6 +18,31 @@ class User{
     discriminator:string;
     pronouns:string;
     bot:boolean;
+    public_flags: number;
+    accent_color: string;
+    banner: string;
+    premium_since: string;
+    premium_type: number;
+    theme_colors: string;
+    badge_ids: string;
+    clone(){
+        return new User({
+            username:this.username,
+            id:this.id+"#clone",
+            public_flags:this.public_flags,
+            discriminator:this.discriminator,
+            avatar:this.avatar,
+            accent_color:this.accent_color,
+            banner:this.banner,
+            bio:this.bio.rawString,
+            premium_since:this.premium_since,
+            premium_type:this.premium_type,
+            bot:this.bot,
+            theme_colors:this.theme_colors,
+            pronouns:this.pronouns,
+            badge_ids:this.badge_ids
+        },this.owner)
+    }
     get id(){
         return this.snowflake.id;
     }
@@ -33,12 +59,12 @@ class User{
                 });
         })
     }
-    static checkuser(userjson,owner:Localuser){
-        if(User.userids[userjson.id]){
-            return User.userids[userjson.id];
+    static checkuser(user:User|userjson,owner:Localuser):User{
+        if(User.userids[user.id]){
+            return User.userids[user.id];
         }else{
-            const tempuser=new User(userjson,owner,true)
-            User.userids[userjson.id]=tempuser;
+            const tempuser=new User(user as userjson,owner,true)
+            User.userids[user.id]=tempuser;
             return tempuser;
         }
     }
@@ -48,7 +74,7 @@ class User{
     get localuser(){
         return this.owner;
     }
-    constructor(userjson,owner:Localuser,dontclone=false){
+    constructor(userjson:userjson,owner:Localuser,dontclone=false){
         this.owner=owner;
         if(!owner){console.error("missing localuser")}
         if(dontclone){
@@ -69,7 +95,7 @@ class User{
         }
     }
     async resolvemember(guild:Guild){
-        await Member.resolve(this,guild);
+        return await Member.resolve(this,guild);
     }
     buildpfp(){
         const pfp=document.createElement('img');
@@ -78,7 +104,7 @@ class User{
         pfp.classList.add("userid:"+this.id);
         return pfp;
     }
-    userupdate(json){
+    userupdate(json:userjson){
         if(json.avatar!==this.avatar){
             console.log
             this.changepfp(json.avatar);
