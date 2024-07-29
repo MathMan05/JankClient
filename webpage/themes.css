@@ -3,6 +3,7 @@
 	/* Default value */
 	--red: red;
 	--green: green;
+	--yellow:yellow;
 }
 .Dark-theme { /* thanks to TomatoCake for the updated CSS vars and such*/
 	color-scheme: dark;
@@ -51,6 +52,7 @@
 	--embed: #1a1823;
 	--link: #8888ff;
 	--discovery-bg: #37373b;
+	--message-jump:#7678b0;
 }
 .WHITE-theme {
 	color-scheme: light;
@@ -101,6 +103,7 @@
 	--embed: #f2f3f5;
 	--link: #3333ee;
 	--discovery-bg: #c6c6d8;
+	--message-jump:#52558a;
 }
 .Light-theme {
 	color-scheme: light;
@@ -159,4 +162,5 @@
 	--embed: #cdccd1;
 	--link: #5566cc;
 	--discovery-bg: #c6c6d8;
+	--message-jump:#52558a;
 }

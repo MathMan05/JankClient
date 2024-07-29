@@ -85,8 +85,8 @@ class Localuser {
         this.typing = [];
     }
     outoffocus() {
-        document.getElementById("servers").textContent = "";
-        document.getElementById("channels").textContent = "";
+        document.getElementById("servers").innerHTML = "";
+        document.getElementById("channels").innerHTML = "";
         if (this.channelfocus) {
             this.channelfocus.infinite.delete();
         }
@@ -99,7 +99,7 @@ class Localuser {
         this.outoffocus();
         this.guilds = [];
         this.guildids = new Map();
-        this.ws.close(4000);
+        this.ws.close(4001);
     }
     async initwebsocket() {
         let returny = null;
@@ -114,7 +114,7 @@ class Localuser {
                     "capabilities": 16381,
                     "properties": {
                         "browser": "Jank Client",
-                        "client_build_number": 0,
+                        "client_build_number": 0, //might update this eventually lol
                         "release_channel": "Custom",
                         "browser_user_agent": navigator.userAgent
                     },
@@ -262,7 +262,7 @@ class Localuser {
     delChannel(json) {
         json.guild_id ??= "@me";
         this.guildids.get(json.guild_id).delChannel(json);
-        if (json.guild_id === this.lookingguild.snowflake) {
+        if (json.guild_id === this.lookingguild.id) {
             this.loadGuild(json.guild_id);
         }
     }
@@ -288,7 +288,6 @@ class Localuser {
         if (!guild) {
             guild = this.guildids.get("@me");
         }
-        console.log(this.guildids, id, guild);
         if (this.lookingguild) {
             this.lookingguild.html.classList.remove("serveropen");
         }
@@ -345,7 +344,6 @@ class Localuser {
             div.classList.add("home", "servericon");
             serverlist.appendChild(div);
             div.onclick = _ => {
-                console.log("clicked :3");
                 this.createGuild();
             };
             const guildDiscoveryContainer = document.createElement("div");
@@ -356,7 +354,6 @@ class Localuser {
                 this.guildDiscovery();
             });
         }
-        console.log("test");
         this.unreads();
     }
     createGuild() {
@@ -369,7 +366,6 @@ class Localuser {
                             "Invite Link/Code",
                             "",
                             function () {
-                                console.log(this);
                                 inviteurl = this.value;
                             }
                         ],
@@ -389,7 +385,6 @@ class Localuser {
                                     method: "POST",
                                     headers: this.headers,
                                 }).then(r => r.json()).then(_ => {
-                                    console.log(_);
                                     if (_.message) {
                                         error.textContent = _.message;
                                     }
@@ -463,13 +458,11 @@ class Localuser {
         this.unreads();
     }
     unreads() {
-        console.log(this.guildhtml);
         for (const thing of this.guilds) {
             if (thing.id === "@me") {
                 continue;
             }
             const html = this.guildhtml.get(thing.id);
-            console.log(html);
             thing.unreads(html);
         }
     }
@@ -506,7 +499,6 @@ class Localuser {
     updatepfp(file) {
         var reader = new FileReader();
         reader.readAsDataURL(file);
-        console.log(this.headers);
         reader.onload = () => {
             fetch(this.info.api.toString() + "/users/@me", {
                 method: "PATCH",
@@ -515,7 +507,6 @@ class Localuser {
                     avatar: reader.result,
                 })
             });
-            console.log(reader.result);
         };
     }
     updatepronouns(pronouns) {
@@ -559,7 +550,6 @@ class Localuser {
         else {
             build += " is typing";
         }
-        console.log(typingtext.classList);
         if (showing) {
             typingtext.classList.remove("hidden");
             document.getElementById("typingtext").textContent = build;
@@ -573,7 +563,7 @@ class Localuser {
         let file = null;
         let newprouns = null;
         let newbio = null;
-        let hypouser = new User(this.user, this, true);
+        let hypouser = this.user.clone();
         function regen() {
             hypotheticalProfile.textContent = "";
             const hypoprofile = hypouser.buildprofile(-1, -1);
@@ -627,7 +617,7 @@ class Localuser {
             ]
         ], _ => { }, function () {
             console.log(this);
-            hypouser = new User(this.user, this);
+            hypouser = this.user.clone();
             regen();
             file = null;
             newprouns = null;

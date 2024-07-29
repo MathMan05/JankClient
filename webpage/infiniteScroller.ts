@@ -1,6 +1,6 @@
 class InfiniteScroller{
     readonly getIDFromOffset:(ID:string,offset:number)=>Promise<string>;
-    readonly getHTMLFromID:(ID:string)=>HTMLElement;
+    readonly getHTMLFromID:(ID:string)=>Promise<HTMLElement>;
     readonly destroyFromID:(ID:string)=>Promise<boolean>;
     readonly reachesBottom:()=>void;
     private readonly minDist=3000;
@@ -15,7 +15,7 @@ class InfiniteScroller{
         this.reachesBottom=reachesBottom;
     }
     interval:NodeJS.Timeout;
-    getDiv(initialId:string,bottom=true):HTMLDivElement{
+    async getDiv(initialId:string,bottom=true):Promise<HTMLDivElement>{
         const div=document.createElement("div");
         div.classList.add("messagecontainer");
         //div.classList.add("flexttb")
@@ -30,10 +30,10 @@ class InfiniteScroller{
         new ResizeObserver(this.watchForChange.bind(this)).observe(div);
         new ResizeObserver(this.watchForChange.bind(this)).observe(scroll);
 
-        this.firstElement(initialId);
+        await this.firstElement(initialId)
         this.updatestuff();
-        this.watchForChange().then(_=>{
-            this.scroll.scrollTop=this.scroll.scrollHeight;
+        await this.watchForChange().then(_=>{
+            this.updatestuff();
         })
         return div;
     }
@@ -47,8 +47,8 @@ class InfiniteScroller{
         }
         //this.watchForChange();
     }
-    firstElement(id:string){
-        const html=this.getHTMLFromID(id);
+    async firstElement(id:string){
+        const html=await this.getHTMLFromID(id);
         this.scroll.append(html);
         this.HTMLElements.push([html,id]);
     }
@@ -61,33 +61,20 @@ class InfiniteScroller{
             this.scroll.scrollTop=this.scroll.scrollHeight;
         }
     }
-    async watchForChange():Promise<void>{
-        if(this.currrunning){
-            return;
-        }else{
-            this.currrunning=true;
-        }
+    private async watchForTop():Promise<void>{
         let again=false;
-        if(!this.div){this.currrunning=false;return}
-        /*
-        if(this.scrollTop===0){
-            this.scrollTop=10;
-        }
-        */
         if(this.scrollTop===0){
             this.scrollTop=1;
             this.scroll.scrollTop=1;
         }
         if(this.scrollTop<this.minDist){
-
-
             const previd=this.HTMLElements.at(0)[1];
             const nextid=await this.getIDFromOffset(previd,1);
             if(!nextid){
 
             }else{
                 again=true;
-                const html=this.getHTMLFromID(nextid);
+                const html=await this.getHTMLFromID(nextid);
                 this.scroll.prepend(html);
                 this.HTMLElements.unshift([html,nextid]);
                 this.scrollTop+=60;
@@ -100,6 +87,12 @@ class InfiniteScroller{
             await this.destroyFromID(html[1]);
             this.scrollTop-=60;
         }
+        if(again){
+            await this.watchForTop();
+        }
+    }
+    async watchForBottom():Promise<void>{
+        let again=false;
         const scrollBottom = this.scrollBottom;
         if(scrollBottom<this.minDist){
 
@@ -109,7 +102,7 @@ class InfiniteScroller{
             if(!nextid){
             }else{
                 again=true;
-                const html=this.getHTMLFromID(nextid);
+                const html=await this.getHTMLFromID(nextid);
                 this.scroll.append(html);
                 this.HTMLElements.push([html,nextid]);
                 this.scrollBottom+=60;
@@ -125,12 +118,46 @@ class InfiniteScroller{
             await this.destroyFromID(html[1]);
             this.scrollBottom-=60;
         }
-
-        this.currrunning=false;
         if(again){
-            await this.watchForChange();
+            await this.watchForBottom();
         }
+    }
+    async watchForChange():Promise<void>{
+        if(this.currrunning){
+            return;
+        }else{
+            this.currrunning=true;
+        }
+        if(!this.div){this.currrunning=false;return}
+        await Promise.allSettled([this.watchForBottom(),this.watchForTop()])
         this.currrunning=false;
+    }
+    async focus(id:string,flash=true){
+        let element:HTMLElement;
+        for(const thing of this.HTMLElements){
+            if(thing[1]===id){
+                element=thing[0];
+            }
+        }
+        console.log(element,id,":3");
+        if(element){
+            element.scrollIntoView();
+            if(flash){
+                element.classList.remove("jumped");
+                await new Promise(resolve => setTimeout(resolve, 100));
+                element.classList.add("jumped");
+            }
+        }else{
+            for(const thing of this.HTMLElements){
+                await this.destroyFromID(thing[1]);
+            }
+            this.HTMLElements=[];
+            await this.firstElement(id);
+            this.updatestuff();
+            await this.watchForChange();
+            await new Promise(resolve => setTimeout(resolve, 100));
+            await this.focus(id,true);
+        }
     }
     async delete():Promise<void>{
         for(const thing of this.HTMLElements){

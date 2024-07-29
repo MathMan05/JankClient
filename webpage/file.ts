@@ -1,6 +1,7 @@
 import { Message } from "./message.js";
 import { Fullscreen } from "./fullscreen.js";
-type filejson= {id:string,filename:string,content_type:string,width:number,height:number,proxy_url:string|undefined,url:string,size:number};
+import { filejson } from "./jsontypes.js";
+
 class File{
     owner:Message;
     id:string;
@@ -12,7 +13,6 @@ class File{
     url:string;
     size:number;
     constructor(fileJSON:filejson,owner:Message){
-        console.log(fileJSON);
         this.owner=owner;
         this.id=fileJSON.id;
         this.filename=fileJSON.filename;

@@ -9,6 +9,7 @@ class Member {
     user;
     roles;
     error;
+    id;
     static contextmenu = new Contextmenu("User Menu");
     static setUpContextMenu() {
         this.contextmenu.addbutton("Copy user id", function () {
@@ -27,11 +28,12 @@ class Member {
         let membery = memberjson;
         this.roles = [];
         if (!error) {
-            if (memberjson.guild_member) {
+            if (memberjson["guild_member"]) {
+                memberjson = memberjson;
                 membery = memberjson.guild_member;
-                this.user = memberjson.user;
             }
         }
+        membery = membery;
         for (const thing of Object.keys(membery)) {
             if (thing === "guild") {
                 continue;
@@ -52,7 +54,11 @@ class Member {
             this.user = memberjson;
         }
         else {
-            this.user = new User(this.user, owner.localuser);
+            if (SnowFlake.getSnowFlakeFromID(this?.id, User)) {
+                this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject();
+                return;
+            }
+            this.user = new User(membery.user, owner.localuser);
         }
     }
     get guild() {

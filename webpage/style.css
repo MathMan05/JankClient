@@ -74,6 +74,22 @@ th {
 .messagediv:hover {
 	background-color: var(--message-bg-hover);
 }
+
+.jumped{
+	animation-duration: .5s;
+	animation-name: jumped;
+}
+@keyframes jumped{
+	0% {
+		background-color: transparent;
+	}
+	50% {
+		background-color: var(--message-jump);
+	}
+	100% {
+		background-color: transparent;
+	}
+}
 .messagediv{
 	overflow: hidden;
 	max-width:100%;
@@ -83,7 +99,7 @@ th {
 	flex-wrap: nowrap;
 	flex-direction: column;
 	max-height: 20in;
-	padding: .02in .2in 0 .1in;
+	padding: .02in .1in 0 .1in;
 	flex-shrink: 0;
 	width: 100%;
 	box-sizing: border-box;
@@ -546,7 +562,7 @@ hr {
 .replypfp {
 	border-radius: 50%;
 	width: .2in;
-	height: 2.in;
+	height: .2in;
 	padding: .05in;
 	user-select: none;
 	cursor: pointer;
@@ -567,6 +583,7 @@ hr {
 	/* display: inline-block !important; */
 	width: 25vw;
 	grid-column: 2;
+	cursor: pointer;
 }
 .replytext pre {
 	/* padding: 0 .05in; */
@@ -837,6 +854,10 @@ select{
 	border-style: solid;
 	border-color: var(--login-border);
 	text-align: center;
+	height: 90%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 
 #logindiv input {
@@ -1398,7 +1419,7 @@ span {
 .messagediv .flexttb{
 	display:flex;
 	overflow: hidden;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	width: 100%;
 	flex-direction: column;
 	max-height:100in;
@@ -1440,4 +1461,57 @@ span {
 #typebox[contenteditable=false]:before{
 	content:'You can\'t chat here';
 	color:color-mix(in hsl, var(--primary-bg),var(--primary-text));
+}
+.scroller{
+	padding-bottom: .2in;
+}
+.suberror{
+	animation: goout 6s forwards;
+}
+.suberrora{
+	background:var(--channel-hover);
+	border-radius:.1in;
+	position:absolute;
+	border:solid var(--primary-text) .02in;
+	color:color-mix(in hsl,var(--yellow),var(--red));
+	font-weight:bold;
+	opacity:0;
+	cursor:default;
+	/* height: .4in; */
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	justify-content: space-evenly;
+	padding: .075in;
+	box-sizing: border-box;
+}
+@keyframes goout {
+	0%{
+		opacity:0;
+	}
+	5%{
+		opacity:1;
+	}
+	90%{
+		opacity:1;
+	}
+	100%{
+		opacity:0;
+	}
+}
+
+#register{
+	display:flex;
+	flex-direction: column;
+	align-items: center;
+	flex-grow: 1;
+	justify-content: space-between;
+}
+.dontgrow{
+	flex-grow:0;
+	width: 1.6in;
+	text-align: center;
+}
+form div{
+	width:100%;
 }

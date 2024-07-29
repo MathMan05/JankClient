@@ -14,13 +14,14 @@ async function registertry(e) {
     const password = elements[3].value;
     const dateofbirth = elements[5].value;
     const apiurl = new URL(JSON.parse(localStorage.getItem("instanceinfo")).api);
-    fetch(apiurl + "/auth/register", {
+    await fetch(apiurl + "/auth/register", {
         body: JSON.stringify({
             date_of_birth: dateofbirth,
             email: email,
             username: username,
             password: password,
             consent: elements[6].checked,
+            captcha_key: elements[7]?.value
         }),
         headers: {
             "content-type": "application/json"
@@ -28,9 +29,42 @@ async function registertry(e) {
         method: "POST"
     }).then(e => {
         e.json().then(e => {
+            if (e.captcha_sitekey) {
+                const capt = document.getElementById("h-captcha");
+                if (!capt.children.length) {
+                    const capty = document.createElement("div");
+                    capty.classList.add("h-captcha");
+                    capty.setAttribute("data-sitekey", e.captcha_sitekey);
+                    const script = document.createElement("script");
+                    script.src = "https://js.hcaptcha.com/1/api.js";
+                    capt.append(script);
+                    capt.append(capty);
+                }
+                else {
+                    eval("hcaptcha.reset()");
+                }
+                return;
+            }
             if (!e.token) {
                 console.log(e);
-                document.getElementById("wrong").textContent = e.errors[Object.keys(e.errors)[0]]._errors[0].message;
+                if (e.errors.consent) {
+                    error(elements[6], e.errors.consent._errors[0].message);
+                }
+                else if (e.errors.password) {
+                    error(elements[3], "Password: " + e.errors.password._errors[0].message);
+                }
+                else if (e.errors.username) {
+                    error(elements[2], "Username: " + e.errors.username._errors[0].message);
+                }
+                else if (e.errors.email) {
+                    error(elements[1], "Email: " + e.errors.email._errors[0].message);
+                }
+                else if (e.errors.date_of_birth) {
+                    error(elements[5], "Date of Birth: " + e.errors.date_of_birth._errors[0].message);
+                }
+                else {
+                    document.getElementById("wrong").textContent = e.errors[Object.keys(e.errors)[0]]._errors[0].message;
+                }
             }
             else {
                 localStorage.setItem("token", e.token);
@@ -40,6 +74,21 @@ async function registertry(e) {
     });
     //document.getElementById("wrong").textContent=h;
     // console.log(h);
+}
+function error(e, message) {
+    const p = e.parentElement;
+    let element = p.getElementsByClassName("suberror")[0];
+    if (!element) {
+        const div = document.createElement("div");
+        div.classList.add("suberror", "suberrora");
+        p.append(div);
+        element = div;
+    }
+    else {
+        element.classList.remove("suberror");
+        setTimeout(_ => { element.classList.add("suberror"); }, 100);
+    }
+    element.textContent = message;
 }
 let TOSa = document.getElementById("TOSa");
 async function tosLogic() {
