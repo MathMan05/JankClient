@@ -660,7 +660,7 @@ class Channel {
      * Please dont use this, its not implemented.
      **/
     async grabArround(id) {
-        throw new Error("please don't call this, no one has implmented it :P");
+        throw new Error("please don't call this, no one has implemented it :P");
     }
     buildmessage(message, next) {
         const built = message.buildhtml(next);
