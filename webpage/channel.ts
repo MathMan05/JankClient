@@ -667,7 +667,7 @@ class Channel{
      * Please dont use this, its not implemented.
      **/
     async grabArround(id:string){//currently unused and no plans to use it yet
-        throw new Error("please don't call this, no one has implmented it :P")
+        throw new Error("please don't call this, no one has implemented it :P")
     }
     buildmessage(message:Message,next:Message){
         const built=message.buildhtml(next);

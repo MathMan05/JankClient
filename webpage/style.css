@@ -17,6 +17,7 @@ body {
 	padding: .2cm;
 	width: 7cm !important;
 	height: 8cm;
+	border: solid, color-mix(in hsl,var(--black),transparent 80%), .03in;
 }
 video{
 	max-width: 3in;
