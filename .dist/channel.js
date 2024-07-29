@@ -586,6 +586,7 @@ class Channel {
         this.children = build;
     }
     async grabAfter(id) {
+        console.log(id, this.lastmessage.id);
         if (id === this.lastmessage.id) {
             return;
         }
@@ -799,6 +800,7 @@ class Channel {
             return;
         }
         const messagez = new Message(messagep.d, this);
+        this.lastmessage = messagez;
         console.log(this.lastmessageid, messagez.snowflake, ":3");
         this.idToNext.set(this.lastmessageid, messagez.snowflake);
         this.idToPrev.set(messagez.snowflake, this.lastmessageid);
