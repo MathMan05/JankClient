@@ -637,7 +637,10 @@ textarea {
 	height: 1.5in;
 	font-size: .75rem;
 }
-textarea:focus-visible {
+input[type=text]:focus-visible,
+input[type=password]:focus-visible,
+textarea:focus-visible,
+#typebox:focus-visible {
 	outline: 2px solid var(--focus);
 }
 .channels {
