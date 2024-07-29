@@ -592,6 +592,7 @@ class Channel{
         this.children=build;
     }
     async grabAfter(id:string){
+        console.log(id,this.lastmessage.id)
         if(id===this.lastmessage.id){
             return;
         }
@@ -795,6 +796,7 @@ class Channel{
     messageCreate(messagep:any):void{
         if(!this.hasPermission("VIEW_CHANNEL")){return}
         const messagez=new Message(messagep.d,this);
+        this.lastmessage=messagez;
         console.log(this.lastmessageid,messagez.snowflake,":3");
         this.idToNext.set(this.lastmessageid,messagez.snowflake);
         this.idToPrev.set(messagez.snowflake,this.lastmessageid);
