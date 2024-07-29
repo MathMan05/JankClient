@@ -103,7 +103,7 @@
 	--embed: #f2f3f5;
 	--link: #3333ee;
 	--discovery-bg: #c6c6d8;
-	--message-jump:#52558a;
+	--message-jump:#ccceff;
 }
 .Light-theme {
 	color-scheme: light;
@@ -162,5 +162,5 @@
 	--embed: #cdccd1;
 	--link: #5566cc;
 	--discovery-bg: #c6c6d8;
-	--message-jump:#52558a;
+	--message-jump:#ccceff;
 }
