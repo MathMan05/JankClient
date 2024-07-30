@@ -5,7 +5,8 @@
     "module":"es2022",
     "strict": false,
     "esModuleInterop": true,
-    "outDir": "./.dist"
+    "outDir": "./.dist",
+    "removeComments": false
   },
   "include": [
     "./webpage/*.ts"
