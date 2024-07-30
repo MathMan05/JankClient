@@ -5,6 +5,7 @@ class Permissions {
     hasDeny;
     constructor(allow, deny = "") {
         this.hasDeny = !!deny;
+        console.log(allow,deny);
         this.allow = BigInt(allow);
         this.deny = BigInt(deny);
     }
