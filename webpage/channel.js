@@ -531,7 +531,7 @@ class Channel {
 		this.children = build
 	}
 	async grabBefore(id) {
-		if (this.allthewayup) return
+		if (this.topid && id === this.topid.id) return
 
 		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + id + "&limit=100", {
 			headers: this.headers
@@ -539,80 +539,57 @@ class Channel {
 		const json = await res.json()
 
 		let next
-		if (json.length < 100) this.allthewayup = true
+		if (json.length < 100) {
+			this.allthewayup = true;
+			if (json.length == 0) {
+				this.topid = SnowFlake.getSnowFlakeFromID(id, Message);
+			}
+		}
 
 		let previd = SnowFlake.getSnowFlakeFromID(id, Message)
 		for (const i in json) {
 			let messager
-			if (next) messager = next
-			else messager = new Message(json[i], this)
-
-			if (json[Number(i) + 1] === void 0) next = void 0
-			else next = new Message(json[Number(i) + 1], this)
-
-			if (!this.messageids.has(messager.id)) {
-				this.idToNext.set(messager.snowflake, previd)
-				this.idToPrev.set(previd, messager.snowflake)
-				previd = messager.snowflake
-				this.messageids.set(messager.snowflake, messager)
+			let willbreak = false;
+			if (!SnowFlake.hasSnowFlakeFromID(response[i].id, Message)) {
+				messager = new Message(response[i], this);
+			} else {
+				console.log("flaky");
+				messager = SnowFlake.getSnowFlakeFromID(response[i].id, Message).getObject();
+				willbreak = true;
 			}
+
+			this.idToNext.set(messager.snowflake, previd)
+			this.idToPrev.set(previd, messager.snowflake)
+			previd = messager.snowflake
+			this.messageids.set(messager.snowflake, messager)
+			if (response.length - 1 == i && response.length < 100) this.topid = previd
+
+			if (willbreak) break
 		}
 	}
 	async grabAfter(id) {
-		if (id === this.lastmessage.id) return
+		if (this.lastmessage.id == id) return
 
 		await fetch(this.info.api.toString() + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
 			headers: this.headers
 		}).then(j => j.json()).then(response => {
-			let next
-			let previd
-			for (const i in response) {
-				let messager
-				if (next) messager = next
-				else messager = new Message(response[i], this)
-
-				if (response[Number(i) + 1] === void 0) {
-					next = void 0
-					console.log("ohno", Number(i) + 1)
-				} else next = new Message(response[Number(i) + 1], this)
-
-				if (this.messageids.get(messager.snowflake) === void 0) {
-					this.idToNext.set(messager.snowflake, previd)
-					this.idToPrev.set(previd, messager.snowflake)
-					previd = messager.snowflake
-					this.messageids.set(messager.snowflake, messager)
-				} else console.log("How???")
-			}
-		})
-	}
-	async grabAround(id) {
-		await fetch(this.info.api.toString() + "/channels/" + this.snowflake + "/messages?around=" + id + "&limit=100", {
-			headers: this.headers
-		}).then(j => j.json()).then(response => {
-			let next
-			if (response.length == 0) this.allthewayup = true
-
 			let previd = SnowFlake.getSnowFlakeFromID(id, Message)
 			for (const i in response) {
 				let messager
-				if (next) messager = next
-				else messager = new Message(response[i], this)
-
-				if (response[Number(i) + 1] === void 0) {
-					next = void 0
-					console.log("ohno", Number(i) + 1)
-				} else next = new Message(response[Number(i) + 1], this)
-
-				if (this.messageids.get(messager.snowflake) === void 0) {
-					this.idToNext.set(messager.snowflake, previd)
-					this.idToPrev.set(previd, messager.snowflake)
-					previd = messager.snowflake
-					this.messageids.set(messager.snowflake, messager)
-				} else {
-					console.log("How???")
+				let willbreak = false
+				if (!SnowFlake.hasSnowFlakeFromID(response[i].id, Message)) messager = new Message(response[i], this)
+				else {
+					messager = SnowFlake.getSnowFlakeFromID(response[i].id, Message).getObject()
+					willbreak = true
 				}
+
+				this.idToPrev.set(messager.snowflake, previd)
+				this.idToNext.set(previd, messager.snowflake)
+				previd = messager.snowflake
+				this.messageids.set(messager.snowflake, messager)
+
+				if (willbreak) break
 			}
-			//out.buildmessages();
 		})
 	}
 	buildmessage(message, next) {
@@ -732,6 +709,7 @@ class Channel {
 		const messagez = new Message(messagep.d, this)
 		this.idToNext.set(this.lastmessageid, messagez.snowflake)
 		this.idToPrev.set(messagez.snowflake, this.lastmessageid)
+		this.lastmessage = messagez
 		this.lastmessageid = messagez.snowflake
 		this.messageids.set(messagez.snowflake, messagez)
 

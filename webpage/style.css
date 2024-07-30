@@ -1510,6 +1510,7 @@ video {
 	color: var(--white);
 	transition: .2s;
 	max-height: 32px;
+	user-select: none;
 }
 .actionrow button.b-primary {
 	background-color: #5865f2;
@@ -1613,14 +1614,11 @@ textarea:focus-visible,
 	animation-name: jumped;
 }
 @keyframes jumped {
-	0% {
+	0%, 100% {
 		background-color: transparent;
 	}
 	50% {
 		background-color: var(--message-jump);
-	}
-	100% {
-		background-color: transparent;
 	}
 }
 
@@ -1642,16 +1640,14 @@ textarea:focus-visible,
 	align-items: flex-start;
 	justify-content: space-evenly;
 	padding: .075in;
+	box-sizing: border-box;
 }
 @keyframes goout {
-	0% {
+	0%, 100% {
 		opacity: 0;
 	}
 	5%, 90% {
 		opacity: 1;
-	}
-	100% {
-		opacity: 0;
 	}
 }
 

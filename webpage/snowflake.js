@@ -47,6 +47,17 @@ class SnowFlake {
 		SnowFlake.FinalizationRegistry.register(this, [id, type])
 		return newSnowflake
 	}
+	static hasSnowFlakeFromID(id, type) {
+		if (!SnowFlake.SnowFlakes.get(type)) return false
+
+		const flake = SnowFlake.SnowFlakes.get(type).get(id)
+		if (flake) {
+			const flake2 = flake.deref()?.getObject()
+			return Boolean(flake2)
+		}
+
+		return false
+	}
 	getUnixTime() {
 		return Number((BigInt(this.id) >> 22n) + 1420070400000n)
 	}
