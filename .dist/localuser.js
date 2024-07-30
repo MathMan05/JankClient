@@ -100,6 +100,8 @@ class Localuser {
         this.guilds = [];
         this.guildids = new Map();
         this.ws.close(4001);
+        SnowFlake.clear();
+        User.clear();
     }
     async initwebsocket() {
         let returny = null;

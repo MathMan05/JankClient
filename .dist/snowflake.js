@@ -28,6 +28,9 @@ class SnowFlake {
         SnowFlake.FinalizationRegistry.register(this, [id, obj.constructor]);
         this.obj = obj;
     }
+    static clear() {
+        this.SnowFlakes = new Map();
+    }
     /**
      *  Just to clarify bc TS, it returns a SnowFlake\<type> which is what you entered with the type parameter
      *

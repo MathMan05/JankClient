@@ -1,6 +1,6 @@
 class SnowFlake<x extends WeakKey>{
     public readonly id:string;
-    private static readonly SnowFlakes:Map<any,Map<string,WeakRef<SnowFlake<any>>>>=new Map();
+    private static SnowFlakes:Map<any,Map<string,WeakRef<SnowFlake<any>>>>=new Map();
     private static readonly FinalizationRegistry=new FinalizationRegistry((a:[string,WeakKey])=>{
         SnowFlake.SnowFlakes.get(a[1]).delete(a[0]);
     });
@@ -26,6 +26,9 @@ class SnowFlake<x extends WeakKey>{
         SnowFlake.SnowFlakes.get(obj.constructor).set(id,new WeakRef(this));
         SnowFlake.FinalizationRegistry.register(this,[id,obj.constructor]);
         this.obj=obj;
+    }
+    static clear(){//this is kinda a temp solution, it should be fixed, though its not that easy to do so
+        this.SnowFlakes=new Map();
     }
     /**
      *  Just to clarify bc TS, it returns a SnowFlake\<type> which is what you entered with the type parameter

@@ -54,6 +54,9 @@ class User {
             });
         });
     }
+    static clear() {
+        this.userids = {};
+    }
     static checkuser(user, owner) {
         if (User.userids[user.id]) {
             return User.userids[user.id];

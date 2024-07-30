@@ -59,6 +59,9 @@ class User{
                 });
         })
     }
+    static clear(){
+        this.userids={};
+    }
     static checkuser(user:User|userjson,owner:Localuser):User{
         if(User.userids[user.id]){
             return User.userids[user.id];
