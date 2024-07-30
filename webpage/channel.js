@@ -531,38 +531,32 @@ class Channel {
 		this.children = build
 	}
 	async grabBefore(id) {
-		if (this.topid && id === this.topid.id) return
+		if (this.topid && this.topid.id == id) return
 
 		const res = await fetch(instance.api + "/channels/" + this.id + "/messages?before=" + id + "&limit=100", {
 			headers: this.headers
 		})
 		const json = await res.json()
 
-		let next
 		if (json.length < 100) {
-			this.allthewayup = true;
-			if (json.length == 0) {
-				this.topid = SnowFlake.getSnowFlakeFromID(id, Message);
-			}
+			this.allthewayup = true
+			if (json.length == 0) this.topid = SnowFlake.getSnowFlakeFromID(id, Message)
 		}
 
 		let previd = SnowFlake.getSnowFlakeFromID(id, Message)
 		for (const i in json) {
 			let messager
-			let willbreak = false;
-			if (!SnowFlake.hasSnowFlakeFromID(response[i].id, Message)) {
-				messager = new Message(response[i], this);
-			} else {
-				console.log("flaky");
-				messager = SnowFlake.getSnowFlakeFromID(response[i].id, Message).getObject();
-				willbreak = true;
-			}
+			let willbreak = false
+			if (SnowFlake.hasSnowFlakeFromID(json[i].id, Message)) {
+				messager = SnowFlake.getSnowFlakeFromID(json[i].id, Message).getObject()
+				willbreak = true
+			} else messager = new Message(json[i], this)
 
 			this.idToNext.set(messager.snowflake, previd)
 			this.idToPrev.set(previd, messager.snowflake)
 			previd = messager.snowflake
 			this.messageids.set(messager.snowflake, messager)
-			if (response.length - 1 == i && response.length < 100) this.topid = previd
+			if (json.length - 1 == i && json.length < 100) this.topid = previd
 
 			if (willbreak) break
 		}
@@ -570,18 +564,17 @@ class Channel {
 	async grabAfter(id) {
 		if (this.lastmessage.id == id) return
 
-		await fetch(this.info.api.toString() + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
+		await fetch(instance.api + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
 			headers: this.headers
-		}).then(j => j.json()).then(response => {
+		}).then(j => j.json()).then(json => {
 			let previd = SnowFlake.getSnowFlakeFromID(id, Message)
-			for (const i in response) {
+			for (const i in json) {
 				let messager
 				let willbreak = false
-				if (!SnowFlake.hasSnowFlakeFromID(response[i].id, Message)) messager = new Message(response[i], this)
-				else {
-					messager = SnowFlake.getSnowFlakeFromID(response[i].id, Message).getObject()
+				if (SnowFlake.hasSnowFlakeFromID(json[i].id, Message)) {
+					messager = SnowFlake.getSnowFlakeFromID(json[i].id, Message).getObject()
 					willbreak = true
-				}
+				} else messager = new Message(json[i], this)
 
 				this.idToPrev.set(messager.snowflake, previd)
 				this.idToNext.set(previd, messager.snowflake)
@@ -659,16 +652,8 @@ class Channel {
 		if (notinumber == 3) notinumber = null
 		notinumber ??= this.guild.message_notifications
 
-		switch (notinumber) {
-			case 0:
-				return "all"
-			case 1:
-				return "mentions"
-			case 2:
-				return "none"
-			case 3:
-				return "default"
-		}
+		const notiTypes = ["all", "mentions", "none", "default"]
+		return notiTypes[notinumber]
 	}
 	async sendMessage(content, {attachments = [], replyingto = null}) {
 		let replyjson
@@ -735,10 +720,6 @@ class Channel {
 
 		if (Notification.permission == "granted") {
 			let noticontent = message.content.textContent
-			// TODO: Sync from upstream
-			/*if (message.embeds[0] && !noticontent)
-				noticontent = message.embeds.find(embed => embed.json.title)?.json.title ||
-					markdown(message.embeds.find(embed => embed.json.description)?.json.description).textContent*/
 
 			if (message.system) noticontent ||= "System Message"
 			else noticontent ||= "Blank Message"
