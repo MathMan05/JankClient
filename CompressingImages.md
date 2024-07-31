@@ -13,11 +13,12 @@ The best tool to really shrink pngs to be as small as they can be.
 
 ## WEBP
 it's better than png, though I have a feeling more could be done to compress these
-### ffmpeg
+### cwebp
 so far this seems to be the best way to compress webp images with a command that kinda looks like this one
 ```bash
-ffmpeg -i input.webp -c:v libwebp -lossless 1 -q:v 100 -compression_level 6 output.webp
+cwebp -lossless -z 9 in.webp -o out.webp
 ```
+while for all other formats squoosh is not recommended, for webp it'll be identical due to cwebp using the same libary as squoosh.
 
 ## AVIF
 As far as I can tell, this format just sucks at its job, at least for lossless images
