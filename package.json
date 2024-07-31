@@ -10,7 +10,8 @@
   "author": "MathMan05",
   "license": "GPL-3.0",
   "dependencies": {
-    "express": "^4.19.2"
+    "express": "^4.19.2",
+    "compression":"^1.7.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.7.0",
@@ -24,7 +25,6 @@
     "eslint-plugin-unicorn": "^55.0.0",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
-    "typescript-eslint": "^7.17.0",
-    "compression":"^1.7.4"
+    "typescript-eslint": "^7.17.0"
   }
 }
