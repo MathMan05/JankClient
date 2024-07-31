@@ -18,6 +18,9 @@ class User {
 	}
 
 	static userids = {}
+    static clear() {
+        this.userids = {}
+    }
 	static checkuser(userjson, owner) {
 		if (User.userids[userjson.id]) return User.userids[userjson.id]
 

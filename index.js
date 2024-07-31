@@ -10,6 +10,9 @@ const express = require("express")
 const app = express()
 app.disable("x-powered-by")
 
+const compression = require("compression")
+app.use(compression())
+
 app.use((req, res, next) => {
 	res.header("X-Frame-Options", "DENY")
 	res.header("X-Content-Type-Options", "nosniff")

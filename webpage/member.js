@@ -80,9 +80,11 @@ class Member {
 			return memb
 		}
 
-		const promise = fetch(instance.api + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true" + (guild.id == "@me" ? "" : "&guild_id=" + guild.id), {
+		const fetchPromise = fetch(instance.api + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true" + (guild.id == "@me" ? "" : "&guild_id=" + guild.id), {
 			headers: guild.headers
-		}).then(res => res.json()).then(json => {
+		})
+		fetchPromise.catch(console.warn)
+		const promise = fetchPromise.then(res => res.json()).then(json => {
 			const memb = new Member(json, guild)
 			Member.already[guild.id][id] = memb
 			return memb

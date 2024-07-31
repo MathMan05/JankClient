@@ -30,6 +30,9 @@ class SnowFlake {
 		SnowFlake.FinalizationRegistry.register(this, [id, obj.constructor])
 		this.obj = obj
 	}
+	static clear() {
+		this.SnowFlakes = new Map()
+	}
 	static getSnowFlakeFromID(id, type) {
 		if (!SnowFlake.SnowFlakes.get(type)) {
 			SnowFlake.SnowFlakes.set(type, new Map())
@@ -59,7 +62,12 @@ class SnowFlake {
 		return false
 	}
 	getUnixTime() {
-		return Number((BigInt(this.id) >> 22n) + 1420070400000n)
+        try {
+            return Number((BigInt(this.id) >> 22n) + 1420070400000n)
+        } catch {
+            console.error(`The ID is corrupted, it's ${this.id} when it should be some number.`)
+            return 0;
+        }
 	}
 	toString() {
 		return this.id

@@ -1001,6 +1001,7 @@ span {
 	text-align: center;
 	transition: transform .2s;
 	vertical-align: middle;
+	display: flex;
 }
 
 #loading.doneloading {
@@ -1012,6 +1013,8 @@ span {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
+	display: flex;
+	flex-direction: column;
 }
 
 #centerdiv > h1, #centerdiv > h2 {
@@ -1361,6 +1364,7 @@ video {
 	width: 7cm;
 	height: 8cm;
 	z-index: 5;
+	border: solid, color-mix(in hsl,var(--black), transparent 80%), .03in;
 }
 
 .hypoprofile {
