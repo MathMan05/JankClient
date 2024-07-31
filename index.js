@@ -1,8 +1,10 @@
 #! /usr/bin/env node
+const compression = require('compression')
 
 const express = require('express');
 const fs = require('fs');
 const app = express();
+app.use(compression())
 
 const tsNode = require('ts-node');
 
