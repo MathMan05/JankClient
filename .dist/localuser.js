@@ -130,10 +130,16 @@ class Localuser {
                 }
             }));
         });
-        const ds = new DecompressionStream("deflate");
-        const w = ds.writable.getWriter();
-        const r = ds.readable.getReader();
-        let arr = new Uint8Array();
+        let ds;
+        let w;
+        let r;
+        let arr;
+        if (DecompressionStream) {
+            ds = new DecompressionStream("deflate");
+            w = ds.writable.getWriter();
+            r = ds.readable.getReader();
+            arr = new Uint8Array();
+        }
         let build = "";
         this.ws.addEventListener('message', async (event) => {
             let temp;
