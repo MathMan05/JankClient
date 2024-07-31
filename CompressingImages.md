@@ -1,15 +1,27 @@
 This is for in the future when I want to compress more images or anyone else for that matter.
+# Lossless
 
-# PNGs:
-## https://squoosh.app/
-good at reducing the pallet, a first step for images that have a limited number of colors, bad at actually compressing things though
-## pngcrush
+### https://squoosh.app/
+good at reducing the pallet, a first step for images that have a limited number of colors, bad at actually compressing things though, for all formats tested.
+
+## PNGs:
+### pngcrush
 Good, but should be ran before optipng, but isn't as good as it, use in tandom
-## optipng
+### optipng
 The best tool to really shrink pngs to be as small as they can be.
 
-# SVGs:
-## https://svgomg.net/
+## WEBP
+### ffmpeg
+so far this seems to be the best way to compress webp images with a command that kinda looks like this one
+```
+ffmpeg -i input.webp -c:v libwebp -lossless 1 -q:v 100 -compression_level 6 output.webp
+```
+it's better than png, though I have a feeling more could be done
+
+# Vector
+
+## SVGs:
+### https://svgomg.net/
 great tool, if anyone knows how to squish them further, let me know, some manual work may go a long way to help shrink svgs, though I'm not doing that right now lol.
 
 I may look into other formats soon as well, though these are the main two I'm currently using
