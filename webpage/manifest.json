@@ -2,7 +2,7 @@
   "name": "Jank Client",
   "icons": [
     {
-        "src": "/bitmap.svg",
+        "src": "/logo.svg",
         "sizes": "512x512"
     }
   ],
