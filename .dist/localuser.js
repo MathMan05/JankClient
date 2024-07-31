@@ -157,16 +157,24 @@ class Localuser {
                 w.write(arr.buffer);
                 arr = new Uint8Array();
                 //console.log(data,test);
-                const read = (await r.read());
-                const data = new TextDecoder().decode(read.value);
-                build += data;
-                console.log("temp");
-                try {
-                    temp = JSON.parse(build);
-                    build = "";
-                }
-                catch {
-                    return;
+                while (true) {
+                    const read = (await r.read());
+                    const data = new TextDecoder().decode(read.value);
+                    if (data === "") {
+                        break;
+                    }
+                    build += data;
+                    console.log("temp");
+                    try {
+                        temp = JSON.parse(build);
+                        build = "";
+                        if (temp.op === 0 && temp.t === "READY") {
+                            returny();
+                        }
+                        this.handleEvent(temp);
+                    }
+                    catch {
+                    }
                 }
             }
             else {
