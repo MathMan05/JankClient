@@ -106,7 +106,7 @@ class Localuser {
     async initwebsocket() {
         let returny = null;
         const promise = new Promise((res) => { returny = res; });
-        this.ws = new WebSocket(this.serverurls.gateway.toString());
+        this.ws = new WebSocket(this.serverurls.gateway.toString() + "?encoding=json&v=9" + (DecompressionStream ? "&compress=zlib-stream" : ""));
         this.ws.addEventListener('open', (event) => {
             console.log('WebSocket connected');
             this.ws.send(JSON.stringify({
@@ -120,7 +120,7 @@ class Localuser {
                         "release_channel": "Custom",
                         "browser_user_agent": navigator.userAgent
                     },
-                    "compress": false,
+                    "compress": !!DecompressionStream,
                     "presence": {
                         "status": "online",
                         "since": new Date().getTime(),
@@ -130,85 +130,46 @@ class Localuser {
                 }
             }));
         });
-        this.ws.addEventListener('message', (event) => {
-            const temp = JSON.parse(event.data);
-            console.log(temp);
-            if (temp.s)
-                this.lastSequence = temp.s;
-            if (temp.op == 0) {
-                switch (temp.t) {
-                    case "MESSAGE_CREATE":
-                        if (this.initialized) {
-                            this.messageCreate(temp);
-                        }
-                        break;
-                    case "MESSAGE_DELETE":
-                        console.log(temp.d);
-                        SnowFlake.getSnowFlakeFromID(temp.d.id, Message).getObject().deleteEvent();
-                        break;
-                    case "READY":
-                        this.gottenReady(temp);
-                        this.genusersettings();
-                        returny();
-                        break;
-                    case "MESSAGE_UPDATE":
-                        const message = SnowFlake.getSnowFlakeFromID(temp.d.id, Message).getObject();
-                        message.giveData(temp.d);
-                        break;
-                    case "TYPING_START":
-                        if (this.initialized) {
-                            this.typingStart(temp);
-                        }
-                        break;
-                    case "USER_UPDATE":
-                        if (this.initialized) {
-                            const users = SnowFlake.getSnowFlakeFromID(temp.d.id, User).getObject();
-                            console.log(users, temp.d.id);
-                            if (users) {
-                                users.userupdate(temp.d);
-                            }
-                        }
-                        break;
-                    case "CHANNEL_UPDATE":
-                        if (this.initialized) {
-                            this.updateChannel(temp.d);
-                        }
-                        break;
-                    case "CHANNEL_CREATE":
-                        if (this.initialized) {
-                            this.createChannel(temp.d);
-                        }
-                        break;
-                    case "CHANNEL_DELETE":
-                        if (this.initialized) {
-                            this.delChannel(temp.d);
-                        }
-                        break;
-                    case "GUILD_DELETE":
-                        {
-                            const guildy = this.guildids.get(temp.d.id);
-                            this.guildids.delete(temp.d.id);
-                            this.guilds.splice(this.guilds.indexOf(guildy), 1);
-                            guildy.html.remove();
-                            break;
-                        }
-                    case "GUILD_CREATE":
-                        {
-                            const guildy = new Guild(temp.d, this, this.user);
-                            this.guilds.push(guildy);
-                            this.guildids.set(guildy.id, guildy);
-                            document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"));
-                        }
+        const ds = new DecompressionStream("deflate");
+        const w = ds.writable.getWriter();
+        const r = ds.readable.getReader();
+        let arr = new Uint8Array();
+        let build = "";
+        this.ws.addEventListener('message', async (event) => {
+            let temp;
+            if (event.data instanceof Blob) {
+                const buff = await event.data.arrayBuffer();
+                const array = new Uint8Array(buff);
+                const temparr = new Uint8Array(array.length + arr.length);
+                temparr.set(arr, 0);
+                temparr.set(array, arr.length);
+                arr = temparr;
+                const len = array.length;
+                if (!(array[len - 1] === 255 && array[len - 2] === 255 && array[len - 3] === 0 && array[len - 4] === 0)) {
+                    return;
+                }
+                w.write(arr.buffer);
+                arr = new Uint8Array();
+                //console.log(data,test);
+                const read = (await r.read());
+                const data = new TextDecoder().decode(read.value);
+                build += data;
+                console.log("temp");
+                try {
+                    temp = JSON.parse(build);
+                    build = "";
+                }
+                catch {
+                    return;
                 }
             }
-            else if (temp.op === 10) {
-                console.log("heartbeat down");
-                this.wsinterval = setInterval(_ => {
-                    if (this.connectionSucceed === 0)
-                        this.connectionSucceed = Date.now();
-                    this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }));
-                }, temp.d.heartbeat_interval);
+            else {
+                temp = JSON.parse(event.data);
             }
+            if (temp.op === 0 && temp.t === "READY") {
+                returny();
+            }
+            this.handleEvent(temp);
         });
         this.ws.addEventListener("close", event => {
             console.log("WebSocket closed with code " + event.code);
@@ -240,6 +201,84 @@ class Localuser {
         });
         await promise;
         return;
+    }
+    handleEvent(temp) {
+        console.debug(temp);
+        if (temp.s)
+            this.lastSequence = temp.s;
+        if (temp.op == 0) {
+            switch (temp.t) {
+                case "MESSAGE_CREATE":
+                    if (this.initialized) {
+                        this.messageCreate(temp);
+                    }
+                    break;
+                case "MESSAGE_DELETE":
+                    console.log(temp.d);
+                    SnowFlake.getSnowFlakeFromID(temp.d.id, Message).getObject().deleteEvent();
+                    break;
+                case "READY":
+                    this.gottenReady(temp);
+                    this.genusersettings();
+                    break;
+                case "MESSAGE_UPDATE":
+                    const message = SnowFlake.getSnowFlakeFromID(temp.d.id, Message).getObject();
+                    message.giveData(temp.d);
+                    break;
+                case "TYPING_START":
+                    if (this.initialized) {
+                        this.typingStart(temp);
+                    }
+                    break;
+                case "USER_UPDATE":
+                    if (this.initialized) {
+                        const users = SnowFlake.getSnowFlakeFromID(temp.d.id, User).getObject();
+                        console.log(users, temp.d.id);
+                        if (users) {
+                            users.userupdate(temp.d);
+                        }
+                    }
+                    break;
+                case "CHANNEL_UPDATE":
+                    if (this.initialized) {
+                        this.updateChannel(temp.d);
+                    }
+                    break;
+                case "CHANNEL_CREATE":
+                    if (this.initialized) {
+                        this.createChannel(temp.d);
+                    }
+                    break;
+                case "CHANNEL_DELETE":
+                    if (this.initialized) {
+                        this.delChannel(temp.d);
+                    }
+                    break;
+                case "GUILD_DELETE":
+                    {
+                        const guildy = this.guildids.get(temp.d.id);
+                        this.guildids.delete(temp.d.id);
+                        this.guilds.splice(this.guilds.indexOf(guildy), 1);
+                        guildy.html.remove();
+                        break;
+                    }
+                case "GUILD_CREATE":
+                    {
+                        const guildy = new Guild(temp.d, this, this.user);
+                        this.guilds.push(guildy);
+                        this.guildids.set(guildy.id, guildy);
+                        document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"));
+                    }
+            }
+        }
+        else if (temp.op === 10) {
+            console.log("heartbeat down");
+            this.wsinterval = setInterval(_ => {
+                if (this.connectionSucceed === 0)
+                    this.connectionSucceed = Date.now();
+                this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }));
+            }, temp.d.heartbeat_interval);
+        }
     }
     resolveChannelFromID(ID) {
         let resolve = this.guilds.find(guild => guild.channelids[ID]);
