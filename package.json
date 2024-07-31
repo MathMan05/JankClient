@@ -30,16 +30,17 @@
   "license": "GPL-3.0",
   "dependencies": {
     "clean-css": "^5.3.3",
+    "compression": "^1.7.4",
     "express": "^4.19.2",
-    "uglify-js": "^3.19.0"
+    "uglify-js": "^3.19.1"
   },
   "devDependencies": {
     "@html-eslint/eslint-plugin": "^0.24.1",
     "@html-eslint/parser": "^0.24.1",
-    "@stylistic/eslint-plugin-js": "^2.3.0",
-    "eslint": "^9.7.0",
+    "@stylistic/eslint-plugin-js": "^2.4.0",
+    "eslint": "^9.8.0",
     "eslint-plugin-html": "^8.1.1",
-    "eslint-plugin-sonarjs": "^1.0.3",
+    "eslint-plugin-sonarjs": "^1.0.4",
     "eslint-plugin-unicorn": "^55.0.0",
     "globals": "^15.8.0",
     "taiko": "^1.4.1"

@@ -75,6 +75,8 @@ class LocalUser {
 		this.guilds = []
 		this.guildids = new Map()
 		this.ws.close(1000)
+		SnowFlake.clear()
+		User.clear()
 	}
 	lastSequence = null
 	async initwebsocket() {
@@ -82,7 +84,7 @@ class LocalUser {
 		const promise = new Promise(resolve => {
 			returny = resolve
 		})
-		this.ws = new WebSocket(instance.gateway + "/?v=9&encoding=json")
+		this.ws = new WebSocket(instance.gateway + "/?v=9&encoding=json" + ("DecompressionStream" in window ? "&compress=zlib-stream" : ""))
 
 		this.ws.addEventListener("open", () => {
 			console.log("WebSocket connected")
@@ -98,7 +100,7 @@ class LocalUser {
 						client_build_number: 0,
 						release_channel: "Custom"
 					},
-					compress: false,
+					compress: "DecompressionStream" in window,
 					presence: {
 						status: "online",
 						since: Date.now(),
@@ -109,88 +111,50 @@ class LocalUser {
 			}))
 		})
 
-		this.ws.addEventListener("message", event => {
-			const json = JSON.parse(event.data)
-			console.log(json)
+		let ds
+		let w
+		let r
+		let arr
+		if ("DecompressionStream" in window) {
+			ds = new DecompressionStream("deflate")
+			w = ds.writable.getWriter()
+			r = ds.readable.getReader()
+			arr = new Uint8Array()
+		}
 
-			if (json.s) this.lastSequence = json.s
+		let build = ""
+		this.ws.addEventListener("message", async event => {
+			let temp
+			if (event.data instanceof Blob) {
+				const buff = await event.data.arrayBuffer()
+				const array = new Uint8Array(buff)
+				const temparr = new Uint8Array(array.length + arr.length)
+				temparr.set(arr, 0)
+				temparr.set(array, arr.length)
+				arr = temparr
+				const len = array.length
+				if (!(array[len - 1] == 255 && array[len - 2] == 255 && array[len - 3] == 0 && array[len - 4] == 0)) return
 
-			if (json.op == 0) {
-				switch (json.t) {
-					case "MESSAGE_CREATE":
-						if (this.initialized) this.messageCreate(json)
-						break
-					case "MESSAGE_DELETE":
-						SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject().deleteEvent()
-						break
-					case "READY":
-						this.gottenReady(json)
-						this.genusersettings()
-						returny()
-						break
-					case "MESSAGE_UPDATE":
-						const message = SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject()
-						message.giveData(json.d)
-						break
-					case "MESSAGE_REACTION_ADD":
-						const messageReactionAdd = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
-						messageReactionAdd.handleReactionAdd(json.d)
-						break
-					case "MESSAGE_REACTION_REMOVE":
-						const messageReactionRemove = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
-						messageReactionRemove.handleReactionRemove(json.d)
-						break
-					case "TYPING_START":
-						if (this.initialized) this.typingStart(json)
-						break
-					case "USER_UPDATE":
-						if (this.initialized) {
-							const user = SnowFlake.getSnowFlakeFromID(json.d.id, User).getObject()
-							if (user) user.userupdate(json.d)
-						}
-						break
-					case "CHANNEL_UPDATE":
-						if (this.initialized) this.updateChannel(json.d)
-						break
-					case "CHANNEL_CREATE":
-						if (this.initialized) this.createChannel(json.d)
-						break
-					case "CHANNEL_DELETE":
-						if (this.initialized) this.delChannel(json.d)
-						break
-					case "GUILD_DELETE": {
-						const guildy = this.guildids.get(json.d.id)
-						this.guildids.delete(json.d.id)
-						this.guilds.splice(this.guilds.indexOf(guildy), 1)
-						guildy.html.remove()
+				w.write(arr.buffer)
+				arr = new Uint8Array()
 
-						if (this.guilds.length <= 1) document.getElementById("bottomseparator").setAttribute("hidden", "")
-						break
-					}
-					case "GUILD_CREATE": {
-						const guildy = new Guild(json.d, this, this.user)
-						this.guilds.push(guildy)
+				while (true) {
+					const read = await r.read()
+					const data = new TextDecoder().decode(read.value)
+					if (data == "") break
 
-						document.getElementById("bottomseparator").removeAttribute("hidden")
-						this.guildids.set(guildy.id, guildy)
-						document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"))
-						break
-					}
+					build += data
+					try {
+						temp = JSON.parse(build)
+						build = ""
+						if (temp.op == 0 && temp.t == "READY") returny()
+						this.handleEvent(temp)
+					} catch {}
 				}
-			} else if (json.op == 1) this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
-			else if (json.op == 10) {
-				this.heartbeatInterval = json.d.heartbeat_interval
+			} else temp = JSON.parse(event.data)
 
-				setTimeout(() => {
-					this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
-				}, Math.round(json.d.heartbeat_interval * Math.random()))
-			} else if (json.op == 11) {
-				this.heartbeatTimeout = setTimeout(() => {
-					if (connectionSucceed == 0) connectionSucceed = Date.now()
-
-					this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
-				}, this.heartbeatInterval)
-			}
+			if (temp.op == 0 && temp.t == "READY") returny()
+			this.handleEvent(temp)
 		})
 
 		this.ws.addEventListener("close", event => {
@@ -223,6 +187,87 @@ class LocalUser {
 		})
 
 		await promise
+	}
+	handleEvent(json) {
+		console.log(json)
+
+		if (json.s) this.lastSequence = json.s
+
+		if (json.op == 0) {
+			switch (json.t) {
+				case "MESSAGE_CREATE":
+					if (this.initialized) this.messageCreate(json)
+					break
+				case "MESSAGE_DELETE":
+					SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject().deleteEvent()
+					break
+				case "READY":
+					this.gottenReady(json)
+					this.genusersettings()
+					break
+				case "MESSAGE_UPDATE":
+					const message = SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject()
+					message.giveData(json.d)
+					break
+				case "MESSAGE_REACTION_ADD":
+					const messageReactionAdd = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
+					messageReactionAdd.handleReactionAdd(json.d)
+					break
+				case "MESSAGE_REACTION_REMOVE":
+					const messageReactionRemove = SnowFlake.getSnowFlakeFromID(json.d.message_id, Message).getObject()
+					messageReactionRemove.handleReactionRemove(json.d)
+					break
+				case "TYPING_START":
+					if (this.initialized) this.typingStart(json)
+					break
+				case "USER_UPDATE":
+					if (this.initialized) {
+						const user = SnowFlake.getSnowFlakeFromID(json.d.id, User).getObject()
+						if (user) user.userupdate(json.d)
+					}
+					break
+				case "CHANNEL_UPDATE":
+					if (this.initialized) this.updateChannel(json.d)
+					break
+				case "CHANNEL_CREATE":
+					if (this.initialized) this.createChannel(json.d)
+					break
+				case "CHANNEL_DELETE":
+					if (this.initialized) this.delChannel(json.d)
+					break
+				case "GUILD_DELETE": {
+					const guildy = this.guildids.get(json.d.id)
+					this.guildids.delete(json.d.id)
+					this.guilds.splice(this.guilds.indexOf(guildy), 1)
+					guildy.html.remove()
+
+					if (this.guilds.length <= 1) document.getElementById("bottomseparator").setAttribute("hidden", "")
+					break
+				}
+				case "GUILD_CREATE": {
+					const guildy = new Guild(json.d, this, this.user)
+					this.guilds.push(guildy)
+
+					document.getElementById("bottomseparator").removeAttribute("hidden")
+					this.guildids.set(guildy.id, guildy)
+					document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"))
+					break
+				}
+			}
+		} else if (json.op == 1) this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
+		else if (json.op == 10) {
+			this.heartbeatInterval = json.d.heartbeat_interval
+
+			setTimeout(() => {
+				this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
+			}, Math.round(json.d.heartbeat_interval * Math.random()))
+		} else if (json.op == 11) {
+			this.heartbeatTimeout = setTimeout(() => {
+				if (connectionSucceed == 0) connectionSucceed = Date.now()
+
+				this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }))
+			}, this.heartbeatInterval)
+		}
 	}
 	resolveChannelFromID(ID) {
 		return this.guilds.find(guild => guild.channelids[ID])?.channelids[ID]
@@ -572,7 +617,7 @@ class LocalUser {
 		let newbio = null
 		let newTheme = null
 
-		let hypouser = new User(this.user, this)
+		let hypouser = this.user.clone()
 		const regen = () => {
 			hypothetcialprofie.innerHTML = hypouser.buildprofile(-1, -1).innerHTML
 		}
@@ -623,7 +668,7 @@ class LocalUser {
 					}
 				}]
 			], () => {}, () => {
-				hypouser = User.checkuser(this.user, this)
+				hypouser = this.user.clone()
 				regen()
 				file = null
 				newprouns = null

@@ -10,6 +10,9 @@ const express = require("express")
 const app = express()
 app.disable("x-powered-by")
 
+const compression = require("compression")
+app.use(compression())
+
 app.use((req, res, next) => {
 	res.header("X-Frame-Options", "DENY")
 	res.header("X-Content-Type-Options", "nosniff")
@@ -26,7 +29,7 @@ app.use((req, res, next) => {
 
 	res.header("Content-Security-Policy",
 		"default-src 'none' 'report-sample'; " +
-		"img-src 'self' https: http:; " +
+		"img-src 'self' https: http: blob:; " +
 		"script-src-elem 'self' https://www.google.com/recaptcha/api.js https://www.gstatic.com/recaptcha/ https://js.hcaptcha.com/1/api.js; " +
 		"style-src-elem 'self'; " +
 		"font-src 'self'; " +

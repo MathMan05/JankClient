@@ -23,16 +23,11 @@ class Member {
 		this.error = error
 		if (!owner) console.error("Guild not included in the creation of a member object")
 
-		if (memberjson.code == 404) return
-
 		this.owner = owner
 		this.headers = this.owner.headers
 		let member = memberjson
 		this.roles = []
-		if (!error) {
-			if (memberjson.guild_member) member = memberjson.guild_member
-			this.user = memberjson.user //new User(memberjson.user, this.localuser)
-		}
+		if (!error && memberjson.guild_member) member = memberjson.guild_member
 
 		for (const thing of Object.keys(member)) {
 			if (thing == "guild" || thing == "owner") continue
@@ -42,11 +37,20 @@ class Member {
 					const role = SnowFlake.getSnowFlakeFromID(strrole, Role).getObject()
 					this.roles.push(role)
 				}
+				continue
 			}
+
+			this[thing] = memberjson[thing]
 		}
 
 		if (error) this.user = memberjson
-		else this.user = User.checkuser(this.user, owner.localuser)
+		else {
+			if (SnowFlake.getSnowFlakeFromID(this?.id, User)) {
+				this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject()
+				return
+			}
+			this.user = User.checkuser(member.user, owner.localuser)
+		}
 	}
 	get guild() {
 		return this.owner
@@ -76,9 +80,11 @@ class Member {
 			return memb
 		}
 
-		const promise = fetch(instance.api + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true" + (guild.id == "@me" ? "" : "&guild_id=" + guild.id), {
+		const fetchPromise = fetch(instance.api + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true" + (guild.id == "@me" ? "" : "&guild_id=" + guild.id), {
 			headers: guild.headers
-		}).then(res => res.json()).then(json => {
+		})
+		fetchPromise.catch(console.warn)
+		const promise = fetchPromise.then(res => res.json()).then(json => {
 			const memb = new Member(json, guild)
 			Member.already[guild.id][id] = memb
 			return memb
@@ -95,10 +101,7 @@ class Member {
 		}
 	}
 	hasRole(ID) {
-		for (const role of this.roles) {
-			if (role.id == ID) return true
-		}
-		return false
+		return this.roles.some(role => role.id == ID)
 	}
 	getColor() {
 		if (!this.roles) return ""
@@ -113,7 +116,7 @@ class Member {
 		return this.guild.properties.owner_id == this.user.id || this.roles.some(role => role.permissions.hasPermission("ADMINISTRATOR"))
 	}
 	contextMenuBind(html) {
-		if (html.tagName === "SPAN") {
+		if (html.tagName == "SPAN") {
 			if (this.error) {
 				const error = document.createElement("span")
 				error.textContent = "!"

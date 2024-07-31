@@ -1,8 +1,15 @@
 class Permissions {
 	constructor(allow, deny = "") {
 		this.hasDeny = Boolean(deny)
-		this.allow = BigInt(allow)
-		this.deny = BigInt(deny)
+		try {
+			this.allow = BigInt(allow)
+			this.deny = BigInt(deny)
+		} catch {
+			this.allow = 0n
+			this.deny = 0n
+			console.error(`Something really stupid happened with a permission with allow being ${allow} and deny being,
+				${deny}, execution will still happen, but something really stupid happened, please report if you know what caused this.`)
+		}
 	}
 	hasPermissionBit(b, big) {
 		return Boolean((big >> BigInt(b)) & 1n)

@@ -44,7 +44,9 @@ const global = {
 	checkInstance: "writeable",
 	editchannel: "writeable",
 	getBulkUsers: "writeable",
-	getBulkInfo: "writeable"
+	getBulkInfo: "writeable",
+
+	hcaptcha: "readable"
 }
 
 const rules = {

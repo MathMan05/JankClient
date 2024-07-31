@@ -185,8 +185,7 @@ class Embed {
 
 		if (this.json.image || this.json.thumbnail) {
 			const img = document.createElement("img")
-			img.classList.add("embedimg")
-			if (this.json.image) img.classList.add("bigembedimg")
+			img.classList.add("embedimg", "bigembedimg")
 
 			img.addEventListener("click", () => {
 				const full = new Dialog(["img", this.json.image ? this.json.image.proxy_url : this.json.thumbnail.proxy_url, ["fit"]])
