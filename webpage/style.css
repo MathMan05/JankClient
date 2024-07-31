@@ -500,8 +500,19 @@ div {
 	max-height: 1.5in;
 	overflow-y: auto;
 	color: var(--primary-text);
-	background-color: var(--textarea-bg);
-	border: 1px solid;
+	background: var(--profile-info-bg);
+	border: 0px solid;
+	box-sizing: border-box;
+}
+
+/* Conditionally remove border radius from the top when hidereplybox is not present */
+#replybox:not(.hideReplyBox) ~ #typediv #typebox {
+	border-top-left-radius: 0;
+	border-top-right-radius: 0;
+}
+
+.accent {
+	color: var(--link);
 }
 
 hr {
