@@ -5,10 +5,10 @@ class Permissions {
 			this.allow = BigInt(allow)
 			this.deny = BigInt(deny)
 		} catch {
-			this.allow = 0n;
-			this.deny = 0n;
+			this.allow = 0n
+			this.deny = 0n
 			console.error(`Something really stupid happened with a permission with allow being ${allow} and deny being,
-				${deny}, execution will still happen, but something really stupid happened, please report if you know what caused this.`);
+				${deny}, execution will still happen, but something really stupid happened, please report if you know what caused this.`)
 		}
 	}
 	hasPermissionBit(b, big) {

@@ -123,7 +123,7 @@ class LocalUser {
 		}
 
 		let build = ""
-		this.ws.addEventListener("message", event => {
+		this.ws.addEventListener("message", async event => {
 			let temp
 			if (event.data instanceof Blob) {
 				const buff = await event.data.arrayBuffer()
@@ -149,9 +149,7 @@ class LocalUser {
 						build = ""
 						if (temp.op == 0 && temp.t == "READY") returny()
 						this.handleEvent(temp)
-					} catch (e) {
-						console.log("ignored upstream", e)
-					}
+					} catch {}
 				}
 			} else temp = JSON.parse(event.data)
 
@@ -191,7 +189,6 @@ class LocalUser {
 		await promise
 	}
 	handleEvent(json) {
-		const json = JSON.parse(event.data)
 		console.log(json)
 
 		if (json.s) this.lastSequence = json.s
@@ -207,7 +204,6 @@ class LocalUser {
 				case "READY":
 					this.gottenReady(json)
 					this.genusersettings()
-					returny()
 					break
 				case "MESSAGE_UPDATE":
 					const message = SnowFlake.getSnowFlakeFromID(json.d.id, Message).getObject()

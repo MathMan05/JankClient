@@ -120,10 +120,10 @@ class InfiniteScroller {
 
 		if (element) {
 			if (flash) {
-                element.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                })
+				element.scrollIntoView({
+					behavior: "smooth",
+					block: "center"
+				})
 				await new Promise(resolve => {
 					setTimeout(resolve, 1000)
 				})
