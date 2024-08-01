@@ -908,47 +908,54 @@ class Channel {
 }
 Channel.setupcontextmenu();
 export { Channel };
-function fixsvgtheme() {
-    const things = document.getElementsByClassName("svgtheme");
-    //console.log(things);
-    if (things.length) {
-        const thing = window.getComputedStyle(things[0]).color.replace("rgb(", "").replace(")", "").split(",");
-        //sconsole.log(thing);
-        const r = +thing[0] / 255;
-        const g = +thing[1] / 255;
-        const b = +thing[2] / 255;
-        const max = Math.max(r, g, b);
-        const min = Math.min(r, g, b);
-        const l = (max + min) / 2;
-        let s;
-        let h;
-        if (max !== min) {
-            if (l <= .5) {
-                s = (max - min) / (max + min);
+{
+    let last;
+    function fixsvgtheme() {
+        const things = document.getElementsByClassName("svgtheme");
+        //console.log(things);
+        if (things.length) {
+            const thing = window.getComputedStyle(things[0]).color.replace("rgb(", "").replace(")", "").split(",");
+            //sconsole.log(thing);
+            const r = +thing[0] / 255;
+            const g = +thing[1] / 255;
+            const b = +thing[2] / 255;
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            const l = (max + min) / 2;
+            let s;
+            let h;
+            if (max !== min) {
+                if (l <= .5) {
+                    s = (max - min) / (max + min);
+                }
+                else {
+                    s = (max - min) / (2.0 - max - min);
+                }
+                if (r === max) {
+                    h = (g - b) / (max - min);
+                }
+                else if (g === max) {
+                    h = 2 + (b - r) / (max - min);
+                }
+                else if (b === max) {
+                    h = 4 + (r - g) / (max - min);
+                }
             }
             else {
-                s = (max - min) / (2.0 - max - min);
+                s = 0;
+                h = 0;
             }
-            if (r === max) {
-                h = (g - b) / (max - min);
-            }
-            else if (g === max) {
-                h = 2 + (b - r) / (max - min);
-            }
-            else if (b === max) {
-                h = 4 + (r - g) / (max - min);
+            const rot = Math.floor(h * 60) + "deg";
+            const invert = .5 - (s / 2) + "";
+            const brightness = Math.floor((l * 200)) + "%";
+            const current = rot + invert + brightness;
+            if (current !== last) {
+                last = current;
+                document.documentElement.style.setProperty('--rot', rot);
+                document.documentElement.style.setProperty('--invert', invert);
+                document.documentElement.style.setProperty('--brightness', brightness);
             }
         }
-        else {
-            s = 0;
-            h = 0;
-        }
-        const rot = Math.floor(h * 60) + "deg";
-        const invert = .5 - (s / 2) + "";
-        const brightness = Math.floor((l * 200)) + "%";
-        document.documentElement.style.setProperty('--rot', rot);
-        document.documentElement.style.setProperty('--invert', invert);
-        document.documentElement.style.setProperty('--brightness', brightness);
     }
+    setInterval(fixsvgtheme, 100);
 }
-setInterval(fixsvgtheme, 100);
