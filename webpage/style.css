@@ -665,6 +665,7 @@ textarea:focus-visible,
 	transition: font-weight .1s;
 	padding: .02in .0in;
 	border-radius: .05in;
+	padding: .05in .1in;
 }
 .viewChannel{
 	font-weight:900;
@@ -701,6 +702,7 @@ textarea:focus-visible,
 	display: flex;
 	align-content: center;
 	align-items: center;
+	padding: .025in .0in;
 }
 .channeleffects:hover {
 	background-color: var(--channel-hover);
@@ -1524,7 +1526,6 @@ form div{
 	filter:hue-rotate(var(--rot)) invert(var(--invert)) brightness(var(--brightness));
 }
 .channels .channel{
-	padding: .05in .1in;
 	margin-bottom: .03in;
 }
 .colaspeicon{
