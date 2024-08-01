@@ -53,6 +53,7 @@
 	--link: #8888ff;
 	--discovery-bg: #37373b;
 	--message-jump:#7678b0;
+	--icon-color:white;
 }
 .WHITE-theme {
 	color-scheme: light;
@@ -104,6 +105,7 @@
 	--link: #3333ee;
 	--discovery-bg: #c6c6d8;
 	--message-jump:#ccceff;
+	--icon-color:black;
 }
 .Light-theme {
 	color-scheme: light;
@@ -163,4 +165,5 @@
 	--link: #5566cc;
 	--discovery-bg: #c6c6d8;
 	--message-jump:#ccceff;
+	--icon-color:black;
 }
