@@ -328,7 +328,8 @@ p {
 	font-size: .25in;
 	display: inline-block;
 	text-indent: .05in;
-	width: .15in;
+	width: .175in;
+	padding-right: .026in;
 }
 
 .spacee {
@@ -651,7 +652,7 @@ textarea:focus-visible,
 	transition: height .2s ease-in-out;
 	user-select: none;
 	cursor: pointer;
-	padding-left: .15in;
+	padding-left: .05in;
 }
 
 .channel:hover {
@@ -662,7 +663,8 @@ textarea:focus-visible,
 	user-select: none;
 	cursor: pointer;
 	transition: font-weight .1s;
-	padding: .02in 0;
+	padding: .02in .0in;
+	border-radius: .05in;
 }
 .viewChannel{
 	font-weight:900;
@@ -696,6 +698,9 @@ textarea:focus-visible,
 	flex-direction: row;
 	align-self: stretch;
 	width: 100%;
+	display: flex;
+	align-content: center;
+	align-items: center;
 }
 .channeleffects:hover {
 	background-color: var(--channel-hover);
@@ -898,7 +903,7 @@ select{
 }
 
 .channels .space {
-	text-indent: .15in;
+	/* text-indent: .15in; */
 }
 
 input[type="checkbox"] {
@@ -1517,4 +1522,16 @@ form div{
 .svgtheme{
 	color: var(--icon-color);
 	filter:hue-rotate(var(--rot)) invert(var(--invert)) brightness(var(--brightness));
+}
+.channels .channel{
+	padding: .05in .1in;
+	margin-bottom: .03in;
+}
+.colaspeicon{
+	width:.15in;
+	padding-right: .025in;
+	transition:rotate .1s;
+}
+.hiddencat{
+	rotate:90deg;
 }

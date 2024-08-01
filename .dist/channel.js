@@ -248,8 +248,9 @@ class Channel {
             this.sortchildren();
             const caps = document.createElement("div");
             const decdiv = document.createElement("div");
-            const decoration = document.createElement("b");
-            decoration.textContent = "▼";
+            const decoration = document.createElement("img");
+            decoration.src = "/icons/category.svg";
+            decoration.classList.add("svgtheme", "colaspeicon");
             decdiv.appendChild(decoration);
             const myhtml = document.createElement("p2");
             myhtml.textContent = this.name;
@@ -278,13 +279,13 @@ class Channel {
             childrendiv.classList.add("channels");
             setTimeout(_ => { childrendiv.style.height = childrendiv.scrollHeight + 'px'; }, 100);
             decdiv.onclick = function () {
-                if (decoration.textContent === "▼") { //
-                    decoration.textContent = "▲";
+                if (childrendiv.style.height !== '0px') {
+                    decoration.classList.add("hiddencat");
                     //childrendiv.classList.add("colapsediv");
                     childrendiv.style.height = '0px';
                 }
                 else {
-                    decoration.textContent = "▼";
+                    decoration.classList.remove("hiddencat");
                     //childrendiv.classList.remove("colapsediv")
                     childrendiv.style.height = childrendiv.scrollHeight + 'px';
                 }
