@@ -699,7 +699,6 @@ textarea:focus-visible,
 	align-self: stretch;
 	width: 100%;
 	display: flex;
-	align-content: center;
 	align-items: center;
 	padding: .025in .0in;
 }
