@@ -903,10 +903,6 @@ select{
 	height: .15in;
 }
 
-.channels .space {
-	/* text-indent: .15in; */
-}
-
 input[type="checkbox"] {
 	width: .15in;
 	height: .15in;
