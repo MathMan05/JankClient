@@ -328,6 +328,7 @@ p {
 	font-size: .25in;
 	display: inline-block;
 	text-indent: .05in;
+	width: .2in;
 }
 
 .spacee {
@@ -335,6 +336,7 @@ p {
 	margin-right: .02in;
 	font-size: .15in;
 	display: inline-block;
+	width: .2in;
 }
 
 #channels p2 {
@@ -1509,4 +1511,8 @@ span {
 }
 form div{
 	width:100%;
+}
+.svgtheme{
+	color: var(--icon-color);
+	filter:hue-rotate(var(--rot)) invert(var(--invert)) brightness(var(--brightness));
 }
