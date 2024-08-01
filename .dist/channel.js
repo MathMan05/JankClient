@@ -313,13 +313,13 @@ class Channel {
                 const decoration = document.createElement("img");
                 decoration.src = "/icons/voice.svg";
                 div.appendChild(decoration);
-                decoration.classList.add("spacee", "svgtheme");
+                decoration.classList.add("space", "svgtheme");
             }
             else if (this.type === 5) { //
                 const decoration = document.createElement("img");
                 decoration.src = "/icons/announce.svg";
                 div.appendChild(decoration);
-                decoration.classList.add("spacee", "svgtheme");
+                decoration.classList.add("space", "svgtheme");
             }
             else {
                 console.log(this.type);

@@ -324,11 +324,11 @@ p {
 }
 
 .space {
-	margin-right: .02in;
+	margin: .02in;
 	font-size: .25in;
 	display: inline-block;
 	text-indent: .05in;
-	width: .2in;
+	width: .15in;
 }
 
 .spacee {
@@ -651,6 +651,7 @@ textarea:focus-visible,
 	transition: height .2s ease-in-out;
 	user-select: none;
 	cursor: pointer;
+	padding-left: .15in;
 }
 
 .channel:hover {
@@ -661,6 +662,7 @@ textarea:focus-visible,
 	user-select: none;
 	cursor: pointer;
 	transition: font-weight .1s;
+	padding: .02in 0;
 }
 .viewChannel{
 	font-weight:900;
