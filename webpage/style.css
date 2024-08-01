@@ -663,7 +663,6 @@ textarea:focus-visible,
 	user-select: none;
 	cursor: pointer;
 	transition: font-weight .1s;
-	padding: .02in .0in;
 	border-radius: .05in;
 	padding: .05in .1in;
 }
