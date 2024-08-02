@@ -359,18 +359,21 @@ class Localuser {
     buildservers() {
         const serverlist = document.getElementById("servers"); //
         const outdiv = document.createElement("div");
+        const img = document.createElement("img");
         const div = document.createElement("div");
-        div.textContent = "⌂";
         div.classList.add("home", "servericon");
-        div["all"] = this.guildids.get("@me");
+        img.src = "/icons/home.svg";
+        img.classList.add("svgtheme");
+        img["all"] = this.guildids.get("@me");
         this.guildids.get("@me").html = outdiv;
         const unread = document.createElement("div");
         unread.classList.add("unread");
         outdiv.append(unread);
-        outdiv.appendChild(div);
+        outdiv.append(div);
+        div.appendChild(img);
         outdiv.classList.add("servernoti");
         serverlist.append(outdiv);
-        div.onclick = function () {
+        img.onclick = function () {
             this["all"].loadGuild();
             this["all"].loadChannel();
         };
@@ -401,10 +404,13 @@ class Localuser {
             div.onclick = _ => {
                 this.createGuild();
             };
-            const guildDiscoveryContainer = document.createElement("div");
-            guildDiscoveryContainer.textContent = "🧭";
-            guildDiscoveryContainer.classList.add("home", "servericon");
-            serverlist.appendChild(guildDiscoveryContainer);
+            const guilddsdiv = document.createElement("div");
+            const guildDiscoveryContainer = document.createElement("img");
+            guildDiscoveryContainer.src = "/icons/explore.svg";
+            guildDiscoveryContainer.classList.add("svgtheme");
+            guilddsdiv.classList.add("home", "servericon");
+            guilddsdiv.appendChild(guildDiscoveryContainer);
+            serverlist.appendChild(guilddsdiv);
             guildDiscoveryContainer.addEventListener("click", () => {
                 this.guildDiscovery();
             });
