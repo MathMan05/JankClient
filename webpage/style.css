@@ -1526,7 +1526,7 @@ form div{
 	width:.15in;
 	padding-right: .025in;
 	padding-left: .05in;
-	transition:rotate .1s;
+	transition:rotate .2s;
 }
 .hiddencat{
 	rotate:-90deg;
