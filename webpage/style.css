@@ -653,6 +653,7 @@ textarea:focus-visible,
 	user-select: none;
 	cursor: pointer;
 	padding-left: .05in;
+	overflow-y: clip;
 }
 
 .channel:hover {
