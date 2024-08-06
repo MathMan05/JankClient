@@ -1595,7 +1595,11 @@ form div{
 .reactiondiv{
 	
 }
+.meReacted{
+	background:var(--channels-bg) !important;
+}
 .reaction{
+	cursor:pointer;
 	width:.25in;
 	position:relative;
 	height:.25in;
