@@ -385,11 +385,11 @@ class Message {
             }
             const emoji = document.createElement("p");
             emoji.textContent = thing.emoji.name;
-            reaction.append(emoji);
             const count = document.createElement("p");
             count.textContent = "" + thing.count;
             count.classList.add("reactionCount");
             reaction.append(count);
+            reaction.append(emoji);
             reactdiv.append(reaction);
             reaction.onclick = _ => {
                 this.reactionToggle(thing.emoji.name);
