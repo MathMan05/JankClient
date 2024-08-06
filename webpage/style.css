@@ -1583,14 +1583,16 @@ form div{
 	flex-grow: 1;
 }
 .reactionCount{
-	position:absolute;
+	/* position:absolute; */
 	font-size:.125in;
 	padding:0 .01in;
-	bottom:-.03in;
-	left:-.03in;
-	background: var(--channels-bg);
-	border:solid var(--black) .021in;
-	border-radius:.05in;
+	/* bottom:-.03in; */
+	/* left:-.03in; */
+	/* background: var(--channels-bg); */
+	/* border:solid var(--black) .021in; */
+	/* border-radius:.05in; */
+	padding-left: .02in;
+	padding-right: .05in;
 }
 .reactiondiv{
 	
@@ -1600,19 +1602,20 @@ form div{
 }
 .reaction{
 	cursor:pointer;
-	width:.25in;
+	/* width:.25in; */
 	position:relative;
-	height:.25in;
+	/* height:.25in; */
 	display:flex;
 	flex-direction: row;
 	align-content: stretch;
 	background: var(--profile-info-bg);
 	border-radius:.05in;
-	justify-content: space-evenly;
 	border:solid var(--black);
 	margin-right:.05in;
 	p{
 		flex-grow:0;
-		flex-shrink:0;
+	flex-shrink:0;
 	}
+;
+	padding: .03in;
 }
