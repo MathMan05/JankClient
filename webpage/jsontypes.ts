@@ -271,7 +271,13 @@ type messagejson={
     mention_roles: [], //need examples to fix
     attachments: filejson[],
     embeds: embedjson[],
-    reactions: [], //ToDo
+    reactions: {
+        count:number,
+        emoji:{
+            name:string
+        },//very likely needs expanding
+        me:boolean,
+    }[],
     nonce: string,
     pinned: boolean,
     type: number
