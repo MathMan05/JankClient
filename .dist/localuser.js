@@ -6,6 +6,7 @@ import { Fullscreen } from "./fullscreen.js";
 import { setTheme } from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
+import { Member } from "./member.js";
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 class Localuser {
     lastSequence = null;
@@ -282,7 +283,23 @@ class Localuser {
                         this.guilds.push(guildy);
                         this.guildids.set(guildy.id, guildy);
                         document.getElementById("servers").insertBefore(guildy.generateGuildIcon(), document.getElementById("bottomseparator"));
+                        break;
                     }
+                case "MESSAGE_REACTION_ADD":
+                    if (SnowFlake.hasSnowFlakeFromID(temp.d.message_id, Message)) {
+                        const message = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject();
+                        const guild = SnowFlake.getSnowFlakeFromID(temp.d.guild_id, Guild).getObject();
+                        message.giveReaction(temp.d.emoji, new Member(temp.d.member, guild));
+                    }
+                    break;
+                case "MESSAGE_REACTION_REMOVE":
+                    if (SnowFlake.hasSnowFlakeFromID(temp.d.message_id, Message)) {
+                        const message = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject();
+                        const guild = SnowFlake.getSnowFlakeFromID(temp.d.guild_id, Guild).getObject();
+                        console.log("test");
+                        message.takeReaction(temp.d.emoji, temp.d.user_id);
+                    }
+                    break;
             }
         }
         else if (temp.op === 10) {

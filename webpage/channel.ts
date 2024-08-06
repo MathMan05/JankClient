@@ -11,8 +11,7 @@ import { Role } from "./role.js";
 import {InfiniteScroller} from "./infiniteScroller.js";
 import { SnowFlake } from "./snowflake.js";
 import { channeljson, messagejson, readyjson } from "./jsontypes.js";
-import {Emoji} from "./emoji.js";
-new Emoji();
+
 declare global {
     interface NotificationOptions {
         image?: string

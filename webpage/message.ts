@@ -9,6 +9,8 @@ import { Role } from "./role.js";
 import {File} from "./file.js";
 import { SnowFlake } from "./snowflake.js";
 import { messagejson } from "./jsontypes.js";
+import {Emoji} from "./emoji.js";
+new Emoji();
 
 class Message{
     static contextmenu=new Contextmenu("message menu");
@@ -28,6 +30,7 @@ class Message{
     static resolve:Function;
     div:HTMLDivElement;
     member:Member;
+    reactions:messagejson["reactions"];
     get id(){
         return this.snowflake.id;
     }
@@ -51,6 +54,12 @@ class Message{
         Message.contextmenu.addbutton("Copy message id",function(){
             navigator.clipboard.writeText(this.id);
         });
+        Message.contextmenu.addsubmenu("Add reaction",function(this:Message,e){
+            Emoji.emojiPicker(e.x,e.y).then(_=>{
+                console.log(_,":3")
+                this.reactionToggle(_);
+            });
+        });
         Message.contextmenu.addbutton("Edit",function(){
             this.channel.editing=this;
             const markdown=(document.getElementById("typebox"))["markdown"] as MarkDown;
@@ -66,6 +75,24 @@ class Message{
         this.headers=this.owner.headers;
         this.giveData(messagejson);
 
+    }
+    reactionToggle(emoji:string|Emoji){
+
+        if(typeof emoji === "string"){
+            let remove=false;
+            for(const thing of this.reactions){
+                if(thing.emoji.name===emoji){
+                    remove=thing.me;
+                    break;
+                }
+            }
+            fetch(this.info.api.toString()+ "/channels/"+this.channel.id+"/messages/"+this.id+"/reactions/"+encodeURIComponent(emoji)+"/@me",{
+                method:remove?"DELETE":"PUT",
+                headers:this.headers,
+            })
+        }else{
+            emoji
+        }
     }
     giveData(messagejson:messagejson){
         for(const thing of Object.keys(messagejson)){
@@ -94,7 +121,9 @@ class Message{
             }
             this[thing]=messagejson[thing];
         }
-
+        if(messagejson.reactions?.length){
+            console.log(messagejson.reactions,":3");
+        }
 
         this.author=new User(messagejson.author,this.localuser);
         for(const thing in messagejson.mentions){
@@ -187,6 +216,7 @@ class Message{
             this.channel.lastmessage=prev.getObject();
         }
     }
+    reactdiv:WeakRef<HTMLDivElement>;
     generateMessage(premessage:Message=null){
         if(!premessage){
             premessage=this.channel.idToPrev.get(this.snowflake)?.getObject();
@@ -210,27 +240,6 @@ class Message{
             const reply=document.createElement("div");
             username.classList.add("username");
             this.author.bind(username,this.guild);
-
-            /*
-            Member.resolve(this.author,this.guild).then(_=>{
-                if(!_) {return};
-                console.log(_.error);
-                if(_.error){
-                    username.textContent+="Error";
-                    alert("Should've gotten here")
-                    const error=document.createElement("span");
-                    error.textContent="!";
-                    error.classList.add("membererror");
-                    username.after(error);
-
-                    return;
-                }
-                username.style.color=_.getColor();
-            }).catch(_=>{
-                console.log(_)
-            });
-            */
-
             reply.classList.add("replytext");
             replyline.appendChild(reply);
             const line2=document.createElement("hr");
@@ -360,7 +369,75 @@ class Message{
 
         }
         div["all"]=this;
+        const reactions=document.createElement("div");
+        reactions.classList.add("flexltr","reactiondiv");
+        this.reactdiv=new WeakRef(reactions);
+        this.updateReactions();
+        div.append(reactions)
         return(div)
+    }
+    updateReactions(){
+        const reactdiv=this.reactdiv.deref();
+        if(!reactdiv) return;
+        reactdiv.innerHTML="";
+        for(const thing of this.reactions){
+            console.log(thing,":3")
+            const reaction=document.createElement("div");
+            reaction.classList.add("reaction");
+            if(thing.me){
+                reaction.classList.add("meReacted")
+            }
+            const emoji=document.createElement("p");
+            emoji.textContent=thing.emoji.name;
+            reaction.append(emoji);
+            const count=document.createElement("p");
+            count.textContent=""+thing.count;
+            count.classList.add("reactionCount");
+            reaction.append(count);
+            reactdiv.append(reaction);
+
+            reaction.onclick=_=>{
+                this.reactionToggle(thing.emoji.name);
+            }
+        }
+    }
+    giveReaction(data:{name:string},member:Member){
+        for(const thing of this.reactions){
+            if(thing.emoji.name===data.name){
+                thing.count++;
+                if(member.id===this.localuser.user.id){
+                    thing.me=true;
+                    this.updateReactions();
+                    return;
+                }
+            }
+        }
+        this.reactions.push({
+            count:1,
+            emoji:data,
+            me:member.id===this.localuser.user.id
+        });
+        this.updateReactions();
+    }
+    takeReaction(data:{name:string},id:string){
+        console.log("test");
+        for(const i in this.reactions){
+            const thing=this.reactions[i];
+            console.log(thing,data);
+            if(thing.emoji.name===data.name){
+                thing.count--;
+                if(thing.count===0){
+                    this.reactions.splice(+i,1);
+                    this.updateReactions();
+                    return;
+                }
+                if(id===this.localuser.user.id){
+                    thing.me=false;
+                    this.updateReactions();
+                    return;
+                }
+            }
+        }
     }
     buildhtml(premessage:Message,del:Promise<void>=Message.del){
         if(this.div){console.error(`HTML for ${this.snowflake} already exists, aborting`);return;}

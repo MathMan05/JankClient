@@ -1,7 +1,7 @@
 class Contextmenu{
     static currentmenu;
     name:string;
-    buttons:[string,Function,string,Function,Function][];
+    buttons:[string,Function,string,Function,Function,string][];
     div:HTMLDivElement;
     static setup(){
         Contextmenu.currentmenu="";
@@ -20,7 +20,11 @@ class Contextmenu{
         this.buttons=[]
     }
     addbutton(text:string,onclick:Function,img=null,shown=_=>true,enabled=_=>true){
-        this.buttons.push([text,onclick,img,shown,enabled])
+        this.buttons.push([text,onclick,img,shown,enabled,"button"])
+        return {};
+    }
+    addsubmenu(text:string,onclick:(e:MouseEvent)=>void,img=null,shown=_=>true,enabled=_=>true){
+        this.buttons.push([text,onclick,img,shown,enabled,"submenu"])
         return {};
     }
     makemenu(x:number,y:number,addinfo:any,obj:HTMLElement){
@@ -36,7 +40,12 @@ class Contextmenu{
             intext.textContent=thing[0]
             textb.appendChild(intext)
             console.log(thing)
-            intext.onclick=thing[1].bind(addinfo,obj);
+            if(thing[5]==="button"){
+                intext.onclick=thing[1].bind(addinfo,obj);
+            }else if(thing[5]==="submenu"){
+                intext.onclick=thing[1].bind(addinfo);
+            }
+
             div.appendChild(textb);
         }
         if(Contextmenu.currentmenu!=""){

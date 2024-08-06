@@ -1233,6 +1233,7 @@ span {
 	flex-direction: row;
 	max-height: 100%;
 	overflow: auto;
+	flex-shrink: 0;
 }
 .flexttb{
 	display: flex;
@@ -1535,4 +1536,79 @@ form div{
 .svgicon{
 	width:.5in;
 	height:.5in;
+}
+.emojiPicker{
+	position:absolute;
+	width:3.5in;
+	height:4in;
+	background:var(--profile-info-bg);
+	border-radius:.15in;
+	border:solid var(--black) .03in;
+	box-shadow:black .03in .03in .2in;
+	display: flex;
+	flex-direction: column;
+}
+.emojiSelect{
+	font-size:.23in;
+	text-align: center;
+	cursor:pointer;
+	width:.4in;
+	height:.4in;
+	background:color-mix(in hsl, var(--profile-info-bg),black);
+	border-radius:2in;
+	display:flex;
+	flex-direction: column;
+	justify-content: space-evenly;
+	border:solid var(--black) .03in;
+	flex-shrink:0;
+}
+.emojiTitle{
+	padding: .03in;
+	padding-left: .1in;
+	border-bottom: solid var(--black);
+	width: 100%;
+	box-sizing: border-box;
+	margin-bottom: .025in;
+}
+.emojiBody{
+	display:flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+	align-content: stretch;
+	justify-content: space-evenly;
+	/* height: 100%; */
+	overflow-y: scroll;
+	box-sizing: border-box;
+	flex-shrink: 1;
+	flex-grow: 1;
+}
+.reactionCount{
+	position:absolute;
+	font-size:.125in;
+	padding:0 .01in;
+	bottom:-.03in;
+	left:-.03in;
+	background: var(--channels-bg);
+	border:solid var(--black) .021in;
+	border-radius:.05in;
+}
+.reactiondiv{
+	
+}
+.reaction{
+	width:.25in;
+	position:relative;
+	height:.25in;
+	display:flex;
+	flex-direction: row;
+	align-content: stretch;
+	background: var(--profile-info-bg);
+	border-radius:.05in;
+	justify-content: space-evenly;
+	border:solid var(--black);
+	margin-right:.05in;
+	p{
+		flex-grow:0;
+		flex-shrink:0;
+	}
 }

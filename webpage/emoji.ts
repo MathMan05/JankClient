@@ -1,3 +1,5 @@
+import { Contextmenu } from "./contextmenu.js";
+
 class Emoji{
     static emojis:{
         name:string,
@@ -69,6 +71,65 @@ class Emoji{
         }).then(e=>{
             Emoji.decodeEmojiList(e);
         })
+    }
+    static async emojiPicker(x:number,y:number):Promise<Emoji|string>{
+        let res:(r:Emoji|string)=>void;
+        const promise=new Promise((r)=>{res=r;})
+        const menu=document.createElement("div");
+        menu.classList.add("flextttb", "emojiPicker")
+        menu.style.top=y+"px";
+        menu.style.left=x+"px";
+
+
+        setTimeout(()=>{
+            if(Contextmenu.currentmenu!=""){
+                Contextmenu.currentmenu.remove();
+            }
+            document.body.append(menu);
+            Contextmenu.currentmenu=menu;
+            Contextmenu.keepOnScreen(menu);
+        },10)
+
+        const title=document.createElement("h2");
+        title.textContent=Emoji.emojis[0].name;
+        title.classList.add("emojiTitle");
+        menu.append(title);
+        console.log("menu :3");
+        const selection=document.createElement("div");
+        selection.classList.add("flexltr");
+        console.log("menu :3");
+        const body=document.createElement("div");
+        body.classList.add("emojiBody");
+        let i=0;
+        for(const thing of Emoji.emojis){
+            const select=document.createElement("div");
+            select.textContent=thing.emojis[0].emoji;
+            select.classList.add("emojiSelect");
+            selection.append(select);
+            const clickEvent=()=>{
+                title.textContent=thing.name;
+                body.innerHTML="";
+                for(const emojit of thing.emojis){
+                    const emoji=document.createElement("div");
+                    emoji.classList.add("emojiSelect");
+                    emoji.textContent=emojit.emoji;
+                    body.append(emoji);
+                    emoji.onclick=_=>{
+                        res(emojit.emoji);
+                        Contextmenu.currentmenu.remove();
+                    }
+                }
+            };
+            select.onclick=clickEvent
+            if(i===0){
+               clickEvent();
+            }
+            i++;
+        }
+        menu.append(selection);
+        menu.append(body);
+        console.log("menu :3");
+        return promise;
     }
 }
 Emoji.grabEmoji();
