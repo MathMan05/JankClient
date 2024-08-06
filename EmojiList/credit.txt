@@ -1,0 +1,2 @@
+https://github.com/muan/unicode-emoji-json/
+the list is from here, though the actual file isn't included, if you want to compile the binary yourself, just put data-by-group.json in this file and run the needed script.

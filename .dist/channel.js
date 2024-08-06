@@ -8,6 +8,8 @@ import { Settings, RoleList } from "./settings.js";
 import { Role } from "./role.js";
 import { InfiniteScroller } from "./infiniteScroller.js";
 import { SnowFlake } from "./snowflake.js";
+import { Emoji } from "./emoji.js";
+new Emoji();
 class Channel {
     editing;
     type;
