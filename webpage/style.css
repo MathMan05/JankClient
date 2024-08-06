@@ -1532,3 +1532,7 @@ form div{
 .hiddencat{
 	rotate:-90deg;
 }
+.svgicon{
+	width:.5in;
+	height:.5in;
+}

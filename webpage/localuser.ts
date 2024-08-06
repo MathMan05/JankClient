@@ -7,7 +7,7 @@ import {Fullscreen} from "./fullscreen.js";
 import {setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
-import { channeljson, readyjson, userjson } from "./jsontypes.js";
+import { channeljson, guildjson, memberjson, readyjson, userjson } from "./jsontypes.js";
 
 const wsCodesRetry=new Set([4000,4003,4005,4007,4008,4009]);
 
@@ -295,7 +295,7 @@ class Localuser{
             }
 
         }else if(temp.op===10){
-            console.log("heartbeat down")
+            console.log("heartbeat down");
             this.wsinterval=setInterval(_=>{
                 if (this.connectionSucceed===0) this.connectionSucceed=Date.now()
 
@@ -375,7 +375,7 @@ class Localuser{
         div.classList.add("home","servericon");
 
         img.src="/icons/home.svg";
-        img.classList.add("svgtheme")
+        img.classList.add("svgtheme","svgicon")
         img["all"]=this.guildids.get("@me");
         this.guildids.get("@me").html=outdiv;
         const unread=document.createElement("div");
@@ -422,7 +422,7 @@ class Localuser{
             const guilddsdiv=document.createElement("div");
             const guildDiscoveryContainer=document.createElement("img");
             guildDiscoveryContainer.src="/icons/explore.svg";
-            guildDiscoveryContainer.classList.add("svgtheme");
+            guildDiscoveryContainer.classList.add("svgtheme","svgicon");
             guilddsdiv.classList.add("home","servericon");
             guilddsdiv.appendChild(guildDiscoveryContainer);
             serverlist.appendChild(guilddsdiv);
@@ -963,6 +963,56 @@ class Localuser{
             ]
         );
         botDialog.show();
+    }
+
+    //---------- resolving members code -----------
+    waitingmembers:Map<string,Map<string,(returns:memberjson|undefined)=>void>>=new Map();
+    async resolvemember(id:string,guildid:string):Promise<memberjson|undefined>{
+        console.warn("this function is currently non-functional, either due to a bug in the client or the server, it's currently unclear, use at your own risk");
+        if(!this.waitingmembers.has(guildid)){
+            this.waitingmembers.set(guildid,new Map());
+        }
+        let res:(returns:memberjson|undefined)=>void;
+        const promise:Promise<memberjson|undefined>=new Promise((r)=>{
+            res=r;
+        })
+        this.waitingmembers.get(guildid).set(id,res);
+        this.getmembers();
+        return await promise;
+    }
+    fetchingmembers:Map<string,(r:memberjson[])=>void>=new Map();
+    async getmembers(){
+        if(this.ws){
+            this.waitingmembers.forEach(async (value,guildid)=>{
+                const keys=value.keys();
+                if(this.fetchingmembers.has(guildid)){
+                    return;
+                }
+                const build:string[]=[];
+                for(const key of keys){build.push(key)};
+                let res:(r:memberjson[])=>void;
+                const promise:Promise<memberjson[]>=new Promise((r)=>{
+                    res=r;
+                })
+                this.ws.send(JSON.stringify({
+                    op:8,
+                    d:{
+                        query:"",
+                        user_ids:build,
+                        guild_id:guildid,
+                        limit:100,
+                        nonce:""+Math.floor(Math.random()*100000000)
+                    }
+                }));
+                this.fetchingmembers.set(guildid,res);
+                const data=await promise;
+                for(const thing of data){
+                    value.get(thing.id)(thing);
+                    value.delete(thing.id);
+                }
+                this.getmembers();
+            })
+        }
     }
 }
 export {Localuser};
