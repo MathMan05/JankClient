@@ -716,6 +716,16 @@ class Localuser{
                 regen();
             })
         }
+        {
+            const tas=settings.addButton("Themes & sounds");
+            {
+                const themes=["Dark","WHITE","Light"];
+                tas.addSelect("Theme:",_=>{
+                    localStorage.setItem("theme",themes[_]);
+                    setTheme();
+                },themes,{defaultIndex:themes.indexOf(localStorage.getItem("theme"))});
+            }
+        }
         settings.show();
     }
     /**

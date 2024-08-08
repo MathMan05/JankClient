@@ -195,7 +195,6 @@ class SelectInput {
         span.textContent = this.label;
         div.append(span);
         const select = document.createElement("select");
-        select.selectedIndex = this.index;
         select.onchange = this.onChange.bind(this);
         for (const thing of this.options) {
             const option = document.createElement("option");
@@ -203,6 +202,7 @@ class SelectInput {
             select.appendChild(option);
         }
         this.select = new WeakRef(select);
+        select.selectedIndex = this.index;
         div.append(select);
         return div;
     }
@@ -373,6 +373,11 @@ class Options {
         const options = new Options(name, this, { ltr });
         this.options.push(options);
         return options;
+    }
+    addSelect(label, onSubmit, selections, { defaultIndex = 0 } = {}) {
+        const select = new SelectInput(label, onSubmit, selections, this, { defaultIndex });
+        this.options.push(select);
+        return select;
     }
     addFileInput(label, onSubmit, {} = {}) {
         const FI = new FileInput(label, onSubmit, this, {});
