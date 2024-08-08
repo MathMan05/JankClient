@@ -1248,7 +1248,7 @@ span {
 }
 .settingbuttons{
 	padding-top:.075in;
-	width: 1.5in;
+	width: 1.75in;
 	border-right: solid var(--message-bg-hover);
 	gap:.04in;
 	flex-grow: 0;

@@ -2,6 +2,7 @@ import { Guild } from "./guild.js";
 import { Direct } from "./direct.js";
 import { User } from "./user.js";
 import { Fullscreen } from "./fullscreen.js";
+import { setTheme } from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
 import { Member } from "./member.js";
@@ -689,6 +690,16 @@ class Localuser {
                 hypouser.bio = new MarkDown(_, this);
                 regen();
             });
+        }
+        {
+            const tas = settings.addButton("Themes & sounds");
+            {
+                const themes = ["Dark", "WHITE", "Light"];
+                tas.addSelect("Theme:", _ => {
+                    localStorage.setItem("theme", themes[_]);
+                    setTheme();
+                }, themes, { defaultIndex: themes.indexOf(localStorage.getItem("theme")) });
+            }
         }
         settings.show();
     }
