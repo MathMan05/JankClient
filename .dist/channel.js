@@ -429,7 +429,7 @@ class Channel {
         return div;
     }
     createChannel(name, type) {
-        fetch(this.info.api.toString() + "/guilds/" + this.guild.snowflake + "/channels", {
+        fetch(this.info.api.toString() + "/guilds/" + this.guild.id + "/channels", {
             method: "POST",
             headers: this.headers,
             body: JSON.stringify({
