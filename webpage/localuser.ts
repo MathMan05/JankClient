@@ -725,6 +725,14 @@ class Localuser{
                     setTheme();
                 },themes,{defaultIndex:themes.indexOf(localStorage.getItem("theme"))});
             }
+            {
+                const sounds=Voice.sounds;
+                tas.addSelect("Notification sound:",_=>{
+                    Voice.setNotificationSound(sounds[_]);
+                },sounds,{defaultIndex:sounds.indexOf(Voice.getNotificationSound())}).watchForChange(_=>{
+                    Voice.noises(sounds[_]);
+                })
+            }
         }
         settings.show();
     }
