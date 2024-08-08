@@ -9,7 +9,7 @@ interface OptionsElement {
 class Buttons implements OptionsElement{
     readonly name:string;
     readonly buttons:[string,Options|string][];
-    bigtable:HTMLDivElement;
+    buttonList:HTMLDivElement;
     warndiv:HTMLElement;
     constructor(name:string){
         this.buttons=[];
@@ -21,10 +21,10 @@ class Buttons implements OptionsElement{
         return thing;
     }
     generateHTML(){
-        const bigtable=document.createElement("div");
-        bigtable.classList.add("Buttons");
-        bigtable.classList.add("flexltr");
-        this.bigtable=bigtable;
+        const buttonList=document.createElement("div");
+        buttonList.classList.add("Buttons");
+        buttonList.classList.add("flexltr");
+        this.buttonList=buttonList;
         const htmlarea=document.createElement("div");
         htmlarea.classList.add("flexgrow");
         const buttonTable=document.createElement("div");
@@ -42,28 +42,28 @@ class Buttons implements OptionsElement{
             buttonTable.append(button);
         }
         this.generateHTMLArea(this.buttons[0][1],htmlarea);
-        bigtable.append(buttonTable);
-        bigtable.append(htmlarea);
-        return bigtable;
+        buttonList.append(buttonTable);
+        buttonList.append(htmlarea);
+        return buttonList;
     }
     handleString(str:string):HTMLElement{
-        const div=document.createElement("div");
+        const div=document.createElement("span");
         div.textContent=str;
         return div;
     }
-    private generateHTMLArea(genation:Options|string,htmlarea:HTMLElement){
+    private generateHTMLArea(buttonInfo:Options|string,htmlarea:HTMLElement){
         let html:HTMLElement;
-        if(genation instanceof Options){
-            html=genation.generateHTML();
+        if(buttonInfo instanceof Options){
+            html=buttonInfo.generateHTML();
         }else{
-            html=this.handleString(genation);
+            html=this.handleString(buttonInfo);
         }
         htmlarea.innerHTML="";
         htmlarea.append(html);
     }
     changed(html:HTMLElement){
         this.warndiv=html;
-        this.bigtable.append(html);
+        this.buttonList.append(html);
     }
     save(){}
     submit(){
@@ -173,6 +173,51 @@ class TextInput implements OptionsElement{
     }
     submit(){
         this.onSubmit(this.textContent);
+    }
+}
+class SelectInput implements OptionsElement{
+    readonly label:string;
+    readonly owner:Options;
+    readonly onSubmit:(str:number)=>void;
+    options:string[];
+    index:number;
+    select:WeakRef<HTMLSelectElement>
+    constructor(label:string,onSubmit:(str:number)=>void,options:string[],owner:Options,{defaultIndex=0}={}){
+        this.label=label;
+        this.index=defaultIndex;
+        this.owner=owner;
+        this.onSubmit=onSubmit;
+        this.options=options;
+    }
+    generateHTML():HTMLDivElement{
+        const div=document.createElement("div");
+        const span=document.createElement("span");
+        span.textContent=this.label;
+        div.append(span);
+        const select=document.createElement("select");
+        select.selectedIndex=this.index;
+        select.onchange=this.onChange.bind(this);
+        for(const thing of this.options){
+            const option = document.createElement("option");
+            option.textContent=thing;
+            select.appendChild(option);
+        }
+        this.select=new WeakRef(select);
+        div.append(select);
+        return div;
+    }
+    private onChange(ev:Event){
+        this.owner.changed();
+        const value=this.select.deref().selectedIndex;
+        this.onchange(value);
+        this.index=value;
+    }
+    onchange:(str:number)=>void=_=>{};
+    watchForChange(func:(str:number)=>void){
+        this.onchange=func;
+    }
+    submit(){
+        this.onSubmit(this.index);
     }
 }
 class MDInput implements OptionsElement{
@@ -358,12 +403,12 @@ class Options implements OptionsElement{
             div.append(title);
             title.classList.add("settingstitle");
         }
-        const table=document.createElement("div");
-        table.classList.add(this.ltr?"flexltr":"flexttb","flexspace");
+        const container=document.createElement("div");
+        container.classList.add(this.ltr?"flexltr":"flexttb","flexspace");
         for(const thing of this.options){
-            table.append(thing.generateHTML());
+            container.append(thing.generateHTML());
         }
-        div.append(table);
+        div.append(container);
         return div;
     }
     changed(){
