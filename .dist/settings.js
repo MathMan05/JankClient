@@ -4,7 +4,7 @@ import { Role } from "./role.js";
 class Buttons {
     name;
     buttons;
-    bigtable;
+    buttonList;
     warndiv;
     constructor(name) {
         this.buttons = [];
@@ -18,10 +18,10 @@ class Buttons {
         return thing;
     }
     generateHTML() {
-        const bigtable = document.createElement("div");
-        bigtable.classList.add("Buttons");
-        bigtable.classList.add("flexltr");
-        this.bigtable = bigtable;
+        const buttonList = document.createElement("div");
+        buttonList.classList.add("Buttons");
+        buttonList.classList.add("flexltr");
+        this.buttonList = buttonList;
         const htmlarea = document.createElement("div");
         htmlarea.classList.add("flexgrow");
         const buttonTable = document.createElement("div");
@@ -39,29 +39,29 @@ class Buttons {
             buttonTable.append(button);
         }
         this.generateHTMLArea(this.buttons[0][1], htmlarea);
-        bigtable.append(buttonTable);
-        bigtable.append(htmlarea);
-        return bigtable;
+        buttonList.append(buttonTable);
+        buttonList.append(htmlarea);
+        return buttonList;
     }
     handleString(str) {
-        const div = document.createElement("div");
+        const div = document.createElement("span");
         div.textContent = str;
         return div;
     }
-    generateHTMLArea(genation, htmlarea) {
+    generateHTMLArea(buttonInfo, htmlarea) {
         let html;
-        if (genation instanceof Options) {
-            html = genation.generateHTML();
+        if (buttonInfo instanceof Options) {
+            html = buttonInfo.generateHTML();
         }
         else {
-            html = this.handleString(genation);
+            html = this.handleString(buttonInfo);
         }
         htmlarea.innerHTML = "";
         htmlarea.append(html);
     }
     changed(html) {
         this.warndiv = html;
-        this.bigtable.append(html);
+        this.buttonList.append(html);
     }
     save() { }
     submit() {
@@ -173,6 +173,51 @@ class TextInput {
     }
     submit() {
         this.onSubmit(this.textContent);
+    }
+}
+class SelectInput {
+    label;
+    owner;
+    onSubmit;
+    options;
+    index;
+    select;
+    constructor(label, onSubmit, options, owner, { defaultIndex = 0 } = {}) {
+        this.label = label;
+        this.index = defaultIndex;
+        this.owner = owner;
+        this.onSubmit = onSubmit;
+        this.options = options;
+    }
+    generateHTML() {
+        const div = document.createElement("div");
+        const span = document.createElement("span");
+        span.textContent = this.label;
+        div.append(span);
+        const select = document.createElement("select");
+        select.selectedIndex = this.index;
+        select.onchange = this.onChange.bind(this);
+        for (const thing of this.options) {
+            const option = document.createElement("option");
+            option.textContent = thing;
+            select.appendChild(option);
+        }
+        this.select = new WeakRef(select);
+        div.append(select);
+        return div;
+    }
+    onChange(ev) {
+        this.owner.changed();
+        const value = this.select.deref().selectedIndex;
+        this.onchange(value);
+        this.index = value;
+    }
+    onchange = _ => { };
+    watchForChange(func) {
+        this.onchange = func;
+    }
+    submit() {
+        this.onSubmit(this.index);
     }
 }
 class MDInput {
@@ -358,12 +403,12 @@ class Options {
             div.append(title);
             title.classList.add("settingstitle");
         }
-        const table = document.createElement("div");
-        table.classList.add(this.ltr ? "flexltr" : "flexttb", "flexspace");
+        const container = document.createElement("div");
+        container.classList.add(this.ltr ? "flexltr" : "flexttb", "flexspace");
         for (const thing of this.options) {
-            table.append(thing.generateHTML());
+            container.append(thing.generateHTML());
         }
-        div.append(table);
+        div.append(container);
         return div;
     }
     changed() {
