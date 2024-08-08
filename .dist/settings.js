@@ -23,6 +23,7 @@ class Buttons {
         bigtable.classList.add("flexltr");
         this.bigtable = bigtable;
         const htmlarea = document.createElement("div");
+        htmlarea.classList.add("flexgrow");
         const buttonTable = document.createElement("div");
         buttonTable.classList.add("flexttb", "settingbuttons");
         for (const thing of this.buttons) {
@@ -63,6 +64,8 @@ class Buttons {
         this.bigtable.append(html);
     }
     save() { }
+    submit() {
+    }
 }
 class PermissionToggle {
     rolejson;
@@ -130,6 +133,122 @@ class PermissionToggle {
         }
         return div;
     }
+    submit() {
+    }
+}
+class TextInput {
+    label;
+    owner;
+    onSubmit;
+    textContent;
+    input;
+    constructor(label, onSubmit, owner, { initText = "" } = {}) {
+        this.label = label;
+        this.textContent = initText;
+        this.owner = owner;
+        this.onSubmit = onSubmit;
+    }
+    generateHTML() {
+        const div = document.createElement("div");
+        const span = document.createElement("span");
+        span.textContent = this.label;
+        div.append(span);
+        const input = document.createElement("input");
+        input.value = this.textContent;
+        input.type = "text";
+        input.oninput = this.onChange.bind(this);
+        this.input = new WeakRef(input);
+        div.append(input);
+        return div;
+    }
+    onChange(ev) {
+        this.owner.changed();
+        const value = this.input.deref().value;
+        this.onchange(value);
+        this.textContent = value;
+    }
+    onchange = _ => { };
+    watchForChange(func) {
+        this.onchange = func;
+    }
+    submit() {
+        this.onSubmit(this.textContent);
+    }
+}
+class MDInput {
+    label;
+    owner;
+    onSubmit;
+    textContent;
+    input;
+    constructor(label, onSubmit, owner, { initText = "" } = {}) {
+        this.label = label;
+        this.textContent = initText;
+        this.owner = owner;
+        this.onSubmit = onSubmit;
+    }
+    generateHTML() {
+        const div = document.createElement("div");
+        const span = document.createElement("span");
+        span.textContent = this.label;
+        div.append(span);
+        div.append(document.createElement("br"));
+        const input = document.createElement("textarea");
+        input.value = this.textContent;
+        input.oninput = this.onChange.bind(this);
+        this.input = new WeakRef(input);
+        div.append(input);
+        return div;
+    }
+    onChange(ev) {
+        this.owner.changed();
+        const value = this.input.deref().value;
+        this.onchange(value);
+        this.textContent = value;
+    }
+    onchange = _ => { };
+    watchForChange(func) {
+        this.onchange = func;
+    }
+    submit() {
+        this.onSubmit(this.textContent);
+    }
+}
+class FileInput {
+    label;
+    owner;
+    onSubmit;
+    input;
+    constructor(label, onSubmit, owner, {} = {}) {
+        this.label = label;
+        this.owner = owner;
+        this.onSubmit = onSubmit;
+    }
+    generateHTML() {
+        const div = document.createElement("div");
+        const span = document.createElement("span");
+        span.textContent = this.label;
+        div.append(span);
+        const input = document.createElement("input");
+        input.type = "file";
+        input.oninput = this.onChange.bind(this);
+        this.input = new WeakRef(input);
+        div.append(input);
+        return div;
+    }
+    onChange(ev) {
+        this.owner.changed();
+        if (this.onchange) {
+            this.onchange(this.input.deref().files);
+        }
+    }
+    onchange = null;
+    watchForChange(func) {
+        this.onchange = func;
+    }
+    submit() {
+        this.onSubmit(this.input.deref().files);
+    }
 }
 class RoleList extends Buttons {
     permissions;
@@ -174,28 +293,73 @@ class RoleList extends Buttons {
         this.onchange(this.curid, this.permission);
     }
 }
+class HtmlArea {
+    submit;
+    html;
+    constructor(html, submit) {
+        this.submit = submit;
+        this.html = html;
+    }
+    generateHTML() {
+        if (this.html instanceof Function) {
+            return this.html();
+        }
+        else {
+            return this.html;
+        }
+    }
+}
 class Options {
     name;
     haschanged = false;
     options;
     owner;
-    constructor(name, owner) {
+    ltr;
+    constructor(name, owner, { ltr = false } = {}) {
         this.name = name;
         this.options = [];
         this.owner = owner;
+        this.ltr = ltr;
     }
     addPermissionToggle(roleJSON, permissions) {
         this.options.push(new PermissionToggle(roleJSON, permissions, this));
     }
+    addOptions(name, { ltr = false } = {}) {
+        const options = new Options(name, this, { ltr });
+        this.options.push(options);
+        return options;
+    }
+    addFileInput(label, onSubmit, {} = {}) {
+        const FI = new FileInput(label, onSubmit, this, {});
+        this.options.push(FI);
+        return FI;
+    }
+    addTextInput(label, onSubmit, { initText = "" } = {}) {
+        const textInput = new TextInput(label, onSubmit, this, { initText });
+        this.options.push(textInput);
+        return textInput;
+    }
+    addMDInput(label, onSubmit, { initText = "" } = {}) {
+        const mdInput = new MDInput(label, onSubmit, this, { initText });
+        this.options.push(mdInput);
+        return mdInput;
+    }
+    addHTMLArea(html, submit = () => { }) {
+        const htmlarea = new HtmlArea(html, submit);
+        this.options.push(htmlarea);
+        return htmlarea;
+    }
     generateHTML() {
         const div = document.createElement("div");
         div.classList.add("titlediv");
-        const title = document.createElement("h2");
-        title.textContent = this.name;
-        div.append(title);
-        title.classList.add("settingstitle");
+        if (this.name !== "") {
+            const title = document.createElement("h2");
+            title.textContent = this.name;
+            div.append(title);
+            title.classList.add("settingstitle");
+        }
         const table = document.createElement("div");
-        table.classList.add("flexttb", "flexspace");
+        table.classList.add(this.ltr ? "flexltr" : "flexttb", "flexspace");
         for (const thing of this.options) {
             table.append(thing.generateHTML());
         }
@@ -203,6 +367,10 @@ class Options {
         return div;
     }
     changed() {
+        if (this.owner instanceof Options) {
+            this.owner.changed();
+            return;
+        }
         if (!this.haschanged) {
             const div = document.createElement("div");
             div.classList.add("flexltr", "savediv");
@@ -215,9 +383,17 @@ class Options {
             this.haschanged = true;
             this.owner.changed(div);
             button.onclick = _ => {
-                this.owner.save();
+                if (this.owner instanceof Buttons) {
+                    this.owner.save();
+                }
                 div.remove();
+                this.submit();
             };
+        }
+    }
+    submit() {
+        for (const thing of this.options) {
+            thing.submit();
         }
     }
 }
@@ -228,8 +404,8 @@ class Settings extends Buttons {
     constructor(name) {
         super(name);
     }
-    addButton(name) {
-        const options = new Options(name, this);
+    addButton(name, { ltr = false } = {}) {
+        const options = new Options(name, this, { ltr });
         this.add(name, options);
         return options;
     }

@@ -9,6 +9,8 @@ import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
 import { channeljson, guildjson, memberjson, readyjson, userjson } from "./jsontypes.js";
 import { Member } from "./member.js";
+import { Settings } from "./settings.js";
+import { MarkDown } from "./markdown.js";
 
 const wsCodesRetry=new Set([4000,4003,4005,4007,4008,4009]);
 
@@ -20,7 +22,7 @@ class Localuser{
     initialized:boolean;
     info;
     headers:{"Content-type":string,Authorization:string};
-    usersettings:Fullscreen;
+    usersettings:Settings;
     userConnections:Fullscreen;
     devPortal:Fullscreen;
     ready:readyjson;
@@ -658,74 +660,69 @@ class Localuser{
             typingtext.classList.add("hidden");
         }
     }
-    genusersettings():void{
-        const hypotheticalProfile=document.createElement("div");
-        let file=null;
-        let newprouns=null;
-        let newbio=null;
-        let hypouser=this.user.clone();
-        function regen(){
-            hypotheticalProfile.textContent="";
-            const hypoprofile=hypouser.buildprofile(-1,-1);
+    showusersettings(){
+        const settings=new Settings("Settings");
+        this.usersettings=settings;
+        {
+            const userOptions=settings.addButton("User Settings",{ltr:true});
+            const hypotheticalProfile=document.createElement("div");
+            let file=null;
+            let newpronouns=null;
+            let newbio=null;
+            let hypouser=this.user.clone();
+            function regen(){
+                hypotheticalProfile.textContent="";
+                const hypoprofile=hypouser.buildprofile(-1,-1);
 
-            hypotheticalProfile.appendChild(hypoprofile)
-        }
-        regen();
-        this.usersettings=new Fullscreen(
-        ["hdiv",
-            ["vdiv",
-                ["fileupload","upload pfp:",function(e){
-                    console.log(this.files[0])
-                    file=this.files[0];
-                    const blob = URL.createObjectURL(this.files[0]);
+                hypotheticalProfile.appendChild(hypoprofile)
+            }
+            regen();
+            const settingsLeft=userOptions.addOptions("");
+            const settingsRight=userOptions.addOptions("");
+            settingsRight.addHTMLArea(hypotheticalProfile);
+
+            const finput=settingsLeft.addFileInput("Upload pfp:",_=>{
+                if(file){
+                    this.updatepfp(file)
+                }
+            });
+            finput.watchForChange(_=>{
+                if(_.length){
+                    file=_[0];
+                    const blob = URL.createObjectURL(file);
                     hypouser.avatar = blob;
                     hypouser.hypotheticalpfp=true;
                     regen();
-                }],
-                ["textbox","Pronouns:",this.user.pronouns,function(e){
-                    console.log(this.value);
-                    hypouser.pronouns=this.value;
-                    newprouns=this.value;
-                    regen();
-                }],
-                ["mdbox","Bio:",this.user.bio.rawString,function(e){
-                    console.log(this.value);
-                    hypouser.bio=this.value;
-                    newbio=this.value;
-                    regen();
-                }],
-                ["button","update user content:","submit",()=>{
-                    if(file!==null){
-                        this.updatepfp(file);
-                    }
-                    if(newprouns!==null){
-                        this.updatepronouns(newprouns);
-                    }
-                    if(newbio!==null){
-                        this.updatebio(newbio);
-                    }
-                }],
-                ["select","Theme:",["Dark","Light","WHITE"],e=>{
-                    localStorage.setItem("theme",["Dark","Light","WHITE"][e.target.selectedIndex]);
-                    setTheme();
-                },["Dark","Light","WHITE"].indexOf(localStorage.getItem("theme"))],
-                ["select","Notification sound:",Voice.sounds,e=>{
-                    Voice.setNotificationSound(Voice.sounds[e.target.selectedIndex]);
-                    Voice.noises(Voice.sounds[e.target.selectedIndex]);
-                },Voice.sounds.indexOf(Voice.getNotificationSound())]
-            ],
-            ["vdiv",
-                ["html",hypotheticalProfile]
-            ]
-        ],_=>{},function(this:Localuser){
-            console.log(this);
-            hypouser=this.user.clone();
-            regen();
-            file=null;
-            newprouns=null;
-            newbio=null;
-        }.bind(this))
-
+                }
+            });
+            const pronounbox=settingsLeft.addTextInput("Pronouns",_=>{
+                if(newpronouns){
+                    this.updatepronouns(newpronouns);
+                }
+            },{initText:this.user.pronouns});
+            pronounbox.watchForChange(_=>{
+                hypouser.pronouns=_;
+                newpronouns=_;
+                regen();
+            });
+            const bioBox=settingsLeft.addMDInput("Bio:",_=>{
+                if(newbio){
+                    this.updatebio(newbio);
+                }
+            },{initText:this.user.bio.rawString});
+            bioBox.watchForChange(_=>{
+                newbio=_;
+                hypouser.bio=new MarkDown(_,this);
+                regen();
+            })
+        }
+        settings.show();
+    }
+    /**
+        @deprecated
+        This should be made to not be used anymore
+    **/
+    genusersettings():void{
         const connectionContainer=document.createElement("div");
         connectionContainer.id="connection-container";
         this.userConnections=new Fullscreen(
@@ -986,7 +983,8 @@ class Localuser{
     //---------- resolving members code -----------
     waitingmembers:Map<string,Map<string,(returns:memberjson|undefined)=>void>>=new Map();
     async resolvemember(id:string,guildid:string):Promise<memberjson|undefined>{
-        console.warn("this function is currently non-functional, either due to a bug in the client or the server, it's currently unclear, use at your own risk");
+        console.warn("this function is currently non-functional due to it not being implemented in the server");
+        throw new Error("Not implemented on the server side and not fully implemented, do not use");
         if(!this.waitingmembers.has(guildid)){
             this.waitingmembers.set(guildid,new Map());
         }

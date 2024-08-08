@@ -2,8 +2,11 @@ import { Permissions } from "./permissions.js";
 import { Guild } from "./guild.js";
 import { SnowFlake } from "./snowflake.js";
 import { Role } from "./role.js";
-
-class Buttons{
+interface OptionsElement {
+  generateHTML():HTMLElement;
+  submit:()=>void;
+}
+class Buttons implements OptionsElement{
     readonly name:string;
     readonly buttons:[string,Options|string][];
     bigtable:HTMLDivElement;
@@ -23,7 +26,7 @@ class Buttons{
         bigtable.classList.add("flexltr");
         this.bigtable=bigtable;
         const htmlarea=document.createElement("div");
-
+        htmlarea.classList.add("flexgrow");
         const buttonTable=document.createElement("div");
         buttonTable.classList.add("flexttb","settingbuttons");
         for(const thing of this.buttons){
@@ -63,9 +66,12 @@ class Buttons{
         this.bigtable.append(html);
     }
     save(){}
+    submit(){
+
+    }
 }
 
-class PermissionToggle{
+class PermissionToggle implements OptionsElement{
     readonly rolejson:{name:string,readableName:string,description:string};
     permissions:Permissions;
     owner:Options;
@@ -126,6 +132,123 @@ class PermissionToggle{
         }
         return div;
     }
+    submit(){
+
+    }
+}
+class TextInput implements OptionsElement{
+    readonly label:string;
+    readonly owner:Options;
+    readonly onSubmit:(str:string)=>void;
+    textContent:string;
+    input:WeakRef<HTMLInputElement>
+    constructor(label:string,onSubmit:(str:string)=>void,owner:Options,{initText=""}={}){
+        this.label=label;
+        this.textContent=initText;
+        this.owner=owner;
+        this.onSubmit=onSubmit;
+    }
+    generateHTML():HTMLDivElement{
+        const div=document.createElement("div");
+        const span=document.createElement("span");
+        span.textContent=this.label;
+        div.append(span);
+        const input=document.createElement("input");
+        input.value=this.textContent;
+        input.type="text";
+        input.oninput=this.onChange.bind(this);
+        this.input=new WeakRef(input);
+        div.append(input);
+        return div;
+    }
+    private onChange(ev:Event){
+        this.owner.changed();
+        const value=this.input.deref().value as string;
+        this.onchange(value);
+        this.textContent=value;
+    }
+    onchange:(str:string)=>void=_=>{};
+    watchForChange(func:(str:string)=>void){
+        this.onchange=func;
+    }
+    submit(){
+        this.onSubmit(this.textContent);
+    }
+}
+class MDInput implements OptionsElement{
+    readonly label:string;
+    readonly owner:Options;
+    readonly onSubmit:(str:string)=>void;
+    textContent:string;
+    input:WeakRef<HTMLTextAreaElement>
+    constructor(label:string,onSubmit:(str:string)=>void,owner:Options,{initText=""}={}){
+        this.label=label;
+        this.textContent=initText;
+        this.owner=owner;
+        this.onSubmit=onSubmit;
+    }
+    generateHTML():HTMLDivElement{
+        const div=document.createElement("div");
+        const span=document.createElement("span");
+        span.textContent=this.label;
+        div.append(span);
+        div.append(document.createElement("br"));
+        const input=document.createElement("textarea");
+        input.value=this.textContent;
+        input.oninput=this.onChange.bind(this);
+        this.input=new WeakRef(input);
+        div.append(input);
+        return div;
+    }
+    onChange(ev:Event){
+        this.owner.changed();
+        const value=this.input.deref().value as string;
+        this.onchange(value);
+        this.textContent=value;
+    }
+    onchange:(str:string)=>void=_=>{};
+    watchForChange(func:(str:string)=>void){
+        this.onchange=func;
+    }
+    submit(){
+        this.onSubmit(this.textContent);
+    }
+}
+class FileInput implements OptionsElement{
+    readonly label:string;
+    readonly owner:Options;
+    readonly onSubmit:(str:FileList)=>void;
+    input:WeakRef<HTMLInputElement>
+    constructor(label:string,onSubmit:(str:FileList)=>void,owner:Options,{}={}){
+        this.label=label;
+        this.owner=owner;
+        this.onSubmit=onSubmit;
+    }
+    generateHTML():HTMLDivElement{
+        const div=document.createElement("div");
+        const span=document.createElement("span");
+        span.textContent=this.label;
+        div.append(span);
+        const input=document.createElement("input");
+        input.type="file";
+        input.oninput=this.onChange.bind(this);
+        this.input=new WeakRef(input);
+        div.append(input);
+        return div;
+    }
+    onChange(ev:Event){
+        this.owner.changed();
+        if(this.onchange){
+            this.onchange(this.input.deref().files);
+        }
+    }
+    onchange:(str:FileList)=>void=null;
+    watchForChange(func:(str:FileList)=>void){
+        this.onchange=func;
+    }
+    submit(){
+        this.onSubmit(this.input.deref().files);
+    }
 }
 class RoleList extends Buttons{
     readonly permissions:[SnowFlake<Role>,Permissions][];
@@ -170,30 +293,73 @@ class RoleList extends Buttons{
         this.onchange(this.curid,this.permission);
     }
 }
-class Options{
+class HtmlArea implements OptionsElement{
+    submit: () => void;
+    html:(()=>HTMLElement)|HTMLElement;
+    constructor(html:(()=>HTMLElement)|HTMLElement,submit:()=>void){
+        this.submit=submit;
+        this.html=html;
+    }
+    generateHTML(): HTMLElement {
+        if(this.html instanceof Function){
+            return this.html();
+        }else{
+            return this.html;
+        }
+    }
+}
+class Options implements OptionsElement{
     name:string;
     haschanged=false;
-    readonly options:(PermissionToggle|Buttons|RoleList)[];
-    readonly owner:Buttons;
-
-    constructor(name:string,owner:Buttons){
+    readonly options:OptionsElement[];
+    readonly owner:Buttons|Options;
+    readonly ltr:boolean;
+    constructor(name:string,owner:Buttons|Options,{ltr=false}={}){
         this.name=name;
         this.options=[];
         this.owner=owner;
+        this.ltr=ltr;
 
     }
     addPermissionToggle(roleJSON:PermissionToggle["rolejson"],permissions:Permissions){
         this.options.push(new PermissionToggle(roleJSON,permissions,this));
     }
+    addOptions(name:string,{ltr=false}={}){
+        const options=new Options(name,this,{ltr});
+        this.options.push(options);
+        return options;
+    }
+    addFileInput(label:string,onSubmit:(files:FileList)=>void,{}={}){
+        const FI=new FileInput(label,onSubmit,this,{});
+        this.options.push(FI);
+        return FI;
+    }
+    addTextInput(label:string,onSubmit:(str:string)=>void,{initText=""}={}){
+        const textInput=new TextInput(label,onSubmit,this,{initText});
+        this.options.push(textInput);
+        return textInput;
+    }
+    addMDInput(label:string,onSubmit:(str:string)=>void,{initText=""}={}){
+        const mdInput=new MDInput(label,onSubmit,this,{initText});
+        this.options.push(mdInput);
+        return mdInput;
+    }
+    addHTMLArea(html:(()=>HTMLElement)|HTMLElement,submit:()=>void=()=>{}){
+        const htmlarea=new HtmlArea(html,submit);
+        this.options.push(htmlarea);
+        return htmlarea;
+    }
     generateHTML():HTMLElement{
         const div=document.createElement("div");
         div.classList.add("titlediv");
-        const title=document.createElement("h2");
-        title.textContent=this.name;
-        div.append(title);
-        title.classList.add("settingstitle")
+        if(this.name!==""){
+            const title=document.createElement("h2");
+            title.textContent=this.name;
+            div.append(title);
+            title.classList.add("settingstitle");
+        }
         const table=document.createElement("div");
-        table.classList.add("flexttb","flexspace");
+        table.classList.add(this.ltr?"flexltr":"flexttb","flexspace");
         for(const thing of this.options){
             table.append(thing.generateHTML());
         }
@@ -201,7 +367,10 @@ class Options{
         return div;
     }
     changed(){
-
+        if(this.owner instanceof Options){
+            this.owner.changed();
+            return;
+        }
         if(!this.haschanged){
             const div=document.createElement("div");
             div.classList.add("flexltr","savediv");
@@ -215,14 +384,20 @@ class Options{
             this.owner.changed(div);
 
             button.onclick=_=>{
-                this.owner.save();
+                if(this.owner instanceof Buttons){
+                    this.owner.save();
+                }
                 div.remove();
+                this.submit();
             }
         }
     }
+    submit(){
+        for(const thing of this.options){
+            thing.submit();
+        }
+    }
 }
-
-
 
 class Settings extends Buttons{
     static readonly Buttons=Buttons;
@@ -231,8 +406,8 @@ class Settings extends Buttons{
     constructor(name:string){
         super(name);
     }
-    addButton(name:string):Options{
-        const options=new Options(name,this);
+    addButton(name:string,{ltr=false}={}):Options{
+        const options=new Options(name,this,{ltr});
         this.add(name,options);
         return options;
     }
@@ -262,5 +437,6 @@ class Settings extends Buttons{
         this.html=null;
     }
 }
+
 export {Settings,RoleList}
 

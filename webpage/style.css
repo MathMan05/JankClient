@@ -70,6 +70,8 @@ th {
 	max-height: 100%;
 	display: flex;
 	flex-direction: column;
+	align-content: stretch;
+	align-items: stretch;
 }
 
 .messagediv:hover {
@@ -745,6 +747,7 @@ textarea:focus-visible,
 	align-items: center;
 	padding: .02in;
 	box-sizing: border-box;
+	flex-grow: 0;
 }
 
 #channels-td {
@@ -1223,17 +1226,15 @@ span {
 	padding: 0in;
 	overflow: hidden;
 }
-.Buttons{
-	background:var(--primary-bg);
-	position: relative;
-}
 .flexltr{
 	display:flex;
 	flex-wrap: nowrap;
 	flex-direction: row;
 	max-height: 100%;
 	overflow: auto;
-	flex-shrink: 0;
+	flex-shrink: 1;
+	flex-grow: 1;
+	align-items: stretch;
 }
 .flexttb{
 	display: flex;
@@ -1247,9 +1248,11 @@ span {
 }
 .settingbuttons{
 	padding-top:.075in;
-	width: 4in;
+	width: 1.5in;
 	border-right: solid var(--message-bg-hover);
 	gap:.04in;
+	flex-grow: 0;
+	flex-shrink: 0;
 }
 .setting{
 	background:var(--user-info-bg);
@@ -1269,6 +1272,7 @@ span {
 	height:100%;
 	display: flex;
 	flex-direction: column;
+	/* width: 100%; */
 }
 .settingstitle{
 	font-weight:900;
@@ -1582,6 +1586,7 @@ form div{
 	flex-shrink: 1;
 	flex-grow: 1;
 }
+
 .reactionCount{
 	/* position:absolute; */
 	font-size:.125in;
@@ -1596,6 +1601,9 @@ form div{
 }
 .reactiondiv{
 	
+}
+.flexgrow{
+	flex-grow:1;
 }
 .meReacted{
 	background:var(--channels-bg) !important;
@@ -1618,4 +1626,13 @@ form div{
 	}
 ;
 	padding: .03in;
+}
+.Buttons{
+	background:var(--primary-bg);
+	position: relative;
+	height: 100%;
+	/* box-sizing: border-box; */
+	display: flex;
+	align-content: stretch;
+	align-items: stretch;
 }

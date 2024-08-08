@@ -184,7 +184,7 @@ document.addEventListener('paste', async (e) => {
 setTheme();
 
 function userSettings(){
-    thisuser.usersettings.show();
+    thisuser.showusersettings();
 }
 document.getElementById("settings").onclick=userSettings;
 function userConnections(){
