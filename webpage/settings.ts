@@ -175,6 +175,47 @@ class TextInput implements OptionsElement{
         this.onSubmit(this.textContent);
     }
 }
+
+class ColorInput implements OptionsElement{
+    readonly label:string;
+    readonly owner:Options;
+    readonly onSubmit:(str:string)=>void;
+    colorContent:string;
+    input:WeakRef<HTMLInputElement>
+    constructor(label:string,onSubmit:(str:string)=>void,owner:Options,{initColor=""}={}){
+        this.label=label;
+        this.colorContent=initColor;
+        this.owner=owner;
+        this.onSubmit=onSubmit;
+    }
+    generateHTML():HTMLDivElement{
+        const div=document.createElement("div");
+        const span=document.createElement("span");
+        span.textContent=this.label;
+        div.append(span);
+        const input=document.createElement("input");
+        input.value=this.colorContent;
+        input.type="color";
+        input.oninput=this.onChange.bind(this);
+        this.input=new WeakRef(input);
+        div.append(input);
+        return div;
+    }
+    private onChange(ev:Event){
+        this.owner.changed();
+        const value=this.input.deref().value as string;
+        this.onchange(value);
+        this.colorContent=value;
+    }
+    onchange:(str:string)=>void=_=>{};
+    watchForChange(func:(str:string)=>void){
+        this.onchange=func;
+    }
+    submit(){
+        this.onSubmit(this.colorContent);
+    }
+}
+
 class SelectInput implements OptionsElement{
     readonly label:string;
     readonly owner:Options;
@@ -389,6 +430,11 @@ class Options implements OptionsElement{
         const textInput=new TextInput(label,onSubmit,this,{initText});
         this.options.push(textInput);
         return textInput;
+    }
+    addColorInput(label:string,onSubmit:(str:string)=>void,{initColor=""}={}){
+        const colorInput=new ColorInput(label,onSubmit,this,{initColor});
+        this.options.push(colorInput);
+        return colorInput;
     }
     addMDInput(label:string,onSubmit:(str:string)=>void,{initText=""}={}){
         const mdInput=new MDInput(label,onSubmit,this,{initText});

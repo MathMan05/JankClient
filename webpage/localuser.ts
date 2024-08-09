@@ -4,7 +4,7 @@ import {Direct} from "./direct.js";
 import {Voice} from "./audio.js";
 import {User} from "./user.js";
 import {Fullscreen} from "./fullscreen.js";
-import {setTheme, Specialuser} from "./login.js";
+import {getBulkInfo, setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
 import { channeljson, guildjson, memberjson, readyjson, userjson } from "./jsontypes.js";
@@ -732,6 +732,15 @@ class Localuser{
                 },sounds,{defaultIndex:sounds.indexOf(Voice.getNotificationSound())}).watchForChange(_=>{
                     Voice.noises(sounds[_]);
                 })
+            }
+
+            {
+                const userinfos=getBulkInfo();
+                tas.addColorInput("Accent color:",_=>{
+                    userinfos.accent_color=_;
+                    localStorage.setItem("userinfos",JSON.stringify(userinfos));
+                    document.documentElement.style.setProperty('--accent-color', userinfos.accent_color);
+                },{initColor:userinfos.accent_color})
             }
         }
         settings.show();
