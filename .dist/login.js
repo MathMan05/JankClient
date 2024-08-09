@@ -1,3 +1,4 @@
+import { Fullscreen } from "/fullscreen.js";
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 export { mobile, getBulkUsers, getBulkInfo, setTheme, Specialuser };
 function setTheme() {
@@ -167,8 +168,8 @@ async function login(username, password, captcha) {
     };
     try {
         const info = JSON.parse(localStorage.getItem("instanceinfo"));
-        const url = new URL(info.login);
-        return await fetch(url.origin + '/api/auth/login', options).then(response => response.json())
+        const api = info.login;
+        return await fetch(api + '/auth/login', options).then(response => response.json())
             .then((response) => {
             console.log(response, response.message);
             if ("Invalid Form Body" === response.message) {
@@ -194,9 +195,35 @@ async function login(username, password, captcha) {
                 return;
             }
             else {
-                adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: username, token: response.token });
-                window.location.href = '/channels/@me';
-                return response.token;
+                console.log(response);
+                if (response.ticket) {
+                    let onetimecode = "";
+                    new Fullscreen(["vdiv", ["title", "2FA code:"], ["textbox", "", "", function () { onetimecode = this.value; }], ["button", "", "Submit", function () {
+                                fetch(api + "/auth/mfa/totp", {
+                                    method: "POST",
+                                    headers: {
+                                        "Content-Type": "application/json"
+                                    },
+                                    body: JSON.stringify({
+                                        code: onetimecode,
+                                        ticket: response.ticket,
+                                    })
+                                }).then(r => r.json()).then(response => {
+                                    if (response.message) {
+                                        alert(response.message);
+                                    }
+                                    else {
+                                        adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: username, token: response.token });
+                                        window.location.href = '/channels/@me';
+                                    }
+                                });
+                            }]]).show();
+                }
+                else {
+                    adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: username, token: response.token });
+                    window.location.href = '/channels/@me';
+                    return response.token;
+                }
             }
         });
     }

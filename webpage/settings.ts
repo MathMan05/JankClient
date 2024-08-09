@@ -2,10 +2,13 @@ import { Permissions } from "./permissions.js";
 import { Guild } from "./guild.js";
 import { SnowFlake } from "./snowflake.js";
 import { Role } from "./role.js";
-interface OptionsElement {
+interface OptionsElement {//OptionsElement<x>
   generateHTML():HTMLElement;
   submit:()=>void;
+  //watchForChange:(func:(arg1:x)=>void)=>void
 }
+//future me stuff
+
 class Buttons implements OptionsElement{
     readonly name:string;
     readonly buttons:[string,Options|string][];
@@ -174,6 +177,36 @@ class TextInput implements OptionsElement{
     submit(){
         this.onSubmit(this.textContent);
     }
+}
+
+class ButtonInput implements OptionsElement{
+    readonly label:string;
+    readonly owner:Options;
+    readonly onClick:()=>void;
+    textContent:string;
+    constructor(label:string,textContent:string,onClick:()=>void,owner:Options,{}={}){
+        this.label=label;
+        this.owner=owner;
+        this.onClick=onClick;
+        this.textContent=textContent;
+    }
+    generateHTML():HTMLDivElement{
+        const div=document.createElement("div");
+        const span=document.createElement("span");
+        span.textContent=this.label;
+        div.append(span);
+        const button=document.createElement("button");
+        button.textContent=this.textContent;
+        button.onclick=this.onClickEvent.bind(this);
+        div.append(button);
+        return div;
+    }
+    private onClickEvent(ev:Event){
+        console.log("here :3")
+        this.onClick();
+    }
+    watchForChange(){}
+    submit(){}
 }
 
 class ColorInput implements OptionsElement{
@@ -445,6 +478,11 @@ class Options implements OptionsElement{
         const htmlarea=new HtmlArea(html,submit);
         this.options.push(htmlarea);
         return htmlarea;
+    }
+    addButtonInput(label:string,textContent:string,onSubmit:()=>void){
+        const button=new ButtonInput(label,textContent,onSubmit,this);
+        this.options.push(button);
+        return button;
     }
     generateHTML():HTMLElement{
         const div=document.createElement("div");

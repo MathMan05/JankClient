@@ -34,6 +34,7 @@ class Localuser {
     wsinterval;
     connectionSucceed = 0;
     errorBackoff = 0;
+    mfa_enabled;
     constructor(userinfo) {
         this.token = userinfo.token;
         this.userinfo = userinfo;
@@ -49,6 +50,7 @@ class Localuser {
         this.guilds = [];
         this.guildids = new Map();
         this.user = new User(ready.d.user, this);
+        this.mfa_enabled = ready.d.user.mfa_enabled;
         this.userinfo.username = this.user.username;
         this.userinfo.pfpsrc = this.user.getpfpsrc();
         this.status = this.ready.d.user_settings.status;
@@ -716,6 +718,67 @@ class Localuser {
                     localStorage.setItem("userinfos", JSON.stringify(userinfos));
                     document.documentElement.style.setProperty('--accent-color', userinfos.accent_color);
                 }, { initColor: userinfos.accent_color });
+            }
+        }
+        {
+            const security = settings.addButton("Account Security");
+            if (this.mfa_enabled) {
+                security.addTextInput("Disable 2FA, totp code:", _ => {
+                    fetch(this.info.api.toString() + "/users/@me/mfa/totp/disable", {
+                        method: "POST",
+                        headers: this.headers,
+                        body: JSON.stringify({
+                            code: _
+                        })
+                    }).then(r => r.json()).then(json => {
+                        if (json.message) {
+                            alert(json.message);
+                        }
+                        else {
+                            this.mfa_enabled = false;
+                            alert("2FA turned off successfully");
+                        }
+                    });
+                });
+            }
+            else {
+                security.addButtonInput("", "Enable 2FA", async () => {
+                    let secret = "";
+                    for (let i = 0; i < 18; i++) {
+                        secret += "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"[Math.floor(Math.random() * 32)];
+                    }
+                    let password = "";
+                    let code = "";
+                    const addmodel = new Fullscreen(["vdiv",
+                        ["title", "2FA set up"],
+                        ["text", "Copy this secret into your totp(time-based one time password) app"],
+                        ["text", `Your secret is: ${secret} and it's 6 digits, with a 30 second token period`],
+                        ["textbox", "Account password:", "", function () { password = this.value; }],
+                        ["textbox", "Code:", "", function () { code = this.value; }],
+                        ["button", "", "Submit", () => {
+                                fetch(this.info.api.toString() + "/users/@me/mfa/totp/enable/", {
+                                    method: "POST",
+                                    headers: this.headers,
+                                    body: JSON.stringify({
+                                        password,
+                                        code,
+                                        secret
+                                    })
+                                }).then(r => r.json()).then(json => {
+                                    if (json.message) {
+                                        alert(json.message);
+                                    }
+                                    else {
+                                        alert("2FA set up successfully");
+                                        addmodel.hide();
+                                        this.mfa_enabled = true;
+                                    }
+                                });
+                            }]
+                    ]);
+                    console.log("here :3");
+                    addmodel.show();
+                });
             }
         }
         settings.show();
