@@ -1,6 +1,7 @@
 import { Permissions } from "./permissions.js";
 import { SnowFlake } from "./snowflake.js";
 import { Role } from "./role.js";
+//future me stuff
 class Buttons {
     name;
     buttons;
@@ -174,6 +175,35 @@ class TextInput {
     submit() {
         this.onSubmit(this.textContent);
     }
+}
+class ButtonInput {
+    label;
+    owner;
+    onClick;
+    textContent;
+    constructor(label, textContent, onClick, owner, {} = {}) {
+        this.label = label;
+        this.owner = owner;
+        this.onClick = onClick;
+        this.textContent = textContent;
+    }
+    generateHTML() {
+        const div = document.createElement("div");
+        const span = document.createElement("span");
+        span.textContent = this.label;
+        div.append(span);
+        const button = document.createElement("button");
+        button.textContent = this.textContent;
+        button.onclick = this.onClickEvent.bind(this);
+        div.append(button);
+        return div;
+    }
+    onClickEvent(ev) {
+        console.log("here :3");
+        this.onClick();
+    }
+    watchForChange() { }
+    submit() { }
 }
 class ColorInput {
     label;
@@ -442,6 +472,11 @@ class Options {
         const htmlarea = new HtmlArea(html, submit);
         this.options.push(htmlarea);
         return htmlarea;
+    }
+    addButtonInput(label, textContent, onSubmit) {
+        const button = new ButtonInput(label, textContent, onSubmit, this);
+        this.options.push(button);
+        return button;
     }
     generateHTML() {
         const div = document.createElement("div");
