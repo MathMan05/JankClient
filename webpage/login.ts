@@ -37,6 +37,10 @@ function setDefaults(){
     if(userinfos.users===undefined){
         userinfos.users={};
     }
+    if(userinfos.accent_color===undefined){
+        userinfos.accent_color="#242443";
+    }
+    document.documentElement.style.setProperty('--accent-color', userinfos.accent_color);
     if(userinfos.preferences===undefined){
         userinfos.preferences={
                 theme:"Dark",
@@ -47,7 +51,7 @@ function setDefaults(){
     if(userinfos.preferences&&(userinfos.preferences.notisound===undefined)){
         userinfos.preferences.notisound="three";
     }
-    localStorage.setItem("userinfos",JSON.stringify(userinfos));
+    localStorage.setItem("userinfos",JSON.stringify(userinfos))
 }
 setDefaults();
 class Specialuser{

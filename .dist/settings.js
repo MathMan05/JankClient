@@ -175,6 +175,45 @@ class TextInput {
         this.onSubmit(this.textContent);
     }
 }
+class ColorInput {
+    label;
+    owner;
+    onSubmit;
+    colorContent;
+    input;
+    constructor(label, onSubmit, owner, { initColor = "" } = {}) {
+        this.label = label;
+        this.colorContent = initColor;
+        this.owner = owner;
+        this.onSubmit = onSubmit;
+    }
+    generateHTML() {
+        const div = document.createElement("div");
+        const span = document.createElement("span");
+        span.textContent = this.label;
+        div.append(span);
+        const input = document.createElement("input");
+        input.value = this.colorContent;
+        input.type = "color";
+        input.oninput = this.onChange.bind(this);
+        this.input = new WeakRef(input);
+        div.append(input);
+        return div;
+    }
+    onChange(ev) {
+        this.owner.changed();
+        const value = this.input.deref().value;
+        this.onchange(value);
+        this.colorContent = value;
+    }
+    onchange = _ => { };
+    watchForChange(func) {
+        this.onchange = func;
+    }
+    submit() {
+        this.onSubmit(this.colorContent);
+    }
+}
 class SelectInput {
     label;
     owner;
@@ -388,6 +427,11 @@ class Options {
         const textInput = new TextInput(label, onSubmit, this, { initText });
         this.options.push(textInput);
         return textInput;
+    }
+    addColorInput(label, onSubmit, { initColor = "" } = {}) {
+        const colorInput = new ColorInput(label, onSubmit, this, { initColor });
+        this.options.push(colorInput);
+        return colorInput;
     }
     addMDInput(label, onSubmit, { initText = "" } = {}) {
         const mdInput = new MDInput(label, onSubmit, this, { initText });

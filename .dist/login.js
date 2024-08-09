@@ -36,6 +36,10 @@ function setDefaults() {
     if (userinfos.users === undefined) {
         userinfos.users = {};
     }
+    if (userinfos.accent_color === undefined) {
+        userinfos.accent_color = "#242443";
+    }
+    document.documentElement.style.setProperty('--accent-color', userinfos.accent_color);
     if (userinfos.preferences === undefined) {
         userinfos.preferences = {
             theme: "Dark",
