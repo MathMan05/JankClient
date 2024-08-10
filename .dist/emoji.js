@@ -84,7 +84,7 @@ class Emoji {
         menu.append(title);
         console.log("menu :3");
         const selection = document.createElement("div");
-        selection.classList.add("flexltr");
+        selection.classList.add("flexltr", "dontshrink");
         console.log("menu :3");
         const body = document.createElement("div");
         body.classList.add("emojiBody");

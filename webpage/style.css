@@ -1633,3 +1633,6 @@ form div{
 	align-content: stretch;
 	align-items: stretch;
 }
+.dontshrink{
+	flex-shrink:0;
+}
