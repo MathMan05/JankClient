@@ -264,21 +264,20 @@ async function check(e) {
 if (document.getElementById("form")) {
     document.getElementById("form").addEventListener("submit", check);
 }
-//Service workers :3
-if ("serviceWorker" in navigator) {
+//this currently does not work, and need to be implemented better at some time.
+/*
+if ("serviceWorker" in navigator){
     navigator.serviceWorker.register("/service.js", {
-        scope: "/",
+    scope: "/",
     }).then((registration) => {
-        let serviceWorker;
+        let serviceWorker:ServiceWorker;
         if (registration.installing) {
             serviceWorker = registration.installing;
             console.log("installing");
-        }
-        else if (registration.waiting) {
+        } else if (registration.waiting) {
             serviceWorker = registration.waiting;
             console.log("waiting");
-        }
-        else if (registration.active) {
+        } else if (registration.active) {
             serviceWorker = registration.active;
             console.log("active");
         }
@@ -288,6 +287,7 @@ if ("serviceWorker" in navigator) {
                 console.log(serviceWorker.state);
             });
         }
-    });
+    })
 }
+*/
 export { checkInstance };
