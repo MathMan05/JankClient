@@ -285,7 +285,7 @@ if ("serviceWorker" in navigator) {
         if (serviceWorker) {
             console.log(serviceWorker.state);
             serviceWorker.addEventListener("statechange", (e) => {
-                console.log(e.target.state);
+                console.log(serviceWorker.state);
             });
         }
     });
