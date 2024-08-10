@@ -263,7 +263,8 @@ async function check(e){
 if(document.getElementById("form")){
 document.getElementById("form").addEventListener("submit", check);
 }
-//Service workers :3
+//this currently does not work, and need to be implemented better at some time.
+/*
 if ("serviceWorker" in navigator){
     navigator.serviceWorker.register("/service.js", {
     scope: "/",
@@ -287,4 +288,5 @@ if ("serviceWorker" in navigator){
         }
     })
 }
+*/
 export {checkInstance};
