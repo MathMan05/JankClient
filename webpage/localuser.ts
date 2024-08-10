@@ -1112,6 +1112,10 @@ class Localuser{
         }
     }
     async getmembers(){
+        let res:Function
+        const promise=new Promise(r=>res=r);
+        setTimeout(res,10);
+        await promise;//allow for more to be sent at once :P
         if(this.ws){
             this.waitingmembers.forEach(async (value,guildid)=>{
                 const keys=value.keys();
