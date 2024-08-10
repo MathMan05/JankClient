@@ -268,7 +268,7 @@ if ("serviceWorker" in navigator){
     navigator.serviceWorker.register("/service.js", {
     scope: "/",
     }).then((registration) => {
-        let serviceWorker;
+        let serviceWorker:ServiceWorker;
         if (registration.installing) {
             serviceWorker = registration.installing;
             console.log("installing");
@@ -282,7 +282,7 @@ if ("serviceWorker" in navigator){
         if (serviceWorker) {
             console.log(serviceWorker.state);
             serviceWorker.addEventListener("statechange", (e) => {
-                console.log(e.target.state);
+                console.log(serviceWorker.state);
             });
         }
     })
