@@ -92,6 +92,7 @@ class Member{
             }
             return memb;
         }
+        guild.localuser.resolvemember(id.id,guild.id).then(console.log);
         const prom1= fetch(guild.info.api.toString()+"/users/"+id+"/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id="+guild.snowflake,{headers:guild.headers})
         prom1.catch(_=>{console.log(_)})
         const promoise=prom1.then(_=>_.json()).then(json=>{

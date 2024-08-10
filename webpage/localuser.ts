@@ -207,6 +207,9 @@ class Localuser{
             this.unload();
             document.getElementById("loading").classList.remove("doneloading");
             document.getElementById("loading").classList.add("loading");
+            this.fetchingmembers=new Map();
+            this.noncemap=new Map();
+            this.noncebuild=new Map();
             if (((event.code>1000 && event.code<1016) || wsCodesRetry.has(event.code))) {
                 if (this.connectionSucceed!==0 && Date.now()>this.connectionSucceed+20000) this.errorBackoff=0;
                 else this.errorBackoff++;
@@ -313,6 +316,9 @@ class Localuser{
                         console.log("test");
                         message.takeReaction(temp.d.emoji,temp.d.user_id);
                     }
+                    break;
+                case "GUILD_MEMBERS_CHUNK":
+                    this.gotChunk(temp.d);
                     break;
             }
 
@@ -1072,8 +1078,8 @@ class Localuser{
     //---------- resolving members code -----------
     waitingmembers:Map<string,Map<string,(returns:memberjson|undefined)=>void>>=new Map();
     async resolvemember(id:string,guildid:string):Promise<memberjson|undefined>{
-        console.warn("this function is currently non-functional due to it not being implemented in the server");
-        throw new Error("Not implemented on the server side and not fully implemented, do not use");
+        console.warn("this function may or may not work on any instance, use at your own risk");
+        //throw new Error("Not implemented on the server side and not fully implemented, do not use");
         if(!this.waitingmembers.has(guildid)){
             this.waitingmembers.set(guildid,new Map());
         }
@@ -1085,7 +1091,26 @@ class Localuser{
         this.getmembers();
         return await promise;
     }
-    fetchingmembers:Map<string,(r:memberjson[])=>void>=new Map();
+    fetchingmembers:Map<string,boolean>=new Map();
+    noncemap:Map<string,(r:[memberjson[],string[]])=>void>=new Map();
+    noncebuild:Map<string,[memberjson[],string[],number[]]>=new Map();
+    async gotChunk(chunk:{chunk_index:number,chunk_count:number,nonce:string,not_found?:string[],members?:memberjson[]}){
+        console.log(chunk);
+        chunk.members??=[];
+        const arr=this.noncebuild.get(chunk.nonce);
+        arr[0]=arr[0].concat(chunk.members);
+        if(chunk.not_found){
+            arr[1]=chunk.not_found;
+        }
+        arr[2].push(chunk.chunk_index);
+        if(arr[2].length===chunk.chunk_count){
+            console.log("got through");
+            this.noncebuild.delete(chunk.nonce);
+            const func=this.noncemap.get(chunk.nonce)
+            func([arr[0],arr[1]]);
+            this.noncemap.delete(chunk.nonce);
+        }
+    }
     async getmembers(){
         if(this.ws){
             this.waitingmembers.forEach(async (value,guildid)=>{
@@ -1094,27 +1119,44 @@ class Localuser{
                     return;
                 }
                 const build:string[]=[];
-                for(const key of keys){build.push(key)};
-                let res:(r:memberjson[])=>void;
-                const promise:Promise<memberjson[]>=new Promise((r)=>{
+                for(const key of keys){build.push(key);if(build.length===100){break;}};
+                if(!build.length) {
+                    this.waitingmembers.delete(guildid);
+                    return
+                };
+                let res:(r:[memberjson[],string[]])=>void;
+                const promise:Promise<[memberjson[],string[]]>=new Promise((r)=>{
                     res=r;
                 })
+                const nonce=""+Math.floor(Math.random()*100000000000);
+                this.noncemap.set(nonce,res);
+                this.noncebuild.set(nonce,[[],[],[]]);
                 this.ws.send(JSON.stringify({
                     op:8,
                     d:{
-                        query:"",
                         user_ids:build,
                         guild_id:guildid,
                         limit:100,
-                        nonce:""+Math.floor(Math.random()*100000000)
+                        nonce,
+                        //presences:true
                     }
                 }));
-                this.fetchingmembers.set(guildid,res);
-                const data=await promise;
+                this.fetchingmembers.set(guildid,true);
+                const prom=await promise;;
+                const data=prom[0];
                 for(const thing of data){
-                    value.get(thing.id)(thing);
-                    value.delete(thing.id);
+                    if(value.has(thing.id)){
+                        value.get(thing.id)(thing);
+                        value.delete(thing.id);
+                    }
                 }
+                for(const thing of prom[1]){
+                    if(value.has(thing)){
+                        value.get(thing)(undefined);
+                        value.delete(thing);
+                    }
+                }
+                this.fetchingmembers.delete(guildid);
                 this.getmembers();
             })
         }
