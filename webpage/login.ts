@@ -1,4 +1,4 @@
-import { Fullscreen } from "/fullscreen.js";
+import { Fullscreen } from "./fullscreen.js";
 
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 export {mobile, getBulkUsers,getBulkInfo,setTheme,Specialuser}
