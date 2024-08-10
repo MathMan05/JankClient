@@ -142,11 +142,11 @@ type userjson={
 type memberjson= {
     index?:number,
     id: string,
-    user: userjson,
+    user: userjson|null,
     guild_id: string,
     guild: {
         id: string
-    },
+    }|null,
     nick: string,
     roles: string[],
     joined_at: string,
@@ -154,8 +154,9 @@ type memberjson= {
     deaf: boolean,
     mute: boolean,
     pending: boolean,
-    last_message_id: boolean
+    last_message_id?: boolean//What???
 }
+
 type guildjson={
     application_command_counts: {[key:string]:number},
     channels: channeljson[],
