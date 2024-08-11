@@ -1058,6 +1058,7 @@ span {
 	max-height: 80vh;
 	overflow: auto;
 	border:solid var(--black) .035in;
+	z-index: 102;
 }
 .switchtable{
 	transition: background .3s;

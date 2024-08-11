@@ -19,77 +19,94 @@ if(!users.currentuser){
     window.location.href = '/login.html';
 }
 
-let thisuser=new Localuser(users.users[users.currentuser]);
-thisuser.initwebsocket().then(_=>{
-    thisuser.loaduser();
-    thisuser.init();
-    document.getElementById("loading").classList.add("doneloading");
-    document.getElementById("loading").classList.remove("loading");
-    console.log("done loading")
-});
+
+function showAccountSwitcher(){
+    const table=document.createElement("div");
+    for(const thing of Object.values(users.users)){
+        const specialuser=thing as Specialuser;
+        console.log(specialuser.pfpsrc)
+
+        const userinfo=document.createElement("div");
+        userinfo.classList.add("flexltr","switchtable");
+        const pfp=document.createElement("img");
+        userinfo.append(pfp);
+
+        const user=document.createElement("div");
+        userinfo.append(user);
+        user.append(specialuser.username);
+        user.append(document.createElement("br"));
+        const span=document.createElement("span");
+        span.textContent=specialuser.serverurls.wellknown.replace("https://","").replace("http://","");
+        user.append(span);
+        user.classList.add("userinfo")
+        span.classList.add("serverURL")
+
+        pfp.src=specialuser.pfpsrc;
+        pfp.classList.add("pfp");
+        table.append(userinfo);
+        userinfo.addEventListener("click",_=>{
+            thisuser.unload();
+            document.getElementById("loading").classList.remove("doneloading");
+            document.getElementById("loading").classList.add("loading");
+            thisuser=new Localuser(specialuser);
+            users["currentuser"]=specialuser.uid;
+            localStorage.setItem("userinfos",JSON.stringify(users));
+            thisuser.initwebsocket().then(_=>{
+                thisuser.loaduser();
+                thisuser.init();
+                document.getElementById("loading").classList.add("doneloading");
+                document.getElementById("loading").classList.remove("loading");
+                console.log("done loading")
+
+            });
+            userinfo.remove();
+        })
+    }
+    {
+        const td=document.createElement("div");
+        td.classList.add("switchtable")
+        td.append("Switch accounts ⇌");
+        td.addEventListener("click",_=>{
+            window.location.href="/login.html";
+        })
+        table.append(td);
+    }
+    table.classList.add("accountSwitcher");
+    if(Contextmenu.currentmenu!=""){
+        Contextmenu.currentmenu.remove();
+    }
+    Contextmenu.currentmenu=table;
+    console.log(table);
+    document.body.append(table);
+}
 {
     const userinfo=document.getElementById("userinfo");
-    userinfo.addEventListener("click",function(event){
-        const table=document.createElement("div");
-        for(const thing of Object.values(users.users)){
-            const specialuser=thing as Specialuser;
-            console.log(specialuser.pfpsrc)
-
-            const userinfo=document.createElement("div");
-            userinfo.classList.add("flexltr","switchtable");
-            const pfp=document.createElement("img");
-            userinfo.append(pfp);
-
-            const user=document.createElement("div");
-            userinfo.append(user);
-            user.append(specialuser.username);
-            user.append(document.createElement("br"));
-            const span=document.createElement("span");
-            span.textContent=specialuser.serverurls.wellknown.replace("https://","").replace("http://","");
-            user.append(span);
-            user.classList.add("userinfo")
-            span.classList.add("serverURL")
-
-            pfp.src=specialuser.pfpsrc;
-            pfp.classList.add("pfp");
-            table.append(userinfo);
-            userinfo.addEventListener("click",_=>{
-                thisuser.unload();
-                document.getElementById("loading").classList.remove("doneloading");
-                document.getElementById("loading").classList.add("loading");
-                thisuser=new Localuser(specialuser);
-                users["currentuser"]=specialuser.uid;
-                localStorage.setItem("userinfos",JSON.stringify(users));
-                thisuser.initwebsocket().then(_=>{
-                    thisuser.loaduser();
-                    thisuser.init();
-                    document.getElementById("loading").classList.add("doneloading");
-                    document.getElementById("loading").classList.remove("loading");
-                    console.log("done loading")
-
-                });
-                userinfo.remove();
-            })
-        }
-        {
-            const td=document.createElement("div");
-            td.classList.add("switchtable")
-            td.append("Switch accounts ⇌");
-            td.addEventListener("click",_=>{
-                window.location.href="/login.html";
-            })
-            table.append(td);
-        }
-        table.classList.add("accountSwitcher");
-        if(Contextmenu.currentmenu!=""){
-            Contextmenu.currentmenu.remove();
-        }
-        Contextmenu.currentmenu=table;
-        console.log(table);
-        document.body.append(table);
-        event.stopImmediatePropagation();
+    userinfo.addEventListener("click",_=>{
+        _.stopImmediatePropagation();
+        showAccountSwitcher();
     })
+    const switchaccounts=document.getElementById("switchaccounts");
+    switchaccounts.addEventListener("click",_=>{
+        _.stopImmediatePropagation();
+        showAccountSwitcher();
+    })
+        console.log("this ran")
 }
+let thisuser:Localuser;
+try{
+    thisuser=new Localuser(users.users[users.currentuser]);
+    thisuser.initwebsocket().then(_=>{
+        thisuser.loaduser();
+        thisuser.init();
+        document.getElementById("loading").classList.add("doneloading");
+        document.getElementById("loading").classList.remove("loading");
+        console.log("done loading")
+    });
+}catch{
+    document.getElementById("load-desc").textContent="Account unable to start";
+    thisuser=new Localuser(-1);
+}
+
 
 {
     const menu=new Contextmenu("create rightclick");
