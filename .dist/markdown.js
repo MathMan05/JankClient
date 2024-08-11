@@ -1,3 +1,5 @@
+import { Channel } from "./channel.js";
+import { Emoji } from "./emoji.js";
 export { MarkDown };
 class MarkDown {
     txt;
@@ -451,14 +453,9 @@ class MarkDown {
                         appendcurrent();
                         i = j;
                         const isEmojiOnly = txt.join("").trim() === buildjoin.trim();
-                        const emojiElem = document.createElement("img");
-                        emojiElem.classList.add("md-emoji");
-                        emojiElem.classList.add(isEmojiOnly ? "bigemoji" : "smallemoji");
-                        emojiElem.crossOrigin = "anonymous";
-                        emojiElem.src = this.info.cdn + "emojis/" + parts[2] + "." + (parts[1] ? "gif" : "png") + "?size=32";
-                        emojiElem.alt = buildjoin;
-                        emojiElem.loading = "lazy";
-                        span.appendChild(emojiElem);
+                        const owner = (this.owner instanceof Channel) ? this.owner.guild : this.owner;
+                        const emoji = new Emoji({ name: buildjoin, id: parts[2], animated: !!parts[1] }, owner);
+                        span.appendChild(emoji.getHTML(isEmojiOnly));
                         continue;
                     }
                 }

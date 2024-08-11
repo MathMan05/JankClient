@@ -6,7 +6,6 @@ import { Embed } from "./embed.js";
 import { File } from "./file.js";
 import { SnowFlake } from "./snowflake.js";
 import { Emoji } from "./emoji.js";
-new Emoji();
 class Message {
     static contextmenu = new Contextmenu("message menu");
     owner;
@@ -383,8 +382,15 @@ class Message {
             if (thing.me) {
                 reaction.classList.add("meReacted");
             }
-            const emoji = document.createElement("p");
-            emoji.textContent = thing.emoji.name;
+            let emoji;
+            if (thing.emoji.id) {
+                const emo = new Emoji(thing.emoji, this.guild);
+                emoji = emo.getHTML(false);
+            }
+            else {
+                emoji = document.createElement("p");
+                emoji.textContent = thing.emoji.name;
+            }
             const count = document.createElement("p");
             count.textContent = "" + thing.count;
             count.classList.add("reactionCount");

@@ -1,4 +1,6 @@
 import { Contextmenu } from "./contextmenu.js";
+import { Guild } from "./guild.js";
+import { Localuser } from "./localuser.js";
 
 class Emoji{
     static emojis:{
@@ -8,6 +10,42 @@ class Emoji{
             emoji:string,
         }[]
     }[];
+    name:string;
+    id:string;
+    animated:boolean;
+    owner:Guild|Localuser;
+    get guild(){
+        if(this.owner instanceof Guild){
+            return this.owner;
+        }
+    }
+    get localuser(){
+        if(this.owner instanceof Guild){
+            return this.guild.localuser;
+        }else{
+            return this.owner;
+        }
+    }
+    get info(){
+        return this.owner.info;
+    }
+    constructor(json:{name:string,id:string,animated:boolean},owner:Guild|Localuser){
+        this.name=json.name;
+        this.id=json.id;
+        this.animated=json.animated
+        this.owner=owner;
+    }
+    getHTML(bigemoji:boolean=false){
+        const emojiElem=document.createElement("img");
+        emojiElem.classList.add("md-emoji");
+        emojiElem.classList.add(bigemoji ? "bigemoji" : "smallemoji");
+        emojiElem.crossOrigin="anonymous";
+        emojiElem.src=this.info.cdn + "/emojis/" + this.id + "." + (this.animated ? "gif" : "png") + "?size=32";
+
+        emojiElem.alt=this.name;
+        emojiElem.loading="lazy";
+        return emojiElem;
+    }
     static decodeEmojiList(buffer:ArrayBuffer){
         const view = new DataView(buffer, 0);
         let i=0;
@@ -74,7 +112,7 @@ class Emoji{
     }
     static async emojiPicker(x:number,y:number):Promise<Emoji|string>{
         let res:(r:Emoji|string)=>void;
-        const promise=new Promise((r)=>{res=r;})
+        const promise:Promise<Emoji|string>=new Promise((r)=>{res=r;})
         const menu=document.createElement("div");
         menu.classList.add("flextttb", "emojiPicker")
         menu.style.top=y+"px";
