@@ -117,7 +117,7 @@ class Guild {
                 noti
             ],
             ["button", "", "submit", _ => {
-                    fetch(this.info.api.toString() + "/v9/users/@me/guilds/settings", {
+                    fetch(this.info.api + "/v9/users/@me/guilds/settings", {
                         method: "PATCH",
                         headers: this.headers,
                         body: JSON.stringify({
@@ -161,7 +161,7 @@ class Guild {
         full.show();
     }
     async leave() {
-        return fetch(this.info.api.toString() + "/users/@me/guilds/" + this.snowflake, {
+        return fetch(this.info.api + "/users/@me/guilds/" + this.snowflake, {
             method: "DELETE",
             headers: this.headers
         });
@@ -211,7 +211,7 @@ class Guild {
         if (serverbug) {
             for (const thing of build) {
                 console.log(build, thing);
-                fetch(this.info.api.toString() + "/v9/guilds/" + this.snowflake + "/channels", {
+                fetch(this.info.api + "/v9/guilds/" + this.snowflake + "/channels", {
                     method: "PATCH",
                     headers: this.headers,
                     body: JSON.stringify([thing])
@@ -219,7 +219,7 @@ class Guild {
             }
         }
         else {
-            fetch(this.info.api.toString() + "/v9/guilds/" + this.snowflake + "/channels", {
+            fetch(this.info.api + "/v9/guilds/" + this.snowflake + "/channels", {
                 method: "PATCH",
                 headers: this.headers,
                 body: JSON.stringify(build)
@@ -245,7 +245,7 @@ class Guild {
         if (this.properties.icon != null) {
             const img = document.createElement("img");
             img.classList.add("pfp", "servericon");
-            img.src = this.info.cdn.toString() + "/icons/" + this.properties.id + "/" + this.properties.icon + ".png";
+            img.src = this.info.cdn + "/icons/" + this.properties.id + "/" + this.properties.icon + ".png";
             divy.appendChild(img);
             img.onclick = () => {
                 console.log(this.loadGuild);
@@ -311,7 +311,7 @@ class Guild {
         full.show();
     }
     async delete() {
-        return fetch(this.info.api.toString() + "/guilds/" + this.snowflake + "/delete", {
+        return fetch(this.info.api + "/guilds/" + this.snowflake + "/delete", {
             method: "POST",
             headers: this.headers,
         });
@@ -364,7 +364,7 @@ class Guild {
             }
         }
         this.unreads();
-        fetch(this.info.api.toString() + "/v9/read-states/ack-bulk", {
+        fetch(this.info.api + "/v9/read-states/ack-bulk", {
             method: "POST",
             headers: this.headers,
             body: JSON.stringify(build)
@@ -487,14 +487,14 @@ class Guild {
         this.printServers();
     }
     createChannel(name, type) {
-        fetch(this.info.api.toString() + "/guilds/" + this.snowflake + "/channels", {
+        fetch(this.info.api + "/guilds/" + this.snowflake + "/channels", {
             method: "POST",
             headers: this.headers,
             body: JSON.stringify({ name: name, type: type })
         });
     }
     async createRole(name) {
-        const fetched = await fetch(this.info.api.toString() + "/guilds/" + this.snowflake + "roles", {
+        const fetched = await fetch(this.info.api + "/guilds/" + this.snowflake + "roles", {
             method: "POST",
             headers: this.headers,
             body: JSON.stringify({
@@ -513,7 +513,7 @@ class Guild {
         const role = this.roleids[id];
         role.permissions.allow = perms.allow;
         role.permissions.deny = perms.deny;
-        await fetch(this.info.api.toString() + "/guilds/" + this.snowflake + "/roles/" + this.snowflake, {
+        await fetch(this.info.api + "/guilds/" + this.snowflake + "/roles/" + this.snowflake, {
             method: "PATCH",
             headers: this.headers,
             body: JSON.stringify({

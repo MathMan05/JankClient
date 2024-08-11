@@ -455,7 +455,7 @@ class MarkDown {
                         emojiElem.classList.add("md-emoji");
                         emojiElem.classList.add(isEmojiOnly ? "bigemoji" : "smallemoji");
                         emojiElem.crossOrigin = "anonymous";
-                        emojiElem.src = this.info.cdn.toString() + "emojis/" + parts[2] + "." + (parts[1] ? "gif" : "png") + "?size=32";
+                        emojiElem.src = this.info.cdn + "emojis/" + parts[2] + "." + (parts[1] ? "gif" : "png") + "?size=32";
                         emojiElem.alt = buildjoin;
                         emojiElem.loading = "lazy";
                         span.appendChild(emojiElem);

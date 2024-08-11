@@ -86,7 +86,7 @@ class Message{
                     break;
                 }
             }
-            fetch(this.info.api.toString()+ "/channels/"+this.channel.id+"/messages/"+this.id+"/reactions/"+encodeURIComponent(emoji)+"/@me",{
+            fetch(this.info.api+ "/channels/"+this.channel.id+"/messages/"+this.id+"/reactions/"+encodeURIComponent(emoji)+"/@me",{
                 method:remove?"DELETE":"PUT",
                 headers:this.headers,
             })
@@ -186,14 +186,14 @@ class Message{
         return build;
     }
     async edit(content){
-        return await fetch(this.info.api.toString()+"/channels/"+this.channel.snowflake+"/messages/"+this.id,{
+        return await fetch(this.info.api+"/channels/"+this.channel.snowflake+"/messages/"+this.id,{
             method: "PATCH",
             headers: this.headers,
             body:JSON.stringify({content:content})
         });
     }
     delete(){
-        fetch(`${this.info.api.toString()}/channels/${this.channel.snowflake}/messages/${this.id}`,{
+        fetch(`${this.info.api}/channels/${this.channel.snowflake}/messages/${this.id}`,{
             headers:this.headers,
             method:"DELETE",
         })

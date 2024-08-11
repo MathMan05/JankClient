@@ -57,7 +57,7 @@ function setDefaults(){
 }
 setDefaults();
 class Specialuser{
-    serverurls;
+    serverurls:{api:string,cdn:string,gateway:string,wellknown:string,login:string};
     email:string;
     token:string;
     loggedin;
@@ -67,10 +67,13 @@ class Specialuser{
             console.error("specialuser can't construct from another specialuser");
         }
         this.serverurls=json.serverurls;
-        this.serverurls.api=new URL(this.serverurls.api);
-        this.serverurls.cdn=new URL(this.serverurls.cdn);
-        this.serverurls.gateway=new URL(this.serverurls.gateway);
-        this.serverurls.wellknown=new URL(this.serverurls.wellknown);
+        let apistring=new URL(json.serverurls.api).toString();
+        apistring=apistring.replace(/\/(v\d+\/?)?$/, "")+"/v9";
+        this.serverurls.api=apistring;
+        this.serverurls.cdn=new URL(json.serverurls.cdn).toString().replace(/\/$/,"");
+        this.serverurls.gateway=new URL(json.serverurls.gateway).toString().replace(/\/$/,"");;
+        this.serverurls.wellknown=new URL(json.serverurls.wellknown).toString().replace(/\/$/,"");;
+        this.serverurls.login=new URL(json.serverurls.login).toString().replace(/\/$/,"");;
         this.email=json.email;
         this.token=json.token;
         this.loggedin=json.loggedin;

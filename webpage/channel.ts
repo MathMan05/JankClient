@@ -369,7 +369,7 @@ class Channel{
         if(!this.hasunreads){
             return;
         }
-        fetch(this.info.api.toString()+"/channels/"+this.snowflake+"/messages/"+this.lastmessageid+"/ack",{
+        fetch(this.info.api+"/channels/"+this.snowflake+"/messages/"+this.lastmessageid+"/ack",{
             method:"POST",
             headers:this.headers,
             body:JSON.stringify({})
@@ -437,7 +437,7 @@ class Channel{
         return div;
     }
     createChannel(name:string,type:number){
-        fetch(this.info.api.toString()+"/guilds/"+this.guild.id+"/channels",{
+        fetch(this.info.api+"/guilds/"+this.guild.id+"/channels",{
             method:"POST",
             headers:this.headers,
             body:JSON.stringify({
@@ -461,7 +461,7 @@ class Channel{
                 ["mdbox","Channel topic:",this.topic,function(){topic=this.value}],
                 ["checkbox","NSFW Channel",this.nsfw,function(){nsfw=this.checked}],
                 ["button","","submit",()=>{
-                    fetch(this.info.api.toString()+"/channels/"+thisid,{
+                    fetch(this.info.api+"/channels/"+thisid,{
                         method:"PATCH",
                         headers:this.headers,
                         body:JSON.stringify({
@@ -485,7 +485,7 @@ class Channel{
         console.log(full)
     }
     deleteChannel(){
-        fetch(this.info.api.toString()+"/channels/"+this.snowflake,{
+        fetch(this.info.api+"/channels/"+this.snowflake,{
             method:"DELETE",
             headers:this.headers
         })
@@ -527,7 +527,7 @@ class Channel{
         if(snowflake.getObject()){
             return snowflake.getObject();
         }else{
-            const gety=await fetch(this.info.api.toString()+"/channels/"+this.snowflake+"/messages?limit=1&around="+id,{headers:this.headers})
+            const gety=await fetch(this.info.api+"/channels/"+this.snowflake+"/messages?limit=1&around="+id,{headers:this.headers})
             const json=await gety.json();
             return new Message(json[0],this);
         }
@@ -560,7 +560,7 @@ class Channel{
     lastmessage:Message;
     async putmessages(){
         if(this.allthewayup){return};
-        const j=await fetch(this.info.api.toString()+"/channels/"+this.snowflake+"/messages?limit=100",{
+        const j=await fetch(this.info.api+"/channels/"+this.snowflake+"/messages?limit=100",{
         headers: this.headers,
         });
 
@@ -597,7 +597,7 @@ class Channel{
         if(id===this.lastmessage.id){
             return;
         }
-        await fetch(this.info.api.toString()+"/channels/"+this.id+"/messages?limit=100&after="+id,{
+        await fetch(this.info.api+"/channels/"+this.id+"/messages?limit=100&after="+id,{
             headers:this.headers
         }).then((j)=>{return j.json()}).then(response=>{
             let previd:SnowFlake<Message>=SnowFlake.getSnowFlakeFromID(id,Message);
@@ -628,7 +628,7 @@ class Channel{
             return;
         }
 
-        await fetch(this.info.api.toString()+"/channels/"+this.snowflake+"/messages?before="+id+"&limit=100",{
+        await fetch(this.info.api+"/channels/"+this.snowflake+"/messages?before="+id+"&limit=100",{
             headers:this.headers
         }).then((j)=>{return j.json()}).then((response:messagejson[])=>{
             if(response.length<100){
@@ -727,7 +727,7 @@ class Channel{
             return;
         }
         this.typing=new Date().getTime()+6000;
-        fetch(this.info.api.toString()+"/channels/"+this.snowflake+"/typing",{
+        fetch(this.info.api+"/channels/"+this.snowflake+"/typing",{
             method:"POST",
             headers:this.headers
         })
@@ -767,7 +767,7 @@ class Channel{
                 body.message_reference=replyjson;
             }
             console.log(body)
-            return await fetch(this.info.api.toString()+"/channels/"+this.snowflake+"/messages",{
+            return await fetch(this.info.api+"/channels/"+this.snowflake+"/messages",{
                 method:"POST",
                 headers:this.headers,
                 body:JSON.stringify(body)
@@ -787,7 +787,7 @@ class Channel{
                 console.log(attachments[i])
                 formData.append("files["+i+"]",attachments[i]);
             }
-            return await fetch(this.info.api.toString()+"/channels/"+this.snowflake+"/messages", {
+            return await fetch(this.info.api+"/channels/"+this.snowflake+"/messages", {
                 method: 'POST',
                 body: formData,
                 headers:{"Authorization":this.headers.Authorization}
@@ -868,7 +868,7 @@ class Channel{
         }
     }
     async addRoleToPerms(role:Role){
-        await fetch(this.info.api.toString()+"/channels/"+this.snowflake+"/permissions/"+role.snowflake,{
+        await fetch(this.info.api+"/channels/"+this.snowflake+"/permissions/"+role.snowflake,{
             method:"PUT",
             headers:this.headers,
             body:JSON.stringify({
@@ -886,7 +886,7 @@ class Channel{
         const permission=this.permission_overwrites.get(id);
         permission.allow=perms.allow;
         permission.deny=perms.deny;
-        await fetch(this.info.api.toString()+"/channels/"+this.snowflake+"/permissions/"+id,{
+        await fetch(this.info.api+"/channels/"+this.snowflake+"/permissions/"+id,{
             method:"PUT",
             headers:this.headers,
             body:JSON.stringify({

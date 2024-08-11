@@ -1044,19 +1044,27 @@ span {
 .accountSwitcher{
 	background:var(--profile-bg);
 	cursor:pointer;
-	box-shadow: .00in -.5in 1in color-mix(in srgb, var(--shadow) 42%, transparent);
-	border-radius: .05in .05in .0in.0in;
-	flex-grow: 0;
-	align-self: center;
-	flex-shrink: 1;
+	box-shadow: .00in -.5in 2in color-mix(in srgb, var(--shadow) 42%, transparent);
+	border-radius: .1in;
 	min-width: 0px;
-	display: inline-block;
-	width: 100%;
-	padding-left:.025in;
+	width: 80vw;
+	display: flex;
+	flex-direction: column;
+	padding: .1in;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	max-height: 80vh;
+	overflow: auto;
+	border:solid var(--black) .035in;
 }
-.accountSwitcher tr{
+.switchtable{
 	transition: background .3s;
 	background:var(--profile-bg);
+}
+.switchtable:hover{
+	background:var(--profile-info-bg);
 }
 .accountSwitcher tr:hover{
 	background:var(--profile-info-bg);
@@ -1635,4 +1643,19 @@ form div{
 }
 .dontshrink{
 	flex-shrink:0;
+}
+.switchtable{
+	flex-grow:1;
+	flex-shrink: 0;
+	padding: .05in;
+	border-radius: .1in;
+	margin-bottom: .05in;
+	background: var(--message-bg-hover);
+	border: solid var(--black) .03in;
+	box-shadow: .01in .01in .05in var(--black);
+	align-items: center;
+}
+.userinfo{
+	margin-left:.1in;
+	height:fit-content;
 }
