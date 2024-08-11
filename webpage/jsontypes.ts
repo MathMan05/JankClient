@@ -275,7 +275,9 @@ type messagejson={
     reactions: {
         count:number,
         emoji:{
-            name:string
+            name:string,
+            id?:string,
+            animated?:boolean
         },//very likely needs expanding
         me:boolean,
     }[],

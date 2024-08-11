@@ -1,6 +1,43 @@
 import { Contextmenu } from "./contextmenu.js";
+import { Guild } from "./guild.js";
 class Emoji {
     static emojis;
+    name;
+    id;
+    animated;
+    owner;
+    get guild() {
+        if (this.owner instanceof Guild) {
+            return this.owner;
+        }
+    }
+    get localuser() {
+        if (this.owner instanceof Guild) {
+            return this.guild.localuser;
+        }
+        else {
+            return this.owner;
+        }
+    }
+    get info() {
+        return this.owner.info;
+    }
+    constructor(json, owner) {
+        this.name = json.name;
+        this.id = json.id;
+        this.animated = json.animated;
+        this.owner = owner;
+    }
+    getHTML(bigemoji = false) {
+        const emojiElem = document.createElement("img");
+        emojiElem.classList.add("md-emoji");
+        emojiElem.classList.add(bigemoji ? "bigemoji" : "smallemoji");
+        emojiElem.crossOrigin = "anonymous";
+        emojiElem.src = this.info.cdn + "/emojis/" + this.id + "." + (this.animated ? "gif" : "png") + "?size=32";
+        emojiElem.alt = this.name;
+        emojiElem.loading = "lazy";
+        return emojiElem;
+    }
     static decodeEmojiList(buffer) {
         const view = new DataView(buffer, 0);
         let i = 0;
