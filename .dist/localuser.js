@@ -479,7 +479,7 @@ class Localuser {
                                 else {
                                     parsed = inviteurl;
                                 }
-                                fetch(this.info.api + "/v9/invites/" + parsed, {
+                                fetch(this.info.api + "/invites/" + parsed, {
                                     method: "POST",
                                     headers: this.headers,
                                 }).then(r => r.json()).then(_ => {
@@ -502,7 +502,7 @@ class Localuser {
         content.textContent = "Loading...";
         const full = new Fullscreen(["html", content]);
         full.show();
-        const res = await fetch(this.info.api + "/v9/discoverable-guilds?limit=50", {
+        const res = await fetch(this.info.api + "/discoverable-guilds?limit=50", {
             headers: this.headers
         });
         const json = await res.json();
@@ -539,7 +539,7 @@ class Localuser {
             desc.textContent = guild.description;
             content.appendChild(desc);
             content.addEventListener("click", async () => {
-                const joinRes = await fetch(this.info.api + "/v9/guilds/" + guild.id + "/members/@me", {
+                const joinRes = await fetch(this.info.api + "/guilds/" + guild.id + "/members/@me", {
                     method: "PUT",
                     headers: this.headers
                 });
@@ -617,7 +617,7 @@ class Localuser {
         });
     }
     updatebio(bio) {
-        fetch(this.info.api + "/v9/users/@me/profile", {
+        fetch(this.info.api + "/users/@me/profile", {
             method: "PATCH",
             headers: this.headers,
             body: JSON.stringify({
@@ -810,7 +810,7 @@ class Localuser {
             connectionContainer
         ], () => { }, async () => {
             connectionContainer.innerHTML = "";
-            const res = await fetch(this.info.api + "/v9/connections", {
+            const res = await fetch(this.info.api + "/connections", {
                 headers: this.headers
             });
             const json = await res.json();
@@ -820,7 +820,7 @@ class Localuser {
                 container.textContent = key.charAt(0).toUpperCase() + key.slice(1);
                 if (connection.enabled) {
                     container.addEventListener("click", async () => {
-                        const connectionRes = await fetch(this.info.api + "/v9/connections/" + key + "/authorize", {
+                        const connectionRes = await fetch(this.info.api + "/connections/" + key + "/authorize", {
                             headers: this.headers
                         });
                         const connectionJSON = await connectionRes.json();
@@ -848,7 +848,7 @@ class Localuser {
                     async () => {
                         if (appName.trim().length == 0)
                             return alert("Please enter a name for the application.");
-                        const res = await fetch(this.info.api + "/v9/applications", {
+                        const res = await fetch(this.info.api + "/applications", {
                             method: "POST",
                             headers: this.headers,
                             body: JSON.stringify({
@@ -866,7 +866,7 @@ class Localuser {
             ]
         ], () => { }, async () => {
             appListContainer.innerHTML = "";
-            const res = await fetch(this.info.api + "/v9/applications", {
+            const res = await fetch(this.info.api + "/applications", {
                 headers: this.headers
             });
             const json = await res.json();
@@ -892,7 +892,7 @@ class Localuser {
         });
     }
     async manageApplication(appId = "") {
-        const res = await fetch(this.info.api + "/v9/applications/" + appId, {
+        const res = await fetch(this.info.api + "/applications/" + appId, {
             headers: this.headers
         });
         const json = await res.json();
@@ -940,7 +940,7 @@ class Localuser {
                     "",
                     "Save changes",
                     async () => {
-                        const updateRes = await fetch(this.info.api + "/v9/applications/" + appId, {
+                        const updateRes = await fetch(this.info.api + "/applications/" + appId, {
                             method: "PATCH",
                             headers: this.headers,
                             body: JSON.stringify(fields)
@@ -960,7 +960,7 @@ class Localuser {
                         if (!json.bot) {
                             if (!confirm("Are you sure you want to add a bot to this application? There's no going back."))
                                 return;
-                            const updateRes = await fetch(this.info.api + "/v9/applications/" + appId + "/bot", {
+                            const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot", {
                                 method: "POST",
                                 headers: this.headers
                             });
@@ -976,7 +976,7 @@ class Localuser {
         appDialog.show();
     }
     async manageBot(appId = "") {
-        const res = await fetch(this.info.api + "/v9/applications/" + appId, {
+        const res = await fetch(this.info.api + "/applications/" + appId, {
             headers: this.headers
         });
         const json = await res.json();
@@ -1010,7 +1010,7 @@ class Localuser {
                     "",
                     "Save changes",
                     async () => {
-                        const updateRes = await fetch(this.info.api + "/v9/applications/" + appId + "/bot", {
+                        const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot", {
                             method: "PATCH",
                             headers: this.headers,
                             body: JSON.stringify(fields)
@@ -1029,7 +1029,7 @@ class Localuser {
                     async () => {
                         if (!confirm("Are you sure you want to reset the bot token? Your bot will stop working until you update it."))
                             return;
-                        const updateRes = await fetch(this.info.api + "/v9/applications/" + appId + "/bot/reset", {
+                        const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot/reset", {
                             method: "POST",
                             headers: this.headers
                         });

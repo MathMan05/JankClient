@@ -48,7 +48,7 @@ class User {
             navigator.clipboard.writeText(this.id.id);
         });
         this.contextmenu.addbutton("Message user", function () {
-            fetch(this.info.api + "/v9/users/@me/channels", { method: "POST",
+            fetch(this.info.api + "/users/@me/channels", { method: "POST",
                 body: JSON.stringify({ "recipients": [this.id.id] }),
                 headers: this.localuser.headers
             });
@@ -124,7 +124,7 @@ class User {
         User.contextmenu.bind(html, this);
     }
     static async resolve(id, localuser) {
-        const json = await fetch(localuser.info.api.toString() + "/v9/users/" + id + "/profile", { headers: localuser.headers }).then(_ => _.json());
+        const json = await fetch(localuser.info.api.toString() + "/users/" + id + "/profile", { headers: localuser.headers }).then(_ => _.json());
         return new User(json, localuser);
     }
     changepfp(update) {

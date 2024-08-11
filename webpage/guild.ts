@@ -128,7 +128,7 @@ class Guild{
             noti
         ],
         ["button","","submit",_=>{
-            fetch(this.info.api+"/v9/users/@me/guilds/settings",{
+            fetch(this.info.api+"/users/@me/guilds/settings",{
                 method:"PATCH",
                 headers:this.headers,
                 body:JSON.stringify({
@@ -221,14 +221,14 @@ class Guild{
         if(serverbug){
             for(const thing of build){
                 console.log(build,thing)
-                fetch(this.info.api+"/v9/guilds/"+this.snowflake+"/channels",{
+                fetch(this.info.api+"/guilds/"+this.snowflake+"/channels",{
                     method:"PATCH",
                     headers:this.headers,
                     body:JSON.stringify([thing])
                 });
             }
         }else{
-            fetch(this.info.api+"/v9/guilds/"+this.snowflake+"/channels",{
+            fetch(this.info.api+"/guilds/"+this.snowflake+"/channels",{
                 method:"PATCH",
                 headers:this.headers,
                 body:JSON.stringify(build)
@@ -369,7 +369,7 @@ class Guild{
             }
         }
         this.unreads();
-        fetch(this.info.api+"/v9/read-states/ack-bulk",{
+        fetch(this.info.api+"/read-states/ack-bulk",{
             method:"POST",
             headers:this.headers,
             body:JSON.stringify(build)
