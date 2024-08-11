@@ -226,6 +226,7 @@ h2 {
 	vertical-align: top;
 	overflow: auto;
 	flex-shrink: 0;
+	background: var(--server-list);
 }
 
 #servers {
