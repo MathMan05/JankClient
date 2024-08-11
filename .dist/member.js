@@ -16,7 +16,7 @@ class Member {
             navigator.clipboard.writeText(this.id);
         });
         this.contextmenu.addbutton("Message user", function () {
-            fetch(this.info.api + "/v9/users/@me/channels", { method: "POST",
+            fetch(this.info.api + "/users/@me/channels", { method: "POST",
                 body: JSON.stringify({ "recipients": [this.id] }),
                 headers: this.headers
             });
