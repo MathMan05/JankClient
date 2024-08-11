@@ -36,6 +36,9 @@ class Localuser {
     errorBackoff = 0;
     mfa_enabled;
     constructor(userinfo) {
+        if (userinfo === -1) {
+            return;
+        }
         this.token = userinfo.token;
         this.userinfo = userinfo;
         this.serverurls = this.userinfo.serverurls;
@@ -104,7 +107,9 @@ class Localuser {
         this.outoffocus();
         this.guilds = [];
         this.guildids = new Map();
-        this.ws.close(4001);
+        if (this.ws) {
+            this.ws.close(4001);
+        }
         SnowFlake.clear();
         User.clear();
     }
