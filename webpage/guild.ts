@@ -267,9 +267,6 @@ class Guild{
         }else{
             const div=document.createElement("div");
             let build=this.properties.name.replace(/'s /g, " ").replace(/\w+/g, word => word[0]).replace(/\s/g, "");
-            for(const char of this.properties.name.split(" ")){
-                build+=char[0];
-            }
             div.textContent=build;
             div.classList.add("blankserver","servericon")
             divy.appendChild(div)
