@@ -52,7 +52,7 @@ class User{
             navigator.clipboard.writeText(this.id.id);
         });
         this.contextmenu.addbutton("Message user",function(){
-            fetch(this.info.api.toString()+"/v9/users/@me/channels",
+            fetch(this.info.api+"/v9/users/@me/channels",
                 {method:"POST",
                     body:JSON.stringify({"recipients":[this.id.id]}),
                     headers: this.localuser.headers
@@ -144,9 +144,9 @@ class User{
             return this.avatar;
         }
         if(this.avatar!=null){
-            return this.info.cdn.toString()+"/avatars/"+this.id+"/"+this.avatar+".png";
+            return this.info.cdn+"/avatars/"+this.id+"/"+this.avatar+".png";
         }else{
-            return this.info.cdn.toString()+"/embed/avatars/3.png";
+            return this.info.cdn+"/embed/avatars/3.png";
         }
     }
     createjankpromises(){

@@ -31,40 +31,30 @@ thisuser.initwebsocket().then(_=>{
     const userinfo=document.getElementById("userinfo");
     const userdock=document.getElementById("userdock");
     userinfo.addEventListener("click",function(event){
-        const table=document.createElement("table");
+        const table=document.createElement("div");
         for(const thing of Object.values(users.users)){
             const specialuser=thing as Specialuser;
             console.log(specialuser.pfpsrc)
-            const tr=document.createElement("tr");
-            const td=document.createElement("td");
 
-            const userinfo=document.createElement("table");
-            userinfo.classList.add("switchtable");
-            const row=document.createElement("tr");
-            userinfo.append(row)
-            const pfpcell=document.createElement("td");
-            row.append(pfpcell);
+            const userinfo=document.createElement("div");
+            userinfo.classList.add("flexltr","switchtable");
             const pfp=document.createElement("img");
-            pfpcell.append(pfp);
+            userinfo.append(pfp);
 
-            const usertd=document.createElement("td")
-            row.append(usertd);
             const user=document.createElement("div");
-            usertd.append(user);
+            userinfo.append(user);
             user.append(specialuser.username);
             user.append(document.createElement("br"));
             const span=document.createElement("span");
-            span.textContent=specialuser.serverurls.wellknown.hostname;
+            span.textContent=specialuser.serverurls.wellknown.replace("https://","").replace("http://","");
             user.append(span);
+            user.classList.add("userinfo")
             span.classList.add("serverURL")
 
             pfp.src=specialuser.pfpsrc;
             pfp.classList.add("pfp");
-            td.append(userinfo)
-
-            tr.append(td);
-            table.append(tr);
-            tr.addEventListener("click",_=>{
+            table.append(userinfo);
+            userinfo.addEventListener("click",_=>{
                 thisuser.unload();
                 document.getElementById("loading").classList.remove("doneloading");
                 document.getElementById("loading").classList.add("loading");
@@ -82,14 +72,13 @@ thisuser.initwebsocket().then(_=>{
             })
         }
         {
-            const tr=document.createElement("tr");
-            const td=document.createElement("td");
-            tr.append(td);
+            const td=document.createElement("div");
+            td.classList.add("switchtable")
             td.append("Switch accounts ⇌");
             td.addEventListener("click",_=>{
                 window.location.href="/login.html";
             })
-            table.append(tr);
+            table.append(td);
         }
         table.classList.add("accountSwitcher");
         if(Contextmenu.currentmenu!=""){
@@ -97,7 +86,7 @@ thisuser.initwebsocket().then(_=>{
         }
         Contextmenu.currentmenu=table;
         console.log(table);
-        userdock.before(table);
+        document.body.append(table);
         event.stopImmediatePropagation();
     })
 }

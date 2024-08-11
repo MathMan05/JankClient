@@ -469,7 +469,7 @@ class Localuser {
                                 else {
                                     parsed = inviteurl;
                                 }
-                                fetch(this.info.api.toString() + "/v9/invites/" + parsed, {
+                                fetch(this.info.api + "/v9/invites/" + parsed, {
                                     method: "POST",
                                     headers: this.headers,
                                 }).then(r => r.json()).then(_ => {
@@ -492,7 +492,7 @@ class Localuser {
         content.textContent = "Loading...";
         const full = new Fullscreen(["html", content]);
         full.show();
-        const res = await fetch(this.info.api.toString() + "/v9/discoverable-guilds?limit=50", {
+        const res = await fetch(this.info.api + "/v9/discoverable-guilds?limit=50", {
             headers: this.headers
         });
         const json = await res.json();
@@ -509,7 +509,7 @@ class Localuser {
                 const banner = document.createElement("img");
                 banner.classList.add("banner");
                 banner.crossOrigin = "anonymous";
-                banner.src = this.info.cdn.toString() + "icons/" + guild.id + "/" + guild.banner + ".png?size=256";
+                banner.src = this.info.cdn + "icons/" + guild.id + "/" + guild.banner + ".png?size=256";
                 banner.alt = "";
                 content.appendChild(banner);
             }
@@ -518,7 +518,7 @@ class Localuser {
             const img = document.createElement("img");
             img.classList.add("icon");
             img.crossOrigin = "anonymous";
-            img.src = this.info.cdn.toString() + (guild.icon ? ("/icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "/embed/avatars/3.png");
+            img.src = this.info.cdn + (guild.icon ? ("/icons/" + guild.id + "/" + guild.icon + ".png?size=48") : "/embed/avatars/3.png");
             img.alt = "";
             nameContainer.appendChild(img);
             const name = document.createElement("h3");
@@ -529,7 +529,7 @@ class Localuser {
             desc.textContent = guild.description;
             content.appendChild(desc);
             content.addEventListener("click", async () => {
-                const joinRes = await fetch(this.info.api.toString() + "/v9/guilds/" + guild.id + "/members/@me", {
+                const joinRes = await fetch(this.info.api + "/v9/guilds/" + guild.id + "/members/@me", {
                     method: "PUT",
                     headers: this.headers
                 });
@@ -588,7 +588,7 @@ class Localuser {
         var reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => {
-            fetch(this.info.api.toString() + "/users/@me", {
+            fetch(this.info.api + "/users/@me", {
                 method: "PATCH",
                 headers: this.headers,
                 body: JSON.stringify({
@@ -598,7 +598,7 @@ class Localuser {
         };
     }
     updatepronouns(pronouns) {
-        fetch(this.info.api.toString() + "/users/@me/profile", {
+        fetch(this.info.api + "/users/@me/profile", {
             method: "PATCH",
             headers: this.headers,
             body: JSON.stringify({
@@ -607,7 +607,7 @@ class Localuser {
         });
     }
     updatebio(bio) {
-        fetch(this.info.api.toString() + "/v9/users/@me/profile", {
+        fetch(this.info.api + "/v9/users/@me/profile", {
             method: "PATCH",
             headers: this.headers,
             body: JSON.stringify({
@@ -730,7 +730,7 @@ class Localuser {
             const security = settings.addButton("Account Security");
             if (this.mfa_enabled) {
                 security.addTextInput("Disable 2FA, totp code:", _ => {
-                    fetch(this.info.api.toString() + "/users/@me/mfa/totp/disable", {
+                    fetch(this.info.api + "/users/@me/mfa/totp/disable", {
                         method: "POST",
                         headers: this.headers,
                         body: JSON.stringify({
@@ -762,7 +762,7 @@ class Localuser {
                         ["textbox", "Account password:", "", function () { password = this.value; }],
                         ["textbox", "Code:", "", function () { code = this.value; }],
                         ["button", "", "Submit", () => {
-                                fetch(this.info.api.toString() + "/users/@me/mfa/totp/enable/", {
+                                fetch(this.info.api + "/users/@me/mfa/totp/enable/", {
                                     method: "POST",
                                     headers: this.headers,
                                     body: JSON.stringify({
@@ -800,7 +800,7 @@ class Localuser {
             connectionContainer
         ], () => { }, async () => {
             connectionContainer.innerHTML = "";
-            const res = await fetch(this.info.api.toString() + "/v9/connections", {
+            const res = await fetch(this.info.api + "/v9/connections", {
                 headers: this.headers
             });
             const json = await res.json();
@@ -810,7 +810,7 @@ class Localuser {
                 container.textContent = key.charAt(0).toUpperCase() + key.slice(1);
                 if (connection.enabled) {
                     container.addEventListener("click", async () => {
-                        const connectionRes = await fetch(this.info.api.toString() + "/v9/connections/" + key + "/authorize", {
+                        const connectionRes = await fetch(this.info.api + "/v9/connections/" + key + "/authorize", {
                             headers: this.headers
                         });
                         const connectionJSON = await connectionRes.json();
@@ -838,7 +838,7 @@ class Localuser {
                     async () => {
                         if (appName.trim().length == 0)
                             return alert("Please enter a name for the application.");
-                        const res = await fetch(this.info.api.toString() + "/v9/applications", {
+                        const res = await fetch(this.info.api + "/v9/applications", {
                             method: "POST",
                             headers: this.headers,
                             body: JSON.stringify({
@@ -856,7 +856,7 @@ class Localuser {
             ]
         ], () => { }, async () => {
             appListContainer.innerHTML = "";
-            const res = await fetch(this.info.api.toString() + "/v9/applications", {
+            const res = await fetch(this.info.api + "/v9/applications", {
                 headers: this.headers
             });
             const json = await res.json();
@@ -865,7 +865,7 @@ class Localuser {
                 if (application.cover_image) {
                     const cover = document.createElement("img");
                     cover.crossOrigin = "anonymous";
-                    cover.src = this.info.cdn.toString() + "/app-icons/" + application.id + "/" + application.cover_image + ".png?size=256";
+                    cover.src = this.info.cdn + "/app-icons/" + application.id + "/" + application.cover_image + ".png?size=256";
                     cover.alt = "";
                     cover.loading = "lazy";
                     container.appendChild(cover);
@@ -882,7 +882,7 @@ class Localuser {
         });
     }
     async manageApplication(appId = "") {
-        const res = await fetch(this.info.api.toString() + "/v9/applications/" + appId, {
+        const res = await fetch(this.info.api + "/v9/applications/" + appId, {
             headers: this.headers
         });
         const json = await res.json();
@@ -899,7 +899,7 @@ class Localuser {
                         fields.description = event.target.value;
                     }],
                 ["vdiv",
-                    json.icon ? ["img", this.info.cdn.toString() + "/app-icons/" + appId + "/" + json.icon + ".png?size=128", [128, 128]] : ["text", "No icon"],
+                    json.icon ? ["img", this.info.cdn + "/app-icons/" + appId + "/" + json.icon + ".png?size=128", [128, 128]] : ["text", "No icon"],
                     ["fileupload", "Application icon:", event => {
                             const reader = new FileReader();
                             reader.readAsDataURL(event.target.files[0]);
@@ -930,7 +930,7 @@ class Localuser {
                     "",
                     "Save changes",
                     async () => {
-                        const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId, {
+                        const updateRes = await fetch(this.info.api + "/v9/applications/" + appId, {
                             method: "PATCH",
                             headers: this.headers,
                             body: JSON.stringify(fields)
@@ -950,7 +950,7 @@ class Localuser {
                         if (!json.bot) {
                             if (!confirm("Are you sure you want to add a bot to this application? There's no going back."))
                                 return;
-                            const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId + "/bot", {
+                            const updateRes = await fetch(this.info.api + "/v9/applications/" + appId + "/bot", {
                                 method: "POST",
                                 headers: this.headers
                             });
@@ -966,7 +966,7 @@ class Localuser {
         appDialog.show();
     }
     async manageBot(appId = "") {
-        const res = await fetch(this.info.api.toString() + "/v9/applications/" + appId, {
+        const res = await fetch(this.info.api + "/v9/applications/" + appId, {
             headers: this.headers
         });
         const json = await res.json();
@@ -974,7 +974,7 @@ class Localuser {
             return alert("For some reason, this application doesn't have a bot (yet).");
         const fields = {
             username: json.bot.username,
-            avatar: json.bot.avatar ? (this.info.cdn.toString() + "/app-icons/" + appId + "/" + json.bot.avatar + ".png?size=256") : ""
+            avatar: json.bot.avatar ? (this.info.cdn + "/app-icons/" + appId + "/" + json.bot.avatar + ".png?size=256") : ""
         };
         const botDialog = new Fullscreen(["vdiv",
             ["title",
@@ -1000,7 +1000,7 @@ class Localuser {
                     "",
                     "Save changes",
                     async () => {
-                        const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId + "/bot", {
+                        const updateRes = await fetch(this.info.api + "/v9/applications/" + appId + "/bot", {
                             method: "PATCH",
                             headers: this.headers,
                             body: JSON.stringify(fields)
@@ -1019,7 +1019,7 @@ class Localuser {
                     async () => {
                         if (!confirm("Are you sure you want to reset the bot token? Your bot will stop working until you update it."))
                             return;
-                        const updateRes = await fetch(this.info.api.toString() + "/v9/applications/" + appId + "/bot/reset", {
+                        const updateRes = await fetch(this.info.api + "/v9/applications/" + appId + "/bot/reset", {
                             method: "POST",
                             headers: this.headers
                         });
