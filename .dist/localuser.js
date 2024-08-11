@@ -112,8 +112,6 @@ class Localuser {
         User.clear();
     }
     async initwebsocket() {
-        if (!this.initialized)
-            return;
         let returny = null;
         const promise = new Promise((res) => { returny = res; });
         this.ws = new WebSocket(this.serverurls.gateway.toString() + "?encoding=json&v=9" + (DecompressionStream ? "&compress=zlib-stream" : ""));
