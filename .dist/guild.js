@@ -245,7 +245,7 @@ class Guild {
         if (this.properties.icon != null) {
             const img = document.createElement("img");
             img.classList.add("pfp", "servericon");
-            img.src = this.info.cdn.toString() + "icons/" + this.properties.id + "/" + this.properties.icon + ".png";
+            img.src = this.info.cdn.toString() + "/icons/" + this.properties.id + "/" + this.properties.icon + ".png";
             divy.appendChild(img);
             img.onclick = () => {
                 console.log(this.loadGuild);
