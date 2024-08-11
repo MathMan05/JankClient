@@ -19,8 +19,8 @@
 	--code-bg: color-mix(in srgb, #121212 95%, var(--accent-color));
 	--user-info-bg: color-mix(in srgb,#383838 85%, var(--accent-color));
 	--user-dock-bg: color-mix(in srgb,#111111 90%, var(--accent-color));
-	--channels-bg: color-mix(in srgb,#3f3f3f 70%, var(--accent-color));
-	--channel-hover:color-mix(in srgb, #2c2c2c 70%, var(--accent-color));
+	--channels-bg: color-mix(in srgb, #282828 90%, var(--accent-color));
+	--channel-hover: color-mix(in srgb, #121212 70%, var(--accent-color));
 	--blank-bg: #1b1b1b;
 	--light-border: #92929B;
 	--settings-hover: color-mix(in srgb, #000000 95%, var(--accent-color) 5%);
@@ -35,6 +35,7 @@
 	--profile-info-bg: color-mix(in srgb, #121212 90%, var(--accent-color));
 	--server-border: color-mix(in srgb, #000000 80%, var(--accent-color));
 	--server-bg: color-mix(in srgb, #2a2a2a 80%, var(--accent-color));
+	--server-name-bg: color-mix(in srgb, #1b1b1b 90%, var(--accent-color));
 	--reply-border: #474b76;
 	--reply-bg: #0b0d20;
 	--reply-text: #acacac;
@@ -87,6 +88,7 @@
 	--profile-info-bg: #bbbbce;
 	--server-border: #bebed3;
 	--server-bg: #c0c0d4;
+	--server-name-bg: #a3a3b5;
 	--reply-border: #b1b2bd;
 	--reply-bg: #d4d6e9;
 	--reply-text: #2e2e30;
@@ -138,6 +140,8 @@
 	--filename: #47bbff;
 	--mention-bg: #F00;
 	--pronouns: #202020;
+	--server-bg: #c0c0d4;
+	--server-name-bg: #a3a3b5;
 
 	--server-border: #aaaac4;
 	--server-hover: #7f7fa8;
