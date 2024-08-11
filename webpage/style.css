@@ -954,6 +954,9 @@ span {
 	transition: transform .2s;
 	vertical-align: middle;
 	display: flex;
+	justify-content: flex-start;
+	align-content: center;
+	flex-direction: row;
 }
 
 #centerdiv {
@@ -963,6 +966,8 @@ span {
 	transform: translate(-50%, -50%);
 	display: flex;
 	flex-direction: column;
+	align-content: center;
+	align-items: center;
 }
 
 #loading.doneloading {
@@ -1659,4 +1664,12 @@ form div{
 .userinfo{
 	margin-left:.1in;
 	height:fit-content;
+}
+#switchaccounts{
+	text-decoration: underline;
+	cursor:pointer;
+	transition:text-shadow .2s;
+}
+#switchaccounts:hover{
+	text-shadow: var(--primary-text) 0in 0in .03in
 }
