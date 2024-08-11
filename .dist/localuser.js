@@ -194,6 +194,7 @@ class Localuser {
             this.handleEvent(temp);
         });
         this.ws.addEventListener("close", event => {
+            this.ws = undefined;
             console.log("WebSocket closed with code " + event.code);
             this.unload();
             document.getElementById("loading").classList.remove("doneloading");
