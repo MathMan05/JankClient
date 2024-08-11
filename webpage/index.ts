@@ -29,7 +29,6 @@ thisuser.initwebsocket().then(_=>{
 });
 {
     const userinfo=document.getElementById("userinfo");
-    const userdock=document.getElementById("userdock");
     userinfo.addEventListener("click",function(event){
         const table=document.createElement("div");
         for(const thing of Object.values(users.users)){
@@ -69,6 +68,7 @@ thisuser.initwebsocket().then(_=>{
                     console.log("done loading")
 
                 });
+                userinfo.remove();
             })
         }
         {
