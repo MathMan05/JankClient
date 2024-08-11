@@ -230,9 +230,10 @@ h2 {
 
 #servers {
 	vertical-align: top;
-	height: 100dvh;
+	height: calc(100dvh - .07in);
 	overflow-x: hidden;
-	padding: 0.02in .05in 0.0in .05in;
+	margin: 0.05in .05in .02in .05in;
+	width: .5in;
 }
 
 #servers::-webkit-scrollbar {
