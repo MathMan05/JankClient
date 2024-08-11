@@ -35,7 +35,6 @@ class Localuser{
     guildhtml:Map<string, HTMLDivElement>;
     ws:WebSocket;
     typing:[string,number][];
-    wsinterval:NodeJS.Timeout;
     connectionSucceed=0;
     errorBackoff=0;
     mfa_enabled:boolean;
@@ -109,7 +108,6 @@ class Localuser{
     }
     unload():void{
         this.initialized=false;
-        clearInterval(this.wsinterval);
         this.outoffocus();
         this.guilds=[];
         this.guildids=new Map();
@@ -207,7 +205,6 @@ class Localuser{
 
         this.ws.addEventListener("close", event => {
             console.log("WebSocket closed with code " + event.code);
-            if (this.wsinterval) clearInterval(this.wsinterval);
 
             this.unload();
             document.getElementById("loading").classList.remove("doneloading");
@@ -329,13 +326,17 @@ class Localuser{
 
         }else if(temp.op===10){
             console.log("heartbeat down");
-            this.wsinterval=setInterval(_=>{
+            this.heartbeat_interval=temp.d.heartbeat_interval;
+            this.ws.send(JSON.stringify({op:1,d:this.lastSequence}))
+        }else if(temp.op===11){
+            setTimeout(_=>{
+                if(!this.ws) return;
                 if (this.connectionSucceed===0) this.connectionSucceed=Date.now()
-
                 this.ws.send(JSON.stringify({op:1,d:this.lastSequence}))
-            },temp.d.heartbeat_interval)
+            },this.heartbeat_interval)
         }
     }
+    heartbeat_interval:number;
     resolveChannelFromID(ID:string):Channel{
         let resolve=this.guilds.find(guild => guild.channelids[ID]);
         if(resolve){
