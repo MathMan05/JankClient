@@ -543,7 +543,7 @@ class Localuser{
             const img=document.createElement("img");
             img.classList.add("icon");
             img.crossOrigin="anonymous";
-            img.src=this.info.cdn.toString()+(guild.icon ? ("icons/"+guild.id+"/"+guild.icon+".png?size=48") : "embed/avatars/3.png");
+            img.src=this.info.cdn.toString()+(guild.icon ? ("/icons/"+guild.id+"/"+guild.icon+".png?size=48") : "/embed/avatars/3.png");
             img.alt="";
             nameContainer.appendChild(img);
 

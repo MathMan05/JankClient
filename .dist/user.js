@@ -141,10 +141,10 @@ class User {
             return this.avatar;
         }
         if (this.avatar != null) {
-            return this.info.cdn.toString() + "avatars/" + this.id + "/" + this.avatar + ".png";
+            return this.info.cdn.toString() + "/avatars/" + this.id + "/" + this.avatar + ".png";
         }
         else {
-            return this.info.cdn.toString() + "embed/avatars/3.png";
+            return this.info.cdn.toString() + "/embed/avatars/3.png";
         }
     }
     createjankpromises() {
