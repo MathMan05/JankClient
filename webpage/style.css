@@ -798,6 +798,7 @@ textarea:focus-visible,
 .servernamediv {
 	width: 100%;
 	/* max-width: 100%; */
+	border-left: solid .01in var(--black);
 }
 
 button {
