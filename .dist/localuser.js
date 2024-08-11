@@ -112,6 +112,8 @@ class Localuser {
         User.clear();
     }
     async initwebsocket() {
+        if (!this.initialized)
+            return;
         let returny = null;
         const promise = new Promise((res) => { returny = res; });
         this.ws = new WebSocket(this.serverurls.gateway.toString() + "?encoding=json&v=9" + (DecompressionStream ? "&compress=zlib-stream" : ""));
@@ -209,6 +211,8 @@ class Localuser {
                 this.connectionSucceed = 0;
                 document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (this.errorBackoff * 2.8)) + "</b> seconds...";
                 setTimeout(() => {
+                    if (!this.initialized)
+                        return;
                     document.getElementById("load-desc").textContent = "Retrying...";
                     this.initwebsocket().then(() => {
                         this.loaduser();
