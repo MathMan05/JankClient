@@ -679,20 +679,20 @@ textarea:focus-visible,
 	overflow-x: hidden;
 	white-space: nowrap;
 	max-width: 220px;
+	font-size: .18in;
 }
 
 .servertd {
 	background-color: var(--server-bg);
-	border-color: var(--server-border);
-	border-width: .04in;
-	border-style: solid;
-	height: .48in;
+	height: .55in;
 	width:100%;
 	display: flex;
 	flex-direction: column;
 	justify-content: space-evenly;
 	flex-shrink: 0;
 	box-sizing: border-box;
+	box-shadow: 0 0 .1in .01in var(--black);
+	z-index: 2;
 }
 
 .channeleffects {
@@ -1103,6 +1103,7 @@ span {
 	font-weight:bold;
 	display: flex;
 	padding-left:.2in;
+	font-size: .18in;
 }
 #mobileback{
 	/* display:inline-block; */
@@ -1679,4 +1680,8 @@ form div{
 }
 #switchaccounts:hover{
 	text-shadow: var(--primary-text) 0in 0in .03in
+}
+#servertd{
+	z-index:5;
+	background: var(--server-name-bg);
 }
