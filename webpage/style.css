@@ -231,7 +231,6 @@ h2 {
 #servers {
 	vertical-align: top;
 	height: calc(100dvh - .07in);
-	overflow-x: hidden;
 	margin: 0.05in .05in .02in .05in;
 	width: .5in;
 }

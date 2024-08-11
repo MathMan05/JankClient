@@ -7,7 +7,7 @@ import {Fullscreen} from "./fullscreen.js";
 import {getBulkInfo, setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
-import { channeljson, guildjson, memberjson, readyjson, userjson } from "./jsontypes.js";
+import { channeljson, guildjson, memberjson, readyjson } from "./jsontypes.js";
 import { Member } from "./member.js";
 import { Settings } from "./settings.js";
 import { MarkDown } from "./markdown.js";
@@ -121,7 +121,7 @@ class Localuser{
         let returny=null
         const promise=new Promise((res)=>{returny=res});
         this.ws = new WebSocket(this.serverurls.gateway.toString()+"?encoding=json&v=9"+(DecompressionStream?"&compress=zlib-stream":""));
-        this.ws.addEventListener('open', (event) => {
+        this.ws.addEventListener('open', (_event) => {
         console.log('WebSocket connected');
         this.ws.send(JSON.stringify({
             "op": 2,
@@ -314,7 +314,6 @@ class Localuser{
                     if(SnowFlake.hasSnowFlakeFromID(temp.d.message_id,Message)){
 
                         const message=SnowFlake.getSnowFlakeFromID(temp.d.message_id,Message).getObject();
-                        const guild=SnowFlake.getSnowFlakeFromID(temp.d.guild_id,Guild).getObject();
                         console.log("test");
                         message.takeReaction(temp.d.emoji,temp.d.user_id);
                     }
@@ -531,7 +530,7 @@ class Localuser{
         const guilds=document.createElement("div");
         guilds.id="discovery-guild-content";
 
-        json.guilds.forEach(guild=>{
+        json.guilds.forEach((guild)=>{
             const content=document.createElement("div");
             content.classList.add("discovery-guild");
 
