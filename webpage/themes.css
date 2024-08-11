@@ -19,9 +19,9 @@
 	--code-bg: color-mix(in srgb, #121212 95%, var(--accent-color));
 	--user-info-bg: color-mix(in srgb,#383838 85%, var(--accent-color));
 	--user-dock-bg: color-mix(in srgb,#111111 90%, var(--accent-color));
-	--channels-bg: color-mix(in srgb, #282828 90%, var(--accent-color));
+	--channels-bg: color-mix(in srgb, #2a2a2a 90%, var(--accent-color));
 	--channel-hover: color-mix(in srgb, #121212 70%, var(--accent-color));
-	--blank-bg: #1b1b1b;
+	--blank-bg: #323232;
 	--light-border: #92929B;
 	--settings-hover: color-mix(in srgb, #000000 95%, var(--accent-color) 5%);
 	--quote-bg: #7a798e;
@@ -35,7 +35,7 @@
 	--profile-info-bg: color-mix(in srgb, #121212 90%, var(--accent-color));
 	--server-border: color-mix(in srgb, #000000 80%, var(--accent-color));
 	--server-bg: color-mix(in srgb, #2a2a2a 80%, var(--accent-color));
-	--server-name-bg: color-mix(in srgb, #1b1b1b 90%, var(--accent-color));
+	--server-name-bg: color-mix(in srgb, #232323 90%, var(--accent-color));
 	--reply-border: #474b76;
 	--reply-bg: #0b0d20;
 	--reply-text: #acacac;
@@ -56,6 +56,7 @@
 	--discovery-bg: #37373b;
 	--message-jump:#7678b0;
 	--icon-color:white;
+	--server-list: color-mix(in srgb, #1d1d1d 90%, var(--accent-color));
 }
 .WHITE-theme {
 	color-scheme: light;
