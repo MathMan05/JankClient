@@ -254,7 +254,6 @@ class Localuser{
                     break;
                 case "READY":
                     this.gottenReady(temp as readyjson);
-                    this.genusersettings();
                     break;
                 case "MESSAGE_UPDATE":
                     const message=SnowFlake.getSnowFlakeFromID(temp.d.id,Message).getObject();
@@ -825,26 +824,14 @@ class Localuser{
                 })
             }
         }
-        settings.show();
-    }
-    /**
-        @deprecated
-        This should be made to not be used anymore
-    **/
-    genusersettings():void{
-        const connectionContainer=document.createElement("div");
-        connectionContainer.id="connection-container";
-        this.userConnections=new Dialog(
-            ["html",
-                connectionContainer
-            ], () => {}, async () => {
-                connectionContainer.innerHTML="";
+        {
+            const connections=settings.addButton("Connections");
+            const connectionContainer=document.createElement("div");
+            connectionContainer.id="connection-container";
 
-                const res=await fetch(this.info.api+"/connections", {
-                    headers: this.headers
-                });
-                const json=await res.json();
-
+            fetch(this.info.api+"/connections", {
+                headers: this.headers
+            }).then(r => r.json()).then(json => {
                 Object.keys(json).sort(key => json[key].enabled ? -1 : 1).forEach(key => {
                     const connection=json[key];
 
@@ -853,68 +840,57 @@ class Localuser{
 
                     if (connection.enabled) {
                         container.addEventListener("click", async () => {
-                            const connectionRes=await fetch(this.info.api+"/connections/" + key + "/authorize", {
+                            const connectionRes=await fetch(this.info.api+"/connections/"+key+"/authorize", {
                                 headers: this.headers
                             });
                             const connectionJSON=await connectionRes.json();
                             window.open(connectionJSON.url, "_blank", "noopener noreferrer");
                         })
                     } else {
-                        container.classList.add("disabled")
-                        container.title="This connection has been disabled server-side."
+                        container.classList.add("disabled");
+                        container.title="This connection has been disabled server-side.";
                     }
 
                     connectionContainer.appendChild(container);
                 })
-            }
-        );
+            })
+            connections.addHTMLArea(connectionContainer);
+        }
+        {
+            const devPortal=settings.addButton("Developer Portal");
 
-        let appName="";
-        const appListContainer=document.createElement("div");
-        appListContainer.id="app-list-container";
-        this.devPortal=new Dialog(
-            ["vdiv",
-                ["hdiv",
-                    ["textbox", "Name:", appName, event => {
-                        appName=event.target.value;
-                    }],
-                    ["button",
-                        "",
-                        "Create application",
-                        async () => {
-                            if (appName.trim().length == 0) return alert("Please enter a name for the application.");
-
-                            const res=await fetch(this.info.api+"/applications", {
-                                method: "POST",
-                                headers: this.headers,
-                                body: JSON.stringify({
-                                    name: appName
-                                })
-                            });
-                            const json=await res.json();
-                            this.manageApplication(json.id);
-                            this.devPortal.hide();
-                        }
-                    ]
-                ],
-                ["html",
-                    appListContainer
-                ]
-            ], () => {}, async () => {
-                appListContainer.innerHTML="";
+            let appName="";
+            devPortal.addTextInput("Name:", value => {
+                appName=value
+            });
+            devPortal.addButtonInput("", "Create application", async () => {
+                if (appName.trim().length == 0) {
+                    return alert("Please enter a name for the application.");
+                }
 
                 const res=await fetch(this.info.api+"/applications", {
-                    headers: this.headers
+                    method: "POST",
+                    headers: this.headers,
+                    body: JSON.stringify({
+                        name: appName
+                    })
                 });
                 const json=await res.json();
+                this.manageApplication(json.id);
+            })
 
+            const appListContainer=document.createElement("div");
+            appListContainer.id="app-list-container";
+            fetch(this.info.api+"/applications", {
+                headers: this.headers
+            }).then(r => r.json()).then(json => {
                 json.forEach(application => {
                     const container=document.createElement("div");
 
                     if (application.cover_image) {
                         const cover=document.createElement("img");
                         cover.crossOrigin="anonymous";
-                        cover.src=this.info.cdn+"/app-icons/" + application.id + "/" + application.cover_image + ".png?size=256";
+                        cover.src=this.info.cdn+"/app-icons/"+application.id+"/"+application.cover_image+".png?size=256";
                         cover.alt="";
                         cover.loading="lazy";
                         container.appendChild(cover);
@@ -925,13 +901,14 @@ class Localuser{
                     container.appendChild(name);
 
                     container.addEventListener("click", async () => {
-                        this.devPortal.hide();
                         this.manageApplication(application.id);
                     });
                     appListContainer.appendChild(container);
                 })
-            }
-        )
+            })
+            devPortal.addHTMLArea(appListContainer);
+        }
+        settings.show();
     }
     async manageApplication(appId="") {
         const res=await fetch(this.info.api+"/applications/" + appId, {
