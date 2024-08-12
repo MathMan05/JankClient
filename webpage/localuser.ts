@@ -307,6 +307,7 @@ class Localuser{
                 }
                 case "MESSAGE_REACTION_ADD":
                     if(SnowFlake.hasSnowFlakeFromID(temp.d.message_id,Message)){
+                        temp.d.guild_id??="@me";
                         const message=SnowFlake.getSnowFlakeFromID(temp.d.message_id,Message).getObject();
                         const guild=SnowFlake.getSnowFlakeFromID(temp.d.guild_id,Guild).getObject();
                         message.giveReaction(temp.d.emoji,new Member(temp.d.member,guild));
