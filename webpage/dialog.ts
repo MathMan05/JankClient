@@ -1,5 +1,5 @@
-export {Fullscreen};
-class Fullscreen{
+export {Dialog};
+class Dialog{
     layout;
     onclose: Function;
     onopen: Function;

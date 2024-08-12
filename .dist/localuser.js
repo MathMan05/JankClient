@@ -2,7 +2,7 @@ import { Guild } from "./guild.js";
 import { Direct } from "./direct.js";
 import { Voice } from "./audio.js";
 import { User } from "./user.js";
-import { Fullscreen } from "./fullscreen.js";
+import { Dialog } from "./dialog.js";
 import { getBulkInfo, setTheme } from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
@@ -466,7 +466,7 @@ class Localuser {
     createGuild() {
         let inviteurl = "";
         const error = document.createElement("span");
-        const full = new Fullscreen(["tabs", [
+        const full = new Dialog(["tabs", [
                 ["Join using invite", [
                         "vdiv",
                         ["textbox",
@@ -509,7 +509,7 @@ class Localuser {
         const content = document.createElement("div");
         content.classList.add("guildy");
         content.textContent = "Loading...";
-        const full = new Fullscreen(["html", content]);
+        const full = new Dialog(["html", content]);
         full.show();
         const res = await fetch(this.info.api + "/discoverable-guilds?limit=50", {
             headers: this.headers
@@ -774,7 +774,7 @@ class Localuser {
                     }
                     let password = "";
                     let code = "";
-                    const addmodel = new Fullscreen(["vdiv",
+                    const addmodel = new Dialog(["vdiv",
                         ["title", "2FA set up"],
                         ["text", "Copy this secret into your totp(time-based one time password) app"],
                         ["text", `Your secret is: ${secret} and it's 6 digits, with a 30 second token period`],
@@ -815,7 +815,7 @@ class Localuser {
     genusersettings() {
         const connectionContainer = document.createElement("div");
         connectionContainer.id = "connection-container";
-        this.userConnections = new Fullscreen(["html",
+        this.userConnections = new Dialog(["html",
             connectionContainer
         ], () => { }, async () => {
             connectionContainer.innerHTML = "";
@@ -846,7 +846,7 @@ class Localuser {
         let appName = "";
         const appListContainer = document.createElement("div");
         appListContainer.id = "app-list-container";
-        this.devPortal = new Fullscreen(["vdiv",
+        this.devPortal = new Dialog(["vdiv",
             ["hdiv",
                 ["textbox", "Name:", appName, event => {
                         appName = event.target.value;
@@ -906,7 +906,7 @@ class Localuser {
         });
         const json = await res.json();
         const fields = {};
-        const appDialog = new Fullscreen(["vdiv",
+        const appDialog = new Dialog(["vdiv",
             ["title",
                 "Editing " + json.name
             ],
@@ -995,7 +995,7 @@ class Localuser {
             username: json.bot.username,
             avatar: json.bot.avatar ? (this.info.cdn + "/app-icons/" + appId + "/" + json.bot.avatar + ".png?size=256") : ""
         };
-        const botDialog = new Fullscreen(["vdiv",
+        const botDialog = new Dialog(["vdiv",
             ["title",
                 "Editing bot: " + json.bot.username
             ],

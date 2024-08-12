@@ -1,7 +1,7 @@
 import { Channel } from "./channel.js";
 import { Contextmenu } from "./contextmenu.js";
 import { Role } from "./role.js";
-import { Fullscreen } from "./fullscreen.js";
+import { Dialog } from "./dialog.js";
 import { Member } from "./member.js";
 import { Settings, RoleList } from "./settings.js";
 import { SnowFlake } from "./snowflake.js";
@@ -108,7 +108,7 @@ class Guild {
     }
     setnotifcation() {
         let noti = this.message_notifications;
-        const notiselect = new Fullscreen(["vdiv",
+        const notiselect = new Dialog(["vdiv",
             ["radio", "select notifications type",
                 ["all", "only mentions", "none"],
                 function (e) {
@@ -134,7 +134,7 @@ class Guild {
         notiselect.show();
     }
     confirmleave() {
-        const full = new Fullscreen([
+        const full = new Dialog([
             "vdiv",
             ["title",
                 "Are you sure you want to leave?"
@@ -270,7 +270,7 @@ class Guild {
     }
     confirmDelete() {
         let confirmname = "";
-        const full = new Fullscreen([
+        const full = new Dialog([
             "vdiv",
             ["title",
                 "Are you sure you want to delete " + this.properties.name + "?"
@@ -421,7 +421,7 @@ class Guild {
     createchannels(func = this.createChannel) {
         let name = "";
         let category = 0;
-        const channelselect = new Fullscreen(["vdiv",
+        const channelselect = new Dialog(["vdiv",
             ["radio", "select channel type",
                 ["voice", "text", "announcement"],
                 function (e) {
@@ -445,7 +445,7 @@ class Guild {
     createcategory() {
         let name = "";
         let category = 4;
-        const channelselect = new Fullscreen(["vdiv",
+        const channelselect = new Dialog(["vdiv",
             ["textbox", "Name of category", "", function () {
                     console.log(this);
                     name = this.value;

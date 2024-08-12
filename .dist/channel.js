@@ -2,7 +2,7 @@
 import { Message } from "./message.js";
 import { Voice } from "./audio.js";
 import { Contextmenu } from "./contextmenu.js";
-import { Fullscreen } from "./fullscreen.js";
+import { Dialog } from "./dialog.js";
 import { Permissions } from "./permissions.js";
 import { Settings, RoleList } from "./settings.js";
 import { Role } from "./role.js";
@@ -446,7 +446,7 @@ class Channel {
         let nsfw = this.nsfw;
         const thisid = this.snowflake;
         const thistype = this.type;
-        const full = new Fullscreen(["hdiv",
+        const full = new Dialog(["hdiv",
             ["vdiv",
                 ["textbox", "Channel name:", this.name, function () { name = this.value; }],
                 ["mdbox", "Channel topic:", this.topic, function () { topic = this.value; }],
