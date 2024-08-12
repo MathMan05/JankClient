@@ -6,6 +6,7 @@ import {User} from "./user.js";
 import { Member } from "./member.js";
 import { SnowFlake } from "./snowflake.js";
 import { dirrectjson, memberjson } from "./jsontypes.js";
+import { Permissions } from "./permissions.js";
 
 class Direct extends Guild{
     constructor(json:dirrectjson[],owner:Localuser){
@@ -188,7 +189,8 @@ class Group extends Channel{
         return false;
     }
     hasPermission(name: string, member?: Member): boolean {
-        return true;
+        const perm=new Permissions("248896");
+        return !!perm.getPermission(name);
     }
 }
 export {Direct, Group};
