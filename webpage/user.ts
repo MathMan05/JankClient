@@ -146,7 +146,8 @@ class User{
         if(this.avatar!=null){
             return this.info.cdn+"/avatars/"+this.id+"/"+this.avatar+".png";
         }else{
-            return this.info.cdn+"/embed/avatars/3.png";
+            const int=new Number((BigInt(this.id) >> 22n) % 6n);
+            return this.info.cdn+`/embed/avatars/${int}.png`;
         }
     }
     createjankpromises(){
