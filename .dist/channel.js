@@ -662,6 +662,8 @@ class Channel {
     }
     /**
      * Please dont use this, its not implemented.
+     * @deprecated
+     * @todo
      **/
     async grabArround(id) {
         throw new Error("please don't call this, no one has implemented it :P");
