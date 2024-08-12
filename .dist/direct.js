@@ -3,6 +3,7 @@ import { Channel } from "./channel.js";
 import { Message } from "./message.js";
 import { User } from "./user.js";
 import { SnowFlake } from "./snowflake.js";
+import { Permissions } from "./permissions.js";
 class Direct extends Guild {
     constructor(json, owner) {
         super(-1, owner, null);
@@ -190,7 +191,8 @@ class Group extends Channel {
         return false;
     }
     hasPermission(name, member) {
-        return true;
+        const perm = new Permissions("248896");
+        return !!perm.getPermission(name);
     }
 }
 export { Direct, Group };
