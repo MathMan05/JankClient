@@ -111,6 +111,7 @@ class Localuser {
         SnowFlake.clear();
         User.clear();
     }
+    swapped = false;
     async initwebsocket() {
         let returny = null;
         const promise = new Promise((res) => { returny = res; });
@@ -210,7 +211,7 @@ class Localuser {
                 this.connectionSucceed = 0;
                 document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (this.errorBackoff * 2.8)) + "</b> seconds...";
                 setTimeout(() => {
-                    if (!this.initialized)
+                    if (this.swapped)
                         return;
                     document.getElementById("load-desc").textContent = "Retrying...";
                     this.initwebsocket().then(() => {

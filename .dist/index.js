@@ -37,6 +37,7 @@ function showAccountSwitcher() {
         table.append(userinfo);
         userinfo.addEventListener("click", _ => {
             thisuser.unload();
+            thisuser.swapped = true;
             document.getElementById("loading").classList.remove("doneloading");
             document.getElementById("loading").classList.add("loading");
             thisuser = new Localuser(specialuser);
