@@ -1,4 +1,4 @@
-import { Fullscreen } from "./fullscreen.js";
+import { Dialog } from "./dialog.js";
 import { MarkDown } from "./markdown.js";
 class Embed {
     type;
@@ -128,7 +128,7 @@ class Embed {
         const img = document.createElement("img");
         img.classList.add("messageimg");
         img.onclick = function () {
-            const full = new Fullscreen(["img", img.src, ["fit"]]);
+            const full = new Dialog(["img", img.src, ["fit"]]);
             full.show();
         };
         img.src = this.json.thumbnail.proxy_url;
@@ -153,7 +153,7 @@ class Embed {
             if (this.json.thumbnail) {
                 img.classList.add("embedimg");
                 img.onclick = function () {
-                    const full = new Fullscreen(["img", img.src, ["fit"]]);
+                    const full = new Dialog(["img", img.src, ["fit"]]);
                     full.show();
                 };
                 img.src = this.json.thumbnail.proxy_url;
@@ -193,7 +193,7 @@ class Embed {
             const img = document.createElement("img");
             img.classList.add("bigembedimg");
             img.onclick = function () {
-                const full = new Fullscreen(["img", img.src, ["fit"]]);
+                const full = new Dialog(["img", img.src, ["fit"]]);
                 full.show();
             };
             img.src = this.json.thumbnail.proxy_url || this.json.thumbnail.url;

@@ -1,5 +1,5 @@
 import { Message } from "./message.js";
-import { Fullscreen } from "./fullscreen.js";
+import { Dialog } from "./dialog.js";
 import { filejson } from "./jsontypes.js";
 
 class File{
@@ -30,7 +30,7 @@ class File{
             const img=document.createElement("img");
             img.classList.add("messageimg");
             img.onclick=function(){
-                const full=new Fullscreen(["img",img.src,["fit"]]);
+                const full=new Dialog(["img",img.src,["fit"]]);
                 full.show();
             }
             img.src=src;

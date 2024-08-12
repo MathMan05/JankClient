@@ -2,7 +2,7 @@ import { Channel } from "./channel.js";
 import { Localuser } from "./localuser.js";
 import {Contextmenu} from "./contextmenu.js";
 import {Role} from "./role.js";
-import {Fullscreen} from "./fullscreen.js";
+import {Dialog} from "./dialog.js";
 import {Member} from "./member.js";
 import {Settings,RoleList} from "./settings.js";
 import {Permissions} from "./permissions.js";
@@ -118,7 +118,7 @@ class Guild{
     }
     setnotifcation(){
     let noti=this.message_notifications
-    const notiselect=new Fullscreen(
+    const notiselect=new Dialog(
     ["vdiv",
         ["radio","select notifications type",
             ["all","only mentions","none"],
@@ -145,7 +145,7 @@ class Guild{
     notiselect.show();
     }
     confirmleave(){
-        const full= new Fullscreen([
+        const full= new Dialog([
             "vdiv",
             ["title",
                 "Are you sure you want to leave?"
@@ -280,7 +280,7 @@ class Guild{
     }
     confirmDelete(){
         let confirmname="";
-        const full= new Fullscreen([
+        const full= new Dialog([
             "vdiv",
             ["title",
                 "Are you sure you want to delete "+this.properties.name+"?"
@@ -429,7 +429,7 @@ class Guild{
     createchannels(func=this.createChannel){
         let name="";
         let category=0;
-        const channelselect=new Fullscreen(
+        const channelselect=new Dialog(
         ["vdiv",
             ["radio","select channel type",
                 ["voice","text","announcement"],
@@ -454,7 +454,7 @@ class Guild{
     createcategory(){
         let name="";
         let category=4;
-        const channelselect=new Fullscreen(
+        const channelselect=new Dialog(
         ["vdiv",
             ["textbox","Name of category","",function(){
                 console.log(this);

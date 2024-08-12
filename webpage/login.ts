@@ -1,4 +1,4 @@
-import { Fullscreen } from "./fullscreen.js";
+import { Dialog } from "./dialog.js";
 
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 export {mobile, getBulkUsers,getBulkInfo,setTheme,Specialuser}
@@ -201,7 +201,7 @@ async function login(username:string, password:string, captcha:string){
                 console.log(response);
                 if(response.ticket){
                     let onetimecode="";
-                    new Fullscreen(["vdiv",["title","2FA code:"],["textbox","","",function(){onetimecode=this.value}],["button","","Submit",function(){
+                    new Dialog(["vdiv",["title","2FA code:"],["textbox","","",function(){onetimecode=this.value}],["button","","Submit",function(){
                         fetch(api+"/auth/mfa/totp",{
                             method:"POST",
                             headers:{
