@@ -293,6 +293,7 @@ class Permissions{
         }
     }
     hasPermission(name:string):boolean{
+        if(this.deny){console.warn("This function may of been used in error, think about using getPermision instead")}
         if (this.getPermissionbit(Permissions.map[name] as number,this.allow)) return true;
         if (name != "ADMINISTRATOR") return this.hasPermission("ADMINISTRATOR");
         return false;
