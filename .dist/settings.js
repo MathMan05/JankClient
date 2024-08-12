@@ -521,6 +521,7 @@ class Options {
         }
     }
     submit() {
+        this.haschanged = false;
         for (const thing of this.options) {
             thing.submit();
         }
