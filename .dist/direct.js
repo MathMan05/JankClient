@@ -59,6 +59,27 @@ class Direct extends Guild {
         }
     }
 }
+const dmPermissions = new Permissions("0");
+dmPermissions.setPermission("ADD_REACTIONS", 1);
+dmPermissions.setPermission("VIEW_CHANNEL", 1);
+dmPermissions.setPermission("SEND_MESSAGES", 1);
+dmPermissions.setPermission("EMBED_LINKS", 1);
+dmPermissions.setPermission("ATTACH_FILES", 1);
+dmPermissions.setPermission("READ_MESSAGE_HISTORY", 1);
+dmPermissions.setPermission("MENTION_EVERYONE", 1);
+dmPermissions.setPermission("USE_EXTERNAL_EMOJIS", 1);
+dmPermissions.setPermission("USE_APPLICATION_COMMANDS", 1);
+dmPermissions.setPermission("USE_EXTERNAL_STICKERS", 1);
+dmPermissions.setPermission("USE_EMBEDDED_ACTIVITIES", 1);
+dmPermissions.setPermission("USE_SOUNDBOARD", 1);
+dmPermissions.setPermission("USE_EXTERNAL_SOUNDS", 1);
+dmPermissions.setPermission("SEND_VOICE_MESSAGES", 1);
+dmPermissions.setPermission("SEND_POLLS", 1);
+dmPermissions.setPermission("USE_EXTERNAL_APPS", 1);
+dmPermissions.setPermission("CONNECT", 1);
+dmPermissions.setPermission("SPEAK", 1);
+dmPermissions.setPermission("STREAM", 1);
+dmPermissions.setPermission("USE_VAD", 1);
 class Group extends Channel {
     user;
     constructor(json, owner) {
@@ -190,9 +211,8 @@ class Group extends Channel {
     isAdmin() {
         return false;
     }
-    hasPermission(name, member) {
-        const perm = new Permissions("248896");
-        return !!perm.getPermission(name);
+    hasPermission(name) {
+        return dmPermissions.hasPermission(name);
     }
 }
 export { Direct, Group };

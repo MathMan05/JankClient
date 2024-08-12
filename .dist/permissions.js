@@ -28,7 +28,7 @@ class Permissions {
         Permissions.info = [
             {
                 name: "CREATE_INSTANT_INVITE",
-                readableName: "Create instance invite",
+                readableName: "Create invite",
                 description: "Allows the user to create invites for the guild"
             },
             {
@@ -44,7 +44,7 @@ class Permissions {
             {
                 name: "ADMINISTRATOR",
                 readableName: "Administrator",
-                description: "Allows all permissions and bypasses channel permission overwrites"
+                description: "Allows all permissions and bypasses channel permission overwrites. This is a dangerous permission!"
             },
             {
                 name: "MANAGE_CHANNELS",
@@ -73,17 +73,17 @@ class Permissions {
             },
             {
                 name: "STREAM",
-                readableName: "Stream",
+                readableName: "Video",
                 description: "Allows the user to stream"
             },
             {
                 name: "VIEW_CHANNEL",
-                readableName: "View channel",
+                readableName: "View channels",
                 description: "Allows the user to view the channel"
             },
             {
                 name: "SEND_MESSAGES",
-                readableName: "Send Messages",
+                readableName: "Send messages",
                 description: "Allows user to send messages"
             },
             {
@@ -113,7 +113,7 @@ class Permissions {
             },
             {
                 name: "MENTION_EVERYONE",
-                readableName: "Mention everyone",
+                readableName: "Mention @everyone, @here and all roles",
                 description: "Allows the user to mention everyone"
             },
             {
@@ -153,8 +153,8 @@ class Permissions {
             },
             {
                 name: "USE_VAD",
-                readableName: "use voice-activity-detection",
-                description: "Allows user to use voice-activity-detection"
+                readableName: "Use voice activity detection",
+                description: "Allows users to speak in a voice channel by simply talking"
             },
             {
                 name: "CHANGE_NICKNAME",
@@ -178,7 +178,7 @@ class Permissions {
             },
             {
                 name: "MANAGE_GUILD_EXPRESSIONS",
-                readableName: "Manage guild expressions",
+                readableName: "Manage expressions",
                 description: "Allows for managing emoji, stickers, and soundboards"
             },
             {
@@ -223,13 +223,55 @@ class Permissions {
             },
             {
                 name: "USE_EMBEDDED_ACTIVITIES",
-                readableName: "Use embedded activities",
+                readableName: "Use activities",
                 description: "Allows the user to use embedded activities"
             },
             {
                 name: "MODERATE_MEMBERS",
-                readableName: "Moderate members",
+                readableName: "Timeout members",
                 description: "Allows the user to time out other users to prevent them from sending or reacting to messages in chat and threads, and from speaking in voice and stage channels"
+            },
+            {
+                name: "VIEW_CREATOR_MONETIZATION_ANALYTICS",
+                readableName: "View creator monetization analytics",
+                description: "Allows for viewing role subscription insights"
+            },
+            {
+                name: "USE_SOUNDBOARD",
+                readableName: "Use soundboard",
+                description: "Allows for using soundboard in a voice channel"
+            },
+            {
+                name: "CREATE_GUILD_EXPRESSIONS",
+                readableName: "Create expressions",
+                description: "Allows for creating emojis, stickers, and soundboard sounds, and editing and deleting those created by the current user."
+            },
+            {
+                name: "CREATE_EVENTS",
+                readableName: "Create events",
+                description: "Allows for creating scheduled events, and editing and deleting those created by the current user."
+            },
+            {
+                name: "USE_EXTERNAL_SOUNDS",
+                readableName: "Use external sounds",
+                description: "Allows the usage of custom soundboard sounds from other servers"
+            },
+            {
+                name: "SEND_VOICE_MESSAGES",
+                readableName: "Send voice messages",
+                description: "Allows sending voice messages"
+            },
+            {
+                name: "SEND_POLLS",
+                readableName: "Create polls",
+                description: "Allows sending polls"
+            },
+            {
+                name: "USE_EXTERNAL_APPS",
+                readableName: "Use external apps",
+                description: "Allows user-installed apps to send public responses. " +
+                    "When disabled, users will still be allowed to use their apps but the responses will be ephemeral. " +
+                    "This only applies to apps not also installed to the server."
             },
         ];
         Permissions.map = {};
@@ -251,8 +293,21 @@ class Permissions {
             return 0;
         }
     }
+    hasPermission(name) {
+        if (this.deny) {
+            console.warn("This function may of been used in error, think about using getPermision instead");
+        }
+        if (this.getPermissionbit(Permissions.map[name], this.allow))
+            return true;
+        if (name != "ADMINISTRATOR")
+            return this.hasPermission("ADMINISTRATOR");
+        return false;
+    }
     setPermission(name, setto) {
         const bit = Permissions.map[name];
+        if (!bit) {
+            return console.error("Tried to set permission to " + setto + " for " + name + " but it doesn't exist");
+        }
         if (setto === 0) {
             this.deny = this.setPermissionbit(bit, false, this.deny);
             this.allow = this.setPermissionbit(bit, false, this.allow);
