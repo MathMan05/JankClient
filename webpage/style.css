@@ -798,6 +798,7 @@ textarea:focus-visible,
 	cursor: pointer;
 	flex-shrink: 0;
 	padding: .03in;
+	flex-grow: 0;
 }
 
 .channelnamediv {
