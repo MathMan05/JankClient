@@ -302,7 +302,14 @@ class Localuser {
                         temp.d.guild_id ??= "@me";
                         const message = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject();
                         const guild = SnowFlake.getSnowFlakeFromID(temp.d.guild_id, Guild).getObject();
-                        message.giveReaction(temp.d.emoji, new Member(temp.d.member, guild));
+                        let thing;
+                        if (temp.d.member) {
+                            thing = new Member(temp.d.member, guild);
+                        }
+                        else {
+                            thing = { id: temp.d.user_id };
+                        }
+                        message.giveReaction(temp.d.emoji, thing);
                     }
                     break;
                 case "MESSAGE_REACTION_REMOVE":
