@@ -529,6 +529,9 @@ class Channel {
         if (this.guild !== this.localuser.lookingguild) {
             this.guild.loadGuild();
         }
+        if (this.localuser.channelfocus) {
+            this.localuser.channelfocus.infinite.delete();
+        }
         if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) {
             this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
         }
@@ -536,6 +539,8 @@ class Channel {
         this.guild.prevchannel = this;
         this.localuser.channelfocus = this;
         const prom = this.infinite.delete();
+        history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.snowflake);
+        document.getElementById("channelname").textContent = "#" + this.name;
         await this.putmessages();
         await prom;
         if (id !== Channel.genid) {
@@ -543,8 +548,6 @@ class Channel {
         }
         this.makereplybox();
         await this.buildmessages();
-        history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.snowflake);
-        document.getElementById("channelname").textContent = "#" + this.name;
         console.log(this);
         document.getElementById("typebox").contentEditable = "" + this.canMessage;
     }
@@ -668,25 +671,48 @@ class Channel {
         document.getElementById("messages").prepend(built);
     }
     async buildmessages() {
+        /*
+        if(((!this.lastmessage)||(!this.lastmessage.snowflake)||(!this.goBackIds(this.lastmessage.snowflake,50,false)))&&this.lastreadmessageid){
+            await this.grabAfter(this.lastreadmessageid.id);
+        }
+        */
+        this.infinitefocus = false;
+        this.tryfocusinfinate();
+    }
+    infinitefocus = false;
+    async tryfocusinfinate() {
+        if (this.infinitefocus)
+            return;
         const messages = document.getElementById("channelw");
         messages.innerHTML = "";
         let id;
         if (this.lastreadmessageid && this.lastreadmessageid.getObject()) {
             id = this.lastreadmessageid;
         }
-        else if (this.lastmessage.snowflake) {
+        else if (id = this.findClosest(this.lastreadmessageid)) {
+        }
+        else if (this.lastmessage && this.lastmessage.snowflake) {
             id = this.goBackIds(this.lastmessage.snowflake, 50);
             console.log("shouldn't");
         }
-        console.log(this.lastreadmessageid, id.id);
+        if (!id) {
+            const title = document.createElement("h2");
+            title.textContent = "No messages appear to be here, be the first to say something!";
+            title.classList.add("titlespace");
+            messages.append(title);
+            return;
+        }
+        messages.innerHTML = "";
         messages.append(await this.infinite.getDiv(id.id));
         this.infinite.updatestuff();
         this.infinite.watchForChange().then(async (_) => {
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, 0));
             this.infinite.focus(id.id, false); //if someone could figure out how to make this work correctly without this, that's be great :P
         });
+        this.infinite.focus(id.id, false);
+        this.infinitefocus = true;
     }
-    goBackIds(id, back) {
+    goBackIds(id, back, returnifnotexistant = true) {
         while (back !== 0) {
             const nextid = this.idToPrev.get(id);
             if (nextid) {
@@ -695,10 +721,34 @@ class Channel {
                 back--;
             }
             else {
-                break;
+                if (returnifnotexistant) {
+                    break;
+                }
+                else {
+                    return undefined;
+                }
             }
         }
         return id;
+    }
+    findClosest(snowflake) {
+        if (!this.lastmessage)
+            return;
+        let flake = this.lastmessage.snowflake;
+        if (!snowflake) {
+            return;
+        }
+        ;
+        const time = snowflake.getUnixTime();
+        let flaketime = flake.getUnixTime();
+        while (flake && time > flaketime) {
+            flake = this.idToNext.get(flake);
+            if (!flake) {
+                return undefined;
+            }
+            flaketime = flake.getUnixTime();
+        }
+        return flake;
     }
     updateChannel(json) {
         this.type = json.type;
@@ -807,6 +857,9 @@ class Channel {
         this.idToPrev.set(messagez.snowflake, this.lastmessageid);
         this.lastmessageid = messagez.snowflake;
         this.messageids.set(messagez.snowflake, messagez);
+        if (!this.infinitefocus) {
+            this.tryfocusinfinate();
+        }
         if (messagez.author === this.localuser.user) {
             this.lastreadmessageid = messagez.snowflake;
             if (this.myhtml) {
