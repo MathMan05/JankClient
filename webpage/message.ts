@@ -406,7 +406,7 @@ class Message{
             }
         }
     }
-    giveReaction(data:{name:string},member:Member){
+    giveReaction(data:{name:string},member:Member|{id:string}){
         for(const thing of this.reactions){
             if(thing.emoji.name===data.name){
                 thing.count++;
