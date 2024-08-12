@@ -227,13 +227,18 @@ h2 {
 	overflow: auto;
 	flex-shrink: 0;
 	background: var(--server-list);
+	overflow-y: scroll;
+	scrollbar-width: none;
 }
-
+#neunence::-webkit-scrollbar, #neunence::-webkit-scrollbar-button { 
+	display: none;
+}
 #servers {
 	vertical-align: top;
 	height: calc(100dvh - .07in);
 	margin: 0.05in .05in .02in .05in;
 	width: .5in;
+	max-width: .5in;
 }
 
 #servers::-webkit-scrollbar {
@@ -1686,4 +1691,7 @@ form div{
 #servertd{
 	z-index:5;
 	background: var(--server-name-bg);
+}
+.titlespace{
+	padding:.1in 0 0 .1in
 }
