@@ -853,7 +853,7 @@ class Channel{
         this.idToPrev.set(messagez.snowflake,this.lastmessageid);
         this.lastmessageid=messagez.snowflake;
         this.messageids.set(messagez.snowflake,messagez);
-        if(!this.infinitefocus){this.tryfocusinfinate();}
+
         if(messagez.author===this.localuser.user){
             this.lastreadmessageid=messagez.snowflake;
             if(this.myhtml){
@@ -866,6 +866,7 @@ class Channel{
         }
         this.guild.unreads();
         if(this===this.localuser.channelfocus){
+            if(!this.infinitefocus){this.tryfocusinfinate();}
             this.infinite.addedBottom();
         }
         if(messagez.author===this.localuser.user){
