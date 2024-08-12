@@ -194,14 +194,6 @@ function userSettings(){
     thisuser.showusersettings();
 }
 document.getElementById("settings").onclick=userSettings;
-function userConnections(){
-    thisuser.userConnections.show();
-}
-document.getElementById("connections").onclick=userConnections;
-function devPortal(){
-    thisuser.devPortal.show();
-}
-document.getElementById("dev-portal").onclick=devPortal;
 
 if(mobile){
     document.getElementById("channelw").onclick=function(){
