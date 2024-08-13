@@ -79,7 +79,7 @@ class Message {
         }
         let reactiontxt;
         if (emoji instanceof Emoji) {
-            reactiontxt = emoji.id;
+            reactiontxt = `${emoji.name}:${emoji.id}`;
         }
         else {
             reactiontxt = encodeURIComponent(emoji);
