@@ -21,6 +21,7 @@ class Guild {
     parent_id;
     member;
     html;
+    emojis;
     get id() {
         return this.snowflake.id;
     }
@@ -75,6 +76,7 @@ class Guild {
         if (json === -1) {
             return;
         }
+        this.emojis = json.emojis;
         this.owner = owner;
         this.headers = this.owner.headers;
         this.channels = [];

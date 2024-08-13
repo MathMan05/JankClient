@@ -1594,6 +1594,7 @@ form div{
 	justify-content: space-evenly;
 	border:solid var(--black) .03in;
 	flex-shrink:0;
+	align-items: center;
 }
 .emojiTitle{
 	padding: .03in;
@@ -1607,7 +1608,7 @@ form div{
 	display:flex;
 	flex-wrap: wrap;
 	flex-direction: row;
-	align-content: stretch;
+	align-content: flex-start;
 	justify-content: space-evenly;
 	/* height: 100%; */
 	overflow-y: scroll;
@@ -1720,4 +1721,11 @@ form div{
 #settings{
 	width:.225in;
 	margin:.05in;
+}
+.emojiSelect > .emoji-server {
+	width: 32px;
+	height: 32px;
+}
+.emojirow{
+	flex-grow:0;
 }
