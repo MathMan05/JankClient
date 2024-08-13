@@ -54,7 +54,7 @@ class User{
         this.contextmenu.addbutton("Message user",function(){
             fetch(this.info.api+"/users/@me/channels",
                 {method:"POST",
-                    body:JSON.stringify({"recipients":[this.id.id]}),
+                    body:JSON.stringify({"recipients":[this.id]}),
                     headers: this.localuser.headers
                 });
         })
