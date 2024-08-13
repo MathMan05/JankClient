@@ -156,12 +156,17 @@ type memberjson= {
     pending: boolean,
     last_message_id?: boolean//What???
 }
+type emojijson={
+            name:string,
+            id?:string,
+            animated?:boolean
+        }
 
 type guildjson={
     application_command_counts: {[key:string]:number},
     channels: channeljson[],
     data_mode: string,
-    emojis: [],
+    emojis: emojijson[],
     guild_scheduled_events: [],
     id: string,
     large: boolean,
@@ -274,11 +279,7 @@ type messagejson={
     embeds: embedjson[],
     reactions: {
         count:number,
-        emoji:{
-            name:string,
-            id?:string,
-            animated?:boolean
-        },//very likely needs expanding
+        emoji:emojijson,//very likely needs expanding
         me:boolean,
     }[],
     nonce: string,
@@ -326,4 +327,4 @@ type embedjson={
         name:string,
     }
 }
-export {readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson};
+export {readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson,emojijson};

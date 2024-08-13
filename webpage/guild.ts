@@ -7,7 +7,7 @@ import {Member} from "./member.js";
 import {Settings,RoleList} from "./settings.js";
 import {Permissions} from "./permissions.js";
 import { SnowFlake } from "./snowflake.js";
-import { channeljson, guildjson } from "./jsontypes.js";
+import { channeljson, guildjson, emojijson } from "./jsontypes.js";
 class Guild{
     owner:Localuser;
     headers:Localuser["headers"];
@@ -24,6 +24,7 @@ class Guild{
     parent_id:string;
     member:Member;
     html:HTMLElement;
+    emojis:emojijson[];
     get id(){
         return this.snowflake.id;
     }
@@ -84,6 +85,7 @@ class Guild{
         if(json===-1){
             return;
         }
+        this.emojis = json.emojis
         this.owner=owner;
         this.headers=this.owner.headers;
         this.channels=[];

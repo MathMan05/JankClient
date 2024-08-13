@@ -54,7 +54,7 @@ class Message{
             navigator.clipboard.writeText(this.id);
         });
         Message.contextmenu.addsubmenu("Add reaction",function(this:Message,e){
-            Emoji.emojiPicker(e.x,e.y).then(_=>{
+            Emoji.emojiPicker(e.x,e.y,this.localuser).then(_=>{
                 console.log(_,":3")
                 this.reactionToggle(_);
             });
@@ -77,21 +77,24 @@ class Message{
     }
     reactionToggle(emoji:string|Emoji){
 
-        if(typeof emoji === "string"){
-            let remove=false;
-            for(const thing of this.reactions){
-                if(thing.emoji.name===emoji){
-                    remove=thing.me;
-                    break;
-                }
+        let remove = false
+        for (const thing of this.reactions) {
+            if (thing.emoji.name === emoji) {
+                remove = thing.me
+                break
             }
-            fetch(this.info.api+ "/channels/"+this.channel.id+"/messages/"+this.id+"/reactions/"+encodeURIComponent(emoji)+"/@me",{
-                method:remove?"DELETE":"PUT",
-                headers:this.headers,
-            })
-        }else{
-            emoji
+
         }
+        let reactiontxt:string;
+        if(emoji instanceof Emoji){
+            reactiontxt=emoji.id;
+        }else{
+            reactiontxt=encodeURIComponent(emoji);
+        }
+        fetch(`${this.info.api}/channels/${this.channel.id}/messages/${this.id}/reactions/${reactiontxt}/@me`, {
+            method: remove ? "DELETE" : "PUT",
+            headers: this.headers
+            })
     }
     giveData(messagejson:messagejson){
         for(const thing of Object.keys(messagejson)){
@@ -387,7 +390,8 @@ class Message{
                 reaction.classList.add("meReacted")
             }
             let emoji:HTMLElement;
-            if(thing.emoji.id){
+            if (thing.emoji.id || /\d{17,21}/.test(thing.emoji.name)) {
+                if (/\d{17,21}/.test(thing.emoji.name)) thing.emoji.id=thing.emoji.name;//Should stop being a thing once the server fixes this bug
                 const emo=new Emoji(thing.emoji as {name:string,id:string,animated:boolean},this.guild);
                 emoji=emo.getHTML(false);
             }else{

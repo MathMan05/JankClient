@@ -100,13 +100,66 @@ class Emoji {
             Emoji.decodeEmojiList(e);
         });
     }
-    static async emojiPicker(x, y) {
+    static async emojiPicker(x, y, localuser) {
         let res;
         const promise = new Promise((r) => { res = r; });
         const menu = document.createElement("div");
         menu.classList.add("flextttb", "emojiPicker");
         menu.style.top = y + "px";
         menu.style.left = x + "px";
+        const title = document.createElement("h2");
+        title.textContent = Emoji.emojis[0].name;
+        title.classList.add("emojiTitle");
+        menu.append(title);
+        console.log("menu :3");
+        const selection = document.createElement("div");
+        selection.classList.add("flexltr", "dontshrink", "emojirow");
+        console.log("menu :3");
+        const body = document.createElement("div");
+        body.classList.add("emojiBody");
+        let isFirst = true;
+        localuser.guilds.filter(guild => guild.id != "@me" && guild.emojis.length > 0).forEach(guild => {
+            const select = document.createElement("div");
+            select.classList.add("emojiSelect");
+            if (guild.properties.icon) {
+                const img = document.createElement("img");
+                img.classList.add("pfp", "servericon", "emoji-server");
+                img.crossOrigin = "anonymous";
+                img.src = localuser.info.cdn + "/icons/" + guild.properties.id + "/" + guild.properties.icon + ".png?size=48";
+                img.alt = "Server: " + guild.properties.name;
+                select.appendChild(img);
+            }
+            else {
+                const div = document.createElement("span");
+                div.textContent = guild.properties.name.replace(/'s /g, " ").replace(/\w+/g, word => word[0]).replace(/\s/g, "");
+                select.append(div);
+            }
+            selection.append(select);
+            const clickEvent = () => {
+                title.textContent = guild.properties.name;
+                body.innerHTML = "";
+                for (const emojit of guild.emojis) {
+                    const emojiElem = document.createElement("div");
+                    emojiElem.classList.add("emojiSelect");
+                    const emojiClass = new Emoji({
+                        id: emojit.id,
+                        name: emojit.name,
+                        animated: emojit.animated
+                    }, localuser);
+                    emojiElem.append(emojiClass.getHTML());
+                    body.append(emojiElem);
+                    emojiElem.addEventListener("click", () => {
+                        res(emojiClass);
+                        Contextmenu.currentmenu.remove();
+                    });
+                }
+            };
+            select.addEventListener("click", clickEvent);
+            if (isFirst) {
+                clickEvent();
+                isFirst = false;
+            }
+        });
         setTimeout(() => {
             if (Contextmenu.currentmenu != "") {
                 Contextmenu.currentmenu.remove();
@@ -115,16 +168,6 @@ class Emoji {
             Contextmenu.currentmenu = menu;
             Contextmenu.keepOnScreen(menu);
         }, 10);
-        const title = document.createElement("h2");
-        title.textContent = Emoji.emojis[0].name;
-        title.classList.add("emojiTitle");
-        menu.append(title);
-        console.log("menu :3");
-        const selection = document.createElement("div");
-        selection.classList.add("flexltr", "dontshrink");
-        console.log("menu :3");
-        const body = document.createElement("div");
-        body.classList.add("emojiBody");
         let i = 0;
         for (const thing of Emoji.emojis) {
             const select = document.createElement("div");
