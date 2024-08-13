@@ -87,7 +87,7 @@ class Message{
         }
         let reactiontxt:string;
         if(emoji instanceof Emoji){
-            reactiontxt=emoji.id;
+            reactiontxt=`${emoji.name}:${emoji.id}`;
         }else{
             reactiontxt=encodeURIComponent(emoji);
         }
