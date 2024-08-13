@@ -353,14 +353,14 @@ p {
 }
 
 input {
+	border-width: 0;
 	background-color: var(--message-bg-hover);
 	color: var(--primary-text);
 	height: .4in;
 	width: 97.5%;
-	border-color: var(--settings-hover);
-	border-width:0 0 .04in 0;
 	border-radius:.05in;
 	font-size: 1rem;
+	box-shadow: inset 0in 0in .04in black;
 }
 
 div {
@@ -647,7 +647,10 @@ textarea {
 	width: 3.5in;
 	resize: none;
 	height: 1.5in;
-	font-size: .75rem;
+	font-size: 1rem;
+	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	border-radius: .05in;
+	padding: .04in;
 }
 input[type=text]:focus-visible,
 input[type=password]:focus-visible,
@@ -697,8 +700,8 @@ textarea:focus-visible,
 	justify-content: space-evenly;
 	flex-shrink: 0;
 	box-sizing: border-box;
-	box-shadow: 0 0 .1in .01in var(--black);
 	z-index: 2;
+	border-bottom: solid .03in color-mix(in srgb, var(--black) 30%, transparent);
 }
 
 .channeleffects {
@@ -772,24 +775,7 @@ textarea:focus-visible,
 	flex-shrink: 1;
 }
 
-#user-actions {
-	display: flex;
-	flex-wrap: wrap;
-}
-#user-actions h2 {
-	cursor: pointer;
-	user-select: none;
-	border-radius: .3in;
-	transition: color .5s;
-	text-align: center;
-	overflow: visible;
-	width: .28in;
-	height: .28in;
-}
-#user-actions h2:hover, #user-actions h2:focus {
-	background: var(--settings-hover);
-	color: var(--timestamp-color);
-}
+
 
 #userinfo {
 	position:relative;
@@ -852,6 +838,7 @@ input::file-selector-button {
 }
 input[type="file"] {
   background:transparent;
+  box-shadow: none;
 }
 select{
 	transition: background .1s ease-in-out;
@@ -1278,13 +1265,14 @@ span {
 }
 .settingbuttons{
 	padding-top:.075in;
-	width: 1.75in;
-	border-right: solid var(--message-bg-hover);
+	width: 2in;
+	border-right: solid .02in var(--message-bg-hover);
 	gap:.04in;
 	flex-grow: 0;
 	flex-shrink: 0;
 	display: flex;
 	align-items: center;
+	background: var(--channels-bg);
 }
 .setting{
 	background:var(--user-info-bg);
@@ -1299,6 +1287,7 @@ span {
 }
 .flexspace{
 	gap:.1in;
+	padding: .05in;
 }
 .titlediv{
 	height:100%;
@@ -1309,16 +1298,17 @@ span {
 .settingstitle{
 	font-weight:900;
 	font-size:.25in;
-	border-bottom:solid var(--message-bg-hover);
+	border-bottom: solid .03in var(--message-bg-hover);
 	background: var(--primary-bg);
-	padding: .02in .1in;
+	padding: .06in .2in;
+	background: var(--server-bg);
 }
 .exitsettings{
 	position:absolute;
 	top:.05in;
 	right:.05in;
-	background:var(--channel-hover);
-	width:.3in;
+	background: transparent;
+	width:.35in;
 	height:.3in;
 	display:flex;
 	border-radius:1in;
@@ -1326,9 +1316,13 @@ span {
 	align-items: center;
 	font-size:.2in;
 	cursor:pointer;
-	border:solid .04in black;
+	border: solid .015in var(--black);
+	transition:background .2s;
+	box-shadow: inset .0in .0in .04in var(--black);
 }
-
+.exitsettings:hover{
+	background:var(--profile-bg);
+}
 .tritoggle{
 	display:inline-block;
 	input{
@@ -1474,6 +1468,7 @@ span {
 	flex-wrap: wrap;
 	gap: 10px;
 	max-width: 700px;
+	flex-direction: column;
 }
 #connection-container div, #app-list-container div {
 	padding: 5px 10px;
@@ -1705,4 +1700,24 @@ form div{
 	box-sizing: border-box;
 	margin: 0;
 	margin-bottom: .03in;
+	border: 0;
+	padding: .075in;
+	border-radius: .075in;
+	border: solid .03in black;
+	height: .4in;
+}
+#user-actions {
+	display: flex;
+	flex-wrap: wrap;
+	width:fit-content;
+	margin-right:.01in;
+	border-radius:.3in;
+	cursor:pointer;
+}
+#user-actions:hover, #user-actions:focus {
+	background: var(--settings-hover);
+}
+#settings{
+	width:.225in;
+	margin:.05in;
 }
