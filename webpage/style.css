@@ -1746,3 +1746,6 @@ form div{
 .emojirow{
 	flex-grow:0;
 }
+.reactiondiv{
+	margin-left: .4in;
+}
