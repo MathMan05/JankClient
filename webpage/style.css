@@ -373,20 +373,36 @@ div {
 
 #typebox {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
-	padding: 3px;
-	border-radius: .25cm;
-	width: 100%;
-	min-height: .6in;
-	z-index: -100;
-	display: flex;
+	min-height: .4in;
 	max-height: 1.5in;
 	overflow-y: auto;
+	flex-grow:1;
+	
+}
+#realbox{
+	padding: .05in;
+	border-radius: .25cm;
+	z-index: -100;
+	width: calc(100% - .2in);
+	box-sizing: border-box;
 	color: var(--primary-text);
 	background: var(--textarea-bg);
-	border: 1px solid;
+	/* border: 1px solid var(--black); */
 	box-sizing: border-box;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: nowrap;
+	align-items: stretch;
+	margin: .0in .1in .15in .1in;
+	box-shadow: 0 .01in .05in black;
 }
-
+#typebox:focus{
+	border-color: inherit;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	outline: none !important;
+    outline-offset: 0px !important;
+}
 p {
 	transition: background .1s ease-in-out, color .1s ease-in-out;
 	/* width: 100%; */
@@ -444,6 +460,7 @@ p {
 	position: relative;
 	/* display: flex; */
 	width: 100%;
+	background: transparent;
 }
 hr {
 	border-style: solid;
