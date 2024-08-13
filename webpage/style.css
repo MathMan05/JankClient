@@ -1478,6 +1478,8 @@ span {
 	border-radius: 5px;
 	background-color: var(--textarea-bg);
 	cursor: pointer;
+	display: flex;
+	flex-direction: column;
 }
 #connection-container .disabled {
 	background-color: var(--embed-fallback);
