@@ -634,22 +634,11 @@ class Localuser{
         };
 
     }
-    updatepronouns(pronouns:string):void{
+    updateProfile(json:{bio?:string,pronouns?:string}){
         fetch(this.info.api+"/users/@me/profile",{
             method:"PATCH",
             headers:this.headers,
-            body:JSON.stringify({
-                pronouns:pronouns,
-            })
-        });
-    }
-    updatebio(bio:string):void{
-        fetch(this.info.api+"/users/@me/profile",{
-            method:"PATCH",
-            headers:this.headers,
-            body:JSON.stringify({
-                bio:bio,
-            })
+            body:JSON.stringify(json)
         });
     }
     rendertyping():void{
@@ -687,9 +676,9 @@ class Localuser{
         {
             const userOptions=settings.addButton("User Settings",{ltr:true});
             const hypotheticalProfile=document.createElement("div");
-            let file=null;
-            let newpronouns=null;
-            let newbio=null;
+            let file=undefined;
+            let newpronouns:string=undefined;
+            let newbio:string=undefined;
             let hypouser=this.user.clone();
             function regen(){
                 hypotheticalProfile.textContent="";
@@ -717,8 +706,8 @@ class Localuser{
                 }
             });
             const pronounbox=settingsLeft.addTextInput("Pronouns",_=>{
-                if(newpronouns){
-                    this.updatepronouns(newpronouns);
+                if(newpronouns||newbio){
+                    this.updateProfile({pronouns:newpronouns,bio:newbio});
                 }
             },{initText:this.user.pronouns});
             pronounbox.watchForChange(_=>{
@@ -727,9 +716,7 @@ class Localuser{
                 regen();
             });
             const bioBox=settingsLeft.addMDInput("Bio:",_=>{
-                if(newbio){
-                    this.updatebio(newbio);
-                }
+
             },{initText:this.user.bio.rawString});
             bioBox.watchForChange(_=>{
                 newbio=_;
