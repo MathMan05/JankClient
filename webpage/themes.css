@@ -27,7 +27,7 @@
 	--quote-bg: #7a798e;
 	--button-bg: color-mix(in srgb, #303030 80%, var(--accent-color));
 	--button-hover: #282832;
-	--textarea-bg: color-mix(in srgb, #272727 85%, var(--accent-color));
+	--textarea-bg: color-mix(in srgb, #484848 80%, var(--accent-color));
 	--filename: #47bbff;
 	--mention-bg: #F00;
 	--pronouns: #797979;
