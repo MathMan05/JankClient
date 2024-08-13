@@ -861,10 +861,10 @@ class Localuser {
             }).then(r => r.json()).then(json => {
                 json.forEach(application => {
                     const container = document.createElement("div");
-                    if (application.cover_image) {
+                    if (application.cover_image || application.icon) {
                         const cover = document.createElement("img");
                         cover.crossOrigin = "anonymous";
-                        cover.src = this.info.cdn + "/app-icons/" + application.id + "/" + application.cover_image + ".png?size=256";
+                        cover.src = this.info.cdn + "/app-icons/" + application.id + "/" + (application.cover_image || application.icon) + ".png?size=256";
                         cover.alt = "";
                         cover.loading = "lazy";
                         container.appendChild(cover);
