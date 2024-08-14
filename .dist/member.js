@@ -105,7 +105,6 @@ class Member {
         const promoise = prom1.then(_ => _.json()).then(json => {
             const memb = new Member(json, guild);
             Member.already[guild.id][id] = memb;
-            console.log("resolved");
             return memb;
         });
         Member.already[guild.id][id] = promoise;
@@ -150,7 +149,6 @@ class Member {
                 return;
             }
             ;
-            console.log(this.error);
             if (this.error) {
                 const error = document.createElement("span");
                 error.textContent = "!";
