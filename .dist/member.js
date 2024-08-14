@@ -59,7 +59,13 @@ class Member {
         return this.owner.info;
     }
     static async new(memberjson, owner) {
-        const user = new User(memberjson.user, owner.localuser);
+        let user;
+        if (User.userids[memberjson.id]) {
+            user = User.userids[memberjson.id];
+        }
+        else {
+            user = new User(memberjson.user, owner.localuser);
+        }
         if (user.members.has(owner)) {
             let memb = user.members.get(owner);
             if (memb === undefined) {
