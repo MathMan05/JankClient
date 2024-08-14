@@ -1,14 +1,12 @@
 import { User } from "./user.js";
 import { Role } from "./role.js";
-import { Guild } from "./guild.js";
 import { Contextmenu } from "./contextmenu.js";
 import { SnowFlake } from "./snowflake.js";
 class Member {
     static already = {};
     owner;
     user;
-    roles;
-    error;
+    roles = [];
     id;
     static contextmenu = new Contextmenu("User Menu");
     static setUpContextMenu() {
@@ -22,19 +20,15 @@ class Member {
             });
         });
     }
-    constructor(memberjson, owner, error = false) {
-        this.error = error;
-        this.owner = owner;
-        let membery = memberjson;
-        this.roles = [];
-        if (!error) {
-            if (memberjson["guild_member"]) {
-                memberjson = memberjson;
-                membery = memberjson.guild_member;
-            }
+    constructor(memberjson, owner) {
+        if (User.userids[memberjson.id]) {
+            this.user = User.userids[memberjson.id];
         }
-        membery = membery;
-        for (const thing of Object.keys(membery)) {
+        else {
+            this.user = new User(memberjson.user, owner.localuser);
+        }
+        this.owner = owner;
+        for (const thing of Object.keys(memberjson)) {
             if (thing === "guild") {
                 continue;
             }
@@ -42,23 +36,17 @@ class Member {
                 continue;
             }
             if (thing === "roles") {
-                for (const strrole of membery["roles"]) {
+                for (const strrole of memberjson["roles"]) {
                     const role = SnowFlake.getSnowFlakeFromID(strrole, Role).getObject();
                     this.roles.push(role);
                 }
                 continue;
             }
-            this[thing] = membery[thing];
+            this[thing] = memberjson[thing];
         }
-        if (error) {
-            this.user = memberjson;
-        }
-        else {
-            if (SnowFlake.getSnowFlakeFromID(this?.id, User)) {
-                this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject();
-                return;
-            }
-            this.user = new User(membery.user, owner.localuser);
+        if (SnowFlake.getSnowFlakeFromID(this?.id, User)) {
+            this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject();
+            return;
         }
     }
     get guild() {
@@ -70,52 +58,58 @@ class Member {
     get info() {
         return this.owner.info;
     }
-    static async resolve(unkown, guild) {
-        if (!(guild instanceof Guild)) {
-            console.error(guild);
-        }
-        let user;
-        let id;
-        if (unkown instanceof User) {
-            user = unkown;
-            id = user.snowflake;
-        }
-        else if (typeof unkown === typeof "") {
-            id = new SnowFlake(unkown, undefined);
+    static async new(memberjson, owner) {
+        const user = new User(memberjson.user, owner.localuser);
+        if (user.members.has(owner)) {
+            let memb = user.members.get(owner);
+            if (memb === undefined) {
+                memb = new Member(memberjson, owner);
+                user.members.set(owner, memb);
+                return memb;
+            }
+            else if (memb instanceof Promise) {
+                return await memb; //I should do something else, though for now this is "good enough"
+            }
+            else {
+                return memb;
+            }
         }
         else {
-            return new Member(unkown, guild);
+            const memb = new Member(memberjson, owner);
+            user.members.set(owner, memb);
+            return memb;
         }
-        if (guild.id === "@me") {
-            return null;
-        }
-        if (!Member.already[guild.id]) {
-            Member.already[guild.id] = {};
-        }
-        else if (Member.already[guild.id][id]) {
-            const memb = Member.already[guild.id][id];
-            if (memb instanceof Promise) {
-                return await memb;
+    }
+    static async resolveMember(user, guild) {
+        const maybe = user.members.get(guild);
+        if (!user.members.has(guild)) {
+            const membpromise = guild.localuser.resolvemember(user.id, guild.id);
+            let res;
+            const promise = new Promise(r => { res = r; });
+            user.members.set(guild, promise);
+            const membjson = await membpromise;
+            if (membjson === undefined) {
+                res(undefined);
+                return undefined;
             }
-            return memb;
+            else {
+                const member = new Member(membjson, guild);
+                res(member);
+                return member;
+            }
         }
-        guild.localuser.resolvemember(id.id, guild.id);
-        const prom1 = fetch(guild.info.api.toString() + "/users/" + id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + guild.snowflake, { headers: guild.headers });
-        prom1.catch(_ => { console.log(_); });
-        const promoise = prom1.then(_ => _.json()).then(json => {
-            const memb = new Member(json, guild);
-            Member.already[guild.id][id] = memb;
-            return memb;
-        });
-        Member.already[guild.id][id] = promoise;
-        try {
-            return await promoise;
+        if (maybe instanceof Promise) {
+            return await maybe;
         }
-        catch (_) {
-            const memb = new Member(user, guild, true);
-            Member.already[guild.id][id] = memb;
-            return memb;
+        else {
+            return maybe;
         }
+    }
+    /**
+     * @todo
+     */
+    highInfo() {
+        fetch(this.info.api + "/users/" + this.id + "/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" + this.guild.id, { headers: this.guild.headers });
     }
     hasRole(ID) {
         console.log(this.roles, ID);
@@ -149,13 +143,11 @@ class Member {
                 return;
             }
             ;
-            if (this.error) {
-                const error = document.createElement("span");
-                error.textContent = "!";
-                error.classList.add("membererror");
-                html.after(error);
-                return;
+            /*
+            if(this.error){
+
             }
+            */
             html.style.color = this.getColor();
         }
         this.profileclick(html);

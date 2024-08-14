@@ -167,7 +167,7 @@ class Localuser{
                         if(temp.op===0&&temp.t==="READY"){
                             returny();
                         }
-                        this.handleEvent(temp);
+                        await this.handleEvent(temp);
                     }catch{}
                 }
             })();
@@ -205,7 +205,7 @@ class Localuser{
                 if(temp.op===0&&temp.t==="READY"){
                     returny();
                 }
-                this.handleEvent(temp);
+                await this.handleEvent(temp);
             }catch(e){
                 console.error(e);
             }finally{
@@ -247,7 +247,7 @@ class Localuser{
         await promise;
         return;
     }
-    handleEvent(temp){
+    async handleEvent(temp){
         console.debug(temp);
         if (temp.s) this.lastSequence=temp.s;
         if(temp.op==0){
@@ -320,7 +320,7 @@ class Localuser{
                         const guild=SnowFlake.getSnowFlakeFromID(temp.d.guild_id,Guild).getObject();
                         let thing:Member|{id:string};
                         if(temp.d.member){
-                            thing=new Member(temp.d.member,guild);
+                            thing=await Member.new(temp.d.member,guild);
                         }else{
                             thing={id:temp.d.user_id}
                         }
@@ -1065,8 +1065,6 @@ class Localuser{
     //---------- resolving members code -----------
     waitingmembers:Map<string,Map<string,(returns:memberjson|undefined)=>void>>=new Map();
     async resolvemember(id:string,guildid:string):Promise<memberjson|undefined>{
-        console.warn("this function may or may not work on any instance, use at your own risk");
-        //throw new Error("Not implemented on the server side and not fully implemented, do not use");
         if(!this.waitingmembers.has(guildid)){
             this.waitingmembers.set(guildid,new Map());
         }

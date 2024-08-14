@@ -7,7 +7,8 @@ import {Member} from "./member.js";
 import {Settings,RoleList} from "./settings.js";
 import {Permissions} from "./permissions.js";
 import { SnowFlake } from "./snowflake.js";
-import { channeljson, guildjson, emojijson } from "./jsontypes.js";
+import { channeljson, guildjson, emojijson, memberjson } from "./jsontypes.js";
+import { User } from "./user.js";
 class Guild{
     owner:Localuser;
     headers:Localuser["headers"];
@@ -81,7 +82,7 @@ class Guild{
         s1.options.push(new RoleList(permlist,this,this.updateRolePermissions.bind(this)));
         settings.show();
     }
-    constructor(json:guildjson|-1,owner:Localuser,member){
+    constructor(json:guildjson|-1,owner:Localuser,member:memberjson|User){
         if(json===-1){
             return;
         }
@@ -101,7 +102,12 @@ class Guild{
             this.roles.push(roleh)
             this.roleids.set(roleh.snowflake,roleh);
         }
-        Member.resolve(member,this).then(_=>this.member=_);
+        if(member instanceof User){
+            Member.resolveMember(member,this).then(_=>this.member=_);
+        }else{
+            Member.new(member,this).then(_=>this.member=_);
+        }
+
         for(const thing of json.channels){
             const temp=new Channel(thing,this);
             this.channels.push(temp);

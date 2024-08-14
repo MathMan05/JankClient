@@ -25,6 +25,7 @@ class User{
     premium_type: number;
     theme_colors: string;
     badge_ids: string;
+    members: WeakMap<Guild, Member|undefined|Promise<Member|undefined>>=new WeakMap();
     clone(){
         return new User({
             username:this.username,
@@ -98,7 +99,7 @@ class User{
         }
     }
     async resolvemember(guild:Guild){
-        return await Member.resolve(this,guild);
+        return await Member.resolveMember(this,guild);
     }
     buildpfp(){
         const pfp=document.createElement('img');
@@ -115,7 +116,14 @@ class User{
     }
     bind(html:HTMLElement,guild:Guild=null){
         if(guild&&guild.id!=="@me"){
-            Member.resolve(this,guild).then(_=>{
+            Member.resolveMember(this,guild).then(_=>{
+                if(_===undefined){
+                    const error=document.createElement("span");
+                    error.textContent="!";
+                    error.classList.add("membererror");
+                    html.after(error);
+                    return;
+                }
                 _.bind(html);
             }).catch(_=>{
                 console.log(_)
