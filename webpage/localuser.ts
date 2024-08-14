@@ -614,17 +614,7 @@ class Localuser{
             }else{
                 name=memb.user.username;
             }
-            let already=false;
-            for(const thing of this.typing){
-                if(thing[0]===name){
-                    thing[1]=new Date().getTime();
-                    already=true;
-                    break;
-                }
-            }
-            if(!already){
-                this.typing.set(memb,new Date().getTime());
-            }
+            this.typing.set(memb,new Date().getTime());
             setTimeout(this.rendertyping.bind(this),10000);
             this.rendertyping();
         }
