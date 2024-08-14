@@ -149,41 +149,18 @@ class Localuser{
         let w:WritableStreamDefaultWriter;
         let r:ReadableStreamDefaultReader;
         let arr:Uint8Array;
+        let build="";
         if(DecompressionStream){
             ds = new DecompressionStream("deflate");
             w= ds.writable.getWriter();
             r=ds.readable.getReader();
             arr=new Uint8Array();
-        }
-
-
-        let build="";
-        this.ws.addEventListener('message', async (event) => {
-            let temp:{op:number,t:string};
-            if(event.data instanceof Blob){
-                const buff=await event.data.arrayBuffer()
-                const array=new Uint8Array(buff);
-
-                const temparr=new Uint8Array(array.length+arr.length);
-                temparr.set(arr, 0);
-                temparr.set(array, arr.length);
-                arr=temparr;
-
-                const len=array.length;
-                if(!(array[len-1]===255&&array[len-2]===255&&array[len-3]===0&&array[len-4]===0)){
-                    return;
-                }
-                w.write(arr.buffer);
-                arr=new Uint8Array();
-                //console.log(data,test);
+            (async ()=>{
+                let temp:any;
                 while(true){
                     const read=(await r.read());
                     const data=new TextDecoder().decode(read.value);
-                    if(data===""){
-                        break;
-                    }
                     build+=data;
-                    console.log("temp");
                     try{
                         temp=JSON.parse(build);
                         build="";
@@ -194,14 +171,47 @@ class Localuser{
                     }catch{
                     }
                 }
-            }else{
-                temp=JSON.parse(event.data);
-            }
-            if(temp.op===0&&temp.t==="READY"){
-                returny();
-            }
-            this.handleEvent(temp);
+            })();
+        }
 
+
+        let order=new Promise<void>((res)=>(res()));
+
+        this.ws.addEventListener('message', async (event) => {
+            const temp2=order;
+            let res:Function;
+            order=new Promise<void>((r)=>(res=r))
+            await temp2;
+            let temp:{op:number,t:string};
+            try{
+                if(event.data instanceof Blob){
+                    const buff=await event.data.arrayBuffer()
+                    const array=new Uint8Array(buff);
+
+                    const temparr=new Uint8Array(array.length+arr.length);
+                    temparr.set(arr, 0);
+                    temparr.set(array, arr.length);
+                    arr=temparr;
+
+                    const len=array.length;
+                    if(!(array[len-1]===255&&array[len-2]===255&&array[len-3]===0&&array[len-4]===0)){
+                        return;
+                    }
+                    w.write(arr.buffer);
+                    arr=new Uint8Array();
+                    return;//had to move the while loop due to me being dumb
+                }else{
+                    temp=JSON.parse(event.data);
+                }
+                if(temp.op===0&&temp.t==="READY"){
+                    returny();
+                }
+                this.handleEvent(temp);
+            }catch(e){
+                console.error(e);
+            }finally{
+                res();
+            }
         });
 
         this.ws.addEventListener("close", event => {
