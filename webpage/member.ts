@@ -60,7 +60,12 @@ class Member{
         return this.owner.info;
     }
     static async new(memberjson:memberjson,owner:Guild):Promise<Member>{
-        const user=new User(memberjson.user,owner.localuser);
+        let user:User;
+        if(User.userids[memberjson.id]){
+            user=User.userids[memberjson.id];
+        }else{
+            user=new User(memberjson.user,owner.localuser);
+        }
         if(user.members.has(owner)){
             let memb=user.members.get(owner)
             if(memb===undefined){
