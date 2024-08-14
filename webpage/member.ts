@@ -9,8 +9,7 @@ class Member{
     static already={};
     owner:Guild;
     user:User;
-    roles:Role[];
-    error:boolean;
+    roles:Role[]=[];
     id:string;
     static contextmenu:Contextmenu=new Contextmenu("User Menu");
     static setUpContextMenu(){
@@ -25,39 +24,31 @@ class Member{
                 });
         });
     }
-    constructor(memberjson:memberjson|User|{guild_member:memberjson,user:userjson},owner:Guild,error=false){
-        this.error=error;
-        this.owner=owner;
-        let membery=memberjson;
-        this.roles=[];
-        if(!error){
-            if(memberjson["guild_member"]){
-                memberjson=memberjson as {guild_member:memberjson,user:userjson};
-                membery=memberjson.guild_member;
-            }
+    private constructor(memberjson:memberjson,owner:Guild){
+        if(User.userids[memberjson.id]){
+            this.user=User.userids[memberjson.id];
+        }else{
+            this.user=new User(memberjson.user,owner.localuser);
         }
-        membery=membery as User|memberjson;
-        for(const thing of Object.keys(membery)){
+        this.owner=owner;
+        for(const thing of Object.keys(memberjson)){
             if(thing==="guild"){continue}
             if(thing==="owner"){continue}
             if(thing==="roles"){
-                for(const strrole of membery["roles"]){
+                for(const strrole of memberjson["roles"]){
                     const role=SnowFlake.getSnowFlakeFromID(strrole,Role).getObject();
                     this.roles.push(role);
                 }
                 continue;
             }
-            this[thing]=membery[thing];
+            this[thing]=memberjson[thing];
         }
-        if(error){
-            this.user=memberjson as User;
-        }else{
-            if(SnowFlake.getSnowFlakeFromID(this?.id,User)){
-                this.user=SnowFlake.getSnowFlakeFromID(this.id,User).getObject();
-                return;
-            }
-            this.user=new User((membery as memberjson).user,owner.localuser);
+        if(SnowFlake.getSnowFlakeFromID(this?.id,User)){
+            this.user=SnowFlake.getSnowFlakeFromID(this.id,User).getObject();
+            return;
         }
+
+
     }
     get guild(){
         return this.owner;
@@ -68,47 +59,53 @@ class Member{
     get info(){
         return this.owner.info;
     }
-    static async resolve(unkown:User|memberjson|string,guild:Guild):Promise<Member>{
-        if(!(guild instanceof Guild)){
-            console.error(guild)
-        }
-        let user:User;
-        let id:SnowFlake<User>;
-        if(unkown instanceof User){
-            user=unkown as User;
-            id=user.snowflake;
-        }else if(typeof unkown===typeof ""){
-            id=new SnowFlake(unkown as string,undefined);
-        }else{
-            return new Member(unkown as User|memberjson,guild);
-        }
-        if(guild.id==="@me"){return null}
-        if(!Member.already[guild.id]){
-            Member.already[guild.id]={};
-        }else if(Member.already[guild.id][id]){
-            const memb=Member.already[guild.id][id]
-            if(memb instanceof Promise){
-                return await memb;
+    static async new(memberjson:memberjson,owner:Guild):Promise<Member>{
+        const user=new User(memberjson.user,owner.localuser);
+        if(user.members.has(owner)){
+            let memb=user.members.get(owner)
+            if(memb===undefined){
+                memb=new Member(memberjson,owner);
+                user.members.set(owner,memb);
+                return memb
+            }else if(memb instanceof Promise){
+                return await memb;//I should do something else, though for now this is "good enough"
+            }else{
+                return memb;
             }
+        }else{
+            const memb=new Member(memberjson,owner);
+            user.members.set(owner,memb);
             return memb;
         }
-        guild.localuser.resolvemember(id.id,guild.id);
-        const prom1= fetch(guild.info.api.toString()+"/users/"+id+"/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id="+guild.snowflake,{headers:guild.headers})
-        prom1.catch(_=>{console.log(_)})
-        const promoise=prom1.then(_=>_.json()).then(json=>{
-            const memb=new Member(json,guild);
-            Member.already[guild.id][id]=memb;
-            return memb
-        })
-        Member.already[guild.id][id]=promoise;
-        try{
-            return await promoise
-        }catch(_){
-
-            const memb=new Member(user,guild,true);
-            Member.already[guild.id][id]=memb;
-            return memb;
+    }
+    static async resolveMember(user:User,guild:Guild):Promise<Member|undefined>{
+        const maybe=user.members.get(guild);
+        if(!user.members.has(guild)){
+            const membpromise=guild.localuser.resolvemember(user.id,guild.id);
+            let res:Function;
+            const promise=new Promise<Member|undefined>(r=>{res=r})
+            user.members.set(guild,promise);
+            const membjson=await membpromise;
+            if(membjson===undefined){
+                res(undefined);
+                return undefined;
+            }else{
+                const member=new Member(membjson,guild);
+                res(member);
+                return member;
+            }
         }
+        if(maybe instanceof Promise){
+            return await maybe;
+        }else{
+            return maybe
+        }
+    }
+    /**
+     * @todo
+     */
+    highInfo(){
+        fetch(this.info.api+"/users/"+this.id+"/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id="+this.guild.id,{headers:this.guild.headers})
     }
     hasRole(ID:string){
         console.log(this.roles,ID);
@@ -139,13 +136,11 @@ class Member{
     bind(html:HTMLElement){
         if(html.tagName==="SPAN"){
             if(!this) {return};
+            /*
             if(this.error){
-                const error=document.createElement("span");
-                error.textContent="!";
-                error.classList.add("membererror");
-                html.after(error);
-                return;
+
             }
+            */
             html.style.color=this.getColor();
         }
 

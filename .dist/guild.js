@@ -5,6 +5,7 @@ import { Dialog } from "./dialog.js";
 import { Member } from "./member.js";
 import { Settings, RoleList } from "./settings.js";
 import { SnowFlake } from "./snowflake.js";
+import { User } from "./user.js";
 class Guild {
     owner;
     headers;
@@ -92,7 +93,12 @@ class Guild {
             this.roles.push(roleh);
             this.roleids.set(roleh.snowflake, roleh);
         }
-        Member.resolve(member, this).then(_ => this.member = _);
+        if (member instanceof User) {
+            Member.resolveMember(member, this).then(_ => this.member = _);
+        }
+        else {
+            Member.new(member, this).then(_ => this.member = _);
+        }
         for (const thing of json.channels) {
             const temp = new Channel(thing, this);
             this.channels.push(temp);

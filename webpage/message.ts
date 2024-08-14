@@ -111,7 +111,7 @@ class Message{
                 this.snowflake=new SnowFlake(messagejson.id,this);
                 continue;
             }else if(thing==="member"){
-                this.member=new Member(messagejson.member,this.guild);
+                Member.new(messagejson.member,this.guild).then(_=>{this.member=_});
                 continue;
             }else if(thing ==="embeds"){
                 this.embeds=[];
