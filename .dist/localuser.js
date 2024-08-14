@@ -149,22 +149,21 @@ class Localuser {
             w = ds.writable.getWriter();
             r = ds.readable.getReader();
             arr = new Uint8Array();
+            const textdecode = new TextDecoder();
             (async () => {
-                let temp;
                 while (true) {
-                    const read = (await r.read());
-                    const data = new TextDecoder().decode(read.value);
+                    const read = await r.read();
+                    const data = textdecode.decode(read.value);
                     build += data;
                     try {
-                        temp = JSON.parse(build);
+                        const temp = JSON.parse(build);
                         build = "";
                         if (temp.op === 0 && temp.t === "READY") {
                             returny();
                         }
                         this.handleEvent(temp);
                     }
-                    catch {
-                    }
+                    catch { }
                 }
             })();
         }
