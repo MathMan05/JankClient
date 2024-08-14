@@ -387,13 +387,12 @@ div {
 	box-sizing: border-box;
 	color: var(--primary-text);
 	background: var(--textarea-bg);
-	/* border: 1px solid var(--black); */
 	box-sizing: border-box;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: nowrap;
 	align-items: stretch;
-	margin: .0in .1in .15in .1in;
+	margin: .0in .1in .25in .1in;
 	box-shadow: 0 .01in .05in black;
 }
 #typebox:focus{
@@ -445,14 +444,13 @@ p {
 #typing {
 	display: flex;
 	position: absolute;
-	top: 0;
-	right: 4px;
-	background-color: var(--typing-bg);
+	bottom: 0;
+	left: 0;
 	width: fit-content;
-	transform: translateY(-100%);
-	border-radius: 5px 5px 0 0;
-	padding: 4px;
-	transition: transform .5s ease, opacity .1s ease;
+	:;
+	margin-left: .1in;
+	margin-bottom: .03in;
+	transition: opacity .3s;
 	opacity: 1;
 }
 
@@ -471,11 +469,17 @@ hr {
 	font-size: 24px;
 	display: flex;
 	gap: 0;
+	align-items: center;
 }
 
 .dot {
 	animation: fade 1s infinite;
 	line-height: 14px;
+	width: 6px;
+	height: 6px;
+	background: var(--primary-text);
+	border-radius: 1in;
+	margin-right: .03in;
 }
 
 .dot:nth-child(1) {
@@ -492,7 +496,7 @@ hr {
 
 #typing p {
 	margin: 0;
-	padding-right: 5px;
+	padding-right: .03in;
 }
 
 #typing.hidden {
@@ -500,7 +504,6 @@ hr {
 	/* Move down out of view */
 	opacity: 0;
 	/* Fade out */
-	display: none;
 }
 
 @keyframes fade {

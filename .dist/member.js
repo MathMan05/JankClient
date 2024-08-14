@@ -8,6 +8,7 @@ class Member {
     user;
     roles = [];
     id;
+    nick;
     static contextmenu = new Contextmenu("User Menu");
     static setUpContextMenu() {
         this.contextmenu.addbutton("Copy user id", function () {
