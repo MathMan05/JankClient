@@ -34,7 +34,7 @@ class Localuser{
     lookingguild:Guild;
     guildhtml:Map<string, HTMLDivElement>;
     ws:WebSocket;
-    typing:[string,number][];
+    typing:Map<Member,number>=new Map();
     connectionSucceed=0;
     errorBackoff=0;
     mfa_enabled:boolean;
@@ -95,7 +95,6 @@ class Localuser{
             const guildid=guild.snowflake;
             this.guildids.get(guildid.id).channelids[thing.channel_id].readStateInfo(thing);
         }
-        this.typing=[];
     }
     outoffocus():void{
         document.getElementById("servers").innerHTML="";
@@ -600,11 +599,12 @@ class Localuser{
             thing.unreads(html);
         }
     }
-    typingStart(typing):void{
-        if(this.channelfocus.snowflake===typing.d.channel_id){
-            const memb=typing.d.member;
+    async typingStart(typing):Promise<void>{
+        if(this.channelfocus.id===typing.d.channel_id){
+            const guild=SnowFlake.getSnowFlakeFromID(typing.d.guild_id,Guild).getObject()
+            const memb=await Member.new(typing.d.member,guild);
             let name;
-            if(memb.id===this.user.snowflake){
+            if(memb.id===this.user.id){
                 console.log("you is typing")
                 return;
             }
@@ -623,7 +623,7 @@ class Localuser{
                 }
             }
             if(!already){
-                this.typing.push([name,new Date().getTime()]);
+                this.typing.set(memb,new Date().getTime());
             }
             setTimeout(this.rendertyping.bind(this),10000);
             this.rendertyping();
@@ -653,18 +653,23 @@ class Localuser{
     rendertyping():void{
         const typingtext=document.getElementById("typing")
         let build="";
-        const array2=[];
         let showing=false;
         let i=0;
-        for(const thing of this.typing){
-            i++;
-            if(thing[1]>new Date().getTime()-5000){
-                build+=thing[0];
-                array2.push(thing);
-                showing=true;
-                if(i!==this.typing.length){
-                    build+=",";
+        const curtime=new Date().getTime()-5000;
+        for(const thing of this.typing.keys()){
+            if(this.typing.get(thing)>curtime){
+                if(i!==0){
+                    build+=", ";
                 }
+                i++;
+                if(thing.nick){
+                    build+=thing.nick;
+                }else{
+                    build+=thing.user.username;
+                }
+                showing=true;
+            }else{
+                this.typing.delete(thing);
             }
         }
         if(i>1){

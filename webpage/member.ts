@@ -11,6 +11,7 @@ class Member{
     user:User;
     roles:Role[]=[];
     id:string;
+    nick:string;
     static contextmenu:Contextmenu=new Contextmenu("User Menu");
     static setUpContextMenu(){
         this.contextmenu.addbutton("Copy user id",function(){
