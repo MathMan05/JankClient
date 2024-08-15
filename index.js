@@ -93,6 +93,7 @@ async function inviteres(req,res){
 </head>
 </body>
 `
+    res.type('html');
     res.send(html);
     return true;
     }catch(e){
