@@ -60,6 +60,62 @@ class Channel {
         this.contextmenu.addbutton("Edit channel", function () {
             this.editChannel(this);
         }, null, _ => { return _.isAdmin(); });
+        this.contextmenu.addbutton("Make invite", function () {
+            this.createInvite();
+        }, null, (_) => {
+            return _.hasPermission("CREATE_INSTANT_INVITE") && _.type !== 4;
+        });
+    }
+    createInvite() {
+        const div = document.createElement("div");
+        div.classList.add("invitediv");
+        const text = document.createElement("span");
+        div.append(text);
+        let uses = 0;
+        let expires = 1800;
+        const copycontainer = document.createElement("div");
+        copycontainer.classList.add("copycontainer");
+        const copy = document.createElement("img");
+        copy.src = "/icons/copy.svg";
+        copy.classList.add("copybutton", "svgtheme");
+        copycontainer.append(copy);
+        copycontainer.onclick = _ => {
+            navigator.clipboard.writeText(text.textContent);
+        };
+        div.append(copycontainer);
+        const update = () => {
+            fetch(`${this.info.api}/channels/${this.id}/invites`, {
+                method: "POST",
+                headers: this.headers,
+                body: JSON.stringify({
+                    flags: 0,
+                    target_type: null,
+                    target_user_id: null,
+                    max_age: expires + "",
+                    max_uses: uses,
+                    temporary: uses !== 0
+                })
+            }).then(_ => _.json()).then(json => {
+                const params = new URLSearchParams("");
+                params.set("instance", this.info.wellknown);
+                const encoded = params.toString();
+                text.textContent = `${window.location.protocol}//${window.location.host}/invite/${json.code}?${encoded}`;
+            });
+        };
+        update();
+        new Dialog(["vdiv",
+            ["title", "Invite people"],
+            ["text", `to #${this.name} in ${this.guild.properties.name}`],
+            ["select", "Expire after:", ["30 Minutes", "1 Hour", "6 Hours", "12 Hours", "1 Day", "7 Days", "30 Days", "Never"], function (e) {
+                    expires = [1800, 3600, 21600, 43200, 86400, 604800, 2592000, 0][e.srcElement.selectedIndex];
+                    update();
+                }, 0],
+            ["select", "Max uses:", ["No limit", "1 use", "5 uses", "10 uses", "25 uses", "50 uses", "100 uses"], function (e) {
+                    uses = [0, 1, 5, 10, 25, 50, 100][e.srcElement.selectedIndex];
+                    update();
+                }, 0],
+            ["html", div]
+        ]).show();
     }
     generateSettings() {
         this.sortPerms();

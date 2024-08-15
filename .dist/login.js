@@ -1,11 +1,12 @@
 import { Dialog } from "./dialog.js";
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-export { mobile, getBulkUsers, getBulkInfo, setTheme, Specialuser };
+export { mobile, getBulkUsers, getBulkInfo, setTheme, Specialuser, getapiurls, adduser };
 function setTheme() {
-    const name = localStorage.getItem("theme");
+    let name = localStorage.getItem("theme");
     if (!name) {
         document.body.className = "Dark-theme";
         localStorage.setItem("theme", "Dark");
+        name = "Dark";
     }
     document.body.className = name + "-theme";
 }
@@ -116,13 +117,38 @@ function adduser(user) {
     info.users[user.uid] = user;
     info.currentuser = user.uid;
     localStorage.setItem("userinfos", JSON.stringify(info));
+    return user;
 }
 const instancein = document.getElementById("instancein");
 let timeout;
 let instanceinfo;
+async function getapiurls(str) {
+    if (str[str.length - 1] !== "/") {
+        str += "/";
+    }
+    let api;
+    try {
+        const info = await fetch(`${str}/.well-known/spacebar`).then((x) => x.json());
+        api = info.api;
+    }
+    catch {
+        return false;
+    }
+    const url = new URL(api);
+    try {
+        const info = await fetch(`${api}${url.pathname.includes("api") ? "" : "api"}/policies/instance/domains`).then((x) => x.json());
+        return {
+            api: info.apiEndpoint,
+            gateway: info.gateway,
+            cdn: info.cdn,
+            wellknown: str,
+        };
+    }
+    catch {
+    }
+}
 async function checkInstance(e) {
     const verify = document.getElementById("verify");
-    ;
     try {
         verify.textContent = "Checking Instance";
         const instanceinfo = await setInstance(instancein.value);
@@ -219,16 +245,30 @@ async function login(username, password, captcha) {
                                         alert(response.message);
                                     }
                                     else {
-                                        adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: username, token: response.token });
-                                        window.location.href = '/channels/@me';
+                                        console.warn(response);
+                                        adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: username, token: response.token }).username = username;
+                                        const redir = new URLSearchParams(window.location.search).get("goback");
+                                        if (redir) {
+                                            window.location.href = redir;
+                                        }
+                                        else {
+                                            window.location.href = '/channels/@me';
+                                        }
                                     }
                                 });
                             }]]).show();
                 }
                 else {
-                    adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: username, token: response.token });
-                    window.location.href = '/channels/@me';
-                    return response.token;
+                    console.warn(response);
+                    adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: username, token: response.token }).username = username;
+                    const redir = new URLSearchParams(window.location.search).get("goback");
+                    if (redir) {
+                        window.location.href = redir;
+                    }
+                    else {
+                        window.location.href = '/channels/@me';
+                    }
+                    return "";
                 }
             }
         });
@@ -296,4 +336,14 @@ if ("serviceWorker" in navigator){
     })
 }
 */
+const switchurl = document.getElementById("switch");
+if (switchurl) {
+    switchurl.href += window.location.search;
+    const instance = new URLSearchParams(window.location.search).get("instance");
+    console.log(instance);
+    if (instance) {
+        instancein.value = instance;
+        checkInstance("");
+    }
+}
 export { checkInstance };

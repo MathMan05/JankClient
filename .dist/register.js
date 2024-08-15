@@ -1,4 +1,4 @@
-import { checkInstance } from "./login.js";
+import { checkInstance, adduser } from "./login.js";
 if (document.getElementById("register")) {
     document.getElementById("register").addEventListener("submit", registertry);
 }
@@ -67,8 +67,15 @@ async function registertry(e) {
                 }
             }
             else {
+                adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: email, token: e.token }).username = username;
                 localStorage.setItem("token", e.token);
-                window.location.href = '/channels/@me';
+                const redir = new URLSearchParams(window.location.search).get("goback");
+                if (redir) {
+                    window.location.href = redir;
+                }
+                else {
+                    window.location.href = '/channels/@me';
+                }
             }
         });
     });

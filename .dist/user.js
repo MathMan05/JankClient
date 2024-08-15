@@ -46,7 +46,7 @@ class User {
     static contextmenu = new Contextmenu("User Menu");
     static setUpContextMenu() {
         this.contextmenu.addbutton("Copy user id", function () {
-            navigator.clipboard.writeText(this.id.id);
+            navigator.clipboard.writeText(this.id);
         });
         this.contextmenu.addbutton("Message user", function () {
             fetch(this.info.api + "/users/@me/channels", { method: "POST",
