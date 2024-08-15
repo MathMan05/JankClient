@@ -14,6 +14,6 @@ If there are any issues please report them either here, or to me dirrectly on sp
 You can view the current roadmap on https://github.com/users/MathMan05/projects/1.
 
 ## Link
-The official SpaceBar server for Jank Client https://dev.app.spacebar.chat/invite/USgYJo 
+The official SpaceBar server for Jank Client https://sb-jankclient.vanillaminigames.net/invite/USgYJo?instance=https%3A%2F%2Fspacebar.chat
 
 The current hosted instance of JankClient https://sb-jankclient.vanillaminigames.net
