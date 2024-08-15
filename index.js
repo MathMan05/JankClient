@@ -84,14 +84,15 @@ async function inviteres(req,res){
             return JSON.stringify(s);
         }
         html=`
-<body>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <title>${htmlEnc(title)}</title>
     <meta content=${strEscape(title)} property="og:title" />
     <meta content=${strEscape(description)} property="og:description" />
     <meta content=${strEscape(icon)} property="og:image" />
 </head>
-</body>
+</html>
 `
     res.type('html');
     res.send(html);
