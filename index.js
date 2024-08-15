@@ -18,9 +18,98 @@ app.use("/getupdates",(req, res) => {
     res.send(out.mtimeMs+"");
 });
 let debugging=true;//Do not turn this off, the service worker is all kinds of jank as is, it'll really mess your day up if you disable this
-app.use('/', (req, res) => {
+function isembed(str){
+    return str===("Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)")||str===("Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)");
+}
+async function getapiurls(str){
+    if(str[str.length-1]!=="/"){
+        str+="/"
+    }
+    let api;
+    try{
+        const info=await fetch(`${str}/.well-known/spacebar`).then((x) => x.json());
+        api=info.api;
+    }catch{
+        return false
+    }
+    const url = new URL(api);
+    try{
+
+        const info=await fetch(`${api}${url.pathname.includes("api") ? "" : "api"}/policies/instance/domains`).then((x) => x.json());
+        return {
+            api: info.apiEndpoint,
+            gateway: info.gateway,
+            cdn: info.cdn,
+            wellknown: str,
+        };
+    }catch{
+        return false;
+    }
+}
+
+async function inviteres(req,res){
+    //console.log(req.rawHeaders);
+    try{
+        let embed=false;
+        for(const i in req.rawHeaders){
+            if(req.rawHeaders[i]==="User-Agent"){
+                embed=isembed(req.rawHeaders[1+ +i]);
+            }
+        }
+
+        if(!embed){return false};
+        const code=req.path.split("/")[2];
+        let title="";
+        let description="";
+        let icon="";
+        const urls=await getapiurls(req.query.instance);
+        await fetch(`${urls.api}/invites/${code}`,{
+            method:"GET"
+        }).then(_=>_.json()).then(json=>{
+            title=json.guild.name;
+            description=json.inviter.username+" Has invited you to "+json.guild.name+(json.guild.description?json.guild.description+"\n":"");
+            if(json.guild.icon){
+                icon=`${urls.cdn}/icons/${json.guild.id}/${json.guild.icon}.png`;
+            }
+        });
+
+        function htmlEnc(s) {//https://stackoverflow.com/a/11561642
+            return s.replaceAll(/&/g, '&amp;')
+            .replaceAll(/</g, '&lt;')
+            .replaceAll(/>/g, '&gt;')
+            .replaceAll(/'/g, '&#39;')
+            .replaceAll(/"/g, '&#34;');
+        }
+        function strEscape(s){
+            return JSON.stringify(s);
+        }
+        html=`
+<body>
+<head>
+    <title>${htmlEnc(title)}</title>
+    <meta content=${strEscape(title)} property="og:title" />
+    <meta content=${strEscape(description)} property="og:description" />
+    <meta content=${strEscape(icon)} property="og:image" />
+</head>
+</body>
+`
+    res.send(html);
+    return true;
+    }catch(e){
+        console.error(e);
+    }
+    return false;
+}
+app.use('/', async (req, res) => {
     if(debugging&&req.path.startsWith("/service.js")){
         res.send("console.log(\"Hi :3\");");
+        return;
+    }
+    if(req.path.startsWith("/invite/")){
+        const condition=await inviteres(req,res);
+        if(!condition){
+            res.sendFile(`./webpage/invite.html`, {root: __dirname});
+        }
         return;
     }
     if(fs.existsSync(`${__dirname}/webpage${req.path}`)) {

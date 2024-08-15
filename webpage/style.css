@@ -1752,3 +1752,70 @@ form div{
 .reactiondiv{
 	margin-left: .45in;
 }
+#invitebody{
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	background-color: var(--dialog-bg);
+	border-radius: .1in;
+	border: solid .03in var(--black);
+	padding:.2in;
+	box-sizing:border-box;
+	display:flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: .5in .2in;
+	gap: .1in;
+	width: 5.in;
+}
+#AcceptInvite{
+	padding: .1in .2in;
+	width: 100%;
+	text-align: center;
+	margin-top: .5in;
+}
+.invitediv{
+	height: .35in;
+	width: 3in;
+	border: solid .03in var(--black);
+	border-radius: .1in;
+	background: var(--textarea-bg);
+	span{
+		text-wrap:nowrap;
+		
+	}
+;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	overflow: hidden;
+}
+.inviteGuild{
+	width: .75in;
+	height:.75in;
+	background-color:var(--blank-bg);
+	display:flex;
+	justify-content: center;
+	align-items: center;
+	user-select: none;
+	font-size:.3in;
+	border-radius:.2in;
+	border:solid .03in var(--black);
+}
+.copybutton{
+	
+	width:.25in;
+}
+.copycontainer{
+	position:absolute;
+	right:0;
+	background:var(--blank-bg);
+	padding:.05in;
+	border-radius:.1in;
+	border:solid .03in var(--black);
+	box-sizing:border-box;
+	box-shadow: .02in 0 .03in var(--black);
+	cursor:pointer;
+}
