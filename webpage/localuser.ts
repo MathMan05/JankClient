@@ -603,17 +603,11 @@ class Localuser{
         if(this.channelfocus.id===typing.d.channel_id){
             const guild=SnowFlake.getSnowFlakeFromID(typing.d.guild_id,Guild).getObject()
             const memb=await Member.new(typing.d.member,guild);
-            let name;
             if(memb.id===this.user.id){
                 console.log("you is typing")
                 return;
             }
             console.log("user is typing and you should see it");
-            if(memb.nick){
-                name=memb.nick;
-            }else{
-                name=memb.user.username;
-            }
             this.typing.set(memb,new Date().getTime());
             setTimeout(this.rendertyping.bind(this),10000);
             this.rendertyping();
