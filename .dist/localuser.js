@@ -537,7 +537,7 @@ class Localuser {
                 const banner = document.createElement("img");
                 banner.classList.add("banner");
                 banner.crossOrigin = "anonymous";
-                banner.src = this.info.cdn + "icons/" + guild.id + "/" + guild.banner + ".png?size=256";
+                banner.src = this.info.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256";
                 banner.alt = "";
                 content.appendChild(banner);
             }
