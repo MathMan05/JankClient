@@ -200,8 +200,8 @@ async function login(username, password, captcha) {
     };
     try {
         const info = JSON.parse(localStorage.getItem("instanceinfo"));
-        const api = info.login;
-        return await fetch(api + '/auth/login', options).then(response => response.json())
+        const api = info.login + (info.login.startsWith("/") ? "/" : "");
+        return await fetch(api + 'auth/login', options).then(response => response.json())
             .then((response) => {
             console.log(response, response.message);
             if ("Invalid Form Body" === response.message) {

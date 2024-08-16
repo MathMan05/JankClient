@@ -50,13 +50,7 @@ async function getapiurls(str){
 async function inviteres(req,res){
     //console.log(req.rawHeaders);
     try{
-        let embed=false;
-        for(const i in req.rawHeaders){
-            if(req.rawHeaders[i]==="User-Agent"){
-                embed=isembed(req.rawHeaders[1+ +i]);
-            }
-        }
-
+        let embed=isembed(req.get("User-Agent"));
         if(!embed){return false};
         const code=req.path.split("/")[2];
         let title="";

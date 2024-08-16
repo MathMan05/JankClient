@@ -131,7 +131,7 @@ class Localuser {
                     "compress": !!DecompressionStream,
                     "presence": {
                         "status": "online",
-                        "since": new Date().getTime(),
+                        "since": null, //new Date().getTime()
                         "activities": [],
                         "afk": false
                     }
@@ -1092,7 +1092,7 @@ class Localuser {
                         guild_id: guildid,
                         limit: 100,
                         nonce,
-                        //presences:true
+                        presences: true
                     }
                 }));
                 this.fetchingmembers.set(guildid, true);
