@@ -4,7 +4,6 @@ export { mobile, getBulkUsers, getBulkInfo, setTheme, Specialuser, getapiurls, a
 function setTheme() {
     let name = localStorage.getItem("theme");
     if (!name) {
-        document.body.className = "Dark-theme";
         localStorage.setItem("theme", "Dark");
         name = "Dark";
     }
@@ -145,6 +144,7 @@ async function getapiurls(str) {
         };
     }
     catch {
+        return false;
     }
 }
 async function checkInstance(e) {
