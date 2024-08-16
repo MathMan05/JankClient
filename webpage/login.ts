@@ -5,7 +5,6 @@ export {mobile, getBulkUsers,getBulkInfo,setTheme,Specialuser,getapiurls,adduser
 function setTheme(){
     let name=localStorage.getItem("theme");
     if(!name){
-        document.body.className="Dark-theme";
         localStorage.setItem("theme","Dark");
         name="Dark";
     }
@@ -144,7 +143,7 @@ async function getapiurls(str:string):Promise<{api:string,cdn:string,gateway:str
             wellknown: str,
         };
     }catch{
-
+        return false;
     }
 
 }
