@@ -99,7 +99,7 @@ class Channel {
                 const params = new URLSearchParams("");
                 params.set("instance", this.info.wellknown);
                 const encoded = params.toString();
-                text.textContent = `${window.location.protocol}//${window.location.host}/invite/${json.code}?${encoded}`;
+                text.textContent = `${location.origin}/invite/${json.code}?${encoded}`;
             });
         };
         update();

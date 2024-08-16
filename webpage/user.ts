@@ -58,7 +58,8 @@ class User{
                     body:JSON.stringify({"recipients":[this.id]}),
                     headers: this.localuser.headers
                 });
-        })
+        });
+
     }
     static clear(){
         this.userids={};
