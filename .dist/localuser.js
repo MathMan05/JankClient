@@ -476,6 +476,10 @@ class Localuser {
     createGuild() {
         let inviteurl = "";
         const error = document.createElement("span");
+        const fields = {
+            name: "",
+            icon: null,
+        };
         const full = new Dialog(["tabs", [
                 ["Join using invite", [
                         "vdiv",
@@ -509,11 +513,40 @@ class Localuser {
                             }
                         ]
                     ]],
-                ["Create Server", [
-                        "text", "Not currently implemented, sorry"
-                    ]]
+                ["Create Guild",
+                    ["vdiv",
+                        ["title", "Create a guild"],
+                        ["fileupload", "Icon:", function (event) {
+                                const reader = new FileReader();
+                                const target = event.target;
+                                reader.readAsDataURL(target.files[0]);
+                                reader.onload = () => {
+                                    fields.icon = reader.result;
+                                };
+                            }],
+                        ["textbox", "Name:", "", function (event) {
+                                const target = event.target;
+                                fields.name = target.value;
+                            }],
+                        ["button", "", "submit", () => {
+                                this.makeGuild(fields).then(_ => {
+                                    if (_.message) {
+                                        alert(_.errors.name._errors[0].message);
+                                    }
+                                    else {
+                                        full.hide();
+                                    }
+                                });
+                            }]]]
             ]]);
         full.show();
+    }
+    async makeGuild(fields) {
+        return await (await fetch(this.info.api + "/guilds", {
+            method: "POST",
+            headers: this.headers,
+            body: JSON.stringify(fields),
+        })).json();
     }
     async guildDiscovery() {
         const content = document.createElement("div");
