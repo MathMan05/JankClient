@@ -15,10 +15,12 @@ body {
 	background-color: var(--profile-bg);
 	border-radius: 10%;
 	padding: .2cm;
-	width: 7cm !important;
-	height: 8cm;
+	width: fit-content !important;
+	min-height: 3in;
 	border: solid, color-mix(in hsl,var(--black),transparent 80%), .03in;
 	box-shadow: inset .03in .35in .2in  var(--accent_color);
+	min-height: 3.25in;
+	min-width: 7cm;
 }
 video{
 	max-width: 3in;
@@ -160,6 +162,7 @@ samp {
 	display: flex;
 	flex-direction: column;
 	box-sizing: border-box;
+	max-width: 2.75in;
 }
 
 
