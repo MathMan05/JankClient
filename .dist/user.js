@@ -155,10 +155,10 @@ class User {
             this.changepfp(json.avatar);
         }
     }
-    bind(html, guild = null) {
+    bind(html, guild = null, error = true) {
         if (guild && guild.id !== "@me") {
             Member.resolveMember(this, guild).then(_ => {
-                if (_ === undefined) {
+                if (_ === undefined && error) {
                     const error = document.createElement("span");
                     error.textContent = "!";
                     error.classList.add("membererror");
