@@ -134,7 +134,8 @@ samp {
 	font-size: .5cm;
 	cursor: pointer;
 	border-width: 0px 0px .03in;
-	margin: .02in .05in;
+	margin: .03in .05in;
+	margin-bottom: .05in;
 }
 .contextbutton:active{
 	border-width: 0px;
@@ -227,6 +228,8 @@ h2 {
 	position: absolute;
 	background-color: var(--profile-info-bg);
 	border-radius: .05in;
+	width: fit-content !important;
+	padding: .03in;
 }
 
 #neunence {
