@@ -277,7 +277,7 @@ class Message {
             const combine = (premessage?.author?.snowflake != this.author.snowflake) || (current) || this.message_reference;
             if (combine) {
                 const pfp = this.author.buildpfp();
-                this.author.bind(pfp, this.guild);
+                this.author.bind(pfp, this.guild, false);
                 pfpRow.appendChild(pfp);
             }
             else {
