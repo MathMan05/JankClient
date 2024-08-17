@@ -202,7 +202,7 @@ class User{
     createjankpromises(){
         new Promise(_=>{})
     }
-    async buildprofile(x:number,y:number,guild:Guild){
+    async buildprofile(x:number,y:number,guild:Guild=null){
         if(Contextmenu.currentmenu!=""){
             Contextmenu.currentmenu.remove();
         }
@@ -263,7 +263,7 @@ class User{
             userbody.appendChild(rule);
             const biohtml=this.bio.makeHTML();
             userbody.appendChild(biohtml);
-            {
+            if(guild){
                 Member.resolveMember(this,guild).then(member=>{
                     if(!member) return;
                     const roles=document.createElement("div");

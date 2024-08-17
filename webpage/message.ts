@@ -280,7 +280,7 @@ class Message{
             const combine=(premessage?.author?.snowflake!=this.author.snowflake)||(current)||this.message_reference
             if(combine){
                 const pfp=this.author.buildpfp();
-                this.author.bind(pfp);
+                this.author.bind(pfp,this.guild);
                 pfpRow.appendChild(pfp);
             }else{
                 div["pfpparent"]=pfpparent;
@@ -358,7 +358,7 @@ class Message{
 
             const username=document.createElement("span");
             username.textContent=this.author.username;
-            this.author.profileclick(username);
+            //this.author.profileclick(username);
             this.author.bind(username,this.guild);
             texttxt.appendChild(username);
             username.classList.add("username");
