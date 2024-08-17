@@ -28,19 +28,17 @@ class Contextmenu {
         return {};
     }
     makemenu(x, y, addinfo, obj) {
-        const div = document.createElement("table");
-        div.classList.add("contextmenu");
+        const div = document.createElement("div");
+        div.classList.add("contextmenu", "flexttb");
         for (const thing of this.buttons) {
             if (!thing[3](addinfo)) {
                 continue;
             }
-            const textb = document.createElement("tr");
             const intext = document.createElement("button");
             intext.disabled = !thing[4]();
-            textb["button"] = intext;
+            intext["button"] = intext;
             intext.classList.add("contextbutton");
             intext.textContent = thing[0];
-            textb.appendChild(intext);
             console.log(thing);
             if (thing[5] === "button") {
                 intext.onclick = thing[1].bind(addinfo, obj);
@@ -48,7 +46,7 @@ class Contextmenu {
             else if (thing[5] === "submenu") {
                 intext.onclick = thing[1].bind(addinfo);
             }
-            div.appendChild(textb);
+            div.appendChild(intext);
         }
         if (Contextmenu.currentmenu != "") {
             Contextmenu.currentmenu.remove();
