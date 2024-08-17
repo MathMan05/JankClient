@@ -1005,7 +1005,7 @@ class Channel{
             body:JSON.stringify({
                 allow:"0",
                 deny:"0",
-                id:role.snowflake,
+                id:role.id,
                 type:0
             })
         })
