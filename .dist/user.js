@@ -170,7 +170,7 @@ class User {
                 console.log(_);
             });
         }
-        this.profileclick(html);
+        this.profileclick(html, guild);
         User.contextmenu.bind(html, this);
     }
     static async resolve(id, localuser) {
@@ -201,7 +201,7 @@ class User {
     createjankpromises() {
         new Promise(_ => { });
     }
-    async buildprofile(x, y) {
+    async buildprofile(x, y, guild) {
         if (Contextmenu.currentmenu != "") {
             Contextmenu.currentmenu.remove();
         }
@@ -258,6 +258,27 @@ class User {
             userbody.appendChild(rule);
             const biohtml = this.bio.makeHTML();
             userbody.appendChild(biohtml);
+            {
+                Member.resolveMember(this, guild).then(member => {
+                    if (!member)
+                        return;
+                    const roles = document.createElement("div");
+                    roles.classList.add("rolesbox");
+                    for (const role of member.roles) {
+                        const div = document.createElement("div");
+                        div.classList.add("rolediv");
+                        const color = document.createElement("div");
+                        div.append(color);
+                        color.style.setProperty("--role-color", "#" + role.color.toString(16).padStart(6, "0"));
+                        color.classList.add("colorrolediv");
+                        const span = document.createElement("span");
+                        div.append(span);
+                        span.textContent = role.name;
+                        roles.append(div);
+                    }
+                    userbody.append(roles);
+                });
+            }
         }
         console.log(div);
         if (x !== -1) {
@@ -267,9 +288,9 @@ class User {
         }
         return div;
     }
-    profileclick(obj) {
+    profileclick(obj, guild) {
         obj.onclick = e => {
-            this.buildprofile(e.clientX, e.clientY);
+            this.buildprofile(e.clientX, e.clientY, guild);
             e.stopPropagation();
         };
     }
