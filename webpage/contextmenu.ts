@@ -34,7 +34,6 @@ class Contextmenu{
             if(!thing[3](addinfo)){continue;}
             const intext=document.createElement("button")
             intext.disabled=!thing[4]();
-            intext["button"]=intext;
             intext.classList.add("contextbutton")
             intext.textContent=thing[0]
             console.log(thing)
