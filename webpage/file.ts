@@ -62,6 +62,10 @@ class File{
             video.append(source);
             source.type=this.content_type;
             video.controls=!temp;
+            if(this.width){
+                video.width=this.width;
+                video.height=this.height;
+            }
             return video;
         }else if(this.content_type.startsWith('audio/')){
             const audio=document.createElement("audio");
