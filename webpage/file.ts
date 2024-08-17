@@ -48,9 +48,6 @@ class File{
             if(this.width){
                 div.style.width=this.width+"px";
                 div.style.height=this.height+"px";
-                console.log(div,":3")
-            }else{
-                console.log("really?");
             }
             console.log(img);
             console.log(this.width,this.height)
