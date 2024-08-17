@@ -129,7 +129,7 @@ type userjson={
     id: string,
     public_flags: number,
     avatar: string,
-    accent_color: string,
+    accent_color: number,
     banner: string,
     bio: string,
     bot: boolean,
@@ -327,4 +327,11 @@ type embedjson={
         name:string,
     }
 }
-export {readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson,emojijson};
+type presencejson={
+    status: string,
+    since: number|null,
+    activities: any[],//bit more complicated but not now
+    afk: boolean,
+    user?:userjson,
+}
+export {readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson,emojijson,presencejson};

@@ -5,7 +5,7 @@ import {Contextmenu} from "./contextmenu.js";
 import {Localuser} from "./localuser.js";
 import {Guild} from "./guild.js";
 import { SnowFlake } from "./snowflake.js";
-import { userjson } from "./jsontypes.js";
+import { presencejson, userjson } from "./jsontypes.js";
 
 class User{
     static userids={};
@@ -19,13 +19,15 @@ class User{
     pronouns:string;
     bot:boolean;
     public_flags: number;
-    accent_color: string;
+    accent_color: number;
     banner: string;
+    hypotheticalbanner:boolean;
     premium_since: string;
     premium_type: number;
     theme_colors: string;
     badge_ids: string;
     members: WeakMap<Guild, Member|undefined|Promise<Member|undefined>>=new WeakMap();
+    private status:string;
     clone(){
         return new User({
             username:this.username,
@@ -43,6 +45,23 @@ class User{
             pronouns:this.pronouns,
             badge_ids:this.badge_ids
         },this.owner)
+    }
+    public getPresence(presence:presencejson|null){
+        if(presence){
+            this.setstatus(presence.status);
+        }else{
+            this.setstatus("offline");
+        }
+    }
+    setstatus(status:string){
+        this.status=status;
+    }
+    async getStatus(){
+        if(this.status){
+            return this.status;
+        }else{
+            return "offline";
+        }
     }
     get id(){
         return this.snowflake.id;
@@ -109,6 +128,27 @@ class User{
         pfp.classList.add("userid:"+this.id);
         return pfp;
     }
+    async buildstatuspfp(){
+        const div=document.createElement("div");
+        div.style.position="relative";
+        const pfp=this.buildpfp();
+        div.append(pfp);
+        {
+            const status=document.createElement("div");
+            status.classList.add("statusDiv");
+            switch(await this.getStatus()){
+                case "offline":
+                    status.classList.add("offlinestatus");
+                    break;
+                case "online":
+                default:
+                    status.classList.add("onlinestatus");
+                    break;
+            }
+            div.append(status);
+        }
+        return div;
+    }
     userupdate(json:userjson){
         if(json.avatar!==this.avatar){
             console.log
@@ -153,7 +193,7 @@ class User{
             return this.avatar;
         }
         if(this.avatar!=null){
-            return this.info.cdn+"/avatars/"+this.id+"/"+this.avatar+".png";
+            return this.info.cdn+"/avatars/"+this.id.replace("#clone","")+"/"+this.avatar+".png";
         }else{
             const int=new Number((BigInt(this.id) >> 22n) % 6n);
             return this.info.cdn+`/embed/avatars/${int}.png`;
@@ -162,23 +202,43 @@ class User{
     createjankpromises(){
         new Promise(_=>{})
     }
-    buildprofile(x:number,y:number){
+    async buildprofile(x:number,y:number){
         if(Contextmenu.currentmenu!=""){
             Contextmenu.currentmenu.remove();
         }
 
 
         const div=document.createElement("div");
+
+        if(this.accent_color){
+            div.style.setProperty("--accent_color","#"+this.accent_color.toString(16).padStart(6,"0"));
+        }else{
+            div.style.setProperty("--accent_color","transparent");
+        }
+        if(this.banner){
+            const banner=document.createElement("img")
+            let src:string;
+            if(!this.hypotheticalbanner){
+                src=this.info.cdn+"/avatars/"+this.id.replace("#clone","")+"/"+this.banner+".png";
+            }else{
+                src=this.banner;
+            }
+            console.log(src,this.banner);
+            banner.src=src;
+            banner.classList.add("banner");
+            div.append(banner);
+        }
         if(x!==-1){
             div.style.left=x+"px";
             div.style.top=y+"px";
             div.classList.add("profile","flexttb");
         }else{
+            this.setstatus("online");
             div.classList.add("hypoprofile","flexttb");
         }
 
         {
-            const pfp=this.buildpfp();
+            const pfp=await this.buildstatuspfp();
             div.appendChild(pfp);
         }
         {

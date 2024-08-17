@@ -65,6 +65,24 @@ class Channel {
         }, null, (_) => {
             return _.hasPermission("CREATE_INSTANT_INVITE") && _.type !== 4;
         });
+        /*
+        this.contextmenu.addbutton("Test button",function(){
+            this.localuser.ws.send(JSON.stringify({
+                "op": 14,
+                "d": {
+                    "guild_id": this.guild.id,
+                    "channels": {
+                        [this.id]: [
+                            [
+                                0,
+                                99
+                            ]
+                        ]
+                    }
+                }
+            }))
+        },null);
+        /**/
     }
     createInvite() {
         const div = document.createElement("div");
