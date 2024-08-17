@@ -103,6 +103,7 @@ class Message {
         });
     }
     giveData(messagejson) {
+        const func = this.channel.infinite.snapBottom();
         for (const thing of Object.keys(messagejson)) {
             if (thing === "attachments") {
                 this.attachments = [];
@@ -154,6 +155,7 @@ class Message {
         if (this.div) {
             this.generateMessage();
         }
+        func();
     }
     canDelete() {
         return this.channel.hasPermission("MANAGE_MESSAGES") || this.author.snowflake === this.localuser.user.snowflake;
@@ -389,6 +391,7 @@ class Message {
         const reactdiv = this.reactdiv.deref();
         if (!reactdiv)
             return;
+        const func = this.channel.infinite.snapBottom();
         reactdiv.innerHTML = "";
         for (const thing of this.reactions) {
             console.log(thing, ":3");
@@ -418,6 +421,7 @@ class Message {
                 this.reactionToggle(thing.emoji.name);
             };
         }
+        func();
     }
     giveReaction(data, member) {
         for (const thing of this.reactions) {
