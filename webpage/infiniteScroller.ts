@@ -42,7 +42,7 @@ class InfiniteScroller{
     updatestuff(){
         this.scrollBottom = this.scroll.scrollHeight - this.scroll.scrollTop - this.scroll.clientHeight;
         this.scrollTop=this.scroll.scrollTop;
-        if(this.scrollBottom){
+        if(!this.scrollBottom){
             this.reachesBottom();
         }
         //this.watchForChange();
