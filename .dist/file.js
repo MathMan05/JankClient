@@ -23,20 +23,36 @@ class File {
     }
     getHTML(temp = false) {
         const src = this.proxy_url || this.url;
+        if (this.width) {
+            let scale = 1;
+            const max = 96 * 3;
+            scale = Math.max(scale, this.width / max);
+            scale = Math.max(scale, this.height / max);
+            this.width /= scale;
+            this.height /= scale;
+        }
         if (this.content_type.startsWith('image/')) {
+            const div = document.createElement("div");
             const img = document.createElement("img");
             img.classList.add("messageimg");
+            div.classList.add("messageimgdiv");
             img.onclick = function () {
                 const full = new Dialog(["img", img.src, ["fit"]]);
                 full.show();
             };
             img.src = src;
+            div.append(img);
             if (this.width) {
-                img.height = this.height;
-                img.width = this.width;
+                div.style.width = this.width + "px";
+                div.style.height = this.height + "px";
+                console.log(div, ":3");
             }
+            else {
+                console.log("really?");
+            }
+            console.log(img);
             console.log(this.width, this.height);
-            return img;
+            return div;
         }
         else if (this.content_type.startsWith('video/')) {
             const video = document.createElement("video");
