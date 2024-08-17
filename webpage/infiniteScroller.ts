@@ -62,7 +62,7 @@ class InfiniteScroller{
     snapBottom(){
         const scrollBottom=this.scrollBottom;
         return ()=>{
-            if(scrollBottom<30){
+            if(this.scroll&&scrollBottom<30){
                 this.scroll.scrollTop=this.scroll.scrollHeight;
             }
         }
