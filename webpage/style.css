@@ -1849,3 +1849,31 @@ form div{
 	height:.5in;
 	object-fit: cover;
 }
+.rolediv{
+	font-size:.15in;
+	width:fit-content;
+	background:var(--blank-bg);
+	padding:.04in;
+	border-radius:.05in;
+	border: solid .03in var(--black);
+	display: flex;
+	align-items: center;
+}
+.colorrolediv{
+	width:.125in;
+	height:.125in;
+	display:inline-block;
+	background:var(--role-color);
+	margin-right:.04in;
+	border-radius:.1in;
+	border:solid .01in var(--black);
+}
+.rolesbox{
+	flex-grow:1;
+	display:flex;
+	flex-direction: row;
+	align-content: flex-end;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: flex-end;
+}
