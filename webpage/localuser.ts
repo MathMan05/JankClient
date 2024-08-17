@@ -847,7 +847,7 @@ class Localuser{
             }
         }
         {
-            const security=settings.addButton("Account Security");
+            const security=settings.addButton("Account Settings");
             if(this.mfa_enabled){
                 security.addTextInput("Disable 2FA, totp code:",_=>{
                     fetch(this.info.api+"/users/@me/mfa/totp/disable",{
@@ -905,6 +905,25 @@ class Localuser{
                     addmodel.show();
                 })
             }
+            let disc="";
+            const updatedisc=security.addButtonInput("","Change discriminator",()=>{
+                const update=new Dialog(["vdiv",
+                    ["title","Change discriminator"],
+                    ["textbox","New discriminator:","",(e:InputEvent)=>{
+                        disc=(e.target as HTMLInputElement).value;
+                    }],
+                    ["button","","submit",()=>{
+                        this.changeDiscriminator(disc).then(_=>{
+                            if(_.message){
+                                alert(_.errors.discriminator._errors[0].message);
+                            }else{
+                                update.hide();
+                            }
+                        })
+                    }]
+                ])
+                update.show();
+            })
         }
         {
             const connections=settings.addButton("Connections");
@@ -991,6 +1010,13 @@ class Localuser{
             devPortal.addHTMLArea(appListContainer);
         }
         settings.show();
+    }
+    async changeDiscriminator(discriminator:string){
+        return await (await fetch(this.info.api+"/users/@me/",{
+            method:"PATCH",
+            headers:this.headers,
+            body:JSON.stringify({discriminator})
+        })).json();
     }
     async manageApplication(appId="") {
         const res=await fetch(this.info.api+"/applications/" + appId, {
@@ -1152,6 +1178,7 @@ class Localuser{
     readonly waitingmembers:Map<string,Map<string,(returns:memberjson|undefined)=>void>>=new Map();
     readonly presences:Map<string,presencejson>=new Map();
     async resolvemember(id:string,guildid:string):Promise<memberjson|undefined>{
+        if(guildid==="@me"){return undefined}
         if(!this.waitingmembers.has(guildid)){
             this.waitingmembers.set(guildid,new Map());
         }
