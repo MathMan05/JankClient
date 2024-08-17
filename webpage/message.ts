@@ -27,6 +27,19 @@ class Message{
     content:MarkDown;
     static del:Promise<void>;
     static resolve:Function;
+    /*
+    weakdiv:WeakRef<HTMLDivElement>;
+    set div(e:HTMLDivElement){
+        if(!e){
+            this.weakdiv=null;
+            return;
+        }
+        this.weakdiv=new WeakRef(e);
+    }
+    get div(){
+        return this.weakdiv?.deref();
+    }
+    //*/
     div:HTMLDivElement;
     member:Member;
     reactions:messagejson["reactions"];

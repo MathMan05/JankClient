@@ -22,6 +22,19 @@ class Message {
     content;
     static del;
     static resolve;
+    /*
+    weakdiv:WeakRef<HTMLDivElement>;
+    set div(e:HTMLDivElement){
+        if(!e){
+            this.weakdiv=null;
+            return;
+        }
+        this.weakdiv=new WeakRef(e);
+    }
+    get div(){
+        return this.weakdiv?.deref();
+    }
+    //*/
     div;
     member;
     reactions;

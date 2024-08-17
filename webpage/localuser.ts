@@ -807,6 +807,7 @@ class Localuser{
             {
                 const userinfos=getBulkInfo();
                 tas.addColorInput("Accent color:",_=>{
+                    fixsvgtheme();
                     userinfos.accent_color=_;
                     localStorage.setItem("userinfos",JSON.stringify(userinfos));
                     document.documentElement.style.setProperty('--accent-color', userinfos.accent_color);
@@ -1210,3 +1211,57 @@ class Localuser{
     }
 }
 export {Localuser};
+let fixsvgtheme:Function;
+{
+    let last:string;
+    const dud=document.createElement("p")
+    dud.classList.add("svgtheme")
+    document.body.append(dud);
+    const css=window.getComputedStyle(dud);
+    function fixsvgtheme_(){
+        //console.log(things);
+        const color=css.color;
+        if(color===last) {return};
+        last=color;
+        const thing=color.replace("rgb(","").replace(")","").split(",");
+        //sconsole.log(thing);
+        const r=+thing[0]/255;
+        const g=+thing[1]/255;
+        const b=+thing[2]/255;
+        const max=Math.max(r,g,b);
+        const min=Math.min(r,g,b);
+        const l=(max+min)/2;
+
+        let s:number;
+        let h:number;
+        if(max!==min){
+            if(l<=.5){
+                s=(max-min)/(max+min);
+            }else{
+                s=(max-min)/(2.0-max-min);
+            }
+            if(r===max){
+                h=(g-b)/(max-min);
+            }else if(g===max){
+                h=2+(b-r)/(max-min);
+            }else if(b===max){
+                h=4+(r-g)/(max-min);
+            }
+        }else{
+            s=0;
+            h=0;
+        }
+        const rot=Math.floor(h*60)+"deg";
+        const invert=.5-(s/2)+"";
+        const brightness=Math.floor((l*200))+"%";
+
+        document.documentElement.style.setProperty('--rot', rot);
+        document.documentElement.style.setProperty('--invert', invert);
+        document.documentElement.style.setProperty('--brightness', brightness);
+
+    }
+    fixsvgtheme=fixsvgtheme_;
+    setTimeout(fixsvgtheme_,100);
+    fixsvgtheme_();
+}
+export {fixsvgtheme};
