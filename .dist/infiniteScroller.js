@@ -53,11 +53,17 @@ class InfiniteScroller {
     currrunning = false;
     async addedBottom() {
         this.updatestuff();
-        const scrollBottom = this.scrollBottom;
+        const func = this.snapBottom();
         await this.watchForChange();
-        if (scrollBottom < 30) {
-            this.scroll.scrollTop = this.scroll.scrollHeight;
-        }
+        func();
+    }
+    snapBottom() {
+        const scrollBottom = this.scrollBottom;
+        return () => {
+            if (scrollBottom < 30) {
+                this.scroll.scrollTop = this.scroll.scrollHeight;
+            }
+        };
     }
     async watchForTop() {
         let again = false;
