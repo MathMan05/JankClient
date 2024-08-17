@@ -101,6 +101,9 @@ class Member {
             }
             else {
                 const member = new Member(membjson, guild);
+                const map = guild.localuser.presences;
+                member.getPresence(map.get(member.id));
+                map.delete(member.id);
                 res(member);
                 return member;
             }
@@ -111,6 +114,9 @@ class Member {
         else {
             return maybe;
         }
+    }
+    getPresence(presence) {
+        this.user.getPresence(presence);
     }
     /**
      * @todo

@@ -17,11 +17,13 @@ class User {
     public_flags;
     accent_color;
     banner;
+    hypotheticalbanner;
     premium_since;
     premium_type;
     theme_colors;
     badge_ids;
     members = new WeakMap();
+    status;
     clone() {
         return new User({
             username: this.username,
@@ -39,6 +41,25 @@ class User {
             pronouns: this.pronouns,
             badge_ids: this.badge_ids
         }, this.owner);
+    }
+    getPresence(presence) {
+        if (presence) {
+            this.setstatus(presence.status);
+        }
+        else {
+            this.setstatus("offline");
+        }
+    }
+    setstatus(status) {
+        this.status = status;
+    }
+    async getStatus() {
+        if (this.status) {
+            return this.status;
+        }
+        else {
+            return "offline";
+        }
     }
     get id() {
         return this.snowflake.id;
@@ -107,6 +128,27 @@ class User {
         pfp.classList.add("userid:" + this.id);
         return pfp;
     }
+    async buildstatuspfp() {
+        const div = document.createElement("div");
+        div.style.position = "relative";
+        const pfp = this.buildpfp();
+        div.append(pfp);
+        {
+            const status = document.createElement("div");
+            status.classList.add("statusDiv");
+            switch (await this.getStatus()) {
+                case "offline":
+                    status.classList.add("offlinestatus");
+                    break;
+                case "online":
+                default:
+                    status.classList.add("onlinestatus");
+                    break;
+            }
+            div.append(status);
+        }
+        return div;
+    }
     userupdate(json) {
         if (json.avatar !== this.avatar) {
             console.log;
@@ -149,7 +191,7 @@ class User {
             return this.avatar;
         }
         if (this.avatar != null) {
-            return this.info.cdn + "/avatars/" + this.id + "/" + this.avatar + ".png";
+            return this.info.cdn + "/avatars/" + this.id.replace("#clone", "") + "/" + this.avatar + ".png";
         }
         else {
             const int = new Number((BigInt(this.id) >> 22n) % 6n);
@@ -159,21 +201,42 @@ class User {
     createjankpromises() {
         new Promise(_ => { });
     }
-    buildprofile(x, y) {
+    async buildprofile(x, y) {
         if (Contextmenu.currentmenu != "") {
             Contextmenu.currentmenu.remove();
         }
         const div = document.createElement("div");
+        if (this.accent_color) {
+            div.style.setProperty("--accent_color", "#" + this.accent_color.toString(16).padStart(6, "0"));
+        }
+        else {
+            div.style.setProperty("--accent_color", "transparent");
+        }
+        if (this.banner) {
+            const banner = document.createElement("img");
+            let src;
+            if (!this.hypotheticalbanner) {
+                src = this.info.cdn + "/avatars/" + this.id.replace("#clone", "") + "/" + this.banner + ".png";
+            }
+            else {
+                src = this.banner;
+            }
+            console.log(src, this.banner);
+            banner.src = src;
+            banner.classList.add("banner");
+            div.append(banner);
+        }
         if (x !== -1) {
             div.style.left = x + "px";
             div.style.top = y + "px";
             div.classList.add("profile", "flexttb");
         }
         else {
+            this.setstatus("online");
             div.classList.add("hypoprofile", "flexttb");
         }
         {
-            const pfp = this.buildpfp();
+            const pfp = await this.buildstatuspfp();
             div.appendChild(pfp);
         }
         {

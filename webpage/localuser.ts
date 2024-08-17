@@ -7,7 +7,7 @@ import {Dialog} from "./dialog.js";
 import {getBulkInfo, setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
-import { channeljson, guildjson, memberjson, readyjson } from "./jsontypes.js";
+import { channeljson, guildjson, memberjson, presencejson, readyjson } from "./jsontypes.js";
 import { Member } from "./member.js";
 import { Settings } from "./settings.js";
 import { MarkDown } from "./markdown.js";
@@ -56,6 +56,7 @@ class Localuser{
         this.guilds=[];
         this.guildids=new Map();
         this.user=new User(ready.d.user,this);
+        this.user.setstatus("online");
         this.mfa_enabled=ready.d.user.mfa_enabled;
         this.userinfo.username=this.user.username;
         this.userinfo.pfpsrc=this.user.getpfpsrc();
@@ -628,7 +629,32 @@ class Localuser{
         };
 
     }
-    updateProfile(json:{bio?:string,pronouns?:string}){
+    updatebanner(file:Blob|null):void{
+        if(file){
+            var reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = ()=>{
+            fetch(this.info.api+"/users/@me",{
+                    method:"PATCH",
+                    headers:this.headers,
+                    body:JSON.stringify({
+                        banner:reader.result,
+                    })
+                });
+            };
+        }else{
+           fetch(this.info.api+"/users/@me",{
+                method:"PATCH",
+                headers:this.headers,
+                body:JSON.stringify({
+                    banner:null,
+                })
+            });
+        }
+
+
+    }
+    updateProfile(json:{bio?:string,pronouns?:string,accent_color?:number}){
         fetch(this.info.api+"/users/@me/profile",{
             method:"PATCH",
             headers:this.headers,
@@ -679,9 +705,10 @@ class Localuser{
             let newpronouns:string=undefined;
             let newbio:string=undefined;
             let hypouser=this.user.clone();
-            function regen(){
+            let color:string;
+            async function regen(){
                 hypotheticalProfile.textContent="";
-                const hypoprofile=hypouser.buildprofile(-1,-1);
+                const hypoprofile=await hypouser.buildprofile(-1,-1);
 
                 hypotheticalProfile.appendChild(hypoprofile)
             }
@@ -704,9 +731,31 @@ class Localuser{
                     regen();
                 }
             });
+            let bfile=undefined;
+            const binput=settingsLeft.addFileInput("Upload banner:",_=>{
+                if(bfile!==undefined){
+                    this.updatebanner(bfile)
+                }
+            });
+            binput.watchForChange(_=>{
+                if(_.length){
+                    bfile=_[0];
+                    const blob = URL.createObjectURL(bfile);
+                    hypouser.banner = blob;
+                    hypouser.hypotheticalbanner=true;
+                    regen();
+                }
+            });
+            const bclear=settingsLeft.addButtonInput("Clear banner","Clear",()=>{
+                bfile=null;
+                hypouser.banner = null;
+                settingsLeft.changed();
+                regen();
+            })
+            let changed=false;
             const pronounbox=settingsLeft.addTextInput("Pronouns",_=>{
-                if(newpronouns||newbio){
-                    this.updateProfile({pronouns:newpronouns,bio:newbio});
+                if(newpronouns||newbio||changed){
+                    this.updateProfile({pronouns:newpronouns,bio:newbio,accent_color:parseInt("0x"+color.substr(1),16)});
                 }
             },{initText:this.user.pronouns});
             pronounbox.watchForChange(_=>{
@@ -720,6 +769,20 @@ class Localuser{
             bioBox.watchForChange(_=>{
                 newbio=_;
                 hypouser.bio=new MarkDown(_,this);
+                regen();
+            });
+
+            if(this.user.accent_color){
+                color="#"+this.user.accent_color.toString(16);
+            }else{
+                color="transparent";
+            }
+            const colorPicker=settingsLeft.addColorInput("Profile color",(_)=>{},{initColor:color});
+            colorPicker.watchForChange(_=>{
+                console.log()
+                color=_;
+                hypouser.accent_color=parseInt("0x"+_.substr(1),16);
+                changed=true;
                 regen();
             })
         }
@@ -1053,7 +1116,8 @@ class Localuser{
     }
 
     //---------- resolving members code -----------
-    waitingmembers:Map<string,Map<string,(returns:memberjson|undefined)=>void>>=new Map();
+    readonly waitingmembers:Map<string,Map<string,(returns:memberjson|undefined)=>void>>=new Map();
+    readonly presences:Map<string,presencejson>=new Map();
     async resolvemember(id:string,guildid:string):Promise<memberjson|undefined>{
         if(!this.waitingmembers.has(guildid)){
             this.waitingmembers.set(guildid,new Map());
@@ -1069,7 +1133,10 @@ class Localuser{
     fetchingmembers:Map<string,boolean>=new Map();
     noncemap:Map<string,(r:[memberjson[],string[]])=>void>=new Map();
     noncebuild:Map<string,[memberjson[],string[],number[]]>=new Map();
-    async gotChunk(chunk:{chunk_index:number,chunk_count:number,nonce:string,not_found?:string[],members?:memberjson[]}){
+    async gotChunk(chunk:{chunk_index:number,chunk_count:number,nonce:string,not_found?:string[],members?:memberjson[],presences:presencejson[]}){
+        for(const thing of chunk.presences){
+            this.presences.set(thing.user.id,thing);
+        }
         console.log(chunk);
         chunk.members??=[];
         const arr=this.noncebuild.get(chunk.nonce);
@@ -1085,6 +1152,7 @@ class Localuser{
             func([arr[0],arr[1]]);
             this.noncemap.delete(chunk.nonce);
         }
+
     }
     async getmembers(){
         let res:Function

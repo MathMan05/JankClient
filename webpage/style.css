@@ -18,6 +18,7 @@ body {
 	width: 7cm !important;
 	height: 8cm;
 	border: solid, color-mix(in hsl,var(--black),transparent 80%), .03in;
+	box-shadow: inset .03in .35in .2in  var(--accent_color);
 }
 video{
 	max-width: 3in;
@@ -177,6 +178,9 @@ a:hover {
 	padding: .2cm;
 	width: 7cm !important;
 	height: 8cm;
+	border: solid, color-mix(in hsl,var(--black),transparent 80%), .03in;
+	box-shadow: inset .03in .35in .2in  var(--accent_color);
+	position: relative;
 }
 
 h1,
@@ -1818,4 +1822,30 @@ form div{
 	box-sizing:border-box;
 	box-shadow: .02in 0 .03in var(--black);
 	cursor:pointer;
+}
+.statusDiv{
+	position:absolute;
+	bottom: .025in;
+	right: .025in;
+	width: .125in;
+	height: .125in;
+	background: var(--black);
+	border: solid .03in black;
+	box-sizing:border-box;
+	border-radius: .1in;
+}
+.onlinestatus{
+	background:var(--green);
+}
+.offlinestatus{
+	background:var(--primary-bg);
+}
+.banner{
+	position:absolute;
+	z-index:0;
+	top:0;
+	left:0;
+	width:100%;
+	height:.5in;
+	object-fit: cover;
 }
