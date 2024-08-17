@@ -77,17 +77,16 @@ async function inviteres(req,res){
         function strEscape(s){
             return JSON.stringify(s);
         }
-        html=`
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>${htmlEnc(title)}</title>
-    <meta content=${strEscape(title)} property="og:title" />
-    <meta content=${strEscape(description)} property="og:description" />
-    <meta content=${strEscape(icon)} property="og:image" />
-</head>
-</html>
-`
+        html=
+        `<!DOCTYPE html>`+
+        `<html lang="en">`+
+        `<head>`+
+            `<title>${htmlEnc(title)}</title>`+
+            `<meta content=${strEscape(title)} property="og:title"/>`+
+            `<meta content=${strEscape(description)} property="og:description"/>`+
+            `<meta content=${strEscape(icon)} property="og:image"/>`+
+        `</head>`+
+        `</html>`
     res.type('html');
     res.send(html);
     return true;
