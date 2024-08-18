@@ -177,6 +177,7 @@ async function getapiurls(str) {
             gateway: info.gateway,
             cdn: info.cdn,
             wellknown: str,
+            login: url.toString()
         };
     }
     catch {
