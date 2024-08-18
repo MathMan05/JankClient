@@ -269,7 +269,7 @@ class User {
                 return;
             for (const id of this.badge_ids) {
                 const badgejson = await this.getBadge(id);
-                const badge = document.createElement("a");
+                const badge = document.createElement(badgejson.link ? "a" : "div");
                 badge.classList.add("badge");
                 const img = document.createElement("img");
                 img.src = badgejson.icon;
@@ -277,7 +277,9 @@ class User {
                 const span = document.createElement("span");
                 span.textContent = badgejson.description;
                 badge.append(span);
-                badge.href = badgejson.link;
+                if (badge instanceof HTMLAnchorElement) {
+                    badge.href = badgejson.link;
+                }
                 badgediv.append(badge);
             }
         })();
