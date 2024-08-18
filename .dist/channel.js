@@ -811,7 +811,7 @@ class Channel {
             id = this.goBackIds(this.lastmessage.snowflake, 50);
         }
         if (!id) {
-            if (removetitle) {
+            if (!removetitle) {
                 const title = document.createElement("h2");
                 title.id = "removetitle";
                 title.textContent = "No messages appear to be here, be the first to say something!";
