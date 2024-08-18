@@ -925,7 +925,7 @@ select{
 }
 
 .addchannel {
-	align-self: end;
+	/* align-self: end; */
 	margin-left: auto;
 	width: .2in;
 	text-align: center;
@@ -941,6 +941,7 @@ select{
 
 .capsflex {
 	display: flex;
+	align-items: center;
 }
 
 .radio {
