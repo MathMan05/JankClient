@@ -322,6 +322,8 @@ type embedjson={
     thumbnail:{
         proxy_url:string,
         url:string,
+        width:number,
+        height:number
     },
     provider:{
         name:string,
