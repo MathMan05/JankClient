@@ -202,7 +202,9 @@ class Channel{
         async function(this:Channel,id:string){
             const message=SnowFlake.getSnowFlakeFromID(id,Message).getObject();
             try{
-                message.deleteDiv();
+                if(message){
+                    message.deleteDiv();
+                }
             }catch(e){console.error(e)}finally{}
         }.bind(this),
         this.readbottom.bind(this)

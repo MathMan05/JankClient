@@ -42,6 +42,13 @@ function trimswitcher() {
             map.set(wellknown, [thing, user]);
         }
     }
+    for (const thing in json.users) {
+        if (thing[thing.length - 1] === "/") {
+            const user = json.users[thing];
+            delete json.users[thing];
+            json.users[thing.slice(0, -1)] = user;
+        }
+    }
     localStorage.setItem("userinfos", JSON.stringify(json));
     console.log(json);
 }

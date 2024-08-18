@@ -95,6 +95,7 @@ function showAccountSwitcher(){
 }
 let thisuser:Localuser;
 try{
+    console.log(users.users,users.currentuser)
     thisuser=new Localuser(users.users[users.currentuser]);
     thisuser.initwebsocket().then(_=>{
         thisuser.loaduser();
@@ -103,7 +104,8 @@ try{
         document.getElementById("loading").classList.remove("loading");
         console.log("done loading")
     });
-}catch{
+}catch(e){
+    console.error(e);
     document.getElementById("load-desc").textContent="Account unable to start";
     thisuser=new Localuser(-1);
 }
