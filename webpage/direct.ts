@@ -111,6 +111,7 @@ class Group extends Channel{
         this.lastmessageid??=new SnowFlake("0",undefined);
         this.mentions=0;
         this.setUpInfiniteScroller();
+        this.position=Math.max(this.lastmessageid.getUnixTime(),this.snowflake.getUnixTime());
     }
     createguildHTML(){
         const div=document.createElement("div")
