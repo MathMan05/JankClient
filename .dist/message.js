@@ -178,13 +178,11 @@ class Message {
         obj.classList.add("messagediv");
     }
     deleteDiv() {
-        console.log(this.id);
         if (!this.div)
             return;
         try {
             this.div.remove();
             this.div = null;
-            console.log("done");
         }
         catch (e) {
             console.error(e);
