@@ -189,7 +189,9 @@ class Channel {
         }.bind(this), async function (id) {
             const message = SnowFlake.getSnowFlakeFromID(id, Message).getObject();
             try {
-                message.deleteDiv();
+                if (message) {
+                    message.deleteDiv();
+                }
             }
             catch (e) {
                 console.error(e);
