@@ -1910,6 +1910,7 @@ form div{
 	display: flex;
 	flex-direction: column-reverse;
 	overflow-y: scroll;
+	z-index: 1;
 }
 .loadingmessage{
 	position:relative;
