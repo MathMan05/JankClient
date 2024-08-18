@@ -30,11 +30,11 @@ class InfiniteScroller{
         {
             let oldheight=0;
             new ResizeObserver(_=>{
-                const change=oldheight-this.div.offsetHeight;
-                if(change>0){
+                const change=oldheight-div.offsetHeight;
+                if(change>0&&this.scroll){
                     this.scroll.scrollTop+=change;
                 }
-                oldheight=this.div.offsetHeight;
+                oldheight=div.offsetHeight;
                 this.watchForChange();
             }).observe(div);
         }
