@@ -802,6 +802,9 @@ class Channel{
         if(this.infinitefocus) return;
         this.infinitefocus=true;
         const messages=document.getElementById("channelw");
+        for(const thing of messages.getElementsByClassName("messagecontainer")){
+            thing.remove();
+        }
         const loading=document.getElementById("loadingdiv");
         const removetitle=document.getElementById("removetitle");
         //messages.innerHTML="";
