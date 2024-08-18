@@ -769,8 +769,6 @@ textarea:focus-visible,
 	height: 100%;
 	/* aspect-ratio: 1 /20; */
 }
-.messageimgdiv{
-}
 .embedimg {
 	cursor: pointer;
 	user-select: none;
@@ -887,6 +885,7 @@ select{
 	border-color:var(--timestamp-color);
 	margin: .02in .05in;
 	box-shadow: 0px 0px .03in var(--black);
+	appearance: none;
 	-webkit-appearance: none;
 }
 #logindiv {
