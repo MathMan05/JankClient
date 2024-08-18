@@ -172,15 +172,23 @@ class Message {
     get info() {
         return this.owner.info;
     }
-    messageevents(obj, del = Message.del) {
+    messageevents(obj) {
         const func = Message.contextmenu.bind(obj, this);
         this.div = obj;
-        del.then(_ => {
-            obj.removeEventListener("click", func);
+        obj.classList.add("messagediv");
+    }
+    deleteDiv() {
+        console.log(this.id);
+        if (!this.div)
+            return;
+        try {
             this.div.remove();
             this.div = null;
-        });
-        obj.classList.add("messagediv");
+            console.log("done");
+        }
+        catch (e) {
+            console.error(e);
+        }
     }
     mentionsuser(userd) {
         if (userd instanceof User) {
@@ -461,16 +469,21 @@ class Message {
             }
         }
     }
-    buildhtml(premessage, del = Message.del) {
+    buildhtml(premessage) {
         if (this.div) {
             console.error(`HTML for ${this.snowflake} already exists, aborting`);
             return;
         }
-        //premessage??=messages.lastChild;
-        const div = document.createElement("div");
-        this.div = div;
-        this.messageevents(div, del);
-        return this.generateMessage(premessage);
+        try {
+            //premessage??=messages.lastChild;
+            const div = document.createElement("div");
+            this.div = div;
+            this.messageevents(div);
+            return this.generateMessage(premessage);
+        }
+        catch (e) {
+            console.error(e);
+        }
     }
 }
 function formatTime(date) {

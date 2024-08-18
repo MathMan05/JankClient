@@ -21,7 +21,7 @@ class InfiniteScroller {
         //div.classList.add("flexttb")
         const scroll = document.createElement("div");
         scroll.classList.add("flexttb", "scroller");
-        div.append(scroll);
+        div.appendChild(scroll);
         this.div = div;
         this.interval = setInterval(this.updatestuff.bind(this), 100);
         this.scroll = scroll;
@@ -47,7 +47,7 @@ class InfiniteScroller {
     }
     async firstElement(id) {
         const html = await this.getHTMLFromID(id);
-        this.scroll.append(html);
+        this.scroll.appendChild(html);
         this.HTMLElements.push([html, id]);
     }
     currrunning = false;
@@ -79,6 +79,11 @@ class InfiniteScroller {
             else {
                 again = true;
                 const html = await this.getHTMLFromID(nextid);
+                if (!html) {
+                    this.destroyFromID(nextid);
+                    console.error("html isn't defined");
+                    throw Error("html isn't defined");
+                }
                 this.scroll.prepend(html);
                 this.HTMLElements.unshift([html, nextid]);
                 this.scrollTop += 60;
@@ -106,7 +111,7 @@ class InfiniteScroller {
             else {
                 again = true;
                 const html = await this.getHTMLFromID(nextid);
-                this.scroll.append(html);
+                this.scroll.appendChild(html);
                 this.HTMLElements.push([html, nextid]);
                 this.scrollBottom += 60;
                 if (scrollBottom < 30) {
@@ -126,18 +131,26 @@ class InfiniteScroller {
         }
     }
     async watchForChange() {
-        if (this.currrunning) {
-            return;
-        }
-        else {
-            this.currrunning = true;
-        }
-        if (!this.div) {
+        try {
+            if (this.currrunning) {
+                return;
+            }
+            else {
+                this.currrunning = true;
+            }
+            if (!this.div) {
+                this.currrunning = false;
+                return;
+            }
+            await Promise.allSettled([this.watchForTop(), this.watchForBottom()]);
+            if (!this.currrunning) {
+                console.error("something really bad happened");
+            }
             this.currrunning = false;
-            return;
         }
-        await Promise.allSettled([this.watchForBottom(), this.watchForTop()]);
-        this.currrunning = false;
+        catch (e) {
+            console.error(e);
+        }
     }
     async focus(id, flash = true) {
         let element;
@@ -146,7 +159,6 @@ class InfiniteScroller {
                 element = thing[0];
             }
         }
-        console.log(element, id, ":3");
         if (element) {
             if (flash) {
                 element.scrollIntoView({

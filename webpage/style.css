@@ -557,6 +557,7 @@ hr {
 	min-height: 0;
 	height: 100%;
 	/* width: 100%; */
+	position: relative;
 }
 
 .timestamp {
@@ -1891,4 +1892,41 @@ form div{
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	align-items: flex-end;
+}
+#loadingdiv{
+	position:absolute;
+	top:0;
+	left:0;
+	width:100%;
+	height:0px;
+	background: var(--primary-bg);
+	opacity:0;
+	&.loading{
+	opacity:1;
+	height:100%;
+	}
+	;
+	/* overflow: hidden; */
+	display: flex;
+	flex-direction: column-reverse;
+	overflow-y: scroll;
+}
+.loadingmessage{
+	position:relative;
+}
+.loadingpfp{
+	position:absolute;
+	width:.4in;
+	height:.4in;
+	background:var(--channel-hover);
+
+	margin-left:.05in;
+	border-radius:1in;
+}
+.loadingcontent{
+	margin-left:.5in;
+	background:var(--channel-hover);
+	margin-bottom:.1in;
+	border-radius:.1in;
+	height:17px;
 }
