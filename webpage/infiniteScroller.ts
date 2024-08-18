@@ -14,7 +14,7 @@ class InfiniteScroller{
         this.destroyFromID=destroyFromID;
         this.reachesBottom=reachesBottom;
     }
-    interval:NodeJS.Timeout;
+    timeout:NodeJS.Timeout;
     async getDiv(initialId:string,bottom=true):Promise<HTMLDivElement>{
         const div=document.createElement("div");
         div.classList.add("messagecontainer");
@@ -23,9 +23,10 @@ class InfiniteScroller{
         scroll.classList.add("flexttb","scroller")
         div.appendChild(scroll);
         this.div=div;
-        this.interval=setInterval(this.updatestuff.bind(this),100);
+        //this.interval=setInterval(this.updatestuff.bind(this,true),100);
 
         this.scroll=scroll;
+        this.div.addEventListener("scroll",this.watchForChange.bind(this));
         this.scroll.addEventListener("scroll",this.watchForChange.bind(this));
         {
             let oldheight=0;
@@ -49,12 +50,20 @@ class InfiniteScroller{
     }
     scrollBottom:number;
     scrollTop:number;
-    updatestuff(){
+    needsupdate=true;
+    async updatestuff(){
+        this.timeout=null;
         this.scrollBottom = this.scroll.scrollHeight - this.scroll.scrollTop - this.scroll.clientHeight;
         this.scrollTop=this.scroll.scrollTop;
         if(!this.scrollBottom){
-            this.reachesBottom();
+            if(!await this.watchForChange()){
+                this.reachesBottom();
+            }
         }
+        if(!this.scrollTop){
+            await this.watchForChange()
+        }
+        this.needsupdate=false;
         //this.watchForChange();
     }
     async firstElement(id:string){
@@ -77,7 +86,7 @@ class InfiniteScroller{
             }
         }
     }
-    private async watchForTop():Promise<void>{
+    private async watchForTop():Promise<boolean>{
         let again=false;
         if(this.scrollTop===0){
             this.scrollTop=1;
@@ -111,8 +120,9 @@ class InfiniteScroller{
         if(again){
             await this.watchForTop();
         }
+        return again;
     }
-    async watchForBottom():Promise<void>{
+    async watchForBottom():Promise<boolean>{
         let again=false;
         const scrollBottom = this.scrollBottom;
         if(scrollBottom<this.minDist){
@@ -142,8 +152,10 @@ class InfiniteScroller{
         if(again){
             await this.watchForBottom();
         }
+        return again;
     }
-    async watchForChange():Promise<void>{
+    async watchForChange():Promise<boolean>{
+
         try{
         if(this.currrunning){
             return;
@@ -151,9 +163,14 @@ class InfiniteScroller{
             this.currrunning=true;
         }
         if(!this.div){this.currrunning=false;return}
-        await Promise.allSettled([this.watchForTop(),this.watchForBottom()])
+        const out=await Promise.allSettled([this.watchForTop(),this.watchForBottom()])
+        const changed=(out[0]||out[1]);
+        if(null===this.timeout&&changed){
+            this.timeout=setTimeout(this.updatestuff.bind(this),300);
+        }
         if(!this.currrunning){console.error("something really bad happened")}
         this.currrunning=false;
+        return !!changed;
         }catch(e){
             console.error(e);
         }
@@ -196,7 +213,7 @@ class InfiniteScroller{
             await this.destroyFromID(thing[1]);
         }
         this.HTMLElements=[];
-        clearInterval(this.interval);
+        clearInterval(this.timeout);
         if(this.div){
             this.div.remove();
         }
