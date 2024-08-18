@@ -154,7 +154,7 @@ function adduser(user){
 const instancein=document.getElementById("instancein")  as HTMLInputElement;
 let timeout;
 let instanceinfo;
-async function getapiurls(str:string):Promise<{api:string,cdn:string,gateway:string,wellknown:string}|false>{
+async function getapiurls(str:string):Promise<{api:string,cdn:string,gateway:string,wellknown:string,login:string}|false>{
     if(str[str.length-1]!=="/"){
         str+="/"
     }
@@ -174,6 +174,7 @@ async function getapiurls(str:string):Promise<{api:string,cdn:string,gateway:str
             gateway: info.gateway,
             cdn: info.cdn,
             wellknown: str,
+            login:url.toString()
         };
     }catch{
         return false;
