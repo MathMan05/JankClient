@@ -454,7 +454,6 @@ p {
 	bottom: 0;
 	left: 0;
 	width: fit-content;
-	:;
 	margin-left: .1in;
 	margin-bottom: .03in;
 	transition: opacity .3s;
@@ -768,8 +767,6 @@ textarea:focus-visible,
 	flex-grow: 0;
 	width: 100%;
 	height: 100%;
-	]:
-	black;
 	/* aspect-ratio: 1 /20; */
 }
 .messageimgdiv{
