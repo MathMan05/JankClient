@@ -283,6 +283,37 @@ class User{
                     userbody.append(roles);
                 });
             }
+
+            /*if (this.bio.txt.length > 0) userbody.appendChild(document.createElement("hr"));
+            const noteInput = document.createElement("input");
+            noteInput.placeholder = "Add a note";
+
+            if (this.localuser.noteCache.has(this.id)) noteInput.value = this.localuser.noteCache.get(this.id);
+            else {
+                fetch(this.info.api + "/users/@me/notes/" + this.id, {
+                    headers: this.localuser.headers
+                }).then(async res => {
+                    if (res.ok) {
+                        const noteJSON = await res.json();
+                        noteInput.value = noteJSON.note;
+
+                        this.localuser.noteCache.set(this.id, noteJSON.note);
+                    } else this.localuser.noteCache.set(this.id, "");
+
+                    setTimeout(() => this.localuser.noteCache.delete(this.id), 1000 * 60 * 2);
+                }).catch(() => {});
+            }
+
+            noteInput.addEventListener("change", async () => {
+                await fetch(this.info.api + "/users/@me/notes/" + this.id, {
+                    method: "PUT",
+                    headers: this.localuser.headers,
+                    body: JSON.stringify({
+                        note: noteInput.value.trim()
+                    })
+                });
+            });
+            userbody.appendChild(noteInput);*/
         }
         console.log(div);
 
