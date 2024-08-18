@@ -384,7 +384,7 @@ div {
 	max-height: 1.5in;
 	overflow-y: auto;
 	flex-grow:1;
-	
+
 }
 #realbox{
 	padding: .05in;
@@ -1798,7 +1798,7 @@ form div{
 	background: var(--textarea-bg);
 	span{
 		text-wrap:nowrap;
-		
+
 	}
 ;
 	display: flex;
@@ -1819,7 +1819,7 @@ form div{
 	border:solid .03in var(--black);
 }
 .copybutton{
-	
+
 	width:.25in;
 }
 .copycontainer{
@@ -1924,4 +1924,8 @@ form div{
 	margin-bottom:.1in;
 	border-radius:.1in;
 	height:17px;
+}
+
+#channelTopic {
+	margin-left: 10px;
 }
