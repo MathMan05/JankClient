@@ -17,6 +17,34 @@ function getBulkUsers() {
     }
     return json;
 }
+function trimswitcher() {
+    const json = getBulkInfo();
+    const map = new Map();
+    for (const thing in json.users) {
+        const user = json.users[thing];
+        console.log(user, json.users);
+        let wellknown = user.serverurls.wellknown;
+        if (wellknown[wellknown.length - 1] !== "/") {
+            wellknown += "/";
+        }
+        if (map.has(wellknown)) {
+            const otheruser = map.get(wellknown);
+            if (otheruser[1].serverurls.wellknown[otheruser[1].serverurls.wellknown.length - 1] === "/") {
+                delete json.users[otheruser[0]];
+                map.set(wellknown, [thing, user]);
+            }
+            else {
+                delete json.users[thing];
+            }
+        }
+        else {
+            map.set(wellknown, [thing, user]);
+        }
+    }
+    localStorage.setItem("userinfos", JSON.stringify(json));
+    console.log(json);
+}
+trimswitcher();
 function getBulkInfo() {
     return JSON.parse(localStorage.getItem("userinfos"));
 }

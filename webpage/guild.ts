@@ -86,6 +86,9 @@ class Guild{
         if(json===-1){
             return;
         }
+        if(json.stickers.length){
+            console.log(json.stickers,":3")
+        }
         this.emojis = json.emojis
         this.owner=owner;
         this.headers=this.owner.headers;
