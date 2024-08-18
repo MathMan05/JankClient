@@ -26,7 +26,17 @@ class InfiniteScroller {
         this.interval = setInterval(this.updatestuff.bind(this), 100);
         this.scroll = scroll;
         this.scroll.addEventListener("scroll", this.watchForChange.bind(this));
-        new ResizeObserver(this.watchForChange.bind(this)).observe(div);
+        {
+            let oldheight = 0;
+            new ResizeObserver(_ => {
+                const change = oldheight - this.div.offsetHeight;
+                if (change > 0) {
+                    this.scroll.scrollTop += change;
+                }
+                oldheight = this.div.offsetHeight;
+                this.watchForChange();
+            }).observe(div);
+        }
         new ResizeObserver(this.watchForChange.bind(this)).observe(scroll);
         await this.firstElement(initialId);
         this.updatestuff();
