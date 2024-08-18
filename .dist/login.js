@@ -27,6 +27,7 @@ function trimswitcher() {
         if (wellknown[wellknown.length - 1] !== "/") {
             wellknown += "/";
         }
+        wellknown += user.username;
         if (map.has(wellknown)) {
             const otheruser = map.get(wellknown);
             if (otheruser[1].serverurls.wellknown[otheruser[1].serverurls.wellknown.length - 1] === "/") {
