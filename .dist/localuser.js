@@ -11,6 +11,7 @@ import { Settings } from "./settings.js";
 import { MarkDown } from "./markdown.js";
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 class Localuser {
+    badges = new Map();
     lastSequence = null;
     token;
     userinfo;
