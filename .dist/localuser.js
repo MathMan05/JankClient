@@ -3,7 +3,7 @@ import { Direct } from "./direct.js";
 import { Voice } from "./audio.js";
 import { User } from "./user.js";
 import { Dialog } from "./dialog.js";
-import { getBulkInfo, setTheme } from "./login.js";
+import { getapiurls, getBulkInfo, setTheme } from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
 import { Member } from "./member.js";
@@ -206,7 +206,7 @@ class Localuser {
                 res();
             }
         });
-        this.ws.addEventListener("close", event => {
+        this.ws.addEventListener("close", async (event) => {
             this.ws = undefined;
             console.log("WebSocket closed with code " + event.code);
             this.unload();
@@ -222,6 +222,41 @@ class Localuser {
                     this.errorBackoff++;
                 this.connectionSucceed = 0;
                 document.getElementById("load-desc").innerHTML = "Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (this.errorBackoff * 2.8)) + "</b> seconds...";
+                switch (this.errorBackoff) { //try to recover from bad domain
+                    case 3:
+                        const newurls = await getapiurls(this.info.wellknown);
+                        if (newurls) {
+                            this.info = newurls;
+                            this.serverurls = newurls;
+                            this.userinfo.json.serverurls = this.info;
+                            this.userinfo.updateLocal();
+                            break;
+                        }
+                    case 4:
+                        {
+                            const newurls = await getapiurls(new URL(this.info.wellknown).origin);
+                            if (newurls) {
+                                this.info = newurls;
+                                this.serverurls = newurls;
+                                this.userinfo.json.serverurls = this.info;
+                                this.userinfo.updateLocal();
+                                break;
+                            }
+                        }
+                    case 5:
+                        {
+                            const breakappart = new URL(this.info.wellknown).origin.split(".");
+                            const url = "https://" + breakappart[breakappart.length - 2] + "." + breakappart[breakappart.length - 1];
+                            const newurls = await getapiurls(url);
+                            if (newurls) {
+                                this.info = newurls;
+                                this.serverurls = newurls;
+                                this.userinfo.json.serverurls = this.info;
+                                this.userinfo.updateLocal();
+                            }
+                            break;
+                        }
+                }
                 setTimeout(() => {
                     if (this.swapped)
                         return;
