@@ -1925,3 +1925,27 @@ form div{
 	border-radius:.1in;
 	height:17px;
 }
+.badge{
+	display:flex;
+	color:white;
+	width:fit-content;
+	img{
+		width: .1in;
+		height: .1in;
+	}
+	background: var(--profile-bg);
+	padding: .04in;
+	border-radius: .07in;
+	font-size: .12in;
+	align-items: center;
+	border: solid .01in var(--black);
+	box-sizing: border-box;
+}
+.badges{
+	width:fit-content;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-start;
+	align-items: center;
+}
