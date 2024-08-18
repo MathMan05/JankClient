@@ -628,7 +628,13 @@ class Channel{
         this.localuser.channelfocus=this;
         const prom=this.infinite.delete();
         history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.snowflake);
+
         document.getElementById("channelname").textContent="#"+this.name;
+        if (this.topic) {
+            document.getElementById("channelTopic").textContent=this.topic;
+            document.getElementById("channelTopic").removeAttribute("hidden");
+        } else document.getElementById("channelTopic").setAttribute("hidden","");
+
         const loading=document.getElementById("loadingdiv");
         Channel.regenLoadingMessages();
         loading.classList.add("loading");
