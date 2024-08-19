@@ -263,7 +263,7 @@ async function login(username:string, password:string, captcha:string){
                 console.log(response);
                 if(response.ticket){
                     let onetimecode="";
-                    new Dialog(["vdiv",["title","2FA code:"],["textbox","","",function(){onetimecode=this.value}],["button","","Submit",function(){
+                    new Dialog(["vdiv",["title","2FA code:"],["textbox","","",function(this:HTMLInputElement){onetimecode=this.value}],["button","","Submit",function(){
                         fetch(api+"/auth/mfa/totp",{
                             method:"POST",
                             headers:{

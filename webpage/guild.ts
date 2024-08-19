@@ -31,33 +31,33 @@ class Guild{
     }
     static contextmenu=new Contextmenu("guild menu");
     static setupcontextmenu(){
-        Guild.contextmenu.addbutton("Copy Guild id",function(){
+        Guild.contextmenu.addbutton("Copy Guild id",function(this:Guild){
             console.log(this)
             navigator.clipboard.writeText(this.id);
         });
 
-        Guild.contextmenu.addbutton("Mark as read",function(){
+        Guild.contextmenu.addbutton("Mark as read",function(this:Guild){
             console.log(this)
             this.markAsRead();
         });
 
-        Guild.contextmenu.addbutton("Notifications",function(){
+        Guild.contextmenu.addbutton("Notifications",function(this:Guild){
             console.log(this)
             this.setnotifcation();
         });
 
-        Guild.contextmenu.addbutton("Leave guild",function(){
+        Guild.contextmenu.addbutton("Leave guild",function(this:Guild){
             this.confirmleave();
         },null,function(_){return _.properties.owner_id!==_.member.user.id});
 
-        Guild.contextmenu.addbutton("Delete guild",function(){
+        Guild.contextmenu.addbutton("Delete guild",function(this:Guild){
             this.confirmDelete();
         },null,function(_){return _.properties.owner_id===_.member.user.id});
 
-        Guild.contextmenu.addbutton("Create invite",function(){
+        Guild.contextmenu.addbutton("Create invite",function(this:Guild){
             console.log(this);
         },null,_=>true,_=>false);
-        Guild.contextmenu.addbutton("Settings[temp]",function(){
+        Guild.contextmenu.addbutton("Settings[temp]",function(this:Guild){
             this.generateSettings();
         });
         /* -----things left for later-----
@@ -296,7 +296,7 @@ class Guild{
             ["textbox",
                 "Name of server:",
                 "",
-                function(){
+                function(this:HTMLInputElement){
                     confirmname=this.value;
                 }
             ]
@@ -447,7 +447,7 @@ class Guild{
                 },
                 1
             ],
-            ["textbox","Name of channel","",function(){
+            ["textbox","Name of channel","",function(this:HTMLInputElement){
                 console.log(this)
                 name=this.value
             }],
@@ -464,11 +464,11 @@ class Guild{
         let category=4;
         const channelselect=new Dialog(
         ["vdiv",
-            ["textbox","Name of category","",function(){
+            ["textbox","Name of category","",function(this:HTMLInputElement){
                 console.log(this);
                 name=this.value;
             }],
-            ["button","","submit",function(){
+            ["button","","submit",()=>{
                 console.log(name,category)
                 this.createChannel(name,category);
                 channelselect.hide();

@@ -534,7 +534,7 @@ class Localuser{
                     ["textbox",
                         "Invite Link/Code",
                         "",
-                        function(){
+                        function(this:HTMLInputElement){
                             inviteurl=this.value;
                         }
                     ],
@@ -916,8 +916,8 @@ class Localuser{
                             ["title","2FA set up"],
                             ["text","Copy this secret into your totp(time-based one time password) app"],
                             ["text",`Your secret is: ${secret} and it's 6 digits, with a 30 second token period`],
-                            ["textbox","Account password:","",function(){password=this.value}],
-                            ["textbox","Code:","",function(){code=this.value}],
+                            ["textbox","Account password:","",function(this:HTMLInputElement){password=this.value}],
+                            ["textbox","Code:","",function(this:HTMLInputElement){code=this.value}],
                             ["button","","Submit",()=>{
                                 fetch(this.info.api+"/users/@me/mfa/totp/enable/",{
                                     method:"POST",

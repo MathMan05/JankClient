@@ -71,7 +71,7 @@ class User{
         this.contextmenu.addbutton("Copy user id",function(this:User){
             navigator.clipboard.writeText(this.id);
         });
-        this.contextmenu.addbutton("Message user",function(){
+        this.contextmenu.addbutton("Message user",function(this:User){
             fetch(this.info.api+"/users/@me/channels",
                 {method:"POST",
                     body:JSON.stringify({"recipients":[this.id]}),
