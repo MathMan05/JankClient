@@ -233,7 +233,7 @@ async function login(username:string, password:string, captcha:string){
     try{
         const info=JSON.parse(localStorage.getItem("instanceinfo"));
         const api=info.login+(info.login.startsWith("/")?"/":"");
-        return await fetch(api+'auth/login',options).then(response=>response.json())
+        return await fetch(api+'/auth/login',options).then(response=>response.json())
         .then((response) => {
             console.log(response,response.message)
             if("Invalid Form Body"===response.message){
@@ -278,6 +278,7 @@ async function login(username:string, password:string, captcha:string){
                                 alert(response.message)
                             }else{
                                 console.warn(response);
+                                if(!response.token) return;
                                 adduser({serverurls:JSON.parse(localStorage.getItem("instanceinfo")),email:username,token:response.token}).username=username;
                                 const redir=new URLSearchParams(window.location.search).get("goback");
                                 if(redir){
@@ -290,6 +291,7 @@ async function login(username:string, password:string, captcha:string){
                     }]]).show();
                 }else{
                     console.warn(response);
+                    if(!response.token) return;
                     adduser({serverurls:JSON.parse(localStorage.getItem("instanceinfo")),email:username,token:response.token}).username=username;
                     const redir=new URLSearchParams(window.location.search).get("goback");
                     if(redir){
