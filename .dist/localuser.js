@@ -654,7 +654,7 @@ class Localuser {
     }
     async typingStart(typing) {
         if (this.channelfocus.id === typing.d.channel_id) {
-            const guild = SnowFlake.getSnowFlakeFromID(typing.d.guild_id, Guild).getObject();
+            const guild = this.guildids.get(typing.d.guild_id);
             const memb = await Member.new(typing.d.member, guild);
             if (memb.id === this.user.id) {
                 console.log("you is typing");
