@@ -58,7 +58,7 @@ class Channel {
             this.deleteChannel();
         }, null, _ => { console.log(_); return _.isAdmin(); });
         this.contextmenu.addbutton("Edit channel", function () {
-            this.editChannel(this);
+            this.editChannel();
         }, null, _ => { return _.isAdmin(); });
         this.contextmenu.addbutton("Make invite", function () {
             this.createInvite();
@@ -346,9 +346,9 @@ class Channel {
                 addchannel.textContent = "+";
                 addchannel.classList.add("addchannel");
                 caps.appendChild(addchannel);
-                addchannel.onclick = function () {
+                addchannel.onclick = _ => {
                     this.guild.createchannels(this.createChannel.bind(this));
-                }.bind(this);
+                };
                 this.coatDropDiv(decdiv, childrendiv);
             }
             div.appendChild(caps);
@@ -552,8 +552,7 @@ class Channel {
                         });
                         console.log(full);
                         full.hide();
-                    }]
-            ]
+                    }]]
         ]);
         full.show();
         console.log(full);

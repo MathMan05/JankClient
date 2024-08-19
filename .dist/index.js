@@ -153,11 +153,13 @@ typebox.addEventListener("keydown", event => {
 });
 console.log(typebox);
 typebox.onclick = console.log;
-function getguildinfo() {
-    const path = window.location.pathname.split("/");
-    const channel = path[3];
-    this.ws.send(JSON.stringify({ op: 14, d: { guild_id: path[2], channels: { [channel]: [[0, 99]] } } }));
+/*
+function getguildinfo(){
+    const path=window.location.pathname.split("/");
+    const channel=path[3];
+    this.ws.send(JSON.stringify({op: 14, d: {guild_id: path[2], channels: {[channel]: [[0, 99]]}}}));
 }
+*/
 const images = [];
 const imageshtml = [];
 import { File } from "./file.js";

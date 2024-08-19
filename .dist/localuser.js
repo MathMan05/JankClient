@@ -917,8 +917,7 @@ class Localuser {
                                         this.mfa_enabled = true;
                                     }
                                 });
-                            }]
-                    ]);
+                            }]]);
                     console.log("here :3");
                     addmodel.show();
                 });

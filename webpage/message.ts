@@ -57,13 +57,13 @@ class Message{
         this.del=new Promise(_=>{this.resolve=_})
     }
     static setupcmenu(){
-        Message.contextmenu.addbutton("Copy raw text",function(){
+        Message.contextmenu.addbutton("Copy raw text",function(this:Message){
             navigator.clipboard.writeText(this.content.rawString);
         });
         Message.contextmenu.addbutton("Reply",function(this:Message,div:HTMLDivElement){
             this.channel.setReplying(this);
         });
-        Message.contextmenu.addbutton("Copy message id",function(){
+        Message.contextmenu.addbutton("Copy message id",function(this:Message){
             navigator.clipboard.writeText(this.id);
         });
         Message.contextmenu.addsubmenu("Add reaction",function(this:Message,e){
@@ -72,13 +72,13 @@ class Message{
                 this.reactionToggle(_);
             });
         });
-        Message.contextmenu.addbutton("Edit",function(){
+        Message.contextmenu.addbutton("Edit",function(this:Message){
             this.channel.editing=this;
             const markdown=(document.getElementById("typebox"))["markdown"] as MarkDown;
-            markdown.txt=this.content.rawString;
+            markdown.txt=this.content.rawString.split('');
             markdown.boxupdate(document.getElementById("typebox"));
         },null,_=>{return _.author.id===_.localuser.user.id});
-        Message.contextmenu.addbutton("Delete message",function(){
+        Message.contextmenu.addbutton("Delete message",function(this:Message){
             this.delete();
         },null,_=>{return _.canDelete()})
     }

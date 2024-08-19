@@ -446,8 +446,7 @@ class Guild {
                     console.log(name, category);
                     func(name, category);
                     channelselect.hide();
-                }.bind(this)]
-        ]);
+                }.bind(this)]]);
         channelselect.show();
     }
     createcategory() {
@@ -458,12 +457,11 @@ class Guild {
                     console.log(this);
                     name = this.value;
                 }],
-            ["button", "", "submit", function () {
+            ["button", "", "submit", () => {
                     console.log(name, category);
                     this.createChannel(name, category);
                     channelselect.hide();
-                }]
-        ]);
+                }]]);
         channelselect.show();
     }
     delChannel(json) {
