@@ -52,7 +52,6 @@ function trimswitcher() {
     localStorage.setItem("userinfos", JSON.stringify(json));
     console.log(json);
 }
-trimswitcher();
 function getBulkInfo() {
     return JSON.parse(localStorage.getItem("userinfos"));
 }
@@ -384,3 +383,4 @@ if (switchurl) {
     }
 }
 export { checkInstance };
+trimswitcher();
