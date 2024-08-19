@@ -19,8 +19,8 @@ body {
 	min-height: 3in;
 	border: solid, color-mix(in hsl,var(--black),transparent 80%), .03in;
 	box-shadow: inset .03in .35in .2in  var(--accent_color);
-	min-height: 3.25in;
-	min-width: 7cm;
+	min-height: 3.6in;
+	min-width: 7.5cm;
 }
 video{
 	max-width: 3in;
@@ -163,7 +163,8 @@ samp {
 	display: flex;
 	flex-direction: column;
 	box-sizing: border-box;
-	max-width: 2.75in;
+	max-width: 3in;
+	margin-top: .5in;
 }
 
 
@@ -1856,7 +1857,7 @@ form div{
 	top:0;
 	left:0;
 	width:100%;
-	height:.5in;
+	height: 1in;
 	object-fit: cover;
 }
 .rolediv{
