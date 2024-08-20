@@ -895,6 +895,7 @@ class Channel {
         return id;
     }
     findClosest(snowflake) {
+        console.log("in here :3");
         if (!this.lastmessage)
             return;
         let flake = this.lastmessage.snowflake;
@@ -902,10 +903,11 @@ class Channel {
             return;
         }
         ;
+        console.log("in here :3");
         const time = snowflake.getUnixTime();
         let flaketime = flake.getUnixTime();
-        while (flake && time > flaketime) {
-            flake = this.idToNext.get(flake);
+        while (flake && time < flaketime) {
+            flake = this.idToPrev.get(flake);
             if (!flake) {
                 return undefined;
             }
