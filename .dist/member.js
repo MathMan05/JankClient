@@ -17,7 +17,7 @@ class Member {
         this.contextmenu.addbutton("Message user", function () {
             fetch(this.info.api + "/users/@me/channels", { method: "POST",
                 body: JSON.stringify({ "recipients": [this.id] }),
-                headers: this.headers
+                headers: this.localuser.headers
             });
         });
     }

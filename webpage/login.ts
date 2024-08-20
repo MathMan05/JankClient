@@ -18,6 +18,39 @@ function getBulkUsers(){
     }
     return json;
 }
+function trimswitcher(){
+    const json=getBulkInfo()
+    const map=new Map();
+    for(const thing in json.users){
+        const user=json.users[thing];
+        console.log(user,json.users);
+        let wellknown=user.serverurls.wellknown;
+        if(wellknown[wellknown.length-1]!=="/"){
+            wellknown+="/";
+        }
+        wellknown+=user.username;
+        if(map.has(wellknown)){
+            const otheruser=map.get(wellknown);
+            if(otheruser[1].serverurls.wellknown[otheruser[1].serverurls.wellknown.length-1]==="/"){
+                delete json.users[otheruser[0]];
+                map.set(wellknown,[thing,user]);
+            }else{
+                 delete json.users[thing];
+            }
+        }else{
+            map.set(wellknown,[thing,user]);
+        }
+    }
+    for(const thing in json.users){
+        if(thing[thing.length-1]==="/"){
+            const user=json.users[thing];
+            delete json.users[thing];
+            json.users[thing.slice(0, -1)]=user;
+        }
+    }
+    localStorage.setItem("userinfos",JSON.stringify(json));
+    console.log(json);
+}
 
 function getBulkInfo(){
     return JSON.parse(localStorage.getItem("userinfos"));
@@ -121,7 +154,7 @@ function adduser(user){
 const instancein=document.getElementById("instancein")  as HTMLInputElement;
 let timeout;
 let instanceinfo;
-async function getapiurls(str:string):Promise<{api:string,cdn:string,gateway:string,wellknown:string}|false>{
+async function getapiurls(str:string):Promise<{api:string,cdn:string,gateway:string,wellknown:string,login:string}|false>{
     if(str[str.length-1]!=="/"){
         str+="/"
     }
@@ -141,6 +174,7 @@ async function getapiurls(str:string):Promise<{api:string,cdn:string,gateway:str
             gateway: info.gateway,
             cdn: info.cdn,
             wellknown: str,
+            login:url.toString()
         };
     }catch{
         return false;
@@ -199,7 +233,7 @@ async function login(username:string, password:string, captcha:string){
     try{
         const info=JSON.parse(localStorage.getItem("instanceinfo"));
         const api=info.login+(info.login.startsWith("/")?"/":"");
-        return await fetch(api+'auth/login',options).then(response=>response.json())
+        return await fetch(api+'/auth/login',options).then(response=>response.json())
         .then((response) => {
             console.log(response,response.message)
             if("Invalid Form Body"===response.message){
@@ -229,7 +263,7 @@ async function login(username:string, password:string, captcha:string){
                 console.log(response);
                 if(response.ticket){
                     let onetimecode="";
-                    new Dialog(["vdiv",["title","2FA code:"],["textbox","","",function(){onetimecode=this.value}],["button","","Submit",function(){
+                    new Dialog(["vdiv",["title","2FA code:"],["textbox","","",function(this:HTMLInputElement){onetimecode=this.value}],["button","","Submit",function(){
                         fetch(api+"/auth/mfa/totp",{
                             method:"POST",
                             headers:{
@@ -244,6 +278,7 @@ async function login(username:string, password:string, captcha:string){
                                 alert(response.message)
                             }else{
                                 console.warn(response);
+                                if(!response.token) return;
                                 adduser({serverurls:JSON.parse(localStorage.getItem("instanceinfo")),email:username,token:response.token}).username=username;
                                 const redir=new URLSearchParams(window.location.search).get("goback");
                                 if(redir){
@@ -256,6 +291,7 @@ async function login(username:string, password:string, captcha:string){
                     }]]).show();
                 }else{
                     console.warn(response);
+                    if(!response.token) return;
                     adduser({serverurls:JSON.parse(localStorage.getItem("instanceinfo")),email:username,token:response.token}).username=username;
                     const redir=new URLSearchParams(window.location.search).get("goback");
                     if(redir){
@@ -343,3 +379,4 @@ if(switchurl){
     }
 }
 export {checkInstance};
+trimswitcher();

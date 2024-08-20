@@ -95,6 +95,7 @@ function showAccountSwitcher(){
 }
 let thisuser:Localuser;
 try{
+    console.log(users.users,users.currentuser)
     thisuser=new Localuser(users.users[users.currentuser]);
     thisuser.initwebsocket().then(_=>{
         thisuser.loaduser();
@@ -103,7 +104,8 @@ try{
         document.getElementById("loading").classList.remove("loading");
         console.log("done loading")
     });
-}catch{
+}catch(e){
+    console.error(e);
     document.getElementById("load-desc").textContent="Account unable to start";
     thisuser=new Localuser(-1);
 }
@@ -164,13 +166,13 @@ typebox.addEventListener("keydown",event=>{
 console.log(typebox)
 typebox.onclick=console.log;
 
-
+/*
 function getguildinfo(){
     const path=window.location.pathname.split("/");
     const channel=path[3];
     this.ws.send(JSON.stringify({op: 14, d: {guild_id: path[2], channels: {[channel]: [[0, 99]]}}}));
 }
-
+*/
 
 const images:Blob[]=[];
 const imageshtml=[];

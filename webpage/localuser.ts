@@ -4,7 +4,7 @@ import {Direct} from "./direct.js";
 import {Voice} from "./audio.js";
 import {User} from "./user.js";
 import {Dialog} from "./dialog.js";
-import {getBulkInfo, setTheme, Specialuser} from "./login.js";
+import {getapiurls, getBulkInfo, setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
 import { channeljson, guildjson, memberjson, presencejson, readyjson } from "./jsontypes.js";
@@ -15,6 +15,7 @@ import { MarkDown } from "./markdown.js";
 const wsCodesRetry=new Set([4000,4003,4005,4007,4008,4009]);
 
 class Localuser{
+    badges:Map<string,{id:string,description:string,icon:string,link:string}>=new Map();
     lastSequence:number|null=null;
     token:string;
     userinfo:Specialuser;
@@ -214,7 +215,7 @@ class Localuser{
             }
         });
 
-        this.ws.addEventListener("close", event => {
+        this.ws.addEventListener("close",async event => {
             this.ws=undefined;
             console.log("WebSocket closed with code " + event.code);
 
@@ -230,7 +231,43 @@ class Localuser{
                 this.connectionSucceed=0;
 
                 document.getElementById("load-desc").innerHTML="Unable to connect to the Spacebar server, retrying in <b>" + Math.round(0.2 + (this.errorBackoff*2.8)) + "</b> seconds...";
+                switch(this.errorBackoff){//try to recover from bad domain
+                    case 3:
+                        const newurls=await getapiurls(this.info.wellknown);
+                        if(newurls){
+                            this.info=newurls;
+                            this.serverurls=newurls;
+                            this.userinfo.json.serverurls=this.info;
+                            this.userinfo.updateLocal();
+                            break
+                        }
 
+                    case 4:
+                    {
+                        const newurls=await getapiurls(new URL(this.info.wellknown).origin);
+                        if(newurls){
+                            this.info=newurls;
+                            this.serverurls=newurls;
+                            this.userinfo.json.serverurls=this.info;
+                            this.userinfo.updateLocal();
+                            break
+                        }
+
+                    }
+                    case 5:
+                    {
+                        const breakappart=new URL(this.info.wellknown).origin.split(".");
+                        const url="https://"+breakappart[breakappart.length-2]+"."+breakappart[breakappart.length-1]
+                        const newurls=await getapiurls(url);
+                        if(newurls){
+                            this.info=newurls;
+                            this.serverurls=newurls;
+                            this.userinfo.json.serverurls=this.info;
+                            this.userinfo.updateLocal();
+                        }
+                        break
+                    }
+                }
                 setTimeout(() => {
                     if(this.swapped) return;
                     document.getElementById("load-desc").textContent="Retrying...";
@@ -497,7 +534,7 @@ class Localuser{
                     ["textbox",
                         "Invite Link/Code",
                         "",
-                        function(){
+                        function(this:HTMLInputElement){
                             inviteurl=this.value;
                         }
                     ],
@@ -635,7 +672,8 @@ class Localuser{
     }
     async typingStart(typing):Promise<void>{
         if(this.channelfocus.id===typing.d.channel_id){
-            const guild=SnowFlake.getSnowFlakeFromID(typing.d.guild_id,Guild).getObject()
+
+            const guild=this.guildids.get(typing.d.guild_id);
             const memb=await Member.new(typing.d.member,guild);
             if(memb.id===this.user.id){
                 console.log("you is typing")
@@ -878,8 +916,8 @@ class Localuser{
                             ["title","2FA set up"],
                             ["text","Copy this secret into your totp(time-based one time password) app"],
                             ["text",`Your secret is: ${secret} and it's 6 digits, with a 30 second token period`],
-                            ["textbox","Account password:","",function(){password=this.value}],
-                            ["textbox","Code:","",function(){code=this.value}],
+                            ["textbox","Account password:","",function(this:HTMLInputElement){password=this.value}],
+                            ["textbox","Code:","",function(this:HTMLInputElement){code=this.value}],
                             ["button","","Submit",()=>{
                                 fetch(this.info.api+"/users/@me/mfa/totp/enable/",{
                                     method:"POST",

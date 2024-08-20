@@ -14,14 +14,14 @@ class Member{
     nick:string;
     static contextmenu:Contextmenu=new Contextmenu("User Menu");
     static setUpContextMenu(){
-        this.contextmenu.addbutton("Copy user id",function(){
+        this.contextmenu.addbutton("Copy user id",function(this:Member){
             navigator.clipboard.writeText(this.id);
         });
-        this.contextmenu.addbutton("Message user",function(){
+        this.contextmenu.addbutton("Message user",function(this:Member){
             fetch(this.info.api+"/users/@me/channels",
                 {method:"POST",
                     body:JSON.stringify({"recipients":[this.id]}),
-                    headers: this.headers
+                    headers: this.localuser.headers
                 });
         });
     }
