@@ -127,10 +127,8 @@ class Emoji{
         title.textContent=Emoji.emojis[0].name;
         title.classList.add("emojiTitle");
         menu.append(title);
-        console.log("menu :3");
         const selection=document.createElement("div");
         selection.classList.add("flexltr","dontshrink","emojirow");
-        console.log("menu :3");
         const body=document.createElement("div");
         body.classList.add("emojiBody");
 
@@ -221,7 +219,6 @@ class Emoji{
         }
         menu.append(selection);
         menu.append(body);
-        console.log("menu :3");
         return promise;
     }
 }

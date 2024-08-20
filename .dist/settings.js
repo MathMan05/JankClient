@@ -199,7 +199,6 @@ class ButtonInput {
         return div;
     }
     onClickEvent(ev) {
-        console.log("here :3");
         this.onClick();
     }
     watchForChange() { }

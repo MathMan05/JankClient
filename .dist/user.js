@@ -128,7 +128,6 @@ class User {
     }
     resolving = false;
     async getBadge(id) {
-        console.log(id, ":3");
         if (this.localuser.badges.has(id)) {
             return this.localuser.badges.get(id);
         }
@@ -271,7 +270,6 @@ class User {
         const badgediv = document.createElement("div");
         badgediv.classList.add("badges");
         (async () => {
-            console.log(this.badge_ids, ":3");
             if (!this.badge_ids)
                 return;
             for (const id of this.badge_ids) {

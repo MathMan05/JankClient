@@ -265,7 +265,6 @@ class Channel {
         if (!this.hasPermission("VIEW_CHANNEL")) {
             return false;
         }
-        console.log(this.lastmessageid, !!this.lastmessageid, ":3");
         return this.lastmessageid !== this.lastreadmessageid && this.type !== 4 && !!this.lastmessageid;
     }
     hasPermission(name, member = this.guild.member) {
@@ -895,7 +894,6 @@ class Channel {
         return id;
     }
     findClosest(snowflake) {
-        console.log("in here :3");
         if (!this.lastmessage)
             return;
         let flake = this.lastmessage.snowflake;
@@ -903,7 +901,6 @@ class Channel {
             return;
         }
         ;
-        console.log("in here :3");
         const time = snowflake.getUnixTime();
         let flaketime = flake.getUnixTime();
         while (flake && time < flaketime) {
@@ -1018,7 +1015,6 @@ class Channel {
         }
         const messagez = new Message(messagep.d, this);
         this.lastmessage = messagez;
-        console.log(this.lastmessageid, messagez.snowflake, ":3");
         if (this.lastmessageid) {
             this.idToNext.set(this.lastmessageid, messagez.snowflake);
             this.idToPrev.set(messagez.snowflake, this.lastmessageid);

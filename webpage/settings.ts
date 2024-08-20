@@ -202,7 +202,6 @@ class ButtonInput implements OptionsElement{
         return div;
     }
     private onClickEvent(ev:Event){
-        console.log("here :3")
         this.onClick();
     }
     watchForChange(){}

@@ -57,7 +57,6 @@ class Message {
         });
         Message.contextmenu.addsubmenu("Add reaction", function (e) {
             Emoji.emojiPicker(e.x, e.y, this.localuser).then(_ => {
-                console.log(_, ":3");
                 this.reactionToggle(_);
             });
         });
@@ -287,7 +286,6 @@ class Message {
                 author.bind(username);
             });
             reply.onclick = _ => {
-                console.log("this got clicked :3");
                 this.channel.infinite.focus(this.message_reference.message_id);
             };
             div.appendChild(replyline);
@@ -411,7 +409,6 @@ class Message {
         const func = this.channel.infinite.snapBottom();
         reactdiv.innerHTML = "";
         for (const thing of this.reactions) {
-            console.log(thing, ":3");
             const reaction = document.createElement("div");
             reaction.classList.add("reaction");
             if (thing.me) {

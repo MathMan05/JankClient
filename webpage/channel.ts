@@ -272,7 +272,6 @@ class Channel{
     }
     get hasunreads():boolean{
         if(!this.hasPermission("VIEW_CHANNEL")){return false;}
-        console.log(this.lastmessageid,!!this.lastmessageid,":3")
         return this.lastmessageid!==this.lastreadmessageid&&this.type!==4&&!!this.lastmessageid;
     }
     hasPermission(name:string,member=this.guild.member):boolean{
@@ -893,11 +892,9 @@ class Channel{
         return id;
     }
     private findClosest(snowflake:SnowFlake<Message>){
-        console.log("in here :3");
         if(!this.lastmessage) return;
         let flake:SnowFlake<Message>|null|undefined=this.lastmessage.snowflake;
         if(!snowflake){return};
-        console.log("in here :3")
         const time=snowflake.getUnixTime();
         let flaketime=flake.getUnixTime()
         while(flake&&time<flaketime){
@@ -1005,7 +1002,6 @@ class Channel{
         if(!this.hasPermission("VIEW_CHANNEL")){return}
         const messagez=new Message(messagep.d,this);
         this.lastmessage=messagez;
-        console.log(this.lastmessageid,messagez.snowflake,":3");
         if(this.lastmessageid){
             this.idToNext.set(this.lastmessageid,messagez.snowflake);
             this.idToPrev.set(messagez.snowflake,this.lastmessageid);
