@@ -56,7 +56,7 @@ class MarkDown {
                 if (first) {
                     i--;
                 }
-                let element = null;
+                let element;
                 let keepys = "";
                 if (txt[i + 1] === "#") {
                     console.log("test");
@@ -97,17 +97,23 @@ class MarkDown {
                     for (; txt[i] !== "\n" && txt[i] !== undefined; i++) {
                         build.push(txt[i]);
                     }
-                    if (stdsize) {
-                        element = document.createElement("span");
+                    try {
+                        if (stdsize) {
+                            element = document.createElement("span");
+                        }
+                        else
+                            continue;
+                        if (keep) {
+                            element.append(keepys);
+                        }
+                        element.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
+                        span.append(element);
                     }
-                    if (keep) {
-                        element.append(keepys);
+                    finally {
+                        i -= 1;
+                        console.log(txt[i]);
+                        continue;
                     }
-                    element.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
-                    span.append(element);
-                    i -= 1;
-                    console.log(txt[i]);
-                    continue;
                 }
                 if (first) {
                     i++;
@@ -483,18 +489,24 @@ class MarkDown {
             }
         };
         box.onpaste = _ => {
+            if (!_.clipboardData)
+                return;
             console.log(_.clipboardData.types);
             const data = _.clipboardData.getData("text");
             document.execCommand('insertHTML', false, data);
             _.preventDefault();
+            if (!box.onkeyup)
+                return;
             box.onkeyup(new KeyboardEvent("_"));
         };
     }
     boxupdate(box) {
-        var restore = saveCaretPosition(box);
+        const restore = saveCaretPosition(box);
         box.innerHTML = "";
         box.append(this.makeHTML({ keep: true }));
-        restore();
+        if (restore) {
+            restore();
+        }
     }
     static gatherBoxText(element) {
         if (element.tagName.toLowerCase() === "img") {
@@ -521,10 +533,14 @@ class MarkDown {
 //solution from https://stackoverflow.com/questions/4576694/saving-and-restoring-caret-position-for-contenteditable-div
 function saveCaretPosition(context) {
     var selection = window.getSelection();
+    if (!selection)
+        return;
     var range = selection.getRangeAt(0);
     range.setStart(context, 0);
     var len = range.toString().length;
     return function restore() {
+        if (!selection)
+            return;
         var pos = getTextNodeAtPosition(context, len);
         selection.removeAllRanges();
         var range = new Range();
@@ -535,6 +551,8 @@ function saveCaretPosition(context) {
 function getTextNodeAtPosition(root, index) {
     const NODE_TYPE = NodeFilter.SHOW_TEXT;
     var treeWalker = document.createTreeWalker(root, NODE_TYPE, function next(elem) {
+        if (!elem.textContent)
+            return 0;
         if (index > elem.textContent.length) {
             index -= elem.textContent.length;
             return NodeFilter.FILTER_REJECT;

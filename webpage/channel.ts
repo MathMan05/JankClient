@@ -19,7 +19,7 @@ declare global {
     }
 }
 class Channel{
-    editing:Message;
+    editing:Message|null;
     type:number;
     owner:Guild;
     headers:Localuser["headers"];
@@ -46,8 +46,9 @@ class Channel{
     static contextmenu=new Contextmenu("channel menu");
     replyingto:Message|null;
     infinite:InfiniteScroller;
-    idToPrev:Map<SnowFlake<Message>,SnowFlake<Message>|null>=new Map();
-    idToNext:Map<SnowFlake<Message>,SnowFlake<Message>|null>=new Map();
+    idToPrev:Map<SnowFlake<Message>,SnowFlake<Message>>=new Map();
+    idToNext:Map<SnowFlake<Message>,SnowFlake<Message>>=new Map();
+    messages:Map<string,Message>=new Map();
     get id(){
         return this.snowflake.id;
     }
@@ -180,7 +181,7 @@ class Channel{
             }else{
                 if(this.idToNext.has(snowflake)){
                     return this.idToNext.get(snowflake)?.id;
-                }else if(this.lastmessage.id!==id){
+                }else if(this.lastmessage?.id!==id){
                     await this.grabAfter(id);
                     return this.idToNext.get(snowflake)?.id;
                 }else{
@@ -190,21 +191,12 @@ class Channel{
         }.bind(this),
         async function(this:Channel,id:string){
             //await new Promise(_=>{setTimeout(_,Math.random()*10)})
-            const snowflake=SnowFlake.getSnowFlakeFromID(id,Message);
-            if(!snowflake.getObject()){
-                //await this.grabArround(id);
-                console.error("Uh...")
-            }
+            const messgage=this.messages.get(id);
             try{
-                const prev=this.idToPrev.get(snowflake);
-                if(prev){
-                    const messgage=this.messageids.get(prev);
-                    if(messgage){
-                        const html=snowflake.getObject().buildhtml(messgage);
-                        return html;
-                    }
+                if(messgage){
+                    const html=messgage.buildhtml();
+                    return html;
                 }
-
             }catch(e){
                 console.error(e);
             }
@@ -600,13 +592,15 @@ class Channel{
         })
     }
     setReplying(message:Message){
-            if(this.replyingto){
-                this.replyingto.div.classList.remove("replying");
-            }
-            this.replyingto=message;
-            console.log(message);
-            this.replyingto.div.classList.add("replying");
-            this.makereplybox();
+
+        if(this.replyingto?.div){
+            this.replyingto.div.classList.remove("replying");
+        }
+        this.replyingto=message;
+        if(!this.replyingto?.div) return;
+        console.log(message);
+        this.replyingto.div.classList.add("replying");
+        this.makereplybox();
 
     }
     makereplybox(){
@@ -617,7 +611,7 @@ class Channel{
             span.textContent="Replying to "+this.replyingto.author.username;
             const X=document.createElement("button");
             X.onclick=_=>{
-                if(this.replyingto){
+                if(this.replyingto?.div){
                     this.replyingto.div.classList.remove("replying");
                 }
                 replybox.classList.add("hideReplyBox");
@@ -707,7 +701,7 @@ class Channel{
             loading.append(div);
         }
     }
-    lastmessage:Message;
+    lastmessage:Message|undefined;
     async putmessages(){
         if(this.allthewayup){return};
         if(this.lastreadmessageid&&this.lastreadmessageid.getObject()){
@@ -746,8 +740,7 @@ class Channel{
         this.children=build;
     }
     async grabAfter(id:string){
-        console.log(id,this.lastmessage.id)
-        if(id===this.lastmessage.id){
+        if(id===this.lastmessage?.id){
             return;
         }
         await fetch(this.info.api+"/channels/"+this.id+"/messages?limit=100&after="+id,{
@@ -960,7 +953,7 @@ class Channel{
         }
     }
     async sendMessage(content:string,{attachments=[],embeds=[],replyingto=null}:
-    {attachments,embeds,replyingto:Message|null}){
+    {attachments:Blob[],embeds,replyingto:Message|null}){
         let replyjson:any;
         if(replyingto){
             replyjson=
@@ -1012,8 +1005,9 @@ class Channel{
         console.log(this.lastmessageid,messagez.snowflake,":3");
         if(this.lastmessageid){
             this.idToNext.set(this.lastmessageid,messagez.snowflake);
+            this.idToPrev.set(messagez.snowflake,this.lastmessageid);
         }
-        this.idToPrev.set(messagez.snowflake,this.lastmessageid);
+
         this.lastmessageid=messagez.snowflake;
         this.messageids.set(messagez.snowflake,messagez);
 
@@ -1063,7 +1057,9 @@ class Channel{
             const images=message.getimages();
             if(images.length){
                 const image = images[0];
-                imgurl||=image.proxy_url;
+                if(image.proxy_url){
+                    imgurl||=image.proxy_url;
+                }
                 imgurl||=image.url;
             }
             const notification = new Notification(this.notititle(message),{

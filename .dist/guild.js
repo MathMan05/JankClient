@@ -97,10 +97,21 @@ class Guild {
             this.roleids.set(roleh.snowflake, roleh);
         }
         if (member instanceof User) {
-            Member.resolveMember(member, this).then(_ => this.member = _);
+            Member.resolveMember(member, this).then(_ => {
+                if (_) {
+                    this.member = _;
+                }
+                else {
+                    console.error("Member was unable to resolve");
+                }
+            });
         }
         else {
-            Member.new(member, this).then(_ => this.member = _);
+            Member.new(member, this).then(_ => {
+                if (_) {
+                    this.member = _;
+                }
+            });
         }
         for (const thing of json.channels) {
             const temp = new Channel(thing, this);
@@ -199,11 +210,10 @@ class Guild {
             if (thing.move_id && thing.move_id !== thing.parent_id) {
                 thing.parent_id = thing.move_id;
                 thisthing.parent_id = thing.parent_id;
-                thing.move_id = undefined;
+                thing.move_id = null;
             }
             if (thisthing.position || thisthing.parent_id) {
                 build.push(thisthing);
-                console.log(this.channelids[thisthing.parent_id]);
             }
             if (thing.children.length > 0) {
                 const things = thing.calculateReorder();
@@ -369,6 +379,8 @@ class Guild {
             if (thing.hasunreads) {
                 build.read_states.push({ channel_id: thing.snowflake, message_id: thing.lastmessageid, read_state_type: 0 });
                 thing.lastreadmessageid = thing.lastmessageid;
+                if (!thing.myhtml)
+                    continue;
                 thing.myhtml.classList.remove("cunread");
             }
         }

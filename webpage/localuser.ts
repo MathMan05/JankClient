@@ -365,7 +365,7 @@ class Localuser{
                         const guild=SnowFlake.getSnowFlakeFromID(temp.d.guild_id,Guild).getObject();
                         let thing:Member|{id:string};
                         if(temp.d.member){
-                            thing=await Member.new(temp.d.member,guild);
+                            thing=await Member.new(temp.d.member,guild) as Member;
                         }else{
                             thing={id:temp.d.user_id}
                         }
@@ -701,6 +701,7 @@ class Localuser{
             const guild=this.guildids.get(typing.d.guild_id);
             if(!guild) return;
             const memb=await Member.new(typing.d.member,guild);
+            if(!memb) return;
             if(memb.id===this.user.id){
                 console.log("you is typing")
                 return;
@@ -844,7 +845,7 @@ class Localuser{
             });
             const bclear=settingsLeft.addButtonInput("Clear banner","Clear",()=>{
                 bfile=null;
-                hypouser.banner = null;
+                hypouser.banner = undefined;
                 settingsLeft.changed();
                 regen();
             })

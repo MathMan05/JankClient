@@ -47,16 +47,17 @@ function showAccountSwitcher(){
         userinfo.addEventListener("click",_=>{
             thisuser.unload();
             thisuser.swapped=true;
-            document.getElementById("loading").classList.remove("doneloading");
-            document.getElementById("loading").classList.add("loading");
+            const loading=document.getElementById("loading") as HTMLDivElement;
+            loading.classList.remove("doneloading");
+            loading.classList.add("loading");
             thisuser=new Localuser(specialuser);
             users["currentuser"]=specialuser.uid;
             localStorage.setItem("userinfos",JSON.stringify(users));
             thisuser.initwebsocket().then(_=>{
                 thisuser.loaduser();
                 thisuser.init();
-                document.getElementById("loading").classList.add("doneloading");
-                document.getElementById("loading").classList.remove("loading");
+                loading.classList.add("doneloading");
+                loading.classList.remove("loading");
                 console.log("done loading")
 
             });
@@ -81,12 +82,12 @@ function showAccountSwitcher(){
     document.body.append(table);
 }
 {
-    const userinfo=document.getElementById("userinfo");
+    const userinfo=document.getElementById("userinfo") as HTMLDivElement;
     userinfo.addEventListener("click",_=>{
         _.stopImmediatePropagation();
         showAccountSwitcher();
     })
-    const switchaccounts=document.getElementById("switchaccounts");
+    const switchaccounts=document.getElementById("switchaccounts") as HTMLDivElement;
     switchaccounts.addEventListener("click",_=>{
         _.stopImmediatePropagation();
         showAccountSwitcher();
@@ -100,13 +101,14 @@ try{
     thisuser.initwebsocket().then(_=>{
         thisuser.loaduser();
         thisuser.init();
-        document.getElementById("loading").classList.add("doneloading");
-        document.getElementById("loading").classList.remove("loading");
+        const loading=document.getElementById("loading") as HTMLDivElement;
+        loading.classList.add("doneloading");
+        loading.classList.remove("loading");
         console.log("done loading")
     });
 }catch(e){
     console.error(e);
-    document.getElementById("load-desc").textContent="Account unable to start";
+    (document.getElementById("load-desc") as HTMLSpanElement).textContent="Account unable to start";
     thisuser=new Localuser(-1);
 }
 
@@ -114,19 +116,24 @@ try{
 {
     const menu=new Contextmenu("create rightclick");
     menu.addbutton("Create channel",function(){
-        thisuser.lookingguild.createchannels();
+        if(thisuser.lookingguild){
+            thisuser.lookingguild.createchannels();
+        }
     },null,_=>{return thisuser.isAdmin()})
 
     menu.addbutton("Create category",function(){
-         thisuser.lookingguild.createcategory();
+        if(thisuser.lookingguild){
+            thisuser.lookingguild.createcategory();
+        }
     },null,_=>{return thisuser.isAdmin()})
-    menu.bind(document.getElementById("channels"))
+    menu.bind(document.getElementById("channels") as HTMLDivElement)
 }
 
-const pasteimage=document.getElementById("pasteimage");
-let replyingto=null;
+const pasteimage=document.getElementById("pasteimage") as HTMLDivElement;
+let replyingto:Message|null=null;
 async function enter(event){
     const channel=thisuser.channelfocus
+    if(!channel||!thisuser.channelfocus) return;
     channel.typingstart();
     if(event.key === "Enter"&&!event.shiftKey){
         event.preventDefault();
@@ -136,19 +143,20 @@ async function enter(event){
         }else{
             replyingto= thisuser.channelfocus.replyingto;
             let replying=replyingto;
-            if(replyingto){
+            if(replyingto?.div){
                 replyingto.div.classList.remove("replying");
             }
             thisuser.channelfocus.replyingto=null;
             channel.sendMessage(markdown.rawString,{
                 attachments:images,
-                replyingto:replying,
+                embeds:[],
+                replyingto:replying
             })
             thisuser.channelfocus.makereplybox();
         }
         while(images.length!=0){
             images.pop();
-            pasteimage.removeChild(imageshtml.pop());
+            pasteimage.removeChild(imageshtml.pop() as HTMLElement);
         }
         typebox.innerHTML="";
         return;
@@ -175,11 +183,13 @@ function getguildinfo(){
 */
 
 const images:Blob[]=[];
-const imageshtml=[];
+const imageshtml:HTMLElement[]=[];
 
 import { File } from "./file.js";
 import { MarkDown } from "./markdown.js";
+import { Message } from "./message.js";
 document.addEventListener('paste', async (e) => {
+    if(!e.clipboardData) return;
     Array.from(e.clipboardData.files).forEach(async (f) => {
         const file=File.initFromBlob(f);
         e.preventDefault();
@@ -195,19 +205,19 @@ setTheme();
 function userSettings(){
     thisuser.showusersettings();
 }
-document.getElementById("settings").onclick=userSettings;
+(document.getElementById("settings") as HTMLImageElement).onclick=userSettings;
 
 if(mobile){
-    document.getElementById("channelw").onclick=function(){
-        (document.getElementById("channels").parentNode as HTMLElement).classList.add("collapse");
-        document.getElementById("servertd").classList.add("collapse");
-        document.getElementById("servers").classList.add("collapse");
+    (document.getElementById("channelw") as HTMLDivElement).onclick=()=>{
+        ((document.getElementById("channels") as HTMLDivElement).parentNode as HTMLElement).classList.add("collapse");
+        (document.getElementById("servertd") as HTMLDivElement).classList.add("collapse");
+        (document.getElementById("servers")  as HTMLDivElement).classList.add("collapse");
     }
-    document.getElementById("mobileback").textContent="#";
-    document.getElementById("mobileback").onclick=function(){
-        (document.getElementById("channels").parentNode as HTMLElement).classList.remove("collapse");
-        document.getElementById("servertd").classList.remove("collapse");
-        document.getElementById("servers").classList.remove("collapse");
+    (document.getElementById("mobileback") as HTMLDivElement).textContent="#";
+    (document.getElementById("mobileback") as HTMLDivElement).onclick=()=>{
+        ((document.getElementById("channels") as HTMLDivElement).parentNode as HTMLElement).classList.remove("collapse");
+        (document.getElementById("servertd") as HTMLDivElement).classList.remove("collapse");
+        (document.getElementById("servers") as HTMLDivElement).classList.remove("collapse");
     }
 }
 

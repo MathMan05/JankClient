@@ -35,12 +35,6 @@ class Direct extends Guild {
         this.calculateReorder();
         this.printServers();
     }
-    sortchannels() {
-        this.headchannels.sort((a, b) => {
-            const result = (a.lastmessageid.getUnixTime() - b.lastmessageid.getUnixTime());
-            return Number(-result);
-        });
-    }
     giveMember(_member) {
         console.error("not a real guild, can't give member object");
     }
@@ -105,7 +99,10 @@ class Group extends Channel {
         this.lastmessageid ??= null;
         this.mentions = 0;
         this.setUpInfiniteScroller();
-        this.position = Math.max(this.lastmessageid.getUnixTime(), this.snowflake.getUnixTime());
+        if (this.lastmessageid) {
+            this.position = this.lastmessageid.getUnixTime();
+        }
+        this.position = -Math.max(this.position, this.snowflake.getUnixTime());
     }
     createguildHTML() {
         const div = document.createElement("div");
@@ -134,14 +131,16 @@ class Group extends Channel {
             return;
         }
         this.buildmessages();
-        history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.snowflake);
+        history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id);
         document.getElementById("channelname").textContent = "@" + this.name;
         document.getElementById("channelTopic").setAttribute("hidden", "");
         document.getElementById("typebox").contentEditable = "" + true;
     }
     messageCreate(messagep) {
         const messagez = new Message(messagep.d, this);
-        this.idToNext.set(this.lastmessageid, messagez.snowflake);
+        if (this.lastmessageid) {
+            this.idToNext.set(this.lastmessageid, messagez.snowflake);
+        }
         this.idToPrev.set(messagez.snowflake, this.lastmessageid);
         this.lastmessageid = messagez.snowflake;
         this.messageids.set(messagez.snowflake, messagez);
@@ -161,7 +160,7 @@ class Group extends Channel {
         if (messagez.author === this.localuser.user) {
             return;
         }
-        if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) {
+        if (this.localuser.lookingguild?.prevchannel === this && document.hasFocus()) {
             return;
         }
         if (this.notification === "all") {
@@ -175,7 +174,7 @@ class Group extends Channel {
         return message.author.username;
     }
     unreads() {
-        const sentdms = document.getElementById("sentdms");
+        const sentdms = document.getElementById("sentdms"); //Need to change sometime
         let current = null;
         for (const thing of sentdms.children) {
             if (thing["all"] === this) {
@@ -184,7 +183,7 @@ class Group extends Channel {
         }
         if (this.hasunreads) {
             if (current) {
-                current.noti.textContent = this.mentions;
+                current["noti"].textContent = this.mentions;
                 return;
             }
             const div = document.createElement("div");

@@ -38,7 +38,7 @@ class Role{
     get localuser():Localuser{
         return this.guild.localuser;
     }
-    getColor():string{
+    getColor():string|null{
         if(this.color===0){return null};
         return `#${this.color.toString(16)}`;
     }

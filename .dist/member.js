@@ -25,8 +25,11 @@ class Member {
         if (User.userids[memberjson.id]) {
             this.user = User.userids[memberjson.id];
         }
-        else {
+        else if (memberjson.user) {
             this.user = new User(memberjson.user, owner.localuser);
+        }
+        else {
+            throw new Error("Missing user object of this member");
         }
         this.owner = owner;
         for (const thing of Object.keys(memberjson)) {
@@ -64,8 +67,11 @@ class Member {
         if (User.userids[memberjson.id]) {
             user = User.userids[memberjson.id];
         }
-        else {
+        else if (memberjson.user) {
             user = new User(memberjson.user, owner.localuser);
+        }
+        else {
+            throw new Error("missing user object of this member");
         }
         if (user.members.has(owner)) {
             let memb = user.members.get(owner);
@@ -91,22 +97,22 @@ class Member {
         const maybe = user.members.get(guild);
         if (!user.members.has(guild)) {
             const membpromise = guild.localuser.resolvemember(user.id, guild.id);
-            let res;
-            const promise = new Promise(r => { res = r; });
+            const promise = new Promise(async (res) => {
+                const membjson = await membpromise;
+                if (membjson === undefined) {
+                    res(undefined);
+                    return undefined;
+                }
+                else {
+                    const member = new Member(membjson, guild);
+                    const map = guild.localuser.presences;
+                    member.getPresence(map.get(member.id));
+                    map.delete(member.id);
+                    res(member);
+                    return member;
+                }
+            });
             user.members.set(guild, promise);
-            const membjson = await membpromise;
-            if (membjson === undefined) {
-                res(undefined);
-                return undefined;
-            }
-            else {
-                const member = new Member(membjson, guild);
-                const map = guild.localuser.presences;
-                member.getPresence(map.get(member.id));
-                map.delete(member.id);
-                res(member);
-                return member;
-            }
         }
         if (maybe instanceof Promise) {
             return await maybe;

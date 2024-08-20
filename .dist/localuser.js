@@ -691,6 +691,8 @@ class Localuser {
             if (!guild)
                 return;
             const memb = await Member.new(typing.d.member, guild);
+            if (!memb)
+                return;
             if (memb.id === this.user.id) {
                 console.log("you is typing");
                 return;
@@ -834,7 +836,7 @@ class Localuser {
             });
             const bclear = settingsLeft.addButtonInput("Clear banner", "Clear", () => {
                 bfile = null;
-                hypouser.banner = null;
+                hypouser.banner = undefined;
                 settingsLeft.changed();
                 regen();
             });

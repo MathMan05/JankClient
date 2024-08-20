@@ -50,6 +50,8 @@ class InfiniteScroller {
     scrollTop;
     needsupdate = true;
     async updatestuff() {
+        if (!this.scroll)
+            return;
         this.timeout = null;
         this.scrollBottom = this.scroll.scrollHeight - this.scroll.scrollTop - this.scroll.clientHeight;
         this.scrollTop = this.scroll.scrollTop;
@@ -65,6 +67,8 @@ class InfiniteScroller {
         //this.watchForChange();
     }
     async firstElement(id) {
+        if (!this.scroll)
+            return;
         const html = await this.getHTMLFromID(id);
         this.scroll.appendChild(html);
         this.HTMLElements.push([html, id]);
@@ -85,14 +89,20 @@ class InfiniteScroller {
         };
     }
     async watchForTop() {
+        if (!this.scroll)
+            return false;
         let again = false;
         if (this.scrollTop === 0) {
             this.scrollTop = 1;
             this.scroll.scrollTop = 1;
         }
         if (this.scrollTop < this.minDist) {
-            const previd = this.HTMLElements.at(0)[1];
-            const nextid = await this.getIDFromOffset(previd, 1);
+            let nextid;
+            const firstelm = this.HTMLElements.at(0);
+            if (firstelm) {
+                const previd = firstelm[1];
+                nextid = await this.getIDFromOffset(previd, 1);
+            }
             if (!nextid) {
             }
             else {
@@ -110,10 +120,12 @@ class InfiniteScroller {
             ;
         }
         if (this.scrollTop > this.maxDist) {
-            again = true;
             const html = this.HTMLElements.shift();
-            await this.destroyFromID(html[1]);
-            this.scrollTop -= 60;
+            if (html) {
+                again = true;
+                await this.destroyFromID(html[1]);
+                this.scrollTop -= 60;
+            }
         }
         if (again) {
             await this.watchForTop();
@@ -121,11 +133,17 @@ class InfiniteScroller {
         return again;
     }
     async watchForBottom() {
+        if (!this.scroll)
+            return false;
         let again = false;
         const scrollBottom = this.scrollBottom;
         if (scrollBottom < this.minDist) {
-            const previd = this.HTMLElements.at(-1)[1];
-            const nextid = await this.getIDFromOffset(previd, -1);
+            let nextid;
+            const lastelm = this.HTMLElements.at(-1);
+            if (lastelm) {
+                const previd = lastelm[1];
+                nextid = await this.getIDFromOffset(previd, -1);
+            }
             if (!nextid) {
             }
             else {
@@ -141,10 +159,12 @@ class InfiniteScroller {
             ;
         }
         if (scrollBottom > this.maxDist) {
-            again = true;
             const html = this.HTMLElements.pop();
-            await this.destroyFromID(html[1]);
-            this.scrollBottom -= 60;
+            if (html) {
+                await this.destroyFromID(html[1]);
+                this.scrollBottom -= 60;
+                again = true;
+            }
         }
         if (again) {
             await this.watchForBottom();
@@ -154,14 +174,14 @@ class InfiniteScroller {
     async watchForChange() {
         try {
             if (this.currrunning) {
-                return;
+                return false;
             }
             else {
                 this.currrunning = true;
             }
             if (!this.div) {
                 this.currrunning = false;
-                return;
+                return false;
             }
             const out = await Promise.allSettled([this.watchForTop(), this.watchForBottom()]);
             const changed = (out[0].value || out[1].value);
@@ -177,6 +197,7 @@ class InfiniteScroller {
         catch (e) {
             console.error(e);
         }
+        return false;
     }
     async focus(id, flash = true) {
         let element;
@@ -217,7 +238,9 @@ class InfiniteScroller {
             await this.destroyFromID(thing[1]);
         }
         this.HTMLElements = [];
-        clearTimeout(this.timeout);
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+        }
         if (this.div) {
             this.div.remove();
         }

@@ -33,7 +33,7 @@ class SnowFlake {
     }
     /**
      *  Just to clarify bc TS, it returns a SnowFlake\<type> which is what you entered with the type parameter
-     *
+     *  @deprecated
      **/
     static getSnowFlakeFromID(id, type) {
         if (!SnowFlake.SnowFlakes.get(type)) {
@@ -56,6 +56,11 @@ class SnowFlake {
             return snowflake;
         }
     }
+    /**
+     * @deprecated
+     *
+     *
+     */
     static hasSnowFlakeFromID(id, type) {
         if (!SnowFlake.SnowFlakes.get(type)) {
             return false;

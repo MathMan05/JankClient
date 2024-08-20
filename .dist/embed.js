@@ -65,13 +65,15 @@ class Embed {
             authorline.append(a);
             embed.append(authorline);
         }
-        const title = document.createElement("a");
-        title.append(new MarkDown(this.json.title, this.channel).makeHTML());
-        if (this.json.url) {
-            title.href = this.json.url;
+        if (this.json.title) {
+            const title = document.createElement("a");
+            title.append(new MarkDown(this.json.title, this.channel).makeHTML());
+            if (this.json.url) {
+                title.href = this.json.url;
+            }
+            title.classList.add("embedtitle");
+            embed.append(title);
         }
-        title.classList.add("embedtitle");
-        embed.append(title);
         if (this.json.description) {
             const p = document.createElement("p");
             p.append(new MarkDown(this.json.description, this.channel).makeHTML());
@@ -150,7 +152,7 @@ class Embed {
         table.classList.add("embed", "linkembed");
         const trtop = document.createElement("tr");
         table.append(trtop);
-        {
+        if (this.json.url && this.json.title) {
             const td = document.createElement("td");
             const a = document.createElement("a");
             a.href = this.json.url;
@@ -174,9 +176,11 @@ class Embed {
         }
         const bottomtr = document.createElement("tr");
         const td = document.createElement("td");
-        const span = document.createElement("span");
-        span.textContent = this.json.description;
-        td.append(span);
+        if (this.json.description) {
+            const span = document.createElement("span");
+            span.textContent = this.json.description;
+            td.append(span);
+        }
         bottomtr.append(td);
         table.append(bottomtr);
         return table;
@@ -194,12 +198,16 @@ class Embed {
             div.append(provider);
         }
         const a = document.createElement("a");
-        a.href = this.json.url;
-        a.textContent = this.json.title;
-        div.append(a);
-        const description = document.createElement("p");
-        description.textContent = this.json.description;
-        div.append(description);
+        if (this.json.url && this.json.url) {
+            a.href = this.json.url;
+            a.textContent = this.json.url;
+            div.append(a);
+        }
+        if (this.json.description) {
+            const description = document.createElement("p");
+            description.textContent = this.json.description;
+            div.append(description);
+        }
         if (this.json.thumbnail) {
             const img = document.createElement("img");
             img.classList.add("bigembedimg");
