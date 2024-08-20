@@ -20,7 +20,7 @@ class User{
     bot:boolean;
     public_flags: number;
     accent_color: number;
-    banner: string;
+    banner: string|null|undefined;
     hypotheticalbanner:boolean;
     premium_since: string;
     premium_type: number;

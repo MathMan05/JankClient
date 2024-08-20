@@ -198,7 +198,7 @@ class Message{
         }
     }
     getimages(){
-        const build=[];
+        const build:File[]=[];
         for(const thing of this.attachments){
             if(thing.content_type.startsWith('image/')){
                 build.push(thing);

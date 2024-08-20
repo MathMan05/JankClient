@@ -15,7 +15,7 @@ import { MarkDown } from "./markdown.js";
 
 declare global {
     interface NotificationOptions {
-        image?: string
+        image?: string|null|undefined
     }
 }
 class Channel{
@@ -25,8 +25,8 @@ class Channel{
     headers:Localuser["headers"];
     name:string;
     snowflake:SnowFlake<Channel>;
-    parent_id:SnowFlake<Channel>;
-    parent:Channel;
+    parent_id:SnowFlake<Channel>|null;
+    parent:Channel|null;
     children:Channel[];
     guild_id:string;
     messageids:Map<SnowFlake<Message>,Message>;
@@ -35,19 +35,19 @@ class Channel{
     topic:string;
     nsfw:boolean;
     position:number;
-    lastreadmessageid:SnowFlake<Message>;
-    lastmessageid:SnowFlake<Message>;
+    lastreadmessageid:SnowFlake<Message>|null;
+    lastmessageid:SnowFlake<Message>|null;
     mentions:number;
     lastpin:string;
-    move_id:SnowFlake<Channel>;
+    move_id:SnowFlake<Channel>|null;
     typing:number;
     message_notifications:number;
     allthewayup:boolean;
     static contextmenu=new Contextmenu("channel menu");
-    replyingto:Message;
+    replyingto:Message|null;
     infinite:InfiniteScroller;
-    idToPrev:Map<SnowFlake<Message>,SnowFlake<Message>>=new Map();
-    idToNext:Map<SnowFlake<Message>,SnowFlake<Message>>=new Map();
+    idToPrev:Map<SnowFlake<Message>,SnowFlake<Message>|null>=new Map();
+    idToNext:Map<SnowFlake<Message>,SnowFlake<Message>|null>=new Map();
     get id(){
         return this.snowflake.id;
     }
@@ -113,7 +113,9 @@ class Channel{
         copy.classList.add("copybutton","svgtheme");
         copycontainer.append(copy);
         copycontainer.onclick=_=>{
-            navigator.clipboard.writeText(text.textContent);
+            if(text.textContent){
+                navigator.clipboard.writeText(text.textContent);
+            }
         }
         div.append(copycontainer);
         const update=()=>{
@@ -166,7 +168,7 @@ class Channel{
         })
     }
     setUpInfiniteScroller(){
-        this.infinite=new InfiniteScroller(async function(this:Channel,id:string,offset:number):Promise<string>{
+        this.infinite=new InfiniteScroller(async function(this:Channel,id:string,offset:number):Promise<string|undefined>{
             const snowflake=SnowFlake.getSnowFlakeFromID(id,Message) as SnowFlake<Message>;
             if(offset===1){
                 if(this.idToPrev.has(snowflake)){
@@ -194,8 +196,15 @@ class Channel{
                 console.error("Uh...")
             }
             try{
-                const html=snowflake.getObject().buildhtml(this.messageids.get(this.idToPrev.get(snowflake)));
-                return html;
+                const prev=this.idToPrev.get(snowflake);
+                if(prev){
+                    const messgage=this.messageids.get(prev);
+                    if(messgage){
+                        const html=snowflake.getObject().buildhtml(messgage);
+                        return html;
+                    }
+                }
+
             }catch(e){
                 console.error(e);
             }
@@ -222,7 +231,9 @@ class Channel{
         this.headers=this.owner.headers;
         this.name=json.name;
         this.snowflake=new SnowFlake(json.id,this);
-        this.parent_id=new SnowFlake(json.parent_id,undefined);
+        if(json.parent_id){
+            this.parent_id=SnowFlake.getSnowFlakeFromID(json.parent_id,Channel);
+        }
         this.parent=null;
         this.children=[];
         this.guild_id=json.guild_id;
@@ -232,7 +243,10 @@ class Channel{
         for(const thing of json.permission_overwrites){
             if(thing.id==="1182819038095799904"||thing.id==="1182820803700625444"){continue;};
             this.permission_overwrites.set(thing.id,new Permissions(thing.allow,thing.deny));
-            this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id,Role),this.permission_overwrites.get(thing.id)]);
+            const permission=this.permission_overwrites.get(thing.id);
+            if(permission){
+                this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id,Role),permission]);
+            }
         }
 
         this.topic=json.topic;
@@ -262,15 +276,16 @@ class Channel{
     }
     get hasunreads():boolean{
         if(!this.hasPermission("VIEW_CHANNEL")){return false;}
-        return this.lastmessageid!==this.lastreadmessageid&&this.type!==4&&!!this.lastmessageid.id;
+        return this.lastmessageid!==this.lastreadmessageid&&this.type!==4&&!!this.lastmessageid;
     }
     hasPermission(name:string,member=this.guild.member):boolean{
         if(member.isAdmin()){
             return true;
         }
         for(const thing of member.roles){
-            if(this.permission_overwrites.get(thing.id)){
-                let perm=this.permission_overwrites.get(thing.id).getPermission(name);
+            const premission=this.permission_overwrites.get(thing.id);
+            if(premission){
+                let perm=premission.getPermission(name);
                 if(perm){
                     return perm===1;
                 }
@@ -283,7 +298,10 @@ class Channel{
     }
     get canMessage():boolean{
         if((0===this.permission_overwritesar.length)&&this.hasPermission("MANAGE_CHANNELS")){
-            this.addRoleToPerms(this.guild.roles.find(_=>_.name==="@everyone"));
+            const role=this.guild.roles.find(_=>_.name==="@everyone");
+            if(role){
+                this.addRoleToPerms(role);
+            }
         }
         return this.hasPermission("SEND_MESSAGES");
     }
@@ -291,18 +309,20 @@ class Channel{
        this.children.sort((a,b)=>{return a.position-b.position});
     }
     resolveparent(guild:Guild){
-        this.parent=guild.channelids[this.parent_id?.id];
+        const parentid=this.parent_id?.id;
+        if(!parentid) return false;
+        this.parent=guild.channelids[parentid];
         this.parent??=null;
         if(this.parent!==null){
             this.parent.children.push(this);
         }
-        return this.parent===null;
+        return this.parent!==null;
     }
     calculateReorder(){
         let position=-1;
-        let build=[];
+        let build:{id:SnowFlake<Channel>,position:number|undefined,parent_id:SnowFlake<Channel>|undefined}[]=[];
         for(const thing of this.children){
-            const thisthing={id:thing.snowflake,position:undefined,parent_id:undefined};
+            const thisthing:{id:SnowFlake<Channel>,position:number|undefined,parent_id:SnowFlake<Channel>|undefined}={id:thing.snowflake,position:undefined,parent_id:undefined};
             if(thing.position<position){
                 thing.position=thisthing.position=position+1;
             }
@@ -310,8 +330,8 @@ class Channel{
             if(thing.move_id&&thing.move_id!==thing.parent_id){
                 thing.parent_id=thing.move_id;
                 thisthing.parent_id=thing.parent_id;
-                thing.move_id=undefined;
-                console.log(this.guild.channelids[thisthing.parent_id]);
+                thing.move_id=null;
+                console.log(this.guild.channelids[thisthing.parent_id.id]);
             }
             if(thisthing.position||thisthing.parent_id){
                 build.push(thisthing);
@@ -319,7 +339,7 @@ class Channel{
         }
         return build;
     }
-    static dragged=[];
+    static dragged:[Channel,HTMLDivElement]|[]=[];
     createguildHTML(admin=false):HTMLDivElement{
         const div=document.createElement("div");
         if(!this.hasPermission("VIEW_CHANNEL")){
@@ -424,7 +444,7 @@ class Channel{
         return div;
     }
     get myhtml(){
-        const search=document.getElementById("channels").children[0].children
+        const search=(document.getElementById("channels") as HTMLDivElement).children[0].children
         if(this.guild!==this.localuser.lookingguild){
             return null
         }else if(this.parent){
@@ -473,6 +493,7 @@ class Channel{
 
         div.addEventListener("drop", (event) => {
             const that=Channel.dragged[0];
+            if(!that) return;
             event.preventDefault();
             if(container){
                 that.move_id=this.snowflake;
@@ -480,7 +501,7 @@ class Channel{
                     that.parent.children.splice(that.parent.children.indexOf(that),1);
                 }
                 that.parent=this;
-                (container as HTMLElement).prepend(Channel.dragged[1]);
+                (container as HTMLElement).prepend(Channel.dragged[1] as HTMLDivElement);
                 this.children.unshift(that);
             }else{
                 console.log(this,Channel.dragged);
@@ -492,7 +513,7 @@ class Channel{
                 }
                 that.parent=this.parent;
                 if(that.parent){
-                    const build=[];
+                    const build:Channel[]=[];
                     for(let i=0;i<that.parent.children.length;i++){
                         build.push(that.parent.children[i])
                         if(that.parent.children[i]===this){
@@ -501,7 +522,7 @@ class Channel{
                     }
                     that.parent.children=build;
                 }else{
-                    const build=[];
+                    const build:Channel[]=[];
                     for(let i=0;i<this.guild.headchannels.length;i++){
                         build.push(this.guild.headchannels[i])
                         if(this.guild.headchannels[i]===this){
@@ -510,7 +531,9 @@ class Channel{
                     }
                     this.guild.headchannels=build;
                 }
-                div.after(Channel.dragged[1]);
+                if(Channel.dragged[1]){
+                    div.after(Channel.dragged[1]);
+                }
             }
             this.guild.calculateReorder()
         });
@@ -582,14 +605,16 @@ class Channel{
 
     }
     makereplybox(){
-        const replybox=document.getElementById("replybox");
+        const replybox=document.getElementById("replybox") as HTMLElement;
         if(this.replyingto){
             replybox.innerHTML="";
             const span=document.createElement("span");
             span.textContent="Replying to "+this.replyingto.author.username;
             const X=document.createElement("button");
             X.onclick=_=>{
-                this.replyingto.div.classList.remove("replying");
+                if(this.replyingto){
+                    this.replyingto.div.classList.remove("replying");
+                }
                 replybox.classList.add("hideReplyBox");
                 this.replyingto=null;
                 replybox.innerHTML="";
@@ -625,20 +650,21 @@ class Channel{
         if(this.localuser.channelfocus&&this.localuser.channelfocus.myhtml){
             this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
         }
-        this.myhtml.classList.add("viewChannel")
-
+        if(this.myhtml){
+            this.myhtml.classList.add("viewChannel")
+        }
         this.guild.prevchannel=this;
         this.localuser.channelfocus=this;
         const prom=this.infinite.delete();
-        history.pushState(null, null,"/channels/"+this.guild_id+"/"+this.snowflake);
+        history.pushState(null, "","/channels/"+this.guild_id+"/"+this.snowflake);
 
-        document.getElementById("channelname").textContent="#"+this.name;
+        (document.getElementById("channelname") as HTMLSpanElement).textContent="#"+this.name;
         if (this.topic) {
             document.getElementById("channelTopic").innerHTML=new MarkDown(this.topic, this).makeHTML().innerHTML;
             document.getElementById("channelTopic").removeAttribute("hidden");
         } else document.getElementById("channelTopic").setAttribute("hidden","");
 
-        const loading=document.getElementById("loadingdiv");
+        const loading=document.getElementById("loadingdiv") as HTMLDivElement;
         Channel.regenLoadingMessages();
         loading.classList.add("loading");
         await this.putmessages();
@@ -651,10 +677,10 @@ class Channel{
         await this.buildmessages();
         //loading.classList.remove("loading");
         console.log(this);
-        document.getElementById("typebox").contentEditable=""+this.canMessage;
+        (document.getElementById("typebox") as HTMLDivElement).contentEditable=""+this.canMessage;
     }
     static regenLoadingMessages(){
-        const loading=document.getElementById("loadingdiv");
+        const loading=document.getElementById("loadingdiv") as HTMLDivElement;
         loading.innerHTML="";
         for(let i=0;i<15;i++){
             const div=document.createElement("div");
@@ -689,7 +715,7 @@ class Channel{
         if(response.length!==100){
             this.allthewayup=true;
         }
-        let prev:Message=undefined;
+        let prev:Message|undefined=undefined;
         for(const thing of response){
             const message=new Message(thing,this);
             if(prev){
@@ -705,7 +731,7 @@ class Channel{
         }
     }
     delChannel(json:channeljson){
-        const build=[];
+        const build:Channel[]=[];
         for(const thing of this.children){
             if(thing.id!==json.id){
                 build.push(thing)
@@ -795,7 +821,9 @@ class Channel{
     }
     buildmessage(message:Message,next:Message){
         const built=message.buildhtml(next);
-        document.getElementById("messages").prepend(built);
+        if(built){
+            (document.getElementById("messages") as HTMLDivElement).prepend(built);
+        }
     }
     async buildmessages(){
         /*
@@ -810,17 +838,17 @@ class Channel{
     private async tryfocusinfinate(){
         if(this.infinitefocus) return;
         this.infinitefocus=true;
-        const messages=document.getElementById("channelw");
+        const messages=document.getElementById("channelw") as HTMLDivElement;
         for(const thing of messages.getElementsByClassName("messagecontainer")){
             thing.remove();
         }
-        const loading=document.getElementById("loadingdiv");
+        const loading=document.getElementById("loadingdiv") as HTMLDivElement;
         const removetitle=document.getElementById("removetitle");
         //messages.innerHTML="";
-        let id:SnowFlake<Message>;
+        let id:SnowFlake<Message>|undefined;
         if(this.lastreadmessageid&&this.lastreadmessageid.getObject()){
             id=this.lastreadmessageid;
-        }else if(id=this.findClosest(this.lastreadmessageid)){
+        }else if(this.lastreadmessageid&&(id=this.findClosest(this.lastreadmessageid))){
 
         }else if(this.lastmessage&&this.lastmessage.snowflake){
             id=this.goBackIds(this.lastmessage.snowflake,50);
@@ -849,7 +877,7 @@ class Channel{
         //this.infinite.focus(id.id,false);
 
     }
-    private goBackIds(id:SnowFlake<Message>,back:number,returnifnotexistant=true):SnowFlake<Message>{
+    private goBackIds(id:SnowFlake<Message>,back:number,returnifnotexistant=true):SnowFlake<Message>|undefined{
         while(back!==0){
             const nextid=this.idToPrev.get(id);
             if(nextid){
@@ -867,7 +895,7 @@ class Channel{
     }
     private findClosest(snowflake:SnowFlake<Message>){
         if(!this.lastmessage) return;
-        let flake=this.lastmessage.snowflake;
+        let flake:SnowFlake<Message>|null|undefined=this.lastmessage.snowflake;
         if(!snowflake){return};
         const time=snowflake.getUnixTime();
         let flaketime=flake.getUnixTime()
@@ -883,7 +911,7 @@ class Channel{
     updateChannel(json:channeljson){
         this.type=json.type;
         this.name=json.name;
-        this.parent_id=new SnowFlake(json.parent_id,undefined);
+        this.parent_id=SnowFlake.getSnowFlakeFromID(json.parent_id,Channel);
         this.parent=null;
         this.children=[];
         this.guild_id=json.guild_id;
@@ -892,7 +920,10 @@ class Channel{
         for(const thing of json.permission_overwrites){
             if(thing.id==="1182819038095799904"||thing.id==="1182820803700625444"){continue;};
             this.permission_overwrites.set(thing.id,new Permissions(thing.allow,thing.deny));
-            this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id,Role),this.permission_overwrites.get(thing.id)]);
+            const permisions=this.permission_overwrites.get(thing.id);
+            if(permisions){
+                this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id,Role),permisions]);
+            }
         }
         this.topic=json.topic;
         this.nsfw=json.nsfw;
@@ -908,7 +939,7 @@ class Channel{
         })
     }
     get notification(){
-        let notinumber=this.message_notifications;
+        let notinumber:number|null=this.message_notifications;
         if(+notinumber===3){notinumber=null;}
         notinumber??=this.guild.message_notifications;
         switch(+notinumber){
@@ -922,7 +953,8 @@ class Channel{
                 return "default";
         }
     }
-    async sendMessage(content:string,{attachments=[],embeds=[],replyingto=null}){
+    async sendMessage(content:string,{attachments=[],embeds=[],replyingto=null}:
+    {attachments,embeds,replyingto:Message|null}){
         let replyjson:any;
         if(replyingto){
             replyjson=
@@ -995,7 +1027,7 @@ class Channel{
         if(messagez.author===this.localuser.user){
             return;
         }
-        if(this.localuser.lookingguild.prevchannel===this&&document.hasFocus()){
+        if(this.localuser.lookingguild?.prevchannel===this&&document.hasFocus()){
             return;
         }
         if(this.notification==="all"){
@@ -1013,13 +1045,13 @@ class Channel{
         if (!("Notification" in window)) {
 
         } else if (Notification.permission === "granted") {
-            let noticontent=message.content.textContent;
+            let noticontent:string|undefined|null=message.content.textContent;
             if(message.embeds[0]){
                 noticontent||=message.embeds[0].json.title;
                 noticontent||=message.content.textContent;
             }
             noticontent||="Blank Message";
-            let imgurl=null;
+            let imgurl:null|string=null;
             const images=message.getimages();
             if(images.length){
                 const image = images[0];
@@ -1059,18 +1091,20 @@ class Channel{
     }
     async updateRolePermissions(id:string,perms:Permissions){
         const permission=this.permission_overwrites.get(id);
-        permission.allow=perms.allow;
-        permission.deny=perms.deny;
-        await fetch(this.info.api+"/channels/"+this.snowflake+"/permissions/"+id,{
-            method:"PUT",
-            headers:this.headers,
-            body:JSON.stringify({
-                allow:permission.allow.toString(),
-                deny:permission.deny.toString(),
-                id:id,
-                type:0
+        if(permission){
+            permission.allow=perms.allow;
+            permission.deny=perms.deny;
+            await fetch(this.info.api+"/channels/"+this.snowflake+"/permissions/"+id,{
+                method:"PUT",
+                headers:this.headers,
+                body:JSON.stringify({
+                    allow:permission.allow.toString(),
+                    deny:permission.deny.toString(),
+                    id:id,
+                    type:0
+                })
             })
-        })
+        }
     }
 }
 Channel.setupcontextmenu();
