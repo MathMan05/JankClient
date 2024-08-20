@@ -11,6 +11,7 @@ import { Role } from "./role.js";
 import {InfiniteScroller} from "./infiniteScroller.js";
 import { SnowFlake } from "./snowflake.js";
 import { channeljson, messagejson, readyjson } from "./jsontypes.js";
+import { MarkDown } from "./markdown.js";
 
 declare global {
     interface NotificationOptions {
@@ -656,7 +657,13 @@ class Channel{
         this.localuser.channelfocus=this;
         const prom=this.infinite.delete();
         history.pushState(null, "","/channels/"+this.guild_id+"/"+this.snowflake);
+
         (document.getElementById("channelname") as HTMLSpanElement).textContent="#"+this.name;
+        if (this.topic) {
+            document.getElementById("channelTopic").innerHTML=new MarkDown(this.topic, this).makeHTML().innerHTML;
+            document.getElementById("channelTopic").removeAttribute("hidden");
+        } else document.getElementById("channelTopic").setAttribute("hidden","");
+
         const loading=document.getElementById("loadingdiv") as HTMLDivElement;
         Channel.regenLoadingMessages();
         loading.classList.add("loading");
