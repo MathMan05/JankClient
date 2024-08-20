@@ -18,7 +18,7 @@ class Guild{
     properties
     roles:Role[];
     roleids:Map<SnowFlake<Role>,Role>;
-    prevchannel:Channel;
+    prevchannel:Channel|undefined;
     message_notifications:number;
     headchannels:Channel[];
     position:number;
@@ -75,15 +75,15 @@ class Guild{
         const settings=new Settings("Settings for "+this.properties.name);
 
         const s1=settings.addButton("roles");
-        const permlist=[];
+        const permlist:[SnowFlake<Role>,Permissions][]=[];
         for(const thing of this.roles){
             permlist.push([thing.snowflake,thing.permissions]);
         }
         s1.options.push(new RoleList(permlist,this,this.updateRolePermissions.bind(this)));
         settings.show();
     }
-    constructor(json:guildjson|-1,owner:Localuser,member:memberjson|User){
-        if(json===-1){
+    constructor(json:guildjson|-1,owner:Localuser,member:memberjson|User|null){
+        if(json===-1||member===null){
             return;
         }
         if(json.stickers.length){
@@ -118,7 +118,9 @@ class Guild{
         }
         this.headchannels=[];
         for(const thing of this.channels){
-            if(thing.resolveparent(this)){
+            const parent=thing.resolveparent(this);
+            console.log(parent,":3")
+            if(!parent){
                 this.headchannels.push(thing);
             }
         }
@@ -333,7 +335,7 @@ class Guild{
             headers:this.headers,
         })
     }
-    unreads(html=undefined){
+    unreads(html:HTMLElement|undefined=undefined){
         if(html){
             this.html=html;
         }else{
@@ -355,11 +357,14 @@ class Guild{
         }
     }
     getHTML(){
+        console.log("found :3",this.headchannels)
         //this.printServers();
         this.sortchannels();
         this.printServers();
         const build=document.createElement("div");
+
         for(const thing of this.headchannels){
+            console.log("found :3")
             build.appendChild(thing.createguildHTML(this.isAdmin()));
         }
         return build;

@@ -78,6 +78,7 @@ class Voice{
                     return 0;
                 }
         }
+        return new Function();
     }
     play():void{
         if(this.playing){
