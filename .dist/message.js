@@ -70,7 +70,7 @@ class Message {
         Message.contextmenu.addbutton("Edit", function () {
             this.channel.editing = this;
             const markdown = (document.getElementById("typebox"))["markdown"];
-            markdown.txt = this.content.rawString;
+            markdown.txt = this.content.rawString.split('');
             markdown.boxupdate(document.getElementById("typebox"));
         }, null, _ => { return _.author.id === _.localuser.user.id; });
         Message.contextmenu.addbutton("Delete message", function () {

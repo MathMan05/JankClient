@@ -164,7 +164,7 @@ class InfiniteScroller {
                 return;
             }
             const out = await Promise.allSettled([this.watchForTop(), this.watchForBottom()]);
-            const changed = (out[0] || out[1]);
+            const changed = (out[0].value || out[1].value);
             if (null === this.timeout && changed) {
                 this.timeout = setTimeout(this.updatestuff.bind(this), 300);
             }
@@ -217,7 +217,7 @@ class InfiniteScroller {
             await this.destroyFromID(thing[1]);
         }
         this.HTMLElements = [];
-        clearInterval(this.timeout);
+        clearTimeout(this.timeout);
         if (this.div) {
             this.div.remove();
         }

@@ -238,7 +238,7 @@ class Dialog {
         this.background.classList.add("background");
         document.body.appendChild(this.background);
         document.body.appendChild(this.html);
-        this.background.onclick = function () { this.hide(); }.bind(this);
+        this.background.onclick = _ => { this.hide(); };
     }
     hide() {
         document.body.removeChild(this.background);

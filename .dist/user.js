@@ -121,6 +121,32 @@ class User {
     async resolvemember(guild) {
         return await Member.resolveMember(this, guild);
     }
+    async getUserProfile() {
+        return (await fetch(`${this.info.api}/users/${this.id.replace("#clone", "")}/profile?with_mutual_guilds=true&with_mutual_friends=true`, {
+            headers: this.localuser.headers
+        })).json();
+    }
+    resolving = false;
+    async getBadge(id) {
+        console.log(id, ":3");
+        if (this.localuser.badges.has(id)) {
+            return this.localuser.badges.get(id);
+        }
+        else {
+            if (this.resolving) {
+                await this.resolving;
+                return this.localuser.badges.get(id);
+            }
+            const prom = await this.getUserProfile();
+            this.resolving = prom;
+            const badges = prom.badges;
+            this.resolving = false;
+            for (const thing of badges) {
+                this.localuser.badges.set(thing.id, thing);
+            }
+            return this.localuser.badges.get(id);
+        }
+    }
     buildpfp() {
         const pfp = document.createElement('img');
         pfp.src = this.getpfpsrc();
@@ -235,6 +261,28 @@ class User {
             this.setstatus("online");
             div.classList.add("hypoprofile", "flexttb");
         }
+        const badgediv = document.createElement("div");
+        badgediv.classList.add("badges");
+        (async () => {
+            console.log(this.badge_ids, ":3");
+            if (!this.badge_ids)
+                return;
+            for (const id of this.badge_ids) {
+                const badgejson = await this.getBadge(id);
+                const badge = document.createElement(badgejson.link ? "a" : "div");
+                badge.classList.add("badge");
+                const img = document.createElement("img");
+                img.src = badgejson.icon;
+                badge.append(img);
+                const span = document.createElement("span");
+                span.textContent = badgejson.description;
+                badge.append(span);
+                if (badge instanceof HTMLAnchorElement) {
+                    badge.href = badgejson.link;
+                }
+                badgediv.append(badge);
+            }
+        })();
         {
             const pfp = await this.buildstatuspfp();
             div.appendChild(pfp);
@@ -246,6 +294,7 @@ class User {
             const usernamehtml = document.createElement("h2");
             usernamehtml.textContent = this.username;
             userbody.appendChild(usernamehtml);
+            userbody.appendChild(badgediv);
             const discrimatorhtml = document.createElement("h3");
             discrimatorhtml.classList.add("tag");
             discrimatorhtml.textContent = this.username + "#" + this.discriminator;

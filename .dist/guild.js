@@ -77,6 +77,9 @@ class Guild {
         if (json === -1) {
             return;
         }
+        if (json.stickers.length) {
+            console.log(json.stickers, ":3");
+        }
         this.emojis = json.emojis;
         this.owner = owner;
         this.headers = this.owner.headers;
@@ -125,15 +128,12 @@ class Guild {
                 noti
             ],
             ["button", "", "submit", _ => {
-                    fetch(this.info.api + "/users/@me/guilds/settings", {
+                    //
+                    fetch(this.info.api + `/users/@me/guilds/${this.id}/settings/`, {
                         method: "PATCH",
                         headers: this.headers,
                         body: JSON.stringify({
-                            "guilds": {
-                                [this.id]: {
-                                    "message_notifications": noti
-                                }
-                            }
+                            "message_notifications": noti
                         })
                     });
                     this.message_notifications = noti;
@@ -446,8 +446,7 @@ class Guild {
                     console.log(name, category);
                     func(name, category);
                     channelselect.hide();
-                }.bind(this)]
-        ]);
+                }.bind(this)]]);
         channelselect.show();
     }
     createcategory() {
@@ -458,12 +457,11 @@ class Guild {
                     console.log(this);
                     name = this.value;
                 }],
-            ["button", "", "submit", function () {
+            ["button", "", "submit", () => {
                     console.log(name, category);
                     this.createChannel(name, category);
                     channelselect.hide();
-                }]
-        ]);
+                }]]);
         channelselect.show();
     }
     delChannel(json) {

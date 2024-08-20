@@ -58,7 +58,7 @@ class Channel {
             this.deleteChannel();
         }, null, _ => { console.log(_); return _.isAdmin(); });
         this.contextmenu.addbutton("Edit channel", function () {
-            this.editChannel(this);
+            this.editChannel();
         }, null, _ => { return _.isAdmin(); });
         this.contextmenu.addbutton("Make invite", function () {
             this.createInvite();
@@ -189,7 +189,9 @@ class Channel {
         }.bind(this), async function (id) {
             const message = SnowFlake.getSnowFlakeFromID(id, Message).getObject();
             try {
-                message.deleteDiv();
+                if (message) {
+                    message.deleteDiv();
+                }
             }
             catch (e) {
                 console.error(e);
@@ -344,9 +346,9 @@ class Channel {
                 addchannel.textContent = "+";
                 addchannel.classList.add("addchannel");
                 caps.appendChild(addchannel);
-                addchannel.onclick = function () {
+                addchannel.onclick = _ => {
                     this.guild.createchannels(this.createChannel.bind(this));
-                }.bind(this);
+                };
                 this.coatDropDiv(decdiv, childrendiv);
             }
             div.appendChild(caps);
@@ -550,8 +552,7 @@ class Channel {
                         });
                         console.log(full);
                         full.hide();
-                    }]
-            ]
+                    }]]
         ]);
         full.show();
         console.log(full);
@@ -798,6 +799,9 @@ class Channel {
             return;
         this.infinitefocus = true;
         const messages = document.getElementById("channelw");
+        for (const thing of messages.getElementsByClassName("messagecontainer")) {
+            thing.remove();
+        }
         const loading = document.getElementById("loadingdiv");
         const removetitle = document.getElementById("removetitle");
         //messages.innerHTML="";

@@ -31,33 +31,33 @@ class Guild{
     }
     static contextmenu=new Contextmenu("guild menu");
     static setupcontextmenu(){
-        Guild.contextmenu.addbutton("Copy Guild id",function(){
+        Guild.contextmenu.addbutton("Copy Guild id",function(this:Guild){
             console.log(this)
             navigator.clipboard.writeText(this.id);
         });
 
-        Guild.contextmenu.addbutton("Mark as read",function(){
+        Guild.contextmenu.addbutton("Mark as read",function(this:Guild){
             console.log(this)
             this.markAsRead();
         });
 
-        Guild.contextmenu.addbutton("Notifications",function(){
+        Guild.contextmenu.addbutton("Notifications",function(this:Guild){
             console.log(this)
             this.setnotifcation();
         });
 
-        Guild.contextmenu.addbutton("Leave guild",function(){
+        Guild.contextmenu.addbutton("Leave guild",function(this:Guild){
             this.confirmleave();
         },null,function(_){return _.properties.owner_id!==_.member.user.id});
 
-        Guild.contextmenu.addbutton("Delete guild",function(){
+        Guild.contextmenu.addbutton("Delete guild",function(this:Guild){
             this.confirmDelete();
         },null,function(_){return _.properties.owner_id===_.member.user.id});
 
-        Guild.contextmenu.addbutton("Create invite",function(){
+        Guild.contextmenu.addbutton("Create invite",function(this:Guild){
             console.log(this);
         },null,_=>true,_=>false);
-        Guild.contextmenu.addbutton("Settings[temp]",function(){
+        Guild.contextmenu.addbutton("Settings[temp]",function(this:Guild){
             this.generateSettings();
         });
         /* -----things left for later-----
@@ -85,6 +85,9 @@ class Guild{
     constructor(json:guildjson|-1,owner:Localuser,member:memberjson|User){
         if(json===-1){
             return;
+        }
+        if(json.stickers.length){
+            console.log(json.stickers,":3")
         }
         this.emojis = json.emojis
         this.owner=owner;
@@ -136,15 +139,12 @@ class Guild{
             noti
         ],
         ["button","","submit",_=>{
-            fetch(this.info.api+"/users/@me/guilds/settings",{
+            //
+            fetch(this.info.api+`/users/@me/guilds/${this.id}/settings/`,{
                 method:"PATCH",
                 headers:this.headers,
                 body:JSON.stringify({
-                    "guilds":{
-                        [this.id]:{
-                            "message_notifications": noti
-                        }
-                    }
+                    "message_notifications": noti
                 })
             })
             this.message_notifications=noti;
@@ -296,7 +296,7 @@ class Guild{
             ["textbox",
                 "Name of server:",
                 "",
-                function(){
+                function(this:HTMLInputElement){
                     confirmname=this.value;
                 }
             ]
@@ -447,7 +447,7 @@ class Guild{
                 },
                 1
             ],
-            ["textbox","Name of channel","",function(){
+            ["textbox","Name of channel","",function(this:HTMLInputElement){
                 console.log(this)
                 name=this.value
             }],
@@ -464,11 +464,11 @@ class Guild{
         let category=4;
         const channelselect=new Dialog(
         ["vdiv",
-            ["textbox","Name of category","",function(){
+            ["textbox","Name of category","",function(this:HTMLInputElement){
                 console.log(this);
                 name=this.value;
             }],
-            ["button","","submit",function(){
+            ["button","","submit",()=>{
                 console.log(name,category)
                 this.createChannel(name,category);
                 channelselect.hide();

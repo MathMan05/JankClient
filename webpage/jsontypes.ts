@@ -137,7 +137,7 @@ type userjson={
     premium_type: number,
     theme_colors: string,
     pronouns: string,
-    badge_ids: string,
+    badge_ids: string[],
 }
 type memberjson= {
     index?:number,

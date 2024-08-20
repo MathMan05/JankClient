@@ -52,30 +52,30 @@ class Channel{
         return this.snowflake.id;
     }
     static setupcontextmenu(){
-        this.contextmenu.addbutton("Copy channel id",function(){
+        this.contextmenu.addbutton("Copy channel id",function(this:Channel){
             console.log(this)
             navigator.clipboard.writeText(this.id);
         });
 
-        this.contextmenu.addbutton("Mark as read",function(){
+        this.contextmenu.addbutton("Mark as read",function(this:Channel){
             console.log(this)
             this.readbottom();
         });
 
-        this.contextmenu.addbutton("Settings[temp]",function(){
+        this.contextmenu.addbutton("Settings[temp]",function(this:Channel){
             this.generateSettings();
         });
 
-        this.contextmenu.addbutton("Delete channel",function(){
+        this.contextmenu.addbutton("Delete channel",function(this:Channel){
             console.log(this)
             this.deleteChannel();
         },null,_=>{console.log(_);return _.isAdmin()});
 
-        this.contextmenu.addbutton("Edit channel",function(){
-            this.editChannel(this);
+        this.contextmenu.addbutton("Edit channel",function(this:Channel){
+            this.editChannel();
         },null,_=>{return _.isAdmin()});
 
-        this.contextmenu.addbutton("Make invite",function(){
+        this.contextmenu.addbutton("Make invite",function(this:Channel){
             this.createInvite();
         },null,(_:Channel)=>{
             return _.hasPermission("CREATE_INSTANT_INVITE")&&_.type!==4
@@ -203,7 +203,9 @@ class Channel{
         async function(this:Channel,id:string){
             const message=SnowFlake.getSnowFlakeFromID(id,Message).getObject();
             try{
-                message.deleteDiv();
+                if(message){
+                    message.deleteDiv();
+                }
             }catch(e){console.error(e)}finally{}
         }.bind(this),
         this.readbottom.bind(this)
@@ -355,9 +357,9 @@ class Channel{
                 addchannel.textContent="+";
                 addchannel.classList.add("addchannel");
                 caps.appendChild(addchannel);
-                addchannel.onclick=function(){
+                addchannel.onclick=_=>{
                     this.guild.createchannels(this.createChannel.bind(this));
-                }.bind(this);
+                }
                 this.coatDropDiv(decdiv,childrendiv);
             }
             div.appendChild(caps)
@@ -536,9 +538,9 @@ class Channel{
         const full=new Dialog(
         ["hdiv",
             ["vdiv",
-                ["textbox","Channel name:",this.name,function(){name=this.value}],
-                ["mdbox","Channel topic:",this.topic,function(){topic=this.value}],
-                ["checkbox","NSFW Channel",this.nsfw,function(){nsfw=this.checked}],
+                ["textbox","Channel name:",this.name,function(this:HTMLInputElement){name=this.value}],
+                ["mdbox","Channel topic:",this.topic,function(this:HTMLTextAreaElement){topic=this.value}],
+                ["checkbox","NSFW Channel",this.nsfw,function(this:HTMLInputElement){nsfw=this.checked}],
                 ["button","","submit",()=>{
                     fetch(this.info.api+"/channels/"+thisid,{
                         method:"PATCH",
@@ -809,6 +811,9 @@ class Channel{
         if(this.infinitefocus) return;
         this.infinitefocus=true;
         const messages=document.getElementById("channelw");
+        for(const thing of messages.getElementsByClassName("messagecontainer")){
+            thing.remove();
+        }
         const loading=document.getElementById("loadingdiv");
         const removetitle=document.getElementById("removetitle");
         //messages.innerHTML="";

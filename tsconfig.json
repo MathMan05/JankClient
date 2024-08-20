@@ -6,7 +6,8 @@
     "strict": false,
     "esModuleInterop": true,
     "outDir": "./.dist",
-    "removeComments": false
+    "removeComments": false,
+    "noImplicitThis":true
   },
   "include": [
     "./webpage/*.ts"

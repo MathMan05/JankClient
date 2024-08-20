@@ -17,6 +17,41 @@ function getBulkUsers() {
     }
     return json;
 }
+function trimswitcher() {
+    const json = getBulkInfo();
+    const map = new Map();
+    for (const thing in json.users) {
+        const user = json.users[thing];
+        console.log(user, json.users);
+        let wellknown = user.serverurls.wellknown;
+        if (wellknown[wellknown.length - 1] !== "/") {
+            wellknown += "/";
+        }
+        wellknown += user.username;
+        if (map.has(wellknown)) {
+            const otheruser = map.get(wellknown);
+            if (otheruser[1].serverurls.wellknown[otheruser[1].serverurls.wellknown.length - 1] === "/") {
+                delete json.users[otheruser[0]];
+                map.set(wellknown, [thing, user]);
+            }
+            else {
+                delete json.users[thing];
+            }
+        }
+        else {
+            map.set(wellknown, [thing, user]);
+        }
+    }
+    for (const thing in json.users) {
+        if (thing[thing.length - 1] === "/") {
+            const user = json.users[thing];
+            delete json.users[thing];
+            json.users[thing.slice(0, -1)] = user;
+        }
+    }
+    localStorage.setItem("userinfos", JSON.stringify(json));
+    console.log(json);
+}
 function getBulkInfo() {
     return JSON.parse(localStorage.getItem("userinfos"));
 }
@@ -141,6 +176,7 @@ async function getapiurls(str) {
             gateway: info.gateway,
             cdn: info.cdn,
             wellknown: str,
+            login: url.toString()
         };
     }
     catch {
@@ -201,7 +237,7 @@ async function login(username, password, captcha) {
     try {
         const info = JSON.parse(localStorage.getItem("instanceinfo"));
         const api = info.login + (info.login.startsWith("/") ? "/" : "");
-        return await fetch(api + 'auth/login', options).then(response => response.json())
+        return await fetch(api + '/auth/login', options).then(response => response.json())
             .then((response) => {
             console.log(response, response.message);
             if ("Invalid Form Body" === response.message) {
@@ -246,6 +282,8 @@ async function login(username, password, captcha) {
                                     }
                                     else {
                                         console.warn(response);
+                                        if (!response.token)
+                                            return;
                                         adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: username, token: response.token }).username = username;
                                         const redir = new URLSearchParams(window.location.search).get("goback");
                                         if (redir) {
@@ -260,6 +298,8 @@ async function login(username, password, captcha) {
                 }
                 else {
                     console.warn(response);
+                    if (!response.token)
+                        return;
                     adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: username, token: response.token }).username = username;
                     const redir = new URLSearchParams(window.location.search).get("goback");
                     if (redir) {
@@ -347,3 +387,4 @@ if (switchurl) {
     }
 }
 export { checkInstance };
+trimswitcher();
