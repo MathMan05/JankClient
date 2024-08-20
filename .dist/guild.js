@@ -74,7 +74,7 @@ class Guild {
         settings.show();
     }
     constructor(json, owner, member) {
-        if (json === -1) {
+        if (json === -1 || member === null) {
             return;
         }
         if (json.stickers.length) {
@@ -109,7 +109,9 @@ class Guild {
         }
         this.headchannels = [];
         for (const thing of this.channels) {
-            if (thing.resolveparent(this)) {
+            const parent = thing.resolveparent(this);
+            console.log(parent, ":3");
+            if (!parent) {
                 this.headchannels.push(thing);
             }
         }
@@ -347,11 +349,13 @@ class Guild {
         }
     }
     getHTML() {
+        console.log("found :3", this.headchannels);
         //this.printServers();
         this.sortchannels();
         this.printServers();
         const build = document.createElement("div");
         for (const thing of this.headchannels) {
+            console.log("found :3");
             build.appendChild(thing.createguildHTML(this.isAdmin()));
         }
         return build;

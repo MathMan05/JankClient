@@ -19,7 +19,6 @@ class Localuser {
     initialized;
     info;
     headers;
-    usersettings;
     userConnections;
     devPortal;
     ready;
@@ -47,7 +46,6 @@ class Localuser {
         this.headers = { "Content-type": "application/json; charset=UTF-8", Authorization: this.userinfo.token };
     }
     gottenReady(ready) {
-        this.usersettings = null;
         this.initialized = true;
         this.ready = ready;
         this.guilds = [];
@@ -93,8 +91,10 @@ class Localuser {
         }
     }
     outoffocus() {
-        document.getElementById("servers").innerHTML = "";
-        document.getElementById("channels").innerHTML = "";
+        const servers = document.getElementById("servers");
+        servers.innerHTML = "";
+        const channels = document.getElementById("channels");
+        channels.innerHTML = "";
         if (this.channelfocus) {
             this.channelfocus.infinite.delete();
         }
@@ -114,32 +114,10 @@ class Localuser {
     }
     swapped = false;
     async initwebsocket() {
-        let returny = null;
-        const promise = new Promise((res) => { returny = res; });
-        this.ws = new WebSocket(this.serverurls.gateway.toString() + "?encoding=json&v=9" + (DecompressionStream ? "&compress=zlib-stream" : ""));
-        this.ws.addEventListener('open', (_event) => {
-            console.log('WebSocket connected');
-            this.ws.send(JSON.stringify({
-                "op": 2,
-                "d": {
-                    "token": this.token,
-                    "capabilities": 16381,
-                    "properties": {
-                        "browser": "Jank Client",
-                        "client_build_number": 0, //might update this eventually lol
-                        "release_channel": "Custom",
-                        "browser_user_agent": navigator.userAgent
-                    },
-                    "compress": !!DecompressionStream,
-                    "presence": {
-                        "status": "online",
-                        "since": null, //new Date().getTime()
-                        "activities": [],
-                        "afk": false
-                    }
-                }
-            }));
-        });
+        let returny;
+        const ws = new WebSocket(this.serverurls.gateway.toString() + "?encoding=json&v=9" + (DecompressionStream ? "&compress=zlib-stream" : ""));
+        ;
+        this.ws = ws;
         let ds;
         let w;
         let r;
@@ -150,63 +128,91 @@ class Localuser {
             w = ds.writable.getWriter();
             r = ds.readable.getReader();
             arr = new Uint8Array();
-            const textdecode = new TextDecoder();
-            (async () => {
-                while (true) {
-                    const read = await r.read();
-                    const data = textdecode.decode(read.value);
-                    build += data;
-                    try {
-                        const temp = JSON.parse(build);
-                        build = "";
-                        if (temp.op === 0 && temp.t === "READY") {
-                            returny();
-                        }
-                        await this.handleEvent(temp);
-                    }
-                    catch { }
-                }
-            })();
         }
-        let order = new Promise((res) => (res()));
-        this.ws.addEventListener('message', async (event) => {
-            const temp2 = order;
-            let res;
-            order = new Promise((r) => (res = r));
-            await temp2;
-            let temp;
-            try {
-                if (event.data instanceof Blob) {
-                    const buff = await event.data.arrayBuffer();
-                    const array = new Uint8Array(buff);
-                    const temparr = new Uint8Array(array.length + arr.length);
-                    temparr.set(arr, 0);
-                    temparr.set(array, arr.length);
-                    arr = temparr;
-                    const len = array.length;
-                    if (!(array[len - 1] === 255 && array[len - 2] === 255 && array[len - 3] === 0 && array[len - 4] === 0)) {
-                        return;
+        const promise = new Promise((res) => {
+            returny = res;
+            ws.addEventListener('open', (_event) => {
+                console.log('WebSocket connected');
+                ws.send(JSON.stringify({
+                    "op": 2,
+                    "d": {
+                        "token": this.token,
+                        "capabilities": 16381,
+                        "properties": {
+                            "browser": "Jank Client",
+                            "client_build_number": 0, //might update this eventually lol
+                            "release_channel": "Custom",
+                            "browser_user_agent": navigator.userAgent
+                        },
+                        "compress": !!DecompressionStream,
+                        "presence": {
+                            "status": "online",
+                            "since": null, //new Date().getTime()
+                            "activities": [],
+                            "afk": false
+                        }
                     }
-                    w.write(arr.buffer);
-                    arr = new Uint8Array();
-                    return; //had to move the while loop due to me being dumb
-                }
-                else {
-                    temp = JSON.parse(event.data);
-                }
-                if (temp.op === 0 && temp.t === "READY") {
-                    returny();
-                }
-                await this.handleEvent(temp);
-            }
-            catch (e) {
-                console.error(e);
-            }
-            finally {
-                res();
+                }));
+            });
+            const textdecode = new TextDecoder();
+            if (DecompressionStream) {
+                (async () => {
+                    while (true) {
+                        const read = await r.read();
+                        const data = textdecode.decode(read.value);
+                        build += data;
+                        try {
+                            const temp = JSON.parse(build);
+                            build = "";
+                            if (temp.op === 0 && temp.t === "READY") {
+                                returny();
+                            }
+                            await this.handleEvent(temp);
+                        }
+                        catch { }
+                    }
+                })();
             }
         });
-        this.ws.addEventListener("close", async (event) => {
+        let order = new Promise((res) => (res()));
+        ws.addEventListener('message', async (event) => {
+            const temp2 = order;
+            order = new Promise(async (res) => {
+                await temp2;
+                let temp;
+                try {
+                    if (event.data instanceof Blob) {
+                        const buff = await event.data.arrayBuffer();
+                        const array = new Uint8Array(buff);
+                        const temparr = new Uint8Array(array.length + arr.length);
+                        temparr.set(arr, 0);
+                        temparr.set(array, arr.length);
+                        arr = temparr;
+                        const len = array.length;
+                        if (!(array[len - 1] === 255 && array[len - 2] === 255 && array[len - 3] === 0 && array[len - 4] === 0)) {
+                            return;
+                        }
+                        w.write(arr.buffer);
+                        arr = new Uint8Array();
+                        return; //had to move the while loop due to me being dumb
+                    }
+                    else {
+                        temp = JSON.parse(event.data);
+                    }
+                    if (temp.op === 0 && temp.t === "READY") {
+                        returny();
+                    }
+                    await this.handleEvent(temp);
+                }
+                catch (e) {
+                    console.error(e);
+                }
+                finally {
+                    res();
+                }
+            });
+        });
+        ws.addEventListener("close", async (event) => {
             this.ws = undefined;
             console.log("WebSocket closed with code " + event.code);
             this.unload();
@@ -264,8 +270,9 @@ class Localuser {
                     this.initwebsocket().then(() => {
                         this.loaduser();
                         this.init();
-                        document.getElementById("loading").classList.add("doneloading");
-                        document.getElementById("loading").classList.remove("loading");
+                        const loading = document.getElementById("loading");
+                        loading.classList.add("doneloading");
+                        loading.classList.remove("loading");
                         console.log("done loading");
                     });
                 }, 200 + (this.errorBackoff * 2800));
@@ -330,9 +337,11 @@ class Localuser {
                 case "GUILD_DELETE":
                     {
                         const guildy = this.guildids.get(temp.d.id);
-                        this.guildids.delete(temp.d.id);
-                        this.guilds.splice(this.guilds.indexOf(guildy), 1);
-                        guildy.html.remove();
+                        if (guildy) {
+                            this.guildids.delete(temp.d.id);
+                            this.guilds.splice(this.guilds.indexOf(guildy), 1);
+                            guildy.html.remove();
+                        }
                         break;
                     }
                 case "GUILD_CREATE":
@@ -371,6 +380,8 @@ class Localuser {
             }
         }
         else if (temp.op === 10) {
+            if (!this.ws)
+                return;
             console.log("heartbeat down");
             this.heartbeat_interval = temp.d.heartbeat_interval;
             this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }));
@@ -395,21 +406,25 @@ class Localuser {
     }
     updateChannel(json) {
         SnowFlake.getSnowFlakeFromID(json.guild_id, Guild).getObject().updateChannel(json);
-        if (json.guild_id === this.lookingguild.id) {
+        if (json.guild_id === this.lookingguild?.id) {
             this.loadGuild(json.guild_id);
         }
     }
     createChannel(json) {
         json.guild_id ??= "@me";
         SnowFlake.getSnowFlakeFromID(json.guild_id, Guild).getObject().createChannelpac(json);
-        if (json.guild_id === this.lookingguild.id) {
+        if (json.guild_id === this.lookingguild?.id) {
             this.loadGuild(json.guild_id);
         }
     }
     delChannel(json) {
-        json.guild_id ??= "@me";
-        this.guildids.get(json.guild_id).delChannel(json);
-        if (json.guild_id === this.lookingguild.id) {
+        let guild_id = json.guild_id;
+        guild_id ??= "@me";
+        const guild = this.guildids.get(guild_id);
+        if (guild) {
+            guild.delChannel(json);
+        }
+        if (json.guild_id === this.lookingguild?.id) {
             this.loadGuild(json.guild_id);
         }
     }
@@ -418,6 +433,9 @@ class Localuser {
         this.buildservers();
         if (location[3] === "channels") {
             const guild = this.loadGuild(location[4]);
+            if (!guild) {
+                return;
+            }
             guild.loadChannel(location[5]);
             this.channelfocus = guild.channelids[location[5]];
         }
@@ -428,7 +446,12 @@ class Localuser {
         document.getElementById("status").textContent = this.status;
     }
     isAdmin() {
-        return this.lookingguild.isAdmin();
+        if (this.lookingguild) {
+            return this.lookingguild.isAdmin();
+        }
+        else {
+            return false;
+        }
     }
     loadGuild(id) {
         let guild = this.guildids.get(id);
@@ -438,14 +461,19 @@ class Localuser {
         if (this.lookingguild) {
             this.lookingguild.html.classList.remove("serveropen");
         }
+        if (!guild)
+            return;
         if (guild.html) {
             guild.html.classList.add("serveropen");
         }
         this.lookingguild = guild;
         document.getElementById("serverName").textContent = guild.properties.name;
         //console.log(this.guildids,id)
-        document.getElementById("channels").innerHTML = "";
-        document.getElementById("channels").appendChild(guild.getHTML());
+        const channels = document.getElementById("channels");
+        channels.innerHTML = "";
+        const html = guild.getHTML();
+        channels.appendChild(html);
+        console.log("found :3", html);
         return guild;
     }
     buildservers() {
@@ -553,8 +581,10 @@ class Localuser {
                     ["vdiv",
                         ["title", "Create a guild"],
                         ["fileupload", "Icon:", function (event) {
-                                const reader = new FileReader();
                                 const target = event.target;
+                                if (!target.files)
+                                    return;
+                                const reader = new FileReader();
                                 reader.readAsDataURL(target.files[0]);
                                 reader.onload = () => {
                                     fields.icon = reader.result;
@@ -640,7 +670,10 @@ class Localuser {
     }
     messageCreate(messagep) {
         messagep.d.guild_id ??= "@me";
-        this.guildids.get(messagep.d.guild_id).channelids[messagep.d.channel_id].messageCreate(messagep);
+        const guild = this.guildids.get(messagep.d.guild_id);
+        if (!guild)
+            return;
+        guild.channelids[messagep.d.channel_id].messageCreate(messagep);
         this.unreads();
     }
     unreads() {
@@ -653,8 +686,10 @@ class Localuser {
         }
     }
     async typingStart(typing) {
-        if (this.channelfocus.id === typing.d.channel_id) {
+        if (this.channelfocus?.id === typing.d.channel_id) {
             const guild = this.guildids.get(typing.d.guild_id);
+            if (!guild)
+                return;
             const memb = await Member.new(typing.d.member, guild);
             if (memb.id === this.user.id) {
                 console.log("you is typing");
@@ -742,7 +777,8 @@ class Localuser {
         }
         if (showing) {
             typingtext.classList.remove("hidden");
-            document.getElementById("typingtext").textContent = build;
+            const typingtext2 = document.getElementById("typingtext");
+            typingtext2.textContent = build;
         }
         else {
             typingtext.classList.add("hidden");
@@ -750,7 +786,6 @@ class Localuser {
     }
     showusersettings() {
         const settings = new Settings("Settings");
-        this.usersettings = settings;
         {
             const userOptions = settings.addButton("User Settings", { ltr: true });
             const hypotheticalProfile = document.createElement("div");
@@ -1184,15 +1219,15 @@ class Localuser {
         if (guildid === "@me") {
             return undefined;
         }
-        if (!this.waitingmembers.has(guildid)) {
-            this.waitingmembers.set(guildid, new Map());
+        let guildmap = this.waitingmembers.get(guildid);
+        if (!guildmap) {
+            guildmap = new Map();
+            this.waitingmembers.set(guildid, guildmap);
         }
-        let res;
-        const promise = new Promise((r) => {
-            res = r;
+        const promise = new Promise((res) => {
+            guildmap.set(id, res);
+            this.getmembers();
         });
-        this.waitingmembers.get(guildid).set(id, res);
-        this.getmembers();
         return await promise;
     }
     fetchingmembers = new Map();
@@ -1200,11 +1235,15 @@ class Localuser {
     noncebuild = new Map();
     async gotChunk(chunk) {
         for (const thing of chunk.presences) {
-            this.presences.set(thing.user.id, thing);
+            if (thing.user) {
+                this.presences.set(thing.user.id, thing);
+            }
         }
         console.log(chunk);
         chunk.members ??= [];
         const arr = this.noncebuild.get(chunk.nonce);
+        if (!arr)
+            return;
         arr[0] = arr[0].concat(chunk.members);
         if (chunk.not_found) {
             arr[1] = chunk.not_found;
@@ -1214,14 +1253,14 @@ class Localuser {
             console.log("got through");
             this.noncebuild.delete(chunk.nonce);
             const func = this.noncemap.get(chunk.nonce);
+            if (!func)
+                return;
             func([arr[0], arr[1]]);
             this.noncemap.delete(chunk.nonce);
         }
     }
     async getmembers() {
-        let res;
-        const promise = new Promise(r => res = r);
-        setTimeout(res, 10);
+        const promise = new Promise(res => { setTimeout(res, 10); });
         await promise; //allow for more to be sent at once :P
         if (this.ws) {
             this.waitingmembers.forEach(async (value, guildid) => {
@@ -1242,36 +1281,42 @@ class Localuser {
                     return;
                 }
                 ;
-                let res;
-                const promise = new Promise((r) => {
-                    res = r;
+                const promise = new Promise((res) => {
+                    const nonce = "" + Math.floor(Math.random() * 100000000000);
+                    this.noncemap.set(nonce, res);
+                    this.noncebuild.set(nonce, [[], [], []]);
+                    if (!this.ws)
+                        return;
+                    this.ws.send(JSON.stringify({
+                        op: 8,
+                        d: {
+                            user_ids: build,
+                            guild_id: guildid,
+                            limit: 100,
+                            nonce,
+                            presences: true
+                        }
+                    }));
+                    this.fetchingmembers.set(guildid, true);
                 });
-                const nonce = "" + Math.floor(Math.random() * 100000000000);
-                this.noncemap.set(nonce, res);
-                this.noncebuild.set(nonce, [[], [], []]);
-                this.ws.send(JSON.stringify({
-                    op: 8,
-                    d: {
-                        user_ids: build,
-                        guild_id: guildid,
-                        limit: 100,
-                        nonce,
-                        presences: true
-                    }
-                }));
-                this.fetchingmembers.set(guildid, true);
                 const prom = await promise;
                 ;
                 const data = prom[0];
                 for (const thing of data) {
                     if (value.has(thing.id)) {
-                        value.get(thing.id)(thing);
+                        const func = value.get(thing.id);
+                        if (!func)
+                            continue;
+                        func(thing);
                         value.delete(thing.id);
                     }
                 }
                 for (const thing of prom[1]) {
                     if (value.has(thing)) {
-                        value.get(thing)(undefined);
+                        const func = value.get(thing);
+                        if (!func)
+                            continue;
+                        func(undefined);
                         value.delete(thing);
                     }
                 }
@@ -1320,7 +1365,7 @@ let fixsvgtheme;
             else if (g === max) {
                 h = 2 + (b - r) / (max - min);
             }
-            else if (b === max) {
+            else {
                 h = 4 + (r - g) / (max - min);
             }
         }

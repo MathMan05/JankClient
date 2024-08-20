@@ -7,7 +7,9 @@
     "esModuleInterop": true,
     "outDir": "./.dist",
     "removeComments": false,
-    "noImplicitThis":true
+    "noImplicitThis":true,
+    "useUnknownInCatchVariables":true,
+    "strictNullChecks":true
   },
   "include": [
     "./webpage/*.ts"

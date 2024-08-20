@@ -98,7 +98,9 @@ class Channel {
         copy.classList.add("copybutton", "svgtheme");
         copycontainer.append(copy);
         copycontainer.onclick = _ => {
-            navigator.clipboard.writeText(text.textContent);
+            if (text.textContent) {
+                navigator.clipboard.writeText(text.textContent);
+            }
         };
         div.append(copycontainer);
         const update = () => {
@@ -180,8 +182,14 @@ class Channel {
                 console.error("Uh...");
             }
             try {
-                const html = snowflake.getObject().buildhtml(this.messageids.get(this.idToPrev.get(snowflake)));
-                return html;
+                const prev = this.idToPrev.get(snowflake);
+                if (prev) {
+                    const messgage = this.messageids.get(prev);
+                    if (messgage) {
+                        const html = snowflake.getObject().buildhtml(messgage);
+                        return html;
+                    }
+                }
             }
             catch (e) {
                 console.error(e);
@@ -209,7 +217,9 @@ class Channel {
         this.headers = this.owner.headers;
         this.name = json.name;
         this.snowflake = new SnowFlake(json.id, this);
-        this.parent_id = new SnowFlake(json.parent_id, undefined);
+        if (json.parent_id) {
+            this.parent_id = SnowFlake.getSnowFlakeFromID(json.parent_id, Channel);
+        }
         this.parent = null;
         this.children = [];
         this.guild_id = json.guild_id;
@@ -222,7 +232,10 @@ class Channel {
             }
             ;
             this.permission_overwrites.set(thing.id, new Permissions(thing.allow, thing.deny));
-            this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id, Role), this.permission_overwrites.get(thing.id)]);
+            const permission = this.permission_overwrites.get(thing.id);
+            if (permission) {
+                this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id, Role), permission]);
+            }
         }
         this.topic = json.topic;
         this.nsfw = json.nsfw;
@@ -253,15 +266,16 @@ class Channel {
         if (!this.hasPermission("VIEW_CHANNEL")) {
             return false;
         }
-        return this.lastmessageid !== this.lastreadmessageid && this.type !== 4 && !!this.lastmessageid.id;
+        return this.lastmessageid !== this.lastreadmessageid && this.type !== 4 && !!this.lastmessageid;
     }
     hasPermission(name, member = this.guild.member) {
         if (member.isAdmin()) {
             return true;
         }
         for (const thing of member.roles) {
-            if (this.permission_overwrites.get(thing.id)) {
-                let perm = this.permission_overwrites.get(thing.id).getPermission(name);
+            const premission = this.permission_overwrites.get(thing.id);
+            if (premission) {
+                let perm = premission.getPermission(name);
                 if (perm) {
                     return perm === 1;
                 }
@@ -274,7 +288,10 @@ class Channel {
     }
     get canMessage() {
         if ((0 === this.permission_overwritesar.length) && this.hasPermission("MANAGE_CHANNELS")) {
-            this.addRoleToPerms(this.guild.roles.find(_ => _.name === "@everyone"));
+            const role = this.guild.roles.find(_ => _.name === "@everyone");
+            if (role) {
+                this.addRoleToPerms(role);
+            }
         }
         return this.hasPermission("SEND_MESSAGES");
     }
@@ -282,12 +299,15 @@ class Channel {
         this.children.sort((a, b) => { return a.position - b.position; });
     }
     resolveparent(guild) {
-        this.parent = guild.channelids[this.parent_id?.id];
+        const parentid = this.parent_id?.id;
+        if (!parentid)
+            return false;
+        this.parent = guild.channelids[parentid];
         this.parent ??= null;
         if (this.parent !== null) {
             this.parent.children.push(this);
         }
-        return this.parent === null;
+        return this.parent !== null;
     }
     calculateReorder() {
         let position = -1;
@@ -301,8 +321,8 @@ class Channel {
             if (thing.move_id && thing.move_id !== thing.parent_id) {
                 thing.parent_id = thing.move_id;
                 thisthing.parent_id = thing.parent_id;
-                thing.move_id = undefined;
-                console.log(this.guild.channelids[thisthing.parent_id]);
+                thing.move_id = null;
+                console.log(this.guild.channelids[thisthing.parent_id.id]);
             }
             if (thisthing.position || thisthing.parent_id) {
                 build.push(thisthing);
@@ -466,6 +486,8 @@ class Channel {
         });
         div.addEventListener("drop", (event) => {
             const that = Channel.dragged[0];
+            if (!that)
+                return;
             event.preventDefault();
             if (container) {
                 that.move_id = this.snowflake;
@@ -506,7 +528,9 @@ class Channel {
                     }
                     this.guild.headchannels = build;
                 }
-                div.after(Channel.dragged[1]);
+                if (Channel.dragged[1]) {
+                    div.after(Channel.dragged[1]);
+                }
             }
             this.guild.calculateReorder();
         });
@@ -580,7 +604,9 @@ class Channel {
             span.textContent = "Replying to " + this.replyingto.author.username;
             const X = document.createElement("button");
             X.onclick = _ => {
-                this.replyingto.div.classList.remove("replying");
+                if (this.replyingto) {
+                    this.replyingto.div.classList.remove("replying");
+                }
                 replybox.classList.add("hideReplyBox");
                 this.replyingto = null;
                 replybox.innerHTML = "";
@@ -618,11 +644,13 @@ class Channel {
         if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) {
             this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
         }
-        this.myhtml.classList.add("viewChannel");
+        if (this.myhtml) {
+            this.myhtml.classList.add("viewChannel");
+        }
         this.guild.prevchannel = this;
         this.localuser.channelfocus = this;
         const prom = this.infinite.delete();
-        history.pushState(null, null, "/channels/" + this.guild_id + "/" + this.snowflake);
+        history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.snowflake);
         document.getElementById("channelname").textContent = "#" + this.name;
         const loading = document.getElementById("loadingdiv");
         Channel.regenLoadingMessages();
@@ -782,7 +810,9 @@ class Channel {
     }
     buildmessage(message, next) {
         const built = message.buildhtml(next);
-        document.getElementById("messages").prepend(built);
+        if (built) {
+            document.getElementById("messages").prepend(built);
+        }
     }
     async buildmessages() {
         /*
@@ -809,7 +839,7 @@ class Channel {
         if (this.lastreadmessageid && this.lastreadmessageid.getObject()) {
             id = this.lastreadmessageid;
         }
-        else if (id = this.findClosest(this.lastreadmessageid)) {
+        else if (this.lastreadmessageid && (id = this.findClosest(this.lastreadmessageid))) {
         }
         else if (this.lastmessage && this.lastmessage.snowflake) {
             id = this.goBackIds(this.lastmessage.snowflake, 50);
@@ -878,7 +908,7 @@ class Channel {
     updateChannel(json) {
         this.type = json.type;
         this.name = json.name;
-        this.parent_id = new SnowFlake(json.parent_id, undefined);
+        this.parent_id = SnowFlake.getSnowFlakeFromID(json.parent_id, Channel);
         this.parent = null;
         this.children = [];
         this.guild_id = json.guild_id;
@@ -890,7 +920,10 @@ class Channel {
             }
             ;
             this.permission_overwrites.set(thing.id, new Permissions(thing.allow, thing.deny));
-            this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id, Role), this.permission_overwrites.get(thing.id)]);
+            const permisions = this.permission_overwrites.get(thing.id);
+            if (permisions) {
+                this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id, Role), permisions]);
+            }
         }
         this.topic = json.topic;
         this.nsfw = json.nsfw;
@@ -1001,7 +1034,7 @@ class Channel {
         if (messagez.author === this.localuser.user) {
             return;
         }
-        if (this.localuser.lookingguild.prevchannel === this && document.hasFocus()) {
+        if (this.localuser.lookingguild?.prevchannel === this && document.hasFocus()) {
             return;
         }
         if (this.notification === "all") {
@@ -1069,18 +1102,20 @@ class Channel {
     }
     async updateRolePermissions(id, perms) {
         const permission = this.permission_overwrites.get(id);
-        permission.allow = perms.allow;
-        permission.deny = perms.deny;
-        await fetch(this.info.api + "/channels/" + this.snowflake + "/permissions/" + id, {
-            method: "PUT",
-            headers: this.headers,
-            body: JSON.stringify({
-                allow: permission.allow.toString(),
-                deny: permission.deny.toString(),
-                id: id,
-                type: 0
-            })
-        });
+        if (permission) {
+            permission.allow = perms.allow;
+            permission.deny = perms.deny;
+            await fetch(this.info.api + "/channels/" + this.snowflake + "/permissions/" + id, {
+                method: "PUT",
+                headers: this.headers,
+                body: JSON.stringify({
+                    allow: permission.allow.toString(),
+                    deny: permission.deny.toString(),
+                    id: id,
+                    type: 0
+                })
+            });
+        }
     }
 }
 Channel.setupcontextmenu();
