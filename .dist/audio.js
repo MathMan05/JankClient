@@ -72,6 +72,7 @@ class Voice {
                     return 0;
                 };
         }
+        return new Function();
     }
     play() {
         if (this.playing) {

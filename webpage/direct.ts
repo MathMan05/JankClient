@@ -108,7 +108,7 @@ class Group extends Channel{
         this.messageids=new Map();
         this.permission_overwrites=new Map();
         this.lastmessageid=SnowFlake.getSnowFlakeFromID(json.last_message_id,Message);
-        this.lastmessageid??=new SnowFlake("0",undefined);
+        this.lastmessageid??=null;
         this.mentions=0;
         this.setUpInfiniteScroller();
         this.position=Math.max(this.lastmessageid.getUnixTime(),this.snowflake.getUnixTime());
