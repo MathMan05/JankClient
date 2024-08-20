@@ -160,9 +160,9 @@ class Emoji{
                     emojiElem.classList.add("emojiSelect")
 
                     const emojiClass = new Emoji({
-                        id: emojit.id,
+                        id: emojit.id as string,
                         name: emojit.name,
-                        animated: emojit.animated
+                        animated: emojit.animated as boolean
                     },localuser)
                     emojiElem.append(emojiClass.getHTML())
                     body.append(emojiElem)
