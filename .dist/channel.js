@@ -242,7 +242,12 @@ class Channel {
         this.nsfw = json.nsfw;
         this.position = json.position;
         this.lastreadmessageid = null;
-        this.lastmessageid = SnowFlake.getSnowFlakeFromID(json.last_message_id, Message);
+        if (json.last_message_id) {
+            this.lastmessageid = SnowFlake.getSnowFlakeFromID(json.last_message_id, Message);
+        }
+        else {
+            this.lastmessageid = null;
+        }
         this.setUpInfiniteScroller();
     }
     isAdmin() {
@@ -267,7 +272,8 @@ class Channel {
         if (!this.hasPermission("VIEW_CHANNEL")) {
             return false;
         }
-        return this.lastmessageid !== this.lastreadmessageid && this.type !== 4 && !this.lastmessageid;
+        console.log(this.lastmessageid, !!this.lastmessageid, ":3");
+        return this.lastmessageid !== this.lastreadmessageid && this.type !== 4 && !!this.lastmessageid;
     }
     hasPermission(name, member = this.guild.member) {
         if (member.isAdmin()) {
@@ -653,12 +659,13 @@ class Channel {
         const prom = this.infinite.delete();
         history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.snowflake);
         document.getElementById("channelname").textContent = "#" + this.name;
+        const channelTopic = document.getElementById("channelTopic");
         if (this.topic) {
-            document.getElementById("channelTopic").innerHTML = new MarkDown(this.topic, this).makeHTML().innerHTML;
-            document.getElementById("channelTopic").removeAttribute("hidden");
+            channelTopic.innerHTML = new MarkDown(this.topic, this).makeHTML().innerHTML;
+            channelTopic.removeAttribute("hidden");
         }
         else
-            document.getElementById("channelTopic").setAttribute("hidden", "");
+            channelTopic.setAttribute("hidden", "");
         const loading = document.getElementById("loadingdiv");
         Channel.regenLoadingMessages();
         loading.classList.add("loading");
@@ -1016,7 +1023,9 @@ class Channel {
         const messagez = new Message(messagep.d, this);
         this.lastmessage = messagez;
         console.log(this.lastmessageid, messagez.snowflake, ":3");
-        this.idToNext.set(this.lastmessageid, messagez.snowflake);
+        if (this.lastmessageid) {
+            this.idToNext.set(this.lastmessageid, messagez.snowflake);
+        }
         this.idToPrev.set(messagez.snowflake, this.lastmessageid);
         this.lastmessageid = messagez.snowflake;
         this.messageids.set(messagez.snowflake, messagez);
