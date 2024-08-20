@@ -8,6 +8,7 @@ import { Settings, RoleList } from "./settings.js";
 import { Role } from "./role.js";
 import { InfiniteScroller } from "./infiniteScroller.js";
 import { SnowFlake } from "./snowflake.js";
+import { MarkDown } from "./markdown.js";
 class Channel {
     editing;
     type;
@@ -652,6 +653,12 @@ class Channel {
         const prom = this.infinite.delete();
         history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.snowflake);
         document.getElementById("channelname").textContent = "#" + this.name;
+        if (this.topic) {
+            document.getElementById("channelTopic").innerHTML = new MarkDown(this.topic, this).makeHTML().innerHTML;
+            document.getElementById("channelTopic").removeAttribute("hidden");
+        }
+        else
+            document.getElementById("channelTopic").setAttribute("hidden", "");
         const loading = document.getElementById("loadingdiv");
         Channel.regenLoadingMessages();
         loading.classList.add("loading");
