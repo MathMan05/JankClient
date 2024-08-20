@@ -130,7 +130,7 @@ type userjson={
     public_flags: number,
     avatar: string,
     accent_color: number,
-    banner: string,
+    banner?: string,
     bio: string,
     bot: boolean,
     premium_since: string,
@@ -157,10 +157,10 @@ type memberjson= {
     last_message_id?: boolean//What???
 }
 type emojijson={
-            name:string,
-            id?:string,
-            animated?:boolean
-        }
+    name:string,
+    id?:string,
+    animated?:boolean
+}
 
 type guildjson={
     application_command_counts: {[key:string]:number},
@@ -290,8 +290,8 @@ type filejson={
     id:string,
     filename:string,
     content_type:string,
-    width:number,
-    height:number,
+    width?:number,
+    height?:number,
     proxy_url:string|undefined,
     url:string,
     size:number

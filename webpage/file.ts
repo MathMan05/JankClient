@@ -3,16 +3,16 @@ import { Dialog } from "./dialog.js";
 import { filejson } from "./jsontypes.js";
 
 class File{
-    owner:Message;
+    owner:Message|null;
     id:string;
     filename:string;
     content_type:string;
-    width:number;
-    height:number;
-    proxy_url:string;
+    width:number|undefined;
+    height:number|undefined;
+    proxy_url:string|undefined;
     url:string;
     size:number;
-    constructor(fileJSON:filejson,owner:Message){
+    constructor(fileJSON:filejson,owner:Message|null){
         this.owner=owner;
         this.id=fileJSON.id;
         this.filename=fileJSON.filename;
@@ -26,7 +26,7 @@ class File{
     }
     getHTML(temp:boolean=false):HTMLElement{
         const src=this.proxy_url||this.url;
-        if(this.width){
+        if(this.width&&this.height){
             let scale=1;
             const max=96*3;
             scale=Math.max(scale,this.width/max);
@@ -59,7 +59,7 @@ class File{
             video.append(source);
             source.type=this.content_type;
             video.controls=!temp;
-            if(this.width){
+            if(this.width&&this.height){
                 video.width=this.width;
                 video.height=this.height;
             }
@@ -97,7 +97,7 @@ class File{
         return new File({
             filename:file.name,
             size:file.size,
-            id:null,
+            id:"null",
             content_type:file.type,
             width:undefined,
             height:undefined,

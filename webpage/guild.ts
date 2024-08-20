@@ -9,6 +9,7 @@ import {Permissions} from "./permissions.js";
 import { SnowFlake } from "./snowflake.js";
 import { channeljson, guildjson, emojijson, memberjson } from "./jsontypes.js";
 import { User } from "./user.js";
+import { Message } from "./message.js";
 class Guild{
     owner:Localuser;
     headers:Localuser["headers"];
@@ -106,9 +107,19 @@ class Guild{
             this.roleids.set(roleh.snowflake,roleh);
         }
         if(member instanceof User){
-            Member.resolveMember(member,this).then(_=>this.member=_);
+            Member.resolveMember(member,this).then(_=>{
+                if(_){
+                    this.member=_
+                }else{
+                    console.error("Member was unable to resolve");
+                }
+            });
         }else{
-            Member.new(member,this).then(_=>this.member=_);
+            Member.new(member,this).then(_=>{
+                if(_){
+                    this.member=_
+                }
+            });
         }
 
         for(const thing of json.channels){
@@ -200,9 +211,9 @@ class Guild{
     }
     calculateReorder(){
         let position=-1;
-        let build=[];
+        let build:{id:SnowFlake<Channel>,position:number|undefined,parent_id:SnowFlake<Channel>|undefined}[]=[];
         for(const thing of this.headchannels){
-            const thisthing={id:thing.snowflake,position:undefined,parent_id:undefined}
+            const thisthing:{id:SnowFlake<Channel>,position:number|undefined,parent_id:SnowFlake<Channel>|undefined}={id:thing.snowflake,position:undefined,parent_id:undefined}
             if(thing.position<=position){
                 thing.position=(thisthing.position=position+1);
             }
@@ -211,11 +222,10 @@ class Guild{
             if(thing.move_id&&thing.move_id!==thing.parent_id){
                 thing.parent_id=thing.move_id;
                 thisthing.parent_id=thing.parent_id;
-                thing.move_id=undefined;
+                thing.move_id=null;
             }
             if(thisthing.position||thisthing.parent_id){
                 build.push(thisthing);
-                console.log(this.channelids[thisthing.parent_id]);
             }
             if(thing.children.length>0){
                 const things=thing.calculateReorder()
@@ -373,11 +383,12 @@ class Guild{
         return this.member.isAdmin()
     }
     async markAsRead(){
-        const build={read_states:[]};
+        const build:{read_states:{channel_id:SnowFlake<Channel>,message_id:SnowFlake<Message>|null,read_state_type:number}[]}={read_states:[]};
         for(const thing of this.channels){
             if(thing.hasunreads){
                 build.read_states.push({channel_id:thing.snowflake,message_id:thing.lastmessageid,read_state_type:0});
                 thing.lastreadmessageid=thing.lastmessageid;
+                if(!thing.myhtml) continue;
                 thing.myhtml.classList.remove("cunread");
             }
         }
@@ -395,7 +406,7 @@ class Guild{
         }
         return this.member.hasRole(r);
     }
-    loadChannel(ID:string=undefined){
+    loadChannel(ID:string|undefined=undefined){
         if(ID&&this.channelids[ID]){
             this.channelids[ID].getHTML();
             return;

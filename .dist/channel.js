@@ -39,6 +39,7 @@ class Channel {
     infinite;
     idToPrev = new Map();
     idToNext = new Map();
+    messages = new Map();
     get id() {
         return this.snowflake.id;
     }
@@ -167,7 +168,7 @@ class Channel {
                 if (this.idToNext.has(snowflake)) {
                     return this.idToNext.get(snowflake)?.id;
                 }
-                else if (this.lastmessage.id !== id) {
+                else if (this.lastmessage?.id !== id) {
                     await this.grabAfter(id);
                     return this.idToNext.get(snowflake)?.id;
                 }
@@ -177,19 +178,11 @@ class Channel {
             }
         }.bind(this), async function (id) {
             //await new Promise(_=>{setTimeout(_,Math.random()*10)})
-            const snowflake = SnowFlake.getSnowFlakeFromID(id, Message);
-            if (!snowflake.getObject()) {
-                //await this.grabArround(id);
-                console.error("Uh...");
-            }
+            const messgage = this.messages.get(id);
             try {
-                const prev = this.idToPrev.get(snowflake);
-                if (prev) {
-                    const messgage = this.messageids.get(prev);
-                    if (messgage) {
-                        const html = snowflake.getObject().buildhtml(messgage);
-                        return html;
-                    }
+                if (messgage) {
+                    const html = messgage.buildhtml();
+                    return html;
                 }
             }
             catch (e) {
@@ -595,10 +588,12 @@ class Channel {
         });
     }
     setReplying(message) {
-        if (this.replyingto) {
+        if (this.replyingto?.div) {
             this.replyingto.div.classList.remove("replying");
         }
         this.replyingto = message;
+        if (!this.replyingto?.div)
+            return;
         console.log(message);
         this.replyingto.div.classList.add("replying");
         this.makereplybox();
@@ -611,7 +606,7 @@ class Channel {
             span.textContent = "Replying to " + this.replyingto.author.username;
             const X = document.createElement("button");
             X.onclick = _ => {
-                if (this.replyingto) {
+                if (this.replyingto?.div) {
                     this.replyingto.div.classList.remove("replying");
                 }
                 replybox.classList.add("hideReplyBox");
@@ -744,8 +739,7 @@ class Channel {
         this.children = build;
     }
     async grabAfter(id) {
-        console.log(id, this.lastmessage.id);
-        if (id === this.lastmessage.id) {
+        if (id === this.lastmessage?.id) {
             return;
         }
         await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
@@ -1025,8 +1019,8 @@ class Channel {
         console.log(this.lastmessageid, messagez.snowflake, ":3");
         if (this.lastmessageid) {
             this.idToNext.set(this.lastmessageid, messagez.snowflake);
+            this.idToPrev.set(messagez.snowflake, this.lastmessageid);
         }
-        this.idToPrev.set(messagez.snowflake, this.lastmessageid);
         this.lastmessageid = messagez.snowflake;
         this.messageids.set(messagez.snowflake, messagez);
         if (messagez.author === this.localuser.user) {
@@ -1078,7 +1072,9 @@ class Channel {
             const images = message.getimages();
             if (images.length) {
                 const image = images[0];
-                imgurl ||= image.proxy_url;
+                if (image.proxy_url) {
+                    imgurl ||= image.proxy_url;
+                }
                 imgurl ||= image.url;
             }
             const notification = new Notification(this.notititle(message), {

@@ -191,12 +191,19 @@ class User {
                     html.after(error);
                     return;
                 }
-                _.bind(html);
+                if (_) {
+                    _.bind(html);
+                }
             }).catch(_ => {
                 console.log(_);
             });
         }
-        this.profileclick(html, guild);
+        if (guild) {
+            this.profileclick(html, guild);
+        }
+        else {
+            this.profileclick(html);
+        }
         User.contextmenu.bind(html, this);
     }
     static async resolve(id, localuser) {
@@ -269,18 +276,20 @@ class User {
                 return;
             for (const id of this.badge_ids) {
                 const badgejson = await this.getBadge(id);
-                const badge = document.createElement(badgejson.link ? "a" : "div");
-                badge.classList.add("badge");
-                const img = document.createElement("img");
-                img.src = badgejson.icon;
-                badge.append(img);
-                const span = document.createElement("span");
-                span.textContent = badgejson.description;
-                badge.append(span);
-                if (badge instanceof HTMLAnchorElement) {
-                    badge.href = badgejson.link;
+                if (badgejson) {
+                    const badge = document.createElement(badgejson.link ? "a" : "div");
+                    badge.classList.add("badge");
+                    const img = document.createElement("img");
+                    img.src = badgejson.icon;
+                    badge.append(img);
+                    const span = document.createElement("span");
+                    span.textContent = badgejson.description;
+                    badge.append(span);
+                    if (badge instanceof HTMLAnchorElement) {
+                        badge.href = badgejson.link;
+                    }
+                    badgediv.append(badge);
                 }
-                badgediv.append(badge);
             }
         })();
         {
@@ -337,7 +346,7 @@ class User {
         }
         return div;
     }
-    profileclick(obj, guild) {
+    profileclick(obj, guild = undefined) {
         obj.onclick = e => {
             this.buildprofile(e.clientX, e.clientY, guild);
             e.stopPropagation();

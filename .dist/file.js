@@ -23,7 +23,7 @@ class File {
     }
     getHTML(temp = false) {
         const src = this.proxy_url || this.url;
-        if (this.width) {
+        if (this.width && this.height) {
             let scale = 1;
             const max = 96 * 3;
             scale = Math.max(scale, this.width / max);
@@ -57,7 +57,7 @@ class File {
             video.append(source);
             source.type = this.content_type;
             video.controls = !temp;
-            if (this.width) {
+            if (this.width && this.height) {
                 video.width = this.width;
                 video.height = this.height;
             }
@@ -97,7 +97,7 @@ class File {
         return new File({
             filename: file.name,
             size: file.size,
-            id: null,
+            id: "null",
             content_type: file.type,
             width: undefined,
             height: undefined,

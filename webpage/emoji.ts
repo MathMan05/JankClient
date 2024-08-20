@@ -1,5 +1,6 @@
 import { Contextmenu } from "./contextmenu.js";
 import { Guild } from "./guild.js";
+import { emojijson } from "./jsontypes.js";
 import { Localuser } from "./localuser.js";
 
 class Emoji{
@@ -21,7 +22,7 @@ class Emoji{
     }
     get localuser(){
         if(this.owner instanceof Guild){
-            return this.guild.localuser;
+            return this.owner.localuser;
         }else{
             return this.owner;
         }
@@ -81,7 +82,11 @@ class Emoji{
 
         for(;cats!==0;cats--){
             const name=readString16();
-            const emojis=[];
+            const emojis:{
+                    name:string,
+                    skin_tone_support:boolean,
+                    emoji:string
+                }[]=[];
             let emojinumber=read16();
             for(;emojinumber!==0;emojinumber--){
                 //console.log(emojis);

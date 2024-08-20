@@ -13,7 +13,7 @@ class Emoji {
     }
     get localuser() {
         if (this.owner instanceof Guild) {
-            return this.guild.localuser;
+            return this.owner.localuser;
         }
         else {
             return this.owner;

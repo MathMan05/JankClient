@@ -28,8 +28,10 @@ class Member{
     private constructor(memberjson:memberjson,owner:Guild){
         if(User.userids[memberjson.id]){
             this.user=User.userids[memberjson.id];
-        }else{
+        }else if(memberjson.user){
             this.user=new User(memberjson.user,owner.localuser);
+        }else{
+            throw new Error("Missing user object of this member");
         }
         this.owner=owner;
         for(const thing of Object.keys(memberjson)){
@@ -60,12 +62,14 @@ class Member{
     get info(){
         return this.owner.info;
     }
-    static async new(memberjson:memberjson,owner:Guild):Promise<Member>{
+    static async new(memberjson:memberjson,owner:Guild):Promise<Member|undefined>{
         let user:User;
         if(User.userids[memberjson.id]){
             user=User.userids[memberjson.id];
-        }else{
+        }else if(memberjson.user){
             user=new User(memberjson.user,owner.localuser);
+        }else{
+            throw new Error("missing user object of this member");
         }
         if(user.members.has(owner)){
             let memb=user.members.get(owner)
@@ -88,9 +92,7 @@ class Member{
         const maybe=user.members.get(guild);
         if(!user.members.has(guild)){
             const membpromise=guild.localuser.resolvemember(user.id,guild.id);
-            let res:Function;
-            const promise=new Promise<Member|undefined>(r=>{res=r})
-            user.members.set(guild,promise);
+            const promise=new Promise<Member|undefined>( async res=>{
             const membjson=await membpromise;
             if(membjson===undefined){
                 res(undefined);
@@ -103,6 +105,8 @@ class Member{
                 res(member);
                 return member;
             }
+            })
+            user.members.set(guild,promise);
         }
         if(maybe instanceof Promise){
             return await maybe;
@@ -110,7 +114,7 @@ class Member{
             return maybe
         }
     }
-    public getPresence(presence:presencejson|null){
+    public getPresence(presence:presencejson|undefined){
         this.user.getPresence(presence);
     }
     /**

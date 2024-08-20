@@ -8,7 +8,7 @@ import {Localuser} from "./localuser.js";
 import { Role } from "./role.js";
 import {File} from "./file.js";
 import { SnowFlake } from "./snowflake.js";
-import { messagejson } from "./jsontypes.js";
+import { memberjson, messagejson } from "./jsontypes.js";
 import {Emoji} from "./emoji.js";
 
 class Message{
@@ -40,8 +40,8 @@ class Message{
         return this.weakdiv?.deref();
     }
     //*/
-    div:HTMLDivElement;
-    member:Member;
+    div:HTMLDivElement|undefined;
+    member:Member|undefined;
     reactions:messagejson["reactions"];
     get id(){
         return this.snowflake.id;
@@ -49,12 +49,6 @@ class Message{
     static setup(){
         this.del=new Promise(_=>{this.resolve=_});
         Message.setupcmenu();
-    }
-    static async wipeChanel(){
-        this.resolve();
-        document.getElementById("messages").innerHTML="";
-        await Promise.allSettled([this.resolve]);
-        this.del=new Promise(_=>{this.resolve=_})
     }
     static setupcmenu(){
         Message.contextmenu.addbutton("Copy raw text",function(this:Message){
@@ -74,9 +68,9 @@ class Message{
         });
         Message.contextmenu.addbutton("Edit",function(this:Message){
             this.channel.editing=this;
-            const markdown=(document.getElementById("typebox"))["markdown"] as MarkDown;
+            const markdown=(document.getElementById("typebox") as HTMLDivElement)["markdown"] as MarkDown;
             markdown.txt=this.content.rawString.split('');
-            markdown.boxupdate(document.getElementById("typebox"));
+            markdown.boxupdate(document.getElementById("typebox") as HTMLDivElement);
         },null,_=>{return _.author.id===_.localuser.user.id});
         Message.contextmenu.addbutton("Delete message",function(this:Message){
             this.delete();
@@ -86,7 +80,7 @@ class Message{
         this.owner=owner;
         this.headers=this.owner.headers;
         this.giveData(messagejson);
-
+        this.owner.messages.set(this.id,this);
     }
     reactionToggle(emoji:string|Emoji){
 
@@ -125,7 +119,9 @@ class Message{
                 this.snowflake=new SnowFlake(messagejson.id,this);
                 continue;
             }else if(thing==="member"){
-                Member.new(messagejson.member,this.guild).then(_=>{this.member=_});
+                Member.new(messagejson.member as memberjson,this.guild).then(_=>{
+                    this.member=_ as Member;
+                });
                 continue;
             }else if(thing ==="embeds"){
                 this.embeds=[];
@@ -185,7 +181,7 @@ class Message{
         if(!this.div) return;
         try{
             this.div.remove();
-            this.div=null;
+            this.div=undefined;
         }catch(e){
             console.error(e)
         }
@@ -222,23 +218,35 @@ class Message{
     deleteEvent(){
         if(this.div){
             this.div.innerHTML="";
-            this.div=null;
+            this.div=undefined;
         }
-        const prev=this.channel.idToPrev.get(this.snowflake);
-        const next=this.channel.idToNext.get(this.snowflake);
-        this.channel.idToNext.set(prev,next);
-        this.channel.idToPrev.set(next,prev);
+        const prev=this.channel.idToPrev.get(this.snowflake) as SnowFlake<Message> | null;
+        const next=this.channel.idToNext.get(this.snowflake) as SnowFlake<Message> | null;
+        if(prev){
+            this.channel.idToPrev.delete(this.snowflake)
+        }
+        if(next){
+            this.channel.idToNext.delete(this.snowflake)
+        }
+        if(prev&&next){
+            this.channel.idToPrev.set(next,prev);
+            this.channel.idToNext.set(prev,next);
+        }
         this.channel.messageids.delete(this.snowflake);
-        const regen=prev.getObject();
-        if(regen){
-            regen.generateMessage();
+        if(prev&&prev.getObject()){
+            prev.getObject().generateMessage();
         }
         if(this.channel.lastmessage===this){
-            this.channel.lastmessage=prev.getObject();
+            if(prev){
+                this.channel.lastmessage=prev.getObject();
+            }else{
+                this.channel.lastmessage=undefined;
+            }
         }
     }
     reactdiv:WeakRef<HTMLDivElement>;
-    generateMessage(premessage:Message=null){
+    generateMessage(premessage:Message|undefined=undefined){
+        if(!this.div) return;
         if(!premessage){
             premessage=this.channel.idToPrev.get(this.snowflake)?.getObject();
         }
@@ -469,13 +477,11 @@ class Message{
             }
         }
     }
-    buildhtml(premessage:Message){
+    buildhtml(premessage:Message|undefined=undefined){
         if(this.div){console.error(`HTML for ${this.snowflake} already exists, aborting`);return;}
         try{
-            //premessage??=messages.lastChild;
             const div=document.createElement("div");
             this.div=div;
-
             this.messageevents(div);
             return this.generateMessage(premessage);
         }catch(e){

@@ -32,7 +32,7 @@ class SnowFlake<x extends WeakKey>{
     }
     /**
      *  Just to clarify bc TS, it returns a SnowFlake\<type> which is what you entered with the type parameter
-     *
+     *  @deprecated
      **/
     static getSnowFlakeFromID<T extends {}>(id:string,type: abstract new(...args: never) => T): SnowFlake<T>{
         if(!SnowFlake.SnowFlakes.get(type)){
@@ -56,6 +56,11 @@ class SnowFlake<x extends WeakKey>{
             return snowflake;
         }
     }
+    /**
+     * @deprecated
+     *
+     *
+     */
     static hasSnowFlakeFromID(id:string,type:any){
         if(!SnowFlake.SnowFlakes.get(type)){
             return false;

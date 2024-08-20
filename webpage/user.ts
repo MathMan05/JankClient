@@ -20,7 +20,7 @@ class User{
     bot:boolean;
     public_flags: number;
     accent_color: number;
-    banner: string|null|undefined;
+    banner: string|undefined;
     hypotheticalbanner:boolean;
     premium_since: string;
     premium_type: number;
@@ -46,7 +46,7 @@ class User{
             badge_ids:this.badge_ids
         },this.owner)
     }
-    public getPresence(presence:presencejson|null){
+    public getPresence(presence:presencejson|undefined){
         if(presence){
             this.setstatus(presence.status);
         }else{
@@ -183,7 +183,7 @@ class User{
             this.changepfp(json.avatar);
         }
     }
-    bind(html:HTMLElement,guild:Guild=null,error=true){
+    bind(html:HTMLElement,guild:Guild|null=null,error=true){
         if(guild&&guild.id!=="@me"){
             Member.resolveMember(this,guild).then(_=>{
                 if(_===undefined&&error){
@@ -193,12 +193,19 @@ class User{
                     html.after(error);
                     return;
                 }
-                _.bind(html);
+                if(_){
+                    _.bind(html);
+                }
             }).catch(_=>{
                 console.log(_)
             });
         }
-        this.profileclick(html,guild);
+        if(guild){
+            this.profileclick(html,guild);
+        }else{
+            this.profileclick(html);
+        }
+
         User.contextmenu.bind(html,this);
     }
     static async resolve(id:string,localuser:Localuser){
@@ -230,7 +237,7 @@ class User{
     createjankpromises(){
         new Promise(_=>{})
     }
-    async buildprofile(x:number,y:number,guild:Guild=null){
+    async buildprofile(x:number,y:number,guild:Guild|null=null){
         if(Contextmenu.currentmenu!=""){
             Contextmenu.currentmenu.remove();
         }
@@ -271,18 +278,20 @@ class User{
             if(!this.badge_ids) return;
             for(const id of this.badge_ids){
                 const badgejson=await this.getBadge(id);
-                const badge=document.createElement(badgejson.link?"a":"div");
-                badge.classList.add("badge")
-                const img=document.createElement("img");
-                img.src=badgejson.icon;
-                badge.append(img);
-                const span=document.createElement("span");
-                span.textContent=badgejson.description;
-                badge.append(span);
-                if(badge instanceof HTMLAnchorElement){
-                    badge.href=badgejson.link;
+                if(badgejson){
+                    const badge=document.createElement(badgejson.link?"a":"div");
+                    badge.classList.add("badge")
+                    const img=document.createElement("img");
+                    img.src=badgejson.icon;
+                    badge.append(img);
+                    const span=document.createElement("span");
+                    span.textContent=badgejson.description;
+                    badge.append(span);
+                    if(badge instanceof HTMLAnchorElement){
+                        badge.href=badgejson.link;
+                    }
+                    badgediv.append(badge);
                 }
-                badgediv.append(badge);
             }
         })()
         {
@@ -341,7 +350,7 @@ class User{
         }
         return div;
     }
-    profileclick(obj:HTMLElement,guild:Guild){
+    profileclick(obj:HTMLElement,guild:Guild|undefined=undefined){
         obj.onclick=e=>{
             this.buildprofile(e.clientX,e.clientY,guild);
             e.stopPropagation();
