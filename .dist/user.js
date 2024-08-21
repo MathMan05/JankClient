@@ -96,6 +96,34 @@ class User {
                 })
             });
         });
+        this.contextmenu.addbutton("Kick member", function (member) {
+            member.kick();
+        }, null, function (member) {
+            if (!member)
+                return false;
+            const us = member.guild.member;
+            if (member.id === us.id) {
+                return false;
+            }
+            if (member.id === member.guild.properties.owner_id) {
+                return false;
+            }
+            return (us.hasPermission("KICK_MEMBERS")) || false;
+        });
+        this.contextmenu.addbutton("Ban member", function (member) {
+            member.ban();
+        }, null, function (member) {
+            if (!member)
+                return false;
+            const us = member.guild.member;
+            if (member.id === us.id) {
+                return false;
+            }
+            if (member.id === member.guild.properties.owner_id) {
+                return false;
+            }
+            return (us.hasPermission("BAN_MEMBERS")) || false;
+        });
     }
     static clear() {
         this.userids = {};
