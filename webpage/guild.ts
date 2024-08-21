@@ -30,7 +30,7 @@ class Guild{
     get id(){
         return this.snowflake.id;
     }
-    static contextmenu=new Contextmenu("guild menu");
+    static contextmenu=new Contextmenu<Guild,undefined>("guild menu");
     static setupcontextmenu(){
         Guild.contextmenu.addbutton("Copy Guild id",function(this:Guild){
             console.log(this)
@@ -49,11 +49,15 @@ class Guild{
 
         Guild.contextmenu.addbutton("Leave guild",function(this:Guild){
             this.confirmleave();
-        },null,function(_){return _.properties.owner_id!==_.member.user.id});
+        },null,function(_){
+            return this.properties.owner_id!==this.member.user.id
+        });
 
         Guild.contextmenu.addbutton("Delete guild",function(this:Guild){
             this.confirmDelete();
-        },null,function(_){return _.properties.owner_id===_.member.user.id});
+        },null,function(_){
+            return this.properties.owner_id===this.member.user.id
+        });
 
         Guild.contextmenu.addbutton("Create invite",function(this:Guild){
             console.log(this);
@@ -282,7 +286,7 @@ class Guild{
                 this.loadGuild();
                 this.loadChannel();
             }
-            Guild.contextmenu.bind(img,this);
+            Guild.contextmenu.bindContextmenu(img,this,undefined);
         }else{
             const div=document.createElement("div");
             let build=this.properties.name.replace(/'s /g, " ").replace(/\w+/g, word => word[0]).replace(/\s/g, "");
@@ -293,7 +297,7 @@ class Guild{
                 this.loadGuild();
                 this.loadChannel();
             }
-            Guild.contextmenu.bind(div,this)
+            Guild.contextmenu.bindContextmenu(div,this,undefined)
         }
         return divy;
     }

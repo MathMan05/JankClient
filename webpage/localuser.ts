@@ -95,6 +95,11 @@ class Localuser{
             const guildid=guild.snowflake;
             (this.guildids.get(guildid.id) as Guild).channelids[thing.channel_id].readStateInfo(thing);
         }
+        for(const thing of ready.d.relationships){
+            const user=new User(thing.user,this);
+            user.nickname=thing.nickname;
+            user.relationshipType=thing.type;
+        }
     }
     outoffocus():void{
         const servers=document.getElementById("servers") as HTMLDivElement;

@@ -10,6 +10,8 @@ class User {
     snowflake;
     avatar;
     username;
+    nickname = null;
+    relationshipType = 0;
     bio;
     discriminator;
     pronouns;
@@ -73,6 +75,25 @@ class User {
             fetch(this.info.api + "/users/@me/channels", { method: "POST",
                 body: JSON.stringify({ "recipients": [this.id] }),
                 headers: this.localuser.headers
+            });
+        });
+        this.contextmenu.addbutton("Block user", function () {
+            this.block();
+        }, null, function () {
+            return this.relationshipType !== 2;
+        });
+        this.contextmenu.addbutton("Unblock user", function () {
+            this.unblock();
+        }, null, function () {
+            return this.relationshipType === 2;
+        });
+        this.contextmenu.addbutton("Friend request", function () {
+            fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
+                method: "PUT",
+                headers: this.owner.headers,
+                body: JSON.stringify({
+                    type: 1
+                })
             });
         });
     }
@@ -148,6 +169,7 @@ class User {
     }
     buildpfp() {
         const pfp = document.createElement('img');
+        pfp.loading = "lazy";
         pfp.src = this.getpfpsrc();
         pfp.classList.add("pfp");
         pfp.classList.add("userid:" + this.id);
@@ -183,6 +205,7 @@ class User {
     bind(html, guild = null, error = true) {
         if (guild && guild.id !== "@me") {
             Member.resolveMember(this, guild).then(_ => {
+                User.contextmenu.bindContextmenu(html, this, _);
                 if (_ === undefined && error) {
                     const error = document.createElement("span");
                     error.textContent = "!";
@@ -203,7 +226,6 @@ class User {
         else {
             this.profileclick(html);
         }
-        User.contextmenu.bind(html, this);
     }
     static async resolve(id, localuser) {
         const json = await fetch(localuser.info.api.toString() + "/users/" + id + "/profile", { headers: localuser.headers }).then(_ => _.json());
@@ -216,6 +238,35 @@ class User {
         console.log(src);
         for (const thing of document.getElementsByClassName("userid:" + this.id)) {
             thing.src = src;
+        }
+    }
+    block() {
+        fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
+            method: "PUT",
+            headers: this.owner.headers,
+            body: JSON.stringify({
+                type: 2
+            })
+        });
+        this.relationshipType = 2;
+        const channel = this.localuser.channelfocus;
+        if (channel) {
+            for (const thing of channel.messages) {
+                thing[1].generateMessage();
+            }
+        }
+    }
+    unblock() {
+        fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
+            method: "DELETE",
+            headers: this.owner.headers,
+        });
+        this.relationshipType = 0;
+        const channel = this.localuser.channelfocus;
+        if (channel) {
+            for (const thing of channel.messages) {
+                thing[1].generateMessage();
+            }
         }
     }
     getpfpsrc() {

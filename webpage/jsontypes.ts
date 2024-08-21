@@ -44,7 +44,12 @@ type readyjson={
             view_nsfw_guilds: boolean
         };
         guilds:guildjson[];
-        relationships:any[];
+        relationships:{
+            id:string,
+            type:0|1|2|3|4,
+            nickname:string|null,
+            user:userjson
+        }[];
         read_state:{
             entries:{
                 id: string,

@@ -42,10 +42,14 @@ class Guild {
         });
         Guild.contextmenu.addbutton("Leave guild", function () {
             this.confirmleave();
-        }, null, function (_) { return _.properties.owner_id !== _.member.user.id; });
+        }, null, function (_) {
+            return this.properties.owner_id !== this.member.user.id;
+        });
         Guild.contextmenu.addbutton("Delete guild", function () {
             this.confirmDelete();
-        }, null, function (_) { return _.properties.owner_id === _.member.user.id; });
+        }, null, function (_) {
+            return this.properties.owner_id === this.member.user.id;
+        });
         Guild.contextmenu.addbutton("Create invite", function () {
             console.log(this);
         }, null, _ => true, _ => false);
@@ -271,7 +275,7 @@ class Guild {
                 this.loadGuild();
                 this.loadChannel();
             };
-            Guild.contextmenu.bind(img, this);
+            Guild.contextmenu.bindContextmenu(img, this, undefined);
         }
         else {
             const div = document.createElement("div");
@@ -283,7 +287,7 @@ class Guild {
                 this.loadGuild();
                 this.loadChannel();
             };
-            Guild.contextmenu.bind(div, this);
+            Guild.contextmenu.bindContextmenu(div, this, undefined);
         }
         return divy;
     }

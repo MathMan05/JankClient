@@ -58,10 +58,6 @@ video{
 	padding:.03in;
 }
 
-th {
-	font-weight: 400;
-	padding: 0;
-}
 
 .background {
 	position: absolute;
@@ -305,13 +301,10 @@ img {
 	width: 100%;
 	/* flex-grow: 1; */
 	overflow-x: clip;
+	transform: translateZ(0);
+	-webkit-transform: translateZ(0);
 }
 
-#messages {
-	max-width: 100%;
-	/* height: 100%; */
-	width: 100%;
-}
 
 p {
 	margin-top: 0;
@@ -334,9 +327,6 @@ p {
 	/* height: 100%; */
 }
 
-#channels p {
-	text-indent: 10px;
-}
 
 .space {
 	margin: .02in;
@@ -348,13 +338,6 @@ p {
 	height: .175in;
 }
 
-.spacee {
-	text-indent: .15in;
-	margin-right: .02in;
-	font-size: .15in;
-	display: inline-block;
-	width: .2in;
-}
 
 #channels p2 {
 	font-weight: bold;
@@ -753,13 +736,6 @@ textarea:focus-visible,
 	background-color: var(--channel-hover);
 }
 
-.dm-container {
-	display: flex;
-	flex-direction: column;
-}
-.dm-container div img {
-	padding: 5px;
-}
 
 .messageimg {
 	cursor: pointer;
@@ -798,17 +774,6 @@ textarea:focus-visible,
 	box-sizing: border-box;
 	flex-grow: 0;
 }
-
-#channels-td {
-	padding-right: 240px;
-	flex-grow: 1;
-	display: flex;
-	flex-direction: column;
-	height: 100%;
-	flex-shrink: 1;
-}
-
-
 
 #userinfo {
 	position:relative;
@@ -1108,12 +1073,6 @@ span {
 }
 .switchtable:hover{
 	background:var(--profile-info-bg);
-}
-.accountSwitcher tr:hover{
-	background:var(--profile-info-bg);
-}
-.switchtable tr{
-	background-color:transparent;
 }
 .serverURL{
 	color: var(--pronouns);
@@ -1540,6 +1499,8 @@ span {
 }
 .scroller{
 	padding-bottom: .2in;
+	flex-shrink: 0;
+	flex-grow: 0;
 }
 .suberror{
 	animation: goout 6s forwards;
@@ -1954,4 +1915,15 @@ form div{
 	flex-wrap: wrap;
 	justify-content: flex-start;
 	align-items: center;
+}
+.blocked{
+	padding-left: .45in;
+	cursor: pointer;
+	font-weight: bold;
+}
+.zeroheight{
+	height: 0px;
+	flex-shrink:1;
+	display: block;
+	padding: 0;
 }

@@ -14,6 +14,8 @@ class User{
     snowflake:SnowFlake<User>;
     avatar:string;
     username:string;
+    nickname:string|null=null;
+    relationshipType:0|1|2|3|4=0;
     bio:MarkDown;
     discriminator:string;
     pronouns:string;
@@ -66,7 +68,7 @@ class User{
     get id(){
         return this.snowflake.id;
     }
-    static contextmenu:Contextmenu=new Contextmenu("User Menu");
+    static contextmenu=new Contextmenu<User,Member|undefined>("User Menu");
     static setUpContextMenu(){
         this.contextmenu.addbutton("Copy user id",function(this:User){
             navigator.clipboard.writeText(this.id);
@@ -78,7 +80,26 @@ class User{
                     headers: this.localuser.headers
                 });
         });
+        this.contextmenu.addbutton("Block user",function(this:User){
+            this.block();
+        },null,function(){
+            return this.relationshipType!==2
+        });
 
+        this.contextmenu.addbutton("Unblock user",function(this:User){
+            this.unblock();
+        },null,function(){
+            return this.relationshipType===2
+        });
+        this.contextmenu.addbutton("Friend request",function(this:User){
+            fetch(`${this.info.api}/users/@me/relationships/${this.id}`,{
+                method:"PUT",
+                headers:this.owner.headers,
+                body:JSON.stringify({
+                    type:1
+                })
+            })
+        });
     }
     static clear(){
         this.userids={};
@@ -150,6 +171,7 @@ class User{
     }
     buildpfp(){
         const pfp=document.createElement('img');
+        pfp.loading="lazy";
         pfp.src=this.getpfpsrc();
         pfp.classList.add("pfp");
         pfp.classList.add("userid:"+this.id);
@@ -185,6 +207,7 @@ class User{
     bind(html:HTMLElement,guild:Guild|null=null,error=true){
         if(guild&&guild.id!=="@me"){
             Member.resolveMember(this,guild).then(_=>{
+                User.contextmenu.bindContextmenu(html,this,_);
                 if(_===undefined&&error){
                     const error=document.createElement("span");
                     error.textContent="!";
@@ -204,8 +227,6 @@ class User{
         }else{
             this.profileclick(html);
         }
-
-        User.contextmenu.bind(html,this);
     }
     static async resolve(id:string,localuser:Localuser){
         const json=await fetch(localuser.info.api.toString()+"/users/"+id+"/profile",
@@ -220,6 +241,35 @@ class User{
         console.log(src)
         for(const thing of document.getElementsByClassName("userid:"+this.id)){
             (thing as HTMLImageElement).src=src;
+        }
+    }
+    block(){
+        fetch(`${this.info.api}/users/@me/relationships/${this.id}`,{
+            method:"PUT",
+            headers:this.owner.headers,
+            body:JSON.stringify({
+                type:2
+            })
+        })
+        this.relationshipType=2;
+        const channel=this.localuser.channelfocus;
+        if(channel){
+            for(const thing of channel.messages){
+                thing[1].generateMessage();
+            }
+        }
+    }
+    unblock(){
+        fetch(`${this.info.api}/users/@me/relationships/${this.id}`,{
+            method:"DELETE",
+            headers:this.owner.headers,
+        })
+        this.relationshipType=0;
+        const channel=this.localuser.channelfocus;
+        if(channel){
+            for(const thing of channel.messages){
+                thing[1].generateMessage();
+            }
         }
     }
     getpfpsrc(){

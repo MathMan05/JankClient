@@ -3,8 +3,9 @@ class InfiniteScroller {
     getHTMLFromID;
     destroyFromID;
     reachesBottom;
-    minDist = 3000;
-    maxDist = 8000;
+    minDist = 2000;
+    fillDist = 3000;
+    maxDist = 6000;
     HTMLElements = [];
     div;
     scroll;
@@ -25,11 +26,21 @@ class InfiniteScroller {
         this.div = div;
         //this.interval=setInterval(this.updatestuff.bind(this,true),100);
         this.scroll = scroll;
-        this.div.addEventListener("scroll", this.watchForChange.bind(this));
-        this.scroll.addEventListener("scroll", this.watchForChange.bind(this));
+        this.div.addEventListener("scroll", _ => {
+            if (this.scroll)
+                this.scrollTop = this.scroll.scrollTop;
+            this.watchForChange();
+        });
+        this.scroll.addEventListener("scroll", _ => {
+            if (null === this.timeout) {
+                this.timeout = setTimeout(this.updatestuff.bind(this), 300);
+            }
+            this.watchForChange();
+        });
         {
             let oldheight = 0;
             new ResizeObserver(_ => {
+                this.updatestuff();
                 const change = oldheight - div.offsetHeight;
                 if (change > 0 && this.scroll) {
                     this.scroll.scrollTop += change;
@@ -49,11 +60,16 @@ class InfiniteScroller {
     scrollBottom;
     scrollTop;
     needsupdate = true;
+    averageheight = 60;
     async updatestuff() {
+        this.timeout = null;
         if (!this.scroll)
             return;
-        this.timeout = null;
         this.scrollBottom = this.scroll.scrollHeight - this.scroll.scrollTop - this.scroll.clientHeight;
+        this.averageheight = this.scroll.scrollHeight / this.HTMLElements.length;
+        if (this.averageheight < 10) {
+            this.averageheight = 60;
+        }
         this.scrollTop = this.scroll.scrollTop;
         if (!this.scrollBottom) {
             if (!await this.watchForChange()) {
@@ -84,120 +100,160 @@ class InfiniteScroller {
         const scrollBottom = this.scrollBottom;
         return () => {
             if (this.scroll && scrollBottom < 30) {
-                this.scroll.scrollTop = this.scroll.scrollHeight;
+                this.scroll.scrollTop = this.scroll.scrollHeight + 20;
             }
         };
     }
-    async watchForTop() {
+    async watchForTop(already = false, fragement = new DocumentFragment()) {
         if (!this.scroll)
             return false;
-        let again = false;
-        if (this.scrollTop === 0) {
-            this.scrollTop = 1;
-            this.scroll.scrollTop = 1;
-        }
-        if (this.scrollTop < this.minDist) {
-            let nextid;
-            const firstelm = this.HTMLElements.at(0);
-            if (firstelm) {
-                const previd = firstelm[1];
-                nextid = await this.getIDFromOffset(previd, 1);
-            }
-            if (!nextid) {
-            }
-            else {
-                again = true;
-                const html = await this.getHTMLFromID(nextid);
-                if (!html) {
-                    this.destroyFromID(nextid);
-                    console.error("html isn't defined");
-                    throw Error("html isn't defined");
+        try {
+            let again = false;
+            if (this.scrollTop < (already ? this.fillDist : this.minDist)) {
+                let nextid;
+                const firstelm = this.HTMLElements.at(0);
+                if (firstelm) {
+                    const previd = firstelm[1];
+                    nextid = await this.getIDFromOffset(previd, 1);
                 }
-                this.scroll.prepend(html);
-                this.HTMLElements.unshift([html, nextid]);
-                this.scrollTop += 60;
+                if (!nextid) {
+                }
+                else {
+                    const html = await this.getHTMLFromID(nextid);
+                    if (!html) {
+                        this.destroyFromID(nextid);
+                        return false;
+                    }
+                    again = true;
+                    fragement.prepend(html);
+                    this.HTMLElements.unshift([html, nextid]);
+                    this.scrollTop += this.averageheight;
+                }
+                ;
             }
-            ;
+            if (this.scrollTop > this.maxDist) {
+                const html = this.HTMLElements.shift();
+                if (html) {
+                    again = true;
+                    await this.destroyFromID(html[1]);
+                    this.scrollTop -= this.averageheight;
+                }
+            }
+            if (again) {
+                await this.watchForTop(true, fragement);
+            }
+            return again;
         }
-        if (this.scrollTop > this.maxDist) {
-            const html = this.HTMLElements.shift();
-            if (html) {
-                again = true;
-                await this.destroyFromID(html[1]);
-                this.scrollTop -= 60;
+        finally {
+            if (!already) {
+                if (this.scroll.scrollTop === 0) {
+                    this.scrollTop = 1;
+                    this.scroll.scrollTop = 10;
+                }
+                this.scroll.prepend(fragement, fragement);
             }
         }
-        if (again) {
-            await this.watchForTop();
-        }
-        return again;
     }
-    async watchForBottom() {
+    async watchForBottom(already = false, fragement = new DocumentFragment()) {
         if (!this.scroll)
             return false;
-        let again = false;
-        const scrollBottom = this.scrollBottom;
-        if (scrollBottom < this.minDist) {
-            let nextid;
-            const lastelm = this.HTMLElements.at(-1);
-            if (lastelm) {
-                const previd = lastelm[1];
-                nextid = await this.getIDFromOffset(previd, -1);
+        try {
+            let again = false;
+            const scrollBottom = this.scrollBottom;
+            if (scrollBottom < (already ? this.fillDist : this.minDist)) {
+                let nextid;
+                const lastelm = this.HTMLElements.at(-1);
+                if (lastelm) {
+                    const previd = lastelm[1];
+                    nextid = await this.getIDFromOffset(previd, -1);
+                }
+                if (!nextid) {
+                }
+                else {
+                    again = true;
+                    const html = await this.getHTMLFromID(nextid);
+                    fragement.appendChild(html);
+                    this.HTMLElements.push([html, nextid]);
+                    this.scrollBottom += this.averageheight;
+                }
+                ;
             }
-            if (!nextid) {
+            if (scrollBottom > this.maxDist) {
+                const html = this.HTMLElements.pop();
+                if (html) {
+                    await this.destroyFromID(html[1]);
+                    this.scrollBottom -= this.averageheight;
+                    again = true;
+                }
             }
-            else {
-                again = true;
-                const html = await this.getHTMLFromID(nextid);
-                this.scroll.appendChild(html);
-                this.HTMLElements.push([html, nextid]);
-                this.scrollBottom += 60;
-                if (scrollBottom < 30) {
+            if (again) {
+                await this.watchForBottom(true, fragement);
+            }
+            return again;
+        }
+        finally {
+            if (!already) {
+                this.scroll.append(fragement);
+                if (this.scrollBottom < 30) {
                     this.scroll.scrollTop = this.scroll.scrollHeight;
                 }
             }
-            ;
         }
-        if (scrollBottom > this.maxDist) {
-            const html = this.HTMLElements.pop();
-            if (html) {
-                await this.destroyFromID(html[1]);
-                this.scrollBottom -= 60;
-                again = true;
-            }
-        }
-        if (again) {
-            await this.watchForBottom();
-        }
-        return again;
     }
+    watchtime = false;
+    changePromise;
     async watchForChange() {
-        try {
-            if (this.currrunning) {
-                return false;
+        if (this.currrunning) {
+            this.watchtime = true;
+            if (this.changePromise) {
+                return await this.changePromise;
             }
             else {
-                this.currrunning = true;
+                return true;
             }
-            if (!this.div) {
-                this.currrunning = false;
+        }
+        else {
+            this.watchtime = false;
+            this.currrunning = true;
+        }
+        this.changePromise = new Promise(async (res) => {
+            try {
+                try {
+                    if (!this.div) {
+                        res(false);
+                        return false;
+                    }
+                    const out = await Promise.allSettled([this.watchForTop(), this.watchForBottom()]);
+                    const changed = (out[0].value || out[1].value);
+                    if (null === this.timeout && changed) {
+                        this.timeout = setTimeout(this.updatestuff.bind(this), 300);
+                    }
+                    if (!this.currrunning) {
+                        console.error("something really bad happened");
+                    }
+                    res(!!changed);
+                    return !!changed;
+                }
+                catch (e) {
+                    console.error(e);
+                }
+                res(false);
                 return false;
             }
-            const out = await Promise.allSettled([this.watchForTop(), this.watchForBottom()]);
-            const changed = (out[0].value || out[1].value);
-            if (null === this.timeout && changed) {
-                this.timeout = setTimeout(this.updatestuff.bind(this), 300);
+            catch (e) {
+                throw e;
             }
-            if (!this.currrunning) {
-                console.error("something really bad happened");
+            finally {
+                this.changePromise = undefined;
+                setTimeout(_ => {
+                    this.currrunning = false;
+                    if (this.watchtime) {
+                        this.watchForChange();
+                    }
+                }, 300);
             }
-            this.currrunning = false;
-            return !!changed;
-        }
-        catch (e) {
-            console.error(e);
-        }
-        return false;
+        });
+        return await this.changePromise;
     }
     async focus(id, flash = true) {
         let element;
@@ -206,6 +262,7 @@ class InfiniteScroller {
                 element = thing[0];
             }
         }
+        console.log(id, element, this.HTMLElements.length, ":3");
         if (element) {
             if (flash) {
                 element.scrollIntoView({

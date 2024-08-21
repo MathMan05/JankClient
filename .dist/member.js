@@ -1,6 +1,5 @@
 import { User } from "./user.js";
 import { Role } from "./role.js";
-import { Contextmenu } from "./contextmenu.js";
 import { SnowFlake } from "./snowflake.js";
 class Member {
     static already = {};
@@ -9,18 +8,6 @@ class Member {
     roles = [];
     id;
     nick;
-    static contextmenu = new Contextmenu("User Menu");
-    static setUpContextMenu() {
-        this.contextmenu.addbutton("Copy user id", function () {
-            navigator.clipboard.writeText(this.id);
-        });
-        this.contextmenu.addbutton("Message user", function () {
-            fetch(this.info.api + "/users/@me/channels", { method: "POST",
-                body: JSON.stringify({ "recipients": [this.id] }),
-                headers: this.localuser.headers
-            });
-        });
-    }
     constructor(memberjson, owner) {
         if (User.userids[memberjson.id]) {
             this.user = User.userids[memberjson.id];
@@ -169,12 +156,10 @@ class Member {
             */
             html.style.color = this.getColor();
         }
-        this.profileclick(html);
-        Member.contextmenu.bind(html);
+        //this.profileclick(html);
     }
     profileclick(html) {
         //to be implemented
     }
 }
-Member.setUpContextMenu();
 export { Member };

@@ -58,14 +58,14 @@ class Channel {
         this.contextmenu.addbutton("Delete channel", function () {
             console.log(this);
             this.deleteChannel();
-        }, null, _ => { console.log(_); return _.isAdmin(); });
+        }, null, function () { return this.isAdmin(); });
         this.contextmenu.addbutton("Edit channel", function () {
             this.editChannel();
-        }, null, _ => { return _.isAdmin(); });
+        }, null, function () { return this.isAdmin(); });
         this.contextmenu.addbutton("Make invite", function () {
             this.createInvite();
-        }, null, (_) => {
-            return _.hasPermission("CREATE_INSTANT_INVITE") && _.type !== 4;
+        }, null, function () {
+            return this.hasPermission("CREATE_INSTANT_INVITE") && this.type !== 4;
         });
         /*
         this.contextmenu.addbutton("Test button",function(){
@@ -154,7 +154,7 @@ class Channel {
     }
     setUpInfiniteScroller() {
         this.infinite = new InfiniteScroller(async function (id, offset) {
-            const snowflake = SnowFlake.getSnowFlakeFromID(id, Message);
+            const snowflake = this.messages.get(id).snowflake;
             if (offset === 1) {
                 if (this.idToPrev.has(snowflake)) {
                     return this.idToPrev.get(snowflake)?.id;
@@ -184,12 +184,15 @@ class Channel {
                     const html = messgage.buildhtml();
                     return html;
                 }
+                else {
+                    console.error(id + " not found");
+                }
             }
             catch (e) {
                 console.error(e);
             }
         }.bind(this), async function (id) {
-            const message = SnowFlake.getSnowFlakeFromID(id, Message).getObject();
+            const message = this.messages.get(id);
             try {
                 if (message) {
                     message.deleteDiv();
@@ -374,7 +377,7 @@ class Channel {
             caps.classList.add("capsflex");
             decdiv.classList.add("channeleffects");
             decdiv.classList.add("channel");
-            Channel.contextmenu.bind(decdiv, this);
+            Channel.contextmenu.bindContextmenu(decdiv, this, undefined);
             decdiv["all"] = this;
             for (const channel of this.children) {
                 childrendiv.appendChild(channel.createguildHTML(admin));
@@ -400,7 +403,7 @@ class Channel {
             if (this.hasunreads) {
                 div.classList.add("cunread");
             }
-            Channel.contextmenu.bind(div, this);
+            Channel.contextmenu.bindContextmenu(div, this, undefined);
             if (admin) {
                 this.coatDropDiv(div);
             }
@@ -814,12 +817,6 @@ class Channel {
      **/
     async grabArround(id) {
         throw new Error("please don't call this, no one has implemented it :P");
-    }
-    buildmessage(message, next) {
-        const built = message.buildhtml(next);
-        if (built) {
-            document.getElementById("messages").prepend(built);
-        }
     }
     async buildmessages() {
         /*
