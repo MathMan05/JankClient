@@ -1,4 +1,3 @@
-export {Permissions};
 class Permissions{
     allow:bigint;
     deny:bigint;
@@ -321,3 +320,4 @@ class Permissions{
     }
 }
 Permissions.makeMap();
+export {Permissions};

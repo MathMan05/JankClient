@@ -1,6 +1,5 @@
 import { Dialog } from "./dialog.js";
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-export { mobile, getBulkUsers, getBulkInfo, setTheme, Specialuser, getapiurls, adduser };
 function setTheme() {
     let name = localStorage.getItem("theme");
     if (!name) {
@@ -387,3 +386,4 @@ if (switchurl) {
 }
 export { checkInstance };
 trimswitcher();
+export { mobile, getBulkUsers, getBulkInfo, setTheme, Specialuser, getapiurls, adduser };

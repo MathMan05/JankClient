@@ -1,4 +1,3 @@
-export { Role };
 import { Permissions } from "./permissions.js";
 import { SnowFlake } from "./snowflake.js";
 class Role {
@@ -43,3 +42,4 @@ class Role {
         return `#${this.color.toString(16)}`;
     }
 }
+export { Role };

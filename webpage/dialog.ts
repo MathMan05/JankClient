@@ -1,4 +1,4 @@
-export {Dialog};
+
 class Dialog{
     layout;
     onclose: Function;
@@ -248,3 +248,4 @@ class Dialog{
         document.body.removeChild(this.html);
     }
 }
+export {Dialog};

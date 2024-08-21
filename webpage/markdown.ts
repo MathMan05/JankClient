@@ -2,7 +2,7 @@ import { Channel } from "./channel.js";
 import { Emoji } from "./emoji.js";
 import { Localuser } from "./localuser.js";
 
-export {MarkDown};
+
 class MarkDown{
     txt : string[];
     keep:boolean;
@@ -530,3 +530,4 @@ function getTextNodeAtPosition(root, index){
         position: index
     };
 }
+export {MarkDown};

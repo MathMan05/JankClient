@@ -1,4 +1,3 @@
-export { Permissions };
 class Permissions {
     allow;
     deny;
@@ -326,3 +325,4 @@ class Permissions {
     }
 }
 Permissions.makeMap();
+export { Permissions };

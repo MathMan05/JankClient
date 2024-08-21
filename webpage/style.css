@@ -1920,6 +1920,7 @@ form div{
 	padding-left: .45in;
 	cursor: pointer;
 	font-weight: bold;
+	font-style: italic;
 }
 .zeroheight{
 	height: 0px;

@@ -1,6 +1,5 @@
 import { Channel } from "./channel.js";
 import { Emoji } from "./emoji.js";
-export { MarkDown };
 class MarkDown {
     txt;
     keep;
@@ -565,3 +564,4 @@ function getTextNodeAtPosition(root, index) {
         position: index
     };
 }
+export { MarkDown };

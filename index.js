@@ -6,12 +6,6 @@ const fs = require('fs');
 const app = express();
 app.use(compression())
 
-const tsNode = require('ts-node');
-
-tsNode.register({
-  transpileOnly: true,
-  files: true
-});
 
 app.use("/getupdates",(req, res) => {
     const out=fs.statSync(`${__dirname}/webpage`);
