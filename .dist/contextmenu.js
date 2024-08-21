@@ -27,23 +27,23 @@ class Contextmenu {
         this.buttons.push([text, onclick, img, shown, enabled, "submenu"]);
         return {};
     }
-    makemenu(x, y, addinfo, obj) {
+    makemenu(x, y, addinfo, other) {
         const div = document.createElement("div");
         div.classList.add("contextmenu", "flexttb");
         for (const thing of this.buttons) {
-            if (!thing[3](addinfo)) {
+            if (!thing[3].bind(addinfo)(other)) {
                 continue;
             }
             const intext = document.createElement("button");
-            intext.disabled = !thing[4]();
+            intext.disabled = !thing[4].bind(addinfo)(other);
             intext.classList.add("contextbutton");
             intext.textContent = thing[0];
             console.log(thing);
             if (thing[5] === "button") {
-                intext.onclick = thing[1].bind(addinfo, obj);
+                intext.onclick = thing[1].bind(addinfo, other);
             }
             else if (thing[5] === "submenu") {
-                intext.onclick = thing[1].bind(addinfo);
+                intext.onclick = thing[1].bind(addinfo, other);
             }
             div.appendChild(intext);
         }
@@ -58,11 +58,11 @@ class Contextmenu {
         Contextmenu.currentmenu = div;
         return this.div;
     }
-    bind(obj, addinfo = undefined) {
+    bindContextmenu(obj, addinfo, other) {
         const func = (event) => {
             event.preventDefault();
             event.stopImmediatePropagation();
-            this.makemenu(event.clientX, event.clientY, addinfo, obj);
+            this.makemenu(event.clientX, event.clientY, addinfo, other);
         };
         obj.addEventListener("contextmenu", func);
         return func;

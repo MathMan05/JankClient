@@ -12,7 +12,7 @@ import { memberjson, messagejson } from "./jsontypes.js";
 import {Emoji} from "./emoji.js";
 
 class Message{
-    static contextmenu=new Contextmenu("message menu");
+    static contextmenu=new Contextmenu<Message,undefined>("message menu");
     owner:Channel;
     headers:Localuser["headers"];
     embeds:Embed[];
@@ -54,7 +54,7 @@ class Message{
         Message.contextmenu.addbutton("Copy raw text",function(this:Message){
             navigator.clipboard.writeText(this.content.rawString);
         });
-        Message.contextmenu.addbutton("Reply",function(this:Message,div:HTMLDivElement){
+        Message.contextmenu.addbutton("Reply",function(this:Message){
             this.channel.setReplying(this);
         });
         Message.contextmenu.addbutton("Copy message id",function(this:Message){
@@ -70,10 +70,15 @@ class Message{
             const markdown=(document.getElementById("typebox") as HTMLDivElement)["markdown"] as MarkDown;
             markdown.txt=this.content.rawString.split('');
             markdown.boxupdate(document.getElementById("typebox") as HTMLDivElement);
-        },null,_=>{return _.author.id===_.localuser.user.id});
+        },null,function(){
+            return this.author.id===this.localuser.user.id
+        });
         Message.contextmenu.addbutton("Delete message",function(this:Message){
             this.delete();
-        },null,_=>{return _.canDelete()})
+        },null,function(){
+            return this.canDelete()
+
+        })
     }
     constructor(messagejson:messagejson,owner:Channel){
         this.owner=owner;
@@ -172,7 +177,7 @@ class Message{
         return this.owner.info;
     }
     messageevents(obj:HTMLDivElement){
-        const func=Message.contextmenu.bind(obj,this);
+        const func=Message.contextmenu.bindContextmenu(obj,this,undefined);
         this.div=obj;
         obj.classList.add("messagediv");
     }
@@ -244,7 +249,15 @@ class Message{
         }
     }
     reactdiv:WeakRef<HTMLDivElement>;
-    generateMessage(premessage:Message|undefined=undefined){
+    blockedPropigate(){
+        const premessage=this.channel.idToPrev.get(this.snowflake)?.getObject();
+        if(premessage?.author===this.author){
+            premessage.blockedPropigate();
+        }else{
+            this.generateMessage();
+        }
+    }
+    generateMessage(premessage:Message|undefined=undefined,ignoredblock=false){
         if(!this.div) return;
         if(!premessage){
             premessage=this.channel.idToPrev.get(this.snowflake)?.getObject();
@@ -255,7 +268,65 @@ class Message{
         }
         div.innerHTML="";
         const build = document.createElement('div');
-        build.classList.add("flexltr");
+
+        build.classList.add("flexltr","message");
+        div.classList.remove("zeroheight")
+        if(this.author.relationshipType===2){
+            if(ignoredblock){
+                if(premessage?.author!==this.author){
+                    const span=document.createElement("span");
+                    span.textContent=`You have this user blocked, click to hide these messages.`;
+                    div.append(span);
+                    span.classList.add("blocked")
+                    span.onclick=_=>{
+                        const scroll=this.channel.infinite.scrollTop;
+                        let next:Message|undefined=this;
+                        while(next?.author===this.author){
+                            next.generateMessage(undefined);
+                            next=this.channel.idToNext.get(next.snowflake)?.getObject();
+                        }
+                        if(this.channel.infinite.scroll&&scroll){
+                            this.channel.infinite.scroll.scrollTop=scroll;
+                        }
+                    }
+                }
+            }else{
+                div.classList.remove("topMessage");
+                if(premessage?.author===this.author){
+                    div.classList.add("zeroheight")
+                    premessage.blockedPropigate();
+                    div.appendChild(build);
+                    return div;
+                }else{
+                    build.classList.add("blocked","topMessage")
+                    const span=document.createElement("span");
+                    let count=1;
+                    let next=this.channel.idToNext.get(this.snowflake)?.getObject()
+                    while(next?.author===this.author){
+                        count++;
+                        next=this.channel.idToNext.get(next.snowflake)?.getObject()
+                    }
+                    span.textContent=`You have this user blocked, click to see the ${count} blocked messages.`;
+                    build.append(span);
+                    span.onclick=_=>{
+                        const scroll=this.channel.infinite.scrollTop;
+                        const func=this.channel.infinite.snapBottom();
+                        let next:Message|undefined=this;
+                        while(next?.author===this.author){
+                            next.generateMessage(undefined,true);
+                            next=this.channel.idToNext.get(next.snowflake)?.getObject();
+                            console.log("loopy")
+                        }
+                        if(this.channel.infinite.scroll&&scroll){
+                            func();
+                            this.channel.infinite.scroll.scrollTop=scroll;
+                        }
+                    }
+                    div.appendChild(build);
+                    return div;
+                }
+            }
+        }
         if(this.message_reference){
             const replyline=document.createElement("div");
             const line=document.createElement("hr");
@@ -267,7 +338,6 @@ class Message{
             replyline.appendChild(username);
             const reply=document.createElement("div");
             username.classList.add("username");
-            this.author.bind(username,this.guild);
             reply.classList.add("replytext");
             replyline.appendChild(reply);
             const line2=document.createElement("hr");
@@ -276,6 +346,10 @@ class Message{
             line.classList.add("startreply");
             replyline.classList.add("replyflex")
             this.channel.getmessage(this.message_reference.message_id).then(message=>{
+                if(message.author.relationshipType===2){
+                    username.textContent="Blocked user";
+                    return;
+                }
                 const author=message.author;
                 reply.appendChild(message.content.makeHTML({stdsize:true}));
                 minipfp.src=author.getpfpsrc()
@@ -288,7 +362,6 @@ class Message{
             }
             div.appendChild(replyline);
         }
-        build.classList.add("message");
         div.appendChild(build);
         if({0:true,19:true}[this.type]||this.attachments.length!==0){
             const pfpRow = document.createElement('div');
@@ -486,24 +559,18 @@ class Message{
         }
     }
 }
+let now = new Date().toLocaleDateString();
+const yesterday = new Date(now);
+yesterday.setDate(new Date().getDate() - 1);
+let yesterdayStr=yesterday.toLocaleDateString();
+function formatTime(date:Date) {
 
-function formatTime(date) {
-    const now = new Date();
-    const sameDay = date.getDate() === now.getDate() &&
-        date.getMonth() === now.getMonth() &&
-        date.getFullYear() === now.getFullYear();
+    const datestring=date.toLocaleDateString();
+    const formatTime = (date:Date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-    const yesterday = new Date(now);
-    yesterday.setDate(now.getDate() - 1);
-    const isYesterday = date.getDate() === yesterday.getDate() &&
-        date.getMonth() === yesterday.getMonth() &&
-        date.getFullYear() === yesterday.getFullYear();
-
-    const formatTime = date => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-
-    if (sameDay) {
+    if (datestring=== now) {
         return `Today at ${formatTime(date)}`;
-    } else if (isYesterday) {
+    } else if (datestring===yesterdayStr) {
         return `Yesterday at ${formatTime(date)}`;
     } else {
         return `${date.toLocaleDateString()} at ${formatTime(date)}`;

@@ -114,7 +114,7 @@ try{
 
 
 {
-    const menu=new Contextmenu("create rightclick");
+    const menu=new Contextmenu("create rightclick");//Really should go into the localuser class, but that's a later thing
     menu.addbutton("Create channel",function(){
         if(thisuser.lookingguild){
             thisuser.lookingguild.createchannels();
@@ -126,7 +126,7 @@ try{
             thisuser.lookingguild.createcategory();
         }
     },null,_=>{return thisuser.isAdmin()})
-    menu.bind(document.getElementById("channels") as HTMLDivElement)
+    menu.bindContextmenu(document.getElementById("channels") as HTMLDivElement,0,0)
 }
 
 const pasteimage=document.getElementById("pasteimage") as HTMLDivElement;

@@ -22,7 +22,6 @@ function trimswitcher() {
     const map = new Map();
     for (const thing in json.users) {
         const user = json.users[thing];
-        console.log(user, json.users);
         let wellknown = user.serverurls.wellknown;
         if (wellknown[wellknown.length - 1] !== "/") {
             wellknown += "/";

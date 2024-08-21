@@ -1,7 +1,6 @@
 import {User} from "./user.js";
 import {Role} from "./role.js";
 import {Guild} from "./guild.js";
-import { Contextmenu } from "./contextmenu.js";
 import { SnowFlake } from "./snowflake.js";
 import { memberjson, presencejson, userjson } from "./jsontypes.js";
 
@@ -12,19 +11,6 @@ class Member{
     roles:Role[]=[];
     id:string;
     nick:string;
-    static contextmenu:Contextmenu=new Contextmenu("User Menu");
-    static setUpContextMenu(){
-        this.contextmenu.addbutton("Copy user id",function(this:Member){
-            navigator.clipboard.writeText(this.id);
-        });
-        this.contextmenu.addbutton("Message user",function(this:Member){
-            fetch(this.info.api+"/users/@me/channels",
-                {method:"POST",
-                    body:JSON.stringify({"recipients":[this.id]}),
-                    headers: this.localuser.headers
-                });
-        });
-    }
     private constructor(memberjson:memberjson,owner:Guild){
         if(User.userids[memberjson.id]){
             this.user=User.userids[memberjson.id];
@@ -39,6 +25,7 @@ class Member{
             if(thing==="owner"){continue}
             if(thing==="roles"){
                 for(const strrole of memberjson["roles"]){
+
                     const role=SnowFlake.getSnowFlakeFromID(strrole,Role).getObject();
                     this.roles.push(role);
                 }
@@ -160,12 +147,10 @@ class Member{
             html.style.color=this.getColor();
         }
 
-        this.profileclick(html);
-        Member.contextmenu.bind(html);
+        //this.profileclick(html);
     }
     profileclick(html:HTMLElement){
         //to be implemented
     }
 }
-Member.setUpContextMenu();
 export {Member};

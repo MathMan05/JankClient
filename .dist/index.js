@@ -103,7 +103,7 @@ catch (e) {
     thisuser = new Localuser(-1);
 }
 {
-    const menu = new Contextmenu("create rightclick");
+    const menu = new Contextmenu("create rightclick"); //Really should go into the localuser class, but that's a later thing
     menu.addbutton("Create channel", function () {
         if (thisuser.lookingguild) {
             thisuser.lookingguild.createchannels();
@@ -114,7 +114,7 @@ catch (e) {
             thisuser.lookingguild.createcategory();
         }
     }, null, _ => { return thisuser.isAdmin(); });
-    menu.bind(document.getElementById("channels"));
+    menu.bindContextmenu(document.getElementById("channels"), 0, 0);
 }
 const pasteimage = document.getElementById("pasteimage");
 let replyingto = null;
