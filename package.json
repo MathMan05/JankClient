@@ -10,8 +10,9 @@
   "author": "MathMan05",
   "license": "GPL-3.0",
   "dependencies": {
+    "compression": "^1.7.4",
     "express": "^4.19.2",
-    "compression":"^1.7.4"
+    "ts-to-jsdoc": "^2.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.7.0",

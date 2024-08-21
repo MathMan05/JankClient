@@ -208,7 +208,7 @@ class InfiniteScroller{
             if(this.changePromise){
                 return await this.changePromise;
             }else{
-                return true;
+                return false;
             }
         }else{
             this.watchtime=false;
@@ -239,8 +239,9 @@ class InfiniteScroller{
                 throw e;
             }finally{
 
-                this.changePromise=undefined;
+
                 setTimeout(_=>{
+                    this.changePromise=undefined;
                     this.currrunning=false;
                     if(this.watchtime){
                         this.watchForChange();

@@ -1,4 +1,4 @@
-export {Role};
+
 import {Permissions} from "./permissions.js";
 import {Localuser} from "./localuser.js";
 import {Guild} from "./guild.js";
@@ -43,3 +43,4 @@ class Role{
         return `#${this.color.toString(16)}`;
     }
 }
+export {Role};
