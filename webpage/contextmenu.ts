@@ -1,7 +1,7 @@
 class Contextmenu<x,y>{
     static currentmenu;
     name:string;
-    buttons:[string,(e:MouseEvent)=>void,string|null,(this:x,arg:y)=>boolean,(this:x,arg:y)=>boolean,string][];
+    buttons:[string,(this:x,arg:y,e:MouseEvent)=>void,string|null,(this:x,arg:y)=>boolean,(this:x,arg:y)=>boolean,string][];
     div:HTMLDivElement;
     static setup(){
         Contextmenu.currentmenu="";
@@ -19,11 +19,11 @@ class Contextmenu<x,y>{
         this.name=name;
         this.buttons=[]
     }
-    addbutton(text:string,onclick:(e:MouseEvent)=>void,img:null|string=null,shown:(this:x,arg:y)=>boolean=_=>true,enabled:(this:x,arg:y)=>boolean=_=>true){
+    addbutton(text:string,onclick:(this:x,arg:y,e:MouseEvent)=>void,img:null|string=null,shown:(this:x,arg:y)=>boolean=_=>true,enabled:(this:x,arg:y)=>boolean=_=>true){
         this.buttons.push([text,onclick,img,shown,enabled,"button"]);
         return {};
     }
-    addsubmenu(text:string,onclick:(e:MouseEvent)=>void,img=null,shown:(this:x,arg:y)=>boolean=_=>true,enabled:(this:x,arg:y)=>boolean=_=>true){
+    addsubmenu(text:string,onclick:(this:x,arg:y,e:MouseEvent)=>void,img=null,shown:(this:x,arg:y)=>boolean=_=>true,enabled:(this:x,arg:y)=>boolean=_=>true){
         this.buttons.push([text,onclick,img,shown,enabled,"submenu"])
         return {};
     }

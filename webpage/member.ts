@@ -3,6 +3,7 @@ import {Role} from "./role.js";
 import {Guild} from "./guild.js";
 import { SnowFlake } from "./snowflake.js";
 import { memberjson, presencejson, userjson } from "./jsontypes.js";
+import { Dialog } from "./dialog.js";
 
 class Member{
     static already={};
@@ -151,6 +152,66 @@ class Member{
     }
     profileclick(html:HTMLElement){
         //to be implemented
+    }
+    get name(){
+        return this.nick||this.user.username;
+    }
+    kick(){
+        let reason=""
+        const menu=new Dialog(["vdiv",
+            ["title","Kick "+this.name+" from "+this.guild.properties.name],
+            ["textbox","Reason:","",function(e:Event){
+                reason=(e.target as HTMLInputElement).value;
+            }],
+            ["button","","submit",()=>{
+                this.kickAPI(reason);
+                menu.hide();
+            }]
+        ]);
+        menu.show();
+    }
+    kickAPI(reason:string){
+        const headers=structuredClone(this.guild.headers);
+        headers["x-audit-log-reason"]=reason
+        fetch(`${this.info.api}/guilds/${this.guild.id}/members/${this.id}`,{
+            method:"DELETE",
+            headers,
+
+        })
+    }
+    ban(){
+        let reason=""
+        const menu=new Dialog(["vdiv",
+            ["title","Ban "+this.name+" from "+this.guild.properties.name],
+            ["textbox","Reason:","",function(e:Event){
+                reason=(e.target as HTMLInputElement).value;
+            }],
+            ["button","","submit",()=>{
+                this.banAPI(reason);
+                menu.hide();
+            }]
+        ]);
+        menu.show();
+    }
+    banAPI(reason:string){
+        const headers=structuredClone(this.guild.headers);
+        headers["x-audit-log-reason"]=reason
+        fetch(`${this.info.api}/guilds/${this.guild.id}/bans/${this.id}`,{
+            method:"PUT",
+            headers
+
+        })
+    }
+    hasPermission(name:string):boolean{
+        if(this.isAdmin()){
+            return true;
+        }
+        for(const thing of this.roles){
+            if(thing.permissions.getPermission(name)){
+                return true;
+            }
+        }
+        return false;
     }
 }
 export {Member};
