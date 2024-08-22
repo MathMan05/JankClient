@@ -1,6 +1,3 @@
-import { Permissions } from "./permissions.js";
-import { SnowFlake } from "./snowflake.js";
-import { Role } from "./role.js";
 //future me stuff
 class Buttons {
     name;
@@ -68,75 +65,6 @@ class Buttons {
     submit() {
     }
 }
-class PermissionToggle {
-    rolejson;
-    permissions;
-    owner;
-    constructor(roleJSON, permissions, owner) {
-        this.rolejson = roleJSON;
-        this.permissions = permissions;
-        this.owner = owner;
-    }
-    generateHTML() {
-        const div = document.createElement("div");
-        div.classList.add("setting");
-        const name = document.createElement("span");
-        name.textContent = this.rolejson.readableName;
-        name.classList.add("settingsname");
-        div.append(name);
-        div.append(this.generateCheckbox());
-        const p = document.createElement("p");
-        p.textContent = this.rolejson.description;
-        div.appendChild(p);
-        return div;
-    }
-    generateCheckbox() {
-        const div = document.createElement("div");
-        div.classList.add("tritoggle");
-        const state = this.permissions.getPermission(this.rolejson.name);
-        const on = document.createElement("input");
-        on.type = "radio";
-        on.name = this.rolejson.name;
-        div.append(on);
-        if (state === 1) {
-            on.checked = true;
-        }
-        ;
-        on.onclick = _ => {
-            this.permissions.setPermission(this.rolejson.name, 1);
-            this.owner.changed();
-        };
-        const no = document.createElement("input");
-        no.type = "radio";
-        no.name = this.rolejson.name;
-        div.append(no);
-        if (state === 0) {
-            no.checked = true;
-        }
-        ;
-        no.onclick = _ => {
-            this.permissions.setPermission(this.rolejson.name, 0);
-            this.owner.changed();
-        };
-        if (this.permissions.hasDeny) {
-            const off = document.createElement("input");
-            off.type = "radio";
-            off.name = this.rolejson.name;
-            div.append(off);
-            if (state === -1) {
-                off.checked = true;
-            }
-            ;
-            off.onclick = _ => {
-                this.permissions.setPermission(this.rolejson.name, -1);
-                this.owner.changed();
-            };
-        }
-        return div;
-    }
-    submit() {
-    }
-}
 class TextInput {
     label;
     owner;
@@ -164,9 +92,12 @@ class TextInput {
     }
     onChange(ev) {
         this.owner.changed();
-        const value = this.input.deref().value;
-        this.onchange(value);
-        this.textContent = value;
+        const input = this.input.deref();
+        if (input) {
+            const value = input.value;
+            this.onchange(value);
+            this.textContent = value;
+        }
     }
     onchange = _ => { };
     watchForChange(func) {
@@ -231,9 +162,12 @@ class ColorInput {
     }
     onChange(ev) {
         this.owner.changed();
-        const value = this.input.deref().value;
-        this.onchange(value);
-        this.colorContent = value;
+        const input = this.input.deref();
+        if (input) {
+            const value = input.value;
+            this.onchange(value);
+            this.colorContent = value;
+        }
     }
     onchange = _ => { };
     watchForChange(func) {
@@ -276,9 +210,12 @@ class SelectInput {
     }
     onChange(ev) {
         this.owner.changed();
-        const value = this.select.deref().selectedIndex;
-        this.onchange(value);
-        this.index = value;
+        const select = this.select.deref();
+        if (select) {
+            const value = select.selectedIndex;
+            this.onchange(value);
+            this.index = value;
+        }
     }
     onchange = _ => { };
     watchForChange(func) {
@@ -315,9 +252,12 @@ class MDInput {
     }
     onChange(ev) {
         this.owner.changed();
-        const value = this.input.deref().value;
-        this.onchange(value);
-        this.textContent = value;
+        const input = this.input.deref();
+        if (input) {
+            const value = input.value;
+            this.onchange(value);
+            this.textContent = value;
+        }
     }
     onchange = _ => { };
     watchForChange(func) {
@@ -351,8 +291,9 @@ class FileInput {
     }
     onChange(ev) {
         this.owner.changed();
-        if (this.onchange) {
-            this.onchange(this.input.deref().files);
+        const input = this.input.deref();
+        if (this.onchange && input) {
+            this.onchange(input.files);
         }
     }
     onchange = null;
@@ -360,50 +301,10 @@ class FileInput {
         this.onchange = func;
     }
     submit() {
-        this.onSubmit(this.input.deref().files);
-    }
-}
-class RoleList extends Buttons {
-    permissions;
-    permission;
-    guild;
-    channel;
-    options;
-    onchange;
-    curid;
-    constructor(permissions, guild, onchange, channel = false) {
-        super("Roles");
-        this.guild = guild;
-        this.permissions = permissions;
-        this.channel = channel;
-        this.onchange = onchange;
-        const options = new Options("", this);
-        if (channel) {
-            this.permission = new Permissions("0", "0");
+        const input = this.input.deref();
+        if (input) {
+            this.onSubmit(input.files);
         }
-        else {
-            this.permission = new Permissions("0");
-        }
-        for (const thing of Permissions.info) {
-            options.addPermissionToggle(thing, this.permission); //
-        }
-        for (const i of permissions) {
-            console.log(i);
-            this.buttons.push([i[0].getObject().name, i[0].id]); //
-        }
-        this.options = options;
-    }
-    handleString(str) {
-        this.curid = str;
-        const perm = this.permissions.find(_ => _[0].id === str)[1];
-        this.permission.deny = perm.deny;
-        this.permission.allow = perm.allow;
-        this.options.name = SnowFlake.getSnowFlakeFromID(str, Role).getObject().name;
-        this.options.haschanged = false;
-        return this.options.generateHTML();
-    }
-    save() {
-        this.onchange(this.curid, this.permission);
     }
 }
 class HtmlArea {
@@ -433,9 +334,6 @@ class Options {
         this.options = [];
         this.owner = owner;
         this.ltr = ltr;
-    }
-    addPermissionToggle(roleJSON, permissions) {
-        this.options.push(new PermissionToggle(roleJSON, permissions, this));
     }
     addOptions(name, { ltr = false } = {}) {
         const options = new Options(name, this, { ltr });
@@ -555,8 +453,10 @@ class Settings extends Buttons {
         this.html = background;
     }
     hide() {
-        this.html.remove();
-        this.html = null;
+        if (this.html) {
+            this.html.remove();
+            this.html = null;
+        }
     }
 }
-export { Settings, RoleList };
+export { Settings, Buttons, Options };

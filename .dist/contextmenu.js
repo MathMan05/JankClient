@@ -39,10 +39,7 @@ class Contextmenu {
             intext.classList.add("contextbutton");
             intext.textContent = thing[0];
             console.log(thing);
-            if (thing[5] === "button") {
-                intext.onclick = thing[1].bind(addinfo, other);
-            }
-            else if (thing[5] === "submenu") {
+            if (thing[5] === "button" || thing[5] === "submenu") {
                 intext.onclick = thing[1].bind(addinfo, other);
             }
             div.appendChild(intext);
