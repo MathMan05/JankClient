@@ -12,7 +12,7 @@ class User{
     owner:Localuser;
     hypotheticalpfp:boolean;
     snowflake:SnowFlake<User>;
-    avatar:string;
+    avatar:string|null;
     username:string;
     nickname:string|null=null;
     relationshipType:0|1|2|3|4=0;
@@ -260,7 +260,7 @@ class User{
         ).then(_=>_.json());
         return new User(json,localuser);
     }
-    changepfp(update:string){
+    changepfp(update:string|null){
         this.avatar=update;
         this.hypotheticalpfp=false;
         const src=this.getpfpsrc();
@@ -299,13 +299,13 @@ class User{
         }
     }
     getpfpsrc(){
-        if(this.hypotheticalpfp){
+        if(this.hypotheticalpfp&&this.avatar){
             return this.avatar;
         }
         if(this.avatar!=null){
             return this.info.cdn+"/avatars/"+this.id.replace("#clone","")+"/"+this.avatar+".png";
         }else{
-            const int=new Number((BigInt(this.id) >> 22n) % 6n);
+            const int=new Number((BigInt(this.id.replace("#clone","")) >> 22n) % 6n);
             return this.info.cdn+`/embed/avatars/${int}.png`;
         }
     }

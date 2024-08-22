@@ -53,6 +53,8 @@ class PermissionToggle {
         this.permissions = permissions;
         this.owner = owner;
     }
+    watchForChange() { }
+    ;
     generateHTML() {
         const div = document.createElement("div");
         div.classList.add("setting");
