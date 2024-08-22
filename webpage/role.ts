@@ -45,7 +45,7 @@ class Role{
 }
 export {Role};
 import {Options} from "./settings.js";
-class PermissionToggle implements OptionsElement{
+class PermissionToggle implements OptionsElement<number>{
     readonly rolejson:{name:string,readableName:string,description:string};
     permissions:Permissions;
     owner:Options;
@@ -54,6 +54,7 @@ class PermissionToggle implements OptionsElement{
         this.permissions=permissions;
         this.owner=owner;
     }
+    watchForChange(){};
     generateHTML():HTMLElement{
         const div=document.createElement("div");
         div.classList.add("setting");

@@ -133,7 +133,7 @@ type userjson={
     discriminator: string,
     id: string,
     public_flags: number,
-    avatar: string,
+    avatar: string|null,
     accent_color: number,
     banner?: string,
     bio: string,

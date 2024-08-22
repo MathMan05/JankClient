@@ -803,7 +803,7 @@ class Localuser{
         {
             const userOptions=settings.addButton("User Settings",{ltr:true});
             const hypotheticalProfile=document.createElement("div");
-            let file:undefined|File=undefined;
+            let file:undefined|File|null=undefined;
             let newpronouns:string|undefined=undefined;
             let newbio:string|undefined=undefined;
             let hypouser=this.user.clone();
@@ -823,8 +823,15 @@ class Localuser{
                 if(file){
                     this.updatepfp(file)
                 }
-            });
+            },{clear:true});
             finput.watchForChange(_=>{
+                if(!_) {
+                    file=_;
+                    hypouser.avatar = null;
+                    hypouser.hypotheticalpfp=true;
+                    regen();
+                    return;
+                };
                 if(_.length){
                     file=_[0];
                     const blob = URL.createObjectURL(file);
@@ -838,8 +845,15 @@ class Localuser{
                 if(bfile!==undefined){
                     this.updatebanner(bfile)
                 }
-            });
+            },{clear:true});
             binput.watchForChange(_=>{
+                if(!_){
+                    bfile=null;
+                    hypouser.banner = undefined;
+                    hypouser.hypotheticalbanner=true;
+                    regen();
+                    return;
+                }
                 if(_.length){
                     bfile=_[0];
                     const blob = URL.createObjectURL(bfile);
@@ -848,12 +862,6 @@ class Localuser{
                     regen();
                 }
             });
-            const bclear=settingsLeft.addButtonInput("Clear banner","Clear",()=>{
-                bfile=null;
-                hypouser.banner = undefined;
-                settingsLeft.changed();
-                regen();
-            })
             let changed=false;
             const pronounbox=settingsLeft.addTextInput("Pronouns",_=>{
                 if(newpronouns||newbio||changed){

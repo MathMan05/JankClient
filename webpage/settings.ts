@@ -1,15 +1,17 @@
 
-interface OptionsElement {//OptionsElement<x>
+interface OptionsElement<x> {//
   generateHTML():HTMLElement;
   submit:()=>void;
-  //watchForChange:(func:(arg1:x)=>void)=>void
+  readonly watchForChange:(func:(arg1:x)=>void)=>void;
+  value:x;
 }
 //future me stuff
-class Buttons implements OptionsElement{
+class Buttons implements OptionsElement<unknown>{
     readonly name:string;
     readonly buttons:[string,Options|string][];
     buttonList:HTMLDivElement;
     warndiv:HTMLElement;
+    value:unknown;
     constructor(name:string){
         this.buttons=[];
         this.name=name;
@@ -64,6 +66,7 @@ class Buttons implements OptionsElement{
         this.warndiv=html;
         this.buttonList.append(html);
     }
+    watchForChange(){}
     save(){}
     submit(){
 
@@ -71,15 +74,15 @@ class Buttons implements OptionsElement{
 }
 
 
-class TextInput implements OptionsElement{
+class TextInput implements OptionsElement<string>{
     readonly label:string;
     readonly owner:Options;
     readonly onSubmit:(str:string)=>void;
-    textContent:string;
-    input:WeakRef<HTMLInputElement>
+    value:string;
+    input:WeakRef<HTMLInputElement>;
     constructor(label:string,onSubmit:(str:string)=>void,owner:Options,{initText=""}={}){
         this.label=label;
-        this.textContent=initText;
+        this.value=initText;
         this.owner=owner;
         this.onSubmit=onSubmit;
     }
@@ -89,7 +92,7 @@ class TextInput implements OptionsElement{
         span.textContent=this.label;
         div.append(span);
         const input=document.createElement("input");
-        input.value=this.textContent;
+        input.value=this.value;
         input.type="text";
         input.oninput=this.onChange.bind(this);
         this.input=new WeakRef(input);
@@ -102,7 +105,7 @@ class TextInput implements OptionsElement{
         if(input){
             const value=input.value as string;
             this.onchange(value);
-            this.textContent=value;
+            this.value=value;
         }
     }
     onchange:(str:string)=>void=_=>{};
@@ -110,15 +113,59 @@ class TextInput implements OptionsElement{
         this.onchange=func;
     }
     submit(){
-        this.onSubmit(this.textContent);
+        this.onSubmit(this.value);
     }
 }
 
-class ButtonInput implements OptionsElement{
+class CheckboxInput implements OptionsElement<boolean>{
+    readonly label:string;
+    readonly owner:Options;
+    readonly onSubmit:(str:boolean)=>void;
+    value:boolean;
+    input:WeakRef<HTMLInputElement>;
+    constructor(label:string,onSubmit:(str:boolean)=>void,owner:Options,{initState=false}={}){
+        this.label=label;
+        this.value=initState;
+        this.owner=owner;
+        this.onSubmit=onSubmit;
+    }
+    generateHTML():HTMLDivElement{
+        const div=document.createElement("div");
+        const span=document.createElement("span");
+        span.textContent=this.label;
+        div.append(span);
+        const input=document.createElement("input");
+        input.type="checkbox";
+        input.checked=this.value;
+        input.oninput=this.onChange.bind(this);
+        this.input=new WeakRef(input);
+        div.append(input);
+        return div;
+    }
+    private onChange(ev:Event){
+        this.owner.changed();
+        const input=this.input.deref();
+        if(input){
+            const value=input.checked as boolean;
+            this.onchange(value);
+            this.value=value;
+        }
+    }
+    onchange:(str:boolean)=>void=_=>{};
+    watchForChange(func:(str:boolean)=>void){
+        this.onchange=func;
+    }
+    submit(){
+        this.onSubmit(this.value);
+    }
+}
+
+class ButtonInput implements OptionsElement<void>{
     readonly label:string;
     readonly owner:Options;
     readonly onClick:()=>void;
     textContent:string;
+    value: void;
     constructor(label:string,textContent:string,onClick:()=>void,owner:Options,{}={}){
         this.label=label;
         this.owner=owner;
@@ -143,12 +190,13 @@ class ButtonInput implements OptionsElement{
     submit(){}
 }
 
-class ColorInput implements OptionsElement{
+class ColorInput implements OptionsElement<string>{
     readonly label:string;
     readonly owner:Options;
     readonly onSubmit:(str:string)=>void;
     colorContent:string;
-    input:WeakRef<HTMLInputElement>
+    input:WeakRef<HTMLInputElement>;
+    value: string;
     constructor(label:string,onSubmit:(str:string)=>void,owner:Options,{initColor=""}={}){
         this.label=label;
         this.colorContent=initColor;
@@ -173,6 +221,7 @@ class ColorInput implements OptionsElement{
         const input=this.input.deref();
         if(input){
             const value=input.value as string;
+            this.value=value;
             this.onchange(value);
             this.colorContent=value;
         }
@@ -186,13 +235,16 @@ class ColorInput implements OptionsElement{
     }
 }
 
-class SelectInput implements OptionsElement{
+class SelectInput implements OptionsElement<number>{
     readonly label:string;
     readonly owner:Options;
     readonly onSubmit:(str:number)=>void;
     options:string[];
     index:number;
     select:WeakRef<HTMLSelectElement>
+    get value(){
+        return this.index;
+    }
     constructor(label:string,onSubmit:(str:number)=>void,options:string[],owner:Options,{defaultIndex=0}={}){
         this.label=label;
         this.index=defaultIndex;
@@ -235,15 +287,15 @@ class SelectInput implements OptionsElement{
         this.onSubmit(this.index);
     }
 }
-class MDInput implements OptionsElement{
+class MDInput implements OptionsElement<string>{
     readonly label:string;
     readonly owner:Options;
     readonly onSubmit:(str:string)=>void;
-    textContent:string;
+    value:string;
     input:WeakRef<HTMLTextAreaElement>
     constructor(label:string,onSubmit:(str:string)=>void,owner:Options,{initText=""}={}){
         this.label=label;
-        this.textContent=initText;
+        this.value=initText;
         this.owner=owner;
         this.onSubmit=onSubmit;
     }
@@ -254,7 +306,7 @@ class MDInput implements OptionsElement{
         div.append(span);
         div.append(document.createElement("br"));
         const input=document.createElement("textarea");
-        input.value=this.textContent;
+        input.value=this.value;
         input.oninput=this.onChange.bind(this);
         this.input=new WeakRef(input);
         div.append(input);
@@ -266,7 +318,7 @@ class MDInput implements OptionsElement{
         if(input){
             const value=input.value as string;
             this.onchange(value);
-            this.textContent=value;
+            this.value=value;
         }
     }
     onchange:(str:string)=>void=_=>{};
@@ -274,18 +326,21 @@ class MDInput implements OptionsElement{
         this.onchange=func;
     }
     submit(){
-        this.onSubmit(this.textContent);
+        this.onSubmit(this.value);
     }
 }
-class FileInput implements OptionsElement{
+class FileInput implements OptionsElement<FileList|null>{
     readonly label:string;
     readonly owner:Options;
     readonly onSubmit:(str:FileList|null)=>void;
     input:WeakRef<HTMLInputElement>
-    constructor(label:string,onSubmit:(str:FileList)=>void,owner:Options,{}={}){
+    value:FileList|null;
+    clear:boolean;
+    constructor(label:string,onSubmit:(str:FileList)=>void,owner:Options,{clear=false}={}){
         this.label=label;
         this.owner=owner;
         this.onSubmit=onSubmit;
+        this.clear=clear;
     }
     generateHTML():HTMLDivElement{
         const div=document.createElement("div");
@@ -297,17 +352,28 @@ class FileInput implements OptionsElement{
         input.oninput=this.onChange.bind(this);
         this.input=new WeakRef(input);
         div.append(input);
+        if(this.clear){
+            const button=document.createElement("button");
+            button.textContent="Clear";
+            button.onclick=_=>{
+                if(this.onchange){this.onchange(null)};
+                this.value=null;
+                this.owner.changed();
+            }
+            div.append(button);
+        }
         return div;
     }
     onChange(ev:Event){
         this.owner.changed();
         const input=this.input.deref();
         if(this.onchange&&input){
+            this.value=input.files;
             this.onchange(input.files);
         }
     }
     onchange:((str:FileList|null)=>void)|null=null;
-    watchForChange(func:(str:FileList)=>void){
+    watchForChange(func:(str:FileList|null)=>void){
         this.onchange=func;
     }
     submit(){
@@ -318,9 +384,10 @@ class FileInput implements OptionsElement{
     }
 }
 
-class HtmlArea implements OptionsElement{
+class HtmlArea implements OptionsElement<void>{
     submit: () => void;
     html:(()=>HTMLElement)|HTMLElement;
+    value:void;
     constructor(html:(()=>HTMLElement)|HTMLElement,submit:()=>void){
         this.submit=submit;
         this.html=html;
@@ -332,20 +399,23 @@ class HtmlArea implements OptionsElement{
             return this.html;
         }
     }
+    watchForChange(){};
 }
-class Options implements OptionsElement{
+class Options implements OptionsElement<void>{
     name:string;
     haschanged=false;
-    readonly options:OptionsElement[];
-    readonly owner:Buttons|Options;
+    readonly options:OptionsElement<any>[];
+    readonly owner:Buttons|Options|Form;
     readonly ltr:boolean;
-    constructor(name:string,owner:Buttons|Options,{ltr=false}={}){
+    value:void;
+    constructor(name:string,owner:Buttons|Options|Form,{ltr=false}={}){
         this.name=name;
         this.options=[];
         this.owner=owner;
         this.ltr=ltr;
 
     }
+    watchForChange(){};
     addOptions(name:string,{ltr=false}={}){
         const options=new Options(name,this,{ltr});
         this.options.push(options);
@@ -356,8 +426,8 @@ class Options implements OptionsElement{
         this.options.push(select);
         return select;
     }
-    addFileInput(label:string,onSubmit:(files:FileList)=>void,{}={}){
-        const FI=new FileInput(label,onSubmit,this,{});
+    addFileInput(label:string,onSubmit:(files:FileList)=>void,{clear=false}={}){
+        const FI=new FileInput(label,onSubmit,this,{clear});
         this.options.push(FI);
         return FI;
     }
@@ -386,6 +456,12 @@ class Options implements OptionsElement{
         this.options.push(button);
         return button;
     }
+    addCheckboxInput(label:string,onSubmit:(str:boolean)=>void,{initState=false}={}){
+        const box=new CheckboxInput(label,onSubmit,this,{initState});
+        this.options.push(box);
+        return box;
+    }
+    readonly html:WeakMap<OptionsElement<any>,WeakRef<HTMLElement>>=new WeakMap();
     generateHTML():HTMLElement{
         const div=document.createElement("div");
         div.classList.add("titlediv");
@@ -398,13 +474,20 @@ class Options implements OptionsElement{
         const container=document.createElement("div");
         container.classList.add(this.ltr?"flexltr":"flexttb","flexspace");
         for(const thing of this.options){
-            container.append(thing.generateHTML());
+            const div=document.createElement("div");
+            if(!(thing instanceof Options)){
+                div.classList.add("optionElement")
+            }
+            const html=thing.generateHTML();
+            div.append(html);
+            this.html.set(thing,new WeakRef(div));
+            container.append(div);
         }
         div.append(container);
         return div;
     }
     changed(){
-        if(this.owner instanceof Options){
+        if(this.owner instanceof Options||this.owner instanceof Form){
             this.owner.changed();
             return;
         }
@@ -436,7 +519,145 @@ class Options implements OptionsElement{
         }
     }
 }
+class Form implements OptionsElement<object>{
+    name:string;
+    readonly options:Options;
+    readonly owner:Buttons|Options;
+    readonly ltr:boolean;
+    readonly names:Map<string,OptionsElement<any>>
+    readonly required:WeakSet<OptionsElement<any>>=new WeakSet();
+    readonly submitText:string;
+    readonly fetchURL:string;
+    readonly headers:object;
+    readonly method:string;
+    value:object;
+    constructor(name:string,owner:Buttons|Options,onSubmit:((arg1:object)=>void),{ltr=false,submitText="Submit",fetchURL="",headers={},method="POST"}={}){
+        this.name=name;
+        this.method=method;
+        this.submitText=submitText;
+        this.options=new Options("",this,{ltr});
+        this.owner=owner;
+        this.fetchURL=fetchURL;
+        this.headers=headers;
+        this.ltr=ltr;
+        this.onSubmit=onSubmit;
+    }
 
+    addSelect(label:string,formName:string,selections:string[],{defaultIndex=0,required=false}={}){
+        const select=this.options.addSelect(label,_=>{},selections,{defaultIndex});
+        this.names.set(formName,select);
+        if(required){
+            this.required.add(select);
+        }
+        return;
+    }
+    addFileInput(label:string,formName:string,{required=false}={}){
+        const FI=this.options.addFileInput(label,_=>{},{});
+        this.names.set(formName,FI);
+        if(required){
+            this.required.add(FI);
+        }
+        return;
+    }
+
+    addTextInput(label:string,formName:string,{initText="",required=false}={}){
+        const textInput=this.options.addTextInput(label,_=>{},{initText});
+        this.names.set(formName,textInput);
+        if(required){
+            this.required.add(textInput);
+        }
+        return;
+    }
+    addColorInput(label:string,formName:string,{initColor="",required=false}={}){
+        const colorInput=this.options.addColorInput(label,_=>{},{initColor});
+        this.names.set(formName,colorInput);
+        if(required){
+            this.required.add(colorInput);
+        }
+        return;
+    }
+
+    addMDInput(label:string,formName:string,{initText="",required=false}={}){
+        const mdInput=this.options.addMDInput(label,_=>{},{initText});
+        this.names.set(formName,mdInput);
+        if(required){
+            this.required.add(mdInput);
+        }
+        return;
+    }
+
+    addCheckboxInput(label:string,formName:string,{initState=false,required=false}={}){
+        const box=this.options.addCheckboxInput(label,_=>{},{initState});
+        this.names.set(formName,box);
+        if(required){
+            this.required.add(box);
+        }
+        return;
+    }
+
+    generateHTML():HTMLElement{
+        const div=document.createElement("div");
+        div.append(this.options.generateHTML());
+        const button=document.createElement("button");
+        button.onclick=_=>{
+            this.submit();
+        }
+        button.textContent=this.submitText;
+        div.append(button)
+        return div;
+    }
+    onSubmit:((arg1:object)=>void);
+    watchForChange(func:(arg1:object)=>void){
+        this.onSubmit=func;
+    };
+    changed(){
+    }
+    submit(){
+        const build={}
+        for(const thing of this.names.keys()){
+            const input=this.names.get(thing) as OptionsElement<any>;
+            build[thing]=input.value;
+        }
+        if(this.fetchURL===""){
+            fetch(this.fetchURL,{
+                method:this.method,
+                body:JSON.stringify(build)
+            }).then(_=>_.json()).then(json=>{
+                if(json.errors){
+                    this.errors(json.errors)
+                }
+            })
+        }else{
+            this.onSubmit(build);
+        }
+        console.warn("needs to be implemented")
+    }
+    errors(errors){
+        for(const error of errors){
+            const elm=this.names.get(error);
+            if(elm){
+                const ref=this.options.html.get(elm);
+                if(ref&&ref.deref()){
+                    const html=ref.deref() as HTMLDivElement;
+                    this.makeError(html,error._errors[0].message)
+                }
+            }
+        }
+    }
+    makeError(e:HTMLDivElement,message:string){
+        let element=e.getElementsByClassName("suberror")[0] as HTMLElement;
+        if(!element){
+            const div=document.createElement("div");
+            div.classList.add("suberror","suberrora");
+            e.append(div);
+            element=div;
+        }else{
+            element.classList.remove("suberror");
+            setTimeout(_=>{element.classList.add("suberror")},100);
+        }
+        element.textContent=message;
+    }
+}
 class Settings extends Buttons{
     static readonly Buttons=Buttons;
     static readonly Options=Options;

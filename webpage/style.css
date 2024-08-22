@@ -837,6 +837,7 @@ input::file-selector-button {
 input[type="file"] {
   background:transparent;
   box-shadow: none;
+  width: min-content;
 }
 select{
 	transition: background .1s ease-in-out;
