@@ -7,7 +7,7 @@ import {Dialog} from "./dialog.js";
 import {getapiurls, getBulkInfo, setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
-import { channeljson, guildjson, memberjson, presencejson, readyjson } from "./jsontypes.js";
+import { channeljson, memberjson, presencejson, readyjson } from "./jsontypes.js";
 import { Member } from "./member.js";
 import { Settings } from "./settings.js";
 import { MarkDown } from "./markdown.js";

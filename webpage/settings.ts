@@ -1,14 +1,10 @@
-import { Permissions } from "./permissions.js";
-import { Guild } from "./guild.js";
-import { SnowFlake } from "./snowflake.js";
-import { Role } from "./role.js";
+
 interface OptionsElement {//OptionsElement<x>
   generateHTML():HTMLElement;
   submit:()=>void;
   //watchForChange:(func:(arg1:x)=>void)=>void
 }
 //future me stuff
-
 class Buttons implements OptionsElement{
     readonly name:string;
     readonly buttons:[string,Options|string][];
@@ -18,7 +14,7 @@ class Buttons implements OptionsElement{
         this.buttons=[];
         this.name=name;
     }
-    add(name:string,thing:Options=undefined){
+    add(name:string,thing:Options|undefined=undefined){
         if(!thing){thing=new Options(name,this)}
         this.buttons.push([name,thing]);
         return thing;
@@ -74,71 +70,7 @@ class Buttons implements OptionsElement{
     }
 }
 
-class PermissionToggle implements OptionsElement{
-    readonly rolejson:{name:string,readableName:string,description:string};
-    permissions:Permissions;
-    owner:Options;
-    constructor(roleJSON:PermissionToggle["rolejson"],permissions:Permissions,owner:Options){
-        this.rolejson=roleJSON;
-        this.permissions=permissions;
-        this.owner=owner;
-    }
-    generateHTML():HTMLElement{
-        const div=document.createElement("div");
-        div.classList.add("setting");
-        const name=document.createElement("span");
-        name.textContent=this.rolejson.readableName;
-        name.classList.add("settingsname");
-        div.append(name);
 
-
-        div.append(this.generateCheckbox());
-        const p=document.createElement("p");
-        p.textContent=this.rolejson.description;
-        div.appendChild(p);
-        return div;
-    }
-    generateCheckbox():HTMLElement{
-        const div=document.createElement("div");
-        div.classList.add("tritoggle");
-        const state=this.permissions.getPermission(this.rolejson.name);
-
-        const on=document.createElement("input");
-        on.type="radio";
-        on.name=this.rolejson.name;
-        div.append(on);
-        if(state===1){on.checked=true;};
-        on.onclick=_=>{
-            this.permissions.setPermission(this.rolejson.name,1);
-            this.owner.changed();
-        }
-
-        const no=document.createElement("input");
-        no.type="radio";
-        no.name=this.rolejson.name;
-        div.append(no);
-        if(state===0){no.checked=true;};
-        no.onclick=_=>{
-            this.permissions.setPermission(this.rolejson.name,0);
-            this.owner.changed();
-        }
-        if(this.permissions.hasDeny){
-            const off=document.createElement("input");
-            off.type="radio";
-            off.name=this.rolejson.name;
-            div.append(off);
-            if(state===-1){off.checked=true;};
-            off.onclick=_=>{
-                this.permissions.setPermission(this.rolejson.name,-1);
-                this.owner.changed();
-            }
-        }
-        return div;
-    }
-    submit(){
-
-    }
-}
 class TextInput implements OptionsElement{
     readonly label:string;
     readonly owner:Options;
@@ -166,9 +98,12 @@ class TextInput implements OptionsElement{
     }
     private onChange(ev:Event){
         this.owner.changed();
-        const value=this.input.deref().value as string;
-        this.onchange(value);
-        this.textContent=value;
+        const input=this.input.deref();
+        if(input){
+            const value=input.value as string;
+            this.onchange(value);
+            this.textContent=value;
+        }
     }
     onchange:(str:string)=>void=_=>{};
     watchForChange(func:(str:string)=>void){
@@ -235,9 +170,12 @@ class ColorInput implements OptionsElement{
     }
     private onChange(ev:Event){
         this.owner.changed();
-        const value=this.input.deref().value as string;
-        this.onchange(value);
-        this.colorContent=value;
+        const input=this.input.deref();
+        if(input){
+            const value=input.value as string;
+            this.onchange(value);
+            this.colorContent=value;
+        }
     }
     onchange:(str:string)=>void=_=>{};
     watchForChange(func:(str:string)=>void){
@@ -282,9 +220,12 @@ class SelectInput implements OptionsElement{
     }
     private onChange(ev:Event){
         this.owner.changed();
-        const value=this.select.deref().selectedIndex;
-        this.onchange(value);
-        this.index=value;
+        const select=this.select.deref();
+        if(select){
+            const value=select.selectedIndex;
+            this.onchange(value);
+            this.index=value;
+        }
     }
     onchange:(str:number)=>void=_=>{};
     watchForChange(func:(str:number)=>void){
@@ -321,9 +262,12 @@ class MDInput implements OptionsElement{
     }
     onChange(ev:Event){
         this.owner.changed();
-        const value=this.input.deref().value as string;
-        this.onchange(value);
-        this.textContent=value;
+        const input=this.input.deref();
+        if(input){
+            const value=input.value as string;
+            this.onchange(value);
+            this.textContent=value;
+        }
     }
     onchange:(str:string)=>void=_=>{};
     watchForChange(func:(str:string)=>void){
@@ -336,7 +280,7 @@ class MDInput implements OptionsElement{
 class FileInput implements OptionsElement{
     readonly label:string;
     readonly owner:Options;
-    readonly onSubmit:(str:FileList)=>void;
+    readonly onSubmit:(str:FileList|null)=>void;
     input:WeakRef<HTMLInputElement>
     constructor(label:string,onSubmit:(str:FileList)=>void,owner:Options,{}={}){
         this.label=label;
@@ -357,61 +301,23 @@ class FileInput implements OptionsElement{
     }
     onChange(ev:Event){
         this.owner.changed();
-        if(this.onchange){
-            this.onchange(this.input.deref().files);
+        const input=this.input.deref();
+        if(this.onchange&&input){
+            this.onchange(input.files);
         }
     }
-    onchange:(str:FileList)=>void=null;
+    onchange:((str:FileList|null)=>void)|null=null;
     watchForChange(func:(str:FileList)=>void){
         this.onchange=func;
     }
     submit(){
-        this.onSubmit(this.input.deref().files);
+        const input=this.input.deref();
+        if(input){
+            this.onSubmit(input.files);
+        }
     }
 }
-class RoleList extends Buttons{
-    readonly permissions:[SnowFlake<Role>,Permissions][];
-    permission:Permissions;
-    readonly guild:Guild;
-    readonly channel:boolean;
-    readonly declare buttons:[string,string][];
-    readonly options:Options;
-    onchange:Function;
-    curid:string;
-    constructor(permissions:[SnowFlake<Role>,Permissions][],guild:Guild,onchange:Function,channel=false){
-        super("Roles");
-        this.guild=guild;
-        this.permissions=permissions;
-        this.channel=channel;
-        this.onchange=onchange;
-        const options=new Options("",this);
-        if(channel){
-            this.permission=new Permissions("0","0");
-        }else{
-            this.permission=new Permissions("0");
-        }
-        for(const thing of Permissions.info){
-            options.addPermissionToggle(thing,this.permission);//
-        }
-        for(const i of permissions){
-            console.log(i);
-            this.buttons.push([i[0].getObject().name,i[0].id])//
-        }
-        this.options=options;
-    }
-    handleString(str:string):HTMLElement{
-        this.curid=str;
-        const perm=this.permissions.find(_=>_[0].id===str)[1];
-        this.permission.deny=perm.deny;
-        this.permission.allow=perm.allow;
-        this.options.name=SnowFlake.getSnowFlakeFromID(str,Role).getObject().name;
-        this.options.haschanged=false;
-        return this.options.generateHTML();
-    }
-    save(){
-        this.onchange(this.curid,this.permission);
-    }
-}
+
 class HtmlArea implements OptionsElement{
     submit: () => void;
     html:(()=>HTMLElement)|HTMLElement;
@@ -439,9 +345,6 @@ class Options implements OptionsElement{
         this.owner=owner;
         this.ltr=ltr;
 
-    }
-    addPermissionToggle(roleJSON:PermissionToggle["rolejson"],permissions:Permissions){
-        this.options.push(new PermissionToggle(roleJSON,permissions,this));
     }
     addOptions(name:string,{ltr=false}={}){
         const options=new Options(name,this,{ltr});
@@ -537,7 +440,7 @@ class Options implements OptionsElement{
 class Settings extends Buttons{
     static readonly Buttons=Buttons;
     static readonly Options=Options;
-    html:HTMLElement;
+    html:HTMLElement|null;
     constructor(name:string){
         super(name);
     }
@@ -568,10 +471,12 @@ class Settings extends Buttons{
         this.html=background;
     }
     hide(){
-        this.html.remove();
-        this.html=null;
+        if(this.html){
+            this.html.remove();
+            this.html=null;
+        }
     }
 }
 
-export {Settings,RoleList}
+export {Settings,OptionsElement,Buttons,Options}
 

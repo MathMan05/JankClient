@@ -1,10 +1,10 @@
 import { Channel } from "./channel.js";
 import { Localuser } from "./localuser.js";
 import {Contextmenu} from "./contextmenu.js";
-import {Role} from "./role.js";
+import {Role,RoleList} from "./role.js";
 import {Dialog} from "./dialog.js";
 import {Member} from "./member.js";
-import {Settings,RoleList} from "./settings.js";
+import {Settings} from "./settings.js";
 import {Permissions} from "./permissions.js";
 import { SnowFlake } from "./snowflake.js";
 import { channeljson, guildjson, emojijson, memberjson } from "./jsontypes.js";

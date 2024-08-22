@@ -1,9 +1,9 @@
 import { Channel } from "./channel.js";
 import { Contextmenu } from "./contextmenu.js";
-import { Role } from "./role.js";
+import { Role, RoleList } from "./role.js";
 import { Dialog } from "./dialog.js";
 import { Member } from "./member.js";
-import { Settings, RoleList } from "./settings.js";
+import { Settings } from "./settings.js";
 import { SnowFlake } from "./snowflake.js";
 import { User } from "./user.js";
 class Guild {
