@@ -511,7 +511,7 @@ class Message {
         }
         func();
     }
-    giveReaction(data, member) {
+    makeReaction(data, member) {
         for (const thing of this.reactions) {
             if (thing.emoji.name === data.name) {
                 thing.count++;
@@ -529,7 +529,7 @@ class Message {
         });
         this.updateReactions();
     }
-    takeReaction(data, id) {
+    removeReaction(data, id) {
         console.log("test");
         for (const i in this.reactions) {
             const thing = this.reactions[i];
