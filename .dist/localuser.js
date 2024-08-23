@@ -369,14 +369,14 @@ class Localuser {
                         else {
                             thing = { id: temp.d.user_id };
                         }
-                        message.giveReaction(temp.d.emoji, thing);
+                        message.makeReaction(temp.d.emoji, thing);
                     }
                     break;
                 case "MESSAGE_REACTION_REMOVE":
                     if (SnowFlake.hasSnowFlakeFromID(temp.d.message_id, Message)) {
                         const message = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject();
                         console.log("test");
-                        message.takeReaction(temp.d.emoji, temp.d.user_id);
+                        message.removeReaction(temp.d.emoji, temp.d.user_id);
                     }
                     break;
                 case "GUILD_MEMBERS_CHUNK":
