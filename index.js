@@ -13,7 +13,7 @@ app.use("/getupdates",(req, res) => {
 });
 let debugging=true;//Do not turn this off, the service worker is all kinds of jank as is, it'll really mess your day up if you disable this
 function isembed(str){
-    return str===("Mozilla/5.0 (compatible; Discordbot/2.0; +https://discordapp.com)")||str===("Mozilla/5.0 (compatible; Spacebar/1.0; +https://github.com/spacebarchat/server)");
+    return str.includes("discord")||str.includes("Spacebar");
 }
 async function getapiurls(str){
     if(str[str.length-1]!=="/"){
