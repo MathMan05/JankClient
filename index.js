@@ -44,6 +44,7 @@ async function getapiurls(str){
 async function inviteres(req,res){
     //console.log(req.rawHeaders);
     try{
+
         let embed=isembed(req.get("User-Agent"));
         if(!embed){return false};
         const code=req.path.split("/")[2];
@@ -89,9 +90,15 @@ async function inviteres(req,res){
     }
     return false;
 }
+const agents=new Set()
 app.use('/', async (req, res) => {
+    agents.add(req.get("User-Agent"))
     if(debugging&&req.path.startsWith("/service.js")){
-        res.send("console.log(\"Hi :3\");");
+        let build=""
+        for(const thing of agents){
+            build+=thing+"\n";
+        }
+        res.send(build);
         return;
     }
     if(req.path.startsWith("/invite/")){
