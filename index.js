@@ -56,7 +56,11 @@ async function inviteres(req,res){
             method:"GET"
         }).then(_=>_.json()).then(json=>{
             title=json.guild.name;
-            description=json.inviter.username+" Has invited you to "+json.guild.name+(json.guild.description?json.guild.description+"\n":"");
+            if(json.inviter){
+                description=json.inviter.username+" Has invited you to "+json.guild.name+(json.guild.description?json.guild.description+"\n":"");
+            }else{
+                description="you've been invited to "+json.guild.name+(json.guild.description?json.guild.description+"\n":"");
+            }
             if(json.guild.icon){
                 icon=`${urls.cdn}/icons/${json.guild.id}/${json.guild.icon}.png`;
             }
