@@ -94,15 +94,9 @@ async function inviteres(req,res){
     }
     return false;
 }
-const agents=new Set()
 app.use('/', async (req, res) => {
-    agents.add(req.get("User-Agent"))
     if(debugging&&req.path.startsWith("/service.js")){
-        let build=""
-        for(const thing of agents){
-            build+=thing+"\n";
-        }
-        res.send(build);
+        res.send("dud");
         return;
     }
     if(req.path.startsWith("/invite/")){
