@@ -117,4 +117,4 @@ import {getBulkUsers, Specialuser, getapiurls} from "./login.js";
         document.body.append(table);
     }
     document.getElementById("AcceptInvite").addEventListener("click",showAccounts);
-})
+})();
