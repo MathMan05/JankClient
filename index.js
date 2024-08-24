@@ -72,7 +72,9 @@ async function inviteres(req,res){
                 thumbnail=`${urls.cdn}/icons/${json.guild.id}/${json.guild.icon}.png`;
             }
         });
-        const json={type:"link",
+        const json={
+            type:"link",
+            version:"1.0",
             title,
             thumbnail,
             description,
@@ -82,6 +84,7 @@ async function inviteres(req,res){
         console.error(e);
         const json={
             type:"link",
+            version:"1.0",
             title:"Jank Client",
             thumbnail:"/logo.webp",
             description:"A spacebar client that has DMs, replying and more",
