@@ -42,16 +42,23 @@ async function getapiurls(str){
 }
 
 async function inviteres(req,res){
-    //console.log(req.rawHeaders);
+    let url;
+    if(URL.canParse(req.query.url)){
+        url=new URL(req.query.url);
+    }else{
+        const scheme = req.secure ? 'https' : 'http';
+        const host=`${scheme}://${req.get("Host")}`;
+        url=new URL(host);
+    }
     try{
-
-        let embed=isembed(req.get("User-Agent"));
-        if(!embed){return false};
-        const code=req.path.split("/")[2];
+        if(url.pathname.startsWith("invite")){
+            throw -1;
+        }
+        const code=url.pathname.split("/")[2];
         let title="";
         let description="";
-        let icon="";
-        const urls=await getapiurls(req.query.instance);
+        let thumbnail="";
+        const urls=await getapiurls(url.searchParams.get("instance"));
         await fetch(`${urls.api}/invites/${code}`,{
             method:"GET"
         }).then(_=>_.json()).then(json=>{
@@ -62,10 +69,28 @@ async function inviteres(req,res){
                 description="you've been invited to "+json.guild.name+(json.guild.description?json.guild.description+"\n":"");
             }
             if(json.guild.icon){
-                icon=`${urls.cdn}/icons/${json.guild.id}/${json.guild.icon}.png`;
+                thumbnail=`${urls.cdn}/icons/${json.guild.id}/${json.guild.icon}.png`;
             }
         });
-
+        const json={type:"link",
+            title,
+            thumbnail,
+            description,
+        };
+        res.send(JSON.stringify(json));
+    }catch(e){
+        console.error(e);
+        const json={
+            type:"link",
+            title:"Jank Client",
+            thumbnail:"/logo.webp",
+            description:"A spacebar client that has DMs, replying and more",
+            url:url.toString()
+        };
+        res.send(JSON.stringify(json));
+    }
+}
+        /*
         function htmlEnc(s) {//https://stackoverflow.com/a/11561642
             return s.replaceAll(/&/g, '&amp;')
             .replaceAll(/</g, '&lt;')
@@ -93,17 +118,29 @@ async function inviteres(req,res){
         console.error(e);
     }
     return false;
-}
+    */
+
+app.use('/services/oembed', (req, res) => {
+    inviteres(req, res);
+})
 app.use('/', async (req, res) => {
+    const scheme = req.secure ? 'https' : 'http';
+    const host=`${scheme}://${req.get("Host")}`;
+    const ref=host+req.originalUrl;
+    if(host&&ref){
+
+        const link=`${host}/services/oembed?url=${encodeURIComponent(ref)}`;
+        res.set("Link",`<${link}>; rel="alternate"; type="application/json+oembed"; title="Jank Client oEmbed format"`);
+    }else{
+        console.log(req);
+    }
+
     if(debugging&&req.path.startsWith("/service.js")){
         res.send("dud");
         return;
     }
     if(req.path.startsWith("/invite/")){
-        const condition=await inviteres(req,res);
-        if(!condition){
-            res.sendFile(`./webpage/invite.html`, {root: __dirname});
-        }
+        res.sendFile(`./webpage/invite.html`, {root: __dirname});
         return;
     }
     if(fs.existsSync(`${__dirname}/webpage${req.path}`)) {
