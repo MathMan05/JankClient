@@ -509,7 +509,7 @@ class Message{
         }
         func();
     }
-    makeReaction(data:{name:string},member:Member|{id:string}){
+    reactionAdd(data:{name:string},member:Member|{id:string}){
         for(const thing of this.reactions){
             if(thing.emoji.name===data.name){
                 thing.count++;
@@ -527,7 +527,7 @@ class Message{
         });
         this.updateReactions();
     }
-    removeReaction(data:{name:string},id:string){
+    reactionRemove(data:{name:string},id:string){
         console.log("test");
         for(const i in this.reactions){
             const thing=this.reactions[i];
@@ -544,6 +544,20 @@ class Message{
                     this.updateReactions();
                     return;
                 }
+            }
+        }
+    }
+    reactionRemoveAll() {
+        this.reactions = [];
+        this.updateReactions();
+    }
+    reactionRemoveEmoji(emoji:Emoji) {
+        for (const i in this.reactions) {
+            const reaction = this.reactions[i];
+            if ((reaction.emoji.id && reaction.emoji.id == emoji.id) || (!reaction.emoji.id && reaction.emoji.name == emoji.name)) {
+                this.reactions.splice(i, 1);
+                this.updateReactions();
+                break;
             }
         }
     }
