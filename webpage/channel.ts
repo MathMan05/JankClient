@@ -658,7 +658,7 @@ class Channel{
         const prom=this.infinite.delete();
         history.pushState(null, "","/channels/"+this.guild_id+"/"+this.snowflake);
 
-        (document.getElementById("channelname") as HTMLSpanElement).textContent="#"+this.name;
+        this.localuser.pageTitle("#"+this.name);
         const channelTopic=document.getElementById("channelTopic") as HTMLSpanElement;
         if (this.topic) {
             channelTopic.innerHTML=new MarkDown(this.topic, this).makeHTML().innerHTML;

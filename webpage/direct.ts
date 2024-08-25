@@ -138,7 +138,7 @@ class Group extends Channel{
         }
         this.buildmessages();
         history.pushState(null, "","/channels/"+this.guild_id+"/"+this.id);
-        (document.getElementById("channelname") as HTMLElement).textContent="@"+this.name;
+        this.localuser.pageTitle("@"+this.name);
         (document.getElementById("channelTopic") as HTMLElement).setAttribute("hidden","");
         (document.getElementById("typebox") as HTMLDivElement).contentEditable=""+true;
     }
