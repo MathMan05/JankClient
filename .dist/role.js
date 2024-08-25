@@ -48,6 +48,7 @@ class PermissionToggle {
     rolejson;
     permissions;
     owner;
+    value;
     constructor(roleJSON, permissions, owner) {
         this.rolejson = roleJSON;
         this.permissions = permissions;

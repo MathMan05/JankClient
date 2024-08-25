@@ -49,6 +49,7 @@ class PermissionToggle implements OptionsElement<number>{
     readonly rolejson:{name:string,readableName:string,description:string};
     permissions:Permissions;
     owner:Options;
+    value:number;
     constructor(roleJSON:PermissionToggle["rolejson"],permissions:Permissions,owner:Options){
         this.rolejson=roleJSON;
         this.permissions=permissions;
