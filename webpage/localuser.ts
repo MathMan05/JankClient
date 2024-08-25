@@ -379,7 +379,7 @@ class Localuser{
                         }else{
                             thing={id:temp.d.user_id}
                         }
-                        message.makeReaction(temp.d.emoji,thing);
+                        message.reactionAdd(temp.d.emoji,thing);
                     }
                     break;
                 case "MESSAGE_REACTION_REMOVE":
@@ -387,9 +387,21 @@ class Localuser{
 
                         const message=SnowFlake.getSnowFlakeFromID(temp.d.message_id,Message).getObject();
                         console.log("test");
-                        message.removeReaction(temp.d.emoji,temp.d.user_id);
+                        message.reactionRemove(temp.d.emoji,temp.d.user_id);
                     }
                     break;
+                case "MESSAGE_REACTION_REMOVE_ALL":
+                    if (SnowFlake.hasSnowFlakeFromID(temp.d.message_id, Message)) {
+                        const messageReactionRemoveAll = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject()
+                        messageReactionRemoveAll.reactionRemoveAll()
+                    }
+                    break
+                case "MESSAGE_REACTION_REMOVE_EMOJI":
+                    if (SnowFlake.hasSnowFlakeFromID(temp.d.message_id, Message)) {
+                        const messageReactionRemoveEmoji = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject()
+                        messageReactionRemoveEmoji.reactionRemoveEmoji(temp.d.emoji)
+                    }
+                    break
                 case "GUILD_MEMBERS_CHUNK":
                     this.gotChunk(temp.d);
                     break;
