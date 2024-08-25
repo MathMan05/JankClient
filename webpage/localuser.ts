@@ -37,6 +37,9 @@ class Localuser{
     typing:Map<Member,number>=new Map();
     connectionSucceed=0;
     errorBackoff=0;
+    instancePing={
+        name:"Unknown",
+    };
     mfa_enabled:boolean;
     constructor(userinfo:Specialuser|-1){
         if(userinfo===-1){
@@ -100,6 +103,8 @@ class Localuser{
             user.nickname=thing.nickname;
             user.relationshipType=thing.type;
         }
+
+        this.pingEndpoint()
     }
     outoffocus():void{
         const servers=document.getElementById("servers") as HTMLDivElement;
@@ -1352,6 +1357,39 @@ class Localuser{
                 this.getmembers();
             })
         }
+    }
+    async pingEndpoint() {
+        const userInfo = getBulkInfo();
+        if (!userInfo.instances) userInfo.instances = {};
+        const wellknown = this.info.wellknown;
+        if (!userInfo.instances[wellknown]) {
+            const pingRes = await fetch(this.info.api + "/ping");
+            const pingJSON = await pingRes.json();
+            userInfo.instances[wellknown] = pingJSON;
+            localStorage.setItem("userinfos", JSON.stringify(userInfo));
+        }
+        this.instancePing = userInfo.instances[wellknown].instance;
+
+        this.pageTitle("Loading...");
+    }
+    pageTitle(channelName = "", guildName = "") {
+        (document.getElementById("channelname") as HTMLSpanElement).textContent = channelName;
+        (document.getElementsByTagName("title")[0] as HTMLTitleElement).textContent = channelName + (guildName ? " | " + guildName : "") + " | " + this.instancePing.name + " | Jank Client (Tomato fork)";
+    }
+    async instanceStats() {
+        const res = await fetch(this.info.api + "/policies/stats", {
+            headers: this.headers
+        });
+        const json = await res.json();
+
+        const dialog = new Dialog(["vdiv",
+            ["title", "Instance stats: " + this.instancePing.name],
+            ["text", "Registered users: " + json.counts.user],
+            ["text", "Servers: " + json.counts.guild],
+            ["text", "Messages: " + json.counts.message],
+            ["text", "Members: " + json.counts.members]
+        ]);
+        dialog.show();
     }
 }
 export {Localuser};
