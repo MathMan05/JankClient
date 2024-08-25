@@ -411,6 +411,7 @@ class Options {
     addOptions(name, { ltr = false } = {}) {
         const options = new Options(name, this, { ltr });
         this.options.push(options);
+        this.generate(options);
         return options;
     }
     addSelect(label, onSubmit, selections, { defaultIndex = 0 } = {}) {
@@ -421,39 +422,60 @@ class Options {
     addFileInput(label, onSubmit, { clear = false } = {}) {
         const FI = new FileInput(label, onSubmit, this, { clear });
         this.options.push(FI);
+        this.generate(FI);
         return FI;
     }
     addTextInput(label, onSubmit, { initText = "" } = {}) {
         const textInput = new TextInput(label, onSubmit, this, { initText });
         this.options.push(textInput);
+        this.generate(textInput);
         return textInput;
     }
     addColorInput(label, onSubmit, { initColor = "" } = {}) {
         const colorInput = new ColorInput(label, onSubmit, this, { initColor });
         this.options.push(colorInput);
+        this.generate(colorInput);
         return colorInput;
     }
     addMDInput(label, onSubmit, { initText = "" } = {}) {
         const mdInput = new MDInput(label, onSubmit, this, { initText });
         this.options.push(mdInput);
+        this.generate(mdInput);
         return mdInput;
     }
     addHTMLArea(html, submit = () => { }) {
         const htmlarea = new HtmlArea(html, submit);
         this.options.push(htmlarea);
+        this.generate(htmlarea);
         return htmlarea;
     }
     addButtonInput(label, textContent, onSubmit) {
         const button = new ButtonInput(label, textContent, onSubmit, this);
         this.options.push(button);
+        this.generate(button);
         return button;
     }
     addCheckboxInput(label, onSubmit, { initState = false } = {}) {
         const box = new CheckboxInput(label, onSubmit, this, { initState });
         this.options.push(box);
+        this.generate(box);
         return box;
     }
     html = new WeakMap();
+    container = new WeakRef(document.createElement("div"));
+    generate(elm) {
+        const container = this.container.deref();
+        if (container) {
+            const div = document.createElement("div");
+            if (!(elm instanceof Options)) {
+                div.classList.add("optionElement");
+            }
+            const html = elm.generateHTML();
+            div.append(html);
+            this.html.set(elm, new WeakRef(div));
+            container.append(div);
+        }
+    }
     generateHTML() {
         const div = document.createElement("div");
         div.classList.add("titlediv");
@@ -464,16 +486,10 @@ class Options {
             title.classList.add("settingstitle");
         }
         const container = document.createElement("div");
+        this.container = new WeakRef(container);
         container.classList.add(this.ltr ? "flexltr" : "flexttb", "flexspace");
         for (const thing of this.options) {
-            const div = document.createElement("div");
-            if (!(thing instanceof Options)) {
-                div.classList.add("optionElement");
-            }
-            const html = thing.generateHTML();
-            div.append(html);
-            this.html.set(thing, new WeakRef(div));
-            container.append(div);
+            this.generate(thing);
         }
         div.append(container);
         return div;
