@@ -419,6 +419,7 @@ class Options implements OptionsElement<void>{
     addOptions(name:string,{ltr=false}={}){
         const options=new Options(name,this,{ltr});
         this.options.push(options);
+        this.generate(options);
         return options;
     }
     addSelect(label:string,onSubmit:(str:number)=>void,selections:string[],{defaultIndex=0}={}){
@@ -429,39 +430,60 @@ class Options implements OptionsElement<void>{
     addFileInput(label:string,onSubmit:(files:FileList)=>void,{clear=false}={}){
         const FI=new FileInput(label,onSubmit,this,{clear});
         this.options.push(FI);
+        this.generate(FI);
         return FI;
     }
     addTextInput(label:string,onSubmit:(str:string)=>void,{initText=""}={}){
         const textInput=new TextInput(label,onSubmit,this,{initText});
         this.options.push(textInput);
+        this.generate(textInput);
         return textInput;
     }
     addColorInput(label:string,onSubmit:(str:string)=>void,{initColor=""}={}){
         const colorInput=new ColorInput(label,onSubmit,this,{initColor});
         this.options.push(colorInput);
+        this.generate(colorInput);
         return colorInput;
     }
     addMDInput(label:string,onSubmit:(str:string)=>void,{initText=""}={}){
         const mdInput=new MDInput(label,onSubmit,this,{initText});
         this.options.push(mdInput);
+        this.generate(mdInput);
         return mdInput;
     }
     addHTMLArea(html:(()=>HTMLElement)|HTMLElement,submit:()=>void=()=>{}){
         const htmlarea=new HtmlArea(html,submit);
         this.options.push(htmlarea);
+        this.generate(htmlarea);
         return htmlarea;
     }
     addButtonInput(label:string,textContent:string,onSubmit:()=>void){
         const button=new ButtonInput(label,textContent,onSubmit,this);
         this.options.push(button);
+        this.generate(button);
         return button;
     }
     addCheckboxInput(label:string,onSubmit:(str:boolean)=>void,{initState=false}={}){
         const box=new CheckboxInput(label,onSubmit,this,{initState});
         this.options.push(box);
+        this.generate(box);
         return box;
     }
     readonly html:WeakMap<OptionsElement<any>,WeakRef<HTMLElement>>=new WeakMap();
+    container:WeakRef<HTMLDivElement>=new WeakRef(document.createElement("div"));
+    generate(elm:OptionsElement<any>){
+        const container=this.container.deref();
+        if(container){
+            const div=document.createElement("div");
+            if(!(elm instanceof Options)){
+                div.classList.add("optionElement")
+            }
+            const html=elm.generateHTML();
+            div.append(html);
+            this.html.set(elm,new WeakRef(div));
+            container.append(div);
+        }
+    }
     generateHTML():HTMLElement{
         const div=document.createElement("div");
         div.classList.add("titlediv");
@@ -472,16 +494,10 @@ class Options implements OptionsElement<void>{
             title.classList.add("settingstitle");
         }
         const container=document.createElement("div");
+        this.container=new WeakRef(container);
         container.classList.add(this.ltr?"flexltr":"flexttb","flexspace");
         for(const thing of this.options){
-            const div=document.createElement("div");
-            if(!(thing instanceof Options)){
-                div.classList.add("optionElement")
-            }
-            const html=thing.generateHTML();
-            div.append(html);
-            this.html.set(thing,new WeakRef(div));
-            container.append(div);
+            this.generate(thing);
         }
         div.append(container);
         return div;
