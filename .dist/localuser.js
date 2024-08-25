@@ -33,6 +33,9 @@ class Localuser {
     typing = new Map();
     connectionSucceed = 0;
     errorBackoff = 0;
+    instancePing = {
+        name: "Unknown",
+    };
     mfa_enabled;
     constructor(userinfo) {
         if (userinfo === -1) {
@@ -94,6 +97,7 @@ class Localuser {
             user.nickname = thing.nickname;
             user.relationshipType = thing.type;
         }
+        this.pingEndpoint();
     }
     outoffocus() {
         const servers = document.getElementById("servers");
@@ -369,14 +373,26 @@ class Localuser {
                         else {
                             thing = { id: temp.d.user_id };
                         }
-                        message.makeReaction(temp.d.emoji, thing);
+                        message.reactionAdd(temp.d.emoji, thing);
                     }
                     break;
                 case "MESSAGE_REACTION_REMOVE":
                     if (SnowFlake.hasSnowFlakeFromID(temp.d.message_id, Message)) {
                         const message = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject();
                         console.log("test");
-                        message.removeReaction(temp.d.emoji, temp.d.user_id);
+                        message.reactionRemove(temp.d.emoji, temp.d.user_id);
+                    }
+                    break;
+                case "MESSAGE_REACTION_REMOVE_ALL":
+                    if (SnowFlake.hasSnowFlakeFromID(temp.d.message_id, Message)) {
+                        const messageReactionRemoveAll = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject();
+                        messageReactionRemoveAll.reactionRemoveAll();
+                    }
+                    break;
+                case "MESSAGE_REACTION_REMOVE_EMOJI":
+                    if (SnowFlake.hasSnowFlakeFromID(temp.d.message_id, Message)) {
+                        const messageReactionRemoveEmoji = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject();
+                        messageReactionRemoveEmoji.reactionRemoveEmoji(temp.d.emoji);
                     }
                     break;
                 case "GUILD_MEMBERS_CHUNK":
@@ -1340,6 +1356,38 @@ class Localuser {
                 this.getmembers();
             });
         }
+    }
+    async pingEndpoint() {
+        const userInfo = getBulkInfo();
+        if (!userInfo.instances)
+            userInfo.instances = {};
+        const wellknown = this.info.wellknown;
+        if (!userInfo.instances[wellknown]) {
+            const pingRes = await fetch(this.info.api + "/ping");
+            const pingJSON = await pingRes.json();
+            userInfo.instances[wellknown] = pingJSON;
+            localStorage.setItem("userinfos", JSON.stringify(userInfo));
+        }
+        this.instancePing = userInfo.instances[wellknown].instance;
+        this.pageTitle("Loading...");
+    }
+    pageTitle(channelName = "", guildName = "") {
+        document.getElementById("channelname").textContent = channelName;
+        document.getElementsByTagName("title")[0].textContent = channelName + (guildName ? " | " + guildName : "") + " | " + this.instancePing.name + " | Jank Client (Tomato fork)";
+    }
+    async instanceStats() {
+        const res = await fetch(this.info.api + "/policies/stats", {
+            headers: this.headers
+        });
+        const json = await res.json();
+        const dialog = new Dialog(["vdiv",
+            ["title", "Instance stats: " + this.instancePing.name],
+            ["text", "Registered users: " + json.counts.user],
+            ["text", "Servers: " + json.counts.guild],
+            ["text", "Messages: " + json.counts.message],
+            ["text", "Members: " + json.counts.members]
+        ]);
+        dialog.show();
     }
 }
 export { Localuser };

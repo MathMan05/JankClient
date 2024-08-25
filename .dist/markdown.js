@@ -465,6 +465,43 @@ class MarkDown {
                     }
                 }
             }
+            if (txt[i] == "[" && !keep) {
+                let partsFound = 0;
+                let j = i + 1;
+                const build = ["["];
+                for (; txt[j] !== void 0; j++) {
+                    build.push(txt[j]);
+                    if (partsFound === 0 && txt[j] === "]") {
+                        if (txt[j + 1] === "(" &&
+                            txt[j + 2] === "h" && txt[j + 3] === "t" && txt[j + 4] === "t" && txt[j + 5] === "p" && (txt[j + 6] === "s" || txt[j + 6] === ":")) {
+                            partsFound++;
+                        }
+                        else {
+                            break;
+                        }
+                        ;
+                    }
+                    else if (partsFound === 1 && txt[j] === ")") {
+                        partsFound++;
+                        break;
+                    }
+                }
+                if (partsFound === 2) {
+                    appendcurrent();
+                    i = j;
+                    const parts = build.join("").match(/^\[(.+)\]\((https?:.+?)( ('|").+('|"))?\)$/);
+                    if (parts) {
+                        const linkElem = document.createElement("a");
+                        linkElem.href = parts[2];
+                        linkElem.textContent = parts[1];
+                        linkElem.target = "_blank";
+                        linkElem.rel = "noopener noreferrer";
+                        linkElem.title = (parts[3] ? parts[3].substring(2, parts[3].length - 1) + "\n\n" : "") + parts[2];
+                        span.appendChild(linkElem);
+                        continue;
+                    }
+                }
+            }
             current.textContent += txt[i];
         }
         appendcurrent();
