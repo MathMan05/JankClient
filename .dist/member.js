@@ -36,8 +36,8 @@ class Member {
             }
             this[thing] = memberjson[thing];
         }
-        if (SnowFlake.getSnowFlakeFromID(this?.id, User)) {
-            this.user = SnowFlake.getSnowFlakeFromID(this.id, User).getObject();
+        if (this.localuser.userMap.has(this?.id)) {
+            this.user = this.localuser.userMap.get(this?.id);
             return;
         }
     }
