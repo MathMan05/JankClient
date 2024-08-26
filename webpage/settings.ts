@@ -649,6 +649,16 @@ class Options implements OptionsElement<void>{
         }
     }
 }
+class FormError extends Error{
+    elem:OptionsElement<any>;
+    message:string;
+    constructor(elem:OptionsElement<any>,message:string){
+        super(message);
+        this.message=message;
+        this.elem=elem;
+    }
+}
+export {FormError};
 class Form implements OptionsElement<object>{
     name:string;
     readonly options:Options;
@@ -766,11 +776,13 @@ class Form implements OptionsElement<object>{
                 try{
                     build[key]=thing();
                 }catch(e:any){
-                    const elm=this.options.html.get(e[0]);
-                    if(elm){
-                        const html=elm.deref();
-                        if(html){
-                            this.makeError(html,e[1]);
+                    if(e instanceof FormError){
+                        const elm=this.options.html.get(e.elem);
+                        if(elm){
+                            const html=elm.deref();
+                            if(html){
+                                this.makeError(html,e.message);
+                            }
                         }
                     }
                     return;

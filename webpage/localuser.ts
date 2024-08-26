@@ -9,7 +9,7 @@ import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
 import { channeljson, memberjson, presencejson, readyjson } from "./jsontypes.js";
 import { Member } from "./member.js";
-import { Settings } from "./settings.js";
+import { FormError, Settings } from "./settings.js";
 import { MarkDown } from "./markdown.js";
 
 const wsCodesRetry=new Set([4000,4003,4005,4007,4008,4009]);
@@ -1052,7 +1052,7 @@ class Localuser{
                         if(in1===in2){
                             return in1;
                         }else{
-                            throw [copy,"Passwords don't match"]
+                            throw new FormError(copy,"Passwords don't match");
                         }
                     })
                 });

@@ -647,6 +647,16 @@ class Options {
         }
     }
 }
+class FormError extends Error {
+    elem;
+    message;
+    constructor(elem, message) {
+        super(message);
+        this.message = message;
+        this.elem = elem;
+    }
+}
+export { FormError };
 class Form {
     name;
     options;
@@ -763,11 +773,13 @@ class Form {
                     build[key] = thing();
                 }
                 catch (e) {
-                    const elm = this.options.html.get(e[0]);
-                    if (elm) {
-                        const html = elm.deref();
-                        if (html) {
-                            this.makeError(html, e[1]);
+                    if (e instanceof FormError) {
+                        const elm = this.options.html.get(e.elem);
+                        if (elm) {
+                            const html = elm.deref();
+                            if (html) {
+                                this.makeError(html, e.message);
+                            }
                         }
                     }
                     return;
