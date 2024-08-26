@@ -101,12 +101,12 @@ class Group extends Channel{
         this.guild_id="@me";
         this.messageids=new Map();
         this.permission_overwrites=new Map();
-        this.lastmessageid=SnowFlake.getSnowFlakeFromID(json.last_message_id,Message);
+        this.lastmessageid=json.last_message_id;
         this.lastmessageid??=null;
         this.mentions=0;
         this.setUpInfiniteScroller();
         if(this.lastmessageid){
-            this.position=this.lastmessageid.getUnixTime()
+            this.position=Number((BigInt(this.lastmessageid)>>22n)+1420070400000n);
         }
         this.position=-Math.max(this.position,this.snowflake.getUnixTime());
     }
@@ -145,13 +145,13 @@ class Group extends Channel{
     messageCreate(messagep){
         const messagez=new Message(messagep.d,this);
         if(this.lastmessageid){
-            this.idToNext.set(this.lastmessageid,messagez.snowflake);
+            this.idToNext.set(this.lastmessageid,messagez.id);
         }
-        this.idToPrev.set(messagez.snowflake,this.lastmessageid);
-        this.lastmessageid=messagez.snowflake;
+        this.idToPrev.set(messagez.id,this.lastmessageid);
+        this.lastmessageid=messagez.id;
         this.messageids.set(messagez.snowflake,messagez);
         if(messagez.author===this.localuser.user){
-            this.lastreadmessageid=messagez.snowflake;
+            this.lastreadmessageid=messagez.id;
             if(this.myhtml){
                 this.myhtml.classList.remove("cunread");
             }

@@ -55,7 +55,7 @@ class Message {
         Message.contextmenu.addbutton("Copy message id", function () {
             navigator.clipboard.writeText(this.id);
         });
-        Message.contextmenu.addsubmenu("Add reaction", function (e) {
+        Message.contextmenu.addsubmenu("Add reaction", function (arg, e) {
             Emoji.emojiPicker(e.x, e.y, this.localuser).then(_ => {
                 this.reactionToggle(_);
             });
@@ -223,25 +223,28 @@ class Message {
             this.div.innerHTML = "";
             this.div = undefined;
         }
-        const prev = this.channel.idToPrev.get(this.snowflake);
-        const next = this.channel.idToNext.get(this.snowflake);
+        const prev = this.channel.idToPrev.get(this.id);
+        const next = this.channel.idToNext.get(this.id);
         if (prev) {
-            this.channel.idToPrev.delete(this.snowflake);
+            this.channel.idToPrev.delete(this.id);
         }
         if (next) {
-            this.channel.idToNext.delete(this.snowflake);
+            this.channel.idToNext.delete(this.id);
         }
         if (prev && next) {
             this.channel.idToPrev.set(next, prev);
             this.channel.idToNext.set(prev, next);
         }
         this.channel.messageids.delete(this.snowflake);
-        if (prev && prev.getObject()) {
-            prev.getObject().generateMessage();
+        if (prev) {
+            const prevmessage = this.channel.messages.get(prev);
+            if (prevmessage) {
+                prevmessage.generateMessage();
+            }
         }
         if (this.channel.lastmessage === this) {
             if (prev) {
-                this.channel.lastmessage = prev.getObject();
+                this.channel.lastmessage = this.channel.messages.get(prev);
             }
             else {
                 this.channel.lastmessage = undefined;
@@ -250,7 +253,12 @@ class Message {
     }
     reactdiv;
     blockedPropigate() {
-        const premessage = this.channel.idToPrev.get(this.snowflake)?.getObject();
+        const previd = this.channel.idToPrev.get(this.id);
+        if (!previd) {
+            this.generateMessage();
+            return;
+        }
+        const premessage = this.channel.messages.get(previd);
         if (premessage?.author === this.author) {
             premessage.blockedPropigate();
         }
@@ -262,7 +270,7 @@ class Message {
         if (!this.div)
             return;
         if (!premessage) {
-            premessage = this.channel.idToPrev.get(this.snowflake)?.getObject();
+            premessage = this.channel.messages.get(this.channel.idToPrev.get(this.id));
         }
         const div = this.div;
         if (this === this.channel.replyingto) {
@@ -284,7 +292,7 @@ class Message {
                         let next = this;
                         while (next?.author === this.author) {
                             next.generateMessage(undefined);
-                            next = this.channel.idToNext.get(next.snowflake)?.getObject();
+                            next = this.channel.messages.get(this.channel.idToNext.get(next.id));
                         }
                         if (this.channel.infinite.scroll && scroll) {
                             this.channel.infinite.scroll.scrollTop = scroll;
@@ -304,10 +312,10 @@ class Message {
                     build.classList.add("blocked", "topMessage");
                     const span = document.createElement("span");
                     let count = 1;
-                    let next = this.channel.idToNext.get(this.snowflake)?.getObject();
+                    let next = this.channel.messages.get(this.channel.idToNext.get(this.id));
                     while (next?.author === this.author) {
                         count++;
-                        next = this.channel.idToNext.get(next.snowflake)?.getObject();
+                        next = this.channel.messages.get(this.channel.idToNext.get(next.id));
                     }
                     span.textContent = `You have this user blocked, click to see the ${count} blocked messages.`;
                     build.append(span);
@@ -317,7 +325,7 @@ class Message {
                         let next = this;
                         while (next?.author === this.author) {
                             next.generateMessage(undefined, true);
-                            next = this.channel.idToNext.get(next.snowflake)?.getObject();
+                            next = this.channel.messages.get(this.channel.idToNext.get(next.id));
                             console.log("loopy");
                         }
                         if (this.channel.infinite.scroll && scroll) {
