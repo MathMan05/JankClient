@@ -321,8 +321,7 @@ class Localuser {
                     break;
                 case "USER_UPDATE":
                     if (this.initialized) {
-                        const users = SnowFlake.getSnowFlakeFromID(temp.d.id, User).getObject();
-                        console.log(users, temp.d.id);
+                        const users = this.userMap.get(temp.d.id);
                         if (users) {
                             users.userupdate(temp.d);
                         }

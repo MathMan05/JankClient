@@ -15,7 +15,7 @@ class Member{
     private constructor(memberjson:memberjson,owner:Guild){
         this.owner=owner;
         if(this.localuser.userMap.has(memberjson.id)){
-            this.user=this.localuser.userMap.get(memberjson.id);
+            this.user=this.localuser.userMap.get(memberjson.id) as User;
         }else if(memberjson.user){
             this.user=new User(memberjson.user,owner.localuser);
         }else{
@@ -35,8 +35,8 @@ class Member{
             }
             this[thing]=memberjson[thing];
         }
-        if(SnowFlake.getSnowFlakeFromID(this?.id,User)){
-            this.user=SnowFlake.getSnowFlakeFromID(this.id,User).getObject();
+        if(this.localuser.userMap.has(this?.id)){
+            this.user=this.localuser.userMap.get(this?.id) as User;
             return;
         }
 
