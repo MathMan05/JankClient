@@ -1936,6 +1936,7 @@ form div{
 .optionElement{
 	border-radius:.03in;
 	box-shadow: .01in .01in .1in #00000059;
+	max-height:100%;
 }
 .FormSettings{
 	display:flex;
