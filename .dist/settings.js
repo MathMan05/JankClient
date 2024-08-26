@@ -50,6 +50,7 @@ class Buttons {
     generateHTMLArea(buttonInfo, htmlarea) {
         let html;
         if (buttonInfo instanceof Options) {
+            buttonInfo.subOptions = undefined;
             html = buttonInfo.generateHTML();
         }
         else {
@@ -73,11 +74,13 @@ class TextInput {
     onSubmit;
     value;
     input;
-    constructor(label, onSubmit, owner, { initText = "" } = {}) {
+    password;
+    constructor(label, onSubmit, owner, { initText = "", password = false } = {}) {
         this.label = label;
         this.value = initText;
         this.owner = owner;
         this.onSubmit = onSubmit;
+        this.password = password;
     }
     generateHTML() {
         const div = document.createElement("div");
@@ -86,7 +89,7 @@ class TextInput {
         div.append(span);
         const input = document.createElement("input");
         input.value = this.value;
-        input.type = "text";
+        input.type = this.password ? "password" : "text";
         input.oninput = this.onChange.bind(this);
         this.input = new WeakRef(input);
         div.append(input);
@@ -108,6 +111,36 @@ class TextInput {
     submit() {
         this.onSubmit(this.value);
     }
+}
+class SettingsText {
+    onSubmit;
+    value;
+    text;
+    constructor(text) {
+        this.text = text;
+    }
+    generateHTML() {
+        const span = document.createElement("span");
+        span.innerText = this.text;
+        return span;
+    }
+    watchForChange() { }
+    submit() { }
+}
+class SettingsTitle {
+    onSubmit;
+    value;
+    text;
+    constructor(text) {
+        this.text = text;
+    }
+    generateHTML() {
+        const span = document.createElement("h2");
+        span.innerText = this.text;
+        return span;
+    }
+    watchForChange() { }
+    submit() { }
 }
 class CheckboxInput {
     label;
@@ -400,11 +433,22 @@ class Options {
     owner;
     ltr;
     value;
+    html = new WeakMap();
+    container = new WeakRef(document.createElement("div"));
     constructor(name, owner, { ltr = false } = {}) {
         this.name = name;
         this.options = [];
         this.owner = owner;
         this.ltr = ltr;
+    }
+    removeAll() {
+        while (this.options.length) {
+            this.options.pop();
+        }
+        const container = this.container.deref();
+        if (container) {
+            container.innerHTML = "";
+        }
     }
     watchForChange() { }
     ;
@@ -414,9 +458,39 @@ class Options {
         this.generate(options);
         return options;
     }
+    subOptions;
+    addSubOptions(name, { ltr = false } = {}) {
+        const options = new Options(name, this, { ltr });
+        this.subOptions = options;
+        const container = this.container.deref();
+        if (container) {
+            this.generateContainter();
+        }
+        else {
+            throw Error("Tried to make a subOptions when the options weren't rendered");
+        }
+        return options;
+    }
+    addSubForm(name, onSubmit, { ltr = false, submitText = "Submit", fetchURL = "", headers = {}, method = "POST", traditionalSubmit = false } = {}) {
+        const options = new Form(name, this, onSubmit, { ltr, submitText, fetchURL, headers, method, traditionalSubmit });
+        this.subOptions = options;
+        const container = this.container.deref();
+        if (container) {
+            this.generateContainter();
+        }
+        else {
+            throw Error("Tried to make a subForm when the options weren't rendered");
+        }
+        return options;
+    }
+    returnFromSub() {
+        this.subOptions = undefined;
+        this.generateContainter();
+    }
     addSelect(label, onSubmit, selections, { defaultIndex = 0 } = {}) {
         const select = new SelectInput(label, onSubmit, selections, this, { defaultIndex });
         this.options.push(select);
+        this.generate(select);
         return select;
     }
     addFileInput(label, onSubmit, { clear = false } = {}) {
@@ -425,8 +499,8 @@ class Options {
         this.generate(FI);
         return FI;
     }
-    addTextInput(label, onSubmit, { initText = "" } = {}) {
-        const textInput = new TextInput(label, onSubmit, this, { initText });
+    addTextInput(label, onSubmit, { initText = "", password = false } = {}) {
+        const textInput = new TextInput(label, onSubmit, this, { initText, password });
         this.options.push(textInput);
         this.generate(textInput);
         return textInput;
@@ -461,8 +535,18 @@ class Options {
         this.generate(box);
         return box;
     }
-    html = new WeakMap();
-    container = new WeakRef(document.createElement("div"));
+    addText(str) {
+        const text = new SettingsText(str);
+        this.options.push(text);
+        this.generate(text);
+        return text;
+    }
+    addTitle(str) {
+        const text = new SettingsTitle(str);
+        this.options.push(text);
+        this.generate(text);
+        return text;
+    }
     generate(elm) {
         const container = this.container.deref();
         if (container) {
@@ -476,23 +560,60 @@ class Options {
             container.append(div);
         }
     }
+    title = new WeakRef(document.createElement("h2"));
     generateHTML() {
         const div = document.createElement("div");
         div.classList.add("titlediv");
-        if (this.name !== "") {
-            const title = document.createElement("h2");
-            title.textContent = this.name;
-            div.append(title);
+        const title = document.createElement("h2");
+        title.textContent = this.name;
+        div.append(title);
+        if (this.name !== "")
             title.classList.add("settingstitle");
-        }
+        this.title = new WeakRef(title);
         const container = document.createElement("div");
         this.container = new WeakRef(container);
         container.classList.add(this.ltr ? "flexltr" : "flexttb", "flexspace");
-        for (const thing of this.options) {
-            this.generate(thing);
-        }
+        this.generateContainter();
         div.append(container);
         return div;
+    }
+    generateContainter() {
+        const container = this.container.deref();
+        if (container) {
+            const title = this.title.deref();
+            if (title)
+                title.innerHTML = "";
+            container.innerHTML = "";
+            if (this.subOptions) {
+                container.append(this.subOptions.generateHTML()); //more code needed, though this is enough for now
+                if (title) {
+                    const name = document.createElement("span");
+                    name.innerText = this.name;
+                    name.classList.add("clickable");
+                    name.onclick = () => {
+                        this.returnFromSub();
+                    };
+                    title.append(name, " > ", this.subOptions.name);
+                }
+            }
+            else {
+                for (const thing of this.options) {
+                    this.generate(thing);
+                }
+                if (title) {
+                    title.innerText = this.name;
+                }
+            }
+            if (title && title.innerText !== "") {
+                title.classList.add("settingstitle");
+            }
+            else if (title) {
+                title.classList.remove("settingstitle");
+            }
+        }
+        else {
+            console.warn("tried to generate container, but it did not exist");
+        }
     }
     changed() {
         if (this.owner instanceof Options || this.owner instanceof Form) {
@@ -531,14 +652,17 @@ class Form {
     options;
     owner;
     ltr;
-    names;
+    names = new Map();
     required = new WeakSet();
     submitText;
     fetchURL;
-    headers;
+    headers = {};
     method;
     value;
-    constructor(name, owner, onSubmit, { ltr = false, submitText = "Submit", fetchURL = "", headers = {}, method = "POST" } = {}) {
+    traditionalSubmit;
+    values = {};
+    constructor(name, owner, onSubmit, { ltr = false, submitText = "Submit", fetchURL = "", headers = {}, method = "POST", traditionalSubmit = false } = {}) {
+        this.traditionalSubmit = traditionalSubmit;
         this.name = name;
         this.method = method;
         this.submitText = submitText;
@@ -549,13 +673,16 @@ class Form {
         this.ltr = ltr;
         this.onSubmit = onSubmit;
     }
+    setValue(key, value) {
+        this.values[key] = value;
+    }
     addSelect(label, formName, selections, { defaultIndex = 0, required = false } = {}) {
         const select = this.options.addSelect(label, _ => { }, selections, { defaultIndex });
         this.names.set(formName, select);
         if (required) {
             this.required.add(select);
         }
-        return;
+        return select;
     }
     addFileInput(label, formName, { required = false } = {}) {
         const FI = this.options.addFileInput(label, _ => { }, {});
@@ -563,15 +690,15 @@ class Form {
         if (required) {
             this.required.add(FI);
         }
-        return;
+        return FI;
     }
-    addTextInput(label, formName, { initText = "", required = false } = {}) {
-        const textInput = this.options.addTextInput(label, _ => { }, { initText });
+    addTextInput(label, formName, { initText = "", required = false, password = false } = {}) {
+        const textInput = this.options.addTextInput(label, _ => { }, { initText, password });
         this.names.set(formName, textInput);
         if (required) {
             this.required.add(textInput);
         }
-        return;
+        return textInput;
     }
     addColorInput(label, formName, { initColor = "", required = false } = {}) {
         const colorInput = this.options.addColorInput(label, _ => { }, { initColor });
@@ -579,7 +706,7 @@ class Form {
         if (required) {
             this.required.add(colorInput);
         }
-        return;
+        return colorInput;
     }
     addMDInput(label, formName, { initText = "", required = false } = {}) {
         const mdInput = this.options.addMDInput(label, _ => { }, { initText });
@@ -587,7 +714,7 @@ class Form {
         if (required) {
             this.required.add(mdInput);
         }
-        return;
+        return mdInput;
     }
     addCheckboxInput(label, formName, { initState = false, required = false } = {}) {
         const box = this.options.addCheckboxInput(label, _ => { }, { initState });
@@ -595,17 +722,26 @@ class Form {
         if (required) {
             this.required.add(box);
         }
-        return;
+        return box;
+    }
+    addText(str) {
+        this.options.addText(str);
+    }
+    addTitle(str) {
+        this.options.addTitle(str);
     }
     generateHTML() {
         const div = document.createElement("div");
         div.append(this.options.generateHTML());
-        const button = document.createElement("button");
-        button.onclick = _ => {
-            this.submit();
-        };
-        button.textContent = this.submitText;
-        div.append(button);
+        div.classList.add("FormSettings");
+        if (!this.traditionalSubmit) {
+            const button = document.createElement("button");
+            button.onclick = _ => {
+                this.submit();
+            };
+            button.textContent = this.submitText;
+            div.append(button);
+        }
         return div;
     }
     onSubmit;
@@ -614,21 +750,48 @@ class Form {
     }
     ;
     changed() {
+        if (this.traditionalSubmit) {
+            this.owner.changed();
+        }
     }
     submit() {
         const build = {};
+        for (const key of Object.keys(this.values)) {
+            const thing = this.values[key];
+            if (thing instanceof Function) {
+                try {
+                    build[key] = thing();
+                }
+                catch (e) {
+                    const elm = this.options.html.get(e[0]);
+                    if (elm) {
+                        const html = elm.deref();
+                        if (html) {
+                            this.makeError(html, e[1]);
+                        }
+                    }
+                    return;
+                }
+            }
+            else {
+                build[key] = thing;
+            }
+        }
         for (const thing of this.names.keys()) {
+            if (thing === "")
+                continue;
             const input = this.names.get(thing);
             build[thing] = input.value;
         }
-        if (this.fetchURL === "") {
+        if (this.fetchURL !== "") {
             fetch(this.fetchURL, {
                 method: this.method,
-                body: JSON.stringify(build)
+                body: JSON.stringify(build),
+                headers: this.headers
             }).then(_ => _.json()).then(json => {
-                if (json.errors) {
-                    this.errors(json.errors);
-                }
+                if (json.errors && this.errors(json.errors))
+                    return;
+                this.onSubmit(json);
             });
         }
         else {
@@ -637,15 +800,36 @@ class Form {
         console.warn("needs to be implemented");
     }
     errors(errors) {
-        for (const error of errors) {
+        if (!(errors instanceof Object)) {
+            return;
+        }
+        ;
+        for (const error of Object.keys(errors)) {
             const elm = this.names.get(error);
             if (elm) {
                 const ref = this.options.html.get(elm);
                 if (ref && ref.deref()) {
                     const html = ref.deref();
-                    this.makeError(html, error._errors[0].message);
+                    this.makeError(html, errors[error]._errors[0].message);
+                    return true;
                 }
             }
+        }
+        return false;
+    }
+    error(formElm, errorMessage) {
+        const elm = this.names.get(formElm);
+        if (elm) {
+            const htmlref = this.options.html.get(elm);
+            if (htmlref) {
+                const html = htmlref.deref();
+                if (html) {
+                    this.makeError(html, errorMessage);
+                }
+            }
+        }
+        else {
+            console.warn(formElm + " is not a valid form property");
         }
     }
     makeError(e, message) {
