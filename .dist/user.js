@@ -4,7 +4,6 @@ import { MarkDown } from "./markdown.js";
 import { Contextmenu } from "./contextmenu.js";
 import { SnowFlake } from "./snowflake.js";
 class User {
-    static userids = {};
     owner;
     hypotheticalpfp;
     snowflake;
@@ -125,16 +124,13 @@ class User {
             return (us.hasPermission("BAN_MEMBERS")) || false;
         });
     }
-    static clear() {
-        this.userids = {};
-    }
     static checkuser(user, owner) {
-        if (User.userids[user.id]) {
-            return User.userids[user.id];
+        if (owner.userMap.has(user.id)) {
+            return owner.userMap.get(user.id);
         }
         else {
             const tempuser = new User(user, owner, true);
-            User.userids[user.id] = tempuser;
+            owner.userMap.set(user.id, tempuser);
             return tempuser;
         }
     }

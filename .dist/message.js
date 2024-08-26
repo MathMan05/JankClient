@@ -557,7 +557,7 @@ class Message {
         for (const i in this.reactions) {
             const reaction = this.reactions[i];
             if ((reaction.emoji.id && reaction.emoji.id == emoji.id) || (!reaction.emoji.id && reaction.emoji.name == emoji.name)) {
-                this.reactions.splice(i, 1);
+                this.reactions.splice(+i, 1);
                 this.updateReactions();
                 break;
             }
