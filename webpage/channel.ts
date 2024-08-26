@@ -35,8 +35,8 @@ class Channel{
     topic:string;
     nsfw:boolean;
     position:number;
-    lastreadmessageid:SnowFlake<Message>|null;
-    lastmessageid:SnowFlake<Message>|null;
+    lastreadmessageid:string|undefined;
+    lastmessageid:string|undefined;
     mentions:number;
     lastpin:string;
     move_id:SnowFlake<Channel>|null;
@@ -46,8 +46,8 @@ class Channel{
     static contextmenu=new Contextmenu<Channel,undefined>("channel menu");
     replyingto:Message|null;
     infinite:InfiniteScroller;
-    idToPrev:Map<SnowFlake<Message>,SnowFlake<Message>>=new Map();
-    idToNext:Map<SnowFlake<Message>,SnowFlake<Message>>=new Map();
+    idToPrev:Map<string,string>=new Map();
+    idToNext:Map<string,string>=new Map();
     messages:Map<string,Message>=new Map();
     get id(){
         return this.snowflake.id;
@@ -170,20 +170,20 @@ class Channel{
     }
     setUpInfiniteScroller(){
         this.infinite=new InfiniteScroller(async function(this:Channel,id:string,offset:number):Promise<string|undefined>{
-            const snowflake=(this.messages.get(id) as Message).snowflake;
+            const snowflake=id;
             if(offset===1){
                 if(this.idToPrev.has(snowflake)){
-                    return this.idToPrev.get(snowflake)?.id;
+                    return this.idToPrev.get(snowflake);
                 }else{
                     await this.grabBefore(id);
-                    return this.idToPrev.get(snowflake)?.id;
+                    return this.idToPrev.get(snowflake);
                 }
             }else{
                 if(this.idToNext.has(snowflake)){
-                    return this.idToNext.get(snowflake)?.id;
+                    return this.idToNext.get(snowflake);
                 }else if(this.lastmessage?.id!==id){
                     await this.grabAfter(id);
-                    return this.idToNext.get(snowflake)?.id;
+                    return this.idToNext.get(snowflake);
                 }else{
                     console.log("at bottom")
                 }
@@ -246,11 +246,11 @@ class Channel{
         this.topic=json.topic;
         this.nsfw=json.nsfw;
         this.position=json.position;
-        this.lastreadmessageid=null;
+        this.lastreadmessageid=undefined;
         if(json.last_message_id){
-            this.lastmessageid=SnowFlake.getSnowFlakeFromID(json.last_message_id,Message);
+            this.lastmessageid=json.last_message_id;
         }else{
-            this.lastmessageid=null;
+            this.lastmessageid=undefined;
         }
         this.setUpInfiniteScroller();
     }
@@ -267,7 +267,7 @@ class Channel{
         return this.owner.info;
     }
     readStateInfo(json:readyjson["d"]["read_state"]["entries"][0]){
-        this.lastreadmessageid=SnowFlake.getSnowFlakeFromID(json.last_message_id,Message);
+        this.lastreadmessageid=json.last_message_id;
         this.mentions=json.mention_count;
         this.mentions??=0;
         this.lastpin=json.last_pin_timestamp;
@@ -629,9 +629,9 @@ class Channel{
         }
     }
     async getmessage(id:string):Promise<Message>{
-        const snowflake=SnowFlake.getSnowFlakeFromID(id,Message) as SnowFlake<Message>;
-        if(snowflake.getObject()){
-            return snowflake.getObject();
+        const message=this.messages.get(id);
+        if(message){
+            return message;
         }else{
             const gety=await fetch(this.info.api+"/channels/"+this.snowflake+"/messages?limit=1&around="+id,{headers:this.headers})
             const json=await gety.json();
@@ -705,7 +705,7 @@ class Channel{
     lastmessage:Message|undefined;
     async putmessages(){
         if(this.allthewayup){return};
-        if(this.lastreadmessageid&&this.lastreadmessageid.getObject()){
+        if(this.lastreadmessageid&&this.messages.has(this.lastreadmessageid)){
             return
         }
         const j=await fetch(this.info.api+"/channels/"+this.snowflake+"/messages?limit=100",{
@@ -720,8 +720,8 @@ class Channel{
         for(const thing of response){
             const message=new Message(thing,this);
             if(prev){
-                this.idToNext.set(message.snowflake,prev.snowflake);
-                this.idToPrev.set(prev.snowflake,message.snowflake);
+                this.idToNext.set(message.id,prev.id);
+                this.idToPrev.set(prev.id,message.id);
             }else{
                 this.lastmessage=message;
             }
@@ -747,7 +747,7 @@ class Channel{
         await fetch(this.info.api+"/channels/"+this.id+"/messages?limit=100&after="+id,{
             headers:this.headers
         }).then((j)=>{return j.json()}).then(response=>{
-            let previd:SnowFlake<Message>=SnowFlake.getSnowFlakeFromID(id,Message);
+            let previd:string=id;
             for(const i in response){
                 let messager:Message;
                 let willbreak=false
@@ -757,9 +757,9 @@ class Channel{
                     messager=SnowFlake.getSnowFlakeFromID(response[i].id,Message).getObject();
                     willbreak=true;
                 }
-                this.idToPrev.set(messager.snowflake,previd);
-                this.idToNext.set(previd,messager.snowflake);
-                previd=messager.snowflake;
+                this.idToPrev.set(messager.id,previd);
+                this.idToNext.set(previd,messager.id);
+                previd=messager.id;
                 this.messageids.set(messager.snowflake,messager);
                 if(willbreak){
                     break;
@@ -769,36 +769,36 @@ class Channel{
         })
         return;
     }
-    topid:SnowFlake<Message>;
+    topid:string;
     async grabBefore(id:string){
-        if(this.topid&&id===this.topid.id){
+        if(this.topid&&id===this.topid){
             return;
         }
 
-        await fetch(this.info.api+"/channels/"+this.snowflake+"/messages?before="+id+"&limit=100",{
+        await fetch(this.info.api+"/channels/"+this.id+"/messages?before="+id+"&limit=100",{
             headers:this.headers
         }).then((j)=>{return j.json()}).then((response:messagejson[])=>{
             if(response.length<100){
                 this.allthewayup=true;
                 if(response.length===0){
-                    this.topid=SnowFlake.getSnowFlakeFromID(id,Message);
+                    this.topid=id;
                 }
             }
-            let previd=SnowFlake.getSnowFlakeFromID(id,Message) as SnowFlake<Message>;
+            let previd=id;
             for(const i in response){
                 let messager:Message;
                 let willbreak=false;
-                if(!SnowFlake.hasSnowFlakeFromID(response[i].id,Message)){
-                    messager=new Message(response[i],this);
-                }else{
+                if(this.messages.has(response[i].id)){
                     console.log("flaky")
-                    messager=SnowFlake.getSnowFlakeFromID(response[i].id,Message).getObject();
+                    messager=this.messages.get(response[i].id) as Message;
                     willbreak=true;
+                }else{
+                    messager=new Message(response[i],this);
                 }
 
-                this.idToNext.set(messager.snowflake,previd);
-                this.idToPrev.set(previd,messager.snowflake);
-                previd=messager.snowflake;
+                this.idToNext.set(messager.id,previd);
+                this.idToPrev.set(previd,messager.id);
+                previd=messager.id;
                 this.messageids.set(messager.snowflake,messager);
 
                 if(+i===response.length-1&&response.length<100){
@@ -839,13 +839,13 @@ class Channel{
         const loading=document.getElementById("loadingdiv") as HTMLDivElement;
         const removetitle=document.getElementById("removetitle");
         //messages.innerHTML="";
-        let id:SnowFlake<Message>|undefined;
-        if(this.lastreadmessageid&&this.lastreadmessageid.getObject()){
+        let id:string|undefined;
+        if(this.lastreadmessageid&&this.messages.has(this.lastreadmessageid)){
             id=this.lastreadmessageid;
         }else if(this.lastreadmessageid&&(id=this.findClosest(this.lastreadmessageid))){
 
-        }else if(this.lastmessage&&this.lastmessage.snowflake){
-            id=this.goBackIds(this.lastmessage.snowflake,50);
+        }else if(this.lastmessageid&&this.messages.has(this.lastmessageid)){
+            id=this.goBackIds(this.lastmessageid,50);
         }
         if(!id){
             if(!removetitle){
@@ -861,17 +861,17 @@ class Channel{
         }else if(removetitle){
             removetitle.remove();
         }
-        messages.append(await this.infinite.getDiv(id.id));
+        messages.append(await this.infinite.getDiv(id));
         this.infinite.updatestuff();
         this.infinite.watchForChange().then(async _=>{
             //await new Promise(resolve => setTimeout(resolve, 0));
-            this.infinite.focus(id.id,false);//if someone could figure out how to make this work correctly without this, that's be great :P
+            this.infinite.focus(id,false);//if someone could figure out how to make this work correctly without this, that's be great :P
             loading.classList.remove("loading");
         });
         //this.infinite.focus(id.id,false);
 
     }
-    private goBackIds(id:SnowFlake<Message>,back:number,returnifnotexistant=true):SnowFlake<Message>|undefined{
+    private goBackIds(id:string,back:number,returnifnotexistant=true):string|undefined{
         while(back!==0){
             const nextid=this.idToPrev.get(id);
             if(nextid){
@@ -887,19 +887,18 @@ class Channel{
         }
         return id;
     }
-    private findClosest(snowflake:SnowFlake<Message>){
-        if(!this.lastmessage) return;
-        let flake:SnowFlake<Message>|null|undefined=this.lastmessage.snowflake;
-        if(!snowflake){return};
-        const time=snowflake.getUnixTime();
-        let flaketime=flake.getUnixTime()
+    private findClosest(id:string|undefined){
+        if(!this.lastmessageid||!id) return;
+        let flake:string|undefined=this.lastmessageid;
+        const time=Number((BigInt(id)>>22n)+1420070400000n);
+        let flaketime=Number((BigInt(flake)>>22n)+1420070400000n);
         while(flake&&time<flaketime){
             flake=this.idToPrev.get(flake);
 
             if(!flake){
                 return undefined;
             }
-            flaketime=flake.getUnixTime();
+            flaketime=Number((BigInt(flake)>>22n)+1420070400000n);
         }
         return flake;
     }
@@ -999,15 +998,15 @@ class Channel{
         const messagez=new Message(messagep.d,this);
         this.lastmessage=messagez;
         if(this.lastmessageid){
-            this.idToNext.set(this.lastmessageid,messagez.snowflake);
-            this.idToPrev.set(messagez.snowflake,this.lastmessageid);
+            this.idToNext.set(this.lastmessageid,messagez.id);
+            this.idToPrev.set(messagez.id,this.lastmessageid);
         }
 
-        this.lastmessageid=messagez.snowflake;
+        this.lastmessageid=messagez.id;
         this.messageids.set(messagez.snowflake,messagez);
 
         if(messagez.author===this.localuser.user){
-            this.lastreadmessageid=messagez.snowflake;
+            this.lastreadmessageid=messagez.id;
             if(this.myhtml){
                 this.myhtml.classList.remove("cunread");
             }

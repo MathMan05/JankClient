@@ -384,7 +384,7 @@ class Guild{
         return this.member.isAdmin()
     }
     async markAsRead(){
-        const build:{read_states:{channel_id:SnowFlake<Channel>,message_id:SnowFlake<Message>|null,read_state_type:number}[]}={read_states:[]};
+        const build:{read_states:{channel_id:SnowFlake<Channel>,message_id:string|null,read_state_type:number}[]}={read_states:[]};
         for(const thing of this.channels){
             if(thing.hasunreads){
                 build.read_states.push({channel_id:thing.snowflake,message_id:thing.lastmessageid,read_state_type:0});
