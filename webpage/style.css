@@ -1283,6 +1283,7 @@ span {
 .flexspace{
 	gap:.1in;
 	padding: .05in;
+	box-sizing: border-box;
 }
 .titlediv{
 	height:100%;
@@ -1297,6 +1298,7 @@ span {
 	background: var(--primary-bg);
 	padding: .06in .2in;
 	background: var(--server-bg);
+	box-sizing: border-box;
 }
 .exitsettings{
 	position:absolute;
@@ -1522,6 +1524,7 @@ span {
 	justify-content: space-evenly;
 	padding: .075in;
 	box-sizing: border-box;
+	pointer-events: none;
 }
 @keyframes goout {
 	0%,100%{
@@ -1655,10 +1658,11 @@ form div{
 	background:var(--primary-bg);
 	position: relative;
 	height: 100%;
-	/* box-sizing: border-box; */
+	box-sizing: border-box;
 	display: flex;
 	align-content: stretch;
 	align-items: stretch;
+	width: 100%;
 }
 .dontshrink{
 	flex-shrink:0;
@@ -1932,4 +1936,16 @@ form div{
 .optionElement{
 	border-radius:.03in;
 	box-shadow: .01in .01in .1in #00000059;
+}
+.FormSettings{
+	display:flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: .1in;
+}
+.clickable{
+	cursor:pointer;
+}
+.clickable:hover{
+	text-decoration:underline;
 }

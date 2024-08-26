@@ -943,82 +943,121 @@ class Localuser{
         }
         {
             const security=settings.addButton("Account Settings");
-            if(this.mfa_enabled){
-                security.addTextInput("Disable 2FA, totp code:",_=>{
-                    fetch(this.info.api+"/users/@me/mfa/totp/disable",{
-                        method:"POST",
-                        headers:this.headers,
-                        body:JSON.stringify({
-                            code:_
-                        })
-                    }).then(r=>r.json()).then(json=>{
-                        if(json.message){
-                            alert(json.message);
-                        }else{
-                            this.mfa_enabled=false;
-                            alert("2FA turned off successfully");
-                        }
-                    });
-                })
-            }else{
-                security.addButtonInput("","Enable 2FA",async ()=>{
-                    let secret=""
-                    for(let i=0;i<18;i++){
-                        secret+="ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"[Math.floor(Math.random()*32)];
-                    }
-                    let password="";
-                    let code="";
-                    const addmodel=new Dialog(
-                        ["vdiv",
-                            ["title","2FA set up"],
-                            ["text","Copy this secret into your totp(time-based one time password) app"],
-                            ["text",`Your secret is: ${secret} and it's 6 digits, with a 30 second token period`],
-                            ["textbox","Account password:","",function(this:HTMLInputElement){password=this.value}],
-                            ["textbox","Code:","",function(this:HTMLInputElement){code=this.value}],
-                            ["button","","Submit",()=>{
-                                fetch(this.info.api+"/users/@me/mfa/totp/enable/",{
-                                    method:"POST",
-                                    headers:this.headers,
-                                    body:JSON.stringify({
-                                        password,
-                                        code,
-                                        secret
-                                    })
-                                }).then(r=>r.json()).then(json=>{
-                                    if(json.message){
-                                        alert(json.message);
-                                    }else{
-                                        alert("2FA set up successfully");
-                                        addmodel.hide();
-                                        this.mfa_enabled=true;
-                                    }
-                                })
-                            }]
-
-                        ]);
-                    console.log("here :3")
-                    addmodel.show();
-                })
-            }
-            let disc="";
-            const updatedisc=security.addButtonInput("","Change discriminator",()=>{
-                const update=new Dialog(["vdiv",
-                    ["title","Change discriminator"],
-                    ["textbox","New discriminator:","",(e:InputEvent)=>{
-                        disc=(e.target as HTMLInputElement).value;
-                    }],
-                    ["button","","submit",()=>{
-                        this.changeDiscriminator(disc).then(_=>{
+            const genSecurity=()=>{
+                security.removeAll();
+                if(this.mfa_enabled){
+                    security.addButtonInput("","Disable 2FA",()=>{
+                        const form=security.addSubForm("2FA Disable",(_:any)=>{
                             if(_.message){
-                                alert(_.errors.discriminator._errors[0].message);
+                                switch(_.code){
+                                    case 60008:
+                                        form.error("code","Invalid code");
+                                        break;
+                                }
                             }else{
-                                update.hide();
+                                this.mfa_enabled=false;
+                                security.returnFromSub();
+                                genSecurity();
                             }
-                        })
-                    }]
-                ])
-                update.show();
-            })
+                        },{
+                            fetchURL:(this.info.api+"/users/@me/mfa/totp/disable"),
+                            headers:this.headers
+                        });
+                        form.addTextInput("Code:","code",{required:true});
+                    })
+                }else{
+                    security.addButtonInput("","Enable 2FA",async ()=>{
+                        let secret=""
+                        for(let i=0;i<18;i++){
+                            secret+="ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"[Math.floor(Math.random()*32)];
+                        }
+                        const form=security.addSubForm("2FA Setup",(_:any)=>{
+                            if(_.message){
+                                switch(_.code){
+                                    case 60008:
+                                        form.error("code","Invalid code");
+                                        break;
+                                    case 400:
+                                        form.error("password","Incorrect password");
+                                        break;
+                                }
+                            }else{
+                                genSecurity();
+                                this.mfa_enabled=true;
+                                security.returnFromSub();
+                            }
+                        },{
+                            fetchURL:(this.info.api+"/users/@me/mfa/totp/enable/"),
+                            headers:this.headers
+                        });
+                        form.addTitle("Copy this secret into your totp(time-based one time password) app");
+                        form.addText(`Your secret is: ${secret} and it's 6 digits, with a 30 second token period`);
+                        form.addTextInput("Account Password:","password",{required:true,password:true});
+                        form.addTextInput("Code:","code",{required:true});
+                        form.setValue("secret",secret);
+                    })
+                }
+                security.addButtonInput("","Change discriminator",()=>{
+                    const form=security.addSubForm("Change Discriminator",(_)=>{security.returnFromSub()},{
+                        fetchURL:(this.info.api+"/users/@me/"),
+                        headers:this.headers,
+                        method:"PATCH"
+                    });
+                    form.addTextInput("New discriminator:","discriminator")
+                });
+                security.addButtonInput("","Change email",()=>{
+                    const form=security.addSubForm("Change Email",(_)=>{security.returnFromSub()},{
+                        fetchURL:(this.info.api+"/users/@me/"),
+                        headers:this.headers,
+                        method:"PATCH"
+                    });
+                    form.addTextInput("Password:","password",{password:true});
+                    if(this.mfa_enabled){
+                        form.addTextInput("Code:","code");
+                    }
+                    form.addTextInput("New email:","email");
+                });
+                security.addButtonInput("","Change username",()=>{
+                    const form=security.addSubForm("Change Username",(_)=>{security.returnFromSub()},{
+                        fetchURL:(this.info.api+"/users/@me/"),
+                        headers:this.headers,
+                        method:"PATCH"
+                    });
+                    form.addTextInput("Password:","password",{password:true});
+                    if(this.mfa_enabled){
+                        form.addTextInput("Code:","code");
+                    }
+                    form.addTextInput("New username:","username");
+                });
+                security.addButtonInput("","Change password",()=>{
+                    const form=security.addSubForm("Change Password",(_)=>{security.returnFromSub()},{
+                        fetchURL:(this.info.api+"/users/@me/"),
+                        headers:this.headers,
+                        method:"PATCH"
+                    });
+                    form.addTextInput("Old password:","password",{password:true});
+                    if(this.mfa_enabled){
+                        form.addTextInput("Code:","code");
+                    }
+                    let in1="";
+                    let in2="";
+                    form.addTextInput("New password:","").watchForChange(text=>{
+                        in1=text;
+                    });
+                    const copy=form.addTextInput("New password again:","")
+                    copy.watchForChange(text=>{
+                        in2=text;
+                    });
+                    form.setValue("new_password",()=>{
+                        if(in1===in2){
+                            return in1;
+                        }else{
+                            throw [copy,"Passwords don't match"]
+                        }
+                    })
+                });
+            }
+            genSecurity();
         }
         {
             const connections=settings.addButton("Connections");
@@ -1105,13 +1144,6 @@ class Localuser{
             devPortal.addHTMLArea(appListContainer);
         }
         settings.show();
-    }
-    async changeDiscriminator(discriminator:string){
-        return await (await fetch(this.info.api+"/users/@me/",{
-            method:"PATCH",
-            headers:this.headers,
-            body:JSON.stringify({discriminator})
-        })).json();
     }
     async manageApplication(appId="") {
         const res=await fetch(this.info.api+"/applications/" + appId, {
