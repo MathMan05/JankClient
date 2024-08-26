@@ -33,6 +33,7 @@ class Localuser {
     typing = new Map();
     connectionSucceed = 0;
     errorBackoff = 0;
+    userMap = new Map();
     instancePing = {
         name: "Unknown",
     };
@@ -119,7 +120,6 @@ class Localuser {
             this.ws.close(4001);
         }
         SnowFlake.clear();
-        User.clear();
     }
     swapped = false;
     async initwebsocket() {
@@ -833,7 +833,7 @@ class Localuser {
             }, { clear: true });
             finput.watchForChange(_ => {
                 if (!_) {
-                    file = _;
+                    file = null;
                     hypouser.avatar = null;
                     hypouser.hypotheticalpfp = true;
                     regen();

@@ -10,8 +10,9 @@ class Member {
     id;
     nick;
     constructor(memberjson, owner) {
-        if (User.userids[memberjson.id]) {
-            this.user = User.userids[memberjson.id];
+        this.owner = owner;
+        if (this.localuser.userMap.has(memberjson.id)) {
+            this.user = this.localuser.userMap.get(memberjson.id);
         }
         else if (memberjson.user) {
             this.user = new User(memberjson.user, owner.localuser);
@@ -19,7 +20,6 @@ class Member {
         else {
             throw new Error("Missing user object of this member");
         }
-        this.owner = owner;
         for (const thing of Object.keys(memberjson)) {
             if (thing === "guild") {
                 continue;
@@ -52,8 +52,8 @@ class Member {
     }
     static async new(memberjson, owner) {
         let user;
-        if (User.userids[memberjson.id]) {
-            user = User.userids[memberjson.id];
+        if (owner.localuser.userMap.has(memberjson.id)) {
+            user = owner.localuser.userMap.get(memberjson.id);
         }
         else if (memberjson.user) {
             user = new User(memberjson.user, owner.localuser);

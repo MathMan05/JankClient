@@ -60,7 +60,7 @@ class Message{
         Message.contextmenu.addbutton("Copy message id",function(this:Message){
             navigator.clipboard.writeText(this.id);
         });
-        Message.contextmenu.addsubmenu("Add reaction",function(this:Message,e){
+        Message.contextmenu.addsubmenu("Add reaction",function(this:Message,e:{x:number,y:number}){
             Emoji.emojiPicker(e.x,e.y,this.localuser).then(_=>{
                 this.reactionToggle(_);
             });
@@ -555,7 +555,7 @@ class Message{
         for (const i in this.reactions) {
             const reaction = this.reactions[i];
             if ((reaction.emoji.id && reaction.emoji.id == emoji.id) || (!reaction.emoji.id && reaction.emoji.name == emoji.name)) {
-                this.reactions.splice(i, 1);
+                this.reactions.splice(+i, 1);
                 this.updateReactions();
                 break;
             }

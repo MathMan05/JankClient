@@ -8,7 +8,6 @@ import { SnowFlake } from "./snowflake.js";
 import { presencejson, userjson } from "./jsontypes.js";
 
 class User{
-    static userids={};
     owner:Localuser;
     hypotheticalpfp:boolean;
     snowflake:SnowFlake<User>;
@@ -127,15 +126,12 @@ class User{
             return (us.hasPermission("BAN_MEMBERS"))||false;
         });
     }
-    static clear(){
-        this.userids={};
-    }
     static checkuser(user:User|userjson,owner:Localuser):User{
-        if(User.userids[user.id]){
-            return User.userids[user.id];
+        if(owner.userMap.has(user.id)){
+            return owner.userMap.get(user.id) as User;
         }else{
             const tempuser=new User(user as userjson,owner,true)
-            User.userids[user.id]=tempuser;
+            owner.userMap.set(user.id,tempuser);
             return tempuser;
         }
     }

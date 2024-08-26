@@ -13,14 +13,15 @@ class Member{
     id:string;
     nick:string;
     private constructor(memberjson:memberjson,owner:Guild){
-        if(User.userids[memberjson.id]){
-            this.user=User.userids[memberjson.id];
+        this.owner=owner;
+        if(this.localuser.userMap.has(memberjson.id)){
+            this.user=this.localuser.userMap.get(memberjson.id);
         }else if(memberjson.user){
             this.user=new User(memberjson.user,owner.localuser);
         }else{
             throw new Error("Missing user object of this member");
         }
-        this.owner=owner;
+
         for(const thing of Object.keys(memberjson)){
             if(thing==="guild"){continue}
             if(thing==="owner"){continue}
@@ -52,8 +53,8 @@ class Member{
     }
     static async new(memberjson:memberjson,owner:Guild):Promise<Member|undefined>{
         let user:User;
-        if(User.userids[memberjson.id]){
-            user=User.userids[memberjson.id];
+        if(owner.localuser.userMap.has(memberjson.id)){
+            user=owner.localuser.userMap.get(memberjson.id);
         }else if(memberjson.user){
             user=new User(memberjson.user,owner.localuser);
         }else{
