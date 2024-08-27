@@ -794,6 +794,10 @@ class Form implements OptionsElement<object>{
         for(const thing of this.names.keys()){
             if(thing==="") continue;
             const input=this.names.get(thing) as OptionsElement<any>;
+            if(input instanceof SelectInput){
+                build[thing]=input.options[input.value];
+                continue;
+            }
             build[thing]=input.value;
         }
         if(this.fetchURL!==""){
