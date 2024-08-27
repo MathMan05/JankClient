@@ -724,6 +724,7 @@ class Channel {
             }
             else {
                 this.lastmessage = message;
+                this.lastmessageid = message.id;
             }
             prev = message;
             if (this.messageids.get(message.snowflake) === undefined) {
