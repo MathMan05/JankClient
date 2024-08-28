@@ -1285,6 +1285,9 @@ span {
 	padding: .05in;
 	box-sizing: border-box;
 }
+.flexspace:has(.Buttons){
+	padding:0;
+}
 .titlediv{
 	height:100%;
 	display: flex;
