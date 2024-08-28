@@ -793,7 +793,7 @@ textarea:focus-visible,
 
 button {
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background-color: var(--button-bg);
 	color: var(--primary-text);
 	border-color:var(--timestamp-color);
 	font-weight: bold;
@@ -818,11 +818,11 @@ button:disabled:hover{
 	color: var(--primary-text);
 }
 button:hover {
-	background-color: var(--primary-bg);
+	background-color: var(--button-hover);
 }
 input::file-selector-button {
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background-color: var(--button-bg);
 	border-color:var(--timestamp-color);
 	color: var(--primary-text);
 	font-weight: bold;
@@ -841,7 +841,7 @@ input[type="file"] {
 }
 select{
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background-color: var(--button-bg);
 	color: var(--primary-text);
 	font-weight: bold;
 	text-align: left;
