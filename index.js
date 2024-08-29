@@ -4,8 +4,29 @@ const compression = require('compression')
 const express = require('express');
 const fs = require('fs');
 const app = express();
+const instances=require("./webpage/instances.json")
+const instancenames=new Map();
+for(const instance of instances){
+    instancenames.set(instance.name,instance);
+}
 app.use(compression())
-
+fetch("https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/instances/instances.json").then(_=>_.json()).then(json=>{
+    for(const instance of json){
+        console.log(instance);
+        if(!instancenames.has(instance.name)){
+            console.log("pushed");
+            instances.push(instance);
+            console.log(instances)
+        }else{
+            const ofinst=instancenames.get(instance.name)
+            for(const key of Object.keys(instance)){
+                if(!ofinst[key]){
+                    ofinst[key]=instance[key];
+                }
+            }
+        }
+    }
+})
 
 app.use("/getupdates",(req, res) => {
     const out=fs.statSync(`${__dirname}/webpage`);
@@ -140,6 +161,11 @@ app.use('/', async (req, res) => {
 
     if(debugging&&req.path.startsWith("/service.js")){
         res.send("dud");
+        return;
+    }
+    if(req.path.startsWith("/instances.json")){
+        console.log("grabbed")
+        res.send(JSON.stringify(instances));
         return;
     }
     if(req.path.startsWith("/invite/")){

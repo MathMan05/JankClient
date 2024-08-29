@@ -15,7 +15,7 @@
 <form id="form" submit="check(e)">
     <label for="instance"><b>Instance:</b></label><br>
     <p id="verify"></p>
-    <input type="text" placeholder="Instance URL" name="instance" id="instancein" value="https://spacebar.chat/" id="instancein" required><br><br>
+    <input type="search" list="instances" placeholder="Instance URL" name="instance" id="instancein" value="" id="instancein" required><br><br>
 
     <label for="uname"><b>Email:</b></label><br>
     <input type="text" placeholder="Enter email address" name="uname" id="uname" required><br><br>
@@ -31,5 +31,6 @@
 </form>
 <a href="/register.html" id="switch">Don't have an account?</a>
 </div>
+<datalist id="instances"></datalist>
 <script src="/login.js" type="module" ></script>
 </body>
