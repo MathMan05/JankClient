@@ -354,9 +354,8 @@ class Channel {
             this.sortchildren();
             const caps = document.createElement("div");
             const decdiv = document.createElement("div");
-            const decoration = document.createElement("img");
-            decoration.src = "/icons/category.svg";
-            decoration.classList.add("svgtheme", "colaspeicon");
+            const decoration = document.createElement("span");
+            decoration.classList.add("svgtheme", "colaspeicon", "svg-category");
             decdiv.appendChild(decoration);
             const myhtml = document.createElement("p2");
             myhtml.textContent = this.name;
@@ -411,22 +410,19 @@ class Channel {
             const myhtml = document.createElement("span");
             myhtml.textContent = this.name;
             if (this.type === 0) {
-                const decoration = document.createElement("img");
-                decoration.src = "/icons/channel.svg";
+                const decoration = document.createElement("span");
                 div.appendChild(decoration);
-                decoration.classList.add("space", "svgtheme");
+                decoration.classList.add("space", "svgtheme", "svg-channel");
             }
             else if (this.type === 2) { //
-                const decoration = document.createElement("img");
-                decoration.src = "/icons/voice.svg";
+                const decoration = document.createElement("span");
                 div.appendChild(decoration);
-                decoration.classList.add("space", "svgtheme");
+                decoration.classList.add("space", "svgtheme", "svg-voice");
             }
             else if (this.type === 5) { //
-                const decoration = document.createElement("img");
-                decoration.src = "/icons/announce.svg";
+                const decoration = document.createElement("span");
                 div.appendChild(decoration);
-                decoration.classList.add("space", "svgtheme");
+                decoration.classList.add("space", "svgtheme", "svg-announce");
             }
             else {
                 console.log(this.type);
