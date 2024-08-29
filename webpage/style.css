@@ -995,7 +995,7 @@ span {
 	user-select: none;
 }
 
-.filename {
+.filename a{
 	color: var(--filename);
 }
 
