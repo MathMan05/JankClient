@@ -5,9 +5,12 @@ inside of webpage you'll see a file called `instances.json` in that file you'll 
     "name":<name>,
     "description"?:<short description>,
     "descriptionLong"?:<A description for the instance that can be longer>,
-    "src"?:<URL to image repersenting your instance>,
-    "URL"?:<The URL that can be used to get your wellknown>,
-    "URLs"?:{
+    "image"?:<URL to image repersenting your instance>,
+    "url"?:<The URL that can be used to get your wellknown>,
+    "language":<what language your server is in>,
+    "country":<what country your server is in>,
+    "display":<true or false depending on wether it should display>,
+    "urls"?:{
         "wellknown":<wellknown URL>,
         "api":<API URL>,
         "cdn":<CDN URL>,
@@ -26,6 +29,8 @@ inside of webpage you'll see a file called `instances.json` in that file you'll 
 ```
 anything with a `?` in-front of its `:` are optional, though you must either include `"URL"` or `"URLs"`, but you may include both, though the client will most likely ignore `"URLs"` in favor of `"URL"`, though it may use `"URLs"` as a fallback if `"URL"` does not resolve, do not rely on this behavior.
 Some of these values may not be used right now, though they will likely be used in the future, so feel free to fill out what you like, though the more you fill out the more information we can give the users about your instance in the future.
+language should be [ISO 639-1](https://en.wikipedia.org/wiki/ISO_639-1_codes).
+Country should be [ISO 8166-2 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
 # Questions
 ## Do I have to do this to let Jank Client connect to my server?
 No, you may choose to not do this, this just makes it easier for people using Jank Client to find and use your instance as it's in the dropdown menu for instances, though the user may enter any instance they please.

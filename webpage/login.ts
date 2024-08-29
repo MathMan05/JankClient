@@ -405,22 +405,25 @@ export {mobile, getBulkUsers,getBulkInfo,setTheme,Specialuser,getapiurls,adduser
 const datalist=document.getElementById("instances");
 console.warn(datalist);
 if(datalist){
-    fetch("/instances.json").then(_=>_.json()).then((json:{name:string,description?:string,src?:string,URL?:string,URLs:{wellknown:string,api:string,cdn:string,gateway:string,login?:string}}[])=>{
+    fetch("/instances.json").then(_=>_.json()).then((json:{name:string,description?:string,src?:string,url?:string,display?:boolean,urls:{wellknown:string,api:string,cdn:string,gateway:string,login?:string}}[])=>{
         console.warn(json);
         if(instancein&&instancein.value===""){
             instancein.value=json[0].name;
             setTimeout(checkInstance,10);
         }
         for(const instance of json){
+            if(instance.display===false){
+                continue;
+            }
             const option=document.createElement("option");
             option.value=instance.name;
-            if(instance.URL){
-                stringURLMap.set(option.value,instance.URL);
-                if(instance.URLs){
-                    stringURLsMap.set(instance.URL,instance.URLs);
+            if(instance.url){
+                stringURLMap.set(option.value,instance.url);
+                if(instance.urls){
+                    stringURLsMap.set(instance.url,instance.urls);
                 }
-            }else if(instance.URLs){
-                stringURLsMap.set(option.value,instance.URLs);
+            }else if(instance.urls){
+                stringURLsMap.set(option.value,instance.urls);
             }else{
                 option.disabled=true;
             }

@@ -1,8 +1,8 @@
 [
     {
-        "name":"Spacebar Official",
-        "description":"The official instance of spacebar!",
-        "src":"https://cdn.old.server.spacebar.chat/icons/1006649183970562092/fb5218b5dfad5e1c7b452c17ddb1701e.png",
-        "URL":"https://spacebar.chat"
+        "name":"Spacebar",
+        "description":"The official Spacebar instance.",
+        "image":"https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/branding/png/Spacebar__Icon-Discord.png",
+        "url":"https://spacebar.chat"
     }
 ]
