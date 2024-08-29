@@ -1,3 +1,6 @@
+html{
+	height:100%;
+}
 body {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 400;
@@ -703,7 +706,7 @@ textarea:focus-visible,
 }
 
 .servertd {
-	background-color: var(--server-bg);
+	background-color: var(--channel-name-bg);
 	height: .55in;
 	width:100%;
 	display: flex;
@@ -793,7 +796,7 @@ textarea:focus-visible,
 
 button {
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background-color: var(--button-bg);
 	color: var(--primary-text);
 	border-color:var(--timestamp-color);
 	font-weight: bold;
@@ -818,11 +821,11 @@ button:disabled:hover{
 	color: var(--primary-text);
 }
 button:hover {
-	background-color: var(--primary-bg);
+	background-color: var(--button-hover);
 }
 input::file-selector-button {
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background-color: var(--button-bg);
 	border-color:var(--timestamp-color);
 	color: var(--primary-text);
 	font-weight: bold;
@@ -841,7 +844,7 @@ input[type="file"] {
 }
 select{
 	transition: background .1s ease-in-out;
-	background-color: var(--message-bg-hover);
+	background-color: var(--button-bg);
 	color: var(--primary-text);
 	font-weight: bold;
 	text-align: left;
@@ -992,7 +995,7 @@ span {
 	user-select: none;
 }
 
-.filename {
+.filename a{
 	color: var(--filename);
 }
 
@@ -1285,6 +1288,9 @@ span {
 	padding: .05in;
 	box-sizing: border-box;
 }
+.flexspace:has(.Buttons){
+	padding:0;
+}
 .titlediv{
 	height:100%;
 	display: flex;
@@ -1297,7 +1303,7 @@ span {
 	border-bottom: solid .03in var(--message-bg-hover);
 	background: var(--primary-bg);
 	padding: .06in .2in;
-	background: var(--server-bg);
+	background: var(--channel-name-bg);
 	box-sizing: border-box;
 }
 .exitsettings{
