@@ -1819,7 +1819,8 @@ form div{
 	border:solid .03in var(--black);
 }
 .copybutton{
-
+	display:inline-block;
+	height:.2in;
 	width:.25in;
 }
 .copycontainer{
