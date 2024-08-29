@@ -1,6 +1,6 @@
 # How to add your instance to Jank Client
 inside of webpage you'll see a file called `instances.json` in that file you'll need to add your instance and its information in the following format if you want your instance to be a part of the drop down.
-```json
+```
 {
     "name":<name>,
     "description"?:<short description>,
