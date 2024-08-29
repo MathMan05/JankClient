@@ -1,0 +1,14 @@
+[
+    {
+        "name":"Spacebar Official",
+        "description":"The official instance of spacebar!",
+        "src":"https://cdn.old.server.spacebar.chat/icons/1006649183970562092/fb5218b5dfad5e1c7b452c17ddb1701e.png",
+        "URL":"https://spacebar.chat"
+    },
+    {
+        "name":"Vanilla Games",
+        "description":"The spacebar instance for Vanilla games",
+        "src":"https://vanillaminigames.net/img/favicon.ico",
+        "URL":"https://vanillaminigames.net/"
+    }
+]
