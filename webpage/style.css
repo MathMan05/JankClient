@@ -339,6 +339,7 @@ p {
 	width: .175in;
 	padding-right: .026in;
 	height: .175in;
+	vertical-align: text-bottom;
 }
 
 
@@ -677,7 +678,7 @@ textarea:focus-visible,
 	transition: height .2s ease-in-out;
 	user-select: none;
 	cursor: pointer;
-	padding-left: .05in;
+	padding: 0 .05in;
 	overflow-y: clip;
 }
 
@@ -1563,7 +1564,7 @@ form div{
 	height:.15in;
 	width:.15in;
 	padding-right: .025in;
-	padding-left: .05in;
+	margin-left: .05in;
 	transition:rotate .2s;
 }
 .hiddencat{
