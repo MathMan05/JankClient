@@ -95,9 +95,8 @@ class Channel {
         let expires = 1800;
         const copycontainer = document.createElement("div");
         copycontainer.classList.add("copycontainer");
-        const copy = document.createElement("img");
-        copy.src = "/icons/copy.svg";
-        copy.classList.add("copybutton", "svgtheme");
+        const copy = document.createElement("span");
+        copy.classList.add("copybutton", "svgtheme", "svg-copy");
         copycontainer.append(copy);
         copycontainer.onclick = _ => {
             if (text.textContent) {
