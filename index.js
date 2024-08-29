@@ -14,9 +14,7 @@ fetch("https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/instan
     for(const instance of json){
         console.log(instance);
         if(!instancenames.has(instance.name)){
-            console.log("pushed");
             instances.push(instance);
-            console.log(instances)
         }else{
             const ofinst=instancenames.get(instance.name)
             for(const key of Object.keys(instance)){
