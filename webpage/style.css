@@ -1,6 +1,3 @@
-html{
-	height:100%;
-}
 body {
 	font-family: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 400;
@@ -706,7 +703,7 @@ textarea:focus-visible,
 }
 
 .servertd {
-	background-color: var(--channel-name-bg);
+	background-color: var(--server-bg);
 	height: .55in;
 	width:100%;
 	display: flex;
@@ -796,7 +793,7 @@ textarea:focus-visible,
 
 button {
 	transition: background .1s ease-in-out;
-	background-color: var(--button-bg);
+	background-color: var(--message-bg-hover);
 	color: var(--primary-text);
 	border-color:var(--timestamp-color);
 	font-weight: bold;
@@ -821,11 +818,11 @@ button:disabled:hover{
 	color: var(--primary-text);
 }
 button:hover {
-	background-color: var(--button-hover);
+	background-color: var(--primary-bg);
 }
 input::file-selector-button {
 	transition: background .1s ease-in-out;
-	background-color: var(--button-bg);
+	background-color: var(--message-bg-hover);
 	border-color:var(--timestamp-color);
 	color: var(--primary-text);
 	font-weight: bold;
@@ -844,7 +841,7 @@ input[type="file"] {
 }
 select{
 	transition: background .1s ease-in-out;
-	background-color: var(--button-bg);
+	background-color: var(--message-bg-hover);
 	color: var(--primary-text);
 	font-weight: bold;
 	text-align: left;
@@ -995,7 +992,7 @@ span {
 	user-select: none;
 }
 
-.filename a{
+.filename {
 	color: var(--filename);
 }
 
@@ -1288,9 +1285,6 @@ span {
 	padding: .05in;
 	box-sizing: border-box;
 }
-.flexspace:has(.Buttons){
-	padding:0;
-}
 .titlediv{
 	height:100%;
 	display: flex;
@@ -1303,7 +1297,7 @@ span {
 	border-bottom: solid .03in var(--message-bg-hover);
 	background: var(--primary-bg);
 	padding: .06in .2in;
-	background: var(--channel-name-bg);
+	background: var(--server-bg);
 	box-sizing: border-box;
 }
 .exitsettings{
@@ -1403,6 +1397,7 @@ span {
 	overflow: hidden;
 	cursor: pointer;
 	flex-shrink: 0;
+	position: relative;
 }
 
 .discovery-guild .flex {
@@ -1825,7 +1820,7 @@ form div{
 }
 .banner{
 	position:absolute;
-	z-index:0;
+	z-index: 0;
 	top:0;
 	left:0;
 	width:100%;
@@ -1955,4 +1950,31 @@ form div{
 }
 .clickable:hover{
 	text-decoration:underline;
+}
+
+#titleDiv{
+	box-sizing: border-box;
+	display:flex;
+	flex-direction: row;
+	align-items: center;
+	width: 100%;
+	padding: .03in .15in;
+	background: var(--profile-bg);
+	border-bottom: solid var(--black);
+	position: absolute;
+}
+#TitleButtons{
+	color:var(--primary-text);
+	margin-left: .03in;
+	padding: .05in;
+	border-radius:.075in;
+	border:solid .03in var(--black);
+	box-shadow: 0 0 .07in var(--shadow);
+	transition: box-shadow .3s;
+}
+#TitleButtons:hover{
+	box-shadow: 0 0 .01in var(--shadow);
+}
+#pageTitle{
+	margin-right:.1in;
 }
