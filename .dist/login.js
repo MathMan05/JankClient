@@ -154,7 +154,30 @@ function adduser(user) {
 const instancein = document.getElementById("instancein");
 let timeout;
 let instanceinfo;
+const stringURLMap = new Map();
+const stringURLsMap = new Map();
 async function getapiurls(str) {
+    if (!URL.canParse(str)) {
+        const val = stringURLMap.get(str);
+        if (val) {
+            str = val;
+        }
+        else {
+            const val = stringURLsMap.get(str);
+            if (val) {
+                const responce = await fetch(val.api + val.api.endsWith("/") ? "" : "/" + "ping");
+                if (responce.ok) {
+                    if (val.login) {
+                        return val;
+                    }
+                    else {
+                        val.login = val.api;
+                        return val;
+                    }
+                }
+            }
+        }
+    }
     if (str[str.length - 1] !== "/") {
         str += "/";
     }
@@ -178,6 +201,19 @@ async function getapiurls(str) {
         };
     }
     catch {
+        const val = stringURLsMap.get(str);
+        if (val) {
+            const responce = await fetch(val.api + val.api.endsWith("/") ? "" : "/" + "ping");
+            if (responce.ok) {
+                if (val.login) {
+                    return val;
+                }
+                else {
+                    val.login = val.api;
+                    return val;
+                }
+            }
+        }
         return false;
     }
 }
@@ -185,16 +221,22 @@ async function checkInstance(e) {
     const verify = document.getElementById("verify");
     try {
         verify.textContent = "Checking Instance";
-        const instanceinfo = await setInstance(instancein.value);
-        localStorage.setItem("instanceinfo", JSON.stringify(instanceinfo));
-        verify.textContent = "Instance is all good";
-        if (checkInstance["alt"]) {
-            checkInstance["alt"]();
+        const instanceinfo = await getapiurls(instancein.value);
+        if (instanceinfo) {
+            instanceinfo.value = instancein.value;
+            localStorage.setItem("instanceinfo", JSON.stringify(instanceinfo));
+            verify.textContent = "Instance is all good";
+            if (checkInstance["alt"]) {
+                checkInstance["alt"]();
+            }
+            setTimeout(_ => {
+                console.log(verify.textContent);
+                verify.textContent = "";
+            }, 3000);
         }
-        setTimeout(_ => {
-            console.log(verify.textContent);
-            verify.textContent = "";
-        }, 3000);
+        else {
+            verify.textContent = "Invalid Instance, try again";
+        }
     }
     catch (e) {
         console.log("catch");
@@ -210,7 +252,13 @@ if (instancein) {
         timeout = setTimeout(checkInstance, 1000);
     });
     if (localStorage.getItem("instanceinfo")) {
-        instancein.value = JSON.parse(localStorage.getItem("instanceinfo")).wellknown;
+        const json = JSON.parse(localStorage.getItem("instanceinfo"));
+        if (json.value) {
+            instancein.value = json.value;
+        }
+        else {
+            instancein.value = json.wellknown;
+        }
     }
     else {
         checkInstance("https://spacebar.chat/");
@@ -316,29 +364,6 @@ async function login(username, password, captcha) {
     }
     ;
 }
-async function setInstance(url) {
-    url = new URL(url);
-    async function attempt(aurl) {
-        const info = await fetch(`${aurl.toString()}${aurl.pathname.includes("api") ? "" : "api"}/policies/instance/domains`)
-            .then((x) => x.json());
-        return {
-            api: info.apiEndpoint,
-            gateway: info.gateway,
-            cdn: info.cdn,
-            wellknown: url,
-            login: aurl.toString()
-        };
-    }
-    try {
-        return await attempt(url);
-    }
-    catch (e) {
-    }
-    const wellKnown = await fetch(`${url.origin}/.well-known/spacebar`)
-        .then((x) => x.json())
-        .then((x) => new URL(x.api));
-    return await attempt(wellKnown);
-}
 async function check(e) {
     e.preventDefault();
     let h = await login(e.srcElement[1].value, e.srcElement[2].value, e.srcElement[3].value);
@@ -387,3 +412,37 @@ if (switchurl) {
 export { checkInstance };
 trimswitcher();
 export { mobile, getBulkUsers, getBulkInfo, setTheme, Specialuser, getapiurls, adduser };
+const datalist = document.getElementById("instances");
+console.warn(datalist);
+if (datalist) {
+    fetch("/instances.json").then(_ => _.json()).then((json) => {
+        console.warn(json);
+        if (instancein && instancein.value === "") {
+            instancein.value = json[0].name;
+            setTimeout(checkInstance, 10);
+        }
+        for (const instance of json) {
+            const option = document.createElement("option");
+            option.value = instance.name;
+            if (instance.URL) {
+                stringURLMap.set(option.value, instance.URL);
+                if (instance.URLs) {
+                    stringURLsMap.set(instance.URL, instance.URLs);
+                }
+            }
+            else if (instance.URLs) {
+                stringURLsMap.set(option.value, instance.URLs);
+            }
+            else {
+                option.disabled = true;
+            }
+            if (instance.description) {
+                option.label = instance.description;
+            }
+            else {
+                option.label = instance.name;
+            }
+            datalist.append(option);
+        }
+    });
+}

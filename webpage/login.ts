@@ -153,7 +153,30 @@ function adduser(user){
 const instancein=document.getElementById("instancein")  as HTMLInputElement;
 let timeout;
 let instanceinfo;
+const stringURLMap=new Map<string,string>();
+
+const stringURLsMap=new Map<string,{wellknown:string,api:string,cdn:string,gateway:string,login?:string}>();
 async function getapiurls(str:string):Promise<{api:string,cdn:string,gateway:string,wellknown:string,login:string}|false>{
+    if(!URL.canParse(str)){
+        const val=stringURLMap.get(str);
+        if(val){
+            str=val;
+        }else{
+            const val=stringURLsMap.get(str)
+            if(val){
+                const responce=await fetch(val.api+val.api.endsWith("/")?"":"/"+"ping");
+                if(responce.ok){
+                    if(val.login){
+                        return val as {wellknown:string,api:string,cdn:string,gateway:string,login:string};
+                    }else{
+                        val.login=val.api;
+                        return val as {wellknown:string,api:string,cdn:string,gateway:string,login:string};
+                    }
+
+                }
+            }
+        }
+    }
     if(str[str.length-1]!=="/"){
         str+="/"
     }
@@ -176,6 +199,19 @@ async function getapiurls(str:string):Promise<{api:string,cdn:string,gateway:str
             login:url.toString()
         };
     }catch{
+        const val=stringURLsMap.get(str)
+        if(val){
+            const responce=await fetch(val.api+val.api.endsWith("/")?"":"/"+"ping");
+            if(responce.ok){
+                if(val.login){
+                    return val as {wellknown:string,api:string,cdn:string,gateway:string,login:string};
+                }else{
+                    val.login=val.api;
+                    return val as {wellknown:string,api:string,cdn:string,gateway:string,login:string};
+                }
+
+            }
+        }
         return false;
     }
 
@@ -184,15 +220,19 @@ async function checkInstance(e:string){
     const verify=document.getElementById("verify");
     try{
         verify.textContent="Checking Instance";
-        const instanceinfo=await setInstance((instancein as HTMLInputElement).value);
-        localStorage.setItem("instanceinfo",JSON.stringify(instanceinfo));
-        verify.textContent="Instance is all good"
-        if(checkInstance["alt"]){checkInstance["alt"]();}
-        setTimeout(_=>{
-            console.log(verify.textContent)
-            verify.textContent="";
-        },3000);
-
+        const instanceinfo=await getapiurls((instancein as HTMLInputElement).value) as {wellknown:string,api:string,cdn:string,gateway:string,login:string, value:string};
+        if(instanceinfo){
+            instanceinfo.value=(instancein as HTMLInputElement).value;
+            localStorage.setItem("instanceinfo",JSON.stringify(instanceinfo));
+            verify.textContent="Instance is all good"
+            if(checkInstance["alt"]){checkInstance["alt"]();}
+            setTimeout(_=>{
+                console.log(verify.textContent)
+                verify.textContent="";
+            },3000);
+        }else{
+            verify.textContent="Invalid Instance, try again"
+        }
     }catch(e){
         console.log("catch")
         verify.textContent="Invalid Instance, try again"
@@ -207,7 +247,12 @@ if(instancein){
         timeout=setTimeout(checkInstance,1000);
     });
     if(localStorage.getItem("instanceinfo")){
-        (instancein as HTMLInputElement).value=JSON.parse(localStorage.getItem("instanceinfo")).wellknown
+        const json=JSON.parse(localStorage.getItem("instanceinfo"));
+        if(json.value){
+            (instancein as HTMLInputElement).value=json.value
+        }else{
+            (instancein as HTMLInputElement).value=json.wellknown
+        }
     }else{
         checkInstance("https://spacebar.chat/");
     }
@@ -306,30 +351,6 @@ async function login(username:string, password:string, captcha:string){
         console.error('Error:', error);
     };
 }
-async function setInstance(url){
-    url=new URL(url);
-    async function attempt(aurl){
-        const info=await fetch(`${aurl.toString()}${aurl.pathname.includes("api") ? "" : "api"}/policies/instance/domains`)
-        .then((x) => x.json());
-        return {
-            api: info.apiEndpoint,
-            gateway: info.gateway,
-            cdn: info.cdn,
-            wellknown: url,
-            login:aurl.toString()
-        }
-    }
-    try{
-        return await attempt(url);
-    }catch(e){
-
-    }
-    const wellKnown = await fetch(`${url.origin}/.well-known/spacebar`)
-    .then((x) => x.json())
-    .then((x) => new URL(x.api));
-    return await attempt(wellKnown);
-}
-
 
 async function check(e){
 
@@ -380,3 +401,35 @@ if(switchurl){
 export {checkInstance};
 trimswitcher();
 export {mobile, getBulkUsers,getBulkInfo,setTheme,Specialuser,getapiurls,adduser}
+
+const datalist=document.getElementById("instances");
+console.warn(datalist);
+if(datalist){
+    fetch("/instances.json").then(_=>_.json()).then((json:{name:string,description?:string,src?:string,URL?:string,URLs:{wellknown:string,api:string,cdn:string,gateway:string,login?:string}}[])=>{
+        console.warn(json);
+        if(instancein&&instancein.value===""){
+            instancein.value=json[0].name;
+            setTimeout(checkInstance,10);
+        }
+        for(const instance of json){
+            const option=document.createElement("option");
+            option.value=instance.name;
+            if(instance.URL){
+                stringURLMap.set(option.value,instance.URL);
+                if(instance.URLs){
+                    stringURLsMap.set(instance.URL,instance.URLs);
+                }
+            }else if(instance.URLs){
+                stringURLsMap.set(option.value,instance.URLs);
+            }else{
+                option.disabled=true;
+            }
+            if(instance.description){
+                option.label=instance.description;
+            }else{
+                option.label=instance.name;
+            }
+            datalist.append(option);
+        }
+    })
+}
