@@ -422,16 +422,19 @@ if (datalist) {
             setTimeout(checkInstance, 10);
         }
         for (const instance of json) {
+            if (instance.display === false) {
+                continue;
+            }
             const option = document.createElement("option");
             option.value = instance.name;
-            if (instance.URL) {
-                stringURLMap.set(option.value, instance.URL);
-                if (instance.URLs) {
-                    stringURLsMap.set(instance.URL, instance.URLs);
+            if (instance.url) {
+                stringURLMap.set(option.value, instance.url);
+                if (instance.urls) {
+                    stringURLsMap.set(instance.url, instance.urls);
                 }
             }
-            else if (instance.URLs) {
-                stringURLsMap.set(option.value, instance.URLs);
+            else if (instance.urls) {
+                stringURLsMap.set(option.value, instance.urls);
             }
             else {
                 option.disabled = true;
