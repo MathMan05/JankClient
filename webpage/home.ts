@@ -43,7 +43,7 @@ fetch("/instances.json").then(_=>_.json()).then((json:{name:string,description?:
                 }
                 statbox.append(textbox)
             }
-            {
+            if(instance.uptime){
                 const stats=document.createElement("div");
                 stats.classList.add("flexltr");
                 const span=document.createElement("span");
