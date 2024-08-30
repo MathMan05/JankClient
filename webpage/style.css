@@ -1257,6 +1257,7 @@ span {
 	/* padding-bottom: .1in; */
 	align-items: flex-start;
 	width: 100%;
+	height: 100%;
 }
 .settingbuttons{
 	padding-top:.075in;
@@ -1958,12 +1959,12 @@ form div{
 	flex-direction: row;
 	align-items: center;
 	width: 100%;
-	padding: .03in .15in;
+	padding: .03in .1in;
 	background: var(--profile-bg);
 	border-bottom: solid var(--black);
-	position: absolute;
+	justify-content: center;
 }
-#TitleButtons{
+.TitleButtons{
 	color:var(--primary-text);
 	margin-left: .03in;
 	padding: .05in;
@@ -1971,10 +1972,82 @@ form div{
 	border:solid .03in var(--black);
 	box-shadow: 0 0 .07in var(--shadow);
 	transition: box-shadow .3s;
+	display: block;
+	width: fit-content;
 }
-#TitleButtons:hover{
+.TitleButtons:hover{
 	box-shadow: 0 0 .01in var(--shadow);
 }
 #pageTitle{
 	margin-right:.1in;
 }
+.pagehead{
+	background: var(--channel-hover);
+	height:1in;
+	display: flex;
+	align-items: center;
+	border-bottom: solid var(--black);
+	justify-content: center;
+	font-size: .25in;
+	flex-shrink: 0;
+}
+.pagebox{
+	padding: .06in;
+	background: var(--channel-hover);
+	margin: .1in;
+	min-height:2in;
+	border-radius:.1in;
+	box-sizing: border-box;
+	border: solid .04in black;
+	border-left: solid .05in darkblue;
+	box-shadow: .03in .04in .1in var(--black);
+	flex-shrink: 0;
+}
+#instancebox{
+	display:flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: fit-content;
+}
+.instance{
+	img{
+		width:.6in;
+	height:.6in;
+	margin-right:.1in;
+	border-radius:.2in;
+	border:solid .03in var(--black);
+	}
+	h2{
+		font-size:.25in;
+	}
+	flex-grow:0;
+	width:4.8in;
+	height: 1.6in;
+	background:var(--button-bg);
+	border-radius:.1in;
+	padding:.06in;
+	margin:.05in;
+	border:solid .04in var(--black);
+	box-shadow:0 0 .1in var(--shadow);
+	display: flex;
+	justify-content: center;
+	cursor:pointer;
+	user-select:none;
+}
+.instatancetextbox{
+	background:var(--message-bg-hover);
+	border-radius:.1in;
+	padding:0.03in .05in;
+	border:solid .03in var(--black);
+	height: 1.2in;
+	display:flex;
+	justify-content: center;
+	width:3.9in;
+	margin-bottom:.1in;
+}
+.instanceStatus{
+	font-size:.125in;
+	font-weight:100;
+	margin-left:.05in;
+}
+
