@@ -354,7 +354,7 @@ class Channel {
             const caps = document.createElement("div");
             const decdiv = document.createElement("div");
             const decoration = document.createElement("span");
-            decoration.classList.add("svgtheme", "colaspeicon", "svg-category");
+            decoration.classList.add("svgtheme", "collapse-icon", "svg-category");
             decdiv.appendChild(decoration);
             const myhtml = document.createElement("p2");
             myhtml.textContent = this.name;
