@@ -411,10 +411,11 @@ if(datalist){
             instancein.value=json[0].name;
         }
         for(const instance of json){
-            if(instance.display===false||!instance.online){
+            if(instance.display===false){
                 continue;
             }
             const option=document.createElement("option");
+            option.disabled=!instance.online;
             option.value=instance.name;
             if(instance.url){
                 stringURLMap.set(option.value,instance.url);
