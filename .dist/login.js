@@ -421,7 +421,7 @@ if (datalist) {
             instancein.value = json[0].name;
         }
         for (const instance of json) {
-            if (instance.display === false) {
+            if (instance.display === false || !instance.online) {
                 continue;
             }
             const option = document.createElement("option");
