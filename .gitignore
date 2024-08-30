@@ -132,3 +132,5 @@ dist
 #Data file for tomoato
 testAccount.json
 CC
+uptime.json
+.directory
