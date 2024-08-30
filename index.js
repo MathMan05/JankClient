@@ -4,7 +4,8 @@ const compression = require('compression')
 const express = require('express');
 const fs = require('fs');
 const app = express();
-const instances=require("./webpage/instances.json")
+const instances=require("./webpage/instances.json");
+const stats=require("./stats.js");
 const instancenames=new Map();
 for(const instance of instances){
     instancenames.set(instance.name,instance);
@@ -12,11 +13,8 @@ for(const instance of instances){
 app.use(compression())
 fetch("https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/instances/instances.json").then(_=>_.json()).then(json=>{
     for(const instance of json){
-        console.log(instance);
         if(!instancenames.has(instance.name)){
-            console.log("pushed");
             instances.push(instance);
-            console.log(instances)
         }else{
             const ofinst=instancenames.get(instance.name)
             for(const key of Object.keys(instance)){
@@ -26,6 +24,7 @@ fetch("https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/instan
             }
         }
     }
+    stats.observe(instances)
 })
 
 app.use("/getupdates",(req, res) => {
@@ -147,6 +146,12 @@ async function inviteres(req,res){
 app.use('/services/oembed', (req, res) => {
     inviteres(req, res);
 })
+app.use("/uptime",(req,res)=>{
+    console.log(req.query.name)
+    const uptime=stats.uptime[req.query.name];
+    console.log(req.query.name,uptime,stats.uptime)
+    res.send(uptime);
+})
 app.use('/', async (req, res) => {
     const scheme = req.secure ? 'https' : 'http';
     const host=`${scheme}://${req.get("Host")}`;
@@ -158,13 +163,15 @@ app.use('/', async (req, res) => {
     }else{
         console.log(req);
     }
-
+    if(req.path==="/"){
+        res.sendFile(`./webpage/home.html`, {root: __dirname});
+        return;
+    }
     if(debugging&&req.path.startsWith("/service.js")){
         res.send("dud");
         return;
     }
     if(req.path.startsWith("/instances.json")){
-        console.log("grabbed")
         res.send(JSON.stringify(instances));
         return;
     }
@@ -191,3 +198,5 @@ app.use('/', async (req, res) => {
 const PORT = process.env.PORT || +process.argv[1] || 8080;
 app.listen(PORT, () => {});
 console.log("this ran :P");
+
+exports.getapiurls=getapiurls;
