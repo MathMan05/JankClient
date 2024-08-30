@@ -4,11 +4,15 @@ let uptimeObject={};
 if(fs.existsSync("./uptime.json")){
     try{
         uptimeObject=JSON.parse(fs.readFileSync('./uptime.json', 'utf8'));
+
     }catch{
         uptimeObject={};
     }
 }
-
+if(uptimeObject["undefined"]){
+    delete uptimeObject["undefined"];
+    updatejson();
+}
 async function observe(instances){
     const active=new Set();
     async function resolveinstance(instance){
@@ -113,11 +117,15 @@ function calcStats(instance){
     instance.uptime={daytime,weektime,alltime}
 }
 /**
- * @param {string} name
+ * @param {string|Object} instance
  * @param {boolean} status
  */
 function setSatus(instance,status){
-    const name=instance.name;
+    let name=instance.name;
+    if(typeof instance==="string" ){
+        name=instance;
+    }
+
     let obj=uptimeObject[name];
     let needSetting=false;
     if(!obj){
@@ -133,7 +141,9 @@ function setSatus(instance,status){
         obj.push({time:Date.now(),online:status});
         updatejson();
     }
-    calcStats(instance);
+    if(typeof instance!=="string" ){
+        calcStats(instance);
+    }
 }
 function updatejson(){
     fs.writeFile('./uptime.json',JSON.stringify(uptimeObject),_=>{});

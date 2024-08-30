@@ -147,7 +147,9 @@ app.use('/services/oembed', (req, res) => {
     inviteres(req, res);
 })
 app.use("/uptime",(req,res)=>{
+    console.log(req.query.name)
     const uptime=stats.uptime[req.query.name];
+    console.log(req.query.name,uptime,stats.uptime)
     res.send(uptime);
 })
 app.use('/', async (req, res) => {
