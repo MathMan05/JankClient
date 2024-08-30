@@ -16,7 +16,7 @@ if(uptimeObject["undefined"]){
 async function observe(instances){
     const active=new Set();
     async function resolveinstance(instance){
-        calcStats(instance);
+        try{calcStats(instance)}catch(e){console.error(e)}
         let api;
         if(instance.urls){
             api=instance.urls.api;
@@ -36,7 +36,7 @@ async function observe(instances){
         active.add(instance.name);
         api+=api.endsWith("/")?"":"/"
         function check(){
-            fetch(api+"ping").then(_=>{
+            fetch(api+"ping",{method:"HEAD"}).then(_=>{
                 setStatus(instance,_.ok);
             })
         }
@@ -67,17 +67,22 @@ function calcStats(instance){
     const week=Date.now()-1000*60*60*24*7;
     let alltime=-1;
     let totalTimePassed=0;
-    let laststamp=0;
     let daytime=-1;
     let weektime=-1;
     let online=false;
+    let i=0;
     for(const thing of obj){
-        const stamp=thing.time;
+        online=obj[i].online;
+        const stamp=obj[i].time;
         if(alltime===-1){
-            laststamp=stamp;
             alltime=0;
         }
-        const timepassed=stamp-laststamp;
+        let timepassed;
+        if(obj[i+1]){
+            timepassed=obj[i+1].time-stamp;
+        }else{
+            timepassed=Date.now()-stamp;
+        }
         totalTimePassed+=timepassed;
         alltime+=online*timepassed;
         if(stamp>week){
@@ -94,18 +99,14 @@ function calcStats(instance){
                 }
             }
         }
-        online=thing.online;
+
+        i++;
     }
     instance.online=online;
-    const timepassed=Date.now()-laststamp;
-    totalTimePassed+=timepassed;
-    daytime+=online*Math.min(timepassed,1000*60*60*24);
-    weektime+=online*Math.min(timepassed,1000*60*60*24*7);
-    alltime+=online*timepassed;
     alltime/=totalTimePassed;
-    if(timepassed>1000*60*60*24){
+    if(totalTimePassed>1000*60*60*24){
         daytime/=1000*60*60*24;
-        if(timepassed>1000*60*60*24*7){
+        if(totalTimePassed>1000*60*60*24*7){
             weektime/=1000*60*60*24*7;
         }else{
             weektime=alltime;
