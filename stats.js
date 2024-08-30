@@ -99,8 +99,8 @@ function calcStats(instance){
     instance.online=online;
     const timepassed=Date.now()-laststamp;
     totalTimePassed+=timepassed;
-    daytime+=online*timepassed;
-    weektime+=online*timepassed;
+    daytime+=online*Math.min(timepassed,1000*60*60*24);
+    weektime+=online*Math.min(timepassed,1000*60*60*24*7);
     alltime+=online*timepassed;
     alltime/=totalTimePassed;
     if(timepassed>1000*60*60*24){
