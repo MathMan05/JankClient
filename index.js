@@ -163,6 +163,7 @@ app.use('/', async (req, res) => {
     }
     if(req.path==="/"){
         res.sendFile(`./webpage/home.html`, {root: __dirname});
+        return;
     }
     if(debugging&&req.path.startsWith("/service.js")){
         res.send("dud");
