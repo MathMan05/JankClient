@@ -405,13 +405,13 @@ export {mobile, getBulkUsers,getBulkInfo,setTheme,Specialuser,getapiurls,adduser
 const datalist=document.getElementById("instances");
 console.warn(datalist);
 if(datalist){
-    fetch("/instances.json").then(_=>_.json()).then((json:{name:string,description?:string,src?:string,url?:string,display?:boolean,urls:{wellknown:string,api:string,cdn:string,gateway:string,login?:string}}[])=>{
+    fetch("/instances.json").then(_=>_.json()).then((json:{name:string,online:boolean,description?:string,src?:string,url?:string,display?:boolean,urls:{wellknown:string,api:string,cdn:string,gateway:string,login?:string}}[])=>{
         console.warn(json);
         if(instancein&&instancein.value===""){
             instancein.value=json[0].name;
         }
         for(const instance of json){
-            if(instance.display===false){
+            if(instance.display===false||!instance.online){
                 continue;
             }
             const option=document.createElement("option");
