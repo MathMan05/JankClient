@@ -1297,9 +1297,8 @@ span {
 	font-weight:900;
 	font-size:.25in;
 	border-bottom: solid .03in var(--message-bg-hover);
-	background: var(--primary-bg);
 	padding: .06in .2in;
-	background: var(--server-bg);
+	background: var(--channel-name-bg);
 	box-sizing: border-box;
 }
 .exitsettings{
