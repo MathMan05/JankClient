@@ -409,7 +409,6 @@ if(datalist){
         console.warn(json);
         if(instancein&&instancein.value===""){
             instancein.value=json[0].name;
-            setTimeout(checkInstance,10);
         }
         for(const instance of json){
             if(instance.display===false){
@@ -434,5 +433,6 @@ if(datalist){
             }
             datalist.append(option);
         }
+        checkInstance("");
     })
 }
