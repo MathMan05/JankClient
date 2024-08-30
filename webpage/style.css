@@ -2015,10 +2015,10 @@ form div{
 .instance{
 	img{
 		width:.6in;
-	height:.6in;
-	margin-right:.1in;
-	border-radius:.2in;
-	border:solid .03in var(--black);
+		height:.6in;
+		margin-right:.1in;
+		border-radius:.2in;
+		border:solid .03in var(--black);
 	}
 	h2{
 		font-size:.25in;

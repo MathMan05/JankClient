@@ -28,7 +28,7 @@ async function observe(instances){
         }
         if(!api||api===""){
 
-            setSatus(instance,false);
+            setStatus(instance,false);
             console.warn(instance.name+" does not resolve api URL");
             setTimeout(_=>{resolveinstance(instance)},1000*60*30,);
             return
@@ -37,7 +37,7 @@ async function observe(instances){
         api+=api.endsWith("/")?"":"/"
         function check(){
             fetch(api+"ping").then(_=>{
-                setSatus(instance,_.ok);
+                setStatus(instance,_.ok);
             })
         }
         setTimeout(
@@ -56,7 +56,7 @@ async function observe(instances){
     await Promise.allSettled(promlist);
     for(const key of Object.keys(uptimeObject)){
         if(!active.has(key)){
-            setSatus(key,false);
+            setStatus(key,false);
         }
     }
 }
@@ -120,7 +120,7 @@ function calcStats(instance){
  * @param {string|Object} instance
  * @param {boolean} status
  */
-function setSatus(instance,status){
+function setStatus(instance,status){
     let name=instance.name;
     if(typeof instance==="string" ){
         name=instance;
