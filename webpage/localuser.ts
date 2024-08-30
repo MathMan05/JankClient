@@ -42,6 +42,7 @@ class Localuser{
         name:"Unknown",
     };
     mfa_enabled:boolean;
+    noteCache=new Map();
     constructor(userinfo:Specialuser|-1){
         if(userinfo===-1){
             return;
@@ -333,6 +334,10 @@ class Localuser{
                             users.userupdate(temp.d);
                         }
                     }
+                    break
+                case "USER_NOTE_UPDATE":
+                    this.noteCache.set(temp.d.id,temp.d.note);
+                    setTimeout(() => this.noteCache.delete(temp.d.id), 1000 * 60 * 2);
                     break
                 case "CHANNEL_UPDATE":
                     if(this.initialized){
