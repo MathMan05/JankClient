@@ -72,8 +72,8 @@ function calcStats(instance){
     let online=false;
     let i=0;
     for(const thing of obj){
-        online=obj[i].online;
-        const stamp=obj[i].time;
+        online=thing.online;
+        const stamp=thing.time;
         if(alltime===-1){
             alltime=0;
         }
