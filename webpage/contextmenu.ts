@@ -30,8 +30,12 @@ class Contextmenu<x,y>{
     makemenu(x:number,y:number,addinfo:any,other:y){
         const div=document.createElement("div");
         div.classList.add("contextmenu","flexttb");
+
+        let visibleButtons=0;
         for(const thing of this.buttons){
-            if(!thing[3].bind(addinfo)(other)){continue;}
+            if(!thing[3].bind(addinfo)(other))continue;
+            visibleButtons++;
+
             const intext=document.createElement("button")
             intext.disabled=!thing[4].bind(addinfo)(other);
             intext.classList.add("contextbutton")
@@ -43,6 +47,8 @@ class Contextmenu<x,y>{
 
             div.appendChild(intext);
         }
+        if (visibleButtons == 0) return;
+
         if(Contextmenu.currentmenu!=""){
             Contextmenu.currentmenu.remove();
         }
