@@ -305,15 +305,35 @@ class Localuser {
                     break;
                 case "MESSAGE_DELETE":
                     console.log(temp.d);
-                    SnowFlake.getSnowFlakeFromID(temp.d.id, Message).getObject().deleteEvent();
+                    temp.d.guild_id ??= "@me";
+                    const guild = this.guildids.get(temp.d.guild_id);
+                    if (guild) {
+                        const channel = guild.channelids[temp.d.guild_id];
+                        if (channel) {
+                            const message = channel.messages.get(temp.d.id);
+                            if (message) {
+                                message.deleteEvent();
+                            }
+                        }
+                    }
                     break;
                 case "READY":
                     this.gottenReady(temp);
                     break;
-                case "MESSAGE_UPDATE":
-                    const message = SnowFlake.getSnowFlakeFromID(temp.d.id, Message).getObject();
-                    message.giveData(temp.d);
+                case "MESSAGE_UPDATE": {
+                    temp.d.guild_id ??= "@me";
+                    const guild = this.guildids.get(temp.d.guild_id);
+                    if (guild) {
+                        const channel = guild.channelids[temp.d.guild_id];
+                        if (channel) {
+                            const message = channel.messages.get(temp.d.id);
+                            if (message) {
+                                message.giveData(temp.d);
+                            }
+                        }
+                    }
                     break;
+                }
                 case "TYPING_START":
                     if (this.initialized) {
                         this.typingStart(temp);
