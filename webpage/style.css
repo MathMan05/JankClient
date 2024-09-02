@@ -336,6 +336,7 @@ p {
 	width: .175in;
 	padding-right: .026in;
 	height: .175in;
+	vertical-align: text-bottom;
 }
 
 
@@ -674,7 +675,7 @@ textarea:focus-visible,
 	transition: height .2s ease-in-out;
 	user-select: none;
 	cursor: pointer;
-	padding-left: .05in;
+	padding: 0 .05in;
 	overflow-y: clip;
 }
 
@@ -1555,21 +1556,46 @@ span {
 form div{
 	width:100%;
 }
-.svgtheme{
-	color: var(--icon-color);
-	filter:hue-rotate(var(--rot)) invert(var(--invert)) brightness(var(--brightness));
-}
 .channels .channel{
 	margin-bottom: .03in;
 }
-.colaspeicon{
+.collapse-icon{
+	height:.15in;
 	width:.15in;
 	padding-right: .025in;
-	padding-left: .05in;
+	margin-left: .05in;
 	transition:rotate .2s;
 }
 .hiddencat{
 	rotate:-90deg;
+}
+.svg-announce{
+	mask: url(/icons/announce.svg);
+}
+.svg-category{
+	mask: url(/icons/category.svg);
+}
+.svg-channel{
+	mask: url(/icons/channel.svg);
+}
+.svg-copy{
+	mask: url(/icons/copy.svg);
+}
+.svg-explore{
+	mask: url(/icons/explore.svg);
+}
+.svg-home{
+	mask: url(/icons/home.svg);
+}
+.svg-settings{
+	mask: url(/icons/settings.svg);
+}
+.svg-voice{
+	mask: url(/icons/voice.svg);
+}
+.svgtheme{
+	background: var(--icon-color);
+	mask-repeat: no-repeat;
 }
 .svgicon{
 	width:.5in;
@@ -1725,6 +1751,7 @@ form div{
 	background: var(--settings-hover);
 }
 #settings{
+	height:.225in;
 	width:.225in;
 	margin:.05in;
 }
@@ -1791,7 +1818,8 @@ form div{
 	border:solid .03in var(--black);
 }
 .copybutton{
-
+	display:inline-block;
+	height:.2in;
 	width:.25in;
 }
 .copycontainer{
