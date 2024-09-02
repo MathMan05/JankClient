@@ -17,9 +17,9 @@ async function registertry(e) {
     await fetch(apiurl + "/auth/register", {
         body: JSON.stringify({
             date_of_birth: dateofbirth,
-            email: email,
-            username: username,
-            password: password,
+            email,
+            username,
+            password,
             consent: elements[6].checked,
             captcha_key: elements[7]?.value
         }),
@@ -67,14 +67,14 @@ async function registertry(e) {
                 }
             }
             else {
-                adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email: email, token: e.token }).username = username;
+                adduser({ serverurls: JSON.parse(localStorage.getItem("instanceinfo")), email, token: e.token }).username = username;
                 localStorage.setItem("token", e.token);
                 const redir = new URLSearchParams(window.location.search).get("goback");
                 if (redir) {
                     window.location.href = redir;
                 }
                 else {
-                    window.location.href = '/channels/@me';
+                    window.location.href = "/channels/@me";
                 }
             }
         });
@@ -93,7 +93,9 @@ function error(e, message) {
     }
     else {
         element.classList.remove("suberror");
-        setTimeout(_ => { element.classList.add("suberror"); }, 100);
+        setTimeout(_ => {
+            element.classList.add("suberror");
+        }, 100);
     }
     element.textContent = message;
 }

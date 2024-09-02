@@ -32,7 +32,7 @@ class InfiniteScroller {
             this.watchForChange();
         });
         this.scroll.addEventListener("scroll", _ => {
-            if (null === this.timeout) {
+            if (this.timeout === null) {
                 this.timeout = setTimeout(this.updatestuff.bind(this), 300);
             }
             this.watchForChange();
@@ -71,10 +71,8 @@ class InfiniteScroller {
             this.averageheight = 60;
         }
         this.scrollTop = this.scroll.scrollTop;
-        if (!this.scrollBottom) {
-            if (!await this.watchForChange()) {
-                this.reachesBottom();
-            }
+        if (!this.scrollBottom && !await this.watchForChange()) {
+            this.reachesBottom();
         }
         if (!this.scrollTop) {
             await this.watchForChange();
@@ -129,7 +127,6 @@ class InfiniteScroller {
                     this.HTMLElements.unshift([html, nextid]);
                     this.scrollTop += this.averageheight;
                 }
-                ;
             }
             if (this.scrollTop > this.maxDist) {
                 const html = this.HTMLElements.shift();
@@ -176,7 +173,6 @@ class InfiniteScroller {
                     this.HTMLElements.push([html, nextid]);
                     this.scrollBottom += this.averageheight;
                 }
-                ;
             }
             if (scrollBottom > this.maxDist) {
                 const html = this.HTMLElements.pop();
@@ -225,14 +221,14 @@ class InfiniteScroller {
                     }
                     const out = await Promise.allSettled([this.watchForTop(), this.watchForBottom()]);
                     const changed = (out[0].value || out[1].value);
-                    if (null === this.timeout && changed) {
+                    if (this.timeout === null && changed) {
                         this.timeout = setTimeout(this.updatestuff.bind(this), 300);
                     }
                     if (!this.currrunning) {
                         console.error("something really bad happened");
                     }
-                    res(!!changed);
-                    return !!changed;
+                    res(Boolean(changed));
+                    return Boolean(changed);
                 }
                 catch (e) {
                     console.error(e);

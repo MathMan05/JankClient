@@ -33,7 +33,7 @@ fetch("/instances.json").then(_ => _.json()).then((json) => {
                 if (instance.descriptionLong) {
                     p.innerText = instance.descriptionLong;
                 }
-                else {
+                else if (instance.description) {
                     p.innerText = instance.description;
                 }
                 textbox.append(p);

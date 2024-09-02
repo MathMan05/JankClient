@@ -31,7 +31,7 @@ class File {
             this.width /= scale;
             this.height /= scale;
         }
-        if (this.content_type.startsWith('image/')) {
+        if (this.content_type.startsWith("image/")) {
             const div = document.createElement("div");
             const img = document.createElement("img");
             img.classList.add("messageimg");
@@ -50,7 +50,7 @@ class File {
             console.log(this.width, this.height);
             return div;
         }
-        else if (this.content_type.startsWith('video/')) {
+        else if (this.content_type.startsWith("video/")) {
             const video = document.createElement("video");
             const source = document.createElement("source");
             source.src = src;
@@ -63,7 +63,7 @@ class File {
             }
             return video;
         }
-        else if (this.content_type.startsWith('audio/')) {
+        else if (this.content_type.startsWith("audio/")) {
             const audio = document.createElement("audio");
             const source = document.createElement("source");
             source.src = src;
@@ -138,8 +138,8 @@ class File {
         return div;
     }
     static filesizehuman(fsize) {
-        var i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024));
-        return +((fsize / Math.pow(1024, i)).toFixed(2)) * 1 + ' ' + ['Bytes', 'Kilobytes', 'Megabytes', 'Gigabytes', 'Terabytes'][i];
+        const i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024));
+        return Number((fsize / Math.pow(1024, i)).toFixed(2)) * 1 + " " + ["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i];
     }
 }
 export { File };

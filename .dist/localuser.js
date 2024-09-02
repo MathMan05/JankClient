@@ -125,7 +125,6 @@ class Localuser {
     async initwebsocket() {
         let returny;
         const ws = new WebSocket(this.serverurls.gateway.toString() + "?encoding=json&v=9" + (DecompressionStream ? "&compress=zlib-stream" : ""));
-        ;
         this.ws = ws;
         let ds;
         let w;
@@ -138,27 +137,27 @@ class Localuser {
             r = ds.readable.getReader();
             arr = new Uint8Array();
         }
-        const promise = new Promise((res) => {
+        const promise = new Promise(res => {
             returny = res;
-            ws.addEventListener('open', (_event) => {
-                console.log('WebSocket connected');
+            ws.addEventListener("open", _event => {
+                console.log("WebSocket connected");
                 ws.send(JSON.stringify({
-                    "op": 2,
-                    "d": {
-                        "token": this.token,
-                        "capabilities": 16381,
-                        "properties": {
-                            "browser": "Jank Client",
-                            "client_build_number": 0, //might update this eventually lol
-                            "release_channel": "Custom",
-                            "browser_user_agent": navigator.userAgent
+                    op: 2,
+                    d: {
+                        token: this.token,
+                        capabilities: 16381,
+                        properties: {
+                            browser: "Jank Client",
+                            client_build_number: 0, //might update this eventually lol
+                            release_channel: "Custom",
+                            browser_user_agent: navigator.userAgent
                         },
-                        "compress": !!DecompressionStream,
-                        "presence": {
-                            "status": "online",
-                            "since": null, //new Date().getTime()
-                            "activities": [],
-                            "afk": false
+                        compress: Boolean(DecompressionStream),
+                        presence: {
+                            status: "online",
+                            since: null, //new Date().getTime()
+                            activities: [],
+                            afk: false
                         }
                     }
                 }));
@@ -183,8 +182,8 @@ class Localuser {
                 })();
             }
         });
-        let order = new Promise((res) => (res()));
-        ws.addEventListener('message', async (event) => {
+        let order = new Promise(res => (res()));
+        ws.addEventListener("message", async (event) => {
             const temp2 = order;
             order = new Promise(async (res) => {
                 await temp2;
@@ -261,7 +260,7 @@ class Localuser {
                     case 5:
                         {
                             const breakappart = new URL(this.info.wellknown).origin.split(".");
-                            const url = "https://" + breakappart[breakappart.length - 2] + "." + breakappart[breakappart.length - 1];
+                            const url = "https://" + breakappart.at(-2) + "." + breakappart.at(-1);
                             const newurls = await getapiurls(url);
                             if (newurls) {
                                 this.info = newurls;
@@ -290,7 +289,6 @@ class Localuser {
                 document.getElementById("load-desc").textContent = "Unable to connect to the Spacebar server. Please try logging out and back in.";
         });
         await promise;
-        return;
     }
     async handleEvent(temp) {
         console.debug(temp);
@@ -418,7 +416,7 @@ class Localuser {
     }
     heartbeat_interval;
     resolveChannelFromID(ID) {
-        let resolve = this.guilds.find(guild => guild.channelids[ID]);
+        const resolve = this.guilds.find(guild => guild.channelids[ID]);
         if (resolve) {
             return resolve.channelids[ID];
         }
@@ -648,7 +646,7 @@ class Localuser {
         content.appendChild(title);
         const guilds = document.createElement("div");
         guilds.id = "discovery-guild-content";
-        json.guilds.forEach((guild) => {
+        json.guilds.forEach(guild => {
             const content = document.createElement("div");
             content.classList.add("discovery-guild");
             if (guild.banner) {
@@ -716,13 +714,13 @@ class Localuser {
                 return;
             }
             console.log("user is typing and you should see it");
-            this.typing.set(memb, new Date().getTime());
+            this.typing.set(memb, Date.now());
             setTimeout(this.rendertyping.bind(this), 10000);
             this.rendertyping();
         }
     }
     updatepfp(file) {
-        var reader = new FileReader();
+        const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => {
             fetch(this.info.api + "/users/@me", {
@@ -736,7 +734,7 @@ class Localuser {
     }
     updatebanner(file) {
         if (file) {
-            var reader = new FileReader();
+            const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => {
                 fetch(this.info.api + "/users/@me", {
@@ -770,7 +768,7 @@ class Localuser {
         let build = "";
         let showing = false;
         let i = 0;
-        const curtime = new Date().getTime() - 5000;
+        const curtime = Date.now() - 5000;
         for (const thing of this.typing.keys()) {
             if (this.typing.get(thing) > curtime) {
                 if (i !== 0) {
@@ -804,15 +802,15 @@ class Localuser {
             typingtext.classList.add("hidden");
         }
     }
-    showusersettings() {
+    async showusersettings() {
         const settings = new Settings("Settings");
         {
             const userOptions = settings.addButton("User Settings", { ltr: true });
             const hypotheticalProfile = document.createElement("div");
-            let file = undefined;
-            let newpronouns = undefined;
-            let newbio = undefined;
-            let hypouser = this.user.clone();
+            let file;
+            let newpronouns;
+            let newbio;
+            const hypouser = this.user.clone();
             let color;
             async function regen() {
                 hypotheticalProfile.textContent = "";
@@ -836,7 +834,6 @@ class Localuser {
                     regen();
                     return;
                 }
-                ;
                 if (_.length) {
                     file = _[0];
                     const blob = URL.createObjectURL(file);
@@ -845,7 +842,7 @@ class Localuser {
                     regen();
                 }
             });
-            let bfile = undefined;
+            let bfile;
             const binput = settingsLeft.addFileInput("Upload banner:", _ => {
                 if (bfile !== undefined) {
                     this.updatebanner(bfile);
@@ -870,7 +867,7 @@ class Localuser {
             let changed = false;
             const pronounbox = settingsLeft.addTextInput("Pronouns", _ => {
                 if (newpronouns || newbio || changed) {
-                    this.updateProfile({ pronouns: newpronouns, bio: newbio, accent_color: parseInt("0x" + color.substr(1), 16) });
+                    this.updateProfile({ pronouns: newpronouns, bio: newbio, accent_color: Number.parseInt("0x" + color.substr(1), 16) });
                 }
             }, { initText: this.user.pronouns });
             pronounbox.watchForChange(_ => {
@@ -891,11 +888,11 @@ class Localuser {
             else {
                 color = "transparent";
             }
-            const colorPicker = settingsLeft.addColorInput("Profile color", (_) => { }, { initColor: color });
+            const colorPicker = settingsLeft.addColorInput("Profile color", _ => { }, { initColor: color });
             colorPicker.watchForChange(_ => {
                 console.log();
                 color = _;
-                hypouser.accent_color = parseInt("0x" + _.substr(1), 16);
+                hypouser.accent_color = Number.parseInt("0x" + _.substr(1), 16);
                 changed = true;
                 regen();
             });
@@ -922,7 +919,7 @@ class Localuser {
                 tas.addColorInput("Accent color:", _ => {
                     userinfos.accent_color = _;
                     localStorage.setItem("userinfos", JSON.stringify(userinfos));
-                    document.documentElement.style.setProperty('--accent-color', userinfos.accent_color);
+                    document.documentElement.style.setProperty("--accent-color", userinfos.accent_color);
                 }, { initColor: userinfos.accent_color });
             }
         }
@@ -986,7 +983,9 @@ class Localuser {
                     });
                 }
                 security.addButtonInput("", "Change discriminator", () => {
-                    const form = security.addSubForm("Change Discriminator", (_) => { security.returnFromSub(); }, {
+                    const form = security.addSubForm("Change Discriminator", _ => {
+                        security.returnFromSub();
+                    }, {
                         fetchURL: (this.info.api + "/users/@me/"),
                         headers: this.headers,
                         method: "PATCH"
@@ -994,7 +993,9 @@ class Localuser {
                     form.addTextInput("New discriminator:", "discriminator");
                 });
                 security.addButtonInput("", "Change email", () => {
-                    const form = security.addSubForm("Change Email", (_) => { security.returnFromSub(); }, {
+                    const form = security.addSubForm("Change Email", _ => {
+                        security.returnFromSub();
+                    }, {
                         fetchURL: (this.info.api + "/users/@me/"),
                         headers: this.headers,
                         method: "PATCH"
@@ -1006,7 +1007,9 @@ class Localuser {
                     form.addTextInput("New email:", "email");
                 });
                 security.addButtonInput("", "Change username", () => {
-                    const form = security.addSubForm("Change Username", (_) => { security.returnFromSub(); }, {
+                    const form = security.addSubForm("Change Username", _ => {
+                        security.returnFromSub();
+                    }, {
                         fetchURL: (this.info.api + "/users/@me/"),
                         headers: this.headers,
                         method: "PATCH"
@@ -1018,7 +1021,9 @@ class Localuser {
                     form.addTextInput("New username:", "username");
                 });
                 security.addButtonInput("", "Change password", () => {
-                    const form = security.addSubForm("Change Password", (_) => { security.returnFromSub(); }, {
+                    const form = security.addSubForm("Change Password", _ => {
+                        security.returnFromSub();
+                    }, {
                         fetchURL: (this.info.api + "/users/@me/"),
                         headers: this.headers,
                         method: "PATCH"
@@ -1079,23 +1084,27 @@ class Localuser {
         }
         {
             const devPortal = settings.addButton("Developer Portal");
-            let appName = "";
-            devPortal.addTextInput("Name:", value => {
-                appName = value;
+            const teamsRes = await fetch(this.info.api + "/teams", {
+                headers: this.headers
             });
-            devPortal.addButtonInput("", "Create application", async () => {
-                if (appName.trim().length == 0) {
-                    return alert("Please enter a name for the application.");
-                }
-                const res = await fetch(this.info.api + "/applications", {
-                    method: "POST",
+            const teams = await teamsRes.json();
+            devPortal.addButtonInput("", "Create application", () => {
+                const form = devPortal.addSubForm("Create application", (json) => {
+                    if (json.message)
+                        form.error("name", json.message);
+                    else {
+                        devPortal.returnFromSub();
+                        this.manageApplication(json.id);
+                    }
+                }, {
+                    fetchURL: this.info.api + "/applications",
                     headers: this.headers,
-                    body: JSON.stringify({
-                        name: appName
-                    })
+                    method: "POST"
                 });
-                const json = await res.json();
-                this.manageApplication(json.id);
+                form.addTextInput("Name", "name", { required: true });
+                form.addSelect("Team", "team_id", ["Personal", ...teams.map(team => team.name)], {
+                    defaultIndex: 0
+                });
             });
             const appListContainer = document.createElement("div");
             appListContainer.id = "app-list-container";
@@ -1288,7 +1297,7 @@ class Localuser {
             guildmap = new Map();
             this.waitingmembers.set(guildid, guildmap);
         }
-        const promise = new Promise((res) => {
+        const promise = new Promise(res => {
             guildmap.set(id, res);
             this.getmembers();
         });
@@ -1324,7 +1333,9 @@ class Localuser {
         }
     }
     async getmembers() {
-        const promise = new Promise(res => { setTimeout(res, 10); });
+        const promise = new Promise(res => {
+            setTimeout(res, 10);
+        });
         await promise; //allow for more to be sent at once :P
         if (this.ws) {
             this.waitingmembers.forEach(async (value, guildid) => {
@@ -1339,13 +1350,11 @@ class Localuser {
                         break;
                     }
                 }
-                ;
                 if (!build.length) {
                     this.waitingmembers.delete(guildid);
                     return;
                 }
-                ;
-                const promise = new Promise((res) => {
+                const promise = new Promise(res => {
                     const nonce = "" + Math.floor(Math.random() * 100000000000);
                     this.noncemap.set(nonce, res);
                     this.noncebuild.set(nonce, [[], [], []]);
@@ -1364,7 +1373,6 @@ class Localuser {
                     this.fetchingmembers.set(guildid, true);
                 });
                 const prom = await promise;
-                ;
                 const data = prom[0];
                 for (const thing of data) {
                     if (value.has(thing.id)) {

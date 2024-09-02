@@ -6,8 +6,10 @@ import { File } from "./file.js";
 (async () => {
     async function waitforload() {
         let res;
-        new Promise(r => { res = r; });
-        document.addEventListener("DOMContentLoaded", function () {
+        new Promise(r => {
+            res = r;
+        });
+        document.addEventListener("DOMContentLoaded", () => {
             res();
         });
         await res;
@@ -15,7 +17,7 @@ import { File } from "./file.js";
     await waitforload();
     const users = getBulkUsers();
     if (!users.currentuser) {
-        window.location.href = '/login.html';
+        window.location.href = "/login.html";
     }
     function showAccountSwitcher() {
         const table = document.createElement("div");
@@ -45,7 +47,7 @@ import { File } from "./file.js";
                 loading.classList.remove("doneloading");
                 loading.classList.add("loading");
                 thisuser = new Localuser(specialuser);
-                users["currentuser"] = specialuser.uid;
+                users.currentuser = specialuser.uid;
                 localStorage.setItem("userinfos", JSON.stringify(users));
                 thisuser.initwebsocket().then(_ => {
                     thisuser.loaduser();
@@ -107,16 +109,20 @@ import { File } from "./file.js";
     }
     {
         const menu = new Contextmenu("create rightclick"); //Really should go into the localuser class, but that's a later thing
-        menu.addbutton("Create channel", function () {
+        menu.addbutton("Create channel", () => {
             if (thisuser.lookingguild) {
                 thisuser.lookingguild.createchannels();
             }
-        }, null, _ => { return thisuser.isAdmin(); });
-        menu.addbutton("Create category", function () {
+        }, null, _ => {
+            return thisuser.isAdmin();
+        });
+        menu.addbutton("Create category", () => {
             if (thisuser.lookingguild) {
                 thisuser.lookingguild.createcategory();
             }
-        }, null, _ => { return thisuser.isAdmin(); });
+        }, null, _ => {
+            return thisuser.isAdmin();
+        });
         menu.bindContextmenu(document.getElementById("channels"), 0, 0);
     }
     const pasteimage = document.getElementById("pasteimage");
@@ -134,7 +140,7 @@ import { File } from "./file.js";
             }
             else {
                 replyingto = thisuser.channelfocus.replyingto;
-                let replying = replyingto;
+                const replying = replyingto;
                 if (replyingto?.div) {
                     replyingto.div.classList.remove("replying");
                 }
@@ -151,7 +157,6 @@ import { File } from "./file.js";
                 pasteimage.removeChild(imageshtml.pop());
             }
             typebox.innerHTML = "";
-            return;
         }
     }
     const typebox = document.getElementById("typebox");
@@ -174,7 +179,7 @@ import { File } from "./file.js";
     */
     const images = [];
     const imageshtml = [];
-    document.addEventListener('paste', async (e) => {
+    document.addEventListener("paste", async (e) => {
         if (!e.clipboardData)
             return;
         Array.from(e.clipboardData.files).forEach(async (f) => {

@@ -42,7 +42,9 @@ class Message {
         return this.snowflake.id;
     }
     static setup() {
-        this.del = new Promise(_ => { this.resolve = _; });
+        this.del = new Promise(_ => {
+            this.resolve = _;
+        });
         Message.setupcmenu();
     }
     static setupcmenu() {
@@ -63,7 +65,7 @@ class Message {
         Message.contextmenu.addbutton("Edit", function () {
             this.channel.editing = this;
             const markdown = document.getElementById("typebox")["markdown"];
-            markdown.txt = this.content.rawString.split('');
+            markdown.txt = this.content.rawString.split("");
             markdown.boxupdate(document.getElementById("typebox"));
         }, null, function () {
             return this.author.id === this.localuser.user.id;
@@ -199,7 +201,7 @@ class Message {
     getimages() {
         const build = [];
         for (const thing of this.attachments) {
-            if (thing.content_type.startsWith('image/')) {
+            if (thing.content_type.startsWith("image/")) {
                 build.push(thing);
             }
         }
@@ -209,7 +211,7 @@ class Message {
         return await fetch(this.info.api + "/channels/" + this.channel.snowflake + "/messages/" + this.id, {
             method: "PATCH",
             headers: this.headers,
-            body: JSON.stringify({ content: content })
+            body: JSON.stringify({ content })
         });
     }
     delete() {
@@ -266,7 +268,7 @@ class Message {
             this.generateMessage();
         }
     }
-    generateMessage(premessage = undefined, ignoredblock = false) {
+    generateMessage(premessage, ignoredblock = false) {
         if (!this.div)
             return;
         if (!premessage) {
@@ -277,21 +279,21 @@ class Message {
             div.classList.add("replying");
         }
         div.innerHTML = "";
-        const build = document.createElement('div');
+        const build = document.createElement("div");
         build.classList.add("flexltr", "message");
         div.classList.remove("zeroheight");
         if (this.author.relationshipType === 2) {
             if (ignoredblock) {
                 if (premessage?.author !== this.author) {
                     const span = document.createElement("span");
-                    span.textContent = `You have this user blocked, click to hide these messages.`;
+                    span.textContent = "You have this user blocked, click to hide these messages.";
                     div.append(span);
                     span.classList.add("blocked");
                     span.onclick = _ => {
                         const scroll = this.channel.infinite.scrollTop;
                         let next = this;
                         while (next?.author === this.author) {
-                            next.generateMessage(undefined);
+                            next.generateMessage();
                             next = this.channel.messages.get(this.channel.idToNext.get(next.id));
                         }
                         if (this.channel.infinite.scroll && scroll) {
@@ -375,7 +377,7 @@ class Message {
         }
         div.appendChild(build);
         if ({ 0: true, 19: true }[this.type] || this.attachments.length !== 0) {
-            const pfpRow = document.createElement('div');
+            const pfpRow = document.createElement("div");
             pfpRow.classList.add("flexltr");
             let pfpparent, current;
             if (premessage != null) {
@@ -545,7 +547,7 @@ class Message {
             if (thing.emoji.name === data.name) {
                 thing.count--;
                 if (thing.count === 0) {
-                    this.reactions.splice(+i, 1);
+                    this.reactions.splice(Number(i), 1);
                     this.updateReactions();
                     return;
                 }
@@ -565,16 +567,16 @@ class Message {
         for (const i in this.reactions) {
             const reaction = this.reactions[i];
             if ((reaction.emoji.id && reaction.emoji.id == emoji.id) || (!reaction.emoji.id && reaction.emoji.name == emoji.name)) {
-                this.reactions.splice(+i, 1);
+                this.reactions.splice(Number(i), 1);
                 this.updateReactions();
                 break;
             }
         }
     }
-    buildhtml(premessage = undefined) {
+    buildhtml(premessage) {
         if (this.div) {
             console.error(`HTML for ${this.snowflake} already exists, aborting`);
-            return;
+            return this.div;
         }
         try {
             const div = document.createElement("div");
@@ -585,15 +587,16 @@ class Message {
         catch (e) {
             console.error(e);
         }
+        return this.div;
     }
 }
-let now = new Date().toLocaleDateString();
+const now = new Date().toLocaleDateString();
 const yesterday = new Date(now);
 yesterday.setDate(new Date().getDate() - 1);
-let yesterdayStr = yesterday.toLocaleDateString();
+const yesterdayStr = yesterday.toLocaleDateString();
 function formatTime(date) {
     const datestring = date.toLocaleDateString();
-    const formatTime = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const formatTime = (date) => date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     if (datestring === now) {
         return `Today at ${formatTime(date)}`;
     }

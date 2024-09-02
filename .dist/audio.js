@@ -9,7 +9,7 @@ class Voice {
     source;
     constructor(wave, freq, volume = 1) {
         this.audioCtx = new (window.AudioContext)();
-        this.info = { wave: wave, freq: freq };
+        this.info = { wave, freq };
         this.playing = false;
         this.myArrayBuffer = this.audioCtx.createBuffer(1, this.audioCtx.sampleRate, this.audioCtx.sampleRate);
         this.gainNode = this.audioCtx.createGain();
@@ -43,7 +43,7 @@ class Voice {
         }
     }
     waveFunction() {
-        if (typeof this.wave === 'function') {
+        if (typeof this.wave === "function") {
             return this.wave;
         }
         switch (this.wave) {
@@ -92,9 +92,15 @@ class Voice {
             case "three": {
                 const voicy = new Voice("sin", 800);
                 voicy.play();
-                setTimeout(_ => { voicy.freq = 1000; }, 50);
-                setTimeout(_ => { voicy.freq = 1300; }, 100);
-                setTimeout(_ => { voicy.stop(); }, 150);
+                setTimeout(_ => {
+                    voicy.freq = 1000;
+                }, 50);
+                setTimeout(_ => {
+                    voicy.freq = 1300;
+                }, 100);
+                setTimeout(_ => {
+                    voicy.stop();
+                }, 150);
                 break;
             }
             case "zip": {
@@ -102,23 +108,37 @@ class Voice {
                     return Math.sin(((t + 2) ** (Math.cos(t * 4))) * Math.PI * 2 * freq);
                 }, 700);
                 voicy.play();
-                setTimeout(_ => { voicy.stop(); }, 150);
+                setTimeout(_ => {
+                    voicy.stop();
+                }, 150);
                 break;
             }
             case "square": {
-                const voicy = new Voice("square", 600, .4);
+                const voicy = new Voice("square", 600, 0.4);
                 voicy.play();
-                setTimeout(_ => { voicy.freq = 800; }, 50);
-                setTimeout(_ => { voicy.freq = 1000; }, 100);
-                setTimeout(_ => { voicy.stop(); }, 150);
+                setTimeout(_ => {
+                    voicy.freq = 800;
+                }, 50);
+                setTimeout(_ => {
+                    voicy.freq = 1000;
+                }, 100);
+                setTimeout(_ => {
+                    voicy.stop();
+                }, 150);
                 break;
             }
             case "beep": {
                 const voicy = new Voice("sin", 800);
                 voicy.play();
-                setTimeout(_ => { voicy.stop(); }, 50);
-                setTimeout(_ => { voicy.play(); }, 100);
-                setTimeout(_ => { voicy.stop(); }, 150);
+                setTimeout(_ => {
+                    voicy.stop();
+                }, 50);
+                setTimeout(_ => {
+                    voicy.play();
+                }, 100);
+                setTimeout(_ => {
+                    voicy.stop();
+                }, 150);
                 break;
             }
         }
@@ -127,13 +147,13 @@ class Voice {
         return ["three", "zip", "square", "beep"];
     }
     static setNotificationSound(sound) {
-        let userinfos = getBulkInfo();
+        const userinfos = getBulkInfo();
         userinfos.preferences.notisound = sound;
         localStorage.setItem("userinfos", JSON.stringify(userinfos));
     }
     static getNotificationSound() {
-        let userinfos = getBulkInfo();
+        const userinfos = getBulkInfo();
         return userinfos.preferences.notisound;
     }
 }
-export { Voice as Voice };
+export { Voice };

@@ -58,7 +58,7 @@ class Dialog {
             case "checkbox":
                 {
                     const div = document.createElement("div");
-                    const checkbox = document.createElement('input');
+                    const checkbox = document.createElement("input");
                     div.appendChild(checkbox);
                     const label = document.createElement("span");
                     checkbox.checked = array[2];
@@ -71,7 +71,7 @@ class Dialog {
             case "button":
                 {
                     const div = document.createElement("div");
-                    const input = document.createElement('button');
+                    const input = document.createElement("button");
                     const label = document.createElement("span");
                     input.textContent = array[2];
                     label.textContent = array[1];
@@ -134,7 +134,7 @@ class Dialog {
             case "radio": {
                 const div = document.createElement("div");
                 const fieldset = document.createElement("fieldset");
-                fieldset.addEventListener("change", function () {
+                fieldset.addEventListener("change", () => {
                     let i = -1;
                     for (const thing of fieldset.children) {
                         i++;
@@ -173,9 +173,8 @@ class Dialog {
                 div.appendChild(fieldset);
                 return div;
             }
-            case "html": {
+            case "html":
                 return array[1];
-            }
             case "select": {
                 const div = document.createElement("div");
                 const label = document.createElement("label");
@@ -227,7 +226,6 @@ class Dialog {
             }
             default:
                 console.error("can't find element:" + array[0], "  full element:" + array);
-                return;
         }
     }
     show() {
@@ -237,7 +235,9 @@ class Dialog {
         this.background.classList.add("background");
         document.body.appendChild(this.background);
         document.body.appendChild(this.html);
-        this.background.onclick = _ => { this.hide(); };
+        this.background.onclick = _ => {
+            this.hide();
+        };
     }
     hide() {
         document.body.removeChild(this.background);

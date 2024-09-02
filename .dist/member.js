@@ -28,7 +28,7 @@ class Member {
                 continue;
             }
             if (thing === "roles") {
-                for (const strrole of memberjson["roles"]) {
+                for (const strrole of memberjson.roles) {
                     const role = SnowFlake.getSnowFlakeFromID(strrole, Role).getObject();
                     this.roles.push(role);
                 }
@@ -38,7 +38,6 @@ class Member {
         }
         if (this.localuser.userMap.has(this?.id)) {
             this.user = this.localuser.userMap.get(this?.id);
-            return;
         }
     }
     get guild() {
@@ -89,7 +88,6 @@ class Member {
                 const membjson = await membpromise;
                 if (membjson === undefined) {
                     res(undefined);
-                    return undefined;
                 }
                 else {
                     const member = new Member(membjson, guild);
@@ -149,7 +147,6 @@ class Member {
             if (!this) {
                 return;
             }
-            ;
             /*
             if(this.error){
 
