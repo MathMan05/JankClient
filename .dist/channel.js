@@ -248,6 +248,13 @@ class Channel {
             this.lastmessageid = undefined;
         }
         this.setUpInfiniteScroller();
+        this.perminfo ??= {};
+    }
+    get perminfo() {
+        return this.guild.perminfo.channels[this.id];
+    }
+    set perminfo(e) {
+        this.guild.perminfo.channels[this.id] = e;
     }
     isAdmin() {
         return this.guild.isAdmin();
@@ -393,21 +400,32 @@ class Channel {
             }
             childrendiv.classList.add("channels");
             setTimeout(_ => {
-                childrendiv.style.height = childrendiv.scrollHeight + "px";
+                if (!this.perminfo.collapsed) {
+                    childrendiv.style.height = childrendiv.scrollHeight + "px";
+                }
             }, 100);
-            decdiv.onclick = function () {
+            div.appendChild(childrendiv);
+            if (this.perminfo.collapsed) {
+                decoration.classList.add("hiddencat");
+                childrendiv.style.height = "0px";
+            }
+            decdiv.onclick = () => {
                 if (childrendiv.style.height !== "0px") {
                     decoration.classList.add("hiddencat");
                     //childrendiv.classList.add("colapsediv");
+                    this.perminfo.collapsed = true;
+                    this.localuser.userinfo.updateLocal();
                     childrendiv.style.height = "0px";
                 }
                 else {
                     decoration.classList.remove("hiddencat");
+                    this.perminfo.collapsed = false;
+                    this.localuser.userinfo.updateLocal();
                     //childrendiv.classList.remove("colapsediv")
+                    console.log("This ran?");
                     childrendiv.style.height = childrendiv.scrollHeight + "px";
                 }
             };
-            div.appendChild(childrendiv);
         }
         else {
             div.classList.add("channel");

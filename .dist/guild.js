@@ -117,6 +117,7 @@ class Guild {
                 }
             });
         }
+        this.perminfo ??= { channels: {} };
         for (const thing of json.channels) {
             const temp = new Channel(thing, this);
             this.channels.push(temp);
@@ -129,6 +130,12 @@ class Guild {
                 this.headchannels.push(thing);
             }
         }
+    }
+    get perminfo() {
+        return this.localuser.perminfo.guilds[this.id];
+    }
+    set perminfo(e) {
+        this.localuser.perminfo.guilds[this.id] = e;
     }
     notisetting(settings) {
         this.message_notifications = settings.message_notifications;
