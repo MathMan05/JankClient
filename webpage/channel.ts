@@ -427,7 +427,6 @@ class Channel{
 			decdiv.onclick=()=>{
 				if(childrendiv.style.height!=="0px"){
 					decoration.classList.add("hiddencat");
-					//childrendiv.classList.add("colapsediv");
 					this.perminfo.collapsed=true;
 					this.localuser.userinfo.updateLocal();
 					childrendiv.style.height = "0px";
@@ -435,8 +434,6 @@ class Channel{
 					decoration.classList.remove("hiddencat");
 					this.perminfo.collapsed=false;
 					this.localuser.userinfo.updateLocal();
-					//childrendiv.classList.remove("colapsediv")
-					console.log("This ran?")
 					childrendiv.style.height = childrendiv.scrollHeight + "px";
 				}
 			};
