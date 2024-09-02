@@ -500,23 +500,22 @@ class Localuser{
 	buildservers():void{
 		const serverlist=document.getElementById("servers") as HTMLDivElement;//
 		const outdiv=document.createElement("div");
-		const img=document.createElement("img");
+		const home=document.createElement("span");
 		const div=document.createElement("div");
 		div.classList.add("home","servericon");
 
-		img.src="/icons/home.svg";
-		img.classList.add("svgtheme","svgicon");
-		img["all"]=this.guildids.get("@me");
+		home.classList.add("svgtheme","svgicon","svg-home");
+		home["all"]=this.guildids.get("@me");
 		(this.guildids.get("@me") as Guild).html=outdiv;
 		const unread=document.createElement("div");
 		unread.classList.add("unread");
 		outdiv.append(unread);
 		outdiv.append(div);
-		div.appendChild(img);
+		div.appendChild(home);
 
 		outdiv.classList.add("servernoti");
 		serverlist.append(outdiv);
-		img.onclick=function(){
+		home.onclick=function(){
 			this["all"].loadGuild();
 			this["all"].loadChannel();
 		};
@@ -550,9 +549,8 @@ class Localuser{
 				this.createGuild();
 			};
 			const guilddsdiv=document.createElement("div");
-			const guildDiscoveryContainer=document.createElement("img");
-			guildDiscoveryContainer.src="/icons/explore.svg";
-			guildDiscoveryContainer.classList.add("svgtheme","svgicon");
+			const guildDiscoveryContainer=document.createElement("span");
+			guildDiscoveryContainer.classList.add("svgtheme","svgicon","svg-explore");
 			guilddsdiv.classList.add("home","servericon");
 			guilddsdiv.appendChild(guildDiscoveryContainer);
 			serverlist.appendChild(guilddsdiv);
@@ -928,7 +926,6 @@ class Localuser{
 			{
 				const userinfos=getBulkInfo();
 				tas.addColorInput("Accent color:",_=>{
-					fixsvgtheme();
 					userinfos.accent_color=_;
 					localStorage.setItem("userinfos",JSON.stringify(userinfos));
 					document.documentElement.style.setProperty("--accent-color", userinfos.accent_color);
