@@ -38,7 +38,6 @@ class Role {
         if (this.color === 0) {
             return null;
         }
-        ;
         return `#${this.color.toString(16)}`;
     }
 }
@@ -55,7 +54,6 @@ class PermissionToggle {
         this.owner = owner;
     }
     watchForChange() { }
-    ;
     generateHTML() {
         const div = document.createElement("div");
         div.classList.add("setting");
@@ -80,7 +78,6 @@ class PermissionToggle {
         if (state === 1) {
             on.checked = true;
         }
-        ;
         on.onclick = _ => {
             this.permissions.setPermission(this.rolejson.name, 1);
             this.owner.changed();
@@ -92,7 +89,6 @@ class PermissionToggle {
         if (state === 0) {
             no.checked = true;
         }
-        ;
         no.onclick = _ => {
             this.permissions.setPermission(this.rolejson.name, 0);
             this.owner.changed();
@@ -105,7 +101,6 @@ class PermissionToggle {
             if (state === -1) {
                 off.checked = true;
             }
-            ;
             off.onclick = _ => {
                 this.permissions.setPermission(this.rolejson.name, -1);
                 this.owner.changed();

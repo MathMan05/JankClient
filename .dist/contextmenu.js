@@ -5,7 +5,7 @@ class Contextmenu {
     div;
     static setup() {
         Contextmenu.currentmenu = "";
-        document.addEventListener('click', function (event) {
+        document.addEventListener("click", event => {
             if (Contextmenu.currentmenu == "") {
                 return;
             }
@@ -50,8 +50,8 @@ class Contextmenu {
         if (Contextmenu.currentmenu != "") {
             Contextmenu.currentmenu.remove();
         }
-        div.style.top = y + 'px';
-        div.style.left = x + 'px';
+        div.style.top = y + "px";
+        div.style.left = x + "px";
         document.body.appendChild(div);
         Contextmenu.keepOnScreen(div);
         console.log(div);
@@ -59,7 +59,7 @@ class Contextmenu {
         return this.div;
     }
     bindContextmenu(obj, addinfo, other) {
-        const func = (event) => {
+        const func = event => {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.makemenu(event.clientX, event.clientY, addinfo, other);
@@ -75,12 +75,12 @@ class Contextmenu {
         console.log(box, docheight, docwidth);
         if (box.right > docwidth) {
             console.log("test");
-            obj.style.left = docwidth - box.width + 'px';
+            obj.style.left = docwidth - box.width + "px";
         }
         if (box.bottom > docheight) {
-            obj.style.top = docheight - box.height + 'px';
+            obj.style.top = docheight - box.height + "px";
         }
     }
 }
 Contextmenu.setup();
-export { Contextmenu as Contextmenu };
+export { Contextmenu };

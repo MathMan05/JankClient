@@ -96,7 +96,6 @@ class Group extends Channel {
         this.messageids = new Map();
         this.permission_overwrites = new Map();
         this.lastmessageid = json.last_message_id;
-        this.lastmessageid ??= null;
         this.mentions = 0;
         this.setUpInfiniteScroller();
         if (this.lastmessageid) {
@@ -140,8 +139,8 @@ class Group extends Channel {
         const messagez = new Message(messagep.d, this);
         if (this.lastmessageid) {
             this.idToNext.set(this.lastmessageid, messagez.id);
+            this.idToPrev.set(messagez.id, this.lastmessageid);
         }
-        this.idToPrev.set(messagez.id, this.lastmessageid);
         this.lastmessageid = messagez.id;
         this.messageids.set(messagez.snowflake, messagez);
         if (messagez.author === this.localuser.user) {

@@ -10,10 +10,10 @@ const tsParser = require("@typescript-eslint/parser");
 
 const linterOptions = {
 	reportUnusedDisableDirectives: "error"
-}
+};
 const global = {
 	...globals.browser
-}
+};
 
 const rules = {
 	"array-callback-return": 2,
@@ -227,7 +227,7 @@ const rules = {
 	"sonarjs/prefer-while": 2,
 	"sonarjs/no-gratuitous-expressions": 2,
 	"sonarjs/no-duplicated-branches": 2
-}
+};
 
 module.exports = [
 	{
@@ -307,4 +307,4 @@ module.exports = [
 			"@html-eslint/require-img-alt": 1
 		}
 	}
-]
+];

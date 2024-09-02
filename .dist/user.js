@@ -72,7 +72,7 @@ class User {
         });
         this.contextmenu.addbutton("Message user", function () {
             fetch(this.info.api + "/users/@me/channels", { method: "POST",
-                body: JSON.stringify({ "recipients": [this.id] }),
+                body: JSON.stringify({ recipients: [this.id] }),
                 headers: this.localuser.headers
             });
         });
@@ -97,7 +97,7 @@ class User {
         });
         this.contextmenu.addbutton("Kick member", function (member) {
             member.kick();
-        }, null, function (member) {
+        }, null, member => {
             if (!member)
                 return false;
             const us = member.guild.member;
@@ -111,7 +111,7 @@ class User {
         });
         this.contextmenu.addbutton("Ban member", function (member) {
             member.ban();
-        }, null, function (member) {
+        }, null, member => {
             if (!member)
                 return false;
             const us = member.guild.member;
@@ -192,7 +192,7 @@ class User {
         }
     }
     buildpfp() {
-        const pfp = document.createElement('img');
+        const pfp = document.createElement("img");
         pfp.loading = "lazy";
         pfp.src = this.getpfpsrc();
         pfp.classList.add("pfp");
@@ -419,7 +419,7 @@ class User {
         }
         return div;
     }
-    profileclick(obj, guild = undefined) {
+    profileclick(obj, guild) {
         obj.onclick = e => {
             this.buildprofile(e.clientX, e.clientY, guild);
             e.stopPropagation();

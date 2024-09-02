@@ -396,4 +396,4 @@ type memberChunk={
     chunk_count: number,
     not_found: string[]
 }
-export {readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson,emojijson,presencejson,wsjson,messageCreateJson,memberChunk};
+export{readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson,emojijson,presencejson,wsjson,messageCreateJson,memberChunk};
