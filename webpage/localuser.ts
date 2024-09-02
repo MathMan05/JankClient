@@ -43,12 +43,19 @@ class Localuser{
 		name: "Unknown",
 	};
 	mfa_enabled:boolean;
+	get perminfo(){
+		return this.userinfo.localuserStore;
+	}
+	set perminfo(e){
+		this.userinfo.localuserStore=e;
+	}
 	constructor(userinfo:Specialuser|-1){
 		if(userinfo===-1){
 			return;
 		}
 		this.token=userinfo.token;
 		this.userinfo=userinfo;
+		this.perminfo.guilds??={};
 		this.serverurls=this.userinfo.serverurls;
 		this.initialized=false;
 		this.info=this.serverurls;
@@ -109,6 +116,7 @@ class Localuser{
 		}
 
 		this.pingEndpoint();
+		this.userinfo.updateLocal();
 	}
 	outoffocus():void{
 		const servers=document.getElementById("servers") as HTMLDivElement;
