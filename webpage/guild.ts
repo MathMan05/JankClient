@@ -213,9 +213,9 @@ class Guild{
 	}
 	calculateReorder(){
 		let position=-1;
-		const build:{id:SnowFlake<Channel>,position:number|undefined,parent_id:SnowFlake<Channel>|undefined}[]=[];
+		const build:{id:string,position:number|undefined,parent_id:string|undefined}[]=[];
 		for(const thing of this.headchannels){
-			const thisthing:{id:SnowFlake<Channel>,position:number|undefined,parent_id:SnowFlake<Channel>|undefined}={id: thing.snowflake,position: undefined,parent_id: undefined};
+			const thisthing:{id:string,position:number|undefined,parent_id:string|undefined}={id: thing.id,position: undefined,parent_id: undefined};
 			if(thing.position<=position){
 				thing.position=(thisthing.position=position+1);
 			}
@@ -223,7 +223,7 @@ class Guild{
 			console.log(position);
 			if(thing.move_id&&thing.move_id!==thing.parent_id){
 				thing.parent_id=thing.move_id;
-				thisthing.parent_id=thing.parent_id;
+				thisthing.parent_id=thing.parent?.id;
 				thing.move_id=null;
 			}
 			if(thisthing.position||thisthing.parent_id){
@@ -245,14 +245,14 @@ class Guild{
 		if(serverbug){
 			for(const thing of build){
 				console.log(build,thing);
-				fetch(this.info.api+"/guilds/"+this.snowflake+"/channels",{
+				fetch(this.info.api+"/guilds/"+this.id+"/channels",{
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify([thing])
 				});
 			}
 		}else{
-			fetch(this.info.api+"/guilds/"+this.snowflake+"/channels",{
+			fetch(this.info.api+"/guilds/"+this.id+"/channels",{
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify(build)
@@ -431,17 +431,22 @@ class Guild{
 		this.localuser.loadGuild(this.id);
 	}
 	updateChannel(json:channeljson){
-		SnowFlake.getSnowFlakeFromID(json.id,Channel).getObject().updateChannel(json);
-		this.headchannels=[];
-		for(const thing of this.channels){
-			thing.children=[];
-		}
-		for(const thing of this.channels){
-			if(thing.resolveparent(this)){
-				this.headchannels.push(thing);
+		const channel=this.channelids[json.id];
+		if(channel){
+			channel.updateChannel(json);
+			this.headchannels=[];
+			for(const thing of this.channels){
+				thing.children=[];
 			}
+			this.headchannels=[];
+			for(const thing of this.channels){
+				const parent=thing.resolveparent(this);
+				if(!parent){
+					this.headchannels.push(thing);
+				}
+			}
+			this.printServers();
 		}
-		this.printServers();
 	}
 	createChannelpac(json:channeljson){
 		const thischannel=new Channel(json,this);

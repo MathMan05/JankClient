@@ -423,9 +423,12 @@ class Localuser {
         return undefined;
     }
     updateChannel(json) {
-        SnowFlake.getSnowFlakeFromID(json.guild_id, Guild).getObject().updateChannel(json);
-        if (json.guild_id === this.lookingguild?.id) {
-            this.loadGuild(json.guild_id);
+        const guild = this.guildids.get(json.guild_id);
+        if (guild) {
+            guild.updateChannel(json);
+            if (json.guild_id === this.lookingguild?.id) {
+                this.loadGuild(json.guild_id);
+            }
         }
     }
     createChannel(json) {
