@@ -11,7 +11,7 @@ import { getBulkUsers, getapiurls } from "./login.js";
         console.log(users.users[thing]);
     }
     let urls;
-    if (!joinable.length) {
+    if (!joinable.length && well) {
         const out = await getapiurls(well);
         if (out) {
             urls = out;
@@ -24,7 +24,7 @@ import { getBulkUsers, getapiurls } from "./login.js";
             }
         }
         else {
-            throw Error("someone needs to handle the case where the servers don't exist");
+            throw new Error("someone needs to handle the case where the servers don't exist");
         }
     }
     else {
@@ -86,7 +86,7 @@ import { getBulkUsers, getapiurls } from "./login.js";
                         Authorization: thing.token
                     }
                 }).then(_ => {
-                    users["currentuser"] = specialuser.uid;
+                    users.currentuser = specialuser.uid;
                     localStorage.setItem("userinfos", JSON.stringify(users));
                     window.location.href = "/channels/" + guildinfo.id;
                 });

@@ -4,7 +4,7 @@ function deleteoldcache() {
 }
 async function putInCache(request, response) {
     console.log(request, response);
-    const cache = await caches.open('cache');
+    const cache = await caches.open("cache");
     console.log("Grabbed");
     try {
         console.log(await cache.put(request, response));
@@ -13,7 +13,6 @@ async function putInCache(request, response) {
         console.error(error);
     }
 }
-;
 console.log("test");
 let lastcache;
 self.addEventListener("activate", async (event) => {
@@ -37,7 +36,9 @@ async function checkCache() {
             putInCache("/getupdates", data.clone());
         }
         checkedrecently = true;
-        setTimeout(_ => { checkedrecently = false; }, 1000 * 60 * 30);
+        setTimeout(_ => {
+            checkedrecently = false;
+        }, 1000 * 60 * 30);
     });
 }
 var checkedrecently = false;
@@ -83,7 +84,7 @@ async function getfile(event) {
         console.error(e);
     }
 }
-self.addEventListener('fetch', (event) => {
+self.addEventListener("fetch", (event) => {
     try {
         event.respondWith(getfile(event));
     }
