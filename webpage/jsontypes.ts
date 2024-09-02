@@ -1,6 +1,6 @@
 type readyjson={
-    op:number;
-    t:string;
+    op:0;
+    t:"READY";
     s:number;
     d:{
         v:number;
@@ -341,4 +341,59 @@ type presencejson={
     afk: boolean,
     user?:userjson,
 }
-export {readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson,emojijson,presencejson};
+type messageCreateJson={
+    op:0,
+    d:{
+        guild_id?:string,
+        channel_id?:string,
+    }&messagejson,
+    s:number,
+    t:"MESSAGE_CREATE"
+}
+type wsjson={
+    op:0,
+    d:any,
+    s:number,
+    t:"TYPING_START"|"USER_UPDATE"|"CHANNEL_UPDATE"|"CHANNEL_CREATE"|"CHANNEL_DELETE"|"GUILD_DELETE"|"GUILD_CREATE"|"MESSAGE_REACTION_ADD"|"MESSAGE_REACTION_REMOVE"|"MESSAGE_REACTION_REMOVE_ALL"|"MESSAGE_REACTION_REMOVE_EMOJI"
+}|{
+    op:0,
+    t:"GUILD_MEMBERS_CHUNK",
+    d:memberChunk
+}|{
+    op:0,
+    d:{
+        id:string,
+        guild_id?:string,
+        channel_id:string
+    },
+    s:number,
+    t:"MESSAGE_DELETE"
+}|{
+    op:0,
+    d:{
+        guild_id?:string,
+        channel_id:string
+    }&messagejson,
+    s:number,
+    t:"MESSAGE_UPDATE"
+}|messageCreateJson|readyjson|{
+    op:11,
+    s:undefined,
+    d:{}
+}|{
+    op:10,
+    s:undefined,
+    d:{
+        heartbeat_interval:number
+    }
+}
+type memberChunk={
+    guild_id: string,
+    nonce: string,
+    members: memberjson[],
+    presences: presencejson[],
+    chunk_index: number,
+    chunk_count: number,
+    not_found: string[]
+}
+export{readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson,emojijson,presencejson,wsjson,messageCreateJson,memberChunk};

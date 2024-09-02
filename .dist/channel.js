@@ -58,10 +58,14 @@ class Channel {
         this.contextmenu.addbutton("Delete channel", function () {
             console.log(this);
             this.deleteChannel();
-        }, null, function () { return this.isAdmin(); });
+        }, null, function () {
+            return this.isAdmin();
+        });
         this.contextmenu.addbutton("Edit channel", function () {
             this.editChannel();
-        }, null, function () { return this.isAdmin(); });
+        }, null, function () {
+            return this.isAdmin();
+        });
         this.contextmenu.addbutton("Make invite", function () {
             this.createInvite();
         }, null, function () {
@@ -147,12 +151,11 @@ class Channel {
     }
     sortPerms() {
         this.permission_overwritesar.sort((a, b) => {
-            const order = this.guild.roles.findIndex(_ => _.snowflake === a[0]) - this.guild.roles.findIndex(_ => _.snowflake === b[0]);
-            return order;
+            return this.guild.roles.findIndex(_ => _.snowflake === a[0]) - this.guild.roles.findIndex(_ => _.snowflake === b[0]);
         });
     }
     setUpInfiniteScroller() {
-        this.infinite = new InfiniteScroller(async function (id, offset) {
+        this.infinite = new InfiniteScroller((async (id, offset) => {
             const snowflake = id;
             if (offset === 1) {
                 if (this.idToPrev.has(snowflake)) {
@@ -175,13 +178,12 @@ class Channel {
                     console.log("at bottom");
                 }
             }
-        }.bind(this), async function (id) {
+        }), (async (id) => {
             //await new Promise(_=>{setTimeout(_,Math.random()*10)})
             const messgage = this.messages.get(id);
             try {
                 if (messgage) {
-                    const html = messgage.buildhtml();
-                    return html;
+                    return messgage.buildhtml();
                 }
                 else {
                     console.error(id + " not found");
@@ -190,18 +192,21 @@ class Channel {
             catch (e) {
                 console.error(e);
             }
-        }.bind(this), async function (id) {
+            return document.createElement("div");
+        }), (async (id) => {
             const message = this.messages.get(id);
             try {
                 if (message) {
                     message.deleteDiv();
+                    return true;
                 }
             }
             catch (e) {
                 console.error(e);
             }
             finally { }
-        }.bind(this), this.readbottom.bind(this));
+            return false;
+        }), this.readbottom.bind(this));
     }
     constructor(json, owner) {
         if (json === -1) {
@@ -226,7 +231,6 @@ class Channel {
             if (thing.id === "1182819038095799904" || thing.id === "1182820803700625444") {
                 continue;
             }
-            ;
             this.permission_overwrites.set(thing.id, new Permissions(thing.allow, thing.deny));
             const permission = this.permission_overwrites.get(thing.id);
             if (permission) {
@@ -267,7 +271,7 @@ class Channel {
         if (!this.hasPermission("VIEW_CHANNEL")) {
             return false;
         }
-        return this.lastmessageid !== this.lastreadmessageid && this.type !== 4 && !!this.lastmessageid;
+        return this.lastmessageid !== this.lastreadmessageid && this.type !== 4 && Boolean(this.lastmessageid);
     }
     hasPermission(name, member = this.guild.member) {
         if (member.isAdmin()) {
@@ -276,7 +280,7 @@ class Channel {
         for (const thing of member.roles) {
             const premission = this.permission_overwrites.get(thing.id);
             if (premission) {
-                let perm = premission.getPermission(name);
+                const perm = premission.getPermission(name);
                 if (perm) {
                     return perm === 1;
                 }
@@ -288,7 +292,7 @@ class Channel {
         return false;
     }
     get canMessage() {
-        if ((0 === this.permission_overwritesar.length) && this.hasPermission("MANAGE_CHANNELS")) {
+        if ((this.permission_overwritesar.length === 0) && this.hasPermission("MANAGE_CHANNELS")) {
             const role = this.guild.roles.find(_ => _.name === "@everyone");
             if (role) {
                 this.addRoleToPerms(role);
@@ -297,7 +301,9 @@ class Channel {
         return this.hasPermission("SEND_MESSAGES");
     }
     sortchildren() {
-        this.children.sort((a, b) => { return a.position - b.position; });
+        this.children.sort((a, b) => {
+            return a.position - b.position;
+        });
     }
     resolveparent(guild) {
         const parentid = this.parent_id?.id;
@@ -312,7 +318,7 @@ class Channel {
     }
     calculateReorder() {
         let position = -1;
-        let build = [];
+        const build = [];
         for (const thing of this.children) {
             const thisthing = { id: thing.snowflake, position: undefined, parent_id: undefined };
             if (thing.position < position) {
@@ -347,8 +353,13 @@ class Channel {
         }
         div["all"] = this;
         div.draggable = admin;
-        div.addEventListener("dragstart", (e) => { Channel.dragged = [this, div]; e.stopImmediatePropagation(); });
-        div.addEventListener("dragend", () => { Channel.dragged = []; });
+        div.addEventListener("dragstart", e => {
+            Channel.dragged = [this, div];
+            e.stopImmediatePropagation();
+        });
+        div.addEventListener("dragend", () => {
+            Channel.dragged = [];
+        });
         if (this.type === 4) {
             this.sortchildren();
             const caps = document.createElement("div");
@@ -381,17 +392,19 @@ class Channel {
                 childrendiv.appendChild(channel.createguildHTML(admin));
             }
             childrendiv.classList.add("channels");
-            setTimeout(_ => { childrendiv.style.height = childrendiv.scrollHeight + 'px'; }, 100);
+            setTimeout(_ => {
+                childrendiv.style.height = childrendiv.scrollHeight + "px";
+            }, 100);
             decdiv.onclick = function () {
-                if (childrendiv.style.height !== '0px') {
+                if (childrendiv.style.height !== "0px") {
                     decoration.classList.add("hiddencat");
                     //childrendiv.classList.add("colapsediv");
-                    childrendiv.style.height = '0px';
+                    childrendiv.style.height = "0px";
                 }
                 else {
                     decoration.classList.remove("hiddencat");
                     //childrendiv.classList.remove("colapsediv")
-                    childrendiv.style.height = childrendiv.scrollHeight + 'px';
+                    childrendiv.style.height = childrendiv.scrollHeight + "px";
                 }
             };
             div.appendChild(childrendiv);
@@ -474,14 +487,14 @@ class Channel {
         }
     }
     coatDropDiv(div, container = false) {
-        div.addEventListener("dragenter", (event) => {
+        div.addEventListener("dragenter", event => {
             console.log("enter");
             event.preventDefault();
         });
-        div.addEventListener("dragover", (event) => {
+        div.addEventListener("dragover", event => {
             event.preventDefault();
         });
-        div.addEventListener("drop", (event) => {
+        div.addEventListener("drop", event => {
             const that = Channel.dragged[0];
             if (!that)
                 return;
@@ -538,8 +551,8 @@ class Channel {
             method: "POST",
             headers: this.headers,
             body: JSON.stringify({
-                name: name,
-                type: type,
+                name,
+                type,
                 parent_id: this.snowflake,
                 permission_overwrites: [],
             })
@@ -553,22 +566,28 @@ class Channel {
         const thistype = this.type;
         const full = new Dialog(["hdiv",
             ["vdiv",
-                ["textbox", "Channel name:", this.name, function () { name = this.value; }],
-                ["mdbox", "Channel topic:", this.topic, function () { topic = this.value; }],
-                ["checkbox", "NSFW Channel", this.nsfw, function () { nsfw = this.checked; }],
+                ["textbox", "Channel name:", this.name, function () {
+                        name = this.value;
+                    }],
+                ["mdbox", "Channel topic:", this.topic, function () {
+                        topic = this.value;
+                    }],
+                ["checkbox", "NSFW Channel", this.nsfw, function () {
+                        nsfw = this.checked;
+                    }],
                 ["button", "", "submit", () => {
                         fetch(this.info.api + "/channels/" + thisid, {
                             method: "PATCH",
                             headers: this.headers,
                             body: JSON.stringify({
-                                "name": name,
-                                "type": thistype,
-                                "topic": topic,
-                                "bitrate": 64000,
-                                "user_limit": 0,
-                                "nsfw": nsfw,
-                                "flags": 0,
-                                "rate_limit_per_user": 0
+                                name,
+                                type: thistype,
+                                topic,
+                                bitrate: 64000,
+                                user_limit: 0,
+                                nsfw,
+                                flags: 0,
+                                rate_limit_per_user: 0
                             })
                         });
                         console.log(full);
@@ -678,7 +697,7 @@ class Channel {
         for (let i = 0; i < 15; i++) {
             const div = document.createElement("div");
             div.classList.add("loadingmessage");
-            if (Math.random() < .5) {
+            if (Math.random() < 0.5) {
                 const pfp = document.createElement("div");
                 pfp.classList.add("loadingpfp");
                 const username = document.createElement("div");
@@ -699,7 +718,6 @@ class Channel {
         if (this.allthewayup) {
             return;
         }
-        ;
         if (this.lastreadmessageid && this.messages.has(this.lastreadmessageid)) {
             return;
         }
@@ -710,7 +728,7 @@ class Channel {
         if (response.length !== 100) {
             this.allthewayup = true;
         }
-        let prev = undefined;
+        let prev;
         for (const thing of response) {
             const message = new Message(thing, this);
             if (prev) {
@@ -742,7 +760,9 @@ class Channel {
         }
         await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100&after=" + id, {
             headers: this.headers
-        }).then((j) => { return j.json(); }).then(response => {
+        }).then(j => {
+            return j.json();
+        }).then(response => {
             let previd = id;
             for (const i in response) {
                 let messager;
@@ -764,7 +784,6 @@ class Channel {
             }
             //out.buildmessages();
         });
-        return;
     }
     topid;
     async grabBefore(id) {
@@ -773,7 +792,9 @@ class Channel {
         }
         await fetch(this.info.api + "/channels/" + this.id + "/messages?before=" + id + "&limit=100", {
             headers: this.headers
-        }).then((j) => { return j.json(); }).then((response) => {
+        }).then(j => {
+            return j.json();
+        }).then((response) => {
             if (response.length < 100) {
                 this.allthewayup = true;
                 if (response.length === 0) {
@@ -796,7 +817,7 @@ class Channel {
                 this.idToPrev.set(previd, messager.id);
                 previd = messager.id;
                 this.messageids.set(messager.snowflake, messager);
-                if (+i === response.length - 1 && response.length < 100) {
+                if (Number(i) === response.length - 1 && response.length < 100) {
                     this.topid = previd;
                 }
                 if (willbreak) {
@@ -804,7 +825,6 @@ class Channel {
                 }
             }
         });
-        return;
     }
     /**
      * Please dont use this, its not implemented.
@@ -895,7 +915,7 @@ class Channel {
         while (flake && time < flaketime) {
             flake = this.idToPrev.get(flake);
             if (!flake) {
-                return undefined;
+                return;
             }
             flaketime = Number((BigInt(flake) >> 22n) + 1420070400000n);
         }
@@ -914,7 +934,6 @@ class Channel {
             if (thing.id === "1182819038095799904" || thing.id === "1182820803700625444") {
                 continue;
             }
-            ;
             this.permission_overwrites.set(thing.id, new Permissions(thing.allow, thing.deny));
             const permisions = this.permission_overwrites.get(thing.id);
             if (permisions) {
@@ -925,10 +944,10 @@ class Channel {
         this.nsfw = json.nsfw;
     }
     typingstart() {
-        if (this.typing > new Date().getTime()) {
+        if (this.typing > Date.now()) {
             return;
         }
-        this.typing = new Date().getTime() + 6000;
+        this.typing = Date.now() + 6000;
         fetch(this.info.api + "/channels/" + this.snowflake + "/typing", {
             method: "POST",
             headers: this.headers
@@ -936,11 +955,11 @@ class Channel {
     }
     get notification() {
         let notinumber = this.message_notifications;
-        if (+notinumber === 3) {
+        if (Number(notinumber) === 3) {
             notinumber = null;
         }
         notinumber ??= this.guild.message_notifications;
-        switch (+notinumber) {
+        switch (Number(notinumber)) {
             case 0:
                 return "all";
             case 1:
@@ -956,15 +975,14 @@ class Channel {
         if (replyingto) {
             replyjson =
                 {
-                    "guild_id": replyingto.guild.id,
-                    "channel_id": replyingto.channel.id,
-                    "message_id": replyingto.id,
+                    guild_id: replyingto.guild.id,
+                    channel_id: replyingto.channel.id,
+                    message_id: replyingto.id,
                 };
         }
-        ;
         if (attachments.length === 0) {
             const body = {
-                content: content,
+                content,
                 nonce: Math.floor(Math.random() * 1000000000),
                 message_reference: undefined
             };
@@ -980,21 +998,21 @@ class Channel {
         else {
             const formData = new FormData();
             const body = {
-                content: content,
+                content,
                 nonce: Math.floor(Math.random() * 1000000000),
                 message_reference: undefined
             };
             if (replyjson) {
                 body.message_reference = replyjson;
             }
-            formData.append('payload_json', JSON.stringify(body));
+            formData.append("payload_json", JSON.stringify(body));
             for (const i in attachments) {
                 formData.append("files[" + i + "]", attachments[i]);
             }
             return await fetch(this.info.api + "/channels/" + this.snowflake + "/messages", {
-                method: 'POST',
+                method: "POST",
                 body: formData,
-                headers: { "Authorization": this.headers.Authorization }
+                headers: { Authorization: this.headers.Authorization }
             });
         }
     }
@@ -1079,7 +1097,6 @@ class Channel {
                 if (deep === 3) {
                     return;
                 }
-                ;
                 this.notify(message, deep + 1);
             });
         }
@@ -1110,7 +1127,7 @@ class Channel {
                 body: JSON.stringify({
                     allow: permission.allow.toString(),
                     deny: permission.deny.toString(),
-                    id: id,
+                    id,
                     type: 0
                 })
             });

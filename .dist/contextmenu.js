@@ -5,7 +5,7 @@ class Contextmenu {
     div;
     static setup() {
         Contextmenu.currentmenu = "";
-        document.addEventListener('click', function (event) {
+        document.addEventListener("click", event => {
             if (Contextmenu.currentmenu == "") {
                 return;
             }
@@ -30,10 +30,11 @@ class Contextmenu {
     makemenu(x, y, addinfo, other) {
         const div = document.createElement("div");
         div.classList.add("contextmenu", "flexttb");
+        let visibleButtons = 0;
         for (const thing of this.buttons) {
-            if (!thing[3].bind(addinfo)(other)) {
+            if (!thing[3].bind(addinfo)(other))
                 continue;
-            }
+            visibleButtons++;
             const intext = document.createElement("button");
             intext.disabled = !thing[4].bind(addinfo)(other);
             intext.classList.add("contextbutton");
@@ -44,11 +45,13 @@ class Contextmenu {
             }
             div.appendChild(intext);
         }
+        if (visibleButtons == 0)
+            return;
         if (Contextmenu.currentmenu != "") {
             Contextmenu.currentmenu.remove();
         }
-        div.style.top = y + 'px';
-        div.style.left = x + 'px';
+        div.style.top = y + "px";
+        div.style.left = x + "px";
         document.body.appendChild(div);
         Contextmenu.keepOnScreen(div);
         console.log(div);
@@ -56,7 +59,7 @@ class Contextmenu {
         return this.div;
     }
     bindContextmenu(obj, addinfo, other) {
-        const func = (event) => {
+        const func = event => {
             event.preventDefault();
             event.stopImmediatePropagation();
             this.makemenu(event.clientX, event.clientY, addinfo, other);
@@ -72,12 +75,12 @@ class Contextmenu {
         console.log(box, docheight, docwidth);
         if (box.right > docwidth) {
             console.log("test");
-            obj.style.left = docwidth - box.width + 'px';
+            obj.style.left = docwidth - box.width + "px";
         }
         if (box.bottom > docheight) {
-            obj.style.top = docheight - box.height + 'px';
+            obj.style.top = docheight - box.height + "px";
         }
     }
 }
 Contextmenu.setup();
-export { Contextmenu as Contextmenu };
+export { Contextmenu };

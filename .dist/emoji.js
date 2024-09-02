@@ -62,10 +62,8 @@ class Emoji {
             for (let i = 0; i < length; i++) {
                 array[i] = read8();
             }
-            const decoded = new TextDecoder("utf-8").decode(array.buffer);
-            ;
             //console.log(array);
-            return decoded;
+            return new TextDecoder("utf-8").decode(array.buffer);
         }
         const build = [];
         let cats = read16();
@@ -78,7 +76,7 @@ class Emoji {
                 const name = readString8();
                 const len = read8();
                 const skin_tone_support = len > 127;
-                const emoji = readStringNo(len - (+skin_tone_support * 128));
+                const emoji = readStringNo(len - (Number(skin_tone_support) * 128));
                 emojis.push({
                     name,
                     skin_tone_support,
@@ -102,7 +100,9 @@ class Emoji {
     }
     static async emojiPicker(x, y, localuser) {
         let res;
-        const promise = new Promise((r) => { res = r; });
+        const promise = new Promise(r => {
+            res = r;
+        });
         const menu = document.createElement("div");
         menu.classList.add("flextttb", "emojiPicker");
         menu.style.top = y + "px";

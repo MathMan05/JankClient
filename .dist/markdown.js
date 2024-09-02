@@ -28,7 +28,7 @@ class MarkDown {
         return this.makeHTML().textContent;
     }
     makeHTML({ keep = this.keep, stdsize = this.stdsize } = {}) {
-        return this.markdown(this.txt, { keep: keep, stdsize: stdsize });
+        return this.markdown(this.txt, { keep, stdsize });
     }
     markdown(text, { keep = false, stdsize = false } = {}) {
         let txt;
@@ -105,7 +105,7 @@ class MarkDown {
                         if (keep) {
                             element.append(keepys);
                         }
-                        element.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
+                        element.appendChild(this.markdown(build, { keep, stdsize }));
                         span.append(element);
                     }
                     finally {
@@ -179,7 +179,7 @@ class MarkDown {
                     }
                     else {
                         const pre = document.createElement("pre");
-                        if (build[build.length - 1] === "\n") {
+                        if (build.at(-1) === "\n") {
                             build = build.substring(0, build.length - 1);
                         }
                         if (txt[i] === "\n") {
@@ -224,7 +224,7 @@ class MarkDown {
                         if (keep) {
                             i.append(stars);
                         }
-                        i.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
+                        i.appendChild(this.markdown(build, { keep, stdsize }));
                         if (keep) {
                             i.append(stars);
                         }
@@ -235,7 +235,7 @@ class MarkDown {
                         if (keep) {
                             b.append(stars);
                         }
-                        b.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
+                        b.appendChild(this.markdown(build, { keep, stdsize }));
                         if (keep) {
                             b.append(stars);
                         }
@@ -247,7 +247,7 @@ class MarkDown {
                         if (keep) {
                             b.append(stars);
                         }
-                        b.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
+                        b.appendChild(this.markdown(build, { keep, stdsize }));
                         if (keep) {
                             b.append(stars);
                         }
@@ -290,7 +290,7 @@ class MarkDown {
                         if (keep) {
                             i.append(underscores);
                         }
-                        i.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
+                        i.appendChild(this.markdown(build, { keep, stdsize }));
                         if (keep) {
                             i.append(underscores);
                         }
@@ -301,7 +301,7 @@ class MarkDown {
                         if (keep) {
                             u.append(underscores);
                         }
-                        u.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
+                        u.appendChild(this.markdown(build, { keep, stdsize }));
                         if (keep) {
                             u.append(underscores);
                         }
@@ -313,7 +313,7 @@ class MarkDown {
                         if (keep) {
                             i.append(underscores);
                         }
-                        i.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
+                        i.appendChild(this.markdown(build, { keep, stdsize }));
                         if (keep) {
                             i.append(underscores);
                         }
@@ -325,7 +325,7 @@ class MarkDown {
                 }
             }
             if (txt[i] === "~" && txt[i + 1] === "~") {
-                let count = 2;
+                const count = 2;
                 let build = [];
                 let find = 0;
                 let j = i + 2;
@@ -350,7 +350,7 @@ class MarkDown {
                         if (keep) {
                             s.append(tildes);
                         }
-                        s.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
+                        s.appendChild(this.markdown(build, { keep, stdsize }));
                         if (keep) {
                             s.append(tildes);
                         }
@@ -360,7 +360,7 @@ class MarkDown {
                 }
             }
             if (txt[i] === "|" && txt[i + 1] === "|") {
-                let count = 2;
+                const count = 2;
                 let build = [];
                 let find = 0;
                 let j = i + 2;
@@ -385,7 +385,7 @@ class MarkDown {
                         if (keep) {
                             j.append(pipes);
                         }
-                        j.appendChild(this.markdown(build, { keep: keep, stdsize: stdsize }));
+                        j.appendChild(this.markdown(build, { keep, stdsize }));
                         j.classList.add("spoiler");
                         j.onclick = MarkDown.unspoil;
                         if (keep) {
@@ -459,7 +459,7 @@ class MarkDown {
                         i = j;
                         const isEmojiOnly = txt.join("").trim() === buildjoin.trim();
                         const owner = (this.owner instanceof Channel) ? this.owner.guild : this.owner;
-                        const emoji = new Emoji({ name: buildjoin, id: parts[2], animated: !!parts[1] }, owner);
+                        const emoji = new Emoji({ name: buildjoin, id: parts[2], animated: Boolean(parts[1]) }, owner);
                         span.appendChild(emoji.getHTML(isEmojiOnly));
                         continue;
                     }
@@ -479,7 +479,6 @@ class MarkDown {
                         else {
                             break;
                         }
-                        ;
                     }
                     else if (partsFound === 1 && txt[j] === ")") {
                         partsFound++;
@@ -529,7 +528,7 @@ class MarkDown {
                 return;
             console.log(_.clipboardData.types);
             const data = _.clipboardData.getData("text");
-            document.execCommand('insertHTML', false, data);
+            document.execCommand("insertHTML", false, data);
             _.preventDefault();
             if (!box.onkeyup)
                 return;
@@ -568,25 +567,25 @@ class MarkDown {
 }
 //solution from https://stackoverflow.com/questions/4576694/saving-and-restoring-caret-position-for-contenteditable-div
 function saveCaretPosition(context) {
-    var selection = window.getSelection();
+    const selection = window.getSelection();
     if (!selection)
         return;
-    var range = selection.getRangeAt(0);
+    const range = selection.getRangeAt(0);
     range.setStart(context, 0);
-    var len = range.toString().length;
+    const len = range.toString().length;
     return function restore() {
         if (!selection)
             return;
-        var pos = getTextNodeAtPosition(context, len);
+        const pos = getTextNodeAtPosition(context, len);
         selection.removeAllRanges();
-        var range = new Range();
+        const range = new Range();
         range.setStart(pos.node, pos.position);
         selection.addRange(range);
     };
 }
 function getTextNodeAtPosition(root, index) {
     const NODE_TYPE = NodeFilter.SHOW_TEXT;
-    var treeWalker = document.createTreeWalker(root, NODE_TYPE, function next(elem) {
+    const treeWalker = document.createTreeWalker(root, NODE_TYPE, elem => {
         if (!elem.textContent)
             return 0;
         if (index > elem.textContent.length) {
@@ -595,7 +594,7 @@ function getTextNodeAtPosition(root, index) {
         }
         return NodeFilter.FILTER_ACCEPT;
     });
-    var c = treeWalker.nextNode();
+    const c = treeWalker.nextNode();
     return {
         node: c ? c : root,
         position: index

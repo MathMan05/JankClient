@@ -9,7 +9,7 @@ class Buttons {
         this.buttons = [];
         this.name = name;
     }
-    add(name, thing = undefined) {
+    add(name, thing) {
         if (!thing) {
             thing = new Options(name, this);
         }
@@ -380,7 +380,6 @@ class FileInput {
                 if (this.onchange) {
                     this.onchange(null);
                 }
-                ;
                 this.value = null;
                 this.owner.changed();
             };
@@ -424,7 +423,6 @@ class HtmlArea {
         }
     }
     watchForChange() { }
-    ;
 }
 class Options {
     name;
@@ -451,7 +449,6 @@ class Options {
         }
     }
     watchForChange() { }
-    ;
     addOptions(name, { ltr = false } = {}) {
         const options = new Options(name, this, { ltr });
         this.options.push(options);
@@ -467,7 +464,7 @@ class Options {
             this.generateContainter();
         }
         else {
-            throw Error("Tried to make a subOptions when the options weren't rendered");
+            throw new Error("Tried to make a subOptions when the options weren't rendered");
         }
         return options;
     }
@@ -479,7 +476,7 @@ class Options {
             this.generateContainter();
         }
         else {
-            throw Error("Tried to make a subForm when the options weren't rendered");
+            throw new Error("Tried to make a subForm when the options weren't rendered");
         }
         return options;
     }
@@ -758,7 +755,6 @@ class Form {
     watchForChange(func) {
         this.onSubmit = func;
     }
-    ;
     changed() {
         if (this.traditionalSubmit) {
             this.owner.changed();
@@ -819,7 +815,6 @@ class Form {
         if (!(errors instanceof Object)) {
             return;
         }
-        ;
         for (const error of Object.keys(errors)) {
             const elm = this.names.get(error);
             if (elm) {
@@ -858,7 +853,9 @@ class Form {
         }
         else {
             element.classList.remove("suberror");
-            setTimeout(_ => { element.classList.add("suberror"); }, 100);
+            setTimeout(_ => {
+                element.classList.add("suberror");
+            }, 100);
         }
         element.textContent = message;
     }
@@ -887,7 +884,9 @@ class Settings extends Buttons {
         exit.textContent = "✖";
         exit.classList.add("exitsettings");
         background.append(exit);
-        exit.onclick = _ => { this.hide(); };
+        exit.onclick = _ => {
+            this.hide();
+        };
         document.body.append(background);
         this.html = background;
     }
