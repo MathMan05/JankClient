@@ -529,7 +529,7 @@ class Guild{
 		this.printServers();
 	}
 	createChannel(name:string,type:number){
-		fetch(this.info.api+"/guilds/"+this.snowflake+"/channels",{
+		fetch(this.info.api+"/guilds/"+this.id+"/channels",{
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({name, type})

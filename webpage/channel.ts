@@ -565,7 +565,7 @@ class Channel{
 			body: JSON.stringify({
 				name,
 				type,
-				parent_id: this.snowflake,
+				parent_id: this.id,
 				permission_overwrites: [],
 			})
 		});
