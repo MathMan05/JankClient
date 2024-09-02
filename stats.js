@@ -77,7 +77,7 @@ function calcStats(instance){
 	let i=0;
 	for(const thing of obj){
 		online=thing.online;
-		const stamp=thing.time;
+		let stamp=thing.time;
 		if(alltime===-1){
 			alltime=0;
 		}
@@ -89,18 +89,18 @@ function calcStats(instance){
 		}
 		totalTimePassed+=timepassed;
 		alltime+=online*timepassed;
-		if(stamp>week){
-			if(weektime===-1){
-				weektime=online*(stamp-week);
-			}else{
-				weektime+=online*timepassed;
+		if(stamp+timepassed>week){
+			if(stamp<week){
+				timepassed-=week-stamp;
+				stamp=week;
 			}
-			if(stamp>day){
-				if(daytime===-1){
-					daytime=online*(stamp-day);
-				}else{
-					daytime+=online*timepassed;
+			weektime+=online*timepassed;
+			if(stamp+timepassed>day){
+				if(stamp<day){
+					timepassed-=day-stamp;
+					stamp=day;
 				}
+				daytime+=online*timepassed;
 			}
 		}
 
