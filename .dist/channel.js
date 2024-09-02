@@ -321,16 +321,16 @@ class Channel {
         let position = -1;
         const build = [];
         for (const thing of this.children) {
-            const thisthing = { id: thing.snowflake, position: undefined, parent_id: undefined };
+            const thisthing = { id: thing.id, position: undefined, parent_id: undefined };
             if (thing.position < position) {
                 thing.position = thisthing.position = position + 1;
             }
             position = thing.position;
             if (thing.move_id && thing.move_id !== thing.parent_id) {
                 thing.parent_id = thing.move_id;
-                thisthing.parent_id = thing.parent_id;
+                thisthing.parent_id = thing.parent?.id;
                 thing.move_id = null;
-                console.log(this.guild.channelids[thisthing.parent_id.id]);
+                //console.log(this.guild.channelids[thisthing.parent_id.id]);
             }
             if (thisthing.position || thisthing.parent_id) {
                 build.push(thisthing);
@@ -929,8 +929,15 @@ class Channel {
     updateChannel(json) {
         this.type = json.type;
         this.name = json.name;
-        this.parent_id = SnowFlake.getSnowFlakeFromID(json.parent_id, Channel);
-        this.parent = null;
+        const parent = this.guild.channelids[json.parent_id];
+        if (parent) {
+            this.parent = parent;
+            this.parent_id = parent.snowflake;
+        }
+        else {
+            this.parent = null;
+            this.parent_id = null;
+        }
         this.children = [];
         this.guild_id = json.guild_id;
         this.messageids = new Map();
