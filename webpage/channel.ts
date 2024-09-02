@@ -10,7 +10,7 @@ import { Settings } from "./settings.js";
 import { Role,RoleList } from "./role.js";
 import {InfiniteScroller} from "./infiniteScroller.js";
 import { SnowFlake } from "./snowflake.js";
-import { channeljson, messagejson, readyjson } from "./jsontypes.js";
+import { channeljson, messageCreateJson, messagejson, readyjson } from "./jsontypes.js";
 import { MarkDown } from "./markdown.js";
 
 declare global {
@@ -994,7 +994,7 @@ class Channel{
             });
         }
     }
-    messageCreate(messagep:any):void{
+    messageCreate(messagep:messageCreateJson):void{
         if(!this.hasPermission("VIEW_CHANNEL")){return}
         const messagez=new Message(messagep.d,this);
         this.lastmessage=messagez;

@@ -7,7 +7,7 @@ import {Dialog} from "./dialog.js";
 import {getapiurls, getBulkInfo, setTheme, Specialuser} from "./login.js";
 import { SnowFlake } from "./snowflake.js";
 import { Message } from "./message.js";
-import { channeljson, memberjson, presencejson, readyjson } from "./jsontypes.js";
+import { channeljson, memberChunk, memberjson, messageCreateJson, presencejson, readyjson, wsjson } from "./jsontypes.js";
 import { Member } from "./member.js";
 import { FormError, Settings } from "./settings.js";
 import { MarkDown } from "./markdown.js";
@@ -220,7 +220,7 @@ class Localuser{
                     if(temp.op===0&&temp.t==="READY"){
                         returny();
                     }
-                    await this.handleEvent(temp);
+                    await this.handleEvent(temp as wsjson);
                 }catch(e){
                     console.error(e);
                 }finally{
@@ -300,7 +300,7 @@ class Localuser{
         await promise;
         return;
     }
-    async handleEvent(temp){
+    async handleEvent(temp:wsjson){
         console.debug(temp);
         if (temp.s) this.lastSequence=temp.s;
         if(temp.op==0){
@@ -312,15 +312,38 @@ class Localuser{
                     break;
                 case "MESSAGE_DELETE":
                     console.log(temp.d);
-                    SnowFlake.getSnowFlakeFromID(temp.d.id,Message).getObject().deleteEvent();
+                    temp.d.guild_id??="@me";
+                    const guild=this.guildids.get(temp.d.guild_id);
+                    if(guild){
+                        const channel=guild.channelids[temp.d.guild_id]
+                        if(channel){
+                            const message=channel.messages.get(temp.d.id);
+                            if(message){
+                                message.deleteEvent();
+                            }
+                        }
+
+                    }
+
                     break;
                 case "READY":
                     this.gottenReady(temp as readyjson);
                     break;
-                case "MESSAGE_UPDATE":
-                    const message=SnowFlake.getSnowFlakeFromID(temp.d.id,Message).getObject();
-                    message.giveData(temp.d);
+                case "MESSAGE_UPDATE":{
+                    temp.d.guild_id??="@me";
+                    const guild=this.guildids.get(temp.d.guild_id);
+                    if(guild){
+                        const channel=guild.channelids[temp.d.guild_id]
+                        if(channel){
+                            const message=channel.messages.get(temp.d.id);
+                            if(message){
+                                message.giveData(temp.d);
+                            }
+                        }
+
+                    }
                     break;
+                }
                 case "TYPING_START":
                     if(this.initialized){
                         this.typingStart(temp);
@@ -400,7 +423,7 @@ class Localuser{
                         const messageReactionRemoveEmoji = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject()
                         messageReactionRemoveEmoji.reactionRemoveEmoji(temp.d.emoji)
                     }
-                    break
+                    break;
                 case "GUILD_MEMBERS_CHUNK":
                     this.gotChunk(temp.d);
                     break;
@@ -702,7 +725,7 @@ class Localuser{
         })
         content.appendChild(guilds);
     }
-    messageCreate(messagep):void{
+    messageCreate(messagep:messageCreateJson):void{
         messagep.d.guild_id??="@me";
         const guild=this.guildids.get(messagep.d.guild_id);
         if(!guild) return;
@@ -1320,7 +1343,7 @@ class Localuser{
     fetchingmembers:Map<string,boolean>=new Map();
     noncemap:Map<string,(r:[memberjson[],string[]])=>void>=new Map();
     noncebuild:Map<string,[memberjson[],string[],number[]]>=new Map();
-    async gotChunk(chunk:{chunk_index:number,chunk_count:number,nonce:string,not_found?:string[],members?:memberjson[],presences:presencejson[]}){
+    async gotChunk(chunk:memberChunk){
         for(const thing of chunk.presences){
             if(thing.user){
                 this.presences.set(thing.user.id,thing);
