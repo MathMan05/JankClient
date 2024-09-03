@@ -15,8 +15,5 @@ class SnowFlake {
             return 0;
         }
     }
-    toString() {
-        return this.id;
-    }
 }
 export { SnowFlake };
