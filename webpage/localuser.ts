@@ -8,7 +8,7 @@ import{Dialog}from"./dialog.js";
 import{getapiurls, getBulkInfo, setTheme, Specialuser}from"./login.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ Message }from"./message.js";
-import{ channeljson, memberjson, presencejson, readyjson }from"./jsontypes.js";
+import{ channeljson, memberjson, presencejson, readyjson, wsjson }from"./jsontypes.js";
 import{ Member }from"./member.js";
 import{ FormError, Settings }from"./settings.js";
 import{ MarkDown }from"./markdown.js";
@@ -137,7 +137,6 @@ class Localuser{
 		if(this.ws){
 			this.ws.close(4001);
 		}
-		SnowFlake.clear();
 	}
 	swapped=false;
 	async initwebsocket():Promise<void>{
@@ -230,7 +229,7 @@ class Localuser{
 					if(temp.op===0&&temp.t==="READY"){
 						returny();
 					}
-					await this.handleEvent(temp);
+					await this.handleEvent(temp as readyjson);
 				}catch(e){
 					console.error(e);
 				}finally{
@@ -308,7 +307,7 @@ class Localuser{
 
 		await promise;
 	}
-	async handleEvent(temp){
+	async handleEvent(temp:wsjson){
 		console.debug(temp);
 		if(temp.s)this.lastSequence=temp.s;
 		if(temp.op==0){
@@ -319,16 +318,32 @@ class Localuser{
 				}
 				break;
 			case"MESSAGE_DELETE":
-				console.log(temp.d);
-				SnowFlake.getSnowFlakeFromID(temp.d.id,Message).getObject().deleteEvent();
+			{
+				temp.d.guild_id??="@me";
+				const guild=this.guildids.get(temp.d.guild_id);
+				if(!guild) break;
+				const channel=guild.channelids[temp.d.channel_id];
+				if(!channel) break;
+				const message=channel.messages.get(temp.d.id);
+				if(!message) break;
+				message.deleteEvent();
 				break;
+			}
 			case"READY":
 				this.gottenReady(temp as readyjson);
 				break;
 			case"MESSAGE_UPDATE":
-				const message=SnowFlake.getSnowFlakeFromID(temp.d.id,Message).getObject();
+			{
+				temp.d.guild_id??="@me";
+				const guild=this.guildids.get(temp.d.guild_id);
+				if(!guild) break;
+				const channel=guild.channelids[temp.d.channel_id];
+				if(!channel) break;
+				const message=channel.messages.get(temp.d.id);
+				if(!message) break;
 				message.giveData(temp.d);
 				break;
+			}
 			case"TYPING_START":
 				if(this.initialized){
 					this.typingStart(temp);
@@ -376,10 +391,14 @@ class Localuser{
 				break;
 			}
 			case"MESSAGE_REACTION_ADD":
-				if(SnowFlake.hasSnowFlakeFromID(temp.d.message_id,Message)){
+				{
 					temp.d.guild_id??="@me";
-					const message=SnowFlake.getSnowFlakeFromID(temp.d.message_id,Message).getObject();
-					const guild=SnowFlake.getSnowFlakeFromID(temp.d.guild_id,Guild).getObject();
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					const channel=guild.channelids[temp.d.channel_id];
+					if(!channel) break;
+					const message=channel.messages.get(temp.d.message_id);
+					if(!message) break;
 					let thing:Member|{id:string};
 					if(temp.d.member){
 						thing=await Member.new(temp.d.member,guild) as Member;
@@ -390,22 +409,39 @@ class Localuser{
 				}
 				break;
 			case"MESSAGE_REACTION_REMOVE":
-				if(SnowFlake.hasSnowFlakeFromID(temp.d.message_id,Message)){
-					const message=SnowFlake.getSnowFlakeFromID(temp.d.message_id,Message).getObject();
-					console.log("test");
+				{
+					temp.d.guild_id??="@me";
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					const channel=guild.channelids[temp.d.channel_id];
+					if(!channel) break;
+					const message=channel.messages.get(temp.d.message_id);
+					if(!message) break;
 					message.reactionRemove(temp.d.emoji,temp.d.user_id);
 				}
 				break;
 			case"MESSAGE_REACTION_REMOVE_ALL":
-				if(SnowFlake.hasSnowFlakeFromID(temp.d.message_id, Message)){
-					const messageReactionRemoveAll = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject();
-					messageReactionRemoveAll.reactionRemoveAll();
+				{
+					temp.d.guild_id??="@me";
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					const channel=guild.channelids[temp.d.channel_id];
+					if(!channel) break;
+					const message=channel.messages.get(temp.d.message_id);
+					if(!message) break;
+					message.reactionRemoveAll();
 				}
 				break;
 			case"MESSAGE_REACTION_REMOVE_EMOJI":
-				if(SnowFlake.hasSnowFlakeFromID(temp.d.message_id, Message)){
-					const messageReactionRemoveEmoji = SnowFlake.getSnowFlakeFromID(temp.d.message_id, Message).getObject();
-					messageReactionRemoveEmoji.reactionRemoveEmoji(temp.d.emoji);
+				{
+					temp.d.guild_id??="@me";
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					const channel=guild.channelids[temp.d.channel_id];
+					if(!channel) break;
+					const message=channel.messages.get(temp.d.message_id);
+					if(!message) break;
+					message.reactionRemoveEmoji(temp.d.emoji);
 				}
 				break;
 			case"GUILD_MEMBERS_CHUNK":
@@ -444,7 +480,9 @@ class Localuser{
 	}
 	createChannel(json:channeljson):void{
 		json.guild_id??="@me";
-		SnowFlake.getSnowFlakeFromID(json.guild_id,Guild).getObject().createChannelpac(json);
+		const guild=this.guildids.get(json.guild_id);
+		if(!guild) return;
+		guild.createChannelpac(json);
 		if(json.guild_id===this.lookingguild?.id){
 			this.loadGuild(json.guild_id);
 		}
