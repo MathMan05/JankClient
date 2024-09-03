@@ -293,7 +293,7 @@ class User extends SnowFlake {
         if (this.hypotheticalpfp && this.avatar) {
             return this.avatar;
         }
-        if (this.avatar != null) {
+        if (this.avatar !== null) {
             return this.info.cdn + "/avatars/" + this.id.replace("#clone", "") + "/" + this.avatar + ".png";
         }
         else {
