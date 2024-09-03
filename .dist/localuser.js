@@ -1442,8 +1442,11 @@ class Localuser {
                 for (const thing of data) {
                     if (value.has(thing.id)) {
                         const func = value.get(thing.id);
-                        if (!func)
+                        if (!func) {
+                            value.delete(thing.id);
                             continue;
+                        }
+                        ;
                         func(thing);
                         value.delete(thing.id);
                     }
@@ -1451,10 +1454,13 @@ class Localuser {
                 for (const thing of prom[1]) {
                     if (value.has(thing)) {
                         const func = value.get(thing);
-                        if (!func)
+                        if (!func) {
+                            value.delete(thing);
                             continue;
+                        }
                         func(undefined);
                         value.delete(thing);
+                        console.log("failed");
                     }
                 }
                 this.fetchingmembers.delete(guildid);
