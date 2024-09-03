@@ -56,7 +56,7 @@ class MarkDown{
 				if(first){
 					i--;
 				}
-				let element:HTMLElement;
+				let element:HTMLElement=document.createElement("span");
 				let keepys="";
 
 				if(txt[i+1]==="#"){
@@ -98,7 +98,7 @@ class MarkDown{
 					try{
 						if(stdsize){
 							element=document.createElement("span");
-						}else continue;
+						}
 						if(keep){
 							element.append(keepys);
 						}
@@ -574,7 +574,7 @@ function saveCaretPosition(context){
 		const pos = getTextNodeAtPosition(context, len);
 		selection.removeAllRanges();
 		const range = new Range();
-		range.setStart(pos.node ,pos.position);
+		range.setStart(pos.node, pos.position);
 		selection.addRange(range);
 	};
 }
