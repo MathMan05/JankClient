@@ -250,7 +250,6 @@ class InfiniteScroller{
 				element=thing[0];
 			}
 		}
-		console.log(id,element,this.HTMLElements.length,":3");
 		if(element){
 			if(flash){
 				element.scrollIntoView({

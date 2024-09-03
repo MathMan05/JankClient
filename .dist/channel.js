@@ -40,18 +40,15 @@ class Channel extends SnowFlake {
     messages = new Map();
     static setupcontextmenu() {
         this.contextmenu.addbutton("Copy channel id", function () {
-            console.log(this);
             navigator.clipboard.writeText(this.id);
         });
         this.contextmenu.addbutton("Mark as read", function () {
-            console.log(this);
             this.readbottom();
         });
         this.contextmenu.addbutton("Settings[temp]", function () {
             this.generateSettings();
         });
         this.contextmenu.addbutton("Delete channel", function () {
-            console.log(this);
             this.deleteChannel();
         }, null, function () {
             return this.isAdmin();
@@ -169,7 +166,6 @@ class Channel extends SnowFlake {
                     return this.idToNext.get(id);
                 }
                 else {
-                    console.log("at bottom");
                 }
             }
         }), (async (id) => {
@@ -699,7 +695,6 @@ class Channel extends SnowFlake {
         this.makereplybox();
         await this.buildmessages();
         //loading.classList.remove("loading");
-        console.log(this);
         document.getElementById("typebox").contentEditable = "" + this.canMessage;
     }
     static regenLoadingMessages() {
