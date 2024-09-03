@@ -6,7 +6,7 @@ class Contextmenu {
     static setup() {
         Contextmenu.currentmenu = "";
         document.addEventListener("click", event => {
-            if (Contextmenu.currentmenu == "") {
+            if (Contextmenu.currentmenu === "") {
                 return;
             }
             if (!Contextmenu.currentmenu.contains(event.target)) {
