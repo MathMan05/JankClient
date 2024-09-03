@@ -1,4 +1,3 @@
-
 import{Guild}from"./guild.js";
 import{Channel}from"./channel.js";
 import{Direct}from"./direct.js";
