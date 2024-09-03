@@ -47,7 +47,7 @@ fetch("/instances.json").then(_=>_.json()).then((json:{name:string,description?:
 			const stats=document.createElement("div");
 			stats.classList.add("flexltr");
 			const span=document.createElement("span");
-			span.innerText=`Uptime: All time: ${Math.floor(instance.uptime.alltime*100)}% This week: ${Math.floor(instance.uptime.weektime*100)}% Today: ${Math.floor(instance.uptime.daytime*100)}%`;
+			span.innerText=`Uptime: All time: ${Math.round(instance.uptime.alltime*100)}% This week: ${Math.round(instance.uptime.weektime*100)}% Today: ${Math.round(instance.uptime.daytime*100)}%`;
 			stats.append(span);
 			statbox.append(stats);
 		}
