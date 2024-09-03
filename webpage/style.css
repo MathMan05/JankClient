@@ -922,7 +922,7 @@ input[type="checkbox"] {
 }
 
 .quote {
-	display: inline-block;
+	display: flex;
 	width: fit-content;
 	position: relative;
 }
@@ -937,7 +937,7 @@ input[type="checkbox"] {
 
 .quote > span {
 	margin-left: 0.5em;
-	display: flex;
+	display: block;
 	align-items: center;
 }
 span {
