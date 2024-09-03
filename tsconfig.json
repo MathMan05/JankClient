@@ -9,7 +9,7 @@
     "removeComments": false,
     "noImplicitThis":true,
     "useUnknownInCatchVariables":true,
-    "strictNullChecks":false
+    "strictNullChecks":true
   },
   "include": [
     "./webpage/*.ts"
