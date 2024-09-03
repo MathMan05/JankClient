@@ -1,5 +1,5 @@
 class Contextmenu<x,y>{
-	static currentmenu;
+	static currentmenu:HTMLElement|"";
 	name:string;
 	buttons:[string,(this:x,arg:y,e:MouseEvent)=>void,string|null,(this:x,arg:y)=>boolean,(this:x,arg:y)=>boolean,string][];
 	div:HTMLDivElement;
@@ -9,7 +9,7 @@ class Contextmenu<x,y>{
 			if(Contextmenu.currentmenu===""){
 				return;
 			}
-			if(!Contextmenu.currentmenu.contains(event.target)){
+			if(!Contextmenu.currentmenu.contains(event.target as Node)){
 				Contextmenu.currentmenu.remove();
 				Contextmenu.currentmenu="";
 			}
