@@ -117,7 +117,7 @@ class Message {
                 continue;
             }
             else if (thing === "id") {
-                this.snowflake = new SnowFlake(messagejson.id, this);
+                this.snowflake = new SnowFlake(messagejson.id);
                 continue;
             }
             else if (thing === "member") {
@@ -237,7 +237,6 @@ class Message {
             this.channel.idToPrev.set(next, prev);
             this.channel.idToNext.set(prev, next);
         }
-        this.channel.messageids.delete(this.snowflake);
         if (prev) {
             const prevmessage = this.channel.messages.get(prev);
             if (prevmessage) {

@@ -24,12 +24,11 @@ class Channel{
 	owner:Guild;
 	headers:Localuser["headers"];
 	name:string;
-	snowflake:SnowFlake<Channel>;
+	snowflake:SnowFlake;
 	parent_id?:string;
 	parent:Channel|null;
 	children:Channel[];
 	guild_id:string;
-	messageids:Map<SnowFlake<Message>,Message>;
 	permission_overwrites:Map<string,Permissions>;
 	permission_overwritesar:[Role,Permissions][];
 	topic:string;
@@ -229,14 +228,13 @@ class Channel{
 		this.owner=owner;
 		this.headers=this.owner.headers;
 		this.name=json.name;
-		this.snowflake=new SnowFlake(json.id,this);
+		this.snowflake=new SnowFlake(json.id);
 		if(json.parent_id){
 			this.parent_id=json.parent_id;
 		}
 		this.parent=null;
 		this.children=[];
 		this.guild_id=json.guild_id;
-		this.messageids=new Map();
 		this.permission_overwrites=new Map();
 		this.permission_overwritesar=[];
 		for(const thing of json.permission_overwrites){
@@ -767,9 +765,6 @@ class Channel{
 				this.lastmessageid=message.id;
 			}
 			prev=message;
-			if(this.messageids.get(message.snowflake)===undefined){
-				this.messageids.set(message.snowflake,message);
-			}
 		}
 	}
 	delChannel(json:channeljson){
@@ -803,7 +798,6 @@ class Channel{
 				this.idToPrev.set(messager.id,previd);
 				this.idToNext.set(previd,messager.id);
 				previd=messager.id;
-				this.messageids.set(messager.snowflake,messager);
 				if(willbreak){
 					break;
 				}
@@ -843,7 +837,6 @@ class Channel{
 				this.idToNext.set(messager.id,previd);
 				this.idToPrev.set(previd,messager.id);
 				previd=messager.id;
-				this.messageids.set(messager.snowflake,messager);
 
 				if(Number(i)===response.length-1&&response.length<100){
 					this.topid=previd;
@@ -958,7 +951,6 @@ class Channel{
 
 		this.children=[];
 		this.guild_id=json.guild_id;
-		this.messageids=new Map();
 		this.permission_overwrites=new Map();
 		for(const thing of json.permission_overwrites){
 			if(thing.id==="1182819038095799904"||thing.id==="1182820803700625444"){
@@ -1061,7 +1053,6 @@ class Channel{
 		}
 
 		this.lastmessageid=messagez.id;
-		this.messageids.set(messagez.snowflake,messagez);
 
 		if(messagez.author===this.localuser.user){
 			this.lastreadmessageid=messagez.id;

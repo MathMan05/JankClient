@@ -89,7 +89,7 @@ class Guild {
         this.headers = this.owner.headers;
         this.channels = [];
         this.channelids = {};
-        this.snowflake = new SnowFlake(json.id, this);
+        this.snowflake = new SnowFlake(json.id);
         this.properties = json.properties;
         this.roles = [];
         this.roleids = new Map();
@@ -387,7 +387,7 @@ class Guild {
         const build = { read_states: [] };
         for (const thing of this.channels) {
             if (thing.hasunreads) {
-                build.read_states.push({ channel_id: thing.snowflake, message_id: thing.lastmessageid, read_state_type: 0 });
+                build.read_states.push({ channel_id: thing.id, message_id: thing.lastmessageid, read_state_type: 0 });
                 thing.lastreadmessageid = thing.lastmessageid;
                 if (!thing.myhtml)
                     continue;

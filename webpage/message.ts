@@ -20,7 +20,7 @@ class Message{
 	mentions:User[];
 	mention_roles:Role[];
 	attachments:File[];//probably should be its own class tbh, should be Attachments[]
-	snowflake:SnowFlake<Message>;
+	snowflake:SnowFlake;
 	message_reference;
 	type:number;
 	timestamp:number;
@@ -119,7 +119,7 @@ class Message{
 				this.content=new MarkDown(messagejson[thing],this.channel);
 				continue;
 			}else if(thing ==="id"){
-				this.snowflake=new SnowFlake(messagejson.id,this);
+				this.snowflake=new SnowFlake(messagejson.id);
 				continue;
 			}else if(thing==="member"){
 				Member.new(messagejson.member as memberjson,this.guild).then(_=>{
@@ -235,7 +235,6 @@ class Message{
 			this.channel.idToPrev.set(next,prev);
 			this.channel.idToNext.set(prev,next);
 		}
-		this.channel.messageids.delete(this.snowflake);
 		if(prev){
 			const prevmessage=this.channel.messages.get(prev);
 			if(prevmessage){

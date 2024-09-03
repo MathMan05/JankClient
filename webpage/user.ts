@@ -10,7 +10,7 @@ import{ presencejson, userjson }from"./jsontypes.js";
 class User{
 	owner:Localuser;
 	hypotheticalpfp:boolean;
-	snowflake:SnowFlake<User>;
+	snowflake:SnowFlake;
 	avatar:string|null;
 	username:string;
 	nickname:string|null=null;
@@ -153,7 +153,7 @@ class User{
 					continue;
 				}
 				if(thing === "id"){
-					this.snowflake=new SnowFlake(userjson[thing],this);
+					this.snowflake=new SnowFlake(userjson[thing]);
 					continue;
 				}
 				this[thing]=userjson[thing];

@@ -152,7 +152,7 @@ class User {
                     continue;
                 }
                 if (thing === "id") {
-                    this.snowflake = new SnowFlake(userjson[thing], this);
+                    this.snowflake = new SnowFlake(userjson[thing]);
                     continue;
                 }
                 this[thing] = userjson[thing];

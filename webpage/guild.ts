@@ -15,7 +15,7 @@ class Guild{
 	headers:Localuser["headers"];
 	channels:Channel[];
 	channelids:{[key:string]:Channel};
-	snowflake:SnowFlake<Guild>;
+	snowflake:SnowFlake;
 	properties;
 	roles:Role[];
 	roleids:Map<string,Role>;
@@ -100,7 +100,7 @@ class Guild{
 		this.headers=this.owner.headers;
 		this.channels=[];
 		this.channelids={};
-		this.snowflake=new SnowFlake(json.id,this);
+		this.snowflake=new SnowFlake(json.id);
 		this.properties=json.properties;
 		this.roles=[];
 		this.roleids=new Map();
@@ -394,10 +394,10 @@ class Guild{
 		return this.member.isAdmin();
 	}
 	async markAsRead(){
-		const build:{read_states:{channel_id:SnowFlake<Channel>,message_id:string|null|undefined,read_state_type:number}[]}={read_states: []};
+		const build:{read_states:{channel_id:string,message_id:string|null|undefined,read_state_type:number}[]}={read_states: []};
 		for(const thing of this.channels){
 			if(thing.hasunreads){
-				build.read_states.push({channel_id: thing.snowflake,message_id: thing.lastmessageid,read_state_type: 0});
+				build.read_states.push({channel_id: thing.id,message_id: thing.lastmessageid,read_state_type: 0});
 				thing.lastreadmessageid=thing.lastmessageid;
 				if(!thing.myhtml)continue;
 				thing.myhtml.classList.remove("cunread");
