@@ -7,10 +7,9 @@ import{Guild}from"./guild.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ presencejson, userjson }from"./jsontypes.js";
 
-class User{
+class User extends SnowFlake{
 	owner:Localuser;
 	hypotheticalpfp:boolean;
-	snowflake:SnowFlake;
 	avatar:string|null;
 	username:string;
 	nickname:string|null=null;
@@ -63,9 +62,6 @@ class User{
 		}else{
 			return"offline";
 		}
-	}
-	get id(){
-		return this.snowflake.id;
 	}
 	static contextmenu=new Contextmenu<User,Member|undefined>("User Menu");
 	static setUpContextMenu(){
@@ -142,6 +138,7 @@ class User{
 		return this.owner;
 	}
 	constructor(userjson:userjson,owner:Localuser,dontclone=false){
+		super(userjson.id);
 		this.owner=owner;
 		if(!owner){
 			console.error("missing localuser");
@@ -153,7 +150,6 @@ class User{
 					continue;
 				}
 				if(thing === "id"){
-					this.snowflake=new SnowFlake(userjson[thing]);
 					continue;
 				}
 				this[thing]=userjson[thing];

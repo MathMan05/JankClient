@@ -9,13 +9,12 @@ import { RoleList } from "./role.js";
 import { InfiniteScroller } from "./infiniteScroller.js";
 import { SnowFlake } from "./snowflake.js";
 import { MarkDown } from "./markdown.js";
-class Channel {
+class Channel extends SnowFlake {
     editing;
     type;
     owner;
     headers;
     name;
-    snowflake;
     parent_id;
     parent;
     children;
@@ -39,9 +38,6 @@ class Channel {
     idToPrev = new Map();
     idToNext = new Map();
     messages = new Map();
-    get id() {
-        return this.snowflake.id;
-    }
     static setupcontextmenu() {
         this.contextmenu.addbutton("Copy channel id", function () {
             console.log(this);
@@ -155,23 +151,22 @@ class Channel {
     }
     setUpInfiniteScroller() {
         this.infinite = new InfiniteScroller((async (id, offset) => {
-            const snowflake = id;
             if (offset === 1) {
-                if (this.idToPrev.has(snowflake)) {
-                    return this.idToPrev.get(snowflake);
+                if (this.idToPrev.has(id)) {
+                    return this.idToPrev.get(id);
                 }
                 else {
                     await this.grabBefore(id);
-                    return this.idToPrev.get(snowflake);
+                    return this.idToPrev.get(id);
                 }
             }
             else {
-                if (this.idToNext.has(snowflake)) {
-                    return this.idToNext.get(snowflake);
+                if (this.idToNext.has(id)) {
+                    return this.idToNext.get(id);
                 }
                 else if (this.lastmessage?.id !== id) {
                     await this.grabAfter(id);
-                    return this.idToNext.get(snowflake);
+                    return this.idToNext.get(id);
                 }
                 else {
                     console.log("at bottom");
@@ -207,7 +202,8 @@ class Channel {
             return false;
         }), this.readbottom.bind(this));
     }
-    constructor(json, owner) {
+    constructor(json, owner, id = json === -1 ? undefined : json.id) {
+        super(id);
         if (json === -1) {
             return;
         }
@@ -216,7 +212,6 @@ class Channel {
         this.owner = owner;
         this.headers = this.owner.headers;
         this.name = json.name;
-        this.snowflake = new SnowFlake(json.id);
         if (json.parent_id) {
             this.parent_id = json.parent_id;
         }
@@ -491,7 +486,7 @@ class Channel {
         if (!this.hasunreads) {
             return;
         }
-        fetch(this.info.api + "/channels/" + this.snowflake + "/messages/" + this.lastmessageid + "/ack", {
+        fetch(this.info.api + "/channels/" + this.id + "/messages/" + this.lastmessageid + "/ack", {
             method: "POST",
             headers: this.headers,
             body: JSON.stringify({})
@@ -578,7 +573,7 @@ class Channel {
         let name = this.name;
         let topic = this.topic;
         let nsfw = this.nsfw;
-        const thisid = this.snowflake;
+        const thisid = this.id;
         const thistype = this.type;
         const full = new Dialog(["hdiv",
             ["vdiv",
@@ -614,7 +609,7 @@ class Channel {
         console.log(full);
     }
     deleteChannel() {
-        fetch(this.info.api + "/channels/" + this.snowflake, {
+        fetch(this.info.api + "/channels/" + this.id, {
             method: "DELETE",
             headers: this.headers
         });
@@ -661,7 +656,7 @@ class Channel {
             return message;
         }
         else {
-            const gety = await fetch(this.info.api + "/channels/" + this.snowflake + "/messages?limit=1&around=" + id, { headers: this.headers });
+            const gety = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=1&around=" + id, { headers: this.headers });
             const json = await gety.json();
             return new Message(json[0], this);
         }
@@ -684,7 +679,7 @@ class Channel {
         this.guild.prevchannel = this;
         this.localuser.channelfocus = this;
         const prom = this.infinite.delete();
-        history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.snowflake);
+        history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id);
         this.localuser.pageTitle("#" + this.name);
         const channelTopic = document.getElementById("channelTopic");
         if (this.topic) {
@@ -737,7 +732,7 @@ class Channel {
         if (this.lastreadmessageid && this.messages.has(this.lastreadmessageid)) {
             return;
         }
-        const j = await fetch(this.info.api + "/channels/" + this.snowflake + "/messages?limit=100", {
+        const j = await fetch(this.info.api + "/channels/" + this.id + "/messages?limit=100", {
             headers: this.headers,
         });
         const response = await j.json();
@@ -846,11 +841,6 @@ class Channel {
         throw new Error("please don't call this, no one has implemented it :P");
     }
     async buildmessages() {
-        /*
-        if(((!this.lastmessage)||(!this.lastmessage.snowflake)||(!this.goBackIds(this.lastmessage.snowflake,50,false)))&&this.lastreadmessageid){
-            await this.grabAfter(this.lastreadmessageid.id);
-        }
-        */
         this.infinitefocus = false;
         this.tryfocusinfinate();
     }
@@ -968,7 +958,7 @@ class Channel {
             return;
         }
         this.typing = Date.now() + 6000;
-        fetch(this.info.api + "/channels/" + this.snowflake + "/typing", {
+        fetch(this.info.api + "/channels/" + this.id + "/typing", {
             method: "POST",
             headers: this.headers
         });
@@ -1009,7 +999,7 @@ class Channel {
             if (replyjson) {
                 body.message_reference = replyjson;
             }
-            return await fetch(this.info.api + "/channels/" + this.snowflake + "/messages", {
+            return await fetch(this.info.api + "/channels/" + this.id + "/messages", {
                 method: "POST",
                 headers: this.headers,
                 body: JSON.stringify(body)
@@ -1029,7 +1019,7 @@ class Channel {
             for (const i in attachments) {
                 formData.append("files[" + i + "]", attachments[i]);
             }
-            return await fetch(this.info.api + "/channels/" + this.snowflake + "/messages", {
+            return await fetch(this.info.api + "/channels/" + this.id + "/messages", {
                 method: "POST",
                 body: formData,
                 headers: { Authorization: this.headers.Authorization }
@@ -1121,7 +1111,7 @@ class Channel {
         }
     }
     async addRoleToPerms(role) {
-        await fetch(this.info.api + "/channels/" + this.snowflake + "/permissions/" + role.snowflake, {
+        await fetch(this.info.api + "/channels/" + this.id + "/permissions/" + role.id, {
             method: "PUT",
             headers: this.headers,
             body: JSON.stringify({
@@ -1140,7 +1130,7 @@ class Channel {
         if (permission) {
             permission.allow = perms.allow;
             permission.deny = perms.deny;
-            await fetch(this.info.api + "/channels/" + this.snowflake + "/permissions/" + id, {
+            await fetch(this.info.api + "/channels/" + this.id + "/permissions/" + id, {
                 method: "PUT",
                 headers: this.headers,
                 body: JSON.stringify({

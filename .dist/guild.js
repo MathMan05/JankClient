@@ -6,12 +6,11 @@ import { Member } from "./member.js";
 import { Settings } from "./settings.js";
 import { SnowFlake } from "./snowflake.js";
 import { User } from "./user.js";
-class Guild {
+class Guild extends SnowFlake {
     owner;
     headers;
     channels;
     channelids;
-    snowflake;
     properties;
     roles;
     roleids;
@@ -23,9 +22,6 @@ class Guild {
     member;
     html;
     emojis;
-    get id() {
-        return this.snowflake.id;
-    }
     static contextmenu = new Contextmenu("guild menu");
     static setupcontextmenu() {
         Guild.contextmenu.addbutton("Copy Guild id", function () {
@@ -78,18 +74,19 @@ class Guild {
         settings.show();
     }
     constructor(json, owner, member) {
-        if (json === -1 || member === null) {
+        if (json === -1) {
+            super("@me");
             return;
         }
         if (json.stickers.length) {
             console.log(json.stickers, ":3");
         }
+        super(json.id);
         this.emojis = json.emojis;
         this.owner = owner;
         this.headers = this.owner.headers;
         this.channels = [];
         this.channelids = {};
-        this.snowflake = new SnowFlake(json.id);
         this.properties = json.properties;
         this.roles = [];
         this.roleids = new Map();
@@ -192,7 +189,7 @@ class Guild {
         full.show();
     }
     async leave() {
-        return fetch(this.info.api + "/users/@me/guilds/" + this.snowflake, {
+        return fetch(this.info.api + "/users/@me/guilds/" + this.id, {
             method: "DELETE",
             headers: this.headers
         });
@@ -340,7 +337,7 @@ class Guild {
         full.show();
     }
     async delete() {
-        return fetch(this.info.api + "/guilds/" + this.snowflake + "/delete", {
+        return fetch(this.info.api + "/guilds/" + this.id + "/delete", {
             method: "POST",
             headers: this.headers,
         });
@@ -528,7 +525,7 @@ class Guild {
         });
     }
     async createRole(name) {
-        const fetched = await fetch(this.info.api + "/guilds/" + this.snowflake + "roles", {
+        const fetched = await fetch(this.info.api + "/guilds/" + this.id + "roles", {
             method: "POST",
             headers: this.headers,
             body: JSON.stringify({
@@ -547,7 +544,7 @@ class Guild {
         const role = this.roleids[id];
         role.permissions.allow = perms.allow;
         role.permissions.deny = perms.deny;
-        await fetch(this.info.api + "/guilds/" + this.snowflake + "/roles/" + this.snowflake, {
+        await fetch(this.info.api + "/guilds/" + this.id + "/roles/" + role.id, {
             method: "PATCH",
             headers: this.headers,
             body: JSON.stringify({

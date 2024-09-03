@@ -3,10 +3,9 @@ import { Member } from "./member.js";
 import { MarkDown } from "./markdown.js";
 import { Contextmenu } from "./contextmenu.js";
 import { SnowFlake } from "./snowflake.js";
-class User {
+class User extends SnowFlake {
     owner;
     hypotheticalpfp;
-    snowflake;
     avatar;
     username;
     nickname = null;
@@ -61,9 +60,6 @@ class User {
         else {
             return "offline";
         }
-    }
-    get id() {
-        return this.snowflake.id;
     }
     static contextmenu = new Contextmenu("User Menu");
     static setUpContextMenu() {
@@ -141,6 +137,7 @@ class User {
         return this.owner;
     }
     constructor(userjson, owner, dontclone = false) {
+        super(userjson.id);
         this.owner = owner;
         if (!owner) {
             console.error("missing localuser");
@@ -152,7 +149,6 @@ class User {
                     continue;
                 }
                 if (thing === "id") {
-                    this.snowflake = new SnowFlake(userjson[thing]);
                     continue;
                 }
                 this[thing] = userjson[thing];
