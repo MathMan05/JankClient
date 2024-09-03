@@ -79,8 +79,8 @@ class Guild extends SnowFlake{
 		s1.options.push(new RoleList(permlist,this,this.updateRolePermissions.bind(this)));
 		settings.show();
 	}
-	constructor(json:guildjson|-1,owner:Localuser,member:memberjson|User){
-		if(json===-1){
+	constructor(json:guildjson|-1,owner:Localuser,member:memberjson|User|null){
+		if(json===-1||member===null){
 			super("@me");
 			return;
 		}

@@ -86,7 +86,7 @@ class Group extends Channel {
             this.user = this.localuser.user;
         }
         this.name ??= this.localuser.user.username;
-        this.parent_id = null;
+        this.parent_id = undefined;
         this.parent = null;
         this.children = [];
         this.guild_id = "@me";

@@ -198,7 +198,7 @@ class Channel extends SnowFlake {
             return false;
         }), this.readbottom.bind(this));
     }
-    constructor(json, owner, id = json === -1 ? undefined : json.id) {
+    constructor(json, owner, id = json === -1 ? "" : json.id) {
         super(id);
         if (json === -1) {
             return;

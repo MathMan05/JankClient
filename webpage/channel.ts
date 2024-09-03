@@ -210,7 +210,7 @@ class Channel extends SnowFlake{
 		this.readbottom.bind(this)
 		);
 	}
-	constructor(json:channeljson|-1,owner:Guild,id:string=json===-1?undefined:json.id){
+	constructor(json:channeljson|-1,owner:Guild,id:string=json===-1?"":json.id){
 		super(id);
 		if(json===-1){
 			return;

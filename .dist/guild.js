@@ -70,7 +70,7 @@ class Guild extends SnowFlake {
         settings.show();
     }
     constructor(json, owner, member) {
-        if (json === -1) {
+        if (json === -1 || member === null) {
             super("@me");
             return;
         }
