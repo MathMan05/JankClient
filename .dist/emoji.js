@@ -148,7 +148,9 @@ class Emoji {
                     body.append(emojiElem);
                     emojiElem.addEventListener("click", () => {
                         res(emojiClass);
-                        Contextmenu.currentmenu.remove();
+                        if (Contextmenu.currentmenu !== "") {
+                            Contextmenu.currentmenu.remove();
+                        }
                     });
                 }
             };
@@ -182,7 +184,9 @@ class Emoji {
                     body.append(emoji);
                     emoji.onclick = _ => {
                         res(emojit.emoji);
-                        Contextmenu.currentmenu.remove();
+                        if (Contextmenu.currentmenu !== "") {
+                            Contextmenu.currentmenu.remove();
+                        }
                     };
                 }
             };
