@@ -3,8 +3,7 @@ import{ Channel }from"./channel.js";
 import{ Message }from"./message.js";
 import{ Localuser }from"./localuser.js";
 import{User}from"./user.js";
-import{ Member }from"./member.js";
-import{ dirrectjson, memberjson }from"./jsontypes.js";
+import{ dirrectjson, memberjson, messagejson }from"./jsontypes.js";
 import{ Permissions }from"./permissions.js";
 import { SnowFlake } from "./snowflake.js";
 
@@ -139,7 +138,7 @@ class Group extends Channel{
 		(document.getElementById("channelTopic") as HTMLElement).setAttribute("hidden","");
 		(document.getElementById("typebox") as HTMLDivElement).contentEditable=""+true;
 	}
-	messageCreate(messagep){
+	messageCreate(messagep:{d:messagejson}){
 		const messagez=new Message(messagep.d,this);
 		if(this.lastmessageid){
 			this.idToNext.set(this.lastmessageid,messagez.id);
