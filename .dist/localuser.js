@@ -95,8 +95,7 @@ class Localuser {
             if (guild === undefined) {
                 continue;
             }
-            const guildid = guild.snowflake;
-            this.guildids.get(guildid.id).channelids[thing.channel_id].readStateInfo(thing);
+            guild.channelids[thing.channel_id].readStateInfo(thing);
         }
         for (const thing of ready.d.relationships) {
             const user = new User(thing.user, this);

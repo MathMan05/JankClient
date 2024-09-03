@@ -1,10 +1,9 @@
 import { Permissions } from "./permissions.js";
 import { SnowFlake } from "./snowflake.js";
-class Role {
+class Role extends SnowFlake {
     permissions;
     owner;
     color;
-    snowflake;
     name;
     info;
     hoist;
@@ -12,15 +11,12 @@ class Role {
     mentionable;
     unicode_emoji;
     headers;
-    get id() {
-        return this.snowflake.id;
-    }
     constructor(json, owner) {
+        super(json.id);
         this.headers = owner.headers;
         this.info = owner.info;
         for (const thing of Object.keys(json)) {
             if (thing === "id") {
-                this.snowflake = new SnowFlake(json.id);
                 continue;
             }
             this[thing] = json[thing];

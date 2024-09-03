@@ -11,7 +11,7 @@ import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, messagejson }from"./jsontypes.js";
 import{Emoji}from"./emoji.js";
 
-class Message{
+class Message extends SnowFlake{
 	static contextmenu=new Contextmenu<Message,undefined>("message menu");
 	owner:Channel;
 	headers:Localuser["headers"];
@@ -20,7 +20,6 @@ class Message{
 	mentions:User[];
 	mention_roles:Role[];
 	attachments:File[];//probably should be its own class tbh, should be Attachments[]
-	snowflake:SnowFlake;
 	message_reference;
 	type:number;
 	timestamp:number;
@@ -43,9 +42,6 @@ class Message{
 	div:HTMLDivElement|undefined;
 	member:Member|undefined;
 	reactions:messagejson["reactions"];
-	get id(){
-		return this.snowflake.id;
-	}
 	static setup(){
 		this.del=new Promise(_=>{
 			this.resolve=_;
@@ -82,6 +78,7 @@ class Message{
 		});
 	}
 	constructor(messagejson:messagejson,owner:Channel){
+		super(messagejson.id);
 		this.owner=owner;
 		this.headers=this.owner.headers;
 		this.giveData(messagejson);
@@ -119,7 +116,6 @@ class Message{
 				this.content=new MarkDown(messagejson[thing],this.channel);
 				continue;
 			}else if(thing ==="id"){
-				this.snowflake=new SnowFlake(messagejson.id);
 				continue;
 			}else if(thing==="member"){
 				Member.new(messagejson.member as memberjson,this.guild).then(_=>{
@@ -161,7 +157,7 @@ class Message{
 		func();
 	}
 	canDelete(){
-		return this.channel.hasPermission("MANAGE_MESSAGES")||this.author.snowflake===this.localuser.user.snowflake;
+		return this.channel.hasPermission("MANAGE_MESSAGES")||this.author===this.localuser.user;
 	}
 	get channel(){
 		return this.owner;
@@ -206,14 +202,14 @@ class Message{
 		return build;
 	}
 	async edit(content){
-		return await fetch(this.info.api+"/channels/"+this.channel.snowflake+"/messages/"+this.id,{
+		return await fetch(this.info.api+"/channels/"+this.channel.id+"/messages/"+this.id,{
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify({content})
 		});
 	}
 	delete(){
-		fetch(`${this.info.api}/channels/${this.channel.snowflake}/messages/${this.id}`,{
+		fetch(`${this.info.api}/channels/${this.channel.id}/messages/${this.id}`,{
 			headers: this.headers,
 			method: "DELETE",
 		});
@@ -381,7 +377,7 @@ class Message{
 				const newt=(new Date(this.timestamp).getTime())/1000;
 				current=(newt-old)>600;
 			}
-			const combine=(premessage?.author?.snowflake!=this.author.snowflake)||(current)||this.message_reference;
+			const combine=(premessage?.author!=this.author)||(current)||this.message_reference;
 			if(combine){
 				const pfp=this.author.buildpfp();
 				this.author.bind(pfp,this.guild,false);
@@ -567,7 +563,7 @@ class Message{
 	}
 	buildhtml(premessage?:Message|undefined):HTMLElement{
 		if(this.div){
-			console.error(`HTML for ${this.snowflake} already exists, aborting`);return this.div;
+			console.error(`HTML for ${this.id} already exists, aborting`);return this.div;
 		}
 		try{
 			const div=document.createElement("div");

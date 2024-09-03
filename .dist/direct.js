@@ -2,7 +2,6 @@ import { Guild } from "./guild.js";
 import { Channel } from "./channel.js";
 import { Message } from "./message.js";
 import { User } from "./user.js";
-import { SnowFlake } from "./snowflake.js";
 import { Permissions } from "./permissions.js";
 class Direct extends Guild {
     constructor(json, owner) {
@@ -15,7 +14,6 @@ class Direct extends Guild {
         this.headers = this.localuser.headers;
         this.channels = [];
         this.channelids = {};
-        this.snowflake = new SnowFlake("@me");
         this.properties = {};
         this.roles = [];
         this.roleids = new Map();
@@ -77,7 +75,7 @@ dmPermissions.setPermission("USE_VAD", 1);
 class Group extends Channel {
     user;
     constructor(json, owner) {
-        super(-1, owner);
+        super(-1, owner, json.id);
         this.owner = owner;
         this.headers = this.guild.headers;
         this.name = json.recipients[0]?.username;
@@ -88,7 +86,6 @@ class Group extends Channel {
             this.user = this.localuser.user;
         }
         this.name ??= this.localuser.user.username;
-        this.snowflake = new SnowFlake(json.id);
         this.parent_id = null;
         this.parent = null;
         this.children = [];
@@ -100,7 +97,7 @@ class Group extends Channel {
         if (this.lastmessageid) {
             this.position = Number((BigInt(this.lastmessageid) >> 22n) + 1420070400000n);
         }
-        this.position = -Math.max(this.position, this.snowflake.getUnixTime());
+        this.position = -Math.max(this.position, this.getUnixTime());
     }
     createguildHTML() {
         const div = document.createElement("div");

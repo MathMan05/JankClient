@@ -4,11 +4,10 @@ import{Localuser}from"./localuser.js";
 import{Guild}from"./guild.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ rolesjson }from"./jsontypes.js";
-class Role{
+class Role extends SnowFlake{
 	permissions:Permissions;
 	owner:Guild;
 	color:number;
-	readonly snowflake:SnowFlake;
 	name:string;
 	info:Guild["info"];
 	hoist:boolean;
@@ -16,15 +15,12 @@ class Role{
 	mentionable:boolean;
 	unicode_emoji:string;
 	headers:Guild["headers"];
-	get id(){
-		return this.snowflake.id;
-	}
 	constructor(json:rolesjson, owner:Guild){
+		super(json.id);
 		this.headers=owner.headers;
 		this.info=owner.info;
 		for(const thing of Object.keys(json)){
 			if(thing==="id"){
-				this.snowflake=new SnowFlake(json.id);
 				continue;
 			}
 			this[thing]=json[thing];
