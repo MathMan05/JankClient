@@ -6,6 +6,7 @@ import{User}from"./user.js";
 import{ Member }from"./member.js";
 import{ dirrectjson, memberjson }from"./jsontypes.js";
 import{ Permissions }from"./permissions.js";
+import { SnowFlake } from "./snowflake.js";
 
 class Direct extends Guild{
 	constructor(json:dirrectjson[],owner:Localuser){
@@ -101,7 +102,7 @@ class Group extends Channel{
 		this.mentions=0;
 		this.setUpInfiniteScroller();
 		if(this.lastmessageid){
-			this.position=Number((BigInt(this.lastmessageid)>>22n)+1420070400000n);
+			this.position=SnowFlake.stringToUnixTime(this.lastmessageid);
 		}
 
 		this.position=-Math.max(this.position,this.getUnixTime());

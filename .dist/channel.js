@@ -906,14 +906,14 @@ class Channel extends SnowFlake {
         if (!this.lastmessageid || !id)
             return;
         let flake = this.lastmessageid;
-        const time = Number((BigInt(id) >> 22n) + 1420070400000n);
-        let flaketime = Number((BigInt(flake) >> 22n) + 1420070400000n);
+        const time = SnowFlake.stringToUnixTime(id);
+        let flaketime = SnowFlake.stringToUnixTime(flake);
         while (flake && time < flaketime) {
             flake = this.idToPrev.get(flake);
             if (!flake) {
                 return;
             }
-            flaketime = Number((BigInt(flake) >> 22n) + 1420070400000n);
+            flaketime = SnowFlake.stringToUnixTime(flake);
         }
         return flake;
     }
