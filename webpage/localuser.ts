@@ -542,7 +542,6 @@ class Localuser{
 		channels.innerHTML="";
 		const html=guild.getHTML();
 		channels.appendChild(html);
-		console.log("found :3",html);
 		return guild;
 	}
 	buildservers():void{
@@ -1379,7 +1378,6 @@ class Localuser{
 				this.presences.set(thing.user.id,thing);
 			}
 		}
-		console.log(chunk);
 		chunk.members??=[];
 		const arr=this.noncebuild.get(chunk.nonce);
 		if(!arr)return;
@@ -1389,7 +1387,6 @@ class Localuser{
 		}
 		arr[2].push(chunk.chunk_index);
 		if(arr[2].length===chunk.chunk_count){
-			console.log("got through");
 			this.noncebuild.delete(chunk.nonce);
 			const func=this.noncemap.get(chunk.nonce);
 			if(!func)return;
@@ -1457,7 +1454,6 @@ class Localuser{
 						}
 						func(undefined);
 						value.delete(thing);
-						console.log("failed");
 					}
 				}
 				this.fetchingmembers.delete(guildid);

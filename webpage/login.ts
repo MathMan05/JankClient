@@ -117,7 +117,6 @@ class Specialuser{
 		}
 	}
 	set pfpsrc(e){
-		console.log("this ran fr");
 		this.json.pfpsrc=e;
 		this.updateLocal();
 	}

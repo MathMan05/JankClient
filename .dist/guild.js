@@ -25,15 +25,12 @@ class Guild extends SnowFlake {
     static contextmenu = new Contextmenu("guild menu");
     static setupcontextmenu() {
         Guild.contextmenu.addbutton("Copy Guild id", function () {
-            console.log(this);
             navigator.clipboard.writeText(this.id);
         });
         Guild.contextmenu.addbutton("Mark as read", function () {
-            console.log(this);
             this.markAsRead();
         });
         Guild.contextmenu.addbutton("Notifications", function () {
-            console.log(this);
             this.setnotifcation();
         });
         Guild.contextmenu.addbutton("Leave guild", function () {
@@ -47,7 +44,6 @@ class Guild extends SnowFlake {
             return this.properties.owner_id === this.member.user.id;
         });
         Guild.contextmenu.addbutton("Create invite", function () {
-            console.log(this);
         }, null, _ => true, _ => false);
         Guild.contextmenu.addbutton("Settings[temp]", function () {
             this.generateSettings();
@@ -467,7 +463,6 @@ class Guild extends SnowFlake {
                 1
             ],
             ["textbox", "Name of channel", "", function () {
-                    console.log(this);
                     name = this.value;
                 }],
             ["button", "", "submit", function () {
@@ -482,7 +477,6 @@ class Guild extends SnowFlake {
         const category = 4;
         const channelselect = new Dialog(["vdiv",
             ["textbox", "Name of category", "", function () {
-                    console.log(this);
                     name = this.value;
                 }],
             ["button", "", "submit", () => {
