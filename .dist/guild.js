@@ -72,7 +72,7 @@ class Guild {
         const s1 = settings.addButton("roles");
         const permlist = [];
         for (const thing of this.roles) {
-            permlist.push([thing.snowflake, thing.permissions]);
+            permlist.push([thing, thing.permissions]);
         }
         s1.options.push(new RoleList(permlist, this, this.updateRolePermissions.bind(this)));
         settings.show();
@@ -98,7 +98,7 @@ class Guild {
         for (const roley of json.roles) {
             const roleh = new Role(roley, this);
             this.roles.push(roleh);
-            this.roleids.set(roleh.snowflake, roleh);
+            this.roleids.set(roleh.id, roleh);
         }
         if (member instanceof User) {
             Member.resolveMember(member, this).then(_ => {
@@ -220,7 +220,7 @@ class Guild {
             if (thing.move_id && thing.move_id !== thing.parent_id) {
                 thing.parent_id = thing.move_id;
                 thisthing.parent_id = thing.parent?.id;
-                thing.move_id = null;
+                thing.move_id = undefined;
             }
             if (thisthing.position || thisthing.parent_id) {
                 build.push(thisthing);
@@ -539,7 +539,7 @@ class Guild {
         });
         const json = await fetched.json();
         const role = new Role(json, this);
-        this.roleids.set(role.snowflake, role);
+        this.roleids.set(role.id, role);
         this.roles.push(role);
         return role;
     }

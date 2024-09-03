@@ -1,6 +1,4 @@
 import { User } from "./user.js";
-import { Role } from "./role.js";
-import { SnowFlake } from "./snowflake.js";
 import { Dialog } from "./dialog.js";
 class Member {
     static already = {};
@@ -29,7 +27,9 @@ class Member {
             }
             if (thing === "roles") {
                 for (const strrole of memberjson.roles) {
-                    const role = SnowFlake.getSnowFlakeFromID(strrole, Role).getObject();
+                    const role = this.guild.roleids.get(strrole);
+                    if (!role)
+                        continue;
                     this.roles.push(role);
                 }
                 continue;

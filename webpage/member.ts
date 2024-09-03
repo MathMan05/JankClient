@@ -31,7 +31,8 @@ class Member{
 			}
 			if(thing==="roles"){
 				for(const strrole of memberjson.roles){
-					const role=SnowFlake.getSnowFlakeFromID(strrole,Role).getObject();
+					const role=this.guild.roleids.get(strrole);
+					if(!role) continue;
 					this.roles.push(role);
 				}
 				continue;

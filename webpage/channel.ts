@@ -25,13 +25,13 @@ class Channel{
 	headers:Localuser["headers"];
 	name:string;
 	snowflake:SnowFlake<Channel>;
-	parent_id:SnowFlake<Channel>|null;
+	parent_id?:string;
 	parent:Channel|null;
 	children:Channel[];
 	guild_id:string;
 	messageids:Map<SnowFlake<Message>,Message>;
 	permission_overwrites:Map<string,Permissions>;
-	permission_overwritesar:[SnowFlake<Role>,Permissions][];
+	permission_overwritesar:[Role,Permissions][];
 	topic:string;
 	nsfw:boolean;
 	position:number;
@@ -39,7 +39,7 @@ class Channel{
 	lastmessageid:string|undefined;
 	mentions:number;
 	lastpin:string;
-	move_id:SnowFlake<Channel>|null;
+	move_id?:string;
 	typing:number;
 	message_notifications:number;
 	allthewayup:boolean;
@@ -167,7 +167,7 @@ class Channel{
 	}
 	sortPerms(){
 		this.permission_overwritesar.sort((a,b)=>{
-			return this.guild.roles.findIndex(_=>_.snowflake===a[0])-this.guild.roles.findIndex(_=>_.snowflake===b[0]);
+			return this.guild.roles.findIndex(_=>_===a[0])-this.guild.roles.findIndex(_=>_===b[0]);
 		});
 	}
 	setUpInfiniteScroller(){
@@ -231,7 +231,7 @@ class Channel{
 		this.name=json.name;
 		this.snowflake=new SnowFlake(json.id,this);
 		if(json.parent_id){
-			this.parent_id=SnowFlake.getSnowFlakeFromID(json.parent_id,Channel);
+			this.parent_id=json.parent_id;
 		}
 		this.parent=null;
 		this.children=[];
@@ -246,7 +246,10 @@ class Channel{
 			this.permission_overwrites.set(thing.id,new Permissions(thing.allow,thing.deny));
 			const permission=this.permission_overwrites.get(thing.id);
 			if(permission){
-				this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id,Role),permission]);
+				const role=this.guild.roleids.get(thing.id);
+				if(role){
+					this.permission_overwritesar.push([role,permission]);
+				}
 			}
 		}
 
@@ -325,7 +328,7 @@ class Channel{
 		});
 	}
 	resolveparent(guild:Guild){
-		const parentid=this.parent_id?.id;
+		const parentid=this.parent_id;
 		if(!parentid)return false;
 		this.parent=guild.channelids[parentid];
 		this.parent??=null;
@@ -346,7 +349,7 @@ class Channel{
 			if(thing.move_id&&thing.move_id!==thing.parent_id){
 				thing.parent_id=thing.move_id;
 				thisthing.parent_id=thing.parent?.id;
-				thing.move_id=null;
+				thing.move_id=undefined;
 				//console.log(this.guild.channelids[thisthing.parent_id.id]);
 			}
 			if(thisthing.position||thisthing.parent_id){
@@ -525,7 +528,7 @@ class Channel{
 			if(!that)return;
 			event.preventDefault();
 			if(container){
-				that.move_id=this.snowflake;
+				that.move_id=this.id;
 				if(that.parent){
 					that.parent.children.splice(that.parent.children.indexOf(that),1);
 				}
@@ -791,11 +794,11 @@ class Channel{
 			for(const i in response){
 				let messager:Message;
 				let willbreak=false;
-				if(!SnowFlake.hasSnowFlakeFromID(response[i].id,Message)){
-					messager=new Message(response[i],this);
-				}else{
-					messager=SnowFlake.getSnowFlakeFromID(response[i].id,Message).getObject();
+				if(this.messages.has(response[i].id)){
+					messager=this.messages.get(response[i].id) as Message;
 					willbreak=true;
+				}else{
+					messager=new Message(response[i],this);
 				}
 				this.idToPrev.set(messager.id,previd);
 				this.idToNext.set(previd,messager.id);
@@ -947,10 +950,10 @@ class Channel{
 		const parent=this.guild.channelids[json.parent_id];
 		if(parent){
 			this.parent=parent;
-			this.parent_id=parent.snowflake;
+			this.parent_id=parent.id;
 		}else{
 			this.parent=null;
-			this.parent_id=null;
+			this.parent_id=undefined;
 		}
 
 		this.children=[];
@@ -964,7 +967,10 @@ class Channel{
 			this.permission_overwrites.set(thing.id,new Permissions(thing.allow,thing.deny));
 			const permisions=this.permission_overwrites.get(thing.id);
 			if(permisions){
-				this.permission_overwritesar.push([SnowFlake.getSnowFlakeFromID(thing.id,Role),permisions]);
+				const role=this.guild.roleids.get(thing.id);
+				if(role){
+					this.permission_overwritesar.push([role,permisions]);
+				}
 			}
 		}
 		this.topic=json.topic;
@@ -1140,7 +1146,7 @@ class Channel{
 		});
 		const perm=new Permissions("0","0");
 		this.permission_overwrites.set(role.id,perm);
-		this.permission_overwritesar.push([role.snowflake,perm]);
+		this.permission_overwritesar.push([role,perm]);
 	}
 	async updateRolePermissions(id:string,perms:Permissions){
 		const permission=this.permission_overwrites.get(id);

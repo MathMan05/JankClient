@@ -354,11 +354,12 @@ type wsjson={
     op:0,
     d:any,
     s:number,
-    t:"TYPING_START"|"USER_UPDATE"|"CHANNEL_UPDATE"|"CHANNEL_CREATE"|"CHANNEL_DELETE"|"GUILD_DELETE"|"GUILD_CREATE"|"MESSAGE_REACTION_ADD"|"MESSAGE_REACTION_REMOVE"|"MESSAGE_REACTION_REMOVE_ALL"|"MESSAGE_REACTION_REMOVE_EMOJI"
+    t:"TYPING_START"|"USER_UPDATE"|"CHANNEL_UPDATE"|"CHANNEL_CREATE"|"CHANNEL_DELETE"|"GUILD_DELETE"|"GUILD_CREATE"|"MESSAGE_REACTION_REMOVE_ALL"|"MESSAGE_REACTION_REMOVE_EMOJI"
 }|{
     op:0,
     t:"GUILD_MEMBERS_CHUNK",
-    d:memberChunk
+    d:memberChunk,
+    s:number
 }|{
     op:0,
     d:{
@@ -386,6 +387,29 @@ type wsjson={
     d:{
         heartbeat_interval:number
     }
+}|{
+    op: 0,
+    t: "MESSAGE_REACTION_ADD",
+    d: {
+        user_id: string,
+        channel_id: string,
+        message_id: string,
+        guild_id?: string,
+        emoji: emojijson,
+        member?: memberjson
+    },
+    s: number
+}|{
+    op: 0,
+    t: "MESSAGE_REACTION_REMOVE",
+    d: {
+        user_id: string,
+        channel_id: string,
+        message_id: string,
+        guild_id: string,
+        emoji: emojijson
+    },
+    "s": 3
 }
 type memberChunk={
     guild_id: string,
