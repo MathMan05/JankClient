@@ -6,8 +6,6 @@ import{Voice}from"./audio.js";
 import{User}from"./user.js";
 import{Dialog}from"./dialog.js";
 import{getapiurls, getBulkInfo, setTheme, Specialuser}from"./login.js";
-import{ SnowFlake }from"./snowflake.js";
-import{ Message }from"./message.js";
 import{ channeljson, memberjson, presencejson, readyjson, wsjson }from"./jsontypes.js";
 import{ Member }from"./member.js";
 import{ FormError, Settings }from"./settings.js";
