@@ -19,7 +19,7 @@ class Direct extends Guild{
 		this.headers=this.localuser.headers;
 		this.channels=[];
 		this.channelids={};
-		this.snowflake=new SnowFlake("@me",this);
+		this.snowflake=new SnowFlake("@me");
 		this.properties={};
 		this.roles=[];
 		this.roleids=new Map();
@@ -94,12 +94,11 @@ class Group extends Channel{
 			this.user=this.localuser.user;
 		}
 		this.name??=this.localuser.user.username;
-		this.snowflake=new SnowFlake(json.id,this);
+		this.snowflake=new SnowFlake(json.id);
 		this.parent_id=null;
 		this.parent=null;
 		this.children=[];
 		this.guild_id="@me";
-		this.messageids=new Map();
 		this.permission_overwrites=new Map();
 		this.lastmessageid=json.last_message_id;
 		this.mentions=0;
@@ -148,7 +147,6 @@ class Group extends Channel{
 			this.idToPrev.set(messagez.id,this.lastmessageid);
 		}
 		this.lastmessageid=messagez.id;
-		this.messageids.set(messagez.snowflake,messagez);
 		if(messagez.author===this.localuser.user){
 			this.lastreadmessageid=messagez.id;
 			if(this.myhtml){

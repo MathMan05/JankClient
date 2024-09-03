@@ -20,7 +20,7 @@ class Role {
         this.info = owner.info;
         for (const thing of Object.keys(json)) {
             if (thing === "id") {
-                this.snowflake = new SnowFlake(json.id, this);
+                this.snowflake = new SnowFlake(json.id);
                 continue;
             }
             this[thing] = json[thing];

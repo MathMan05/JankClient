@@ -8,7 +8,7 @@ class Role{
 	permissions:Permissions;
 	owner:Guild;
 	color:number;
-	readonly snowflake:SnowFlake<Role>;
+	readonly snowflake:SnowFlake;
 	name:string;
 	info:Guild["info"];
 	hoist:boolean;
@@ -24,7 +24,7 @@ class Role{
 		this.info=owner.info;
 		for(const thing of Object.keys(json)){
 			if(thing==="id"){
-				this.snowflake=new SnowFlake(json.id,this);
+				this.snowflake=new SnowFlake(json.id);
 				continue;
 			}
 			this[thing]=json[thing];
