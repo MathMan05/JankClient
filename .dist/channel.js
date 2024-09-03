@@ -270,7 +270,10 @@ class Channel extends SnowFlake {
         if (!this.hasPermission("VIEW_CHANNEL")) {
             return false;
         }
-        return this.lastmessageid !== this.lastreadmessageid && this.type !== 4 && Boolean(this.lastmessageid);
+        return (!!this.lastmessageid) &&
+            ((!this.lastreadmessageid) ||
+                SnowFlake.stringToUnixTime(this.lastmessageid) > SnowFlake.stringToUnixTime(this.lastreadmessageid))
+            && this.type !== 4;
     }
     hasPermission(name, member = this.guild.member) {
         if (member.isAdmin()) {
