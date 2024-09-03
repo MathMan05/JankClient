@@ -5,14 +5,14 @@ import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, presencejson, userjson }from"./jsontypes.js";
 import{ Dialog }from"./dialog.js";
 
-class Member{
+class Member extends SnowFlake{
 	static already={};
 	owner:Guild;
 	user:User;
 	roles:Role[]=[];
-	id:string;
 	nick:string;
 	private constructor(memberjson:memberjson,owner:Guild){
+		super(memberjson.id);
 		this.owner=owner;
 		if(this.localuser.userMap.has(memberjson.id)){
 			this.user=this.localuser.userMap.get(memberjson.id) as User;
