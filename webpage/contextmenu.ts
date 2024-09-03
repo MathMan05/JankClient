@@ -27,7 +27,7 @@ class Contextmenu<x,y>{
 		this.buttons.push([text,onclick,img,shown,enabled,"submenu"]);
 		return{};
 	}
-	makemenu(x:number,y:number,addinfo:any,other:y){
+	private makemenu(x:number,y:number,addinfo:x,other:y){
 		const div=document.createElement("div");
 		div.classList.add("contextmenu","flexttb");
 
