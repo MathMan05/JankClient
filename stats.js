@@ -42,6 +42,11 @@ async function observe(instances){
 		function check(){
 			fetch(api+"ping",{method: "HEAD"}).then(_=>{
 				setStatus(instance,_.ok);
+			}).catch(_=>{
+				console.log("Ping errored");
+				setTimeout(1000*60,_=>{
+					check();
+				})
 			});
 		}
 		setTimeout(
