@@ -152,7 +152,7 @@ type memberjson= {
     guild: {
         id: string
     }|null,
-    nick: string,
+    nick?: string,
     roles: string[],
     joined_at: string,
     premium_since: string,
