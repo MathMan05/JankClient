@@ -1355,6 +1355,21 @@ class Localuser{
 		if(guildid==="@me"){
 			return undefined;
 		}
+		const guild=this.guildids.get(guildid);
+		const borked=true;
+		if(borked&&guild&&guild.member_count>250){//sorry puyo, I need to fix member resolving while it's broken on large guilds
+			try{
+				const req=await fetch(this.info.api+"/guilds/"+guild.id+"/members/"+id,{
+					headers:this.headers
+				});
+				if(req.status!==200){
+					return undefined;
+				}
+				return await req.json();
+			}catch{
+				return undefined;
+			}
+		}
 		let guildmap=this.waitingmembers.get(guildid);
 		if(!guildmap){
 			guildmap=new Map();
