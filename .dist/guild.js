@@ -12,6 +12,7 @@ class Guild extends SnowFlake {
     channels;
     channelids;
     properties;
+    member_count;
     roles;
     roleids;
     prevchannel;
@@ -22,6 +23,7 @@ class Guild extends SnowFlake {
     member;
     html;
     emojis;
+    large;
     static contextmenu = new Contextmenu("guild menu");
     static setupcontextmenu() {
         Guild.contextmenu.addbutton("Copy Guild id", function () {
@@ -78,6 +80,8 @@ class Guild extends SnowFlake {
             console.log(json.stickers, ":3");
         }
         super(json.id);
+        this.large = json.large;
+        this.member_count = json.member_count;
         this.emojis = json.emojis;
         this.owner = owner;
         this.headers = this.owner.headers;
