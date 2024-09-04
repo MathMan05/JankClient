@@ -25,8 +25,8 @@
 	--light-border: #92929B;
 	--settings-hover: color-mix(in srgb, #000000 95%, var(--accent-color) 5%);
 	--quote-bg: #7a798e;
-	--button-bg: color-mix(in srgb, #303030 80%, var(--accent-color));
-	--button-hover: #282832;
+	--button-bg: color-mix(in srgb, #191919 85%, var(--accent-color));
+	--button-hover: color-mix(in srgb, #2f2f2f 70%, var(--accent-color));
 	--textarea-bg: color-mix(in srgb, #484848 80%, var(--accent-color));
 	--filename: #47bbff;
 	--mention-bg: #F00;
@@ -135,7 +135,7 @@
 	--light-border: #000000;
 	--settings-hover: #b5b1bb;
 	--quote-bg: #7a798e;
-	--button-bg: #96969e;
+	--button-bg: #5757b5;
 	--button-hover: #8e90c3;
 	--textarea-bg: #abb1cd;
 	--filename: #47bbff;
