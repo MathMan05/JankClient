@@ -527,7 +527,9 @@ class Message extends SnowFlake{
 						}
 					}
 					console.log(buttons);
-					this.div.append(buttons);
+					if(buttons.childNodes.length!==0){
+						this.div.append(buttons);
+					}
 				}
 			}
 			this.div.onmouseleave=_=>{
