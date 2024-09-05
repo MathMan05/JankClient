@@ -10,6 +10,7 @@ import{File}from"./file.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, messagejson }from"./jsontypes.js";
 import{Emoji}from"./emoji.js";
+import { Dialog } from "./dialog.js";
 
 class Message extends SnowFlake{
 	static contextmenu=new Contextmenu<Message,undefined>("message menu");
@@ -64,10 +65,7 @@ class Message extends SnowFlake{
 			});
 		});
 		Message.contextmenu.addbutton("Edit",function(this:Message){
-			this.channel.editing=this;
-			const markdown=(document.getElementById("typebox") as HTMLDivElement)["markdown"] as MarkDown;
-			markdown.txt=this.content.rawString.split("");
-			markdown.boxupdate(document.getElementById("typebox") as HTMLDivElement);
+			this.setEdit();
 		},null,function(){
 			return this.author.id===this.localuser.user.id;
 		});
@@ -76,6 +74,12 @@ class Message extends SnowFlake{
 		},null,function(){
 			return this.canDelete();
 		});
+	}
+	setEdit(){
+		this.channel.editing=this;
+		const markdown=(document.getElementById("typebox") as HTMLDivElement)["markdown"] as MarkDown;
+		markdown.txt=this.content.rawString.split("");
+		markdown.boxupdate(document.getElementById("typebox") as HTMLDivElement);
 	}
 	constructor(messagejson:messagejson,owner:Channel){
 		super(messagejson.id);
@@ -473,7 +477,66 @@ class Message extends SnowFlake{
 		this.reactdiv=new WeakRef(reactions);
 		this.updateReactions();
 		div.append(reactions);
+		this.bindButtonEvent();
 		return(div);
+	}
+	bindButtonEvent(){
+		if(this.div){
+			let buttons:HTMLDivElement|undefined;
+			this.div.onmouseenter=_=>{
+				if(buttons){
+					buttons.remove();
+					buttons=undefined;
+				}
+				if(this.div){
+					buttons=document.createElement("div");
+					buttons.classList.add("messageButtons","flexltr");
+					if(this.channel.hasPermission("SEND_MESSAGES")){
+						const container=document.createElement("div");
+						const reply=document.createElement("span");
+						reply.classList.add("svgtheme", "svg-reply", "svgicon");
+						container.append(reply);
+						buttons.append(container);
+						container.onclick=_=>{
+							this.channel.setReplying(this);
+						}
+					}
+					if(this.author===this.localuser.user){
+						const container=document.createElement("div");
+						const edit=document.createElement("span");
+						edit.classList.add("svgtheme", "svg-edit", "svgicon");
+						container.append(edit);
+						buttons.append(container);
+						container.onclick=_=>{
+							this.setEdit();
+						}
+					}
+					if(this.canDelete()){
+						const container=document.createElement("div");
+						const reply=document.createElement("span");
+						reply.classList.add("svgtheme", "svg-delete", "svgicon");
+						container.append(reply);
+						buttons.append(container);
+						container.onclick=_=>{
+							if(_.shiftKey){
+								this.delete();
+								return;
+							}
+							const diaolog=new Dialog(["hdiv",["title","are you sure you want to delete this?"],["button","","yes",()=>{this.delete();diaolog.hide()}],["button","","no",()=>{diaolog.hide()}]]);
+							diaolog.show();
+						}
+					}
+					console.log(buttons);
+					this.div.append(buttons);
+				}
+			}
+			this.div.onmouseleave=_=>{
+				if(buttons){
+					buttons.remove();
+					buttons=undefined;
+				}
+			}
+		}
 	}
 	updateReactions(){
 		const reactdiv=this.reactdiv.deref();
