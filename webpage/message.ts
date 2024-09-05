@@ -526,7 +526,6 @@ class Message extends SnowFlake{
 							diaolog.show();
 						}
 					}
-					console.log(buttons);
 					if(buttons.childNodes.length!==0){
 						this.div.append(buttons);
 					}
