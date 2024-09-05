@@ -1983,6 +1983,7 @@ form div{
 	cursor: pointer;
 	font-weight: bold;
 	font-style: italic;
+	width: auto;
 }
 .zeroheight{
 	height: 0px;
