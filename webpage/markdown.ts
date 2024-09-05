@@ -401,12 +401,13 @@ class MarkDown{
 				}
 				console.log("checking:"+build);
 				if(URL.canParse(build)){
+					appendcurrent();
 					const a=document.createElement("a");
 					//a.href=build;
 					MarkDown.safeLink(a,build);
 					a.textContent=build;
 					a.target="_blank";
-					i=j;
+					i=j-1;
 					span.appendChild(a);
 					continue;
 				}
