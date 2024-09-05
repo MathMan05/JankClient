@@ -468,7 +468,6 @@ class Message extends SnowFlake{
 			texttxt.append(time);
 			div.classList.add("topMessage");
 		}
-		div["all"]=this;
 		const reactions=document.createElement("div");
 		reactions.classList.add("flexltr","reactiondiv");
 		this.reactdiv=new WeakRef(reactions);
