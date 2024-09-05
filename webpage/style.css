@@ -91,7 +91,6 @@ video{
 	}
 }
 .messagediv{
-	overflow: hidden;
 	max-width:100%;
 	/* width: 9%; */
 	/* display: inline-block; */
@@ -103,6 +102,7 @@ video{
 	flex-shrink: 0;
 	width: 100%;
 	box-sizing: border-box;
+	position: relative;
 }
 pre {
 	background: var(--code-bg);
@@ -1577,6 +1577,15 @@ form div{
 .svg-announce{
 	mask: url(/icons/announce.svg);
 }
+.svg-edit{
+	mask: url(/icons/edit.svg);
+}
+.svg-reply{
+	mask: url(/icons/reply.svg);
+}
+.svg-delete{
+	mask: url(/icons/delete.svg);
+}
 .svg-category{
 	mask: url(/icons/category.svg);
 }
@@ -2087,3 +2096,21 @@ form div{
 	margin-left:.05in;
 }
 
+.messageButtons{
+	height:.24in;
+	position:absolute;
+	top:-.075in;
+	right:4px;
+	background:var(--settings-hover);
+	padding:.02in;
+	div{
+		span{
+			display:block;
+			width:.175in;
+			height:.175in;
+		}
+		padding:.0in;
+		margin:.02in;
+		box-sizing:border-box;
+	}
+}
