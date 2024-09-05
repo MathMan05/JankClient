@@ -51,7 +51,7 @@ async function observe(instances){
 				}
 			}catch{
 				if(tries>3){
-					setStatus(instance,req.ok);
+					setStatus(instance,false);
 				}else{
 					setTimeout(30000,()=>{
 						check(tries+1);
