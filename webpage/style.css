@@ -2107,20 +2107,27 @@ form div{
 }
 
 .messageButtons{
-	height:.24in;
+	height:.26in;
 	position:absolute;
-	top:-.075in;
+	top:-.13in;
 	right:4px;
 	background:var(--settings-hover);
 	padding:.02in;
+	border-radius:.03in;
 	div{
 		span{
 			display:block;
 			width:.175in;
 			height:.175in;
 		}
-		padding:.0in;
+		border-radius:.02in;
+		padding:.03in;
 		margin:.02in;
 		box-sizing:border-box;
+		cursor:pointer;
+		background:var(--primary-bg)
+	}
+	div:hover{
+		background:var(--message-bg-hover);
 	}
 }
