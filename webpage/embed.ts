@@ -24,7 +24,6 @@ class Embed{
 		case"link":
 			return this.generateLink();
 		case "video":
-			console.log(this);
 		case"article":
 			return this.generateArticle();
 		default:
