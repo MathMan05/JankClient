@@ -388,7 +388,7 @@ class MarkDown{
 					continue;
 				}
 			}
-			if(txt[i]==="h" && txt[i + 1]==="t" && txt[i + 2]==="t" && txt[i + 3]==="p"){
+			if((!keep)&&txt[i]==="h" && txt[i + 1]==="t" && txt[i + 2]==="t" && txt[i + 3]==="p"){
 				let build="http";
 				let j = i+4;
 				const endchars=new Set(["\\", "<", ">", "|", "]"," "]);
