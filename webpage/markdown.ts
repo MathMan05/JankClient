@@ -503,19 +503,22 @@ class MarkDown{
 
 				if(partsFound === 2){
 					appendcurrent();
-					i=j;
+
 
 					const parts=build.join("").match(/^\[(.+)\]\((https?:.+?)( ('|").+('|"))?\)$/);
 					if(parts){
 						const linkElem=document.createElement("a");
-						MarkDown.safeLink(linkElem,parts[2])
-						linkElem.textContent=parts[1];
-						linkElem.target="_blank";
-						linkElem.rel="noopener noreferrer";
-						linkElem.title=(parts[3] ? parts[3].substring(2, parts[3].length - 1)+"\n\n" : "") + parts[2];
-						span.appendChild(linkElem);
+						if(URL.canParse(parts[2])){
+							i=j;
+							MarkDown.safeLink(linkElem,parts[2])
+							linkElem.textContent=parts[1];
+							linkElem.target="_blank";
+							linkElem.rel="noopener noreferrer";
+							linkElem.title=(parts[3] ? parts[3].substring(2, parts[3].length - 1)+"\n\n" : "") + parts[2];
+							span.appendChild(linkElem);
 
-						continue;
+							continue;
+						}
 					}
 				}
 			}
