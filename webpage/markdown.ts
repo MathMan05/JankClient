@@ -408,8 +408,9 @@ class MarkDown{
 					a.target="_blank";
 					i=j;
 					span.appendChild(a);
+					continue;
 				}
-				continue;
+
 			}
 			if(txt[i]==="<" && txt[i + 1]==="t" && txt[i + 2]===":"){
 				let found=false;
