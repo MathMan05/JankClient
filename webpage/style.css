@@ -1035,7 +1035,17 @@ span {
 }
 
 .cunread {
-	box-shadow: inset .024in 0 var(--primary-text);
+	position: relative;
+}
+.cunread:after {
+	content: '';
+	position: absolute;
+	top: .13in;
+	left: -.082in;
+	height: .075in;
+	width: .075in;
+	background: var(--primary-text);
+	border-radius: 50%;
 }
 
 .servernoti {
