@@ -332,6 +332,12 @@ type embedjson={
     },
     provider:{
         name:string,
+    },
+    video:{
+        url: string,
+        width?: number|null,
+        height?: number|null,
+        proxy_url?: string
     }
 }
 type presencejson={
