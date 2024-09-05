@@ -60,7 +60,7 @@ class Embed {
             const a = document.createElement("a");
             a.textContent = this.json.author.name;
             if (this.json.author.url) {
-                a.href = this.json.author.url;
+                MarkDown.safeLink(a, this.json.author.url);
             }
             a.classList.add("username");
             authorline.append(a);
@@ -70,7 +70,7 @@ class Embed {
             const title = document.createElement("a");
             title.append(new MarkDown(this.json.title, this.channel).makeHTML());
             if (this.json.url) {
-                title.href = this.json.url;
+                MarkDown.safeLink(title, this.json.url);
             }
             title.classList.add("embedtitle");
             embed.append(title);
@@ -155,7 +155,7 @@ class Embed {
         if (this.json.url && this.json.title) {
             const td = document.createElement("td");
             const a = document.createElement("a");
-            a.href = this.json.url;
+            MarkDown.safeLink(a, this.json.url);
             a.textContent = this.json.title;
             td.append(a);
             trtop.append(td);
@@ -199,7 +199,7 @@ class Embed {
         }
         const a = document.createElement("a");
         if (this.json.url && this.json.url) {
-            a.href = this.json.url;
+            MarkDown.safeLink(a, this.json.url);
             a.textContent = this.json.url;
             div.append(a);
         }
