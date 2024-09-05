@@ -168,6 +168,7 @@ samp {
 a {
 	color: var(--link);
 	text-decoration: none;
+	cursor: pointer;
 }
 
 a:hover {
@@ -923,7 +924,7 @@ input[type="checkbox"] {
 }
 
 .quote {
-	display: flex;
+	display: inline-flex;
 	width: fit-content;
 	position: relative;
 }

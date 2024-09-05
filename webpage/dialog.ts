@@ -232,7 +232,7 @@ class Dialog{
 			return table;
 		}
 		default:
-			console.error("can't find element:"+array[0],"  full element:"+array);
+			console.error("can't find element:"+array[0],"  full element:",array);
 		}
 	}
 	show(){
