@@ -25,6 +25,7 @@ body {
 video{
 	max-width: 3in;
 	max-height: 4in;
+	height: 2.5in;
 }
 .collapse{
 	width:0px !important;
