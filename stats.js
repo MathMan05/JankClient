@@ -45,17 +45,17 @@ async function observe(instances){
 				if(tries>3||req.ok){
 					setStatus(instance,req.ok);
 				}else{
-					setTimeout(30000,()=>{
+					setTimeout(()=>{
 						check(tries+1);
-					})
+					},30000)
 				}
 			}catch{
 				if(tries>3){
 					setStatus(instance,false);
 				}else{
-					setTimeout(30000,()=>{
+					setTimeout(()=>{
 						check(tries+1);
-					})
+					},30000)
 				}
 			}
 		}
