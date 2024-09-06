@@ -90,7 +90,6 @@ class Guild extends SnowFlake {
         this.properties = json.properties;
         this.roles = [];
         this.roleids = new Map();
-        this.prevchannel = undefined;
         this.message_notifications = 0;
         for (const roley of json.roles) {
             const roleh = new Role(roley, this);
@@ -127,6 +126,7 @@ class Guild extends SnowFlake {
                 this.headchannels.push(thing);
             }
         }
+        this.prevchannel = this.channelids[this.perminfo.prevchannel];
     }
     get perminfo() {
         return this.localuser.perminfo.guilds[this.id];
