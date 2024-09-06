@@ -8,6 +8,7 @@ function setTheme() {
     }
     document.body.className = name + "-theme";
 }
+let instances;
 setTheme();
 function getBulkUsers() {
     const json = getBulkInfo();
@@ -418,8 +419,12 @@ trimswitcher();
 export { mobile, getBulkUsers, getBulkInfo, setTheme, Specialuser, getapiurls, adduser };
 const datalist = document.getElementById("instances");
 console.warn(datalist);
-if (datalist) {
-    fetch("/instances.json").then(_ => _.json()).then((json) => {
+export function getInstances() {
+    return instances;
+}
+fetch("/instances.json").then(_ => _.json()).then((json) => {
+    instances = json;
+    if (datalist) {
         console.warn(json);
         if (instancein && instancein.value === "") {
             instancein.value = json[0].name;
@@ -452,5 +457,5 @@ if (datalist) {
             datalist.append(option);
         }
         checkInstance("");
-    });
-}
+    }
+});

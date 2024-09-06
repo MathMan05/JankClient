@@ -333,12 +333,78 @@ type embedjson={
     provider:{
         name:string,
     },
-    video:{
+    video?:{
         url: string,
         width?: number|null,
         height?: number|null,
         proxy_url?: string
+    },
+    invite?:{
+        url:string,
+        code:string
     }
+}
+type invitejson={
+    code: string,
+    temporary: boolean,
+    uses: number,
+    max_use: number,
+    max_age: number,
+    created_at: string,
+    expires_at: string,
+    guild_id: string,
+    channel_id: string,
+    inviter_id: string,
+    target_user_id: string|null,
+    target_user_type: string|null,
+    vanity_url: string|null,
+    flags: number,
+    guild: {
+        id: string,
+        afk_channel_id: string|null,
+        afk_timeout: number,
+        banner: string|null,
+        default_message_notifications: number,
+        description: string|null,
+        discovery_splash: string|null,
+        explicit_content_filter: number,
+        features: [],
+        primary_category_id: string|null,
+        icon: string|null,
+        large: boolean,
+        max_members: number,
+        max_presences: number,
+        max_video_channel_users: number,
+        member_count: number,
+        presence_count: number,
+        template_id: string|null,
+        mfa_level: number,
+        name: string,
+        owner_id: string,
+        preferred_locale: string,
+        premium_subscription_count: number,
+        premium_tier: number,
+        public_updates_channel_id: string|null,
+        rules_channel_id: string|null,
+        region: string|null,
+        splash: string|null,
+        system_channel_id: string|null,
+        system_channel_flags: number,
+        verification_level: number,
+        welcome_screen: {
+            enabled: boolean,
+            description: string,
+            welcome_channels: string[]
+        },
+        widget_channel_id: string|null,
+        widget_enabled: boolean,
+        nsfw_level: number,
+        nsfw: boolean,
+        parent: string|null,
+        premium_progress_bar_enabled: boolean
+    },
+    channel: channeljson,
+    inviter: userjson
 }
 type presencejson={
     status: string,
@@ -426,4 +492,4 @@ type memberChunk={
     chunk_count: number,
     not_found: string[]
 }
-export{readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson,emojijson,presencejson,wsjson,messageCreateJson,memberChunk};
+export{readyjson,dirrectjson,channeljson,guildjson,rolesjson,userjson,memberjson,mainuserjson,messagejson,filejson,embedjson,emojijson,presencejson,wsjson,messageCreateJson,memberChunk,invitejson};
