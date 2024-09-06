@@ -264,38 +264,61 @@ class Guild extends SnowFlake {
             return a.position - b.position;
         });
     }
-    generateGuildIcon() {
+    static generateGuildIcon(guild) {
         const divy = document.createElement("div");
         divy.classList.add("servernoti");
         const noti = document.createElement("div");
         noti.classList.add("unread");
         divy.append(noti);
-        this.localuser.guildhtml.set(this.id, divy);
-        if (this.properties.icon != null) {
+        if (guild instanceof Guild) {
+            guild.localuser.guildhtml.set(guild.id, divy);
+        }
+        let icon;
+        if (guild instanceof Guild) {
+            icon = guild.properties.icon;
+        }
+        else {
+            icon = guild.icon;
+        }
+        if (icon !== null) {
             const img = document.createElement("img");
             img.classList.add("pfp", "servericon");
-            img.src = this.info.cdn + "/icons/" + this.properties.id + "/" + this.properties.icon + ".png";
+            img.src = guild.info.cdn + "/icons/" + guild.id + "/" + icon + ".png";
             divy.appendChild(img);
-            img.onclick = () => {
-                console.log(this.loadGuild);
-                this.loadGuild();
-                this.loadChannel();
-            };
-            Guild.contextmenu.bindContextmenu(img, this, undefined);
+            if (guild instanceof Guild) {
+                img.onclick = () => {
+                    console.log(guild.loadGuild);
+                    guild.loadGuild();
+                    guild.loadChannel();
+                };
+                Guild.contextmenu.bindContextmenu(img, guild, undefined);
+            }
         }
         else {
             const div = document.createElement("div");
-            const build = this.properties.name.replace(/'s /g, " ").replace(/\w+/g, word => word[0]).replace(/\s/g, "");
+            let name;
+            if (guild instanceof Guild) {
+                name = guild.properties.name;
+            }
+            else {
+                name = guild.name;
+            }
+            const build = name.replace(/'s /g, " ").replace(/\w+/g, word => word[0]).replace(/\s/g, "");
             div.textContent = build;
             div.classList.add("blankserver", "servericon");
             divy.appendChild(div);
-            div.onclick = () => {
-                this.loadGuild();
-                this.loadChannel();
-            };
-            Guild.contextmenu.bindContextmenu(div, this, undefined);
+            if (guild instanceof Guild) {
+                div.onclick = () => {
+                    guild.loadGuild();
+                    guild.loadChannel();
+                };
+                Guild.contextmenu.bindContextmenu(div, guild, undefined);
+            }
         }
         return divy;
+    }
+    generateGuildIcon() {
+        return Guild.generateGuildIcon(this);
     }
     confirmDelete() {
         let confirmname = "";

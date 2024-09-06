@@ -1478,7 +1478,6 @@ span {
 	width: 100%;
 	flex-direction: column;
 	max-height:100in;
-	justify-content: flex-end;
 }
 
 #connection-container, #app-list-container {
@@ -1876,7 +1875,6 @@ form div{
 }
 .banner{
 	position:absolute;
-	z-index: 0;
 	top:0;
 	left:0;
 	width:100%;
@@ -2131,4 +2129,64 @@ form div{
 	div:hover{
 		background:var(--message-bg-hover);
 	}
+}
+.acceptinvbutton{
+	background:var(--green);
+	width: 95%;
+	text-align:center;
+	font-size:.25in;
+	box-sizing: border-box;
+	margin: .1in;
+}
+.acceptinvbutton:hover{
+	background:color-mix(in hsl,var(--green) 80%,var(--black));
+}
+.acceptinvbutton:disabled:hover{
+	background:color-mix(in hsl,var(--green) 80%,var(--black));
+}
+.acceptinvbutton:disabled{
+	background:color-mix(in hsl,var(--green) 80%,var(--black));
+}
+.inviteEmbed{
+	border: solid .035in var(--black);
+	gap: .075in;
+	min-width:4in;
+	max-width:6in;
+	min-height: 1.5in;
+	display: flex;
+	align-items: center;
+	position: relative;
+	.banner{
+	height: .5in;
+	position: relative;
+	}
+;
+	padding: 0in;
+}
+.inviteEmbed .flexltr {
+    display: flex;
+    flex-wrap: nowrap;
+}
+.inviteEmbed .invguildinfo{
+	display:flex;
+	justify-content: center;
+	margin-left: .15in;
+	background: var(--channels-bg);
+	border: solid .03in var(--black);
+	border-radius: .1in;
+	padding: .07in;
+	flex-grow: 1;
+	height: fit-content;
+	backdrop-filter: blur(5px);
+	margin-right: .15in;
+}
+.subtext{
+	color:color-mix(in srgb, var(--black),var(--primary-text) 65%);
+}
+.flexstart{
+	align-self:start;
+	z-index: 1;
+	margin-left: .04in;
+	margin-top: .04in;
+	width: 100%;
 }

@@ -10,6 +10,11 @@ function setTheme(){
 	}
 	document.body.className=name+"-theme";
 }
+let instances:{name:string,description?:string,descriptionLong?:string,image?:string,url?:string,display?:boolean,online?:boolean,
+    uptime:{alltime:number,daytime:number,weektime:number},
+    urls:{wellknown:string,api:string,cdn:string,gateway:string,login?:string}}[]|null;
+
+
 setTheme();
 function getBulkUsers(){
 	const json=getBulkInfo();
@@ -407,8 +412,15 @@ export{mobile, getBulkUsers,getBulkInfo,setTheme,Specialuser,getapiurls,adduser}
 
 const datalist=document.getElementById("instances");
 console.warn(datalist);
-if(datalist){
-	fetch("/instances.json").then(_=>_.json()).then((json:{name:string,online:boolean,description?:string,src?:string,url?:string,display?:boolean,urls:{wellknown:string,api:string,cdn:string,gateway:string,login?:string}}[])=>{
+export function getInstances(){
+	return instances;
+}
+
+fetch("/instances.json").then(_=>_.json()).then((json:{name:string,description?:string,descriptionLong?:string,image?:string,url?:string,display?:boolean,online?:boolean,
+uptime:{alltime:number,daytime:number,weektime:number},
+urls:{wellknown:string,api:string,cdn:string,gateway:string,login?:string}}[])=>{
+	instances=json;
+	if(datalist){
 		console.warn(json);
 		if(instancein&&instancein.value===""){
 			instancein.value=json[0].name;
@@ -438,5 +450,5 @@ if(datalist){
 			datalist.append(option);
 		}
 		checkInstance("");
-	});
-}
+	}
+});
