@@ -676,6 +676,8 @@ class Channel extends SnowFlake {
             this.myhtml.classList.add("viewChannel");
         }
         this.guild.prevchannel = this;
+        this.guild.perminfo.prevchannel = this.id;
+        this.localuser.userinfo.updateLocal();
         this.localuser.channelfocus = this;
         const prom = this.infinite.delete();
         history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id);
