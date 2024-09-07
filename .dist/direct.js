@@ -4,7 +4,9 @@ import { Message } from "./message.js";
 import { User } from "./user.js";
 import { Permissions } from "./permissions.js";
 import { SnowFlake } from "./snowflake.js";
+import { Contextmenu } from "./contextmenu.js";
 class Direct extends Guild {
+    channelids;
     constructor(json, owner) {
         super(-1, owner, null);
         this.message_notifications = 0;
@@ -34,6 +36,13 @@ class Direct extends Guild {
         this.sortchannels();
         this.printServers();
         return thischannel;
+    }
+    delChannel(json) {
+        const channel = this.channelids[json.id];
+        super.delChannel(json);
+        if (channel) {
+            channel.del();
+        }
     }
     giveMember(_member) {
         console.error("not a real guild, can't give member object");
@@ -76,6 +85,21 @@ dmPermissions.setPermission("STREAM", 1);
 dmPermissions.setPermission("USE_VAD", 1);
 class Group extends Channel {
     user;
+    static contextmenu = new Contextmenu("channel menu");
+    static setupcontextmenu() {
+        this.contextmenu.addbutton("Copy DM id", function () {
+            navigator.clipboard.writeText(this.id);
+        });
+        this.contextmenu.addbutton("Mark as read", function () {
+            this.readbottom();
+        });
+        this.contextmenu.addbutton("Close DM", function () {
+            this.deleteChannel();
+        });
+        this.contextmenu.addbutton("Copy user ID", function () {
+            navigator.clipboard.writeText(this.user.id);
+        });
+    }
     constructor(json, owner) {
         super(-1, owner, json.id);
         this.owner = owner;
@@ -109,6 +133,7 @@ class Group extends Channel {
     }
     createguildHTML() {
         const div = document.createElement("div");
+        Group.contextmenu.bindContextmenu(div, this, undefined);
         this.html = new WeakRef(div);
         div.classList.add("channeleffects");
         const myhtml = document.createElement("span");
@@ -202,6 +227,15 @@ class Group extends Channel {
     }
     all = new WeakRef(document.createElement("div"));
     noti = new WeakRef(document.createElement("div"));
+    del() {
+        const all = this.all.deref();
+        if (all) {
+            all.remove();
+        }
+        if (this.myhtml) {
+            this.myhtml.remove();
+        }
+    }
     unreads() {
         const sentdms = document.getElementById("sentdms"); //Need to change sometime
         const current = this.all.deref();
@@ -244,3 +278,4 @@ class Group extends Channel {
     }
 }
 export { Direct, Group };
+Group.setupcontextmenu();
