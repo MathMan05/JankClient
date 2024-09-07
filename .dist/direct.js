@@ -123,21 +123,27 @@ class Group extends Channel {
     }
     async getHTML() {
         const id = ++Channel.genid;
+        if (this.localuser.channelfocus) {
+            this.localuser.channelfocus.infinite.delete();
+        }
         if (this.guild !== this.localuser.lookingguild) {
             this.guild.loadGuild();
         }
         this.guild.prevchannel = this;
         this.localuser.channelfocus = this;
         const prom = this.infinite.delete();
+        history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id);
+        this.localuser.pageTitle("@" + this.name);
+        document.getElementById("channelTopic").setAttribute("hidden", "");
+        const loading = document.getElementById("loadingdiv");
+        Channel.regenLoadingMessages();
+        loading.classList.add("loading");
         await this.putmessages();
         await prom;
         if (id !== Channel.genid) {
             return;
         }
         this.buildmessages();
-        history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id);
-        this.localuser.pageTitle("@" + this.name);
-        document.getElementById("channelTopic").setAttribute("hidden", "");
         document.getElementById("typebox").contentEditable = "" + true;
     }
     messageCreate(messagep) {
