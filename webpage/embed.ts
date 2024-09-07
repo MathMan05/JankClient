@@ -365,14 +365,16 @@ class Embed{
 			img.classList.add("bigembedimg");
 			if(this.json.video){
 				img.onclick=async ()=>{
-					img.remove();
-					const iframe=document.createElement("iframe");
-					iframe.src=this.json.video.url+"?autoplay=1";
-					if(this.json.thumbnail.width&&this.json.thumbnail.width){
-						iframe.style.width=this.json.thumbnail.width+"px";
-						iframe.style.height=this.json.thumbnail.height+"px";
+					if(this.json.video){
+						img.remove();
+						const iframe=document.createElement("iframe");
+						iframe.src=this.json.video.url+"?autoplay=1";
+						if(this.json.thumbnail.width&&this.json.thumbnail.width){
+							iframe.style.width=this.json.thumbnail.width+"px";
+							iframe.style.height=this.json.thumbnail.height+"px";
+						}
+						div.append(iframe);
 					}
-					div.append(iframe);
 				};
 			}else{
 				img.onclick=async ()=>{

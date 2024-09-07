@@ -483,6 +483,7 @@ class Guild extends SnowFlake{
 		}
 		this.calculateReorder();
 		this.printServers();
+		return thischannel;
 	}
 	createchannels(func=this.createChannel){
 		let name="";

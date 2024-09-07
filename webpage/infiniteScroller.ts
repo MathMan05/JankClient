@@ -24,14 +24,17 @@ class InfiniteScroller{
 		scroll.classList.add("flexttb","scroller");
 		div.appendChild(scroll);
 		this.div=div;
+		this.beenloaded=false;
 		//this.interval=setInterval(this.updatestuff.bind(this,true),100);
 
 		this.scroll=scroll;
 		this.div.addEventListener("scroll",_=>{
+			this.checkscroll();
 			if(this.scroll)this.scrollTop=this.scroll.scrollTop;
 			this.watchForChange();
 		});
 		this.scroll.addEventListener("scroll",_=>{
+			this.checkscroll();
 			if(this.timeout===null){
 				this.timeout=setTimeout(this.updatestuff.bind(this),300);
 			}
@@ -41,6 +44,8 @@ class InfiniteScroller{
 		{
 			let oldheight=0;
 			new ResizeObserver(_=>{
+				this.checkscroll();
+				const func=this.snapBottom();
 				this.updatestuff();
 				const change=oldheight-div.offsetHeight;
 				if(change>0&&this.scroll){
@@ -48,6 +53,7 @@ class InfiniteScroller{
 				}
 				oldheight=div.offsetHeight;
 				this.watchForChange();
+				func();
 			}).observe(div);
 		}
 		new ResizeObserver(this.watchForChange.bind(this)).observe(scroll);
@@ -56,13 +62,21 @@ class InfiniteScroller{
 		this.updatestuff();
 		await this.watchForChange().then(_=>{
 			this.updatestuff();
+			this.beenloaded=true;
 		});
 		return div;
 	}
+	beenloaded=false;
 	scrollBottom:number;
 	scrollTop:number;
 	needsupdate=true;
 	averageheight:number=60;
+	checkscroll(){
+		if(this.beenloaded&&this.scroll&&!document.body.contains(this.scroll)){
+			this.scroll=null;
+			this.div=null;
+		}
+	}
 	async updatestuff(){
 		this.timeout=null;
 		if(!this.scroll)return;

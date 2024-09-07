@@ -32,7 +32,7 @@ class Channel extends SnowFlake{
 	permission_overwritesar:[Role,Permissions][];
 	topic:string;
 	nsfw:boolean;
-	position:number;
+	position:number=0;
 	lastreadmessageid:string|undefined;
 	lastmessageid:string|undefined;
 	mentions:number;
@@ -353,8 +353,10 @@ class Channel extends SnowFlake{
 		return build;
 	}
 	static dragged:[Channel,HTMLDivElement]|[]=[];
+	html:WeakRef<HTMLElement>|undefined;
 	createguildHTML(admin=false):HTMLDivElement{
 		const div=document.createElement("div");
+		this.html=new WeakRef(div);
 		if(!this.hasPermission("VIEW_CHANNEL")){
 			let quit=true;
 			for(const thing of this.children){
@@ -470,27 +472,11 @@ class Channel extends SnowFlake{
 		return div;
 	}
 	get myhtml(){
-		const search=(document.getElementById("channels") as HTMLDivElement).children[0].children;
-		if(this.guild!==this.localuser.lookingguild){
-			return null;
-		}else if(this.parent){
-			for(const thing of search){
-				if(thing["all"]===this.parent){
-					for(const thing2 of thing.children[1].children){
-						if(thing2["all"]===this){
-							return thing2;
-						}
-					}
-				}
-			}
+		if(this.html){
+			return this.html.deref();
 		}else{
-			for(const thing of search){
-				if(thing["all"]===this){
-					return thing;
-				}
-			}
+			return undefined
 		}
-		return null;
 	}
 	readbottom(){
 		if(!this.hasunreads){
@@ -503,7 +489,7 @@ class Channel extends SnowFlake{
 		});
 		this.lastreadmessageid=this.lastmessageid;
 		this.guild.unreads();
-		if(this.myhtml!==null){
+		if(this.myhtml){
 			this.myhtml.classList.remove("cunread");
 		}
 	}
@@ -673,11 +659,11 @@ class Channel extends SnowFlake{
 	static genid:number=0;
 	async getHTML(){
 		const id=++Channel.genid;
-		if(this.guild!==this.localuser.lookingguild){
-			this.guild.loadGuild();
-		}
 		if(this.localuser.channelfocus){
 			this.localuser.channelfocus.infinite.delete();
+		}
+		if(this.guild!==this.localuser.lookingguild){
+			this.guild.loadGuild();
 		}
 		if(this.localuser.channelfocus&&this.localuser.channelfocus.myhtml){
 			this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
@@ -857,7 +843,7 @@ class Channel extends SnowFlake{
 		this.tryfocusinfinate();
 	}
 	infinitefocus=false;
-	private async tryfocusinfinate(){
+	async tryfocusinfinate(){
 		if(this.infinitefocus)return;
 		this.infinitefocus=true;
 		const messages=document.getElementById("channelw") as HTMLDivElement;
