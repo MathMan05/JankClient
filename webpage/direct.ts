@@ -3,11 +3,13 @@ import{ Channel }from"./channel.js";
 import{ Message }from"./message.js";
 import{ Localuser }from"./localuser.js";
 import{User}from"./user.js";
-import{ dirrectjson, memberjson, messagejson }from"./jsontypes.js";
+import{ channeljson, dirrectjson, memberjson, messagejson }from"./jsontypes.js";
 import{ Permissions }from"./permissions.js";
 import { SnowFlake } from "./snowflake.js";
+import { Contextmenu } from "./contextmenu.js";
 
 class Direct extends Guild{
+	channelids:{[key:string]:Group};
 	constructor(json:dirrectjson[],owner:Localuser){
 		super(-1,owner,null);
 		this.message_notifications=0;
@@ -37,6 +39,13 @@ class Direct extends Guild{
 		this.sortchannels();
 		this.printServers();
 		return thischannel;
+	}
+	delChannel(json:channeljson){
+		const channel=this.channelids[json.id];
+		super.delChannel(json);
+		if(channel){
+			channel.del();
+		}
 	}
 	giveMember(_member:memberjson){
 		console.error("not a real guild, can't give member object");
@@ -82,6 +91,24 @@ dmPermissions.setPermission("USE_VAD",1);
 
 class Group extends Channel{
 	user:User;
+	static contextmenu=new Contextmenu<Group,undefined>("channel menu");
+	static setupcontextmenu(){
+		this.contextmenu.addbutton("Copy DM id",function(this:Group){
+			navigator.clipboard.writeText(this.id);
+		});
+
+		this.contextmenu.addbutton("Mark as read",function(this:Group){
+			this.readbottom();
+		});
+
+		this.contextmenu.addbutton("Close DM",function(this:Group){
+			this.deleteChannel();
+		});
+
+		this.contextmenu.addbutton("Copy user ID",function(){
+			navigator.clipboard.writeText(this.user.id);
+		})
+	}
 	constructor(json:dirrectjson,owner:Direct){
 		super(-1,owner,json.id);
 		this.owner=owner;
@@ -113,6 +140,7 @@ class Group extends Channel{
 	}
 	createguildHTML(){
 		const div=document.createElement("div");
+		Group.contextmenu.bindContextmenu(div,this,undefined);
 		this.html=new WeakRef(div);
 		div.classList.add("channeleffects");
 		const myhtml=document.createElement("span");
@@ -123,6 +151,7 @@ class Group extends Channel{
 		div.onclick=_=>{
 			this.getHTML();
 		};
+
 		return div;
 	}
 	async getHTML(){
@@ -205,6 +234,15 @@ class Group extends Channel{
 	}
 	all:WeakRef<HTMLElement>=new WeakRef(document.createElement("div"));
 	noti:WeakRef<HTMLElement>=new WeakRef(document.createElement("div"));
+	del(){
+		const all=this.all.deref();
+		if(all){
+			all.remove();
+		}
+		if(this.myhtml){
+			this.myhtml.remove();
+		}
+	}
 	unreads(){
 		const sentdms=document.getElementById("sentdms") as HTMLDivElement;//Need to change sometime
 		const current=this.all.deref();
@@ -246,3 +284,4 @@ class Group extends Channel{
 	}
 }
 export{Direct, Group};
+Group.setupcontextmenu();
