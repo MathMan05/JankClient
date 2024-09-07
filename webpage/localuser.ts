@@ -32,7 +32,6 @@ class Localuser{
 	lookingguild:Guild|null;
 	guildhtml:Map<string, HTMLDivElement>;
 	ws:WebSocket|undefined;
-	typing:Map<Member,number>=new Map();
 	connectionSucceed=0;
 	errorBackoff=0;
 	readonly userMap=new Map<string,User>();
@@ -778,20 +777,13 @@ class Localuser{
 		}
 	}
 	async typingStart(typing):Promise<void>{
-		if(this.channelfocus?.id===typing.d.channel_id){
-			const guild=this.guildids.get(typing.d.guild_id);
-			if(!guild)return;
-			const memb=await Member.new(typing.d.member,guild);
-			if(!memb)return;
-			if(memb.id===this.user.id){
-				console.log("you is typing");
-				return;
-			}
-			console.log("user is typing and you should see it");
-			this.typing.set(memb,Date.now());
-			setTimeout(this.rendertyping.bind(this),10000);
-			this.rendertyping();
-		}
+		//
+		const guild=this.guildids.get(typing.d.guild_id);
+		if(!guild)return;
+		const channel=guild.channelids[typing.d.channel_id];
+		if(!channel) return;
+		channel.typingStart(typing);
+		//this.typing.set(memb,Date.now());
 	}
 	updatepfp(file:Blob):void{
 		const reader = new FileReader();
@@ -835,41 +827,6 @@ class Localuser{
 			headers: this.headers,
 			body: JSON.stringify(json)
 		});
-	}
-	rendertyping():void{
-		const typingtext=document.getElementById("typing") as HTMLDivElement;
-		let build="";
-		let showing=false;
-		let i=0;
-		const curtime=Date.now()-5000;
-		for(const thing of this.typing.keys()){
-			if(this.typing.get(thing) as number>curtime){
-				if(i!==0){
-					build+=", ";
-				}
-				i++;
-				if(thing.nick){
-					build+=thing.nick;
-				}else{
-					build+=thing.user.username;
-				}
-				showing=true;
-			}else{
-				this.typing.delete(thing);
-			}
-		}
-		if(i>1){
-			build+=" are typing";
-		}else{
-			build+=" is typing";
-		}
-		if(showing){
-			typingtext.classList.remove("hidden");
-			const typingtext2=document.getElementById("typingtext") as HTMLDivElement;
-			typingtext2.textContent=build;
-		}else{
-			typingtext.classList.add("hidden");
-		}
 	}
 	async showusersettings(){
 		const settings=new Settings("Settings");
