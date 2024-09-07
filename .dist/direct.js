@@ -179,6 +179,7 @@ class Group extends Channel {
             }
             this.infinite.addedBottom();
         }
+        this.unreads();
         if (messagez.author === this.localuser.user) {
             return;
         }
@@ -195,28 +196,32 @@ class Group extends Channel {
     notititle(message) {
         return message.author.username;
     }
+    readbottom() {
+        super.readbottom();
+        this.unreads();
+    }
+    all = new WeakRef(document.createElement("div"));
+    noti = new WeakRef(document.createElement("div"));
     unreads() {
         const sentdms = document.getElementById("sentdms"); //Need to change sometime
-        let current = null;
-        for (const thing of sentdms.children) {
-            if (thing["all"] === this) {
-                current = thing;
-            }
-        }
+        const current = this.all.deref();
         if (this.hasunreads) {
-            if (current) {
-                current["noti"].textContent = this.mentions;
-                return;
+            {
+                const noti = this.noti.deref();
+                if (noti) {
+                    noti.textContent = this.mentions + "";
+                    return;
+                }
             }
             const div = document.createElement("div");
             div.classList.add("servernoti");
             const noti = document.createElement("div");
             noti.classList.add("unread", "notiunread", "pinged");
             noti.textContent = "" + this.mentions;
-            div["noti"] = noti;
+            this.noti = new WeakRef(noti);
             div.append(noti);
             const buildpfp = this.user.buildpfp();
-            div["all"] = this;
+            this.all = new WeakRef(div);
             buildpfp.classList.add("mentioned");
             div.append(buildpfp);
             sentdms.append(div);
