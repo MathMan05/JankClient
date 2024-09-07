@@ -9,6 +9,7 @@ import { RoleList } from "./role.js";
 import { InfiniteScroller } from "./infiniteScroller.js";
 import { SnowFlake } from "./snowflake.js";
 import { MarkDown } from "./markdown.js";
+import { Member } from "./member.js";
 class Channel extends SnowFlake {
     editing;
     type;
@@ -677,6 +678,7 @@ class Channel extends SnowFlake {
         const loading = document.getElementById("loadingdiv");
         Channel.regenLoadingMessages();
         loading.classList.add("loading");
+        this.rendertyping();
         await this.putmessages();
         await prom;
         if (id !== Channel.genid) {
@@ -686,6 +688,61 @@ class Channel extends SnowFlake {
         await this.buildmessages();
         //loading.classList.remove("loading");
         document.getElementById("typebox").contentEditable = "" + this.canMessage;
+    }
+    typingmap = new Map();
+    async typingStart(typing) {
+        const memb = await Member.new(typing.d.member, this.guild);
+        if (!memb)
+            return;
+        if (memb.id === this.localuser.user.id) {
+            console.log("you is typing");
+            return;
+        }
+        console.log("user is typing and you should see it");
+        this.typingmap.set(memb, Date.now());
+        setTimeout(this.rendertyping.bind(this), 10000);
+        this.rendertyping();
+    }
+    rendertyping() {
+        const typingtext = document.getElementById("typing");
+        let build = "";
+        let showing = false;
+        let i = 0;
+        const curtime = Date.now() - 5000;
+        for (const thing of this.typingmap.keys()) {
+            if (this.typingmap.get(thing) > curtime) {
+                if (i !== 0) {
+                    build += ", ";
+                }
+                i++;
+                if (thing.nick) {
+                    build += thing.nick;
+                }
+                else {
+                    build += thing.user.username;
+                }
+                showing = true;
+            }
+            else {
+                this.typingmap.delete(thing);
+            }
+        }
+        if (i > 1) {
+            build += " are typing";
+        }
+        else {
+            build += " is typing";
+        }
+        if (this.localuser.channelfocus === this) {
+            if (showing) {
+                typingtext.classList.remove("hidden");
+                const typingtext2 = document.getElementById("typingtext");
+                typingtext2.textContent = build;
+            }
+            else {
+                typingtext.classList.add("hidden");
+            }
+        }
     }
     static regenLoadingMessages() {
         const loading = document.getElementById("loadingdiv");

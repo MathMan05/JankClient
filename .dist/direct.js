@@ -138,6 +138,7 @@ class Group extends Channel {
         const loading = document.getElementById("loadingdiv");
         Channel.regenLoadingMessages();
         loading.classList.add("loading");
+        this.rendertyping();
         await this.putmessages();
         await prom;
         if (id !== Channel.genid) {
