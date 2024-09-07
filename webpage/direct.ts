@@ -32,10 +32,11 @@ class Direct extends Guild{
 	}
 	createChannelpac(json){
 		const thischannel=new Group(json,this);
-		this.channelids[json.id]=thischannel;
+		this.channelids[thischannel.id]=thischannel;
 		this.channels.push(thischannel);
-		this.calculateReorder();
+		this.sortchannels();
 		this.printServers();
+		return thischannel;
 	}
 	giveMember(_member:memberjson){
 		console.error("not a real guild, can't give member object");
@@ -100,14 +101,19 @@ class Group extends Channel{
 		this.lastmessageid=json.last_message_id;
 		this.mentions=0;
 		this.setUpInfiniteScroller();
+		this.updatePosition();
+	}
+	updatePosition(){
 		if(this.lastmessageid){
 			this.position=SnowFlake.stringToUnixTime(this.lastmessageid);
+		}else{
+			this.position=0;
 		}
-
 		this.position=-Math.max(this.position,this.getUnixTime());
 	}
 	createguildHTML(){
 		const div=document.createElement("div");
+		this.html=new WeakRef(div);
 		div.classList.add("channeleffects");
 		const myhtml=document.createElement("span");
 		myhtml.textContent=this.name;
@@ -156,7 +162,19 @@ class Group extends Channel{
 			}
 		}
 		this.unreads();
+		this.updatePosition();
 		this.infinite.addedBottom();
+		this.guild.sortchannels();
+		if(this.myhtml){
+			const parrent=this.myhtml.parentElement as HTMLElement;
+			parrent.prepend(this.myhtml);
+		}
+		if(this===this.localuser.channelfocus){
+			if(!this.infinitefocus){
+				this.tryfocusinfinate();
+			}
+			this.infinite.addedBottom();
+		}
 		if(messagez.author===this.localuser.user){
 			return;
 		}

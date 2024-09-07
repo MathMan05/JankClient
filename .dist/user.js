@@ -70,6 +70,8 @@ class User extends SnowFlake {
             fetch(this.info.api + "/users/@me/channels", { method: "POST",
                 body: JSON.stringify({ recipients: [this.id] }),
                 headers: this.localuser.headers
+            }).then(_ => _.json()).then(json => {
+                this.localuser.goToChannel(json.id);
             });
         });
         this.contextmenu.addbutton("Block user", function () {

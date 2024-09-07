@@ -474,13 +474,33 @@ class Localuser{
 			}
 		}
 	}
-	createChannel(json:channeljson):void{
+	createChannel(json:channeljson):undefined|Channel{
 		json.guild_id??="@me";
 		const guild=this.guildids.get(json.guild_id);
 		if(!guild) return;
-		guild.createChannelpac(json);
+		const channel=guild.createChannelpac(json);
 		if(json.guild_id===this.lookingguild?.id){
 			this.loadGuild(json.guild_id);
+		}
+		if(channel.id===this.gotoid){
+			guild.loadGuild();
+			guild.loadChannel(channel.id);
+			this.gotoid=undefined;
+		}
+	}
+	gotoid:string|undefined;
+	async goToChannel(id:string){
+		let guild:undefined|Guild;
+		for(const thing of this.guilds){
+			if(thing.channelids[id]){
+				guild=thing;
+			}
+		}
+		if(guild){
+			guild.loadGuild();
+			guild.loadChannel(id);
+		}else{
+			this.gotoid=id;
 		}
 	}
 	delChannel(json:channeljson):void{
