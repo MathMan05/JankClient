@@ -7,6 +7,9 @@ import { SnowFlake } from "./snowflake.js";
 import { Contextmenu } from "./contextmenu.js";
 class Direct extends Guild {
     channelids;
+    getUnixTime() {
+        throw new Error("Do not call this for Direct, it does not make sense");
+    }
     constructor(json, owner) {
         super(-1, owner, null);
         this.message_notifications = 0;
