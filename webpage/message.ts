@@ -639,20 +639,31 @@ class Message extends SnowFlake{
 		return this.div as HTMLElement;
 	}
 }
-const now = new Date().toLocaleDateString();
-const yesterday = new Date(now);
-yesterday.setDate(new Date().getDate() - 1);
-const yesterdayStr=yesterday.toLocaleDateString();
+let now:string;
+let yesterdayStr:string;
+updateTimes();
 function formatTime(date:Date){
+	updateTimes();
 	const datestring=date.toLocaleDateString();
 	const formatTime = (date:Date)=>date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
-	if(datestring=== now){
+	if(datestring===now){
 		return`Today at ${formatTime(date)}`;
 	}else if(datestring===yesterdayStr){
 		return`Yesterday at ${formatTime(date)}`;
 	}else{
 		return`${date.toLocaleDateString()} at ${formatTime(date)}`;
+	}
+}
+const d = new Date();
+let tomorrow=d.setHours(24,0,0,0);
+function updateTimes(){
+	if(tomorrow<Date.now()){
+		tomorrow=d.setHours(24,0,0,0);
+		now = new Date().toLocaleDateString();
+		const yesterday = new Date(now);
+		yesterday.setDate(new Date().getDate() - 1);
+		yesterdayStr=yesterday.toLocaleDateString();
 	}
 }
 Message.setup();
