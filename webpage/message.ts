@@ -655,11 +655,11 @@ function formatTime(date:Date){
 		return`${date.toLocaleDateString()} at ${formatTime(date)}`;
 	}
 }
-const d = new Date();
-let tomorrow=d.setHours(24,0,0,0);
+let tomorrow=0;
 updateTimes();
 function updateTimes(){
 	if(tomorrow<Date.now()){
+		const d = new Date();
 		tomorrow=d.setHours(24,0,0,0);
 		now = new Date().toLocaleDateString();
 		const yesterday = new Date(now);
