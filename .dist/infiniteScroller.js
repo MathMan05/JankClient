@@ -8,7 +8,6 @@ class InfiniteScroller {
     maxDist = 6000;
     HTMLElements = [];
     div;
-    scroll;
     constructor(getIDFromOffset, getHTMLFromID, destroyFromID, reachesBottom = () => { }) {
         this.getIDFromOffset = getIDFromOffset;
         this.getHTMLFromID = getHTMLFromID;
@@ -17,23 +16,13 @@ class InfiniteScroller {
     }
     timeout;
     async getDiv(initialId, bottom = true) {
-        const div = document.createElement("div");
-        div.classList.add("messagecontainer");
         //div.classList.add("flexttb")
         const scroll = document.createElement("div");
         scroll.classList.add("flexttb", "scroller");
-        div.appendChild(scroll);
-        this.div = div;
         this.beenloaded = false;
         //this.interval=setInterval(this.updatestuff.bind(this,true),100);
-        this.scroll = scroll;
+        this.div = scroll;
         this.div.addEventListener("scroll", _ => {
-            this.checkscroll();
-            if (this.scroll)
-                this.scrollTop = this.scroll.scrollTop;
-            this.watchForChange();
-        });
-        this.scroll.addEventListener("scroll", _ => {
             this.checkscroll();
             if (this.timeout === null) {
                 this.timeout = setTimeout(this.updatestuff.bind(this), 300);
@@ -46,14 +35,14 @@ class InfiniteScroller {
                 this.checkscroll();
                 const func = this.snapBottom();
                 this.updatestuff();
-                const change = oldheight - div.offsetHeight;
-                if (change > 0 && this.scroll) {
-                    this.scroll.scrollTop += change;
+                const change = oldheight - scroll.offsetHeight;
+                if (change > 0 && this.div) {
+                    this.div.scrollTop += change;
                 }
-                oldheight = div.offsetHeight;
+                oldheight = scroll.offsetHeight;
                 this.watchForChange();
                 func();
-            }).observe(div);
+            }).observe(scroll);
         }
         new ResizeObserver(this.watchForChange.bind(this)).observe(scroll);
         await this.firstElement(initialId);
@@ -62,7 +51,7 @@ class InfiniteScroller {
             this.updatestuff();
             this.beenloaded = true;
         });
-        return div;
+        return scroll;
     }
     beenloaded = false;
     scrollBottom;
@@ -70,21 +59,20 @@ class InfiniteScroller {
     needsupdate = true;
     averageheight = 60;
     checkscroll() {
-        if (this.beenloaded && this.scroll && !document.body.contains(this.scroll)) {
-            this.scroll = null;
+        if (this.beenloaded && this.div && !document.body.contains(this.div)) {
             this.div = null;
         }
     }
     async updatestuff() {
         this.timeout = null;
-        if (!this.scroll)
+        if (!this.div)
             return;
-        this.scrollBottom = this.scroll.scrollHeight - this.scroll.scrollTop - this.scroll.clientHeight;
-        this.averageheight = this.scroll.scrollHeight / this.HTMLElements.length;
+        this.scrollBottom = this.div.scrollHeight - this.div.scrollTop - this.div.clientHeight;
+        this.averageheight = this.div.scrollHeight / this.HTMLElements.length;
         if (this.averageheight < 10) {
             this.averageheight = 60;
         }
-        this.scrollTop = this.scroll.scrollTop;
+        this.scrollTop = this.div.scrollTop;
         if (!this.scrollBottom && !await this.watchForChange()) {
             this.reachesBottom();
         }
@@ -95,10 +83,10 @@ class InfiniteScroller {
         //this.watchForChange();
     }
     async firstElement(id) {
-        if (!this.scroll)
+        if (!this.div)
             return;
         const html = await this.getHTMLFromID(id);
-        this.scroll.appendChild(html);
+        this.div.appendChild(html);
         this.HTMLElements.push([html, id]);
     }
     currrunning = false;
@@ -111,13 +99,13 @@ class InfiniteScroller {
     snapBottom() {
         const scrollBottom = this.scrollBottom;
         return () => {
-            if (this.scroll && scrollBottom < 10) {
-                this.scroll.scrollTop = this.scroll.scrollHeight + 20;
+            if (this.div && scrollBottom < 10) {
+                this.div.scrollTop = this.div.scrollHeight + 20;
             }
         };
     }
     async watchForTop(already = false, fragement = new DocumentFragment()) {
-        if (!this.scroll)
+        if (!this.div)
             return false;
         try {
             let again = false;
@@ -157,16 +145,16 @@ class InfiniteScroller {
         }
         finally {
             if (!already) {
-                if (this.scroll.scrollTop === 0) {
+                if (this.div.scrollTop === 0) {
                     this.scrollTop = 1;
-                    this.scroll.scrollTop = 10;
+                    this.div.scrollTop = 10;
                 }
-                this.scroll.prepend(fragement, fragement);
+                this.div.prepend(fragement, fragement);
             }
         }
     }
     async watchForBottom(already = false, fragement = new DocumentFragment()) {
-        if (!this.scroll)
+        if (!this.div)
             return false;
         try {
             let again = false;
@@ -203,9 +191,9 @@ class InfiniteScroller {
         }
         finally {
             if (!already) {
-                this.scroll.append(fragement);
+                this.div.append(fragement);
                 if (this.scrollBottom < 30) {
-                    this.scroll.scrollTop = this.scroll.scrollHeight;
+                    this.div.scrollTop = this.div.scrollHeight;
                 }
             }
         }
@@ -310,7 +298,6 @@ class InfiniteScroller {
         if (this.div) {
             this.div.remove();
         }
-        this.scroll = null;
         this.div = null;
     }
 }
