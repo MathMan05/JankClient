@@ -359,9 +359,9 @@ class Message extends SnowFlake{
 				const author=message.author;
 				reply.appendChild(message.content.makeHTML({stdsize: true}));
 				minipfp.src=author.getpfpsrc();
-				author.bind(minipfp);
+				author.bind(minipfp,this.guild);
 				username.textContent=author.username;
-				author.bind(username);
+				author.bind(username,this.guild);
 			});
 			reply.onclick=_=>{
 				this.channel.infinite.focus(this.message_reference.message_id);
