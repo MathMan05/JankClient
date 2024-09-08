@@ -641,7 +641,7 @@ class Message extends SnowFlake{
 }
 let now:string;
 let yesterdayStr:string;
-updateTimes();
+
 function formatTime(date:Date){
 	updateTimes();
 	const datestring=date.toLocaleDateString();
@@ -657,6 +657,7 @@ function formatTime(date:Date){
 }
 const d = new Date();
 let tomorrow=d.setHours(24,0,0,0);
+updateTimes();
 function updateTimes(){
 	if(tomorrow<Date.now()){
 		tomorrow=d.setHours(24,0,0,0);
