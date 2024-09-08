@@ -22,11 +22,11 @@ class Dialog {
                 const img = document.createElement("img");
                 img.src = array[1];
                 if (array[2] != undefined) {
-                    if (array[2].length == 2) {
+                    if (array[2].length === 2) {
                         img.width = array[2][0];
                         img.height = array[2][1];
                     }
-                    else if (array[2][0] == "fit") {
+                    else if (array[2][0] === "fit") {
                         img.classList.add("imgfit");
                     }
                 }
@@ -226,6 +226,7 @@ class Dialog {
             }
             default:
                 console.error("can't find element:" + array[0], "  full element:", array);
+                return document.createElement("span");
         }
     }
     show() {
