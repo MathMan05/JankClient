@@ -10,6 +10,9 @@ import { Contextmenu } from "./contextmenu.js";
 
 class Direct extends Guild{
 	channelids:{[key:string]:Group};
+	getUnixTime(): number {
+		throw new Error("Do not call this for Direct, it does not make sense");
+	}
 	constructor(json:dirrectjson[],owner:Localuser){
 		super(-1,owner,null);
 		this.message_notifications=0;
