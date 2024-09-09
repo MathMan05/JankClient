@@ -32,27 +32,23 @@ class Dialog {
                 }
                 return img;
             case "hdiv":
-                const hdiv = document.createElement("table");
-                const tr = document.createElement("tr");
-                hdiv.appendChild(tr);
+                const hdiv = document.createElement("div");
+                hdiv.classList.add("flexltr");
                 for (const thing of array) {
                     if (thing === "hdiv") {
                         continue;
                     }
-                    const td = document.createElement("td");
-                    td.appendChild(this.tohtml(thing));
-                    tr.appendChild(td);
+                    hdiv.appendChild(this.tohtml(thing));
                 }
                 return hdiv;
             case "vdiv":
-                const vdiv = document.createElement("table");
+                const vdiv = document.createElement("div");
+                vdiv.classList.add("flexttb");
                 for (const thing of array) {
                     if (thing === "vdiv") {
                         continue;
                     }
-                    const tr = document.createElement("tr");
-                    tr.appendChild(this.tohtml(thing));
-                    vdiv.appendChild(tr);
+                    vdiv.appendChild(this.tohtml(thing));
                 }
                 return vdiv;
             case "checkbox":
@@ -192,34 +188,34 @@ class Dialog {
                 return div;
             }
             case "tabs": {
-                const table = document.createElement("table");
-                const tabs = document.createElement("tr");
+                const table = document.createElement("div");
+                table.classList.add("flexttb");
+                const tabs = document.createElement("div");
+                tabs.classList.add("flexltr");
                 tabs.classList.add("tabbed-head");
                 table.appendChild(tabs);
-                const td = document.createElement("td");
-                tabs.appendChild(td);
-                const content = document.createElement("tr");
+                const content = document.createElement("div");
                 content.classList.add("tabbed-content");
                 table.appendChild(content);
                 let shown;
                 for (const thing of array[1]) {
                     const button = document.createElement("button");
                     button.textContent = thing[0];
-                    td.appendChild(button);
-                    const tdcontent = document.createElement("td");
-                    tdcontent.colSpan = array[1].length;
-                    tdcontent.appendChild(this.tohtml(thing[1]));
-                    content.appendChild(tdcontent);
+                    tabs.appendChild(button);
+                    const html = this.tohtml(thing[1]);
+                    content.append(html);
                     if (!shown) {
-                        shown = tdcontent;
+                        shown = html;
                     }
                     else {
-                        tdcontent.hidden = true;
+                        html.style.display = "none";
                     }
                     button.addEventListener("click", _ => {
-                        shown.hidden = true;
-                        tdcontent.hidden = false;
-                        shown = tdcontent;
+                        if (shown) {
+                            shown.style.display = "none";
+                        }
+                        html.style.display = "";
+                        shown = html;
                     });
                 }
                 return table;

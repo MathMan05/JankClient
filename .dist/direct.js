@@ -6,7 +6,6 @@ import { Permissions } from "./permissions.js";
 import { SnowFlake } from "./snowflake.js";
 import { Contextmenu } from "./contextmenu.js";
 class Direct extends Guild {
-    channelids;
     getUnixTime() {
         throw new Error("Do not call this for Direct, it does not make sense");
     }
