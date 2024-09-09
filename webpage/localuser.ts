@@ -1192,10 +1192,13 @@ class Localuser{
 						json.icon ? ["img", this.info.cdn+"/app-icons/" + appId + "/" + json.icon + ".png?size=128", [128, 128]] : ["text", "No icon"],
 						["fileupload", "Application icon:", event=>{
 							const reader=new FileReader();
-							reader.readAsDataURL((event.target as HTMLInputElement).files[0]);
-							reader.onload=()=>{
-								fields.icon=reader.result;
-							};
+							const files=(event.target as HTMLInputElement).files;
+							if(files){
+								reader.readAsDataURL(files[0]);
+								reader.onload=()=>{
+									fields.icon=reader.result;
+								};
+							}
 						}]
 					]
 				],
@@ -1280,10 +1283,14 @@ class Localuser{
 						fields.avatar ? ["img", fields.avatar, [128, 128]] : ["text", "No avatar"],
 						["fileupload", "Bot avatar:", event=>{
 							const reader=new FileReader();
-							reader.readAsDataURL((event.target as HTMLInputElement).files[0]);
-							reader.onload=()=>{
-								fields.avatar=reader.result;
-							};
+							const files=(event.target as HTMLInputElement).files;
+							if(files){
+								const file=files[0]
+								reader.readAsDataURL(file);
+								reader.onload=()=>{
+									fields.avatar=reader.result;
+								};
+							}
 						}]
 					]
 				],
