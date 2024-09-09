@@ -691,8 +691,10 @@ class Form {
         }
         return select;
     }
-    addFileInput(label, formName, { required = false } = {}) {
+    fileOptions = new Map();
+    addFileInput(label, formName, { required, files } = { required: false, files: "multi" }) {
         const FI = this.options.addFileInput(label, _ => { }, {});
+        this.fileOptions.set(FI, { files });
         this.names.set(formName, FI);
         if (required) {
             this.required.add(FI);
@@ -760,7 +762,7 @@ class Form {
             this.owner.changed();
         }
     }
-    submit() {
+    async submit() {
         const build = {};
         for (const key of Object.keys(this.values)) {
             const thing = this.values[key];
@@ -785,6 +787,7 @@ class Form {
                 build[key] = thing;
             }
         }
+        const promises = [];
         for (const thing of this.names.keys()) {
             if (thing === "")
                 continue;
@@ -793,8 +796,31 @@ class Form {
                 build[thing] = input.options[input.value];
                 continue;
             }
+            else if (input instanceof FileInput) {
+                const options = this.fileOptions.get(input);
+                if (!options) {
+                    throw new Error("FileInput without its options is in this form, this should never happen.");
+                }
+                if (options.files === "one") {
+                    if (input.value) {
+                        const reader = new FileReader();
+                        reader.readAsDataURL(input.value[0]);
+                        const promise = new Promise((res) => {
+                            reader.onload = () => {
+                                build[thing] = reader.result;
+                                res();
+                            };
+                        });
+                        promises.push(promise);
+                    }
+                }
+                else {
+                    console.error(options.files + " is not currently implemented");
+                }
+            }
             build[thing] = input.value;
         }
+        await Promise.allSettled(promises);
         if (this.fetchURL !== "") {
             fetch(this.fetchURL, {
                 method: this.method,

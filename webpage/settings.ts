@@ -699,8 +699,10 @@ class Form implements OptionsElement<object>{
 		}
 		return select;
 	}
-	addFileInput(label:string,formName:string,{required=false}={}){
+	readonly fileOptions:Map<FileInput,{files:"one"|"multi"}>=new Map();
+	addFileInput(label:string,formName:string,{required,files}:{required:boolean,files:"one"|"multi"}={required:false,files:"multi"}){
 		const FI=this.options.addFileInput(label,_=>{},{});
+		this.fileOptions.set(FI,{files});
 		this.names.set(formName,FI);
 		if(required){
 			this.required.add(FI);
@@ -771,7 +773,7 @@ class Form implements OptionsElement<object>{
 			this.owner.changed();
 		}
 	}
-	submit(){
+	async submit(){
 		const build={};
 		for(const key of Object.keys(this.values)){
 			const thing=this.values[key];
@@ -794,15 +796,37 @@ class Form implements OptionsElement<object>{
 				build[key]=thing;
 			}
 		}
+		const promises:Promise<void>[]=[];
 		for(const thing of this.names.keys()){
 			if(thing==="")continue;
 			const input=this.names.get(thing) as OptionsElement<any>;
 			if(input instanceof SelectInput){
 				build[thing]=input.options[input.value];
 				continue;
+			}else if(input instanceof FileInput){
+				const options=this.fileOptions.get(input);
+				if(!options){
+					throw new Error("FileInput without its options is in this form, this should never happen.");
+				}
+				if(options.files==="one"){
+					if(input.value){
+						const reader=new FileReader();
+						reader.readAsDataURL(input.value[0]);
+						const promise=new Promise<void>((res)=>{
+							reader.onload=()=>{
+								build[thing]=reader.result;
+								res();
+							};
+						})
+						promises.push(promise);
+					}
+				}else{
+					console.error(options.files+" is not currently implemented")
+				}
 			}
 			build[thing]=input.value;
 		}
+		await Promise.allSettled(promises);
 		if(this.fetchURL!==""){
 			fetch(this.fetchURL,{
 				method: this.method,
