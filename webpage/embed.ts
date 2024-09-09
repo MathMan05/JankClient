@@ -13,7 +13,6 @@ class Embed{
 		this.type=this.getType(json);
 		this.owner=owner;
 		this.json=json;
-		console.log(this);
 	}
 	getType(json:embedjson){
 		const instances=getInstances();
