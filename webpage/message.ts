@@ -129,7 +129,6 @@ class Message extends SnowFlake{
 			}else if(thing ==="embeds"){
 				this.embeds=[];
 				for(const thing in messagejson.embeds){
-					console.log(thing,messagejson.embeds);
 					this.embeds[thing]=new Embed(messagejson.embeds[thing],this);
 				}
 				continue;
@@ -438,7 +437,6 @@ class Message extends SnowFlake{
 				messagedwrap.appendChild(attach);
 			}
 			if(this.embeds.length){
-				console.log(this.embeds);
 				const embeds = document.createElement("div");
 				embeds.classList.add("flexltr");
 				for(const thing of this.embeds){

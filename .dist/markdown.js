@@ -59,7 +59,6 @@ class MarkDown {
                 let element = document.createElement("span");
                 let keepys = "";
                 if (txt[i + 1] === "#") {
-                    console.log("test");
                     if (txt[i + 2] === "#") {
                         if (txt[i + 3] === "#" && txt[i + 4] === " ") {
                             element = document.createElement("h3");
@@ -110,7 +109,6 @@ class MarkDown {
                     }
                     finally {
                         i -= 1;
-                        console.log(txt[i]);
                         continue;
                     }
                 }
