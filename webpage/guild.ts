@@ -14,7 +14,6 @@ class Guild extends SnowFlake{
 	owner:Localuser;
 	headers:Localuser["headers"];
 	channels:Channel[];
-	channelids:{[key:string]:Channel};
 	properties;
 	member_count:number;
 	roles:Role[];
@@ -96,7 +95,6 @@ class Guild extends SnowFlake{
 		this.owner=owner;
 		this.headers=this.owner.headers;
 		this.channels=[];
-		this.channelids={};
 		this.properties=json.properties;
 		this.roles=[];
 		this.roleids=new Map();
@@ -126,7 +124,7 @@ class Guild extends SnowFlake{
 		for(const thing of json.channels){
 			const temp=new Channel(thing,this);
 			this.channels.push(temp);
-			this.channelids[temp.id]=temp;
+			this.localuser.channelids.set(temp.id,temp);
 		}
 		this.headchannels=[];
 		for(const thing of this.channels){
@@ -135,7 +133,7 @@ class Guild extends SnowFlake{
 				this.headchannels.push(thing);
 			}
 		}
-		this.prevchannel=this.channelids[this.perminfo.prevchannel];
+		this.prevchannel=this.localuser.channelids.get(this.perminfo.prevchannel);
 	}
 	get perminfo(){
 		return this.localuser.perminfo.guilds[this.id];
@@ -436,9 +434,12 @@ class Guild extends SnowFlake{
 		return this.member.hasRole(r);
 	}
 	loadChannel(ID?:string|undefined){
-		if(ID&&this.channelids[ID]){
-			this.channelids[ID].getHTML();
-			return;
+		if(ID){
+			const channel=this.localuser.channelids.get(ID);
+			if(channel){
+				channel.getHTML();
+				return;
+			}
 		}
 		if(this.prevchannel){
 			console.log(this.prevchannel);
@@ -456,7 +457,7 @@ class Guild extends SnowFlake{
 		this.localuser.loadGuild(this.id);
 	}
 	updateChannel(json:channeljson){
-		const channel=this.channelids[json.id];
+		const channel=this.localuser.channelids.get(json.id);
 		if(channel){
 			channel.updateChannel(json);
 			this.headchannels=[];
@@ -475,7 +476,7 @@ class Guild extends SnowFlake{
 	}
 	createChannelpac(json:channeljson){
 		const thischannel=new Channel(json,this);
-		this.channelids[json.id]=thischannel;
+		this.localuser.channelids.set(json.id,thischannel);
 		this.channels.push(thischannel);
 		thischannel.resolveparent(this);
 		if(!thischannel.parent){
@@ -526,9 +527,9 @@ class Guild extends SnowFlake{
 		channelselect.show();
 	}
 	delChannel(json:channeljson){
-		const channel=this.channelids[json.id];
-		delete this.channelids[json.id];
-
+		const channel=this.localuser.channelids.get(json.id);
+		this.localuser.channelids.delete(json.id);
+		if(!channel) return;
 		this.channels.splice(this.channels.indexOf(channel),1);
 		const indexy=this.headchannels.indexOf(channel);
 		if(indexy!==-1){

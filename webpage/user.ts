@@ -139,6 +139,9 @@ class User extends SnowFlake{
 	get localuser(){
 		return this.owner;
 	}
+	get name(){
+		return this.username;
+	}
 	constructor(userjson:userjson,owner:Localuser,dontclone=false){
 		super(userjson.id);
 		this.owner=owner;

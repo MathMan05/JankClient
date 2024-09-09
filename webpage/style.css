@@ -925,9 +925,9 @@ input[type="checkbox"] {
 }
 
 .quote {
-	display: inline-flex;
 	width: fit-content;
 	position: relative;
+	display: inline;
 }
 
 .quoteline {
@@ -940,7 +940,7 @@ input[type="checkbox"] {
 
 .quote > span {
 	margin-left: 0.5em;
-	display: block;
+	display: inline-block;
 	align-items: center;
 }
 span {
@@ -2190,4 +2190,18 @@ form div{
 	margin-left: .04in;
 	margin-top: .04in;
 	width: 100%;
+}
+.mentioned{
+	background-color:color-mix(in srgb, transparent,var(--yellow) 12%);
+}
+.mentionMD{
+	background:var(--mention-md-bg);
+	flex-shrink:0;
+	padding:.03in;
+	border-radius:.1in;
+	font-weight:bold;
+	cursor:pointer;
+}
+.mentionMD:hover{
+	background:color-mix(in srgb,var(--mention-md-bg),white 10%);
 }

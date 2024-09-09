@@ -30,6 +30,7 @@ class Localuser {
     ws;
     connectionSucceed = 0;
     errorBackoff = 0;
+    channelids = new Map();
     userMap = new Map();
     instancePing = {
         name: "Unknown",
@@ -64,8 +65,8 @@ class Localuser {
         this.userinfo.username = this.user.username;
         this.userinfo.pfpsrc = this.user.getpfpsrc();
         this.status = this.ready.d.user_settings.status;
-        this.channelfocus = null;
-        this.lookingguild = null;
+        this.channelfocus = undefined;
+        this.lookingguild = undefined;
         this.guildhtml = new Map();
         const members = {};
         for (const thing of ready.d.merged_members) {
@@ -86,15 +87,11 @@ class Localuser {
             this.guildids.get(thing.guild_id).notisetting(thing);
         }
         for (const thing of ready.d.read_state.entries) {
-            const channel = this.resolveChannelFromID(thing.id);
+            const channel = this.channelids.get(thing.channel_id);
             if (!channel) {
                 continue;
             }
-            const guild = channel.guild;
-            if (guild === undefined) {
-                continue;
-            }
-            guild.channelids[thing.channel_id].readStateInfo(thing);
+            channel.readStateInfo(thing);
         }
         for (const thing of ready.d.relationships) {
             const user = new User(thing.user, this);
@@ -112,8 +109,8 @@ class Localuser {
         if (this.channelfocus) {
             this.channelfocus.infinite.delete();
         }
-        this.lookingguild = null;
-        this.channelfocus = null;
+        this.lookingguild = undefined;
+        this.channelfocus = undefined;
     }
     unload() {
         this.initialized = false;
@@ -307,10 +304,7 @@ class Localuser {
                 case "MESSAGE_DELETE":
                     {
                         temp.d.guild_id ??= "@me";
-                        const guild = this.guildids.get(temp.d.guild_id);
-                        if (!guild)
-                            break;
-                        const channel = guild.channelids[temp.d.channel_id];
+                        const channel = this.channelids.get(temp.d.channel_id);
                         if (!channel)
                             break;
                         const message = channel.messages.get(temp.d.id);
@@ -325,10 +319,7 @@ class Localuser {
                 case "MESSAGE_UPDATE":
                     {
                         temp.d.guild_id ??= "@me";
-                        const guild = this.guildids.get(temp.d.guild_id);
-                        if (!guild)
-                            break;
-                        const channel = guild.channelids[temp.d.channel_id];
+                        const channel = this.channelids.get(temp.d.channel_id);
                         if (!channel)
                             break;
                         const message = channel.messages.get(temp.d.id);
@@ -389,7 +380,7 @@ class Localuser {
                         const guild = this.guildids.get(temp.d.guild_id);
                         if (!guild)
                             break;
-                        const channel = guild.channelids[temp.d.channel_id];
+                        const channel = this.channelids.get(temp.d.channel_id);
                         if (!channel)
                             break;
                         const message = channel.messages.get(temp.d.message_id);
@@ -408,10 +399,7 @@ class Localuser {
                 case "MESSAGE_REACTION_REMOVE":
                     {
                         temp.d.guild_id ??= "@me";
-                        const guild = this.guildids.get(temp.d.guild_id);
-                        if (!guild)
-                            break;
-                        const channel = guild.channelids[temp.d.channel_id];
+                        const channel = this.channelids.get(temp.d.channel_id);
                         if (!channel)
                             break;
                         const message = channel.messages.get(temp.d.message_id);
@@ -423,10 +411,7 @@ class Localuser {
                 case "MESSAGE_REACTION_REMOVE_ALL":
                     {
                         temp.d.guild_id ??= "@me";
-                        const guild = this.guildids.get(temp.d.guild_id);
-                        if (!guild)
-                            break;
-                        const channel = guild.channelids[temp.d.channel_id];
+                        const channel = this.channelids.get(temp.d.channel_id);
                         if (!channel)
                             break;
                         const message = channel.messages.get(temp.d.message_id);
@@ -438,10 +423,7 @@ class Localuser {
                 case "MESSAGE_REACTION_REMOVE_EMOJI":
                     {
                         temp.d.guild_id ??= "@me";
-                        const guild = this.guildids.get(temp.d.guild_id);
-                        if (!guild)
-                            break;
-                        const channel = guild.channelids[temp.d.channel_id];
+                        const channel = this.channelids.get(temp.d.channel_id);
                         if (!channel)
                             break;
                         const message = channel.messages.get(temp.d.message_id);
@@ -473,13 +455,6 @@ class Localuser {
         }
     }
     heartbeat_interval;
-    resolveChannelFromID(ID) {
-        const resolve = this.guilds.find(guild => guild.channelids[ID]);
-        if (resolve) {
-            return resolve.channelids[ID];
-        }
-        return undefined;
-    }
     updateChannel(json) {
         const guild = this.guildids.get(json.guild_id);
         if (guild) {
@@ -506,13 +481,9 @@ class Localuser {
     }
     gotoid;
     async goToChannel(id) {
-        let guild;
-        for (const thing of this.guilds) {
-            if (thing.channelids[id]) {
-                guild = thing;
-            }
-        }
-        if (guild) {
+        const channel = this.channelids.get(id);
+        if (channel) {
+            const guild = channel.guild;
             guild.loadGuild();
             guild.loadChannel(id);
         }
@@ -540,7 +511,7 @@ class Localuser {
                 return;
             }
             guild.loadChannel(location[5]);
-            this.channelfocus = guild.channelids[location[5]];
+            this.channelfocus = this.channelids.get(location[5]);
         }
     }
     loaduser() {
@@ -770,11 +741,11 @@ class Localuser {
     }
     messageCreate(messagep) {
         messagep.d.guild_id ??= "@me";
-        const guild = this.guildids.get(messagep.d.guild_id);
-        if (!guild)
-            return;
-        guild.channelids[messagep.d.channel_id].messageCreate(messagep);
-        this.unreads();
+        const channel = this.channelids.get(messagep.d.channel_id);
+        if (channel) {
+            channel.messageCreate(messagep);
+            this.unreads();
+        }
     }
     unreads() {
         for (const thing of this.guilds) {
@@ -787,10 +758,7 @@ class Localuser {
     }
     async typingStart(typing) {
         //
-        const guild = this.guildids.get(typing.d.guild_id);
-        if (!guild)
-            return;
-        const channel = guild.channelids[typing.d.channel_id];
+        const channel = this.channelids.get(typing.d.channel_id);
         if (!channel)
             return;
         channel.typingStart(typing);

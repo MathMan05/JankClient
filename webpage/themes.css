@@ -30,6 +30,7 @@
 	--textarea-bg: color-mix(in srgb, #484848 80%, var(--accent-color));
 	--filename: #47bbff;
 	--mention-bg: #F00;
+	--mention-md-bg: #3b588b;
 	--pronouns: #797979;
 	--profile-bg: color-mix(in srgb, #232323 90%, var(--accent-color));
 	--profile-info-bg: color-mix(in srgb, #121212 90%, var(--accent-color));
@@ -84,6 +85,7 @@
 	--textarea-bg: #b1b6ce;
 	--filename: #47bbff;
 	--mention-bg: #F00;
+	--mention-md-bg: #3b588b;
 	--pronouns: #6a6a6d;
 	--profile-bg: #cacad8;
 	--profile-info-bg: #bbbbce;
@@ -140,6 +142,7 @@
 	--textarea-bg: #abb1cd;
 	--filename: #47bbff;
 	--mention-bg: #F00;
+	--mention-md-bg: #3b588b;
 	--pronouns: #202020;
 	--channel-name-bg: #c0c0d4;
 	--server-name-bg: #a3a3b5;
