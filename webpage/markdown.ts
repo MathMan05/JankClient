@@ -1,7 +1,9 @@
 import{ Channel }from"./channel.js";
 import { Dialog } from "./dialog.js";
 import{ Emoji }from"./emoji.js";
+import { Guild } from "./guild.js";
 import{ Localuser }from"./localuser.js";
+import { Member } from "./member.js";
 
 
 class MarkDown{
@@ -23,6 +25,13 @@ class MarkDown{
 		this.keep=keep;
 		this.owner=owner;
 		this.stdsize=stdsize;
+	}
+	get localuser(){
+		if(this.owner instanceof Localuser){
+			return this.owner;
+		}else{
+			return this.owner.localuser;
+		}
 	}
 	get rawString(){
 		return this.txt.join("");
@@ -406,7 +415,67 @@ class MarkDown{
 					span.appendChild(a);
 					continue;
 				}
+			}
+			if(txt[i]==="<" && (txt[i + 1]==="@"||txt[i + 1]==="#")){
+				let id="";
+				let j = i+2;
+				const numbers=new Set(["0", "1", "2", "3", "4","5","6","7","8","9"]);
+				for(; txt[j] !== undefined; j++){
+					const char=txt[j];
+					if(!numbers.has(char)){
+						break;
+					}
+					id+=char;
+				}
 
+				if(txt[j]===">"){
+					appendcurrent();
+					const mention=document.createElement("span");
+					mention.classList.add("mentionMD");
+					mention.contentEditable="false";
+					const char=txt[i + 1];
+					i=j;
+					switch(char){
+						case "@":
+							const user=this.localuser.userMap.get(id);
+							if(user){
+								mention.textContent=`@${user.name}`;
+								let guild:null|Guild=null;
+								if(this.owner instanceof Channel){
+									guild=this.owner.guild;
+								}
+								if(!keep){
+									user.bind(mention,guild);
+								}
+								if(guild){
+									Member.resolveMember(user,guild).then(member=>{
+										if(member){
+											mention.textContent=`@${member.name}`;
+										}
+									})
+								}
+							}else{
+								mention.textContent=`@unknown`;
+							}
+						break;
+						case "#":
+							const channel=this.localuser.channelids.get(id);
+							if(channel){
+								mention.textContent=`#${channel.name}`;
+								if(!keep){
+									mention.onclick=_=>{
+										this.localuser.goToChannel(id);
+									}
+								}
+							}else{
+								mention.textContent=`#unknown`;
+							}
+							break;
+					}
+					span.appendChild(mention);
+					mention.setAttribute("real",`<${char}${id}>`);
+					continue;
+				}
 			}
 			if(txt[i]==="<" && txt[i + 1]==="t" && txt[i + 2]===":"){
 				let found=false;
@@ -561,14 +630,16 @@ class MarkDown{
 			restore();
 		}
 	}
-	static gatherBoxText(element:HTMLElement){
+	static gatherBoxText(element:HTMLElement):string{
 		if(element.tagName.toLowerCase()==="img"){
 			return(element as HTMLImageElement).alt;
 		}
 		if(element.tagName.toLowerCase()==="br"){
 			return"\n";
 		}
-
+		if(element.hasAttribute("real")){
+			return element.getAttribute("real") as string;
+		}
 		let build="";
 		for(const thing of element.childNodes){
 			if(thing instanceof Text){
@@ -627,15 +698,30 @@ class MarkDown{
 			throw Error(url+" is not a valid URL")
 		}
 	}
+	static replace(base:HTMLElement,newelm:HTMLElement){
+		const basechildren=base.children;
+		const newchildren=newelm.children;
+		for(const thing of newchildren){
+
+		}
+	}
 }
 
 //solution from https://stackoverflow.com/questions/4576694/saving-and-restoring-caret-position-for-contenteditable-div
-function saveCaretPosition(context){
+let text="";
+function saveCaretPosition (context){
 	const selection = window.getSelection();
 	if(!selection)return;
 	const range = selection.getRangeAt(0);
 	range.setStart(context, 0);
-	const len = range.toString().length;
+	text=selection.toString();
+	let len = text.length+1;
+	for(const str in text.split("\n")){
+		if(str.length!==0){
+			len--;
+		}
+	}
+	len+=+(text[text.length-1]==="\n");
 
 	return function restore(){
 		if(!selection)return;

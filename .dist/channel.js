@@ -212,7 +212,7 @@ class Channel extends SnowFlake {
         if (json.parent_id) {
             this.parent_id = json.parent_id;
         }
-        this.parent = null;
+        this.parent = undefined;
         this.children = [];
         this.guild_id = json.guild_id;
         this.permission_overwrites = new Map();
@@ -312,12 +312,12 @@ class Channel extends SnowFlake {
         const parentid = this.parent_id;
         if (!parentid)
             return false;
-        this.parent = guild.channelids[parentid];
-        this.parent ??= null;
-        if (this.parent !== null) {
+        this.parent = this.localuser.channelids.get(parentid);
+        this.parent ??= undefined;
+        if (this.parent !== undefined) {
             this.parent.children.push(this);
         }
-        return this.parent !== null;
+        return this.parent !== undefined;
     }
     calculateReorder() {
         let position = -1;
@@ -967,13 +967,13 @@ class Channel extends SnowFlake {
     updateChannel(json) {
         this.type = json.type;
         this.name = json.name;
-        const parent = this.guild.channelids[json.parent_id];
+        const parent = this.localuser.channelids.get(json.parent_id);
         if (parent) {
             this.parent = parent;
             this.parent_id = parent.id;
         }
         else {
-            this.parent = null;
+            this.parent = undefined;
             this.parent_id = undefined;
         }
         this.children = [];

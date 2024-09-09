@@ -24,6 +24,9 @@ class InfiniteScroller {
         this.div = scroll;
         this.div.addEventListener("scroll", _ => {
             this.checkscroll();
+            if (this.scrollBottom < 5) {
+                this.scrollBottom = 5;
+            }
             if (this.timeout === null) {
                 this.timeout = setTimeout(this.updatestuff.bind(this), 300);
             }

@@ -268,6 +268,11 @@ class Message extends SnowFlake{
 			premessage=this.channel.messages.get(this.channel.idToPrev.get(this.id) as string);
 		}
 		const div=this.div;
+		for(const user of this.mentions){
+			if(user===this.localuser.user){
+				div.classList.add("mentioned");
+			}
+		}
 		if(this===this.channel.replyingto){
 			div.classList.add("replying");
 		}
