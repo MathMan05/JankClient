@@ -97,10 +97,8 @@ class InfiniteScroller {
     }
     snapBottom() {
         const scrollBottom = this.scrollBottom;
-        console.log(scrollBottom);
         return () => {
             if (this.div && scrollBottom < 4) {
-                console.log("snap");
                 this.div.scrollTop = this.div.scrollHeight;
             }
         };
