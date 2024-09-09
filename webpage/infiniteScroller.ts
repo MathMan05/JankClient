@@ -90,7 +90,6 @@ class InfiniteScroller{
 		this.div.appendChild(html);
 		this.HTMLElements.push([html,id]);
 	}
-	currrunning:boolean=false;
 	async addedBottom(){
 		await this.updatestuff();
 		const func=this.snapBottom();
@@ -99,9 +98,11 @@ class InfiniteScroller{
 	}
 	snapBottom(){
 		const scrollBottom=this.scrollBottom;
+		console.log(scrollBottom);
 		return()=>{
 			if(this.div&&scrollBottom<4){
-				this.div.scrollTop=this.div.scrollHeight+20;
+				console.log("snap");
+				this.div.scrollTop=this.div.scrollHeight;
 			}
 		};
 	}
@@ -155,6 +156,8 @@ class InfiniteScroller{
 		}
 	}
 	async watchForBottom(already=false,fragement=new DocumentFragment()):Promise<boolean>{
+		let func:Function|undefined;
+		if(!already) func=this.snapBottom();
 		if(!this.div)return false;
 		try{
 			let again=false;
@@ -190,8 +193,8 @@ class InfiniteScroller{
 		}finally{
 			if(!already){
 				this.div.append(fragement);
-				if(this.scrollBottom<30){
-					this.div.scrollTop=this.div.scrollHeight;
+				if(func){
+					func();
 				}
 			}
 		}
@@ -199,16 +202,11 @@ class InfiniteScroller{
 	watchtime:boolean=false;
 	changePromise:Promise<boolean>|undefined;
 	async watchForChange():Promise<boolean>{
-		if(this.currrunning){
+		if(this.changePromise){
 			this.watchtime=true;
-			if(this.changePromise){
-				return await this.changePromise;
-			}else{
-				return false;
-			}
+			return await this.changePromise;
 		}else{
 			this.watchtime=false;
-			this.currrunning=true;
 		}
 		this.changePromise=new Promise<boolean>(async res=>{
 			try{
@@ -221,7 +219,7 @@ class InfiniteScroller{
 					if(this.timeout===null&&changed){
 						this.timeout=setTimeout(this.updatestuff.bind(this),300);
 					}
-					if(!this.currrunning){
+					if(!this.changePromise){
 						console.error("something really bad happened");
 					}
 
@@ -237,7 +235,6 @@ class InfiniteScroller{
 			}finally{
 				setTimeout(_=>{
 					this.changePromise=undefined;
-					this.currrunning=false;
 					if(this.watchtime){
 						this.watchForChange();
 					}

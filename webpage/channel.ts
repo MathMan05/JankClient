@@ -1099,7 +1099,7 @@ class Channel extends SnowFlake{
 			if(!this.infinitefocus){
 				this.tryfocusinfinate();
 			}
-			this.infinite.addedBottom();
+			this.infinite.addedBottom()
 		}
 		if(messagez.author===this.localuser.user){
 			return;
