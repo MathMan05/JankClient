@@ -1054,6 +1054,7 @@ span {
 }
 .tabbed-head{
     background: var(--profile-info-bg);
+    width: 100%;
 }
 .tabbed-content td{
     /* border-color: var(--textarea-bg); */

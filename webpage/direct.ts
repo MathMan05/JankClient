@@ -9,7 +9,7 @@ import { SnowFlake } from "./snowflake.js";
 import { Contextmenu } from "./contextmenu.js";
 
 class Direct extends Guild{
-	channelids:{[key:string]:Group};
+	declare channelids:{[key:string]:Group};
 	getUnixTime(): number {
 		throw new Error("Do not call this for Direct, it does not make sense");
 	}

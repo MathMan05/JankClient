@@ -1252,8 +1252,7 @@ class Localuser {
                         this.manageBot(appId);
                     }
                 ]
-            ]
-        ]);
+            ]]);
         appDialog.show();
     }
     async manageBot(appId = "") {
@@ -1319,8 +1318,7 @@ class Localuser {
                         botDialog.hide();
                     }
                 ]
-            ]
-        ]);
+            ]]);
         botDialog.show();
     }
     //---------- resolving members code -----------
