@@ -42,6 +42,7 @@ class Member extends SnowFlake{
 		if(this.localuser.userMap.has(this?.id)){
 			this.user=this.localuser.userMap.get(this?.id) as User;
 		}
+		this.roles.sort((a,b)=>{return (this.guild.roles.indexOf(a)-this.guild.roles.indexOf(b))});
 	}
 	get guild(){
 		return this.owner;
