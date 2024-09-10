@@ -2197,10 +2197,11 @@ form div{
 .mentionMD{
 	background:var(--mention-md-bg);
 	flex-shrink:0;
-	padding:.03in;
-	border-radius:.1in;
+	padding: .0075in .02in;
+	border-radius: .05in;
 	font-weight:bold;
 	cursor:pointer;
+	display: inline-block;
 }
 .mentionMD:hover{
 	background:color-mix(in srgb,var(--mention-md-bg),white 10%);
