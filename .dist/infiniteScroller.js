@@ -286,17 +286,22 @@ class InfiniteScroller {
         }
     }
     async delete() {
-        for (const thing of this.HTMLElements) {
-            await this.destroyFromID(thing[1]);
+        if (this.div) {
+            this.div.remove();
+            this.div = null;
+        }
+        try {
+            for (const thing of this.HTMLElements) {
+                await this.destroyFromID(thing[1]);
+            }
+        }
+        catch (e) {
+            console.error(e);
         }
         this.HTMLElements = [];
         if (this.timeout) {
             clearTimeout(this.timeout);
         }
-        if (this.div) {
-            this.div.remove();
-        }
-        this.div = null;
     }
 }
 export { InfiniteScroller };
