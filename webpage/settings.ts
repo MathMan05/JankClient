@@ -404,9 +404,11 @@ class FileInput implements OptionsElement<FileList|null>{
 	onChange(ev:Event){
 		this.owner.changed();
 		const input=this.input.deref();
-		if(this.onchange&&input){
+		if(input){
 			this.value=input.files;
-			this.onchange(input.files);
+			if(this.onchange){
+				this.onchange(input.files);
+			}
 		}
 	}
 	onchange:((str:FileList|null)=>void)|null=null;
@@ -706,8 +708,9 @@ class Form implements OptionsElement<object>{
 		return select;
 	}
 	readonly fileOptions:Map<FileInput,{files:"one"|"multi"}>=new Map();
-	addFileInput(label:string,formName:string,{required,files}:{required:boolean,files:"one"|"multi"}={required:false,files:"multi"}){
-		const FI=this.options.addFileInput(label,_=>{},{});
+	addFileInput(label:string,formName:string,{required=false,files="one",clear=false}={}){
+		const FI=this.options.addFileInput(label,_=>{},{clear});
+		if(files!=="one"&&files!=="multi") throw new Error("files should equal one or multi");
 		this.fileOptions.set(FI,{files});
 		this.names.set(formName,FI);
 		if(required){
@@ -815,6 +818,7 @@ class Form implements OptionsElement<object>{
 					throw new Error("FileInput without its options is in this form, this should never happen.");
 				}
 				if(options.files==="one"){
+					console.log(input.value);
 					if(input.value){
 						const reader=new FileReader();
 						reader.readAsDataURL(input.value[0]);

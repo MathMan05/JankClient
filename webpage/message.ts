@@ -295,8 +295,8 @@ class Message extends SnowFlake{
 							next.generateMessage();
 							next=this.channel.messages.get(this.channel.idToNext.get(next.id) as string);
 						}
-						if(this.channel.infinite.div&&scroll){
-							this.channel.infinite.div.scrollTop=scroll;
+						if(this.channel.infinite.scollDiv&&scroll){
+							this.channel.infinite.scollDiv.scrollTop=scroll;
 						}
 					};
 				}
@@ -327,9 +327,9 @@ class Message extends SnowFlake{
 							next=this.channel.messages.get(this.channel.idToNext.get(next.id) as string);
 							console.log("loopy");
 						}
-						if(this.channel.infinite.div&&scroll){
+						if(this.channel.infinite.scollDiv&&scroll){
 							func();
-							this.channel.infinite.div.scrollTop=scroll;
+							this.channel.infinite.scollDiv.scrollTop=scroll;
 						}
 					};
 					div.appendChild(build);

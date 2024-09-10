@@ -14,7 +14,7 @@ class Guild extends SnowFlake{
 	owner:Localuser;
 	headers:Localuser["headers"];
 	channels:Channel[];
-	properties;
+	properties:guildjson["properties"];
 	member_count:number;
 	roles:Role[];
 	roleids:Map<string,Role>;
@@ -79,7 +79,15 @@ class Guild extends SnowFlake{
 				fetchURL:this.info.api+"/guilds/"+this.id,
 				method:"PATCH"
 			})
-			form.addTextInput("Name:","name",{initText:this.properties.name})
+			form.addTextInput("Name:","name",{initText:this.properties.name});
+			form.addMDInput("Description:","description",{initText:this.properties.description});
+			form.addFileInput("Banner:","banner",{clear:true});
+			form.addFileInput("Icon:","icon",{clear:true});
+			let region=this.properties.region;
+			if(!region){
+				region="";
+			}
+			form.addTextInput("Region:","region",{initText:region});
 		}
 		const s1=settings.addButton("roles");
 		const permlist:[Role,Permissions][]=[];
