@@ -17,6 +17,9 @@ class InfiniteScroller{
 	timeout:NodeJS.Timeout|null;
 	async getDiv(initialId:string,bottom=true):Promise<HTMLDivElement>{
 		//div.classList.add("flexttb")
+		if(this.div){
+			throw new Error("Div already exists, exiting.")
+		}
 		const scroll=document.createElement("div");
 		scroll.classList.add("flexttb","scroller");
 		this.beenloaded=false;
@@ -66,6 +69,7 @@ class InfiniteScroller{
 	averageheight:number=60;
 	checkscroll(){
 		if(this.beenloaded&&this.div&&!document.body.contains(this.div)){
+			console.warn("not in document");
 			this.div=null;
 		}
 	}

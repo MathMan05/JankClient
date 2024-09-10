@@ -935,6 +935,10 @@ class Channel extends SnowFlake{
 		if(this.localuser.channelfocus!==this){
 			return;
 		}
+		for(const elm of messages.getElementsByClassName("scroller")){
+			elm.remove();
+			console.warn("rouge element detected and removed")
+		}
 		messages.append(await this.infinite.getDiv(id));
 		this.infinite.updatestuff();
 		this.infinite.watchForChange().then(async _=>{
