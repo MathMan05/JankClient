@@ -390,9 +390,11 @@ class FileInput {
     onChange(ev) {
         this.owner.changed();
         const input = this.input.deref();
-        if (this.onchange && input) {
+        if (input) {
             this.value = input.files;
-            this.onchange(input.files);
+            if (this.onchange) {
+                this.onchange(input.files);
+            }
         }
     }
     onchange = null;
@@ -698,8 +700,10 @@ class Form {
         return select;
     }
     fileOptions = new Map();
-    addFileInput(label, formName, { required, files } = { required: false, files: "multi" }) {
-        const FI = this.options.addFileInput(label, _ => { }, {});
+    addFileInput(label, formName, { required = false, files = "one", clear = false } = {}) {
+        const FI = this.options.addFileInput(label, _ => { }, { clear });
+        if (files !== "one" && files !== "multi")
+            throw new Error("files should equal one or multi");
         this.fileOptions.set(FI, { files });
         this.names.set(formName, FI);
         if (required) {
@@ -808,6 +812,7 @@ class Form {
                     throw new Error("FileInput without its options is in this form, this should never happen.");
                 }
                 if (options.files === "one") {
+                    console.log(input.value);
                     if (input.value) {
                         const reader = new FileReader();
                         reader.readAsDataURL(input.value[0]);
