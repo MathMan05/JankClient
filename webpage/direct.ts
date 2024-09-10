@@ -161,7 +161,6 @@ class Group extends Channel{
 		const id=++Channel.genid;
 		if(this.localuser.channelfocus){
 			this.localuser.channelfocus.infinite.delete();
-			this.localuser.channelfocus=this;
 		}
 		if(this.guild!==this.localuser.lookingguild){
 			this.guild.loadGuild();
