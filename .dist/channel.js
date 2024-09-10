@@ -342,13 +342,16 @@ class Channel extends SnowFlake {
     }
     static dragged = [];
     html;
+    get visable() {
+        return this.hasPermission("VIEW_CHANNEL");
+    }
     createguildHTML(admin = false) {
         const div = document.createElement("div");
         this.html = new WeakRef(div);
-        if (!this.hasPermission("VIEW_CHANNEL")) {
+        if (!this.visable) {
             let quit = true;
             for (const thing of this.children) {
-                if (thing.hasPermission("VIEW_CHANNEL")) {
+                if (thing.visable) {
                     quit = false;
                 }
             }
@@ -651,6 +654,7 @@ class Channel extends SnowFlake {
         const id = ++Channel.genid;
         if (this.localuser.channelfocus) {
             this.localuser.channelfocus.infinite.delete();
+            this.localuser.channelfocus = this;
         }
         if (this.guild !== this.localuser.lookingguild) {
             this.guild.loadGuild();
@@ -921,6 +925,9 @@ class Channel extends SnowFlake {
         }
         else if (removetitle) {
             removetitle.remove();
+        }
+        if (this.localuser.channelfocus !== this) {
+            return;
         }
         messages.append(await this.infinite.getDiv(id));
         this.infinite.updatestuff();
