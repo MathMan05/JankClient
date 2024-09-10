@@ -55,7 +55,7 @@ class Guild extends SnowFlake{
 
 		Guild.contextmenu.addbutton("Create invite",function(this:Guild){
 		},null,_=>true,_=>false);
-		Guild.contextmenu.addbutton("Settings[temp]",function(this:Guild){
+		Guild.contextmenu.addbutton("Settings",function(this:Guild){
 			this.generateSettings();
 		});
 		/* -----things left for later-----
@@ -71,7 +71,16 @@ class Guild extends SnowFlake{
 	}
 	generateSettings(){
 		const settings=new Settings("Settings for "+this.properties.name);
-
+		{
+			const overview=settings.addButton("Overview");
+			const form=overview.addForm("",_=>{},{
+				headers:this.headers,
+				traditionalSubmit:true,
+				fetchURL:this.info.api+"/guilds/"+this.id,
+				method:"PATCH"
+			})
+			form.addTextInput("Name:","name",{initText:this.properties.name})
+		}
 		const s1=settings.addButton("roles");
 		const permlist:[Role,Permissions][]=[];
 		for(const thing of this.roles){

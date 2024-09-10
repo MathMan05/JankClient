@@ -544,6 +544,12 @@ class Options {
         this.generate(text);
         return text;
     }
+    addForm(name, onSubmit, { ltr = false, submitText = "Submit", fetchURL = "", headers = {}, method = "POST", traditionalSubmit = false } = {}) {
+        const options = new Form(name, this, onSubmit, { ltr, submitText, fetchURL, headers, method, traditionalSubmit });
+        this.options.push(options);
+        this.generate(options);
+        return options;
+    }
     generate(elm) {
         const container = this.container.deref();
         if (container) {
