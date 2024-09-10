@@ -532,6 +532,13 @@ class Localuser {
         if (!guild) {
             guild = this.guildids.get("@me");
         }
+        if (this.lookingguild === guild) {
+            return guild;
+        }
+        if (this.channelfocus) {
+            this.channelfocus.infinite.delete();
+            this.channelfocus = undefined;
+        }
         if (this.lookingguild) {
             this.lookingguild.html.classList.remove("serveropen");
         }
