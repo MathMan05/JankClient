@@ -749,6 +749,7 @@ textarea:focus-visible,
 	height: 100%;
 	/* aspect-ratio: 1 /20; */
 	max-height: 3in;
+	max-width: 4in;
 }
 .embedimg {
 	cursor: pointer;
