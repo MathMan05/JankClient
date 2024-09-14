@@ -1634,8 +1634,7 @@ form div{
 	border-radius:.15in;
 	border:solid var(--black) .03in;
 	box-shadow:black .03in .03in .2in;
-	display: flex;
-	flex-direction: column;
+	align-items:normal;
 }
 .emojiSelect{
 	font-size:.23in;
