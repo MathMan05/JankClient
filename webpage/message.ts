@@ -218,21 +218,24 @@ class Message extends SnowFlake{
 		});
 	}
 	deleteEvent(){
+		console.log("deleted")
 		if(this.div){
+			this.div.remove();
 			this.div.innerHTML="";
 			this.div=undefined;
 		}
 		const prev=this.channel.idToPrev.get(this.id);
 		const next=this.channel.idToNext.get(this.id);
-		if(prev){
-			this.channel.idToPrev.delete(this.id);
-		}
-		if(next){
-			this.channel.idToNext.delete(this.id);
-		}
+		this.channel.idToPrev.delete(this.id);
+		this.channel.idToNext.delete(this.id);
+		this.channel.messages.delete(this.id);
 		if(prev&&next){
 			this.channel.idToPrev.set(next,prev);
 			this.channel.idToNext.set(prev,next);
+		}else if(prev){
+			this.channel.idToNext.delete(prev);
+		}else if(next){
+			this.channel.idToPrev.delete(next);
 		}
 		if(prev){
 			const prevmessage=this.channel.messages.get(prev);
@@ -240,13 +243,23 @@ class Message extends SnowFlake{
 				prevmessage.generateMessage();
 			}
 		}
-		if(this.channel.lastmessage===this){
+		if(this.channel.lastmessage===this||this.channel.lastmessageid===this.id){
 			if(prev){
 				this.channel.lastmessage=this.channel.messages.get(prev);
+				this.channel.lastmessageid=prev;
 			}else{
 				this.channel.lastmessage=undefined;
+				this.channel.lastmessageid=undefined;
 			}
 		}
+		if(this.channel.lastreadmessageid===this.id){
+			if(prev){
+				this.channel.lastreadmessageid=prev;
+			}else{
+				this.channel.lastreadmessageid=undefined;
+			}
+		}
+		console.log("deleted done")
 	}
 	reactdiv:WeakRef<HTMLDivElement>;
 	blockedPropigate(){
