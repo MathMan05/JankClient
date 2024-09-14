@@ -167,7 +167,7 @@ class Guild extends SnowFlake{
 			["vdiv",
 				["radio","select notifications type",
 					["all","only mentions","none"],
-					function(e){
+					function(e:"all"|"only mentions"|"none"){
 						noti=["all","only mentions","none"].indexOf(e);
 					},
 					noti

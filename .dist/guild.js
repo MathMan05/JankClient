@@ -161,8 +161,7 @@ class Guild extends SnowFlake {
                 function (e) {
                     noti = ["all", "only mentions", "none"].indexOf(e);
                 },
-                noti
-            ],
+                noti],
             ["button", "", "submit", _ => {
                     //
                     fetch(this.info.api + `/users/@me/guilds/${this.id}/settings/`, {
@@ -173,8 +172,7 @@ class Guild extends SnowFlake {
                         })
                     });
                     this.message_notifications = noti;
-                }]
-        ]);
+                }]]);
         notiselect.show();
     }
     confirmleave() {
