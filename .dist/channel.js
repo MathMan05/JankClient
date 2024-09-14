@@ -160,6 +160,9 @@ class Channel extends SnowFlake {
             }
             else {
                 if (this.idToNext.has(id)) {
+                    if (!this.messages.has(this.idToNext.get(id))) {
+                        console.error("how did we get here?");
+                    }
                     return this.idToNext.get(id);
                 }
                 else if (this.lastmessage?.id !== id) {
