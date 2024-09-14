@@ -1450,7 +1450,7 @@ class Localuser {
     }
     pageTitle(channelName = "", guildName = "") {
         document.getElementById("channelname").textContent = channelName;
-        document.getElementsByTagName("title")[0].textContent = channelName + (guildName ? " | " + guildName : "") + " | " + this.instancePing.name + " | Jank Client (Tomato fork)";
+        document.getElementsByTagName("title")[0].textContent = channelName + (guildName ? " | " + guildName : "") + " | " + this.instancePing.name + " | Jank Client";
     }
     async instanceStats() {
         const res = await fetch(this.info.api + "/policies/stats", {

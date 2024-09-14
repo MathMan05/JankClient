@@ -104,7 +104,7 @@ class Emoji {
             res = r;
         });
         const menu = document.createElement("div");
-        menu.classList.add("flextttb", "emojiPicker");
+        menu.classList.add("flexttb", "emojiPicker");
         menu.style.top = y + "px";
         menu.style.left = x + "px";
         const title = document.createElement("h2");
