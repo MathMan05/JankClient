@@ -3,7 +3,7 @@ const fs=require("node:fs");
 let uptimeObject={};
 if(fs.existsSync("./uptime.json")){
 	try{
-		uptimeObject=JSON.parse(fs.readFileSync("./uptime.json", "utf8"));
+		uptimeObject=JSON.parse(fs.readFileSync(__dirname+"/uptime.json", "utf8"));
 	}catch{
 		uptimeObject={};
 	}
@@ -173,7 +173,7 @@ function setStatus(instance,status){
 	}
 }
 function updatejson(){
-	fs.writeFile("./uptime.json",JSON.stringify(uptimeObject),_=>{});
+	fs.writeFile(__dirname+"/uptime.json",JSON.stringify(uptimeObject),_=>{});
 }
 exports.observe=observe;
 exports.uptime=uptimeObject;
