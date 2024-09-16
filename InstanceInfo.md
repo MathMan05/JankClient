@@ -28,6 +28,7 @@ inside of webpage you'll see a file called `instances.json` in that file you'll 
 }
 ```
 anything with a `?` in-front of its `:` are optional, though you must either include `"URL"` or `"URLs"`, but you may include both, though the client will most likely ignore `"URLs"` in favor of `"URL"`, though it may use `"URLs"` as a fallback if `"URL"` does not resolve, do not rely on this behavior.
+wellknown should be a url that can resolve the wellknown, but it should only be the base URL and not the full wellknown url.
 Some of these values may not be used right now, though they will likely be used in the future, so feel free to fill out what you like, though the more you fill out the more information we can give the users about your instance in the future.
 language should be [ISO 639-1](https://en.wikipedia.org/wiki/ISO_639-1_codes).
 Country should be [ISO 8166-2 alpha-2](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-2).
