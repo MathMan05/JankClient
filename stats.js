@@ -1,7 +1,7 @@
 const index = require("./index.js");
 const fs=require("node:fs");
 let uptimeObject={};
-if(fs.existsSync("./uptime.json")){
+if(fs.existsSync(__dirname+"/uptime.json")){
 	try{
 		uptimeObject=JSON.parse(fs.readFileSync(__dirname+"/uptime.json", "utf8"));
 	}catch{
