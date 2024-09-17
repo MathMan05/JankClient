@@ -134,3 +134,5 @@ testAccount.json
 CC
 uptime.json
 .directory
+.dist/
+bun.lockb

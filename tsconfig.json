@@ -1,18 +1,37 @@
- {
+{
   "compilerOptions": {
-    "target": "es2022",
-    "moduleResolution": "Bundler",
-    "module":"es2022",
-    "strict": false,
+    "allowSyntheticDefaultImports": true,
+    "alwaysStrict": true,
+    "declaration": true,
+    "declarationMap": true,
     "esModuleInterop": true,
-    "outDir": "./.dist",
+    "importHelpers": false,
+    "incremental": true,
+    "lib": [
+      "esnext",
+      "DOM"
+    ],
+    "module": "ES2022",
+    "moduleResolution": "Bundler",
+    "newLine": "lf",
+    "noEmitHelpers": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "preserveConstEnums": true,
+    "pretty": true,
     "removeComments": false,
-    "noImplicitThis":true,
-    "useUnknownInCatchVariables":true,
-    "strictNullChecks":true
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "strict": true,
+    "target": "ES2022",
+    "useDefineForClassFields": true,
+    "resolvePackageJsonImports": true,
+    "outDir": "./dist",
   },
   "include": [
-    "./webpage/*.ts"
+    "src/**/*.ts"
   ],
   "exclude": [
     "node_modules"
