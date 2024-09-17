@@ -84,7 +84,7 @@ type readyjson={
         session_id:string;
         country_code:string;
         users:userjson[];
-        merged_members:memberjson[];
+        merged_members:[memberjson][];
         sessions:{
             active: boolean,
             activities: [],//will need to find example of this
