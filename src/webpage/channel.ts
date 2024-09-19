@@ -248,6 +248,7 @@ class Channel extends SnowFlake{
 
 					}
 				}
+				return undefined;
 			},
 			async (id: string): Promise<HTMLElement>=>{
 				//await new Promise(_=>{setTimeout(_,Math.random()*10)})
@@ -367,7 +368,7 @@ class Channel extends SnowFlake{
 		return(
 			Boolean(this.lastmessageid) &&
 							(!this.lastreadmessageid ||
-							SnowFlake.stringToUnixTime(this.lastmessageid) >
+							SnowFlake.stringToUnixTime(this.lastmessageid as string) >
 							SnowFlake.stringToUnixTime(this.lastreadmessageid)) &&
 							this.type !== 4
 		);
@@ -504,7 +505,7 @@ class Channel extends SnowFlake{
 			decdiv.classList.add("channeleffects");
 			decdiv.classList.add("channel");
 
-			Channel.contextmenu.bindContextmenu(decdiv, this);
+			Channel.contextmenu.bindContextmenu(decdiv, this,undefined);
 			// @ts-ignore I dont wanna deal with this
 			decdiv.all = this;
 
@@ -540,7 +541,7 @@ class Channel extends SnowFlake{
 			if(this.hasunreads){
 				div.classList.add("cunread");
 			}
-			Channel.contextmenu.bindContextmenu(div, this);
+			Channel.contextmenu.bindContextmenu(div, this,undefined);
 			if(admin){
 				this.coatDropDiv(div);
 			}
@@ -576,7 +577,7 @@ class Channel extends SnowFlake{
 		if(this.html){
 			return this.html.deref();
 		}else{
-
+			return;
 		}
 	}
 	readbottom(){
@@ -781,7 +782,7 @@ class Channel extends SnowFlake{
 		}
 	}
 	async getmessage(id: string): Promise<Message>{
-		console.log("getting:"+id)
+		console.log("getting:"+id);
 		const message = this.messages.get(id);
 		if(message){
 			return message;

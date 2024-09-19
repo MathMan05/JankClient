@@ -1769,7 +1769,7 @@ class Localuser{
 							value.delete(thing);
 							continue;
 						}
-						func();
+						func(undefined);
 						value.delete(thing);
 					}
 				}

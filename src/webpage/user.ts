@@ -140,7 +140,7 @@ class User extends SnowFlake{
 		});
 		this.contextmenu.addbutton(
 			"Kick member",
-			(this: User, member: Member | undefined)=>{
+			function(this: User, member: Member | undefined){
 				member?.kick();
 			},
 			null,
@@ -158,7 +158,7 @@ class User extends SnowFlake{
 		);
 		this.contextmenu.addbutton(
 			"Ban member",
-			(this: User, member: Member | undefined)=>{
+			function(this: User, member: Member | undefined){
 				member?.ban();
 			},
 			null,

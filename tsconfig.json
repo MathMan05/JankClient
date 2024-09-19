@@ -29,7 +29,7 @@
     "useDefineForClassFields": true,
     "resolvePackageJsonImports": true,
     "skipLibCheck": true,
-    "outDir": "./dist",
+    "outDir": "./dist"
   },
   "include": [
     "src/**/*.ts"
