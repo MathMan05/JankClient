@@ -176,12 +176,10 @@ permission_overwrites!: Map<string, Permissions>;
 					"30 Days",
 					"Never",
 					],
-					function (_e: Event) {
-					/*
-					let expires: number = [
-					1800, 3600, 21600, 43200, 86400, 604800, 2592000, 0,
-					][(e.srcElement as HTMLSelectElement).selectedIndex];
-					*/
+					function (e: Event) {
+
+					expires = [1800, 3600, 21600, 43200, 86400, 604800, 2592000, 0,][(e.srcElement as HTMLSelectElement).selectedIndex];
+
 					update();
 					},
 					0,
@@ -198,12 +196,8 @@ permission_overwrites!: Map<string, Permissions>;
 					"50 uses",
 					"100 uses",
 					],
-					function (_e: Event) {
-					/*
-					let uses: number = [0, 1, 5, 10, 25, 50, 100][
-					(e.srcElement as HTMLSelectElement).selectedIndex
-					];
-					*/
+					function (e: Event) {
+					uses = [0, 1, 5, 10, 25, 50, 100][(e.srcElement as HTMLSelectElement).selectedIndex];
 					update();
 					},
 					0,
