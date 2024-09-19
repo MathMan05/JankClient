@@ -2,14 +2,18 @@
   "name": "jankclient",
   "version": "0.1.0",
   "description": "A SpaceBar Client written in JS HTML and CSS to run, clone the repo and do either `node index.js` or `bun index.js` both bun and node are supported, and both should function as expected, if there are any problems with Jank Client on things that aren't linux, please let me know. To access Jank Client after init simply go to http://localhost:8080/login and login with your username and password.",
-  "main": "index.js",
+  "main": ".dist/index.js",
+  "type": "module",
   "scripts": {
     "lint": "eslint .",
-    "start": "node index.js"
+    "build": "npx gulp",
+    "start": "node dist/index.js"
   },
   "author": "MathMan05",
   "license": "GPL-3.0",
   "dependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node-fetch": "^2.6.11",
     "compression": "^1.7.4",
     "express": "^4.19.2",
     "ts-to-jsdoc": "^2.2.0"
@@ -19,11 +23,15 @@
     "@html-eslint/eslint-plugin": "^0.25.0",
     "@html-eslint/parser": "^0.25.0",
     "@stylistic/eslint-plugin": "^2.3.0",
+    "@types/compression": "^1.7.5",
     "@types/eslint__js": "^8.42.3",
     "eslint": "^8.57.0",
     "eslint-plugin-html": "^8.1.1",
     "eslint-plugin-sonarjs": "^1.0.4",
     "eslint-plugin-unicorn": "^55.0.0",
+    "gulp": "^5.0.0",
+    "gulp-copy": "^5.0.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.5.4",
     "typescript-eslint": "^7.17.0"
