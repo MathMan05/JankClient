@@ -7,6 +7,10 @@ import fetch from "node-fetch";
 import path from "path";
 import { observe, uptime } from "./stats.js";
 import { getApiUrls, inviteResponse } from "./utils.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface Instance {
   name: string;
@@ -14,7 +18,7 @@ interface Instance {
 }
 
 const app = express();
-import instances from "./webpage/instances.json";
+import instances from "./webpage/instances.json" assert { type: "json" };
 const instanceNames = new Map<string, Instance>();
 
 for (const instance of instances) {
@@ -28,7 +32,7 @@ async function updateInstances(): Promise<void> {
     const response = await fetch(
       "https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/instances/instances.json"
     );
-    const json = await response.json() as Instance[];
+    const json = (await response.json()) as Instance[];
     for (const instance of json) {
       if (!instanceNames.has(instance.name)) {
         instances.push(instance as any);
