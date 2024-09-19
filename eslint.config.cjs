@@ -267,8 +267,8 @@ module.exports = [
       parser: tsParser,
       globals: global,
     },
-    files: ["webpage/*.ts"],
-    ignores: ["!*.js", "!*.ts"],
+    files: ["src/*.ts","src/**/*.ts",],
+    ignores: ["dist/", "node_modules/"],
     plugins: {
       unicorn,
       sonarjs,
