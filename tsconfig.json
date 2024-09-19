@@ -28,6 +28,7 @@
     "target": "ESNext",
     "useDefineForClassFields": true,
     "resolvePackageJsonImports": true,
+    "skipLibCheck": true,
     "outDir": "./dist",
   },
   "include": [
