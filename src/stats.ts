@@ -2,6 +2,10 @@ import fs from "node:fs";
 import path from "path";
 import fetch from "node-fetch";
 import { getApiUrls } from "./utils.js";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 interface UptimeEntry {
   time: number;
