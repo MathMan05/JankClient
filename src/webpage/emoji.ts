@@ -17,6 +17,8 @@ class Emoji{
 	get guild(){
 		if(this.owner instanceof Guild){
 			return this.owner;
+		}else{
+			return undefined;
 		}
 	}
 	get localuser(){
@@ -121,6 +123,7 @@ class Emoji{
 				return e.arrayBuffer();
 			})
 			.then(e=>{
+				console.log(e);
 				Emoji.decodeEmojiList(e);
 			});
 	}

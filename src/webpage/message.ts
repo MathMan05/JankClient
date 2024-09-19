@@ -227,7 +227,7 @@ class Message extends SnowFlake{
 		}else if(userd instanceof Member){
 			return this.mentions.includes(userd.user);
 		}else{
-
+			return false;
 		}
 	}
 	getimages(){

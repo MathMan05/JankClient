@@ -94,7 +94,7 @@ static async resolveMember(
 		const promise = new Promise<Member | undefined>(async res=>{
 			const membjson = await membpromise;
 			if(membjson === undefined){
-				return res();
+				return res(undefined);
 			}else{
 				const member = new Member(membjson, guild);
 				const map = guild.localuser.presences;

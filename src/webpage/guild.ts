@@ -72,7 +72,7 @@ class Guild extends SnowFlake{
 
 		Guild.contextmenu.addbutton(
 			"Create invite",
-			(this: Guild)=>{},
+			function(this: Guild){},
 			null,
 			_=>true,
 			_=>false
@@ -377,7 +377,7 @@ class Guild extends SnowFlake{
 					guild.loadGuild();
 					guild.loadChannel();
 				};
-				Guild.contextmenu.bindContextmenu(img, guild);
+				Guild.contextmenu.bindContextmenu(img, guild,undefined);
 			}
 		}else{
 			const div = document.createElement("div");
@@ -399,7 +399,7 @@ class Guild extends SnowFlake{
 					guild.loadGuild();
 					guild.loadChannel();
 				};
-				Guild.contextmenu.bindContextmenu(div, guild);
+				Guild.contextmenu.bindContextmenu(div, guild,undefined);
 			}
 		}
 		return divy;

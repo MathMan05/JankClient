@@ -150,7 +150,7 @@ class Group extends Channel{
 	}
 	createguildHTML(){
 		const div = document.createElement("div");
-		Group.contextmenu.bindContextmenu(div, this);
+		Group.contextmenu.bindContextmenu(div, this,undefined);
 		this.html = new WeakRef(div);
 		div.classList.add("channeleffects");
 		const myhtml = document.createElement("span");
