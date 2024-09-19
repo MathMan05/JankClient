@@ -2,113 +2,113 @@ import fetch from "node-fetch";
 import { Request, Response } from "express";
 
 interface ApiUrls {
-  api: string;
-  gateway: string;
-  cdn: string;
-  wellknown: string;
+api: string;
+gateway: string;
+cdn: string;
+wellknown: string;
 }
 
 interface Invite {
-  guild: {
-    name: string;
-    description?: string;
-    icon?: string;
-    id: string;
-  };
-  inviter?: {
-    username: string;
-  };
+guild: {
+name: string;
+description?: string;
+icon?: string;
+id: string;
+};
+inviter?: {
+username: string;
+};
 }
 
 export async function getApiUrls(url: string): Promise<ApiUrls | null> {
-  if (!url.endsWith("/")) {
-    url += "/";
-  }
-  try {
-    const info: ApiUrls = await fetch(`${url}.well-known/spacebar`).then(
-      (res) => res.json() as Promise<ApiUrls>
-    );
-    const api = info.api;
-    const apiUrl = new URL(api);
-    const policies: any = await fetch(
-      `${api}${
-        apiUrl.pathname.includes("api") ? "" : "api"
-      }/policies/instance/domains`
-    ).then((res) => res.json());
-    return {
-      api: policies.apiEndpoint,
-      gateway: policies.gateway,
-      cdn: policies.cdn,
-      wellknown: url,
-    };
-  } catch (error) {
-    console.error("Error fetching API URLs:", error);
-    return null;
-  }
-}
+	if (!url.endsWith("/")) {
+	url += "/";
+	}
+	try {
+	const info: ApiUrls = await fetch(`${url}.well-known/spacebar`).then(
+	(res) => res.json() as Promise<ApiUrls>
+		);
+		const api = info.api;
+		const apiUrl = new URL(api);
+		const policies: any = await fetch(
+		`${api}${
+		apiUrl.pathname.includes("api") ? "" : "api"
+		}/policies/instance/domains`
+		).then((res) => res.json());
+		return {
+		api: policies.apiEndpoint,
+		gateway: policies.gateway,
+		cdn: policies.cdn,
+		wellknown: url,
+		};
+		} catch (error) {
+		console.error("Error fetching API URLs:", error);
+		return null;
+		}
+		}
 
-export async function inviteResponse(
-  req: Request,
-  res: Response
-): Promise<void> {
-  let url: URL;
-  if (URL.canParse(req.query.url as string)) {
-    url = new URL(req.query.url as string);
-  } else {
-    const scheme = req.secure ? "https" : "http";
-    const host = `${scheme}://${req.get("Host")}`;
-    url = new URL(host);
-  }
+		export async function inviteResponse(
+		req: Request,
+		res: Response
+		): Promise<void> {
+			let url: URL;
+			if (URL.canParse(req.query.url as string)) {
+			url = new URL(req.query.url as string);
+			} else {
+			const scheme = req.secure ? "https" : "http";
+			const host = `${scheme}://${req.get("Host")}`;
+			url = new URL(host);
+			}
 
-  try {
-    if (url.pathname.startsWith("invite")) {
-      throw new Error("Invalid invite URL");
-    }
+			try {
+			if (url.pathname.startsWith("invite")) {
+			throw new Error("Invalid invite URL");
+			}
 
-    const code = url.pathname.split("/")[2];
-    const instance = url.searchParams.get("instance");
-    if (!instance) {
-      throw new Error("Instance not specified");
-    }
-    const urls = await getApiUrls(instance);
-    if (!urls) {
-      throw new Error("Failed to get API URLs");
-    }
+			const code = url.pathname.split("/")[2];
+			const instance = url.searchParams.get("instance");
+			if (!instance) {
+			throw new Error("Instance not specified");
+			}
+			const urls = await getApiUrls(instance);
+			if (!urls) {
+			throw new Error("Failed to get API URLs");
+			}
 
-    const invite = await fetch(`${urls.api}/invites/${code}`).then(
-      (res) => res.json() as Promise<Invite>
-    );
-    const title = invite.guild.name;
-    const description = invite.inviter
-      ? `${invite.inviter.username} has invited you to ${invite.guild.name}${
-          invite.guild.description ? `\n${invite.guild.description}` : ""
-        }`
-      : `You've been invited to ${invite.guild.name}${
-          invite.guild.description ? `\n${invite.guild.description}` : ""
-        }`;
-    const thumbnail = invite.guild.icon
-      ? `${urls.cdn}/icons/${invite.guild.id}/${invite.guild.icon}.png`
-      : "";
+			const invite = await fetch(`${urls.api}/invites/${code}`).then(
+			(res) => res.json() as Promise<Invite>
+				);
+				const title = invite.guild.name;
+				const description = invite.inviter
+				? `${invite.inviter.username} has invited you to ${invite.guild.name}${
+				invite.guild.description ? `\n${invite.guild.description}` : ""
+				}`
+				: `You've been invited to ${invite.guild.name}${
+				invite.guild.description ? `\n${invite.guild.description}` : ""
+				}`;
+				const thumbnail = invite.guild.icon
+				? `${urls.cdn}/icons/${invite.guild.id}/${invite.guild.icon}.png`
+				: "";
 
-    const jsonResponse = {
-      type: "link",
-      version: "1.0",
-      title,
-      thumbnail,
-      description,
-    };
+				const jsonResponse = {
+				type: "link",
+				version: "1.0",
+				title,
+				thumbnail,
+				description,
+				};
 
-    res.json(jsonResponse);
-  } catch (error) {
-    console.error("Error processing invite response:", error);
-    const jsonResponse = {
-      type: "link",
-      version: "1.0",
-      title: "Jank Client",
-      thumbnail: "/logo.webp",
-      description: "A spacebar client that has DMs, replying and more",
-      url: url.toString(),
-    };
-    res.json(jsonResponse);
-  }
-}
+				res.json(jsonResponse);
+				} catch (error) {
+				console.error("Error processing invite response:", error);
+				const jsonResponse = {
+				type: "link",
+				version: "1.0",
+				title: "Jank Client",
+				thumbnail: "/logo.webp",
+				description: "A spacebar client that has DMs, replying and more",
+				url: url.toString(),
+				};
+				res.json(jsonResponse);
+				}
+				}
