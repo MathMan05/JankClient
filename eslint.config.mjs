@@ -16,6 +16,7 @@ export default tseslint.config(
       },
     },
     files: ["**/*.ts", "**/*.html"],
+    ignores: ["dist/**/*", "node_modules/**/*"],
     rules: {
       "array-callback-return": 2,
       "block-scoped-var": 2,
