@@ -46,7 +46,7 @@ function loadUptimeObject(): UptimeObject {
 
 function saveUptimeObject(): void {
   fs.writeFile(
-    `${__dirname}/uptime.json`,
+    path.join(__dirname, "..", "uptime.json"),
     JSON.stringify(uptimeObject),
     (error) => {
       if (error) {
@@ -86,6 +86,7 @@ async function resolveInstance(
       return;
     }
     activeInstances.add(instance.name);
+    await checkHealth(instance, api); // Ensure health is checked immediately
     scheduleHealthCheck(instance, api);
   } catch (error) {
     console.error("Error resolving instance:", error);
@@ -124,14 +125,16 @@ async function checkHealth(
   tries = 0
 ): Promise<void> {
   try {
-    const response = await fetch(`${api}ping`, { method: "HEAD" });
+    const response = await fetch(`${api}/ping`, { method: "HEAD" });
+    console.log(`Checking health for ${instance.name}: ${response.status}`);
     if (response.ok || tries > 3) {
+      console.log(`Setting status for ${instance.name} to ${response.ok}`);
       setStatus(instance, response.ok);
     } else {
       retryHealthCheck(instance, api, tries);
     }
   } catch (error) {
-    console.error("Error checking health:", error);
+    console.error(`Error checking health for ${instance.name}:`, error);
     if (tries > 3) {
       setStatus(instance, false);
     } else {
@@ -240,12 +243,13 @@ function setStatus(instance: string | Instance, status: boolean): void {
     uptimeObject[name] = obj;
   }
 
-  if (obj.at(-1)?.online !== status) {
+  const lastEntry = obj.at(-1);
+  if (!lastEntry || lastEntry.online !== status) {
     obj.push({ time: Date.now(), online: status });
     saveUptimeObject();
-  }
 
-  if (typeof instance !== "string") {
-    calcStats(instance);
+    if (typeof instance !== "string") {
+      calcStats(instance);
+    }
   }
 }
