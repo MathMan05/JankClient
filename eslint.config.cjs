@@ -267,7 +267,7 @@ module.exports = [
       parser: tsParser,
       globals: global,
     },
-    files: ["src/*.ts","src/**/*.ts",],
+    files: ["src/**/*.ts",],
     ignores: ["dist/", "node_modules/"],
     plugins: {
       unicorn,
