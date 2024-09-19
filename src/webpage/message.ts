@@ -21,7 +21,11 @@ class Message extends SnowFlake{
 	mentions!: User[];
 	mention_roles!: Role[];
 	attachments!: File[]; //probably should be its own class tbh, should be Attachments[]
-	message_reference!: messagejson;
+	message_reference!: {
+		guild_id: string,
+		channel_id: string,
+		message_id: string
+	};
 	type!: number;
 	timestamp!: number;
 	content!: MarkDown;
@@ -417,7 +421,7 @@ class Message extends SnowFlake{
 			line.classList.add("startreply");
 			replyline.classList.add("replyflex");
 			// TODO: Fix this
-			this.channel.getmessage(this.message_reference.id).then(message=>{
+			this.channel.getmessage(this.message_reference.message_id).then(message=>{
 				if(message.author.relationshipType === 2){
 					username.textContent = "Blocked user";
 					return;
@@ -431,7 +435,7 @@ class Message extends SnowFlake{
 			});
 			reply.onclick = _=>{
 				// TODO: FIX this
-				this.channel.infinite.focus(this.message_reference.id);
+				this.channel.infinite.focus(this.message_reference.message_id);
 			};
 			div.appendChild(replyline);
 		}
