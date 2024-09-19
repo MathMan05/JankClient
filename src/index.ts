@@ -18,7 +18,7 @@ interface Instance {
 }
 
 const app = express();
-import instances from "./webpage/instances.json" assert { type: "json" };
+import instances from "./webpage/instances.json" with { type: "json" };
 const instanceNames = new Map<string, Instance>();
 
 for (const instance of instances) {
