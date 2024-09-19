@@ -25,12 +25,12 @@ export async function getApiUrls(url: string): Promise<ApiUrls | null> {
     url += "/";
   }
   try {
-    const info = await fetch(`${url}.well-known/spacebar`).then((res) =>
-      res.json()
+    const info: ApiUrls = await fetch(`${url}.well-known/spacebar`).then(
+      (res) => res.json() as Promise<ApiUrls>
     );
     const api = info.api;
     const apiUrl = new URL(api);
-    const policies = await fetch(
+    const policies: any = await fetch(
       `${api}${
         apiUrl.pathname.includes("api") ? "" : "api"
       }/policies/instance/domains`

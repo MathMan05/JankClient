@@ -28,7 +28,7 @@ async function updateInstances(): Promise<void> {
     const response = await fetch(
       "https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/instances/instances.json"
     );
-    const json: Instance[] = await response.json();
+    const json = await response.json() as Instance[];
     for (const instance of json) {
       if (!instanceNames.has(instance.name)) {
         instances.push(instance as any);
