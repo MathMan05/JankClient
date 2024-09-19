@@ -25,7 +25,7 @@
     "resolveJsonModule": true,
     "sourceMap": true,
     "strict": true,
-    "target": "ES2022",
+    "target": "ESNext",
     "useDefineForClassFields": true,
     "resolvePackageJsonImports": true,
     "outDir": "./dist",
