@@ -35,14 +35,14 @@ const swcOptions = {
 
 // Task to compile TypeScript files using SWC
 gulp.task("scripts", () => {
-  if (argv.ts) {
-    console.warn("[WARN] Using TSC compiler, will be slower than SWC");
-    return gulp.src("src/**/*.ts").pipe(tsProject()).pipe(gulp.dest("dist"));
-  } else {
+  if (argv.swc) {
     return gulp
       .src("src/**/*.ts")
       .pipe(swc(swcOptions))
       .pipe(gulp.dest("dist"));
+  } else {
+    console.warn("[WARN] Using TSC compiler, will be slower than SWC");
+    return gulp.src("src/**/*.ts").pipe(tsProject()).pipe(gulp.dest("dist"));
   }
 });
 
