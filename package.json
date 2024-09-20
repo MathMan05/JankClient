@@ -14,11 +14,13 @@
   "dependencies": {
     "@html-eslint/parser": "^0.27.0",
     "@stylistic/eslint-plugin-js": "^2.8.0",
+    "@swc/core": "^1.7.26",
     "@typescript-eslint/eslint-plugin": "^8.6.0",
     "@typescript-eslint/parser": "^8.6.0",
     "compression": "^1.7.4",
     "eslint-plugin-html": "^8.1.1",
     "express": "^4.19.2",
+    "gulp-swc": "^2.2.0",
     "node-fetch": "^3.3.2",
     "ts-to-jsdoc": "^2.2.0"
   },
