@@ -261,7 +261,7 @@ async function getapiurls(str: string): Promise<
 	}
 	let api: string;
 	try{
-		const info = await fetch(`${str}/.well-known/spacebar`).then(x=>x.json()
+		const info = await fetch(`${str}.well-known/spacebar`).then(x=>x.json()
 		);
 		api = info.api;
 	}catch{
