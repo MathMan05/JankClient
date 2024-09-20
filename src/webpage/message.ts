@@ -208,7 +208,7 @@ class Message extends SnowFlake{
 		return this.owner.info;
 	}
 	messageevents(obj: HTMLDivElement){
-		// const func = Message.contextmenu.bindContextmenu(obj, this, undefined);
+		Message.contextmenu.bindContextmenu(obj, this, undefined);
 		this.div = obj;
 		obj.classList.add("messagediv");
 	}
