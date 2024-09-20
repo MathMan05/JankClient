@@ -1,15 +1,69 @@
 const gulp = require("gulp");
 const ts = require("gulp-typescript");
+const swc = require("gulp-swc");
 const tsProject = ts.createProject("tsconfig.json");
+const argv = require("yargs").argv;
+const rimraf = require("rimraf");
+const plumber = require("gulp-plumber");
 
-// Task to compile TypeScript files
+const swcOptions = {
+  jsc: {
+    parser: {
+      syntax: "typescript",
+      tsx: false,
+      decorators: true,
+      dynamicImport: true,
+    },
+    transform: {
+      react: {
+        runtime: "automatic",
+      },
+    },
+    target: "es2022",
+    loose: false,
+    externalHelpers: false,
+    keepClassNames: true,
+  },
+  module: {
+    type: "es6",
+    strict: true,
+    strictMode: true,
+    lazy: false,
+    noInterop: false,
+  },
+  sourceMaps: "inline",
+  minify: false,
+};
+
+// Clean task to delete the dist directory
+gulp.task("clean", (cb) => {
+  return rimraf.rimraf("dist").then(cb());
+});
+
+// Task to compile TypeScript files using SWC
 gulp.task("scripts", () => {
-  return tsProject.src().pipe(tsProject()).js.pipe(gulp.dest("dist"));
+  if (argv.swc) {
+    return gulp
+      .src("src/**/*.ts")
+      .pipe(plumber()) // Prevent pipe breaking caused by errors
+      .pipe(swc(swcOptions))
+      .pipe(gulp.dest("dist"));
+  } else {
+    console.warn("[WARN] Using TSC compiler, will be slower than SWC");
+    return gulp
+      .src("src/**/*.ts")
+      .pipe(plumber()) // Prevent pipe breaking caused by errors
+      .pipe(tsProject())
+      .pipe(gulp.dest("dist"));
+  }
 });
 
 // Task to copy HTML files
 gulp.task("copy-html", () => {
-  return gulp.src("src/**/*.html").pipe(gulp.dest("dist"));
+  return gulp
+    .src("src/**/*.html")
+    .pipe(plumber()) // Prevent pipe breaking caused by errors
+    .pipe(gulp.dest("dist"));
 });
 
 // Task to copy other static assets (e.g., CSS, images)
@@ -27,8 +81,12 @@ gulp.task("copy-assets", () => {
       "src/**/*.gif",
       "src/**/*.svg",
     ],{encoding:false})
+    .pipe(plumber()) // Prevent pipe breaking caused by errors
     .pipe(gulp.dest("dist"));
 });
 
 // Default task to run all tasks
-gulp.task("default", gulp.series("scripts", "copy-html", "copy-assets"));
+gulp.task(
+  "default",
+  gulp.series("clean", gulp.parallel("scripts", "copy-html", "copy-assets"))
+);
