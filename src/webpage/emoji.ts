@@ -115,7 +115,6 @@ class Emoji{
 			});
 		}
 		this.emojis = build;
-		console.log(build);
 	}
 	static grabEmoji(){
 		fetch("/emoji.bin")
@@ -123,7 +122,6 @@ class Emoji{
 				return e.arrayBuffer();
 			})
 			.then(e=>{
-				console.log(e);
 				Emoji.decodeEmojiList(e);
 			});
 	}

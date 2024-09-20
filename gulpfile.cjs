@@ -26,7 +26,7 @@ gulp.task("copy-assets", () => {
       "src/**/*.jpeg",
       "src/**/*.gif",
       "src/**/*.svg",
-    ])
+    ],{encoding:false})
     .pipe(gulp.dest("dist"));
 });
 
