@@ -3,6 +3,7 @@ const ts = require("gulp-typescript");
 const swc = require("gulp-swc");
 const tsProject = ts.createProject("tsconfig.json");
 const argv = require("yargs").argv;
+const rimraf = require("rimraf");
 
 const swcOptions = {
   jsc: {
@@ -32,6 +33,11 @@ const swcOptions = {
   sourceMaps: "inline",
   minify: false,
 };
+
+// Clean task to delete the dist directory
+gulp.task("clean", () => {
+  return rimraf.rimraf("dist");
+});
 
 // Task to compile TypeScript files using SWC
 gulp.task("scripts", () => {
@@ -70,4 +76,7 @@ gulp.task("copy-assets", () => {
 });
 
 // Default task to run all tasks
-gulp.task("default", gulp.series("scripts", "copy-html", "copy-assets"));
+gulp.task(
+  "default",
+  gulp.series("clean", gulp.parallel("scripts", "copy-html", "copy-assets"))
+);
