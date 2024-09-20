@@ -1,10 +1,49 @@
 const gulp = require("gulp");
 const ts = require("gulp-typescript");
+const swc = require("gulp-swc");
 const tsProject = ts.createProject("tsconfig.json");
+const argv = require("yargs").argv;
 
-// Task to compile TypeScript files
+const swcOptions = {
+  jsc: {
+    parser: {
+      syntax: "typescript",
+      tsx: false,
+      decorators: true,
+      dynamicImport: true,
+    },
+    transform: {
+      react: {
+        runtime: "automatic",
+      },
+    },
+    target: "es2022",
+    loose: false,
+    externalHelpers: false,
+    keepClassNames: true,
+  },
+  module: {
+    type: "es6",
+    strict: true,
+    strictMode: true,
+    lazy: false,
+    noInterop: false,
+  },
+  sourceMaps: "inline",
+  minify: false,
+};
+
+// Task to compile TypeScript files using SWC
 gulp.task("scripts", () => {
-  return tsProject.src().pipe(tsProject()).js.pipe(gulp.dest("dist"));
+  if (argv.ts) {
+    console.warn("[WARN] Using TSC compiler, will be slower than SWC");
+    return gulp.src("src/**/*.ts").pipe(tsProject()).pipe(gulp.dest("dist"));
+  } else {
+    return gulp
+      .src("src/**/*.ts")
+      .pipe(swc(swcOptions))
+      .pipe(gulp.dest("dist"));
+  }
 });
 
 // Task to copy HTML files
