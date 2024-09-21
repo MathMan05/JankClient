@@ -18,7 +18,7 @@ inside of webpage you'll see a file called `instances.json` in that file you'll 
         "login"?:<The URL that's used for login>
     },
     "contactInfo"?:{
-        "dicord"?:<Discord @>,
+        "discord"?:<Discord @>,
         "github"?:<github profile URL>,
         "email"?:<email address>,
         "spacebar":?:<spacebar username>,
