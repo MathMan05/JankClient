@@ -20,9 +20,27 @@
             "gateway": "wss://spacebar.greysilly7.xyz"
         },
         "contactInfo": {
-            "dicord": "greysilly7",
+            "discord": "greysilly7",
             "github": "https://github.com/greysilly7",
             "email": "greysilly7@gmail.com"
+        }
+    },
+    {
+        "name": "Star Chat",
+        "description": "Star's special version of Spacebar",
+        "language": "en",
+        "country": "US",
+        "display": true,
+        "urls": {
+            "api": "https://spacebar.prismbot.icu",
+            "cdn": "https://spacebar.prismbot.icu",
+            "gateway": "wss://spacebar.prismbot.icu"
+        },
+        "contactInfo": {
+            "discord": "death_waffle",
+            "github": "https://github.com/LeDeathAmongst",
+            "email": "skylar.rae.val@proton.me",
+            "spacebar": "rosilla07"
         }
     }
 ]
