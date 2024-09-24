@@ -3,6 +3,12 @@
         "name": "Spacebar",
         "description": "The official Spacebar instance.",
         "image": "https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/branding/png/Spacebar__Icon-Discord.png",
+        "urls":{
+            "wellknown": "https://spacebar.chat/",
+            "api": "https://old.server.spacebar.chat/api",
+            "cdn": "https://cdn.old.server.spacebar.chat",
+            "gateway": "wss://gateway.old.server.spacebar.chat"
+        },
         "url": "https://spacebar.chat"
     },
     {

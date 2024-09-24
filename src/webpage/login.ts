@@ -214,7 +214,7 @@ const stringURLsMap = new Map<
 	}
 	>();
 async function getapiurls(str: string): Promise<
-	| {
+	{
 	api: string;
 	cdn: string;
 	gateway: string;
@@ -225,6 +225,15 @@ async function getapiurls(str: string): Promise<
 	>{
 	if(!URL.canParse(str)){
 		const val = stringURLMap.get(str);
+		if(stringURLMap.size===0){
+			await new Promise<void>(res=>{
+				setInterval(()=>{
+					if(stringURLMap.size!==0){
+						res();
+					}
+				},100)
+			})
+		}
 		if(val){
 			str = val;
 		}else{
@@ -236,21 +245,21 @@ async function getapiurls(str: string): Promise<
 				if(responce.ok){
 					if(val.login){
 						return val as {
-	wellknown: string;
-	api: string;
-	cdn: string;
-	gateway: string;
-	login: string;
-	};
+							wellknown: string;
+							api: string;
+							cdn: string;
+							gateway: string;
+							login: string;
+						};
 					}else{
 						val.login = val.api;
 						return val as {
-	wellknown: string;
-	api: string;
-	cdn: string;
-	gateway: string;
-	login: string;
-	};
+							wellknown: string;
+							api: string;
+							cdn: string;
+							gateway: string;
+							login: string;
+						};
 					}
 				}
 			}
@@ -265,6 +274,9 @@ async function getapiurls(str: string): Promise<
 		);
 		api = info.api;
 	}catch{
+		api=str;
+	}
+	if(!URL.canParse(api)){
 		return false;
 	}
 	const url = new URL(api);
@@ -314,35 +326,35 @@ async function getapiurls(str: string): Promise<
 async function checkInstance(instance?: string){
 	const verify = document.getElementById("verify");
 	try{
-	verify!.textContent = "Checking Instance";
-	const instanceValue = instance || (instancein as HTMLInputElement).value;
-	const instanceinfo = (await getapiurls(instanceValue)) as {
-	wellknown: string;
-	api: string;
-	cdn: string;
-	gateway: string;
-	login: string;
-	value: string;
-	};
-	if(instanceinfo){
-		instanceinfo.value = instanceValue;
-		localStorage.setItem("instanceinfo", JSON.stringify(instanceinfo));
-	verify!.textContent = "Instance is all good";
-	// @ts-ignore
-	if(checkInstance.alt){
-	// @ts-ignore
-		checkInstance.alt();
-	}
-	setTimeout((_: any)=>{
-		console.log(verify!.textContent);
-	verify!.textContent = "";
-	}, 3000);
-	}else{
-	verify!.textContent = "Invalid Instance, try again";
-	}
+		verify!.textContent = "Checking Instance";
+		const instanceValue = instance || (instancein as HTMLInputElement).value;
+		const instanceinfo = (await getapiurls(instanceValue)) as {
+			wellknown: string;
+			api: string;
+			cdn: string;
+			gateway: string;
+			login: string;
+			value: string;
+		}
+		if(instanceinfo){
+			instanceinfo.value = instanceValue;
+			localStorage.setItem("instanceinfo", JSON.stringify(instanceinfo));
+			verify!.textContent = "Instance is all good";
+			// @ts-ignore
+			if(checkInstance.alt){
+			// @ts-ignore
+				checkInstance.alt();
+			}
+			setTimeout((_: any)=>{
+				console.log(verify!.textContent);
+			verify!.textContent = "";
+			}, 3000);
+		}else{
+			verify!.textContent = "Invalid Instance, try again";
+		}
 	}catch{
 		console.log("catch");
-	verify!.textContent = "Invalid Instance, try again";
+		verify!.textContent = "Invalid Instance, try again";
 	}
 }
 
@@ -569,24 +581,23 @@ export function getInstances(){
 fetch("/instances.json")
 	.then(_=>_.json())
 	.then(
-		(
-			json: {
-	name: string;
-	description?: string;
-	descriptionLong?: string;
-	image?: string;
-	url?: string;
-	display?: boolean;
-	online?: boolean;
-	uptime: { alltime: number; daytime: number; weektime: number };
-	urls: {
-	wellknown: string;
-	api: string;
-	cdn: string;
-	gateway: string;
-	login?: string;
-	};
-	}[]
+		(json: {
+			name: string;
+			description?: string;
+			descriptionLong?: string;
+			image?: string;
+			url?: string;
+			display?: boolean;
+			online?: boolean;
+			uptime: { alltime: number; daytime: number; weektime: number };
+			urls: {
+				wellknown: string;
+				api: string;
+				cdn: string;
+				gateway: string;
+				login?: string;
+			}
+		}[]
 		)=>{
 			instances = json;
 			if(datalist){
