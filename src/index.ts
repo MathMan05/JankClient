@@ -8,7 +8,7 @@ import path from"node:path";
 import{ observe, uptime }from"./stats.js";
 import{ getApiUrls, inviteResponse }from"./utils.js";
 import{ fileURLToPath }from"node:url";
-
+const devmode = (process.env.NODE_ENV || 'development')==='development';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -34,9 +34,7 @@ async function updateInstances(): Promise<void>{
 		);
 		const json = (await response.json()) as Instance[];
 		for(const instance of json){
-			if(!instanceNames.has(instance.name)){
-				instances.push(instance as any);
-			}else{
+			if(instanceNames.has(instance.name)){
 				const existingInstance = instanceNames.get(instance.name);
 				if(existingInstance){
 					for(const key of Object.keys(instance)){
@@ -45,6 +43,8 @@ async function updateInstances(): Promise<void>{
 						}
 					}
 				}
+			}else{
+				instances.push(instance as any);
 			}
 		}
 		observe(instances);
@@ -53,7 +53,7 @@ async function updateInstances(): Promise<void>{
 	}
 }
 
-updateInstances();
+//updateInstances();
 
 app.use("/getupdates", (_req: Request, res: Response)=>{
 	try{
@@ -104,10 +104,31 @@ app.use("/", async (req: Request, res: Response)=>{
 
 	const filePath = path.join(__dirname, "webpage", req.path);
 	if(fs.existsSync(filePath)){
+		if(devmode){
+			const filePath2 = path.join(__dirname, "../src/webpage", req.path);
+			if(fs.existsSync(filePath2)){
+				res.sendFile(filePath2);
+				return;
+			}
+		}
 		res.sendFile(filePath);
 	}else if(fs.existsSync(`${filePath}.html`)){
+		if(devmode){
+			const filePath2 = path.join(__dirname, "../src/webpage", req.path);
+			if(fs.existsSync(filePath2+".html")){
+				res.sendFile(filePath2+".html");
+				return;
+			}
+		}
 		res.sendFile(`${filePath}.html`);
 	}else{
+		if(req.path.startsWith("/src/webpage")){
+			const filePath2 = path.join(__dirname, "..", req.path);
+			if(fs.existsSync(`${filePath2}`)){
+				res.sendFile(filePath2);
+				return;
+			}
+		}
 		res.sendFile(path.join(__dirname, "webpage", "index.html"));
 	}
 });
