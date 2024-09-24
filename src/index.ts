@@ -53,7 +53,7 @@ async function updateInstances(): Promise<void>{
 	}
 }
 
-//updateInstances();
+updateInstances();
 
 app.use("/getupdates", (_req: Request, res: Response)=>{
 	try{
