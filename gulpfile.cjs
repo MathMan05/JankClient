@@ -5,7 +5,7 @@ const tsProject = ts.createProject("tsconfig.json");
 const argv = require("yargs").argv;
 const rimraf = require("rimraf");
 const plumber = require("gulp-plumber");
-
+const sourcemaps = require('gulp-sourcemaps');
 const swcOptions = {
   jsc: {
     parser: {
@@ -31,7 +31,7 @@ const swcOptions = {
     lazy: false,
     noInterop: false,
   },
-  sourceMaps: "inline",
+  sourceMaps: true,
   minify: false,
 };
 
@@ -45,15 +45,19 @@ gulp.task("scripts", () => {
   if (argv.swc) {
     return gulp
       .src("src/**/*.ts")
+      .pipe(sourcemaps.init())
       .pipe(plumber()) // Prevent pipe breaking caused by errors
       .pipe(swc(swcOptions))
+      .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest("dist"));
   } else {
     console.warn("[WARN] Using TSC compiler, will be slower than SWC");
     return gulp
       .src("src/**/*.ts")
+      .pipe(sourcemaps.init())
       .pipe(plumber()) // Prevent pipe breaking caused by errors
       .pipe(tsProject())
+      .pipe(sourcemaps.write('.'))
       .pipe(gulp.dest("dist"));
   }
 });
