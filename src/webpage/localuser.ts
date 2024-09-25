@@ -1298,7 +1298,7 @@ class Localuser{
 							if(json.message) form.error("name", json.message);
 							else{
 								devPortal.returnFromSub();
-								this.manageApplication(json.id);
+								this.manageApplication(json.id,devPortal);
 							}
 						},
 						{
@@ -1373,8 +1373,6 @@ class Localuser{
 			headers: this.headers,
 		});
 		const json = await res.json();
-
-		const fields: any = {};
 		const form=container.addSubForm(json.name,()=>{},{
 			fetchURL:this.info.api + "/applications/" + appId,
 			method:"PATCH",
