@@ -101,7 +101,10 @@ app.use("/", async (req: Request, res: Response)=>{
 		res.sendFile(path.join(__dirname, "webpage", "invite.html"));
 		return;
 	}
-
+	if(req.path.endsWith("service.js")){
+		res.send("nope :3");
+		return;
+	}
 	const filePath = path.join(__dirname, "webpage", req.path);
 	if(fs.existsSync(filePath)){
 		if(devmode){
