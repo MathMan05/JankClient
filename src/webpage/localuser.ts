@@ -16,7 +16,7 @@ import{
 	wsjson,
 }from"./jsontypes.js";
 import{ Member }from"./member.js";
-import{ FormError, Settings }from"./settings.js";
+import{ Form, FormError, Options, Settings }from"./settings.js";
 import{ MarkDown }from"./markdown.js";
 
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
@@ -1286,349 +1286,156 @@ class Localuser{
 		{
 			const devPortal = settings.addButton("Developer Portal");
 
-			const teamsRes = await fetch(this.info.api + "/teams", {
+			fetch(this.info.api + "/teams", {
 				headers: this.headers,
-			});
-			const teams = await teamsRes.json();
+			}).then(async (teamsRes)=>{
+				const teams = await teamsRes.json();
 
-			devPortal.addButtonInput("", "Create application", ()=>{
-				const form = devPortal.addSubForm(
-					"Create application",
-					(json: any)=>{
-						if(json.message) form.error("name", json.message);
-						else{
-							devPortal.returnFromSub();
-							this.manageApplication(json.id);
-						}
-					},
-					{
-						fetchURL: this.info.api + "/applications",
-						headers: this.headers,
-						method: "POST",
-					}
-				);
-
-				form.addTextInput("Name", "name", { required: true });
-				form.addSelect(
-					"Team",
-					"team_id",
-					["Personal", ...teams.map((team: { name: string })=>team.name)],
-					{
-						defaultIndex: 0,
-					}
-				);
-			});
-
-			const appListContainer = document.createElement("div");
-			appListContainer.id = "app-list-container";
-			fetch(this.info.api + "/applications", {
-				headers: this.headers,
-			})
-				.then(r=>r.json())
-				.then(json=>{
-					json.forEach(
-						(application: {
-              cover_image: any;
-              icon: any;
-              id: string | undefined;
-              name: string | number;
-              bot: any;
-            })=>{
-							const container = document.createElement("div");
-
-							if(application.cover_image || application.icon){
-								const cover = document.createElement("img");
-								cover.crossOrigin = "anonymous";
-								cover.src =
-                  this.info.cdn +
-                  "/app-icons/" +
-                  application.id +
-                  "/" +
-                  (application.cover_image || application.icon) +
-                  ".png?size=256";
-								cover.alt = "";
-								cover.loading = "lazy";
-								container.appendChild(cover);
+				devPortal.addButtonInput("", "Create application", ()=>{
+					const form = devPortal.addSubForm(
+						"Create application",
+						(json: any)=>{
+							if(json.message) form.error("name", json.message);
+							else{
+								devPortal.returnFromSub();
+								this.manageApplication(json.id);
 							}
+						},
+						{
+							fetchURL: this.info.api + "/applications",
+							headers: this.headers,
+							method: "POST",
+						}
+					);
 
-							const name = document.createElement("h2");
-							name.textContent =
-                application.name + (application.bot ? " (Bot)" : "");
-							container.appendChild(name);
-
-							container.addEventListener("click", async ()=>{
-								this.manageApplication(application.id);
-							});
-							appListContainer.appendChild(container);
+					form.addTextInput("Name", "name", { required: true });
+					form.addSelect(
+						"Team",
+						"team_id",
+						["Personal", ...teams.map((team: { name: string })=>team.name)],
+						{
+							defaultIndex: 0,
 						}
 					);
 				});
-			devPortal.addHTMLArea(appListContainer);
+
+				const appListContainer = document.createElement("div");
+				appListContainer.id = "app-list-container";
+				fetch(this.info.api + "/applications", {
+					headers: this.headers,
+				})
+					.then(r=>r.json())
+					.then(json=>{
+						json.forEach(
+							(application: {
+								cover_image: any;
+								icon: any;
+								id: string | undefined;
+								name: string | number;
+								bot: any;
+							})=>{
+								const container = document.createElement("div");
+
+								if(application.cover_image || application.icon){
+									const cover = document.createElement("img");
+									cover.crossOrigin = "anonymous";
+									cover.src =
+									this.info.cdn +
+									"/app-icons/" +
+									application.id +
+									"/" +
+									(application.cover_image || application.icon) +
+									".png?size=256";
+									cover.alt = "";
+									cover.loading = "lazy";
+									container.appendChild(cover);
+								}
+
+								const name = document.createElement("h2");
+								name.textContent = application.name + (application.bot ? " (Bot)" : "");
+								container.appendChild(name);
+
+								container.addEventListener("click", async ()=>{
+									this.manageApplication(application.id,devPortal);
+								});
+								appListContainer.appendChild(container);
+							}
+						);
+					});
+				devPortal.addHTMLArea(appListContainer);
+			});
 		}
 		settings.show();
 	}
-	async manageApplication(appId = ""){
+	readonly botTokens:Map<string,string>=new Map();
+	async manageApplication(appId = "", container:Options){
 		const res = await fetch(this.info.api + "/applications/" + appId, {
 			headers: this.headers,
 		});
 		const json = await res.json();
 
 		const fields: any = {};
-		const appDialog = new Dialog([
-			"vdiv",
-			["title", "Editing " + json.name],
-			[
-				"vdiv",
-				[
-					"textbox",
-					"Application name:",
-					json.name,
-					(event: Event)=>{
-						const target = event.target as HTMLInputElement;
-						fields.name = target.value;
-					},
-				],
-				[
-					"mdbox",
-					"Description:",
-					json.description,
-					(event: Event)=>{
-						const target = event.target as HTMLInputElement;
-						fields.description = target.value;
-					},
-				],
-				[
-					"vdiv",
-					json.icon
-						? [
-							"img",
-							this.info.cdn +
-                  "/app-icons/" +
-                  appId +
-                  "/" +
-                  json.icon +
-                  ".png?size=128",
-							[128, 128],
-						]
-						: ["text", "No icon"],
-					[
-						"fileupload",
-						"Application icon:",
-						event=>{
-							const reader = new FileReader();
-							const files = (event.target as HTMLInputElement).files;
-							if(files){
-								reader.readAsDataURL(files[0]);
-								reader.onload = ()=>{
-									fields.icon = reader.result;
-								};
-							}
-						},
-					],
-				],
-			],
-			[
-				"hdiv",
-				[
-					"textbox",
-					"Privacy policy URL:",
-					json.privacy_policy_url || "",
-					(event: Event)=>{
-						const target = event.target as HTMLInputElement;
-						fields.privacy_policy_url = target.value;
-					},
-				],
-				[
-					"textbox",
-					"Terms of Service URL:",
-					json.terms_of_service_url || "",
-					(event: Event)=>{
-						const target = event.target as HTMLInputElement;
-						fields.terms_of_service_url = target.value;
-					},
-				],
-			],
-			[
-				"hdiv",
-				[
-					"checkbox",
-					"Make bot publicly inviteable?",
-					json.bot_public,
-					(event: Event)=>{
-						const target = event.target as HTMLInputElement;
-						fields.bot_public = target.checked;
-					},
-				],
-				[
-					"checkbox",
-					"Require code grant to invite the bot?",
-					json.bot_require_code_grant,
-					(event: Event)=>{
-						const target = event.target as HTMLInputElement;
-						fields.bot_require_code_grant = target.checked;
-					},
-				],
-			],
-			[
-				"hdiv",
-				[
-					"button",
-					"",
-					"Save changes",
-					async ()=>{
-						const updateRes = await fetch(
-							this.info.api + "/applications/" + appId,
-							{
-								method: "PATCH",
-								headers: this.headers,
-								body: JSON.stringify(fields),
-							}
-						);
-						if(updateRes.ok) appDialog.hide();
-						else{
-							const updateJSON = await updateRes.json();
-							alert("An error occurred: " + updateJSON.message);
-						}
-					},
-				],
-				[
-					"button",
-					"",
-					(json.bot ? "Manage" : "Add") + " bot",
-					async ()=>{
-						if(!json.bot){
-							if(
-								!confirm(
-									"Are you sure you want to add a bot to this application? There's no going back."
-								)
-							)
-								return;
-
-							const updateRes = await fetch(
-								this.info.api + "/applications/" + appId + "/bot",
-								{
-									method: "POST",
-									headers: this.headers,
-								}
-							);
-							const updateJSON = await updateRes.json();
-							alert("Bot token:\n" + updateJSON.token);
-						}
-
-						appDialog.hide();
-						this.manageBot(appId);
-					},
-				],
-			],
-		]);
-		appDialog.show();
+		const form=container.addSubForm(json.name,()=>{},{
+			fetchURL:this.info.api + "/applications/" + appId,
+			method:"PATCH",
+			headers:this.headers
+		});
+		form.addTextInput("Application name:","name",{initText:json.name});
+		form.addMDInput("Description:","description",{initText:json.description});
+		form.addFileInput("Icon:","icon");
+		form.addTextInput("Privacy policy URL:","privacy_policy_url",{initText:json.privacy_policy_url});
+		form.addTextInput("Terms of Service URL:","terms_of_service_url",{initText:json.terms_of_service_url});
+		form.addCheckboxInput("Make bot publicly inviteable?","bot_public",{initState:json.bot_public});
+		form.addCheckboxInput("Require code grant to invite the bot?","bot_require_code_grant",{initState:json.bot_require_code_grant});
+		form.addButtonInput("",(json.bot ? "Manage" : "Add")+" bot",async ()=>{
+			if(!json.bot){
+				if(!confirm("Are you sure you want to add a bot to this application? There's no going back.")){
+					return;
+				}
+				const updateRes = await fetch(
+					this.info.api + "/applications/" + appId + "/bot",
+					{
+						method: "POST",
+						headers: this.headers,
+					}
+				);
+				const updateJSON = await updateRes.json();
+				this.botTokens.set(appId,updateJSON.token);
+			}
+			this.manageBot(appId,form);
+		})
 	}
-	async manageBot(appId = ""){
+	async manageBot(appId = "",container:Form){
 		const res = await fetch(this.info.api + "/applications/" + appId, {
 			headers: this.headers,
 		});
 		const json = await res.json();
-		if(!json.bot)
-			return alert(
-				"For some reason, this application doesn't have a bot (yet)."
+		if(!json.bot){
+			return alert("For some reason, this application doesn't have a bot (yet).");
+		}
+		const form=container.addSubForm("Editing bot "+json.bot.username,()=>{},{
+			method:"PATCH",
+			fetchURL:this.info.api + "/applications/" + appId + "/bot",
+			headers:this.headers
+		});
+		form.addTextInput("Bot username:","username",{initText:json.bot.username});
+		form.addFileInput("Bot avatar:","avatar");
+		form.addButtonInput("Reset Token:","Reset",async ()=>{
+			if(!confirm("Are you sure you want to reset the bot token? Your bot will stop working until you update it.")){
+				return;
+			}
+			const updateRes = await fetch(
+				this.info.api + "/applications/" + appId + "/bot/reset",
+				{
+					method: "POST",
+					headers: this.headers,
+				}
 			);
-
-		const fields: any = {
-			username: json.bot.username,
-			avatar: json.bot.avatar
-				? this.info.cdn +
-          "/app-icons/" +
-          appId +
-          "/" +
-          json.bot.avatar +
-          ".png?size=256"
-				: "",
-		};
-		const botDialog = new Dialog([
-			"vdiv",
-			["title", "Editing bot: " + json.bot.username],
-			[
-				"hdiv",
-				[
-					"textbox",
-					"Bot username:",
-					json.bot.username,
-					(event: Event)=>{
-						const target = event.target as HTMLInputElement;
-						fields.username = target.value;
-					},
-				],
-				[
-					"vdiv",
-					fields.avatar
-						? ["img", fields.avatar, [128, 128]]
-						: ["text", "No avatar"],
-					[
-						"fileupload",
-						"Bot avatar:",
-						event=>{
-							const reader = new FileReader();
-							const files = (event.target as HTMLInputElement).files;
-							if(files){
-								const file = files[0];
-								reader.readAsDataURL(file);
-								reader.onload = ()=>{
-									fields.avatar = reader.result;
-								};
-							}
-						},
-					],
-				],
-			],
-			[
-				"hdiv",
-				[
-					"button",
-					"",
-					"Save changes",
-					async ()=>{
-						const updateRes = await fetch(
-							this.info.api + "/applications/" + appId + "/bot",
-							{
-								method: "PATCH",
-								headers: this.headers,
-								body: JSON.stringify(fields),
-							}
-						);
-						if(updateRes.ok) botDialog.hide();
-						else{
-							const updateJSON = await updateRes.json();
-							alert("An error occurred: " + updateJSON.message);
-						}
-					},
-				],
-				[
-					"button",
-					"",
-					"Reset token",
-					async ()=>{
-						if(
-							!confirm(
-								"Are you sure you want to reset the bot token? Your bot will stop working until you update it."
-							)
-						)
-							return;
-
-						const updateRes = await fetch(
-							this.info.api + "/applications/" + appId + "/bot/reset",
-							{
-								method: "POST",
-								headers: this.headers,
-							}
-						);
-						const updateJSON = await updateRes.json();
-						alert("New token:\n" + updateJSON.token);
-						botDialog.hide();
-					},
-				],
-			],
-		]);
-		botDialog.show();
+			const updateJSON = await updateRes.json();
+			text.setText("Token: "+updateJSON.token);
+			this.botTokens.set(appId,updateJSON.token);
+		});
+		const text=form.addText(this.botTokens.has(appId)?"Token: "+this.botTokens.get(appId):"Token: *****************")
 	}
 
 	//---------- resolving members code -----------
