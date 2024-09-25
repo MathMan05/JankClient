@@ -1376,7 +1376,8 @@ class Localuser{
 		const form=container.addSubForm(json.name,()=>{},{
 			fetchURL:this.info.api + "/applications/" + appId,
 			method:"PATCH",
-			headers:this.headers
+			headers:this.headers,
+			traditionalSubmit:true
 		});
 		form.addTextInput("Application name:","name",{initText:json.name});
 		form.addMDInput("Description:","description",{initText:json.description});
@@ -1405,7 +1406,7 @@ class Localuser{
 	}
 	async manageBot(appId = "",container:Form){
 		const res = await fetch(this.info.api + "/applications/" + appId, {
-			headers: this.headers,
+			headers: this.headers
 		});
 		const json = await res.json();
 		if(!json.bot){
@@ -1414,7 +1415,8 @@ class Localuser{
 		const form=container.addSubForm("Editing bot "+json.bot.username,()=>{},{
 			method:"PATCH",
 			fetchURL:this.info.api + "/applications/" + appId + "/bot",
-			headers:this.headers
+			headers:this.headers,
+			traditionalSubmit:true
 		});
 		form.addTextInput("Bot username:","username",{initText:json.bot.username});
 		form.addFileInput("Bot avatar:","avatar");
