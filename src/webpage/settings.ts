@@ -206,6 +206,15 @@ class CheckboxInput implements OptionsElement<boolean>{
 			this.value = value;
 		}
 	}
+	setState(state:boolean){
+		if(this.input){
+			const checkbox=this.input.deref();
+			if(checkbox){
+				checkbox.checked=state;
+				this.value=state;
+			}
+		}
+	}
 	onchange: (str: boolean) => void = _=>{};
 	watchForChange(func: (str: boolean) => void){
 		this.onchange = func;
@@ -494,20 +503,21 @@ class Options implements OptionsElement<void>{
 	readonly owner: Buttons | Options | Form;
 	readonly ltr: boolean;
 	value!: void;
-	readonly html: WeakMap<OptionsElement<any>, WeakRef<HTMLDivElement>> =
-		new WeakMap();
+	readonly html: WeakMap<OptionsElement<any>, WeakRef<HTMLDivElement>> = new WeakMap();
+	readonly noSubmit:boolean=false;
 	container: WeakRef<HTMLDivElement> = new WeakRef(
 		document.createElement("div")
 	);
 	constructor(
 		name: string,
 		owner: Buttons | Options | Form,
-		{ ltr = false } = {}
+		{ ltr = false, noSubmit=false} = {}
 	){
 		this.name = name;
 		this.options = [];
 		this.owner = owner;
 		this.ltr = ltr;
+		this.noSubmit=noSubmit;
 	}
 	removeAll(){
 		while(this.options.length){
@@ -519,8 +529,8 @@ class Options implements OptionsElement<void>{
 		}
 	}
 	watchForChange(){}
-	addOptions(name: string, { ltr = false } = {}){
-		const options = new Options(name, this, { ltr });
+	addOptions(name: string, { ltr = false,noSubmit=false } = {}){
+		const options = new Options(name, this, { ltr,noSubmit });
 		this.options.push(options);
 		this.generate(options);
 		return options;
@@ -542,8 +552,8 @@ class Options implements OptionsElement<void>{
 			);
 		}
 	}
-	addSubOptions(name: string, { ltr = false } = {}){
-		const options = new Options(name, this, { ltr });
+	addSubOptions(name: string, { ltr = false,noSubmit=false } = {}){
+		const options = new Options(name, this, { ltr,noSubmit });
 		this.subOptions = options;
 		this.genTop();
 		return options;
@@ -788,7 +798,10 @@ class Options implements OptionsElement<void>{
 		}
 	}
 	changed(){
-		if(this.owner instanceof Options || this.owner instanceof Form){
+		if(this.noSubmit){
+			return;
+		}
+		if(this.owner instanceof Options || this.owner instanceof Form ){
 			this.owner.changed();
 			return;
 		}
@@ -877,11 +890,11 @@ class Form implements OptionsElement<object>{
 		//the value can't really be anything, but I don't care enough to fix this
 		this.values[key] = value;
 	}
-	addSubOptions(name: string, { ltr = false } = {}){
+	addSubOptions(name: string, { ltr = false,noSubmit=false } = {}){
 		if(this.button&&this.button.deref()){
 			(this.button.deref() as HTMLElement).hidden=true;
 		}
-		return this.options.addSubOptions(name,{ltr});
+		return this.options.addSubOptions(name,{ltr, noSubmit});
 	}
 	addSubForm(
 		name: string,
@@ -981,8 +994,19 @@ class Form implements OptionsElement<object>{
 		}
 		return mdInput;
 	}
+	/**
+	 * This function does not integrate with the form, so be aware of that
+	 *
+	 */
 	addButtonInput(label:string,textContent:string,onSubmit:()=>void){
 		return this.options.addButtonInput(label,textContent,onSubmit);
+	}
+	/**
+	 * This function does not integrate with the form, so be aware of that
+	 *
+	 */
+	addOptions(name: string, { ltr = false,noSubmit=false } = {}){
+		return this.options.addOptions(name, {ltr,noSubmit});
 	}
 	addCheckboxInput(
 		label: string,
