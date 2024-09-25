@@ -296,6 +296,9 @@ class Permissions{
 		}
 	}
 	getPermission(name: string): number{
+		if(undefined===Permissions.map[name]){
+			console.error(name +" is not found in map",Permissions.map);
+		}
 		if(this.getPermissionbit(Permissions.map[name] as number, this.allow)){
 			return 1;
 		}else if(
@@ -319,7 +322,7 @@ class Permissions{
 	}
 	setPermission(name: string, setto: number): void{
 		const bit = Permissions.map[name] as number;
-		if(!bit){
+		if(bit===undefined){
 			return console.error(
 				"Tried to set permission to " +
 setto +
