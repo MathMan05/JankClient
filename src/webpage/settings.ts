@@ -131,13 +131,23 @@ class SettingsText implements OptionsElement<void>{
 	readonly onSubmit!: (str: string) => void;
 	value!: void;
 	readonly text: string;
+	elm!:WeakRef<HTMLSpanElement>;
 	constructor(text: string){
 		this.text = text;
 	}
 	generateHTML(): HTMLSpanElement{
 		const span = document.createElement("span");
 		span.innerText = this.text;
+		this.elm=new WeakRef(span);
 		return span;
+	}
+	setText(text:string){
+		if(this.elm){
+			const span=this.elm.deref();
+			if(span){
+				span.innerText=text;
+			}
+		}
 	}
 	watchForChange(){}
 	submit(){}
@@ -516,17 +526,26 @@ class Options implements OptionsElement<void>{
 		return options;
 	}
 	subOptions: Options | Form | undefined;
+	genTop(){
+		const container = this.container.deref();
+		if(container){
+			if(this.isTop()){
+				this.generateContainter();
+			}else if(this.owner instanceof Options){
+				this.owner.genTop();
+			}else{
+				(this.owner as Form).owner.genTop();
+			}
+		}else{
+			throw new Error(
+				"Tried to make a sub menu when the options weren't rendered"
+			);
+		}
+	}
 	addSubOptions(name: string, { ltr = false } = {}){
 		const options = new Options(name, this, { ltr });
 		this.subOptions = options;
-		const container = this.container.deref();
-		if(container){
-			this.generateContainter();
-		}else{
-			throw new Error(
-				"Tried to make a subOptions when the options weren't rendered"
-			);
-		}
+		this.genTop();
 		return options;
 	}
 	addSubForm(
@@ -550,19 +569,12 @@ class Options implements OptionsElement<void>{
 			traditionalSubmit,
 		});
 		this.subOptions = options;
-		const container = this.container.deref();
-		if(container){
-			this.generateContainter();
-		}else{
-			throw new Error(
-				"Tried to make a subForm when the options weren't rendered"
-			);
-		}
+		this.genTop();
 		return options;
 	}
 	returnFromSub(){
 		this.subOptions = undefined;
-		this.generateContainter();
+		this.genTop();
 	}
 	addSelect(
 		label: string,
@@ -710,35 +722,69 @@ class Options implements OptionsElement<void>{
 		div.append(container);
 		return div;
 	}
+	generateName():(HTMLElement|string)[]{
+		const build:(HTMLElement|string)[]=[];
+		if(this.subOptions){
+			if(this.name!==""){
+				const name = document.createElement("span");
+				name.innerText = this.name;
+				name.classList.add("clickable");
+				name.onclick = ()=>{
+					this.returnFromSub();
+				};
+				build.push(name);
+				build.push(" > ");
+			}
+			if(this.subOptions instanceof Options){
+				build.push(...this.subOptions.generateName());
+			}else{
+				build.push(...this.subOptions.options.generateName());
+			}
+		}else{
+			const name = document.createElement("span");
+			name.innerText = this.name;
+			build.push(name);
+		}
+		return build;
+	}
+	isTop(){
+				(this.owner instanceof Form&&this.owner.owner.subOptions!==this.owner),
+				(this.owner instanceof Settings),
+				(this.owner instanceof Buttons));
+		return (this.owner instanceof Options&&this.owner.subOptions!==this)||
+				(this.owner instanceof Form&&this.owner.owner.subOptions!==this.owner)||
+				(this.owner instanceof Settings)||
+				(this.owner instanceof Buttons);
+	}
 	generateContainter(){
 		const container = this.container.deref();
 		if(container){
 			const title = this.title.deref();
 			if(title) title.innerHTML = "";
 			container.innerHTML = "";
-			if(this.subOptions){
-				container.append(this.subOptions.generateHTML()); //more code needed, though this is enough for now
+			if(this.isTop()){
 				if(title){
-					const name = document.createElement("span");
-					name.innerText = this.name;
-					name.classList.add("clickable");
-					name.onclick = ()=>{
-						this.returnFromSub();
-					};
-					title.append(name, " > ", this.subOptions.name);
+					const elms=this.generateName();
+					title.append(...elms);
 				}
-			}else{
+			}
+			if(!this.subOptions){
 				for(const thing of this.options){
 					this.generate(thing);
 				}
-				if(title){
-					title.innerText = this.name;
-				}
+			}else{
+				container.append(this.subOptions.generateHTML());
 			}
 			if(title && title.innerText !== ""){
 				title.classList.add("settingstitle");
 			}else if(title){
 				title.classList.remove("settingstitle");
+			}
+			if(this.owner instanceof Form&&this.owner.button){
+				const button=this.owner.button.deref();
+				if(button){
+					button.hidden=false;
+				}
 			}
 		}else{
 			console.warn("tried to generate container, but it did not exist");
@@ -818,7 +864,7 @@ class Form implements OptionsElement<object>{
 		this.name = name;
 		this.method = method;
 		this.submitText = submitText;
-		this.options = new Options("", this, { ltr });
+		this.options = new Options(name, this, { ltr });
 		this.owner = owner;
 		this.fetchURL = fetchURL;
 		this.headers = headers;
@@ -828,6 +874,36 @@ class Form implements OptionsElement<object>{
 	setValue(key: string, value: any){
 		//the value can't really be anything, but I don't care enough to fix this
 		this.values[key] = value;
+	}
+	addSubOptions(name: string, { ltr = false } = {}){
+		if(this.button&&this.button.deref()){
+			(this.button.deref() as HTMLElement).hidden=true;
+		}
+		return this.options.addSubOptions(name,{ltr});
+	}
+	addSubForm(
+		name: string,
+		onSubmit: (arg1: object) => void,
+		{
+			ltr = false,
+			submitText = "Submit",
+			fetchURL = "",
+			headers = {},
+			method = "POST",
+			traditionalSubmit = false,
+		} = {}
+	){
+		if(this.button&&this.button.deref()){
+			console.warn("hidden");
+			(this.button.deref() as HTMLElement).hidden=true;
+		}
+		return this.options.addSubForm(name,onSubmit,{ltr,submitText,fetchURL,headers,method,traditionalSubmit});
+	}
+	generateContainter(){
+		this.options.generateContainter();
+		if((this.options.isTop())&&this.button&&this.button.deref()){
+			(this.button.deref() as HTMLElement).hidden=false;
+		}
 	}
 	addSelect(
 		label: string,
@@ -903,7 +979,9 @@ class Form implements OptionsElement<object>{
 		}
 		return mdInput;
 	}
-
+	addButtonInput(label:string,textContent:string,onSubmit:()=>void){
+		return this.options.addButtonInput(label,textContent,onSubmit);
+	}
 	addCheckboxInput(
 		label: string,
 		formName: string,
@@ -917,11 +995,12 @@ class Form implements OptionsElement<object>{
 		return box;
 	}
 	addText(str: string){
-		this.options.addText(str);
+		return this.options.addText(str);
 	}
 	addTitle(str: string){
 		this.options.addTitle(str);
 	}
+	button!:WeakRef<HTMLButtonElement>;
 	generateHTML(): HTMLElement{
 		const div = document.createElement("div");
 		div.append(this.options.generateHTML());
@@ -933,6 +1012,10 @@ class Form implements OptionsElement<object>{
 			};
 			button.textContent = this.submitText;
 			div.append(button);
+			if(this.options.subOptions){
+				button.hidden=true;
+			}
+			this.button=new WeakRef(button);
 		}
 		return div;
 	}
@@ -1110,4 +1193,4 @@ class Settings extends Buttons{
 	}
 }
 
-export{ Settings, OptionsElement, Buttons, Options };
+export{ Settings, OptionsElement, Buttons, Options,Form };
