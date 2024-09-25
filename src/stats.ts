@@ -1,6 +1,5 @@
 import fs from"node:fs";
 import path from"node:path";
-import fetch from"node-fetch";
 import{ getApiUrls }from"./utils.js";
 import{ fileURLToPath }from"node:url";
 

@@ -3,12 +3,12 @@
 import compression from"compression";
 import express, { Request, Response }from"express";
 import fs from"node:fs/promises";
-import fetch from"node-fetch";
 import path from"node:path";
 import{ observe, uptime }from"./stats.js";
 import{ getApiUrls, inviteResponse }from"./utils.js";
 import{ fileURLToPath }from"node:url";
 import process from"node:process";
+
 const devmode = (process.env.NODE_ENV || "development") === "development";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
