@@ -71,7 +71,7 @@ app.use("/services/oembed", (req: Request, res: Response)=>{
 });
 
 app.use("/uptime", (req: Request, res: Response)=>{
-	const instanceUptime = uptime[req.query.name as string];
+	const instanceUptime = uptime.get(req.query.name as string);
 	res.send(instanceUptime);
 });
 

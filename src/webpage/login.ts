@@ -199,7 +199,7 @@ function adduser(user: typeof Specialuser.prototype.json){
 	return user;
 }
 const instancein = document.getElementById("instancein") as HTMLInputElement;
-let timeout: string | number | NodeJS.Timeout | undefined;
+let timeout: ReturnType<typeof setTimeout> | string | number | undefined | null = null;
 // let instanceinfo;
 const stringURLMap = new Map<string, string>();
 
@@ -231,8 +231,8 @@ async function getapiurls(str: string): Promise<
 					if(stringURLMap.size!==0){
 						res();
 					}
-				},100)
-			})
+				},100);
+			});
 		}
 		if(val){
 			str = val;
@@ -335,7 +335,7 @@ async function checkInstance(instance?: string){
 			gateway: string;
 			login: string;
 			value: string;
-		}
+		};
 		if(instanceinfo){
 			instanceinfo.value = instanceValue;
 			localStorage.setItem("instanceinfo", JSON.stringify(instanceinfo));
@@ -360,10 +360,12 @@ async function checkInstance(instance?: string){
 
 if(instancein){
 	console.log(instancein);
-	instancein.addEventListener("keydown", _=>{
+	instancein.addEventListener("keydown", ()=>{
 		const verify = document.getElementById("verify");
 	verify!.textContent = "Waiting to check Instance";
-	clearTimeout(timeout);
+	if(timeout !== null && typeof timeout !== "string"){
+		clearTimeout(timeout);
+	}
 	timeout = setTimeout(()=>checkInstance(), 1000);
 	});
 	if(localStorage.getItem("instanceinfo")){
@@ -410,7 +412,9 @@ async function login(username: string, password: string, captcha: string){
 
 				if(response.captcha_sitekey){
 					const capt = document.getElementById("h-captcha");
-					if(!capt!.children.length){
+					if(capt!.children.length){
+						eval("hcaptcha.reset()");
+					}else{
 						const capty = document.createElement("div");
 						capty.classList.add("h-captcha");
 
@@ -419,8 +423,6 @@ async function login(username: string, password: string, captcha: string){
 						script.src = "https://js.hcaptcha.com/1/api.js";
 	capt!.append(script);
 	capt!.append(capty);
-					}else{
-						eval("hcaptcha.reset()");
 					}
 				}else{
 					console.log(response);
@@ -434,6 +436,7 @@ async function login(username: string, password: string, captcha: string){
 								"",
 								"",
 								function(this: HTMLInputElement){
+									// eslint-disable-next-line no-invalid-this
 									onetimecode = this.value;
 								},
 							],
@@ -453,18 +456,18 @@ async function login(username: string, password: string, captcha: string){
 										}),
 									})
 										.then(r=>r.json())
-										.then(response=>{
-											if(response.message){
-												alert(response.message);
+										.then(res=>{
+											if(res.message){
+												alert(res.message);
 											}else{
-												console.warn(response);
-												if(!response.token)return;
+												console.warn(res);
+												if(!res.token)return;
 												adduser({
 													serverurls: JSON.parse(
 	localStorage.getItem("instanceinfo")!
 													),
 													email: username,
-													token: response.token,
+													token: res.token,
 												}).username = username;
 												const redir = new URLSearchParams(
 													window.location.search
@@ -579,7 +582,7 @@ export function getInstances(){
 }
 
 fetch("/instances.json")
-	.then(_=>_.json())
+	.then(res=>res.json())
 	.then(
 		(json: {
 			name: string;
