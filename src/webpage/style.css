@@ -1427,7 +1427,10 @@ span {
 }
 
 .discovery-guild img.banner {
-	width: 215px;
+	width: 100%;
+	height: .6in;
+	border-radius: .04in;
+	margin-bottom: .03in;
 }
 
 .discovery-guild img.icon {
@@ -1875,7 +1878,6 @@ form div{
 	background:var(--primary-bg);
 }
 .banner{
-	position:absolute;
 	top:0;
 	left:0;
 	width:100%;
