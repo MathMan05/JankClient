@@ -1,23 +1,22 @@
-import fetch from"node-fetch";
 import{ Request, Response }from"express";
 
 interface ApiUrls {
-api: string;
-gateway: string;
-cdn: string;
-wellknown: string;
+  api: string;
+  gateway: string;
+  cdn: string;
+  wellknown: string;
 }
 
 interface Invite {
-guild: {
-name: string;
-description?: string;
-icon?: string;
-id: string;
-};
-inviter?: {
-username: string;
-};
+  guild: {
+    name: string;
+    description?: string;
+    icon?: string;
+    id: string;
+  };
+  inviter?: {
+    username: string;
+  };
 }
 
 export async function getApiUrls(url: string): Promise<ApiUrls | null>{
@@ -31,9 +30,7 @@ export async function getApiUrls(url: string): Promise<ApiUrls | null>{
 		const api = info.api;
 		const apiUrl = new URL(api);
 		const policies: any = await fetch(
-			`${api}${
-				apiUrl.pathname.includes("api") ? "" : "api"
-			}/policies/instance/domains`
+			`${api}${apiUrl.pathname.includes("api") ? "" : "api"}/policies/instance/domains`
 		).then(res=>res.json());
 		return{
 			api: policies.apiEndpoint,
