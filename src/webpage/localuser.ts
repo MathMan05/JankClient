@@ -8,6 +8,7 @@ import{ getapiurls, getBulkInfo, setTheme, Specialuser }from"./login.js";
 import{
 	channeljson,
 	guildjson,
+	mainuserjson,
 	memberjson,
 	messageCreateJson,
 	presencejson,
@@ -1412,13 +1413,14 @@ class Localuser{
 		if(!json.bot){
 			return alert("For some reason, this application doesn't have a bot (yet).");
 		}
-		const form=container.addSubForm("Editing bot "+json.bot.username,()=>{},{
+		const bot:mainuserjson=json.bot;
+		const form=container.addSubForm("Editing bot "+bot.username,out=>{console.log(out)},{
 			method:"PATCH",
 			fetchURL:this.info.api + "/applications/" + appId + "/bot",
 			headers:this.headers,
 			traditionalSubmit:true
 		});
-		form.addTextInput("Bot username:","username",{initText:json.bot.username});
+		form.addTextInput("Bot username:","username",{initText:bot.username});
 		form.addFileInput("Bot avatar:","avatar");
 		form.addButtonInput("Reset Token:","Reset",async ()=>{
 			if(!confirm("Are you sure you want to reset the bot token? Your bot will stop working until you update it.")){

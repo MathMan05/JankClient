@@ -117,16 +117,16 @@ flags: number;
 };
 };
 type mainuserjson = userjson & {
-flags: number;
-mfa_enabled?: boolean;
-email?: string;
-phone?: string;
-verified: boolean;
-nsfw_allowed: boolean;
-premium: boolean;
-purchased_flags: number;
-premium_usage_flags: number;
-disabled: boolean;
+	flags: number;
+	mfa_enabled?: boolean;
+	email?: string;
+	phone?: string;
+	verified: boolean;
+	nsfw_allowed: boolean;
+	premium: boolean;
+	purchased_flags: number;
+	premium_usage_flags: number;
+	disabled: boolean;
 };
 type userjson = {
 username: string;

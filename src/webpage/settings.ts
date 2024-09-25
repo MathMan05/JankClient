@@ -748,9 +748,6 @@ class Options implements OptionsElement<void>{
 		return build;
 	}
 	isTop(){
-				(this.owner instanceof Form&&this.owner.owner.subOptions!==this.owner),
-				(this.owner instanceof Settings),
-				(this.owner instanceof Buttons));
 		return (this.owner instanceof Options&&this.owner.subOptions!==this)||
 				(this.owner instanceof Form&&this.owner.owner.subOptions!==this.owner)||
 				(this.owner instanceof Settings)||
@@ -818,6 +815,11 @@ class Options implements OptionsElement<void>{
 	}
 	submit(){
 		this.haschanged = false;
+		if(this.subOptions){
+			this.subOptions.submit();
+			return;
+		}
+
 		for(const thing of this.options){
 			thing.submit();
 		}
@@ -1029,6 +1031,11 @@ class Form implements OptionsElement<object>{
 		}
 	}
 	async submit(){
+		if(this.options.subOptions){
+			this.options.subOptions.submit();
+			return;
+		}
+		console.log("start");
 		const build = {};
 		for(const key of Object.keys(this.values)){
 			const thing = this.values[key];
@@ -1051,6 +1058,7 @@ class Form implements OptionsElement<object>{
 				(build as any)[thing] = thing;
 			}
 		}
+		console.log("middle");
 		const promises: Promise<void>[] = [];
 		for(const thing of this.names.keys()){
 			if(thing === "")continue;
@@ -1084,6 +1092,7 @@ class Form implements OptionsElement<object>{
 			}
 			(build as any)[thing] = input.value;
 		}
+		console.log("middle2");
 		await Promise.allSettled(promises);
 		if(this.fetchURL !== ""){
 			fetch(this.fetchURL, {
