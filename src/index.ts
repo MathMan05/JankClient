@@ -2,19 +2,20 @@
 
 import compression from"compression";
 import express, { Request, Response }from"express";
-import fs from"node:fs";
+import fs from"node:fs/promises";
 import fetch from"node-fetch";
 import path from"node:path";
 import{ observe, uptime }from"./stats.js";
 import{ getApiUrls, inviteResponse }from"./utils.js";
 import{ fileURLToPath }from"node:url";
-const devmode = (process.env.NODE_ENV || 'development')==='development';
+import process from"node:process";
+const devmode = (process.env.NODE_ENV || "development") === "development";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 interface Instance {
-name: string;
-[key: string]: any;
+  name: string;
+  [key: string]: any;
 }
 
 const app = express();
@@ -55,9 +56,9 @@ async function updateInstances(): Promise<void>{
 
 updateInstances();
 
-app.use("/getupdates", (_req: Request, res: Response)=>{
+app.use("/getupdates", async (_req: Request, res: Response)=>{
 	try{
-		const stats = fs.statSync(path.join(__dirname, "webpage"));
+		const stats = await fs.stat(path.join(__dirname, "webpage"));
 		res.send(stats.mtimeMs.toString());
 	}catch(error){
 		console.error("Error getting updates:", error);
@@ -103,33 +104,40 @@ app.use("/", async (req: Request, res: Response)=>{
 	}
 
 	const filePath = path.join(__dirname, "webpage", req.path);
-	if(fs.existsSync(filePath)){
+	try{
+		await fs.access(filePath);
 		if(devmode){
 			const filePath2 = path.join(__dirname, "../src/webpage", req.path);
-			if(fs.existsSync(filePath2)){
+			try{
+				await fs.access(filePath2);
 				res.sendFile(filePath2);
 				return;
-			}
+			}catch{}
 		}
 		res.sendFile(filePath);
-	}else if(fs.existsSync(`${filePath}.html`)){
-		if(devmode){
-			const filePath2 = path.join(__dirname, "../src/webpage", req.path);
-			if(fs.existsSync(filePath2+".html")){
-				res.sendFile(filePath2+".html");
-				return;
+	}catch{
+		try{
+			await fs.access(`${filePath}.html`);
+			if(devmode){
+				const filePath2 = path.join(__dirname, "../src/webpage", req.path);
+				try{
+					await fs.access(filePath2 + ".html");
+					res.sendFile(filePath2 + ".html");
+					return;
+				}catch{}
 			}
-		}
-		res.sendFile(`${filePath}.html`);
-	}else{
-		if(req.path.startsWith("/src/webpage")){
-			const filePath2 = path.join(__dirname, "..", req.path);
-			if(fs.existsSync(`${filePath2}`)){
-				res.sendFile(filePath2);
-				return;
+			res.sendFile(`${filePath}.html`);
+		}catch{
+			if(req.path.startsWith("/src/webpage")){
+				const filePath2 = path.join(__dirname, "..", req.path);
+				try{
+					await fs.access(filePath2);
+					res.sendFile(filePath2);
+					return;
+				}catch{}
 			}
+			res.sendFile(path.join(__dirname, "webpage", "index.html"));
 		}
-		res.sendFile(path.join(__dirname, "webpage", "index.html"));
 	}
 });
 
