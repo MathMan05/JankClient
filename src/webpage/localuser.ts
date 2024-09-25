@@ -19,6 +19,7 @@ import{
 import{ Member }from"./member.js";
 import{ Form, FormError, Options, Settings }from"./settings.js";
 import{ MarkDown }from"./markdown.js";
+import { Bot } from "./bot.js";
 
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 
@@ -1370,6 +1371,11 @@ class Localuser{
 	}
 	readonly botTokens:Map<string,string>=new Map();
 	async manageApplication(appId = "", container:Options){
+		if(this.perminfo.applications){
+			for(const item of Object.keys(this.perminfo.applications)){
+				this.botTokens.set(item,this.perminfo.applications[item]);
+			}
+		}
 		const res = await fetch(this.info.api + "/applications/" + appId, {
 			headers: this.headers,
 		});
@@ -1436,10 +1442,43 @@ class Localuser{
 			const updateJSON = await updateRes.json();
 			text.setText("Token: "+updateJSON.token);
 			this.botTokens.set(appId,updateJSON.token);
+			if(this.perminfo.applications[appId]){
+				this.perminfo.applications[appId]=updateJSON.token;
+				this.userinfo.updateLocal();
+			}
 		});
-		const text=form.addText(this.botTokens.has(appId)?"Token: "+this.botTokens.get(appId):"Token: *****************")
+		const text=form.addText(this.botTokens.has(appId)?"Token: "+this.botTokens.get(appId):"Token: *****************");
+		const check=form.addOptions("",{noSubmit:true});
+		if(!this.perminfo.applications){
+			this.perminfo.applications={};
+			this.userinfo.updateLocal();
+		}
+		const checkbox=check.addCheckboxInput("Save token to localStorage",()=>{},{initState:!!this.perminfo.applications[appId]});
+		checkbox.watchForChange(_=>{
+			if(_){
+				if(this.botTokens.has(appId)){
+					this.perminfo.applications[appId]=this.botTokens.get(appId);
+					this.userinfo.updateLocal();
+				}else{
+					alert("Don't know token so can't save it to localStorage, sorry");
+					checkbox.setState(false);
+				}
+			}else{
+				delete this.perminfo.applications[appId];
+				this.userinfo.updateLocal();
+			}
+		});
+		form.addButtonInput("","Advanced bot settings",()=>{
+			const token=this.botTokens.get(appId);
+			if(token){
+				const botc=new Bot(bot,token,this);
+				botc.settings();
+			}
+		});
+		form.addButtonInput("","Bot Invite Creator",()=>{
+			Bot.InviteMaker(appId,form,this.info);
+		})
 	}
-
 	//---------- resolving members code -----------
 	readonly waitingmembers: Map<
     string,

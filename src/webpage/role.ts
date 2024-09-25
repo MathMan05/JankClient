@@ -44,9 +44,9 @@ export{ Role };
 import{ Options }from"./settings.js";
 class PermissionToggle implements OptionsElement<number>{
 	readonly rolejson: {
-	name: string;
-	readableName: string;
-	description: string;
+		name: string;
+		readableName: string;
+		description: string;
 	};
 	permissions: Permissions;
 	owner: Options;
@@ -177,4 +177,4 @@ class RoleList extends Buttons{
 		this.onchange(this.curid, this.permission);
 	}
 }
-export{ RoleList };
+export{ RoleList, PermissionToggle };
