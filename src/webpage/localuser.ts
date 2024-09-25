@@ -1474,6 +1474,9 @@ class Localuser{
 				const botc=new Bot(bot,token,this);
 				botc.settings();
 			}
+		});
+		form.addButtonInput("","Bot Invite Creator",()=>{
+			Bot.InviteMaker(appId,form,this.info);
 		})
 	}
 	//---------- resolving members code -----------

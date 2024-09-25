@@ -1,9 +1,11 @@
 import { mainuserjson } from "./jsontypes.js";
 import { Localuser } from "./localuser.js";
 import { MarkDown } from "./markdown.js";
-import { Settings } from "./settings.js";
+import { Form, Settings } from "./settings.js";
 import { User } from "./user.js";
 import {guildjson} from "./jsontypes.js";
+import { PermissionToggle } from "./role.js";
+import { Permissions } from "./permissions.js";
 class Bot{
 	readonly owner:Localuser;
 	readonly token:string;
@@ -246,6 +248,30 @@ class Bot{
 			headers: this.headers,
 			body: JSON.stringify(json),
 		});
+	}
+	static InviteMaker(id:string,container:Form,info:Localuser["info"]){
+		const gen=container.addSubOptions("URL generator",{
+			noSubmit:true
+		});
+		const params = new URLSearchParams("");
+		params.set("instance", info.wellknown);
+		params.set("client_id", id);
+		params.set("scope", "bot");
+		const url=gen.addText("");
+		const perms=new Permissions("0");
+		for(const perm of Permissions.info){
+			const permsisions=new PermissionToggle(perm,perms,gen);
+			gen.options.push(permsisions);
+			gen.generate(permsisions);
+		}
+		const cancel=setInterval(()=>{
+			if(!gen.container.deref()){
+				clearInterval(cancel);
+			}
+			params.set("permissions",perms.allow.toString());
+			const encoded = params.toString();
+			url.setText(`${location.origin}/oauth2/authorize?${encoded}`);
+		},100)
 	}
 }
 export {Bot};

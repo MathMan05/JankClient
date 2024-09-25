@@ -452,6 +452,7 @@ p {
 	/* display: flex; */
 	width: 100%;
 	background: transparent;
+	flex-shrink: 0;
 }
 hr {
 	border-style: solid;
@@ -538,9 +539,11 @@ hr {
 	flex-direction: column;
 	flex-shrink: 1;
 	min-height: 0;
-	height: 100vh;
+	/* height: 100vh; */
 	/* width: 100%; */
 	position: relative;
+	height: 1in;
+	flex-grow: 1;
 }
 
 .timestamp {
@@ -1268,7 +1271,7 @@ span {
 .flexttb{
 	display: flex;
 	flex-direction: column;
-	max-height: 100vh;
+	/* max-height: 100vh; */
 	overflow: auto;
 	/* margin-bottom: 1in; */
 	/* padding-bottom: .1in; */
@@ -1371,6 +1374,8 @@ span {
 	display:flex;
 	justify-content: space-between;
 	width: 100%;
+	height: 100dvh;
+	align-content: space-around;
 }
 .userflex{
 	display:flex;
@@ -1529,6 +1534,7 @@ span {
 .scroller{
 	padding-bottom: .2in;
 	flex-grow: 0;
+	flex-shrink: 1;
 }
 .suberror{
 	animation: goout 6s forwards;
