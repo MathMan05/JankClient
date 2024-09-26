@@ -20,11 +20,10 @@
     "compression": "^1.7.4",
     "eslint-plugin-html": "^8.1.1",
     "express": "^4.19.2",
+    "gulp-sourcemaps": "^3.0.0",
     "gulp-swc": "^2.2.0",
-    "node-fetch": "^3.3.2",
     "rimraf": "^6.0.1",
-    "ts-to-jsdoc": "^2.2.0",
-    "gulp-sourcemaps":"^3.0.0"
+    "ts-to-jsdoc": "^2.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.10.0",
