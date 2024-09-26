@@ -17,9 +17,8 @@ class Emoji{
 	get guild(){
 		if(this.owner instanceof Guild){
 			return this.owner;
-		}else{
-			return undefined;
 		}
+		return null;
 	}
 	get localuser(){
 		if(this.owner instanceof Guild){
@@ -83,7 +82,7 @@ class Emoji{
 				array[i] = read8();
 			}
 			//console.log(array);
-			return new TextDecoder("utf-8").decode(array.buffer);
+			return new TextDecoder("utf8").decode(array.buffer as ArrayBuffer);
 		}
 		const build: { name: string; emojis: { name: string; emoji: string }[] }[] =
       [];

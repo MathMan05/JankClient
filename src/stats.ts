@@ -1,8 +1,8 @@
 import fs from"node:fs";
 import path from"node:path";
-import fetch from"node-fetch";
 import{ getApiUrls }from"./utils.js";
 import{ fileURLToPath }from"node:url";
+import{ setTimeout, clearTimeout }from"node:timers";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -10,10 +10,6 @@ const __dirname = path.dirname(__filename);
 interface UptimeEntry {
   time: number;
   online: boolean;
-}
-
-interface UptimeObject {
-  [key: string]: UptimeEntry[];
 }
 
 interface Instance {
@@ -28,37 +24,46 @@ interface Instance {
   };
 }
 
-const uptimeObject: UptimeObject = loadUptimeObject();
+const uptimeObject: Map<string, UptimeEntry[]> = loadUptimeObject();
 export{ uptimeObject as uptime };
 
-function loadUptimeObject(): UptimeObject{
+function loadUptimeObject(): Map<string, UptimeEntry[]>{
 	const filePath = path.join(__dirname, "..", "uptime.json");
 	if(fs.existsSync(filePath)){
 		try{
-			return JSON.parse(fs.readFileSync(filePath, "utf8"));
+			const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
+			return new Map(Object.entries(data));
 		}catch(error){
 			console.error("Error reading uptime.json:", error);
-			return{};
+			return new Map();
 		}
 	}
-	return{};
+	return new Map();
 }
 
+let saveTimeout: ReturnType<typeof setTimeout> | null = null;
+
 function saveUptimeObject(): void{
-	fs.writeFile(
-		path.join(__dirname, "..", "uptime.json"),
-		JSON.stringify(uptimeObject),
-		error=>{
-			if(error){
-				console.error("Error saving uptime.json:", error);
+	if(saveTimeout){
+		clearTimeout(saveTimeout);
+	}
+	saveTimeout = setTimeout(()=>{
+		const data = Object.fromEntries(uptimeObject);
+		fs.writeFile(
+			path.join(__dirname, "..", "uptime.json"),
+			JSON.stringify(data),
+			error=>{
+				if(error){
+					console.error("Error saving uptime.json:", error);
+				}
 			}
-		}
-	);
+		);
+	}, 5000); // Batch updates every 5 seconds
 }
 
 function removeUndefinedKey(): void{
-	if(uptimeObject.undefined){
-		delete uptimeObject.undefined;
+	if(uptimeObject.has("undefined")){
+		uptimeObject.delete("undefined");
 		saveUptimeObject();
 	}
 }
@@ -85,7 +90,7 @@ async function resolveInstance(
 			return;
 		}
 		activeInstances.add(instance.name);
-		await checkHealth(instance, api); // Ensure health is checked immediately
+		await checkHealth(instance, api);
 		scheduleHealthCheck(instance, api);
 	}catch(error){
 		console.error("Error resolving instance:", error);
@@ -127,7 +132,6 @@ async function checkHealth(
 		const response = await fetch(`${api}/ping`, { method: "HEAD" });
 		console.log(`Checking health for ${instance.name}: ${response.status}`);
 		if(response.ok || tries > 3){
-			console.log(`Setting status for ${instance.name} to ${response.ok}`);
 			setStatus(instance, response.ok);
 		}else{
 			retryHealthCheck(instance, api, tries);
@@ -151,7 +155,7 @@ function retryHealthCheck(
 }
 
 function updateInactiveInstances(activeInstances: Set<string>): void{
-	for(const key of Object.keys(uptimeObject)){
+	for(const key of uptimeObject.keys()){
 		if(!activeInstances.has(key)){
 			setStatus(key, false);
 		}
@@ -159,7 +163,7 @@ function updateInactiveInstances(activeInstances: Set<string>): void{
 }
 
 function calcStats(instance: Instance): void{
-	const obj = uptimeObject[instance.name];
+	const obj = uptimeObject.get(instance.name);
 	if(!obj)return;
 
 	const now = Date.now();
@@ -235,11 +239,11 @@ function calculateUptimeStats(
 
 function setStatus(instance: string | Instance, status: boolean): void{
 	const name = typeof instance === "string" ? instance : instance.name;
-	let obj = uptimeObject[name];
+	let obj = uptimeObject.get(name);
 
 	if(!obj){
 		obj = [];
-		uptimeObject[name] = obj;
+		uptimeObject.set(name, obj);
 	}
 
 	const lastEntry = obj.at(-1);

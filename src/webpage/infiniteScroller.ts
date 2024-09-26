@@ -11,7 +11,7 @@ offset: number
 	private readonly maxDist = 6000;
 	HTMLElements: [HTMLElement, string][] = [];
 	div: HTMLDivElement | null = null;
-	timeout: NodeJS.Timeout | null = null;
+	timeout: ReturnType<typeof setTimeout> | null = null;
 	beenloaded = false;
 	scrollBottom = 0;
 	scrollTop = 0;
@@ -239,7 +239,6 @@ offset: number
 			try{
 				if(!this.div){
 					res(false);
-					return false;
 				}
 				const out = (await Promise.allSettled([
 					this.watchForTop(),
@@ -250,11 +249,9 @@ offset: number
 					this.timeout = setTimeout(this.updatestuff.bind(this), 300);
 				}
 				res(Boolean(changed));
-				return Boolean(changed);
 			}catch(e){
 				console.error(e);
 				res(false);
-				return false;
 			}finally{
 				setTimeout(()=>{
 					this.changePromise = undefined;
@@ -281,9 +278,13 @@ offset: number
 					behavior: "smooth",
 					block: "center",
 				});
-				await new Promise(resolve=>setTimeout(resolve, 1000));
+				await new Promise(resolve=>{
+					setTimeout(resolve, 1000);
+				});
 				element.classList.remove("jumped");
-				await new Promise(resolve=>setTimeout(resolve, 100));
+				await new Promise(resolve=>{
+					setTimeout(resolve, 100);
+				});
 				element.classList.add("jumped");
 			}else{
 				element.scrollIntoView();
@@ -296,7 +297,9 @@ offset: number
 			await this.firstElement(id);
 			this.updatestuff();
 			await this.watchForChange();
-			await new Promise(resolve=>setTimeout(resolve, 100));
+			await new Promise(resolve=>{
+				setTimeout(resolve, 100);
+			});
 			await this.focus(id, true);
 		}
 	}
