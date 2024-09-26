@@ -309,7 +309,7 @@ class Permissions{
 			return 0;
 		}
 	}
-	hasPermission(name: string): boolean{
+	hasPermission(name: string,adminOverride=true): boolean{
 		if(this.deny){
 			console.warn(
 				"This function may of been used in error, think about using getPermision instead"
@@ -317,7 +317,7 @@ class Permissions{
 		}
 		if(this.getPermissionbit(Permissions.map[name] as number, this.allow))
 			return true;
-		if(name != "ADMINISTRATOR")return this.hasPermission("ADMINISTRATOR");
+		if(name != "ADMINISTRATOR"&&adminOverride)return this.hasPermission("ADMINISTRATOR");
 		return false;
 	}
 	setPermission(name: string, setto: number): void{
