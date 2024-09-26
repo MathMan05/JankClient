@@ -21,6 +21,9 @@ body {
 	box-shadow: inset .03in .35in .2in  var(--accent_color);
 	min-height: 3.6in;
 	min-width: 7.5cm;
+	.banner{
+		position:absolute;
+	}
 }
 video{
 	max-width: 3in;
@@ -1810,11 +1813,13 @@ form div{
 	box-sizing:border-box;
 	display:flex;
 	flex-direction: column;
-	align-items: center;
-	justify-content: center;
 	padding: .5in .2in;
 	gap: .1in;
 	width: 5in;
+	max-height: 80dvh;
+	overflow-y: auto;
+	overflow-x:clip;
+	align-items: center;
 }
 #AcceptInvite{
 	padding: .1in .2in;

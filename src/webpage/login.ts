@@ -291,7 +291,7 @@ async function getapiurls(str: string): Promise<
 			gateway: info.gateway,
 			cdn: info.cdn,
 			wellknown: str,
-			login: url.toString(),
+			login: info.apiEndpoint,
 		};
 	}catch{
 		const val = stringURLsMap.get(str);
