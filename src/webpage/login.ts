@@ -287,7 +287,7 @@ async function getapiurls(str: string): Promise<
 			}/policies/instance/domains`
 		).then(x=>x.json());
 		return{
-			api: info.apiEndpoint,
+			api: info.apiEndpoint+(url.pathname.includes("api") ? "" : "/api"),
 			gateway: info.gateway,
 			cdn: info.cdn,
 			wellknown: str,
