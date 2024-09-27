@@ -223,6 +223,9 @@ async function getapiurls(str: string): Promise<
 	}
 	| false
 	>{
+	function appendApi(str:string){
+		return str.includes("api")?"" : (str.endsWith("/")? "api" : "/api");
+	}
 	if(!URL.canParse(str)){
 		const val = stringURLMap.get(str);
 		if(stringURLMap.size===0){
@@ -240,7 +243,7 @@ async function getapiurls(str: string): Promise<
 			const val = stringURLsMap.get(str);
 			if(val){
 				const responce = await fetch(
-					val.api + val.api.endsWith("/") ? "" : "/" + "ping"
+					val.api + (val.api.endsWith("/") ? "" : "/") + "ping"
 				);
 				if(responce.ok){
 					if(val.login){
@@ -288,17 +291,17 @@ async function getapiurls(str: string): Promise<
 		).then(x=>x.json());
 		const apiurl = new URL(info.apiEndpoint);
 		return{
-			api: info.apiEndpoint+(apiurl.pathname.includes("api") ? "" : "/api"),
+			api: info.apiEndpoint+appendApi(apiurl.pathname),
 			gateway: info.gateway,
 			cdn: info.cdn,
 			wellknown: str,
-			login: info.apiEndpoint+(apiurl.pathname.includes("api") ? "" : "/api"),
+			login: info.apiEndpoint+appendApi(apiurl.pathname),
 		};
 	}catch{
 		const val = stringURLsMap.get(str);
 		if(val){
 			const responce = await fetch(
-				val.api + val.api.endsWith("/") ? "" : "/" + "ping"
+				val.api + (val.api.endsWith("/") ? "" : "/") + "ping"
 			);
 			if(responce.ok){
 				if(val.login){
