@@ -286,12 +286,13 @@ async function getapiurls(str: string): Promise<
 				url.pathname.includes("api") ? "" : "api"
 			}/policies/instance/domains`
 		).then(x=>x.json());
+		const apiurl = new URL(info.apiEndpoint);
 		return{
-			api: info.apiEndpoint+(url.pathname.includes("api") ? "" : "/api"),
+			api: info.apiEndpoint+(apiurl.pathname.includes("api") ? "" : "/api"),
 			gateway: info.gateway,
 			cdn: info.cdn,
 			wellknown: str,
-			login: info.apiEndpoint,
+			login: info.apiEndpoint+(apiurl.pathname.includes("api") ? "" : "/api"),
 		};
 	}catch{
 		const val = stringURLsMap.get(str);
@@ -302,21 +303,21 @@ async function getapiurls(str: string): Promise<
 			if(responce.ok){
 				if(val.login){
 					return val as {
-	wellknown: string;
-	api: string;
-	cdn: string;
-	gateway: string;
-	login: string;
-	};
+						wellknown: string;
+						api: string;
+						cdn: string;
+						gateway: string;
+						login: string;
+					};
 				}else{
 					val.login = val.api;
 					return val as {
-	wellknown: string;
-	api: string;
-	cdn: string;
-	gateway: string;
-	login: string;
-	};
+						wellknown: string;
+						api: string;
+						cdn: string;
+						gateway: string;
+						login: string;
+					};
 				}
 			}
 		}
