@@ -130,7 +130,8 @@ let TOSa = document.getElementById("TOSa") as HTMLAnchorElement | null;
 async function tosLogic(){
 	const instanceInfo = JSON.parse(localStorage.getItem("instanceinfo") ?? "{}");
 	const apiurl = new URL(instanceInfo.api);
-	const response = await fetch(apiurl.toString() + "/ping");
+	const urlstr=apiurl.toString();
+	const response = await fetch(urlstr + (urlstr.endsWith("/") ? "" : "/") + "ping");
 	const data = await response.json();
 	const tosPage = data.instance.tosPage;
 
