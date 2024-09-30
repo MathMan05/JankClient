@@ -10,6 +10,7 @@ import{
 	guildjson,
 	mainuserjson,
 	memberjson,
+	memberlistupdatejson,
 	messageCreateJson,
 	presencejson,
 	readyjson,
@@ -20,6 +21,7 @@ import{ Member }from"./member.js";
 import{ Form, FormError, Options, Settings }from"./settings.js";
 import{ MarkDown }from"./markdown.js";
 import { Bot } from "./bot.js";
+import { Role } from "./role.js";
 
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 
@@ -479,7 +481,13 @@ class Localuser{
 			case"GUILD_MEMBERS_CHUNK":
 				this.gotChunk(temp.d);
 				break;
+			case"GUILD_MEMBER_LIST_UPDATE":
+			{
+				this.memberListUpdate(temp)
+				break;
 			}
+			}
+
 		}else if(temp.op === 10){
 			if(!this.ws)return;
 			console.log("heartbeat down");
@@ -517,6 +525,108 @@ class Localuser{
 			this.gotoid = undefined;
 		}
 		return channel; // Add this line to return the 'channel' variable
+	}
+	async memberListUpdate(list:memberlistupdatejson){
+		const div=document.getElementById("sideDiv") as HTMLDivElement;
+		div.innerHTML="";
+		const counts=new Map<string,number>();
+		const guild=this.lookingguild;
+		if(!guild) return;
+		const channel=this.channelfocus;
+		if(!channel) return;
+		for(const thing of list.d.ops[0].items){
+			if("member" in thing){
+				await Member.new(thing.member,guild);
+			}else{
+				counts.set(thing.group.id,thing.group.count);
+			}
+		}
+
+		const elms:Map<Role|"offline"|"online",Member[]>=new Map([["offline",[]],["online",[]]]);
+		for(const role of guild.roles){
+			console.log(guild.roles);
+			if(role.hoist){
+				elms.set(role,[]);
+			}
+		}
+		const members=new Set(guild.members);
+		members.forEach((member)=>{
+			if(!channel.hasPermission("VIEW_CHANNEL",member)){
+				members.delete(member);
+				console.log(member)
+				return;
+			}
+		})
+		for(const [role, list] of elms){
+			members.forEach((member)=>{
+				if(role === "offline"){
+					if(member.user.status === "offline"){
+						list.push(member);
+						members.delete(member);
+					}
+					return;
+				}
+				if(role !== "online"&&member.hasRole(role.id)){
+					list.push(member);
+					members.delete(member);
+				}
+			});
+			if(!list.length) continue;
+			list.sort((a,b)=>{
+				return (a.name.toLowerCase()>b.name.toLowerCase())?1:-1;
+			});
+		}
+		const online=[...members];
+		online.sort((a,b)=>{
+			return (a.name.toLowerCase()>b.name.toLowerCase())?1:-1;
+		});
+		elms.set("online",online);
+		for(const [role, list] of elms){
+			if(!list.length) continue;
+			const category=document.createElement("div");
+			category.classList.add("memberList");
+			let title=document.createElement("h3");
+			if(role==="offline"){
+				title.textContent="Offline";
+				category.classList.add("offline");
+			}else if(role==="online"){
+				title.textContent="Online";
+			}else{
+				title.textContent=role.name;
+			}
+			category.append(title);
+			const membershtml=document.createElement("div");
+			membershtml.classList.add("flexttb");
+
+			for(const member of list){
+				const memberdiv=document.createElement("div");
+				const pfp=member.user.buildpfp();
+				const username=document.createElement("span");
+				username.textContent=member.name;
+				member.bind(username)
+				member.user.bind(memberdiv,member.guild,false);
+				memberdiv.append(pfp,username);
+				memberdiv.classList.add("flexltr");
+				membershtml.append(memberdiv);
+			}
+			category.append(membershtml);
+			div.prepend(category);
+		}
+
+		console.log(elms);
+	}
+	async getSidePannel(){
+		if(this.ws&&this.channelfocus){
+			this.ws.send(JSON.stringify({
+				d:{
+					channels:{[this.channelfocus.id]:[[0,99]]},
+					guild_id:this.channelfocus.guild.id
+				},
+				op:14
+			}))
+		}else{
+			console.log("false? :3")
+		}
 	}
 	gotoid: string | undefined;
 	async goToChannel(id: string){

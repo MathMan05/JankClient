@@ -377,7 +377,10 @@ class Channel extends SnowFlake{
 		if(member.isAdmin()){
 			return true;
 		}
-		for(const thing of member.roles){
+		const roles=new Set(member.roles);
+		const everyone=this.guild.roles[this.guild.roles.length-1];
+		roles.add(everyone)
+		for(const thing of roles){
 			const premission = this.permission_overwrites.get(thing.id);
 			if(premission){
 				const perm = premission.getPermission(name);
@@ -834,6 +837,7 @@ class Channel extends SnowFlake{
 		Channel.regenLoadingMessages();
 		loading.classList.add("loading");
 		this.rendertyping();
+		this.localuser.getSidePannel();
 		await this.putmessages();
 		await prom;
 		if(id !== Channel.genid){

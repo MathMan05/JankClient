@@ -34,6 +34,7 @@ class Guild extends SnowFlake{
 	html!: HTMLElement;
 	emojis!: emojijson[];
 	large!: boolean;
+	members=new Set<Member>();
 	static contextmenu = new Contextmenu<Guild, undefined>("guild menu");
 	static setupcontextmenu(){
 		Guild.contextmenu.addbutton("Copy Guild id", function(this: Guild){

@@ -27,7 +27,7 @@ class User extends SnowFlake{
 	badge_ids!: string[];
 	members: WeakMap<Guild, Member | undefined | Promise<Member | undefined>> =
 		new WeakMap();
-	private status!: string;
+	status!: string;
 	resolving: false | Promise<any> = false;
 
 	constructor(userjson: userjson, owner: Localuser, dontclone = false){

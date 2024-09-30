@@ -145,21 +145,22 @@ pronouns: string;
 badge_ids: string[];
 };
 type memberjson = {
-index?: number;
-id: string;
-user: userjson | null;
-guild_id: string;
-guild: {
-id: string;
-} | null;
-nick?: string;
-roles: string[];
-joined_at: string;
-premium_since: string;
-deaf: boolean;
-mute: boolean;
-pending: boolean;
-last_message_id?: boolean; //What???
+	index?: number;
+	id: string;
+	user: userjson | null;
+	guild_id: string;
+	guild: {
+		id: string;
+	} | null;
+	presence?:presencejson
+	nick?: string;
+	roles: string[];
+	joined_at: string;
+	premium_since: string;
+	deaf: boolean;
+	mute: boolean;
+	pending: boolean;
+	last_message_id?: boolean; //What???
 };
 type emojijson = {
 name: string;
@@ -257,18 +258,18 @@ default_thread_rate_limit_per_user: number;
 position: number;
 };
 type rolesjson = {
-id: string;
-guild_id: string;
-color: number;
-hoist: boolean;
-managed: boolean;
-mentionable: boolean;
-name: string;
-permissions: string;
-position: number;
-icon: string;
-unicode_emoji: string;
-flags: number;
+	id: string;
+	guild_id: string;
+	color: number;
+	hoist: boolean;
+	managed: boolean;
+	mentionable: boolean;
+	name: string;
+	permissions: string;
+	position: number;
+	icon: string;
+	unicode_emoji: string;
+	flags: number;
 };
 type dirrectjson = {
 id: string;
@@ -392,20 +393,20 @@ t: "MESSAGE_CREATE";
 };
 type wsjson =
 | {
-op: 0;
-d: any;
-s: number;
-t:
-| "TYPING_START"
-| "USER_UPDATE"
-| "CHANNEL_UPDATE"
-| "CHANNEL_CREATE"
-| "CHANNEL_DELETE"
-| "GUILD_DELETE"
-| "GUILD_CREATE"
-| "MESSAGE_REACTION_REMOVE_ALL"
-| "MESSAGE_REACTION_REMOVE_EMOJI";
-}
+	op: 0;
+	d: any;
+	s: number;
+	t:
+		| "TYPING_START"
+		| "USER_UPDATE"
+		| "CHANNEL_UPDATE"
+		| "CHANNEL_CREATE"
+		| "CHANNEL_DELETE"
+		| "GUILD_DELETE"
+		| "GUILD_CREATE"
+		| "MESSAGE_REACTION_REMOVE_ALL"
+		| "MESSAGE_REACTION_REMOVE_EMOJI";
+	}
 | {
 op: 0;
 t: "GUILD_MEMBERS_CHUNK";
@@ -469,7 +470,7 @@ guild_id: string;
 emoji: emojijson;
 };
 s: 3;
-};
+}|memberlistupdatejson;
 type memberChunk = {
 guild_id: string;
 nonce: string;
@@ -479,6 +480,39 @@ chunk_index: number;
 chunk_count: number;
 not_found: string[];
 };
+
+type memberlistupdatejson={
+	op: 0,
+	s: number,
+	t: "GUILD_MEMBER_LIST_UPDATE",
+	d: {
+		ops: [
+			{
+				items:({
+					group:{
+						count:number,
+						id:string
+					}
+				}|{
+					member:memberjson
+				})[]
+				op: "SYNC",
+				range: [
+					number,
+					number
+				]
+			}
+		],
+		online_count: number,
+		member_count: number,
+		id: string,
+		guild_id: string,
+		groups: {
+			count: number,
+			id: string
+		}[]
+    }
+}
 export{
 	readyjson,
 	dirrectjson,
@@ -498,4 +532,5 @@ export{
 	messageCreateJson,
 	memberChunk,
 	invitejson,
+	memberlistupdatejson
 };
