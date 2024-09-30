@@ -526,9 +526,10 @@ class Localuser{
 		}
 		return channel; // Add this line to return the 'channel' variable
 	}
-	async memberListUpdate(list:memberlistupdatejson){
+	async memberListUpdate(list:memberlistupdatejson|void){
 		const div=document.getElementById("sideDiv") as HTMLDivElement;
 		div.innerHTML="";
+		if(!list) return;
 		const counts=new Map<string,number>();
 		const guild=this.lookingguild;
 		if(!guild) return;
@@ -616,7 +617,13 @@ class Localuser{
 		console.log(elms);
 	}
 	async getSidePannel(){
+
 		if(this.ws&&this.channelfocus){
+			console.log(this.channelfocus.guild.id);
+			if(this.channelfocus.guild.id==="@me"){
+				this.memberListUpdate();
+				return;
+			}
 			this.ws.send(JSON.stringify({
 				d:{
 					channels:{[this.channelfocus.id]:[[0,99]]},

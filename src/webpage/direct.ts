@@ -188,6 +188,7 @@ class Group extends Channel{
 		this.rendertyping();
 		await this.putmessages();
 		await prom;
+		this.localuser.getSidePannel();
 		if(id !== Channel.genid){
 			return;
 		}
