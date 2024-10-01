@@ -379,7 +379,9 @@ class Channel extends SnowFlake{
 		}
 		const roles=new Set(member.roles);
 		const everyone=this.guild.roles[this.guild.roles.length-1];
-		roles.add(everyone)
+		if(!member.user.bot||true){
+			roles.add(everyone)
+		}
 		for(const thing of roles){
 			const premission = this.permission_overwrites.get(thing.id);
 			if(premission){
