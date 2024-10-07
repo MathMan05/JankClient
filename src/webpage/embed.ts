@@ -247,19 +247,23 @@ Url.pathname.split("/")[Url.pathname.split("/").length - 1];
 			let info: { cdn: string; api: string };
 			if(!this.invcache){
 				if(!json1){
+					div.classList.remove("embed", "inviteEmbed", "flexttb")
 					div.append(this.generateLink());
 					return;
 				}
 				const tempinfo = await getapiurls(json1.url);
 
 				if(!tempinfo){
+					div.classList.remove("embed", "inviteEmbed", "flexttb")
 					div.append(this.generateLink());
 					return;
 				}
 				info = tempinfo;
 				const res = await fetch(info.api + "/invites/" + json1.code);
 				if(!res.ok){
+					div.classList.remove("embed", "inviteEmbed", "flexttb")
 					div.append(this.generateLink());
+					return;
 				}
 				json = (await res.json()) as invitejson;
 				this.invcache = [json, info];
@@ -268,17 +272,12 @@ Url.pathname.split("/")[Url.pathname.split("/").length - 1];
 			}
 			if(!json){
 				div.append(this.generateLink());
+				div.classList.remove("embed", "inviteEmbed", "flexttb")
 				return;
 			}
 			if(json.guild.banner){
 				const banner = document.createElement("img");
-				banner.src =
-this.localuser.info.cdn +
-"/icons/" +
-json.guild.id +
-"/" +
-json.guild.banner +
-".png?size=256";
+				banner.src = this.localuser.info.cdn + "/icons/" + json.guild.id + "/" + json.guild.banner + ".png?size=256";
 				banner.classList.add("banner");
 				div.append(banner);
 			}
