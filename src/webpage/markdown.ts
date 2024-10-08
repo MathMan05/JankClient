@@ -440,18 +440,7 @@ txt[j + 1] === undefined)
 			if(txt[i] === "<" && (txt[i + 1] === "@" || txt[i + 1] === "#")){
 				let id = "";
 				let j = i + 2;
-				const numbers = new Set([
-					"0",
-					"1",
-					"2",
-					"3",
-					"4",
-					"5",
-					"6",
-					"7",
-					"8",
-					"9",
-				]);
+				const numbers = new Set(["0","1","2","3","4","5","6","7","8","9",]);
 				for(; txt[j] !== undefined; j++){
 					const char = txt[j];
 					if(!numbers.has(char)){
