@@ -610,9 +610,9 @@ class Guild extends SnowFlake{
 				"button",
 				"",
 				"submit",
-				function(){
+				()=>{
 					console.log(name, category);
-					func(name, category);
+					func.bind(this)(name, category);
 					channelselect.hide();
 				},
 			],
@@ -636,11 +636,11 @@ class Guild extends SnowFlake{
 				"button",
 				"",
 				"submit",
-				()=>{
+				function(this:Guild){
 					console.log(name, category);
 					this.createChannel(name, category);
 					channelselect.hide();
-				},
+				}.bind(this),
 			],
 		]);
 		channelselect.show();
