@@ -1,27 +1,17 @@
 import{ Guild }from"./guild.js";
 import{ Channel }from"./channel.js";
 import{ Direct }from"./direct.js";
-import{ Voice }from"./audio.js";
+import{ AVoice }from"./audio.js";
 import{ User }from"./user.js";
 import{ Dialog }from"./dialog.js";
 import{ getapiurls, getBulkInfo, setTheme, Specialuser }from"./login.js";
-import{
-	channeljson,
-	guildjson,
-	mainuserjson,
-	memberjson,
-	memberlistupdatejson,
-	messageCreateJson,
-	presencejson,
-	readyjson,
-	startTypingjson,
-	wsjson,
-}from"./jsontypes.js";
+import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,voiceupdate,wsjson,}from"./jsontypes.js";
 import{ Member }from"./member.js";
 import{ Form, FormError, Options, Settings }from"./settings.js";
 import{ MarkDown }from"./markdown.js";
 import { Bot } from "./bot.js";
 import { Role } from "./role.js";
+import { Voice } from "./voice.js";
 
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 
@@ -486,7 +476,20 @@ class Localuser{
 				this.memberListUpdate(temp)
 				break;
 			}
+			case "VOICE_STATE_UPDATE":
+				if(this.waitingForVoice){
+					this.waitingForVoice(temp);
+				}
+
+				break;
+			case "VOICE_SERVER_UPDATE":
+				if(this.currentVoice){
+					Voice.url=temp.d.endpoint;
+					Voice.gotUrl();
+				}
+				break;
 			}
+
 
 		}else if(temp.op === 10){
 			if(!this.ws)return;
@@ -500,6 +503,29 @@ class Localuser{
 				this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }));
 			}, this.heartbeat_interval);
 		}
+	}
+	waitingForVoice?:((arg:voiceupdate|undefined)=>void);
+	currentVoice?:Voice;
+	async joinVoice(voice:Voice){
+		this.currentVoice=voice;
+		if(this.ws){
+			this.ws.send(JSON.stringify({
+				d:{
+					guild_id: voice.guild.id,
+					channel_id: voice.channel.id,
+					self_mute: true,//todo
+					self_deaf: false,//todo
+					self_video: false,//What is this? I have some guesses
+					flags: 2//?????
+				},
+				op:4
+			}));
+			if(this.waitingForVoice){
+				this.waitingForVoice(undefined);
+			}
+			return await new Promise<voiceupdate|undefined>((res)=>{this.waitingForVoice=res;})
+		}
+		return undefined;
 	}
 	heartbeat_interval: number = 0;
 	updateChannel(json: channeljson): void{
@@ -1167,18 +1193,18 @@ class Localuser{
 				);
 			}
 			{
-				const sounds = Voice.sounds;
+				const sounds = AVoice.sounds;
 				tas
 					.addSelect(
 						"Notification sound:",
 						_=>{
-							Voice.setNotificationSound(sounds[_]);
+							AVoice.setNotificationSound(sounds[_]);
 						},
 						sounds,
-						{ defaultIndex: sounds.indexOf(Voice.getNotificationSound()) }
+						{ defaultIndex: sounds.indexOf(AVoice.getNotificationSound()) }
 					)
 					.watchForChange(_=>{
-						Voice.noises(sounds[_]);
+						AVoice.noises(sounds[_]);
 					});
 			}
 

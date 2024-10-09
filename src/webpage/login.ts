@@ -116,12 +116,12 @@ function setDefaults(){
 setDefaults();
 class Specialuser{
 	serverurls: {
-api: string;
-cdn: string;
-gateway: string;
-wellknown: string;
-login: string;
-};
+		api: string;
+		cdn: string;
+		gateway: string;
+		wellknown: string;
+		login: string;
+	};
 	email: string;
 	token: string;
 	loggedin;
