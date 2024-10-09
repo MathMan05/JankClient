@@ -1,6 +1,6 @@
 "use strict";
 import{ Message }from"./message.js";
-import{ Voice }from"./audio.js";
+import{ AVoice }from"./audio.js";
 import{ Contextmenu }from"./contextmenu.js";
 import{ Dialog }from"./dialog.js";
 import{ Guild }from"./guild.js";
@@ -10,16 +10,10 @@ import{ Settings }from"./settings.js";
 import{ Role, RoleList }from"./role.js";
 import{ InfiniteScroller }from"./infiniteScroller.js";
 import{ SnowFlake }from"./snowflake.js";
-import{
-	channeljson,
-	embedjson,
-	messageCreateJson,
-	messagejson,
-	readyjson,
-	startTypingjson,
-}from"./jsontypes.js";
+import{channeljson,embedjson,messageCreateJson,messagejson,readyjson,startTypingjson}from"./jsontypes.js";
 import{ MarkDown }from"./markdown.js";
 import{ Member }from"./member.js";
+import { Voice } from "./voice.js";
 
 declare global {
 interface NotificationOptions {
@@ -55,6 +49,7 @@ class Channel extends SnowFlake{
 	idToPrev: Map<string, string> = new Map();
 	idToNext: Map<string, string> = new Map();
 	messages: Map<string, Message> = new Map();
+	voice?:Voice;
 	static setupcontextmenu(){
 		this.contextmenu.addbutton("Copy channel id", function(this: Channel){
 			navigator.clipboard.writeText(this.id);
@@ -336,6 +331,9 @@ class Channel extends SnowFlake{
 		}
 		this.setUpInfiniteScroller();
 		this.perminfo ??= {};
+		if(this.type===2){
+			this.voice=new Voice(this);
+		}
 	}
 	get perminfo(){
 		return this.guild.perminfo.channels[this.id];
@@ -840,6 +838,9 @@ class Channel extends SnowFlake{
 		loading.classList.add("loading");
 		this.rendertyping();
 		this.localuser.getSidePannel();
+		if(this.voice){
+			this.voice.join();
+		}
 		await this.putmessages();
 		await prom;
 		if(id !== Channel.genid){
@@ -1334,7 +1335,7 @@ class Channel extends SnowFlake{
 		);
 	}
 	notify(message: Message, deep = 0){
-		Voice.noises(Voice.getNotificationSound());
+		AVoice.noises(AVoice.getNotificationSound());
 		if(!("Notification" in window)){
 		}else if(Notification.permission === "granted"){
 			let noticontent: string | undefined | null = message.content.textContent;
