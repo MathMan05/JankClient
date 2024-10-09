@@ -839,6 +839,7 @@ class Channel extends SnowFlake{
 		this.rendertyping();
 		this.localuser.getSidePannel();
 		if(this.voice){
+			this.voice.onSatusChange=console.warn;
 			this.voice.join();
 		}
 		await this.putmessages();

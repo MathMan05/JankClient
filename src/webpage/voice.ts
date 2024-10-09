@@ -6,6 +6,15 @@ class Voice{
 	static url?:string;
 	static gotUrl:()=>void;
 	static geturl=new Promise<void>(res=>{this.gotUrl=res})
+	private pstatus:string="not connected";
+	public onSatusChange:(e:string)=>unknown=()=>{};
+	set status(e:string){
+		this.pstatus=e;
+		this.onSatusChange(e);
+	}
+	get status(){
+		return this.pstatus;
+	}
 	get channel(){
 		return this.owner;
 	}
@@ -193,7 +202,8 @@ a=rtcp-mux\r
 						}
 					]
 				}
-			}))
+			}));
+			this.status="Sending audio streams";
 		}
 	}
 	senders:Set<RTCRtpSender>=new Set();
@@ -202,6 +212,7 @@ a=rtcp-mux\r
 		if(this.pc&&this.offer){
 			const pc=this.pc;
 			this.negotationneeded();
+			this.status="Starting Audio streams";
 			const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true} );
 			for (const track of audioStream.getTracks())
 			{
@@ -212,19 +223,27 @@ a=rtcp-mux\r
 			this.counter=data.d.sdp;
 			pc.ontrack = ({ streams: [stream] }) => console.log("got audio stream", stream);
 
+		}else{
+			this.status="Connection failed";
 		}
 	}
 	async startWebRTC(){
+		this.status="Making offer";
 		const pc = new RTCPeerConnection();
 		this.pc=pc;
 		const offer = await pc.createOffer({
 			offerToReceiveAudio: true,
 			offerToReceiveVideo: true
 		});
+		this.status="Starting RTC connection";
 		const sdp=offer.sdp;
 		this.offer=sdp;
 
-		if(!sdp){this.ws?.close();return;}
+		if(!sdp){
+			this.status="No SDP";
+			this.ws?.close();
+			return;
+		}
 		const parsed=Voice.parsesdp(sdp);
 		const video=new Map<string,[number,number]>();
 		const audio=new Map<string,number>();
@@ -360,14 +379,20 @@ a=rtcp-mux\r
 	}
 	async join(){
 		console.warn("Joining");
+		this.status="waiting for main WS";
 		const json = await this.localuser.joinVoice(this);
-		if(!json) return;
+		if(!json) {
+			this.status="bad responce from WS";
+			return;
+		};
 		if(!Voice.url){
+			this.status="waiting for Voice URL";
 			await Voice.geturl;
 		}
-		if(this.localuser.currentVoice!==this){return}
+		if(this.localuser.currentVoice!==this){this.status="closed";return}
 		const ws=new WebSocket("ws://"+Voice.url as string);
 		this.ws=ws;
+		this.status="waiting for WS to open";
 		ws.addEventListener("message",(m)=>{
 			this.packet(m);
 		})
@@ -376,6 +401,7 @@ a=rtcp-mux\r
 				res()
 			})
 		});
+		this.status="waiting for WS to authorize";
 		ws.send(JSON.stringify({
 			"op": 0,
 			"d": {
