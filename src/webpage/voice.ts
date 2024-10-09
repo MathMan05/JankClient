@@ -165,7 +165,6 @@ a=rtcp-mux\r
 				const senders=this.senders.difference(this.ssrcMap);
 				for(const sender of senders){
 					for(const thing of (await sender.getStats())){
-						console.log(thing[1]);
 						if(thing[1].ssrc){
 							this.ssrcMap.set(sender,thing[1].ssrc);
 							this.makeOp12(sender)
