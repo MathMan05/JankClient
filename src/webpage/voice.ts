@@ -107,6 +107,12 @@ a=msid-semantic: WMS *\r
 a=group:BUNDLE ${bundles.join(" ")}\r`
 		let i=0;
 		for(const grouping of parsed.medias){
+			let mode="inactive";
+			for(const thing of this.senders){
+				if(thing.mid===bundles[i]){
+					mode="sendonly";
+				}
+			}
 			if(grouping.media==="audio"){
 			build+=
 `
@@ -121,7 +127,7 @@ a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extension
 a=setup:passive\r
 a=mid:${bundles[i]}\r
 a=maxptime:60\r
-a=inactive\r
+a=${mode}\r
 a=ice-ufrag:${ICE_UFRAG}\r
 a=ice-pwd:${ICE_PWD}\r
 a=fingerprint:${FINGERPRINT}\r
@@ -148,7 +154,7 @@ a=extmap:14 urn:ietf:params:rtp-hdrext:toffset\r
 a=extmap:13 urn:3gpp:video-orientation\r
 a=extmap:5 http://www.webrtc.org/experiments/rtp-hdrext/playout-delay/r/na=setup:passive/r/n
 a=mid:${bundles[i]}\r
-a=inactive\r
+a=${mode}\r
 a=ice-ufrag:${ICE_UFRAG}\r
 a=ice-pwd:${ICE_PWD}\r
 a=fingerprint:${FINGERPRINT}\r
@@ -232,14 +238,22 @@ a=rtcp-mux\r`;
 			const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true} );
 			for (const track of audioStream.getTracks()){
 				//Add track
-				const sender = pc.addTransceiver(track);
-				sender.sender.setStreams(audioStream);
+				const sender = pc.addTransceiver(track,{
+					direction:"sendonly",
+					streams:[audioStream],
+					sendEncodings:[{active:true,maxBitrate:this.channel.bitrate}]
+				});
+				this.channel
 				this.senders.add(sender);
-				sender.direction="sendonly";
 				console.log(sender)
 			}
 			this.counter=data.d.sdp;
-			pc.ontrack = ({ streams: [stream] }) => console.log("got audio stream", stream);
+			pc.ontrack = ({ streams: [stream] }) => {
+				console.log("got audio stream", stream);
+				const audio = new Audio();
+				audio.srcObject = stream;
+				audio.play()
+			};
 
 		}else{
 			this.status="Connection failed";
