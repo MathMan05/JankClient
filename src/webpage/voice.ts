@@ -107,15 +107,14 @@ a=msid-semantic: WMS *\r
 a=group:BUNDLE ${bundles.join(" ")}\r`
 		let i=0;
 		for(const grouping of parsed.medias){
-			let mode="inactive";
-			for(const thing of this.senders){
-				if(thing.mid===bundles[i]){
-					mode="sendonly";
+			let mode="recvonly";
+			for(const _ of this.senders){
+				if(i<2){
+					mode="sendrecv";
 				}
 			}
 			if(grouping.media==="audio"){
-			build+=
-`
+				build+=`
 m=audio ${parsed1.port} UDP/TLS/RTP/SAVPF 111\r
 ${cline}\r
 a=rtpmap:111 opus/48000/2\r
@@ -134,8 +133,7 @@ a=fingerprint:${FINGERPRINT}\r
 a=candidate:${candidate}\r
 a=rtcp-mux\r`
 			}else{
-build+=
-`
+				build+=`
 m=video ${rtcport} UDP/TLS/RTP/SAVPF 102 103\r
 ${cline}\r
 a=rtpmap:102 H264/90000\r
@@ -187,7 +185,7 @@ a=rtcp-mux\r`;
 				await pc.setRemoteDescription(remote);
 				const senders=this.senders.difference(this.ssrcMap);
 				for(const sender of senders){
-					for(const thing of (await sender.sender.getStats())){
+					for(const thing of (await sender.getStats())){
 						if(thing[1].ssrc){
 							this.ssrcMap.set(sender,thing[1].ssrc);
 							this.makeOp12(sender)
@@ -198,7 +196,7 @@ a=rtcp-mux\r`;
 			});
 		}
 	}
-	async makeOp12(sender:RTCRtpTransceiver){
+	async makeOp12(sender:RTCRtpSender){
 		if(this.ws){
 			this.ws.send(JSON.stringify({
 				op: 12,
@@ -228,8 +226,8 @@ a=rtcp-mux\r`;
 			this.status="Sending audio streams";
 		}
 	}
-	senders:Set<RTCRtpTransceiver>=new Set();
-	ssrcMap:Map<RTCRtpTransceiver,string>=new Map();
+	senders:Set<RTCRtpSender>=new Set();
+	ssrcMap:Map<RTCRtpSender,string>=new Map();
 	async continueWebRTC(data:sdpback){
 		if(this.pc&&this.offer){
 			const pc=this.pc;
@@ -238,20 +236,33 @@ a=rtcp-mux\r`;
 			const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true} );
 			for (const track of audioStream.getTracks()){
 				//Add track
-				const sender = pc.addTransceiver(track,{
-					direction:"sendonly",
-					streams:[audioStream],
-					sendEncodings:[{active:true,maxBitrate:this.channel.bitrate}]
-				});
-				this.channel
+				console.log(track,audioStream);
+				const sender = pc.addTrack(track);
 				this.senders.add(sender);
 				console.log(sender)
 			}
+			for(let i=0;i<10;i++){
+				pc.addTransceiver("audio",{
+					direction:"recvonly",
+					streams:[],
+					sendEncodings:[{active:true,maxBitrate:this.channel.bitrate}]
+				});
+			}
+			for(let i=0;i<10;i++){
+				pc.addTransceiver("video",{
+					direction:"recvonly",
+					streams:[],
+					sendEncodings:[{active:true,maxBitrate:this.channel.bitrate}]
+				});
+			}
 			this.counter=data.d.sdp;
-			pc.ontrack = ({ streams: [stream] }) => {
-				console.log("got audio stream", stream);
+			pc.ontrack = async (e) => {
+				console.log(e);
+				for(const track of e.streams[0].getTracks()){
+					console.log(track);
+				}
 				const audio = new Audio();
-				audio.srcObject = stream;
+				audio.srcObject = e.streams[0];
 				audio.play()
 			};
 
