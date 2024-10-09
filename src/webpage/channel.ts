@@ -50,6 +50,7 @@ class Channel extends SnowFlake{
 	idToNext: Map<string, string> = new Map();
 	messages: Map<string, Message> = new Map();
 	voice?:Voice;
+	bitrate:number=128000;
 	static setupcontextmenu(){
 		this.contextmenu.addbutton("Copy channel id", function(this: Channel){
 			navigator.clipboard.writeText(this.id);
