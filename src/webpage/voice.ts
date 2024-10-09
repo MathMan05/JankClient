@@ -257,13 +257,25 @@ a=rtcp-mux\r`;
 			}
 			this.counter=data.d.sdp;
 			pc.ontrack = async (e) => {
-				console.log(e);
-				for(const track of e.streams[0].getTracks()){
+				if(e.track.kind==="video"){
+					return;
+				}
+
+				const media=e.streams[0];
+				console.log("got audio:",e);
+				for(const track of media.getTracks()){
 					console.log(track);
 				}
 				const audio = new Audio();
-				audio.srcObject = e.streams[0];
+				audio.srcObject = media;
 				audio.play()
+				await new Promise(res=>setTimeout(res,1000));
+				console.log(e.transceiver,this.ssrcMap.has(e.transceiver.sender))
+				for(const thing of (await e.transceiver.sender.getStats())){
+					if(thing[1].ssrc){
+						console.log(thing[1].ssrc,this.users,this.ssrcMap)
+					}
+				}
 			};
 
 		}else{
