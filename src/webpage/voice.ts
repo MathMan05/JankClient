@@ -70,7 +70,18 @@ class Voice{
 		}
 	}
 	offer?:string;
-	cleanServerSDP(sdp:string,bundle1:string,bundle2:string):string{
+	cleanServerSDP(sdp:string):string{
+		const pc=this.pc;
+		if(!pc) throw new Error("pc isn't defined")
+		const ld=pc.localDescription;
+		if(!ld) throw new Error("localDescription isn't defined");
+		const parsed = Voice.parsesdp(ld.sdp);
+		const group=parsed.atr.get("group");
+		if(!group) throw new Error("group isn't in sdp");
+		const [_,...bundles]=(group.entries().next().value as [string, string])[0].split(" ");
+		bundles[bundles.length-1]=bundles[bundles.length-1].replace("\r","");
+		console.log(bundles);
+
 		if(!this.offer) throw new Error("Offer is missing :P");
 		let cline:string|undefined;
 		console.log(sdp);
@@ -93,7 +104,12 @@ o=- 1420070400000 0 IN IP4 127.0.0.1\r
 s=-\r
 t=0 0\r
 a=msid-semantic: WMS *\r
-a=group:BUNDLE ${bundle1} ${bundle2}\r
+a=group:BUNDLE ${bundles.join(" ")}\r`
+		let i=0;
+		for(const grouping of parsed.medias){
+			if(grouping.media==="audio"){
+			build+=
+`
 m=audio ${parsed1.port} UDP/TLS/RTP/SAVPF 111\r
 ${cline}\r
 a=rtpmap:111 opus/48000/2\r
@@ -103,14 +119,17 @@ a=rtcp-fb:111 transport-cc\r
 a=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\r
 a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01/r/n
 a=setup:passive\r
-a=mid:${bundle1}\r
+a=mid:${bundles[i]}\r
 a=maxptime:60\r
 a=inactive\r
 a=ice-ufrag:${ICE_UFRAG}\r
 a=ice-pwd:${ICE_PWD}\r
 a=fingerprint:${FINGERPRINT}\r
 a=candidate:${candidate}\r
-a=rtcp-mux\r
+a=rtcp-mux\r`
+			}else{
+build+=
+`
 m=video ${rtcport} UDP/TLS/RTP/SAVPF 102 103\r
 ${cline}\r
 a=rtpmap:102 H264/90000\r
@@ -128,15 +147,18 @@ a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extension
 a=extmap:14 urn:ietf:params:rtp-hdrext:toffset\r
 a=extmap:13 urn:3gpp:video-orientation\r
 a=extmap:5 http://www.webrtc.org/experiments/rtp-hdrext/playout-delay/r/na=setup:passive/r/n
-a=mid:${bundle2}\r
+a=mid:${bundles[i]}\r
 a=inactive\r
 a=ice-ufrag:${ICE_UFRAG}\r
 a=ice-pwd:${ICE_PWD}\r
 a=fingerprint:${FINGERPRINT}\r
 a=candidate:${candidate}\r
-a=rtcp-mux\r
-`;
-
+a=rtcp-mux\r`;
+			}
+		i++
+		}
+		build+="\n";
+		console.log(build);
 		return build;
 	}
 	counter?:string;
@@ -149,22 +171,17 @@ a=rtcp-mux\r
 					offerToReceiveVideo: true
 				})).sdp;
 				await pc.setLocalDescription({sdp:this.offer});
-				const ld=pc.localDescription;
-				if(!ld) throw new Error("localDescription isn't defined");
-				if(!this.counter) throw new Error("localDescription isn't defined");
+
+
+
+				if(!this.counter) throw new Error("counter isn't defined");
 				const counter=this.counter;
-				const parsed = Voice.parsesdp(ld.sdp);
-				const group=parsed.atr.get("group");
-				if(!group) throw new Error("group isn't in sdp");
-				const groupings=(group.entries().next().value as [string, string])[0].split(" ") as [string,string,string];
-				groupings[2]=groupings[2].replace("\r","");
-				console.log(groupings);
-				const remote:{sdp:string,type:RTCSdpType}={sdp:this.cleanServerSDP(counter,groupings[1],groupings[2]),type:"answer"};
+				const remote:{sdp:string,type:RTCSdpType}={sdp:this.cleanServerSDP(counter),type:"answer"};
 				console.log(remote);
 				await pc.setRemoteDescription(remote);
 				const senders=this.senders.difference(this.ssrcMap);
 				for(const sender of senders){
-					for(const thing of (await sender.getStats())){
+					for(const thing of (await sender.sender.getStats())){
 						if(thing[1].ssrc){
 							this.ssrcMap.set(sender,thing[1].ssrc);
 							this.makeOp12(sender)
@@ -175,7 +192,7 @@ a=rtcp-mux\r
 			});
 		}
 	}
-	async makeOp12(sender:RTCRtpSender){
+	async makeOp12(sender:RTCRtpTransceiver){
 		if(this.ws){
 			this.ws.send(JSON.stringify({
 				op: 12,
@@ -205,19 +222,21 @@ a=rtcp-mux\r
 			this.status="Sending audio streams";
 		}
 	}
-	senders:Set<RTCRtpSender>=new Set();
-	ssrcMap:Map<RTCRtpSender,string>=new Map();
+	senders:Set<RTCRtpTransceiver>=new Set();
+	ssrcMap:Map<RTCRtpTransceiver,string>=new Map();
 	async continueWebRTC(data:sdpback){
 		if(this.pc&&this.offer){
 			const pc=this.pc;
 			this.negotationneeded();
 			this.status="Starting Audio streams";
 			const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true} );
-			for (const track of audioStream.getTracks())
-			{
+			for (const track of audioStream.getTracks()){
 				//Add track
-				const sender = pc.addTrack(track,audioStream);
+				const sender = pc.addTransceiver(track);
+				sender.sender.setStreams(audioStream);
 				this.senders.add(sender);
+				sender.direction="sendonly";
+				console.log(sender)
 			}
 			this.counter=data.d.sdp;
 			pc.ontrack = ({ streams: [stream] }) => console.log("got audio stream", stream);
