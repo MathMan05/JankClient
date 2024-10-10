@@ -24,9 +24,6 @@ class Voice{
 	get localuser(){
 		return this.owner.localuser;
 	}
-	get info(){
-		return this.owner.info;
-	}
 	constructor(owner:Channel){
 		this.owner=owner;
 	}
@@ -42,6 +39,8 @@ class Voice{
 		}
 	}
 	readonly users= new Map<number,string>();
+	readonly speakingMap= new Map<string,number>();
+	onSpeakingChange=(_:string,_2:number)=>{};
 	packet(message:MessageEvent){
 		const data=message.data
 		if(typeof data === "string"){
@@ -53,6 +52,10 @@ class Voice{
 				case 4:
 					this.continueWebRTC(json);
 					break;
+				case 5:
+					this.speakingMap.set(json.d.user_id,json.d.speaking);
+					this.onSpeakingChange(json.d.user_id,json.d.speaking);
+					break;
 				case 6:
 					this.time=json.d.t;
 					setTimeout(this.sendAlive.bind(this), this.timeout);
@@ -62,14 +65,13 @@ class Voice{
 					setTimeout(this.sendAlive.bind(this), 1000);
 					break;
 				case 12:
+					this.figureRecivers();
 					if(!this.users.has(json.d.audio_ssrc)){
 						console.log("redo 12!");
 						this.makeOp12();
 					}
 					this.users.set(json.d.audio_ssrc,json.d.user_id);
-					break
-
-
+					break;
 			}
 		}
 	}
@@ -187,7 +189,7 @@ a=rtcp-mux\r`;
 				await pc.setRemoteDescription(remote);
 				const senders=this.senders.difference(this.ssrcMap);
 				for(const sender of senders){
-					for(const thing of (await sender.getStats())){
+					for(const thing of (await sender.getStats() as Map<string, any>)){
 						if(thing[1].ssrc){
 							this.ssrcMap.set(sender,thing[1].ssrc);
 							this.makeOp12(sender);
@@ -198,7 +200,7 @@ a=rtcp-mux\r`;
 			});
 		}
 	}
-	async makeOp12(sender:RTCRtpSender|undefined|[RTCRtpSender,string]=(this.ssrcMap.entries().next().value)){
+	async makeOp12(sender:RTCRtpSender|undefined|[RTCRtpSender,number]=(this.ssrcMap.entries().next().value)){
 		if(!sender) throw new Error("sender doesn't exist");
 		if(sender instanceof Array){
 			sender=sender[0];
@@ -233,16 +235,61 @@ a=rtcp-mux\r`;
 		}
 	}
 	senders:Set<RTCRtpSender>=new Set();
-	ssrcMap:Map<RTCRtpSender,string>=new Map();
+	recivers=new Set<RTCRtpReceiver>();
+	ssrcMap:Map<RTCRtpSender,number>=new Map();
+	speaking=false;
+	async setupMic(audioStream:MediaStream){
+		const audioContext = new AudioContext();
+		const analyser = audioContext.createAnalyser();
+		const microphone = audioContext.createMediaStreamSource(audioStream);
+
+		analyser.smoothingTimeConstant = 0;
+		analyser.fftSize = 32;
+
+		microphone.connect(analyser);
+		const array=new Float32Array(1);
+		const interval=setInterval(()=>{
+			if(!this.ws){
+				clearInterval(interval);
+			}
+			analyser.getFloatFrequencyData(array);
+			const value=array[0]+65;
+			if(value<0){
+				if(this.speaking){
+					this.speaking=false;
+					this.sendSpeaking();
+					console.log("not speaking")
+				}
+			}else if(!this.speaking){
+				console.log("speaking");
+				this.speaking=true;
+				this.sendSpeaking();
+			}
+		},500);
+	}
+	async sendSpeaking(){
+		if(!this.ws) return;
+		const pair=this.ssrcMap.entries().next().value;
+		if(!pair) return
+		this.ws.send(JSON.stringify({
+			op:5,
+			d:{
+				speaking:+this.speaking,
+				delay:5,//not sure
+				ssrc:pair[1]
+			}
+		}))
+	}
 	async continueWebRTC(data:sdpback){
 		if(this.pc&&this.offer){
 			const pc=this.pc;
 			this.negotationneeded();
 			this.status="Starting Audio streams";
 			const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true} );
-			for (const track of audioStream.getTracks()){
+			for (const track of audioStream.getAudioTracks()){
 				//Add track
-				console.log(track,audioStream);
+
+				this.setupMic(audioStream);
 				const sender = pc.addTrack(track);
 				this.senders.add(sender);
 				console.log(sender)
@@ -272,21 +319,32 @@ a=rtcp-mux\r`;
 				for(const track of media.getTracks()){
 					console.log(track);
 				}
-				const audio = new Audio();
-				audio.srcObject = media;
-				audio.play()
-				await new Promise(res=>setTimeout(res,1000));
-				console.log(e.transceiver,this.ssrcMap.has(e.transceiver.sender))
-				for(const thing of (await e.transceiver.sender.getStats())){
-					if(thing[1].ssrc){
-						console.log(thing[1].ssrc,this.users,this.ssrcMap)
-					}
-				}
+
+				const context= new AudioContext();
+				await context.resume();
+				const ss=context.createMediaStreamSource(media);
+				console.log(media);
+				ss.connect(context.destination);
+				new Audio().srcObject = media;//weird I know, but it's for chromium/webkit bug
+				this.recivers.add(e.receiver)
 			};
 
 		}else{
 			this.status="Connection failed";
 		}
+	}
+	reciverMap=new Map<number,RTCRtpReceiver>()
+	async figureRecivers(){
+		await new Promise(res=>setTimeout(res,500));
+		for(const reciver of this.recivers){
+			const stats=await reciver.getStats() as Map<string,any>;
+			for(const thing of (stats)){
+				if(thing[1].ssrc){
+					this.reciverMap.set(thing[1].ssrc,reciver)
+				}
+			}
+		}
+		console.log(this.reciverMap);
 	}
 	async startWebRTC(){
 		this.status="Making offer";
@@ -453,6 +511,9 @@ a=rtcp-mux\r`;
 		if(this.localuser.currentVoice!==this){this.status="closed";return}
 		const ws=new WebSocket("ws://"+Voice.url as string);
 		this.ws=ws;
+		ws.onclose=()=>{
+			this.leave();
+		}
 		this.status="waiting for WS to open";
 		ws.addEventListener("message",(m)=>{
 			this.packet(m);

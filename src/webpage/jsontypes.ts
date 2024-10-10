@@ -567,7 +567,14 @@ type webRTCSocket=	{
 		"modes": [],//no clue
 		"experiments": []//no clue
 	}
-}|sdpback|opRTC12;
+}|sdpback|opRTC12|{
+    op: 5,
+    d: {
+        user_id: string,
+        speaking: 0,
+        ssrc: 940464811
+    }
+};
 type sdpback={
 	op: 4,
 	d: {
