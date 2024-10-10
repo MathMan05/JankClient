@@ -483,33 +483,33 @@ type memberChunk = {
 	not_found: string[];
 };
 type voiceupdate={
-    op: 0,
-    t: "VOICE_STATE_UPDATE",
-    d: {
-        guild_id: string,
-        channel_id: string,
-        user_id: string,
-        member: memberjson,
-        session_id: string,
-        token: string,
-        deaf: boolean,
-        mute: boolean,
-        self_deaf: boolean,
-        self_mute: boolean,
-        self_video: boolean,
-        suppress: boolean
-    },
-    s: number
+	op: 0,
+	t: "VOICE_STATE_UPDATE",
+	d: {
+		guild_id: string,
+		channel_id: string,
+		user_id: string,
+		member: memberjson,
+		session_id: string,
+		token: string,
+		deaf: boolean,
+		mute: boolean,
+		self_deaf: boolean,
+		self_mute: boolean,
+		self_video: boolean,
+		suppress: boolean
+	},
+	s: number
 };
 type voiceserverupdate={
-    op: 0,
-    t: "VOICE_SERVER_UPDATE",
-    d: {
-        token: string,
-        guild_id: string,
-        endpoint: string
-    },
-    s: 6
+	op: 0,
+	t: "VOICE_SERVER_UPDATE",
+	d: {
+		token: string,
+		guild_id: string,
+		endpoint: string
+	},
+	s: 6
 };
 type memberlistupdatejson={
 	op: 0,
@@ -541,7 +541,7 @@ type memberlistupdatejson={
 			count: number,
 			id: string
 		}[]
-    }
+	}
 }
 type webRTCSocket=	{
 	op: 8,
@@ -552,21 +552,21 @@ type webRTCSocket=	{
 	op:6,
 	d:{t: number}
 }|{
-    op: 2,
-    d: {
-        ssrc: number,
-        "streams": {
-                type: "video",//probally more options, but idk
-                rid: string,
-                quality: number,
-                ssrc: number,
-                rtx_ssrc:number
-            }[],
-        ip: number,
-        port: number,
-        "modes": [],//no clue
-        "experiments": []//no clue
-    }
+	op: 2,
+	d: {
+		ssrc: number,
+		"streams": {
+				type: "video",//probally more options, but idk
+				rid: string,
+				quality: number,
+				ssrc: number,
+				rtx_ssrc:number
+			}[],
+		ip: number,
+		port: number,
+		"modes": [],//no clue
+		"experiments": []//no clue
+	}
 }|sdpback|opRTC12;
 type sdpback={
 	op: 4,
@@ -578,29 +578,29 @@ type sdpback={
 	}
 };
 type opRTC12={
-    op: 12,
-    d: {
-        user_id: string,
-        audio_ssrc: number,
-        video_ssrc: number,
-        streams: [
-            {
-                type: "video",
-                rid: "100",
-                ssrc: number,
-                active: boolean,
-                quality: 100,
-                rtx_ssrc: number,
-                max_bitrate: 2500000,
-                max_framerate: number,
-                max_resolution: {
-                    type: "fixed",
-                    width: number,
-                    height: number
-                }
-            }
-        ]
-    }
+	op: 12,
+	d: {
+		user_id: string,
+		audio_ssrc: number,
+		video_ssrc: number,
+		streams: [
+			{
+				type: "video",
+				rid: "100",
+				ssrc: number,
+				active: boolean,
+				quality: 100,
+				rtx_ssrc: number,
+				max_bitrate: 2500000,
+				max_framerate: number,
+				max_resolution: {
+					type: "fixed",
+					width: number,
+					height: number
+				}
+			}
+		]
+	}
 }
 export{
 	readyjson,

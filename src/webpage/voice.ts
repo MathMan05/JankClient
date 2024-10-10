@@ -62,6 +62,10 @@ class Voice{
 					setTimeout(this.sendAlive.bind(this), 1000);
 					break;
 				case 12:
+					if(!this.users.has(json.d.audio_ssrc)){
+						console.log("redo 12!");
+						this.makeOp12();
+					}
 					this.users.set(json.d.audio_ssrc,json.d.user_id);
 					break
 
@@ -176,8 +180,6 @@ a=rtcp-mux\r`;
 				})).sdp;
 				await pc.setLocalDescription({sdp:this.offer});
 
-
-
 				if(!this.counter) throw new Error("counter isn't defined");
 				const counter=this.counter;
 				const remote:{sdp:string,type:RTCSdpType}={sdp:this.cleanServerSDP(counter),type:"answer"};
@@ -188,7 +190,7 @@ a=rtcp-mux\r`;
 					for(const thing of (await sender.getStats())){
 						if(thing[1].ssrc){
 							this.ssrcMap.set(sender,thing[1].ssrc);
-							this.makeOp12(sender)
+							this.makeOp12(sender);
 						}
 					}
 				}
@@ -196,7 +198,11 @@ a=rtcp-mux\r`;
 			});
 		}
 	}
-	async makeOp12(sender:RTCRtpSender){
+	async makeOp12(sender:RTCRtpSender|undefined|[RTCRtpSender,string]=(this.ssrcMap.entries().next().value)){
+		if(!sender) throw new Error("sender doesn't exist");
+		if(sender instanceof Array){
+			sender=sender[0];
+		}
 		if(this.ws){
 			this.ws.send(JSON.stringify({
 				op: 12,
@@ -479,6 +485,17 @@ a=rtcp-mux\r`;
 			this.pc=pc;
 			//pc.setRemoteDescription({sdp:json.d.token,type:""})
 		*/
+	}
+	async leave(){
+		this.status="Left voice chat";
+		if(this.ws){
+			this.ws.close();
+			this.ws=undefined;
+		}
+		if(this.pc){
+			this.pc.close();
+			this.pc=undefined;
+		}
 	}
 }
 export {Voice};
