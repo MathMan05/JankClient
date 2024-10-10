@@ -507,6 +507,9 @@ class Localuser{
 	waitingForVoice?:((arg:voiceupdate|undefined)=>void);
 	currentVoice?:Voice;
 	async joinVoice(voice:Voice){
+		if(this.currentVoice){
+			this.currentVoice.leave();
+		}
 		this.currentVoice=voice;
 		if(this.ws){
 			this.ws.send(JSON.stringify({
