@@ -1,11 +1,80 @@
-import { Channel } from "./channel.js";
-import { sdpback, webRTCSocket } from "./jsontypes.js";
+import { memberjson, sdpback, voiceserverupdate, voiceupdate, webRTCSocket } from "./jsontypes.js";
+
+class VoiceFactory{
+	settings:{id:string};
+	constructor(usersettings:VoiceFactory["settings"]){
+		this.settings=usersettings;
+	}
+	voices=new Map<string,Map<string,Voice>>();
+	voiceChannels=new Map<string,Voice>();
+	currentVoice?:Voice;
+	guildUrlMap=new Map<string,{url?:string,geturl:Promise<void>,gotUrl:()=>void}>();
+	makeVoice(guildid:string,channelId:string,settings:Voice["settings"]){
+		let guild=this.voices.get(guildid);
+		if(!guild){
+			this.setUpGuild(guildid);
+			guild=new Map();
+			this.voices.set(guildid,guild);
+		}
+		const urlobj=this.guildUrlMap.get(guildid);
+		if(!urlobj) throw new Error("url Object doesn't exist (InternalError)");
+		const voice=new Voice(this.settings.id,settings,urlobj);
+		this.voiceChannels.set(channelId,voice);
+		guild.set(channelId,voice);
+		return voice;
+	}
+	onJoin=(_voice:Voice)=>{};
+	onLeave=(_voice:Voice)=>{};
+	joinVoice(channelId:string,guildId:string){
+		if(this.currentVoice){
+			this.currentVoice.leave();
+		}
+		const voice=this.voiceChannels.get(channelId);
+		if(!voice) throw new Error(`Voice ${channelId} does not exist`);
+		voice.join();
+		this.currentVoice=voice;
+		this.onJoin(voice);
+		return {
+			d:{
+				guild_id: guildId,
+				channel_id: channelId,
+				self_mute: true,//todo
+				self_deaf: false,//todo
+				self_video: false,//What is this? I have some guesses
+				flags: 2//?????
+			},
+			op:4
+		}
+	}
+	userMap=new Map<string,Voice>();
+	voiceStateUpdate(update:voiceupdate){
+
+		const prev=this.userMap.get(update.d.user_id);
+		console.log(prev,this.userMap);
+		if(prev){
+			prev.disconnect(update.d.user_id);
+			this.onLeave(prev);
+		}
+		const voice=this.voiceChannels.get(update.d.channel_id);
+		if(voice){
+			this.userMap.set(update.d.user_id,voice);
+			voice.voiceupdate(update);
+		}
+	}
+	private setUpGuild(id:string){
+		const obj:{url?:string,geturl?:Promise<void>,gotUrl?:()=>void}={};
+		obj.geturl=new Promise<void>(res=>{obj.gotUrl=res});
+		this.guildUrlMap.set(id,obj as {geturl:Promise<void>,gotUrl:()=>void});
+	}
+	voiceServerUpdate(update:voiceserverupdate){
+		const obj=this.guildUrlMap.get(update.d.guild_id);
+		if(!obj) return;
+		obj.url=update.d.endpoint;
+		obj.gotUrl();
+	}
+}
 
 class Voice{
-	owner:Channel;
-	static url?:string;
-	static gotUrl:()=>void;
-	static geturl=new Promise<void>(res=>{this.gotUrl=res})
 	private pstatus:string="not connected";
 	public onSatusChange:(e:string)=>unknown=()=>{};
 	set status(e:string){
@@ -15,17 +84,13 @@ class Voice{
 	get status(){
 		return this.pstatus;
 	}
-	get channel(){
-		return this.owner;
-	}
-    get guild(){
-		return this.owner.owner;
-	}
-	get localuser(){
-		return this.owner.localuser;
-	}
-	constructor(owner:Channel){
-		this.owner=owner;
+	readonly userid:string;
+	settings:{bitrate:number};
+	urlobj:{url?:string,geturl:Promise<void>,gotUrl:()=>void};
+	constructor(userid:string,settings:Voice["settings"],urlobj:Voice["urlobj"]){
+		this.userid=userid;
+		this.settings=settings;
+		this.urlobj=urlobj;
 	}
 	pc?:RTCPeerConnection;
 	ws?:WebSocket;
@@ -40,7 +105,28 @@ class Voice{
 	}
 	readonly users= new Map<number,string>();
 	readonly speakingMap= new Map<string,number>();
-	onSpeakingChange=(_:string,_2:number)=>{};
+	onSpeakingChange=(_userid:string,_speaking:number)=>{};
+	disconnect(userid:string){
+		console.warn(userid);
+		if(userid===this.userid){
+			this.leave();
+		}
+		const ssrc=this.speakingMap.get(userid);
+
+		if(ssrc){
+			this.users.delete(ssrc);
+			for(const thing of this.ssrcMap){
+				if(thing[1]===ssrc){
+					this.ssrcMap.delete(thing[0]);
+				}
+			}
+		}
+		this.speakingMap.delete(userid);
+		this.userids.delete(userid);
+		console.log(this.userids,userid);
+		//there's more for sure, but this is "good enough" for now
+		this.onMemberChange(userid,false);
+	}
 	packet(message:MessageEvent){
 		const data=message.data
 		if(typeof data === "string"){
@@ -89,14 +175,7 @@ class Voice{
 		console.log(bundles);
 
 		if(!this.offer) throw new Error("Offer is missing :P");
-		let cline:string|undefined;
-		console.log(sdp);
-		for(const line of sdp.split("\n")){
-			if(line.startsWith("c=")){
-				cline=line;
-				break;
-			}
-		}
+		let cline=sdp.split("\n").find(line=>line.startsWith("c="));
 		if(!cline) throw new Error("c line wasn't found");
 		const parsed1=Voice.parsesdp(sdp).medias[0];
 		//const parsed2=Voice.parsesdp(this.offer);
@@ -168,7 +247,6 @@ a=rtcp-mux\r`;
 		i++
 		}
 		build+="\n";
-		console.log(build);
 		return build;
 	}
 	counter?:string;
@@ -298,18 +376,19 @@ a=rtcp-mux\r`;
 				pc.addTransceiver("audio",{
 					direction:"recvonly",
 					streams:[],
-					sendEncodings:[{active:true,maxBitrate:this.channel.bitrate}]
+					sendEncodings:[{active:true,maxBitrate:this.settings.bitrate}]
 				});
 			}
 			for(let i=0;i<10;i++){
 				pc.addTransceiver("video",{
 					direction:"recvonly",
 					streams:[],
-					sendEncodings:[{active:true,maxBitrate:this.channel.bitrate}]
+					sendEncodings:[{active:true,maxBitrate:this.settings.bitrate}]
 				});
 			}
 			this.counter=data.d.sdp;
 			pc.ontrack = async (e) => {
+				this.status="Done";
 				if(e.track.kind==="video"){
 					return;
 				}
@@ -496,58 +575,69 @@ a=rtcp-mux\r`;
 		}
 		return out;
 	}
+	open=false;
 	async join(){
 		console.warn("Joining");
+		this.open=true
 		this.status="waiting for main WS";
-		const json = await this.localuser.joinVoice(this);
-		if(!json) {
-			this.status="bad responce from WS";
-			return;
-		};
-		if(!Voice.url){
-			this.status="waiting for Voice URL";
-			await Voice.geturl;
-		}
-		if(this.localuser.currentVoice!==this){this.status="closed";return}
-		const ws=new WebSocket("ws://"+Voice.url as string);
-		this.ws=ws;
-		ws.onclose=()=>{
-			this.leave();
-		}
-		this.status="waiting for WS to open";
-		ws.addEventListener("message",(m)=>{
-			this.packet(m);
-		})
-		await new Promise<void>(res=>{
-			ws.addEventListener("open",()=>{
-				res()
-			})
-		});
-		this.status="waiting for WS to authorize";
-		ws.send(JSON.stringify({
-			"op": 0,
-			"d": {
-				server_id: this.guild.id,
-				user_id: json.d.user_id,
-				session_id: json.d.session_id,
-				token: json.d.token,
-				video: false,
-				"streams": [
-					{
-						type: "video",
-						rid: "100",
-						quality: 100
-					}
-				]
+	}
+	onMemberChange=(_member:memberjson|string,_joined:boolean)=>{};
+	userids=new Map<string,{}>();
+	async voiceupdate(update:voiceupdate){
+		console.log("Update!");
+		this.userids.set(update.d.member.id,{deaf:update.d.deaf,muted:update.d.mute});
+		this.onMemberChange(update.d.member,true);
+		if(update.d.member.id===this.userid&&this.open){
+			if(!update) {
+				this.status="bad responce from WS";
+				return;
+			};
+			if(!this.urlobj.url){
+				this.status="waiting for Voice URL";
+				await this.urlobj.geturl;
+				if(!this.open){this.leave();return}
 			}
-		}));
-		/*
-			const pc=new RTCPeerConnection();
-			this.pc=pc;
-			//pc.setRemoteDescription({sdp:json.d.token,type:""})
-		*/
+
+			const ws=new WebSocket("ws://"+this.urlobj.url as string);
+			this.ws=ws;
+			ws.onclose=()=>{
+				this.leave();
+			}
+			this.status="waiting for WS to open";
+			ws.addEventListener("message",(m)=>{
+				this.packet(m);
+			})
+			await new Promise<void>(res=>{
+				ws.addEventListener("open",()=>{
+					res()
+				})
+			});
+			if(!this.ws){
+				this.leave();
+				return;
+			}
+			this.status="waiting for WS to authorize";
+			ws.send(JSON.stringify({
+				"op": 0,
+				"d": {
+					server_id: update.d.guild_id,
+					user_id: update.d.user_id,
+					session_id: update.d.session_id,
+					token: update.d.token,
+					video: false,
+					"streams": [
+						{
+							type: "video",
+							rid: "100",
+							quality: 100
+						}
+					]
+				}
+			}));
+		}
 	}
 	async leave(){
+		this.open=false;
 		this.status="Left voice chat";
 		if(this.ws){
 			this.ws.close();
@@ -559,4 +649,4 @@ a=rtcp-mux\r`;
 		}
 	}
 }
-export {Voice};
+export {Voice,VoiceFactory};

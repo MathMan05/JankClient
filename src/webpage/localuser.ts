@@ -5,13 +5,13 @@ import{ AVoice }from"./audio.js";
 import{ User }from"./user.js";
 import{ Dialog }from"./dialog.js";
 import{ getapiurls, getBulkInfo, setTheme, Specialuser }from"./login.js";
-import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,voiceupdate,wsjson,}from"./jsontypes.js";
+import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
 import{ Member }from"./member.js";
 import{ Form, FormError, Options, Settings }from"./settings.js";
 import{ MarkDown }from"./markdown.js";
 import { Bot } from "./bot.js";
 import { Role } from "./role.js";
-import { Voice } from "./voice.js";
+import { VoiceFactory } from "./voice.js";
 
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 
@@ -42,6 +42,7 @@ class Localuser{
 	errorBackoff = 0;
 	channelids: Map<string, Channel> = new Map();
 	readonly userMap: Map<string, User> = new Map();
+	voiceFactory?:VoiceFactory;
 	instancePing = {
 		name: "Unknown",
 	};
@@ -74,6 +75,9 @@ class Localuser{
 		this.guildids = new Map();
 		this.user = new User(ready.d.user, this);
 		this.user.setstatus("online");
+
+		this.voiceFactory=new VoiceFactory({id:this.user.id});
+		this.handleVoice();
 		this.mfa_enabled = ready.d.user.mfa_enabled as boolean;
 		this.userinfo.username = this.user.username;
 		this.userinfo.pfpsrc = this.user.getpfpsrc();
@@ -117,6 +121,7 @@ class Localuser{
 
 		this.pingEndpoint();
 		this.userinfo.updateLocal();
+
 	}
 	outoffocus(): void{
 		const servers = document.getElementById("servers") as HTMLDivElement;
@@ -477,15 +482,14 @@ class Localuser{
 				break;
 			}
 			case "VOICE_STATE_UPDATE":
-				if(this.waitingForVoice){
-					this.waitingForVoice(temp);
+				if(this.voiceFactory){
+					this.voiceFactory.voiceStateUpdate(temp)
 				}
 
 				break;
 			case "VOICE_SERVER_UPDATE":
-				if(this.currentVoice){
-					Voice.url=temp.d.endpoint;
-					Voice.gotUrl();
+				if(this.voiceFactory){
+					this.voiceFactory.voiceServerUpdate(temp)
 				}
 				break;
 			}
@@ -504,32 +508,30 @@ class Localuser{
 			}, this.heartbeat_interval);
 		}
 	}
-	waitingForVoice?:((arg:voiceupdate|undefined)=>void);
-	currentVoice?:Voice;
-	async joinVoice(voice:Voice){
-		if(this.currentVoice){
-			this.currentVoice.leave();
-		}
-		this.currentVoice=voice;
-		if(this.ws){
-			this.ws.send(JSON.stringify({
-				d:{
-					guild_id: voice.guild.id,
-					channel_id: voice.channel.id,
-					self_mute: true,//todo
-					self_deaf: false,//todo
-					self_video: false,//What is this? I have some guesses
-					flags: 2//?????
-				},
-				op:4
-			}));
-			if(this.waitingForVoice){
-				this.waitingForVoice(undefined);
-			}
-			return await new Promise<voiceupdate|undefined>((res)=>{this.waitingForVoice=res;})
-		}
+	get currentVoice(){
+		return this.voiceFactory?.currentVoice;
+	}
+	async joinVoice(channel:Channel){
+		if(!this.voiceFactory) return;
+		if(!this.ws) return;
+		this.ws.send(JSON.stringify(this.voiceFactory.joinVoice(channel.id,channel.guild.id)));
 		return undefined;
 	}
+	changeVCStatus(status:string){
+		const statuselm=document.getElementById("VoiceStatus");
+		if(!statuselm) throw new Error("Missing status element");
+		statuselm.textContent=status;
+	}
+	handleVoice(){
+		if(this.voiceFactory){
+			this.voiceFactory.onJoin=voice=>{
+				voice.onSatusChange=status=>{
+					this.changeVCStatus(status);
+				}
+			}
+		}
+	}
+
 	heartbeat_interval: number = 0;
 	updateChannel(json: channeljson): void{
 		const guild = this.guildids.get(json.guild_id);
