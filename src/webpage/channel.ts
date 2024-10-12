@@ -14,6 +14,7 @@ import{channeljson,embedjson,messageCreateJson,messagejson,readyjson,startTyping
 import{ MarkDown }from"./markdown.js";
 import{ Member }from"./member.js";
 import { Voice } from "./voice.js";
+import { User } from "./user.js";
 
 declare global {
 interface NotificationOptions {
@@ -332,8 +333,9 @@ class Channel extends SnowFlake{
 		}
 		this.setUpInfiniteScroller();
 		this.perminfo ??= {};
-		if(this.type===2){
-			this.voice=new Voice(this);
+		if(this.type===2&&this.localuser.voiceFactory){
+			this.voice=this.localuser.voiceFactory.makeVoice(this.guild.id,this.id,{bitrate:this.bitrate});
+			this.setUpVoice();
 		}
 	}
 	get perminfo(){
@@ -456,6 +458,7 @@ class Channel extends SnowFlake{
 	get visable(){
 		return this.hasPermission("VIEW_CHANNEL");
 	}
+	voiceUsers=new WeakRef(document.createElement("div"));
 	createguildHTML(admin = false): HTMLDivElement{
 		const div = document.createElement("div");
 		this.html = new WeakRef(div);
@@ -562,6 +565,7 @@ class Channel extends SnowFlake{
 				const decoration = document.createElement("span");
 				div.appendChild(decoration);
 				decoration.classList.add("space", "svgtheme", "svg-voice");
+
 			}else if(this.type === 5){
 				//
 				const decoration = document.createElement("span");
@@ -574,8 +578,50 @@ class Channel extends SnowFlake{
 			div.onclick = _=>{
 				this.getHTML();
 			};
+			if(this.type===2){
+				const voiceUsers=document.createElement("div");
+				div.append(voiceUsers);
+				this.voiceUsers=new WeakRef(voiceUsers);
+				this.updateVoiceUsers();
+			}
 		}
 		return div;
+	}
+	async setUpVoice(){
+		if(!this.voice) return;
+		this.voice.onMemberChange=async (memb,joined)=>{
+			console.log(memb,joined);
+			if(typeof memb!=="string"){
+				await Member.new(memb,this.guild);
+			}
+			this.updateVoiceUsers();
+		}
+	}
+	async updateVoiceUsers(){
+		const voiceUsers=this.voiceUsers.deref();
+		if(!voiceUsers||!this.voice) return;
+		console.warn(this.voice.userids)
+
+		const html=(await Promise.all(this.voice.userids.entries().toArray().map(async _=>{
+			const user=await User.resolve(_[0],this.localuser);
+			console.log(user);
+			const member=await Member.resolveMember(user,this.guild);
+			const array=[member,_[1]] as [Member, typeof _[1]];
+			return array;
+		}))).flatMap(([member,_obj])=>{
+			if(!member){
+				console.warn("This is weird, member doesn't exist :P");
+				return [];
+			}
+			const div=document.createElement("div");
+			const span=document.createElement("span");
+			span.textContent=member.name;
+			div.append(span);
+			return div;
+		});
+
+		voiceUsers.innerHTML="";
+		voiceUsers.append(...html);
 	}
 	get myhtml(){
 		if(this.html){
@@ -840,8 +886,7 @@ class Channel extends SnowFlake{
 		this.rendertyping();
 		this.localuser.getSidePannel();
 		if(this.voice){
-			this.voice.onSatusChange=console.warn;
-			this.voice.join();
+			this.localuser.joinVoice(this);
 		}
 		await this.putmessages();
 		await prom;
@@ -1329,11 +1374,7 @@ class Channel extends SnowFlake{
 	}
 	notititle(message: Message): string{
 		return(
-			message.author.username +
-											" > " +
-											this.guild.properties.name +
-											" > " +
-											this.name
+			message.author.username + " > " + this.guild.properties.name + " > " + this.name
 		);
 	}
 	notify(message: Message, deep = 0){

@@ -301,7 +301,7 @@ class User extends SnowFlake{
 			localuser.info.api.toString() + "/users/" + id + "/profile",
 			{ headers: localuser.headers }
 		).then(res=>res.json());
-		return new User(json, localuser);
+		return new User(json.user, localuser);
 	}
 
 	changepfp(update: string | null): void{

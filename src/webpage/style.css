@@ -2268,3 +2268,17 @@ form div{
 		opacity:.4;
 	}
 }
+#VoiceBox{
+	padding: .05in;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	align-content: center;
+	width: 100%;
+	box-sizing: border-box;
+	border-radius: .1in .1in 0 0;
+	border: solid .01in  var(--black);
+}
+#VoiceStatus{
+	font-weight: bold;
+}
