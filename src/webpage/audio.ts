@@ -146,6 +146,38 @@ class AVoice{
 			}, 150);
 			break;
 		}
+		case "join":{
+			const voicy = new AVoice("triangle", 600,.1);
+			voicy.play();
+			setTimeout(_=>{
+				voicy.freq=800;
+			}, 75);
+			setTimeout(_=>{
+				voicy.freq=1000;
+			}, 150);
+			setTimeout(_=>{
+				voicy.stop();
+			}, 200);
+			break;
+		}
+		case "leave":{
+			const voicy = new AVoice("triangle", 850,.5);
+			voicy.play();
+			setTimeout(_=>{
+				voicy.freq=700;
+			}, 100);
+			setTimeout(_=>{
+				voicy.stop();
+				voicy.freq=400;
+			}, 180);
+			setTimeout(_=>{
+				voicy.play();
+			}, 200);
+			setTimeout(_=>{
+				voicy.stop();
+			}, 250);
+			break;
+		}
 		}
 	}
 	static get sounds(){
