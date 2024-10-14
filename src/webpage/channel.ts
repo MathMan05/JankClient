@@ -595,6 +595,9 @@ class Channel extends SnowFlake{
 				await Member.new(memb,this.guild);
 			}
 			this.updateVoiceUsers();
+			if(this.voice===this.localuser.currentVoice){
+				AVoice.noises("join");
+			}
 		}
 	}
 	async updateVoiceUsers(){
