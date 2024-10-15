@@ -1789,16 +1789,8 @@ class Localuser{
 		this.pageTitle("Loading...");
 	}
 	pageTitle(channelName = "", guildName = ""){
-		(document.getElementById("channelname") as HTMLSpanElement).textContent =
-      channelName;
-		(
-      document.getElementsByTagName("title")[0] as HTMLTitleElement
-		).textContent =
-      channelName +
-      (guildName ? " | " + guildName : "") +
-      " | " +
-      this.instancePing.name +
-      " | Jank Client";
+		(document.getElementById("channelname") as HTMLSpanElement).textContent = channelName;
+		(document.getElementsByTagName("title")[0] as HTMLTitleElement).textContent = channelName + (guildName ? " | " + guildName : "") + " | " + this.instancePing.name +" | Jank Client";
 	}
 	async instanceStats(){
 		const res = await fetch(this.info.api + "/policies/stats", {
