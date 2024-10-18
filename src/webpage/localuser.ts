@@ -12,14 +12,12 @@ import{ MarkDown }from"./markdown.js";
 import { Bot } from "./bot.js";
 import { Role } from "./role.js";
 import { VoiceFactory } from "./voice.js";
+import { I18n } from "./i18n.js";
 
 const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
 
 class Localuser{
-	badges: Map<
-    string,
-    { id: string; description: string; icon: string; link: string }
-  > = new Map();
+	badges: Map<string,{ id: string; description: string; icon: string; link: string }> = new Map();
 	lastSequence: number | null = null;
 	token!: string;
 	userinfo!: Specialuser;
@@ -67,8 +65,10 @@ class Localuser{
 			"Content-type": "application/json; charset=UTF-8",
 			Authorization: this.userinfo.token,
 		};
+		I18n.create("/translations/en.json","en")
 	}
-	gottenReady(ready: readyjson): void{
+	async gottenReady(ready: readyjson): Promise<void>{
+		await I18n.done;
 		this.initialized = true;
 		this.ready = ready;
 		this.guilds = [];
@@ -200,10 +200,10 @@ class Localuser{
 						try{
 							const temp = JSON.parse(build);
 							build = "";
+							await this.handleEvent(temp);
 							if(temp.op === 0 && temp.t === "READY"){
 								returny();
 							}
-							await this.handleEvent(temp);
 						}catch{}
 					}
 				})();
@@ -231,9 +231,9 @@ class Localuser{
 						if(
 							!(
 								array[len - 1] === 255 &&
-                array[len - 2] === 255 &&
-                array[len - 3] === 0 &&
-                array[len - 4] === 0
+								array[len - 2] === 255 &&
+								array[len - 3] === 0 &&
+								array[len - 4] === 0
 							)
 						){
 							return;
@@ -244,10 +244,11 @@ class Localuser{
 					}else{
 						temp = JSON.parse(event.data);
 					}
+
+					await this.handleEvent(temp as readyjson);
 					if(temp.op === 0 && temp.t === "READY"){
 						returny();
 					}
-					await this.handleEvent(temp as readyjson);
 				}catch(e){
 					console.error(e);
 				}finally{
@@ -367,7 +368,7 @@ class Localuser{
 				break;
 			}
 			case"READY":
-				this.gottenReady(temp as readyjson);
+				await this.gottenReady(temp as readyjson);
 				break;
 			case"MESSAGE_UPDATE": {
 				temp.d.guild_id ??= "@me";

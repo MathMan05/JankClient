@@ -4,7 +4,7 @@ interface OptionsElement<x> {
 	submit: () => void;
 	readonly watchForChange: (func: (arg1: x) => void) => void;
 	value: x;
-	}
+}
 	//future me stuff
 class Buttons implements OptionsElement<unknown>{
 	readonly name: string;

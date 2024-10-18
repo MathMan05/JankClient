@@ -11,6 +11,7 @@ import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, messagejson }from"./jsontypes.js";
 import{ Emoji }from"./emoji.js";
 import{ Dialog }from"./dialog.js";
+import { I18n } from "./i18n.js";
 
 class Message extends SnowFlake{
 	static contextmenu = new Contextmenu<Message, undefined>("message menu");
@@ -44,9 +45,7 @@ class Message extends SnowFlake{
 			return this.weakdiv?.deref();
 			}
 			//*/
-	div:
-			| (HTMLDivElement & { pfpparent?: Message | undefined; txt?: HTMLElement })
-			| undefined;
+	div:(HTMLDivElement & { pfpparent?: Message | undefined; txt?: HTMLElement })| undefined;
 	member: Member | undefined;
 	reactions!: messagejson["reactions"];
 	static setup(){
@@ -56,13 +55,13 @@ class Message extends SnowFlake{
 		Message.setupcmenu();
 	}
 	static setupcmenu(){
-		Message.contextmenu.addbutton("Copy raw text", function(this: Message){
+		Message.contextmenu.addbutton(I18n.getTranslation.bind(I18n,"copyrawtext"), function(this: Message){
 			navigator.clipboard.writeText(this.content.rawString);
 		});
-		Message.contextmenu.addbutton("Reply", function(this: Message){
+		Message.contextmenu.addbutton(I18n.getTranslation.bind(I18n,"reply"), function(this: Message){
 			this.channel.setReplying(this);
 		});
-		Message.contextmenu.addbutton("Copy message id", function(this: Message){
+		Message.contextmenu.addbutton(I18n.getTranslation.bind(I18n,"copymessageid"), function(this: Message){
 			navigator.clipboard.writeText(this.id);
 		});
 		Message.contextmenu.addsubmenu(
