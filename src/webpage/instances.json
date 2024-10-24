@@ -21,9 +21,9 @@
         "display": true,
         "urls": {
             "wellknown": "https://greysilly7.xyz",
-            "api": "https://spacebar.greysilly7.xyz/api/v9",
-            "cdn": "https://spacebar.greysilly7.xyz",
-            "gateway": "wss://spacebar.greysilly7.xyz"
+            "api": "https://api.spacebar.greysilly7.xyz/api",
+            "cdn": "https://cdn.spacebar.greysilly7.xyz",
+            "gateway": "wss://gateway.spacebar.greysilly7.xyz"
         },
         "contactInfo": {
             "dicord": "greysilly7",
