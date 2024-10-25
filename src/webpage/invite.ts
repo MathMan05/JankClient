@@ -136,7 +136,7 @@ document.getElementById("inviteimg")!.append(div);
 		}
 
 		table.append(td);
-		table.classList.add("accountSwitcher");
+		table.classList.add("flexttb","accountSwitcher");
 		console.log(table);
 		document.body.append(table);
 	}

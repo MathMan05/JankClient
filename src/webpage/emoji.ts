@@ -143,7 +143,7 @@ class Emoji{
 		title.classList.add("emojiTitle");
 		menu.append(title);
 		const selection = document.createElement("div");
-		selection.classList.add("flexltr", "dontshrink", "emojirow");
+		selection.classList.add("flexltr", "emojirow");
 		const body = document.createElement("div");
 		body.classList.add("emojiBody");
 

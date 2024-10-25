@@ -157,13 +157,11 @@ Url.pathname.split("/")[Url.pathname.split("/").length - 1];
 			if(this.json?.footer?.text){
 				const span = document.createElement("span");
 				span.textContent = this.json.footer.text;
-				span.classList.add("spaceright");
 				footer.append(span);
 			}
 			if(this.json?.footer && this.json?.timestamp){
 				const span = document.createElement("span");
-				span.textContent = "•";
-				span.classList.add("spaceright");
+				span.textContent = " • ";
 				footer.append(span);
 			}
 			if(this.json?.timestamp){
@@ -288,7 +286,7 @@ json.guild;
 guild as invitejson["guild"] & { info: { cdn: string } }
 			);
 			const iconrow = document.createElement("div");
-			iconrow.classList.add("flexltr", "flexstart");
+			iconrow.classList.add("flexltr");
 			iconrow.append(icon);
 			{
 				const guildinfo = document.createElement("div");

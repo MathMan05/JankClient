@@ -37,11 +37,11 @@ login?: string;
 					div.append(img);
 				}
 				const statbox = document.createElement("div");
-				statbox.classList.add("flexttb");
+				statbox.classList.add("flexttb","flexgrow");
 
 				{
 					const textbox = document.createElement("div");
-					textbox.classList.add("flexttb", "instatancetextbox");
+					textbox.classList.add("flexttb", "instancetextbox");
 					const title = document.createElement("h2");
 					title.innerText = instance.name;
 					if(instance.online !== undefined){

@@ -120,13 +120,14 @@ class Channel extends SnowFlake{
 		const div = document.createElement("div");
 		div.classList.add("invitediv");
 		const text = document.createElement("span");
+		text.classList.add("ellipsis");
 		div.append(text);
 		let uses = 0;
 		let expires = 1800;
 		const copycontainer = document.createElement("div");
 		copycontainer.classList.add("copycontainer");
 		const copy = document.createElement("span");
-		copy.classList.add("copybutton", "svgtheme", "svg-copy");
+		copy.classList.add("copybutton", "svgicon", "svg-copy");
 		copycontainer.append(copy);
 		copycontainer.onclick = _=>{
 			if(text.textContent){
@@ -489,18 +490,18 @@ class Channel extends SnowFlake{
 
 			const decdiv = document.createElement("div");
 			const decoration = document.createElement("span");
-			decoration.classList.add("svgtheme", "collapse-icon", "svg-category");
+			decoration.classList.add("svgicon", "collapse-icon", "svg-category");
 			decdiv.appendChild(decoration);
 
 			const myhtml = document.createElement("p2");
+			myhtml.classList.add("ellipsis");
 			myhtml.textContent = this.name;
 			decdiv.appendChild(myhtml);
 			caps.appendChild(decdiv);
 			const childrendiv = document.createElement("div");
 			if(admin){
 				const addchannel = document.createElement("span");
-				addchannel.textContent = "+";
-				addchannel.classList.add("addchannel");
+				addchannel.classList.add("addchannel","svgicon","svg-plus");
 				caps.appendChild(addchannel);
 				addchannel.onclick = _=>{
 					this.guild.createchannels(this.createChannel.bind(this));
@@ -508,8 +509,8 @@ class Channel extends SnowFlake{
 				this.coatDropDiv(decdiv, childrendiv);
 			}
 			div.appendChild(caps);
-			caps.classList.add("capsflex");
-			decdiv.classList.add("channeleffects");
+			caps.classList.add("flexltr","capsflex");
+			decdiv.classList.add("flexltr","channeleffects");
 			decdiv.classList.add("channel");
 
 			Channel.contextmenu.bindContextmenu(decdiv, this,undefined);
@@ -554,29 +555,34 @@ class Channel extends SnowFlake{
 			}
 			// @ts-ignore I dont wanna deal with this
 			div.all = this;
+			const button = document.createElement("button");
+			button.classList.add("channelbutton");
+			div.append(button);
 			const myhtml = document.createElement("span");
+			myhtml.classList.add("ellipsis");
 			myhtml.textContent = this.name;
 			if(this.type === 0){
 				const decoration = document.createElement("span");
-				div.appendChild(decoration);
-				decoration.classList.add("space", "svgtheme", "svg-channel");
+				button.appendChild(decoration);
+				decoration.classList.add("space", "svgicon", "svg-channel");
 			}else if(this.type === 2){
 				//
 				const decoration = document.createElement("span");
-				div.appendChild(decoration);
-				decoration.classList.add("space", "svgtheme", "svg-voice");
-
+				button.appendChild(decoration);
+				decoration.classList.add("space", "svgicon", "svg-voice");
 			}else if(this.type === 5){
 				//
 				const decoration = document.createElement("span");
-				div.appendChild(decoration);
-				decoration.classList.add("space", "svgtheme", "svg-announce");
+				button.appendChild(decoration);
+				decoration.classList.add("space", "svgicon", "svg-announce");
 			}else{
 				console.log(this.type);
 			}
-			div.appendChild(myhtml);
-			div.onclick = _=>{
+			button.appendChild(myhtml);
+			button.onclick = _=>{
 				this.getHTML();
+				const toggle = document.getElementById("maintoggle") as HTMLInputElement;
+				toggle.checked = true;
 			};
 			if(this.type===2){
 				const voiceUsers=document.createElement("div");
@@ -617,6 +623,7 @@ class Channel extends SnowFlake{
 				return [];
 			}
 			const div=document.createElement("div");
+			div.classList.add("voiceuser");
 			const span=document.createElement("span");
 			span.textContent=member.name;
 			div.append(span);
@@ -812,6 +819,7 @@ class Channel extends SnowFlake{
 	}
 	makereplybox(){
 		const replybox = document.getElementById("replybox") as HTMLElement;
+		const typebox = document.getElementById("typebox") as HTMLElement;
 		if(this.replyingto){
 			replybox.innerHTML = "";
 			const span = document.createElement("span");
@@ -824,14 +832,16 @@ class Channel extends SnowFlake{
 				replybox.classList.add("hideReplyBox");
 				this.replyingto = null;
 				replybox.innerHTML = "";
+				typebox.classList.remove("typeboxreplying");
 			};
 			replybox.classList.remove("hideReplyBox");
-			X.textContent = "⦻";
-			X.classList.add("cancelReply");
+			X.classList.add("cancelReply","svgicon","svg-x");
 			replybox.append(span);
 			replybox.append(X);
+			typebox.classList.add("typeboxreplying");
 		}else{
 			replybox.classList.add("hideReplyBox");
+			typebox.classList.remove("typeboxreplying");
 		}
 	}
 	async getmessage(id: string): Promise<Message>{
