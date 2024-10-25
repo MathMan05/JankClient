@@ -1,0 +1,176 @@
+:root {
+	--font: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--black: #000000;
+	--red: #ff5555;
+	--yellow: #ffc159;
+	--green: #1c907b;
+}
+
+/* Themes. See themes.txt */
+.Dark-theme {
+	color-scheme: dark;
+
+	--primary-bg: #303339;
+	--primary-hover: #272b31;
+	--primary-text: #dfdfdf;
+	--primary-text-soft: #adb8b9;
+
+	--secondary-bg: #16191b;
+	--secondary-hover: #252b2c;
+
+	--servers-bg: #141718;
+	--channels-bg: #25282b;
+	--channel-selected: #3c4046;
+	--typebox-bg: #3a3e45;
+
+	--button-bg: #4e5457;
+	--button-hover: #6b7174;
+	--spoiler-bg: #000000;
+	--link: #5ca9ed;
+
+	--primary-text-prominent: #efefef;
+	--dock-bg: #1b1e20;
+	--card-bg: #000000;
+}
+
+.WHITE-theme {
+	color-scheme: light;
+
+	--primary-bg: #fefefe;
+	--primary-hover: #f6f6f9;
+	--primary-text: #4b4b59;
+	--primary-text-soft: #656575;
+
+	--secondary-bg: #e0e0ea;
+	--secondary-hover: #d0d0dd;
+
+	--servers-bg: #b4b4ca;
+	--channels-bg: #eaeaf0;
+	--channel-selected: #c7c7d9;
+	--typebox-bg: #ededf4;
+
+	--button-bg: #cacad8;
+	--button-hover: #b3b3c4;
+	--spoiler-bg: #dadada;
+	--link: #056cd9;
+
+	--black: #4b4b59;
+	--green: #68d79d;
+	--primary-text-prominent: #08080d;
+	--secondary-text: #3c3c46;
+	--secondary-text-soft: #4c4c5a;
+	--dock-bg: #d1d1df;
+	--dock-hover: #b8b8d0;
+}
+
+.Light-theme {
+	color-scheme: light;
+
+	--primary-bg: #aaafce;
+	--primary-hover: #b1b6d4;
+	--primary-text: #060415;
+	--primary-text-soft: #424268;
+
+	--secondary-bg: #9397bd;
+	--secondary-hover: #9ea5cc;
+	
+	--servers-bg: #7a7aaa;
+	--channels-bg: #babdd2;
+	--channel-selected: #9c9fbf;
+	--typebox-bg: #bac0df;
+
+	--button-bg: #babdd2;
+	--button-hover: #9c9fbf;
+	--spoiler-bg: #34333a;
+	--link: #283c8b;
+
+	--black: #434392;
+	--red: #ca304d;
+	--secondary-text-soft: #211f2e;
+	--blank-bg: #494985;
+	--spoiler-text: #e4e6ed;
+}
+
+.Accent-theme {
+	color-scheme: dark;
+	
+	--primary-bg: color-mix(in srgb, #3f3f3f 65%, var(--accent-color));
+	--primary-hover: color-mix(in srgb, #373737 68%, var(--accent-color));
+	--primary-text: #ebebeb;
+	--primary-text-soft: #ebebebb8;
+
+	--secondary-bg: color-mix(in srgb, #222222 72%, var(--accent-color));
+	--secondary-hover: color-mix(in srgb, #222222 65%, var(--accent-color));
+
+	--servers-bg: color-mix(in srgb, #0b0b0b 70%, var(--accent-color));
+	--channels-bg: color-mix(in srgb, #292929 68%, var(--accent-color));
+	--channel-selected: color-mix(in srgb, #555555 65%, var(--accent-color));
+	--typebox-bg: color-mix(in srgb, #666666 60%, var(--accent-color));
+
+	--button-bg: color-mix(in srgb, #777777 56%, var(--accent-color));
+	--button-hover: color-mix(in srgb, #585858 58%, var(--accent-color));
+
+	--spoiler: color-mix(in srgb, #101010 72%, var(--accent-color));
+	--link: color-mix(in srgb, #99ccff 75%, var(--accent-color));
+	
+	--black: color-mix(in srgb, #000000 90%, var(--accent-color));
+	--icon: color-mix(in srgb, #ffffff, var(--accent-color));
+	--dock-bg: color-mix(in srgb, #171717 68%, var(--accent-color));
+	--spoiler-hover: color-mix(in srgb, #111111 80%, var(--accent-color));
+	--card-bg: color-mix(in srgb, #0b0b0b 70%, var(--accent-color));
+}
+
+/* Optional Variables */
+body {
+	--primary-text-prominent: var(--primary-text);
+	--secondary-text: var(--primary-text);
+	--secondary-text-soft: var(--primary-text-soft);
+	--text-input-bg: var(--secondary-bg);
+	--button-text: var(--primary-text);
+	--button-disabled-text: color-mix(in srgb, var(--button-text), transparent);
+
+	--icon: var(--accent-color);
+	--focus: var(--accent-color);
+	--shadow: color-mix(in srgb, var(--black) 30%, transparent);
+	--scrollbar: var(--primary-text-soft);
+	--scrollbar-track: var(--primary-hover);
+
+	--blank-bg: var(--channels-bg);
+	--divider: color-mix(in srgb, var(--primary-text), transparent);
+	--channels-header-bg: var(--channels-bg);
+	--channel-hover: color-mix(in srgb, var(--channel-selected) 60%, transparent);
+	--dock-bg: var(--secondary-bg);
+	--dock-hover: var(--secondary-hover);
+	--user-info-bg: var(--dock-bg);
+	--user-info-text: var(--secondary-text);
+
+	--main-header-bg: transparent;
+	--message-jump-bg: color-mix(in srgb, var(--accent-color) 20%, transparent);
+	--code-bg: var(--secondary-bg);
+	--code-text: var(--secondary-text);
+	--spoiler-text: var(--primary-text);
+	--spoiler-hover: color-mix(in srgb, var(--spoiler-bg), var(--primary-text-soft) 10%);
+	--quote-line: color-mix(in srgb, var(--primary-text-soft), transparent);
+	--reply-line: color-mix(in srgb, var(--primary-text-soft) 20%, transparent);
+	--reply-text: var(--primary-text-soft);
+	--reply-highlight: var(--accent-color);
+	--mention: color-mix(in srgb, var(--accent-color) 80%, transparent);
+	--mention-highlight: var(--yellow);
+	--reaction-bg: var(--secondary-bg);
+	--reaction-reacted-bg: var(--secondary-hover);
+	--filename: var(--link);
+	--embed-bg: var(--secondary-bg);
+
+	--sidebar-bg: var(--channels-bg);
+	--sidebar-hover: var(--channel-hover);
+	--card-bg: var(--primary-bg);
+	--role-bg: var(--primary-bg);
+	--role-text: var(--primary-text);
+	--settings-bg: var(--primary-bg);
+	--settings-header-bg: var(--main-header-bg);
+	--settings-panel-bg: var(--channels-bg);
+	--settings-panel-selected: var(--channel-selected);
+	--settings-panel-hover: color-mix(in srgb, var(--settings-panel-selected), transparent);
+	--loading-bg: var(--secondary-bg);
+	--loading-text: var(--secondary-text);
+}
