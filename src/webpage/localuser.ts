@@ -640,7 +640,7 @@ class Localuser{
 				member.bind(username)
 				member.user.bind(memberdiv,member.guild,false);
 				memberdiv.append(pfp,username);
-				memberdiv.classList.add("flexltr","memberinfo");
+				memberdiv.classList.add("flexltr","liststyle");
 				membershtml.append(memberdiv);
 			}
 			category.append(membershtml);
