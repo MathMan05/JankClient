@@ -91,7 +91,7 @@
 	--spoiler-text: #e4e6ed;
 }
 
-.Accent-theme {
+.Dark-Accent-theme {
 	color-scheme: dark;
 	
 	--primary-bg: color-mix(in srgb, #3f3f3f 65%, var(--accent-color));

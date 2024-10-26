@@ -1182,7 +1182,7 @@ class Localuser{
 		{
 			const tas = settings.addButton("Themes & Sounds");
 			{
-				const themes = ["Dark", "WHITE", "Light", "Accent"];
+				const themes = ["Dark", "WHITE", "Light", "Dark-Accent"];
 				tas.addSelect(
 					"Theme:",
 					_=>{
