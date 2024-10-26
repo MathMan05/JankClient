@@ -408,79 +408,109 @@ type wsjson =
 		| "MESSAGE_REACTION_REMOVE_EMOJI";
 	}
 | {
-op: 0;
-t: "GUILD_MEMBERS_CHUNK";
-d: memberChunk;
-s: number;
+	op: 0;
+	t: "GUILD_MEMBERS_CHUNK";
+	d: memberChunk;
+	s: number;
 }
 | {
-op: 0;
-d: {
-id: string;
-guild_id?: string;
-channel_id: string;
-};
-s: number;
-t: "MESSAGE_DELETE";
+	op: 0;
+	d: {
+		id: string;
+		guild_id?: string;
+		channel_id: string;
+	};
+	s: number;
+	t: "MESSAGE_DELETE";
 }
 | {
-op: 0;
-d: {
-guild_id?: string;
-channel_id: string;
-} & messagejson;
-s: number;
-t: "MESSAGE_UPDATE";
+	op: 0;
+	d: {
+		guild_id?: string;
+		channel_id: string;
+	} & messagejson;
+	s: number;
+	t: "MESSAGE_UPDATE";
 }
 | messageCreateJson
 | readyjson
 | {
-op: 11;
-s: undefined;
-d: {};
+	op: 11;
+	s: undefined;
+	d: {};
 }
 | {
-op: 10;
-s: undefined;
-d: {
-heartbeat_interval: number;
-};
+	op: 10;
+	s: undefined;
+	d: {
+		heartbeat_interval: number;
+	};
 }
 | {
-op: 0;
-t: "MESSAGE_REACTION_ADD";
-d: {
-user_id: string;
-channel_id: string;
-message_id: string;
-guild_id?: string;
-emoji: emojijson;
-member?: memberjson;
-};
-s: number;
+	op: 0;
+	t: "MESSAGE_REACTION_ADD";
+	d: {
+		user_id: string;
+		channel_id: string;
+		message_id: string;
+		guild_id?: string;
+		emoji: emojijson;
+		member?: memberjson;
+	};
+	s: number;
 }
 | {
-op: 0;
-t: "MESSAGE_REACTION_REMOVE";
-d: {
-user_id: string;
-channel_id: string;
-message_id: string;
-guild_id: string;
-emoji: emojijson;
-};
-s: 3;
-}|memberlistupdatejson;
-type memberChunk = {
-guild_id: string;
-nonce: string;
-members: memberjson[];
-presences: presencejson[];
-chunk_index: number;
-chunk_count: number;
-not_found: string[];
-};
+	op: 0;
+	t: "MESSAGE_REACTION_REMOVE";
+	d: {
+		user_id: string;
+		channel_id: string;
+		message_id: string;
+		guild_id: string;
+		emoji: emojijson;
+	};
+	s: 3;
+}|memberlistupdatejson|voiceupdate|voiceserverupdate;
 
+
+type memberChunk = {
+	guild_id: string;
+	nonce: string;
+	members: memberjson[];
+	presences: presencejson[];
+	chunk_index: number;
+	chunk_count: number;
+	not_found: string[];
+};
+type voiceupdate={
+	op: 0,
+	t: "VOICE_STATE_UPDATE",
+	d: {
+		guild_id: string,
+		channel_id: string,
+		user_id: string,
+		member: memberjson,
+		session_id: string,
+		token: string,
+		deaf: boolean,
+		mute: boolean,
+		self_deaf: boolean,
+		self_mute: boolean,
+		self_video: boolean,
+		suppress: boolean
+	},
+	s: number
+};
+type voiceserverupdate={
+	op: 0,
+	t: "VOICE_SERVER_UPDATE",
+	d: {
+		token: string,
+		guild_id: string,
+		endpoint: string
+	},
+	s: 6
+};
 type memberlistupdatejson={
 	op: 0,
 	s: number,
@@ -511,7 +541,73 @@ type memberlistupdatejson={
 			count: number,
 			id: string
 		}[]
+	}
+}
+type webRTCSocket=	{
+	op: 8,
+	d: {
+		heartbeat_interval: number
+	}
+}|{
+	op:6,
+	d:{t: number}
+}|{
+	op: 2,
+	d: {
+		ssrc: number,
+		"streams": {
+				type: "video",//probally more options, but idk
+				rid: string,
+				quality: number,
+				ssrc: number,
+				rtx_ssrc:number
+			}[],
+		ip: number,
+		port: number,
+		"modes": [],//no clue
+		"experiments": []//no clue
+	}
+}|sdpback|opRTC12|{
+    op: 5,
+    d: {
+        user_id: string,
+        speaking: 0,
+        ssrc: 940464811
     }
+};
+type sdpback={
+	op: 4,
+	d: {
+		audioCodec: string,
+		videoCodec: string,
+		media_session_id: string,
+		sdp: string
+	}
+};
+type opRTC12={
+	op: 12,
+	d: {
+		user_id: string,
+		audio_ssrc: number,
+		video_ssrc: number,
+		streams: [
+			{
+				type: "video",
+				rid: "100",
+				ssrc: number,
+				active: boolean,
+				quality: 100,
+				rtx_ssrc: number,
+				max_bitrate: 2500000,
+				max_framerate: number,
+				max_resolution: {
+					type: "fixed",
+					width: number,
+					height: number
+				}
+			}
+		]
+	}
 }
 export{
 	readyjson,
@@ -532,5 +628,10 @@ export{
 	messageCreateJson,
 	memberChunk,
 	invitejson,
-	memberlistupdatejson
+	memberlistupdatejson,
+	voiceupdate,
+	voiceserverupdate,
+	webRTCSocket,
+	sdpback,
+	opRTC12
 };

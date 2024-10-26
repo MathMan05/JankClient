@@ -4,7 +4,7 @@ interface OptionsElement<x> {
 	submit: () => void;
 	readonly watchForChange: (func: (arg1: x) => void) => void;
 	value: x;
-	}
+}
 	//future me stuff
 class Buttons implements OptionsElement<unknown>{
 	readonly name: string;
@@ -31,7 +31,7 @@ class Buttons implements OptionsElement<unknown>{
 		const htmlarea = document.createElement("div");
 		htmlarea.classList.add("flexgrow");
 		const buttonTable = document.createElement("div");
-		buttonTable.classList.add("flexttb", "settingbuttons");
+		buttonTable.classList.add("settingbuttons");
 		for(const thing of this.buttons){
 			const button = document.createElement("button");
 			button.classList.add("SettingsButton");
@@ -244,9 +244,12 @@ class ButtonInput implements OptionsElement<void>{
 	}
 	generateHTML(): HTMLDivElement{
 		const div = document.createElement("div");
-		const span = document.createElement("span");
-		span.textContent = this.label;
-		div.append(span);
+		if(this.label){
+			const span = document.createElement("span");
+			span.classList.add("inlinelabel");
+			span.textContent = this.label;
+			div.append(span);
+		}
 		const button = document.createElement("button");
 		button.textContent = this.textContent;
 		button.onclick = this.onClickEvent.bind(this);
@@ -338,6 +341,8 @@ class SelectInput implements OptionsElement<number>{
 		const span = document.createElement("span");
 		span.textContent = this.label;
 		div.append(span);
+		const selectSpan = document.createElement("span");
+		selectSpan.classList.add("selectspan");
 		const select = document.createElement("select");
 
 		select.onchange = this.onChange.bind(this);
@@ -348,7 +353,11 @@ class SelectInput implements OptionsElement<number>{
 		}
 		this.select = new WeakRef(select);
 		select.selectedIndex = this.index;
-		div.append(select);
+		selectSpan.append(select);
+		const selectArrow = document.createElement("span");
+		selectArrow.classList.add("svgicon","svg-category","selectarrow");
+		selectSpan.append(selectArrow);
+		div.append(selectSpan);
 		return div;
 	}
 	private onChange(){
@@ -438,11 +447,13 @@ class FileInput implements OptionsElement<FileList | null>{
 		const span = document.createElement("span");
 		span.textContent = this.label;
 		div.append(span);
+		const innerDiv = document.createElement("div");
+		innerDiv.classList.add("flexltr","fileinputdiv");
 		const input = document.createElement("input");
 		input.type = "file";
 		input.oninput = this.onChange.bind(this);
 		this.input = new WeakRef(input);
-		div.append(input);
+		innerDiv.append(input);
 		if(this.clear){
 			const button = document.createElement("button");
 			button.textContent = "Clear";
@@ -453,8 +464,9 @@ class FileInput implements OptionsElement<FileList | null>{
 				this.value = null;
 				this.owner.changed();
 			};
-			div.append(button);
+			innerDiv.append(button);
 		}
+		div.append(innerDiv);
 		return div;
 	}
 	onChange(){
@@ -719,7 +731,7 @@ class Options implements OptionsElement<void>{
 	title: WeakRef<HTMLElement> = new WeakRef(document.createElement("h2"));
 	generateHTML(): HTMLElement{
 		const div = document.createElement("div");
-		div.classList.add("titlediv");
+		div.classList.add("flexttb","titlediv");
 		const title = document.createElement("h2");
 		title.textContent = this.name;
 		div.append(title);
@@ -1199,7 +1211,7 @@ class Settings extends Buttons{
 	}
 	show(){
 		const background = document.createElement("div");
-		background.classList.add("background");
+		background.classList.add("flexttb","menu","background");
 
 		const title = document.createElement("h2");
 		title.textContent = this.name;
@@ -1209,8 +1221,7 @@ class Settings extends Buttons{
 		background.append(this.generateHTML());
 
 		const exit = document.createElement("span");
-		exit.textContent = "✖";
-		exit.classList.add("exitsettings");
+		exit.classList.add("exitsettings","svgicon","svg-x");
 		background.append(exit);
 		exit.onclick = _=>{
 			this.hide();

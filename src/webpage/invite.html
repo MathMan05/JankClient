@@ -1,4 +1,5 @@
-<body class="Dark-theme">
+<!DOCTYPE html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,14 +11,17 @@
 		<meta content="#4b458c" data-react-helmet="true" name="theme-color">
 		<link href="/style.css" rel="stylesheet">
 		<link href="/themes.css" rel="stylesheet" id="lightcss">
+		<style>body.no-theme{background:#16191b;}@media(prefers-color-scheme:light){body.no-theme{background:#9397bd;}}</style>
 	</head>
-	<div>
-		<div id="invitebody">
-			<div id="inviteimg"></div>
-			<h1 id="invitename">Server Name</h1>
-			<p id="invitedescription">Someone invited you to Server Name</p>
-			<button id="AcceptInvite">Accept Invite</button>
+	<body class="no-theme">
+		<div>
+			<div id="invitebody">
+				<div id="inviteimg"></div>
+				<h1 id="invitename">Server Name</h1>
+				<p id="invitedescription">Someone invited you to Server Name</p>
+				<button id="AcceptInvite">Accept Invite</button>
+			</div>
 		</div>
-	</div>
-	<script type="module" src="/invite.js"></script>
-</body>
+		<script type="module" src="/invite.js"></script>
+	</body>
+</html>

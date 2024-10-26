@@ -2,12 +2,12 @@ class Contextmenu<x, y>{
 	static currentmenu: HTMLElement | "";
 	name: string;
 	buttons: [
-	string,
-	(this: x, arg: y, e: MouseEvent) => void,
-	string | null,
-	(this: x, arg: y) => boolean,
-	(this: x, arg: y) => boolean,
-	string
+		string|(()=>string),
+		(this: x, arg: y, e: MouseEvent) => void,
+		string | null,
+		(this: x, arg: y) => boolean,
+		(this: x, arg: y) => boolean,
+		string
 	][];
 	div!: HTMLDivElement;
 	static setup(){
@@ -27,7 +27,7 @@ class Contextmenu<x, y>{
 		this.buttons = [];
 	}
 	addbutton(
-		text: string,
+		text: string|(()=>string),
 		onclick: (this: x, arg: y, e: MouseEvent) => void,
 		img: null | string = null,
 		shown: (this: x, arg: y) => boolean = _=>true,
@@ -58,7 +58,11 @@ class Contextmenu<x, y>{
 			const intext = document.createElement("button");
 			intext.disabled = !thing[4].bind(addinfo).call(addinfo, other);
 			intext.classList.add("contextbutton");
-			intext.textContent = thing[0];
+			if(thing[0] instanceof Function){
+				intext.textContent = thing[0]();
+			}else{
+				intext.textContent = thing[0];
+			}
 			console.log(thing);
 			if(thing[5] === "button" || thing[5] === "submenu"){
 				intext.onclick = thing[1].bind(addinfo, other);
@@ -86,6 +90,13 @@ class Contextmenu<x, y>{
 			this.makemenu(event.clientX, event.clientY, addinfo, other);
 		};
 		obj.addEventListener("contextmenu", func);
+		obj.addEventListener("touchstart",(event: TouchEvent)=>{
+			if(event.touches.length > 1){
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				this.makemenu(event.touches[0].clientX, event.touches[0].clientY, addinfo, other);
+			}
+		});
 		return func;
 	}
 	static keepOnScreen(obj: HTMLElement){
