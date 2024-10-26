@@ -635,11 +635,12 @@ class Localuser{
 				const memberdiv=document.createElement("div");
 				const pfp=await member.user.buildstatuspfp();
 				const username=document.createElement("span");
+				username.classList.add("ellipsis");
 				username.textContent=member.name;
 				member.bind(username)
 				member.user.bind(memberdiv,member.guild,false);
 				memberdiv.append(pfp,username);
-				memberdiv.classList.add("flexltr");
+				memberdiv.classList.add("flexltr","liststyle");
 				membershtml.append(memberdiv);
 			}
 			category.append(membershtml);
@@ -754,7 +755,7 @@ class Localuser{
 		const div = document.createElement("div");
 		div.classList.add("home", "servericon");
 
-		home.classList.add("svgtheme", "svgicon", "svg-home");
+		home.classList.add("svgicon", "svg-home");
 		home.all = this.guildids.get("@me");
 		(this.guildids.get("@me") as Guild).html = outdiv;
 		const unread = document.createElement("div");
@@ -792,19 +793,17 @@ class Localuser{
 			br.id = "bottomseparator";
 
 			const div = document.createElement("div");
-			div.textContent = "+";
+			const plus = document.createElement("span");
+			plus.classList.add("svgicon", "svg-plus");
 			div.classList.add("home", "servericon");
+			div.appendChild(plus);
 			serverlist.appendChild(div);
 			div.onclick = _=>{
 				this.createGuild();
 			};
 			const guilddsdiv = document.createElement("div");
 			const guildDiscoveryContainer = document.createElement("span");
-			guildDiscoveryContainer.classList.add(
-				"svgtheme",
-				"svgicon",
-				"svg-explore"
-			);
+			guildDiscoveryContainer.classList.add("svgicon", "svg-explore");
 			guilddsdiv.classList.add("home", "servericon");
 			guilddsdiv.appendChild(guildDiscoveryContainer);
 			serverlist.appendChild(guilddsdiv);
@@ -870,7 +869,7 @@ class Localuser{
 						["title", "Create a guild"],
 						[
 							"fileupload",
-							"Icon:",
+							"Icon: ",
 							function(event: Event){
 								const target = event.target as HTMLInputElement;
 								if(!target.files)return;
@@ -893,7 +892,7 @@ class Localuser{
 						[
 							"button",
 							"",
-							"submit",
+							"Submit",
 							()=>{
 								this.makeGuild(fields).then(_=>{
 									if(_.message){
@@ -921,7 +920,7 @@ class Localuser{
 	}
 	async guildDiscovery(){
 		const content = document.createElement("div");
-		content.classList.add("guildy");
+		content.classList.add("flexttb","guildy");
 		content.textContent = "Loading...";
 		const full = new Dialog(["html", content]);
 		full.show();
@@ -1136,7 +1135,7 @@ class Localuser{
 			});
 			let changed = false;
 			const pronounbox = settingsLeft.addTextInput(
-				"Pronouns",
+				"Pronouns:",
 				_=>{
 					if(newpronouns || newbio || changed){
 						this.updateProfile({
@@ -1168,7 +1167,7 @@ class Localuser{
 				color = "transparent";
 			}
 			const colorPicker = settingsLeft.addColorInput(
-				"Profile color",
+				"Profile color:",
 				_=>{},
 				{ initColor: color }
 			);
@@ -1181,9 +1180,9 @@ class Localuser{
 			});
 		}
 		{
-			const tas = settings.addButton("Themes & sounds");
+			const tas = settings.addButton("Themes & Sounds");
 			{
-				const themes = ["Dark", "WHITE", "Light"];
+				const themes = ["Dark", "WHITE", "Light", "Dark-Accent"];
 				tas.addSelect(
 					"Theme:",
 					_=>{
@@ -1459,9 +1458,9 @@ class Localuser{
 						}
 					);
 
-					form.addTextInput("Name", "name", { required: true });
+					form.addTextInput("Name:", "name", { required: true });
 					form.addSelect(
-						"Team",
+						"Team:",
 						"team_id",
 						["Personal", ...teams.map((team: { name: string })=>team.name)],
 						{
@@ -1577,7 +1576,7 @@ class Localuser{
 		});
 		form.addTextInput("Bot username:","username",{initText:bot.username});
 		form.addFileInput("Bot avatar:","avatar");
-		form.addButtonInput("Reset Token:","Reset",async ()=>{
+		form.addButtonInput("","Reset Token",async ()=>{
 			if(!confirm("Are you sure you want to reset the bot token? Your bot will stop working until you update it.")){
 				return;
 			}
@@ -1617,7 +1616,7 @@ class Localuser{
 				this.userinfo.updateLocal();
 			}
 		});
-		form.addButtonInput("","Advanced bot settings",()=>{
+		form.addButtonInput("","Advanced Bot Settings",()=>{
 			const token=this.botTokens.get(appId);
 			if(token){
 				const botc=new Bot(bot,token,this);
