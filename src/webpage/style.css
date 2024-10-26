@@ -667,22 +667,22 @@ span.instanceStatus {
 }
 
 /* Member Info (DM/Member List) */
-.memberinfo {
+.liststyle {
 	padding: 4px 8px;
 	border-radius: 4px;
 	align-items: center;
 	gap: 8px;
 	cursor: pointer;
 }
-.memberinfo .statusDiv {
+.liststyle .statusDiv {
 	right: -1px;
 	bottom: -1px;
 }
-.memberinfo:hover {
+.liststyle:hover {
 	background: var(--channel-hover);
 	color: var(--primary-text-prominent);
 }
-#channels .memberinfo {
+#channels .liststyle {
 	margin: 0 8px;
 }
 
@@ -1273,10 +1273,10 @@ img.bigembedimg {
 	margin: 0 8px 4px 8px;
 	font-size: 1rem;
 }
-.memberList .memberinfo:hover {
+.memberList .liststyle:hover {
 	background: var(--sidebar-hover);
 }
-.memberList.offline .memberinfo {
+.memberList.offline .liststyle {
 	opacity: .5;
 }
 #memberlisttoggle {
