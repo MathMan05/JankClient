@@ -39,7 +39,7 @@ offset: number
 		}
 
 		const scroll = document.createElement("div");
-		scroll.classList.add("flexttb", "scroller");
+		scroll.classList.add("scroller");
 		this.div = scroll;
 
 		this.div.addEventListener("scroll", ()=>{

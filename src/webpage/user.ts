@@ -245,7 +245,7 @@ class User extends SnowFlake{
 
 	async buildstatuspfp(): Promise<HTMLDivElement>{
 		const div = document.createElement("div");
-		div.style.position = "relative";
+		div.classList.add("pfpDiv")
 		const pfp = this.buildpfp();
 		div.append(pfp);
 		const status = document.createElement("div");
@@ -301,7 +301,7 @@ class User extends SnowFlake{
 			localuser.info.api.toString() + "/users/" + id + "/profile",
 			{ headers: localuser.headers }
 		).then(res=>res.json());
-		return new User(json, localuser);
+		return new User(json.user, localuser);
 	}
 
 	changepfp(update: string | null): void{
@@ -399,7 +399,7 @@ class User extends SnowFlake{
 			div.classList.add("profile", "flexttb");
 		}else{
 			this.setstatus("online");
-			div.classList.add("hypoprofile", "flexttb");
+			div.classList.add("hypoprofile", "profile", "flexttb");
 		}
 		const badgediv = document.createElement("div");
 		badgediv.classList.add("badges");
@@ -426,7 +426,7 @@ class User extends SnowFlake{
 		const pfp = await this.buildstatuspfp();
 		div.appendChild(pfp);
 		const userbody = document.createElement("div");
-		userbody.classList.add("infosection");
+		userbody.classList.add("flexttb","infosection");
 		div.appendChild(userbody);
 		const usernamehtml = document.createElement("h2");
 		usernamehtml.textContent = this.username;
@@ -450,7 +450,7 @@ class User extends SnowFlake{
 			Member.resolveMember(this, guild).then(member=>{
 				if(!member)return;
 				const roles = document.createElement("div");
-				roles.classList.add("rolesbox");
+				roles.classList.add("flexltr","rolesbox");
 				for(const role of member.roles){
 					const roleDiv = document.createElement("div");
 					roleDiv.classList.add("rolediv");

@@ -11,15 +11,15 @@
 		<meta content="#4b458c" data-react-helmet="true" name="theme-color">
 		<link href="/style.css" rel="stylesheet">
 		<link href="/themes.css" rel="stylesheet" id="lightcss">
-
+		<style>body.no-theme,#loading{background:#16191b;}@media(prefers-color-scheme:light){body.no-theme,#loading{background:#9397bd;}}</style>
 		<link rel="manifest" href="/manifest.json">
 	</head>
 
-	<body class="Dark-theme">
+	<body class="no-theme">
 		<script src="/index.js" type="module"></script>
 
 		<div id="loading" class="loading">
-			<div id="centerdiv">
+			<div class="centeritem">
 				<img src="/logo.svg" style="width:3in;height:3in;">
 				<h1>Jank Client is loading</h1>
 				<h2 id="load-desc">This shouldn't take long</h2>
@@ -27,50 +27,62 @@
 			</div>
 		</div>
 		<div class="flexltr" id="page">
-			<div id="neunence">
-				<div id="servers"></div>
-			</div>
+			<div id="servers"></div>
 			<div class="flexttb channelflex">
-				<div class="servertd" id="servertd">
-					<h2 id="serverName">Server Name</h2>
+				<div class="flexltr header" id="servertd">
+					<h2 id="serverName" class="ellipsis">Server Name</h2>
 				</div>
 				<div id="channels"></div>
-				<div class="flexltr" id="userdock">
-					<div class="flexltr" id="userinfo">
-						<img id="userpfp" class="pfp">
-
-						<div class="userflex">
-							<p id="username">USERNAME</p>
-							<p id="status">STATUS</p>
-						</div>
+				<div class="flexttb">
+					<div class="flexltr" id="VoiceBox">
+						<span id="VoiceStatus"></span>
 					</div>
+					<div class="flexltr" id="userdock">
+						<div class="flexltr" id="userinfo">
+							<img id="userpfp" class="pfp">
 
-					<div id="user-actions">
-						<span id="settings" class="svgtheme svg-settings"></span>
+							<div class="flexttb userflex">
+								<p id="username">USERNAME</p>
+								<p id="status">STATUS</p>
+							</div>
+						</div>
+
+						<div id="user-actions">
+							<span id="settings" class="svgicon svg-settings"></span>
+						</div>
 					</div>
 				</div>
 			</div>
-			<div class="flexttb messageflex">
-				<div class="servertd channelnamediv">
-					<span id="mobileback" hidden></span>
-					<span id="channelname">Channel name</span>
-					<span id="channelTopic" hidden>Channel topic</span>
+			<div class="flexttb flexgrow" id="mainarea">
+				<div class="flexltr header channelnamediv">
+					<label for="maintoggle" id="maintoggleicon">
+						<span class="svgicon svg-category"></span>
+					</label>
+					<input type="checkbox" id="maintoggle">
+					<span class="flexltr">
+						<span id="channelname">Channel name</span>
+						<span id="channelTopic" class="ellipsis" hidden>Channel topic</span>
+					</span>
+					<label for="memberlisttoggle" id="memberlisttoggleicon">
+						<span class="svgicon svg-channel"></span>
+					</label>
+					<input type="checkbox" id="memberlisttoggle" checked>
 				</div>
-				<div class="flexltr">
-					<div class="flexttb">
-						<div id="channelw">
+				<div class="flexltr flexgrow">
+					<div class="flexttb flexgrow">
+						<div id="channelw" class="flexltr">
 							<div id="loadingdiv">
 							</div>
 						</div>
-						<div id="pasteimage"></div>
+						<div id="pasteimage" class="flexltr"></div>
 						<div id="replybox" class="hideReplyBox"></div>
 						<div id="typediv">
 							<div id="realbox">
 								<div id="typebox" contentEditable="true"></div>
 							</div>
-							<div id="typing" class="hidden">
+							<div id="typing" class="hidden flexltr">
 								<p id="typingtext">typing</p>
-								<div class="loading-indicator">
+								<div class="flexltr loading-indicator">
 									<div class="dot"></div>
 									<div class="dot"></div>
 									<div class="dot"></div>

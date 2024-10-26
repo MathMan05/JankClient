@@ -11,28 +11,29 @@
 		<meta content="#4b458c" data-react-helmet="true" name="theme-color">
 		<link href="/style.css" rel="stylesheet">
 		<link href="/themes.css" rel="stylesheet" id="lightcss">
+		<style>body.no-theme{background:#16191b;}@media(prefers-color-scheme:light){body.no-theme{background:#9397bd;}}</style>
 	</head>
 
-	<body class="Dark-theme" style="overflow-y: scroll;">
+	<body class="no-theme" style="overflow-y: scroll;">
 		<div id="titleDiv">
 			<img src="/logo.svg" width="40">
 			<h1 id="pageTitle">Jank Client</h1>
 			<a href="https://sb-jankclient.vanillaminigames.net/invite/USgYJo?instance=https%3A%2F%2Fspacebar.chat"
 				class="TitleButtons">
-				<h1>Spacebar Guild</h1>
+				Spacebar Guild
 			</a>
 			<a href="https://github.com/MathMan05/JankClient" class="TitleButtons">
-				<h1>Github</h1>
+				Github
+			</a>
+			<a href="/channels/@me" class="TitleButtons">
+				Open Client
 			</a>
 		</div>
-		<div class="flexttb">
+		<div id="homePage">
 
-			<div class="flexttb pagehead">
-				<h1>Welcome to Jank Client</h1>
-			</div>
+			<h1 class="pagehead">Welcome to Jank Client</h1>
 			<div class="pagebox">
-				<p>Jank Client is a spacebar compatible client seeking to be as good as it can be with many features including:
-				</p>
+				<p>Jank Client is a Spacebar-compatible client seeking to be as good as it can be with many features including:</p>
 				<ul>
 					<li>Direct Messaging</li>
 					<li>Reactions support</li>
@@ -44,16 +45,16 @@
 				</ul>
 			</div>
 			<div class="pagebox">
-				<h2>Spacebar compatible Instances:</h2>
+				<h2>Spacebar-Compatible Instances:</h2>
 				<div id="instancebox">
 				</div>
 			</div>
 			<div class="pagebox">
 				<h2>Contribute to Jank Client</h2>
-				<p>We always appreciate some help, wether that be in the form of bug reports, or code, or even just pointing out
+				<p>We always appreciate some help, whether that be in the form of bug reports, or code, or even just pointing out
 					some typos.</p><br>
-			</a><a href="https://github.com/MathMan05/JankClient" class="TitleButtons">
-					<h1>Github</h1>
+				<a href="https://github.com/MathMan05/JankClient" class="TitleButtons">
+					Github
 				</a>
 			</div>
 		</div>

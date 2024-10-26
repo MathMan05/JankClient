@@ -95,7 +95,7 @@ function setDefaults(){
 		userinfos.users = {};
 	}
 	if(userinfos.accent_color === undefined){
-		userinfos.accent_color = "#242443";
+		userinfos.accent_color = "#3096f7";
 	}
 	document.documentElement.style.setProperty(
 		"--accent-color",
@@ -116,12 +116,12 @@ function setDefaults(){
 setDefaults();
 class Specialuser{
 	serverurls: {
-api: string;
-cdn: string;
-gateway: string;
-wellknown: string;
-login: string;
-};
+		api: string;
+		cdn: string;
+		gateway: string;
+		wellknown: string;
+		login: string;
+	};
 	email: string;
 	token: string;
 	loggedin;
