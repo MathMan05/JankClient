@@ -86,10 +86,11 @@ class Localuser{
 		this.lookingguild = undefined;
 		this.guildhtml = new Map();
 		const members: { [key: string]: memberjson } = {};
-		for(const thing of ready.d.merged_members){
-			members[thing[0].guild_id] = thing[0];
+		if(ready.d.merged_members){
+			for(const thing of ready.d.merged_members){
+				members[thing[0].guild_id] = thing[0];
+			}
 		}
-
 		for(const thing of ready.d.guilds){
 			const temp = new Guild(thing, this, members[thing.id]);
 			this.guilds.push(temp);
