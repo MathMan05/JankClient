@@ -1,178 +1,176 @@
 :root {
-	--servertd-height: 0px;
-	/* Default value */
-	--red: red;
-	--green: green;
-	--yellow:yellow;
-	--accent-color:#242443;
+	--font: "acumin-pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+	--black: #000000;
+	--red: #ff5555;
+	--yellow: #ffc159;
+	--green: #1c907b;
 }
-.Dark-theme { /* thanks to TomatoCake for the updated CSS vars and such*/
+
+/* Themes. See themes.txt */
+.Dark-theme {
 	color-scheme: dark;
-	--primary-text: #FFF;
-	--primary-bg: color-mix(in srgb, #2f2f2f 70%, var(--accent-color));
-	--black: #000;
-	--shadow: #000;
-	--focus: #8888ff;
-	--message-bg-hover: color-mix(in srgb, #191919 85%, var(--accent-color));
-	--typing-bg: #161616;
-	--timestamp-color: #a2a2a2;
-	--code-bg: color-mix(in srgb, #121212 95%, var(--accent-color));
-	--user-info-bg: color-mix(in srgb,#383838 85%, var(--accent-color));
-	--user-dock-bg: color-mix(in srgb,#111111 90%, var(--accent-color));
-	--channels-bg: color-mix(in srgb, #2a2a2a 90%, var(--accent-color));
-	--channel-hover: color-mix(in srgb, #121212 70%, var(--accent-color));
-	--blank-bg: #323232;
-	--light-border: #92929B;
-	--settings-hover: color-mix(in srgb, #000000 95%, var(--accent-color) 5%);
-	--quote-bg: #7a798e;
-	--button-bg: color-mix(in srgb, #191919 85%, var(--accent-color));
-	--button-hover: color-mix(in srgb, #2f2f2f 70%, var(--accent-color));
-	--textarea-bg: color-mix(in srgb, #484848 80%, var(--accent-color));
-	--filename: #47bbff;
-	--mention-bg: #F00;
-	--mention-md-bg: #3b588b;
-	--pronouns: #797979;
-	--profile-bg: color-mix(in srgb, #232323 90%, var(--accent-color));
-	--profile-info-bg: color-mix(in srgb, #121212 90%, var(--accent-color));
-	--server-border: color-mix(in srgb, #000000 80%, var(--accent-color));
-	--channel-name-bg: color-mix(in srgb, #2a2a2a 80%, var(--accent-color));
-	--server-name-bg: color-mix(in srgb, #232323 90%, var(--accent-color));
-	--reply-border: #474b76;
-	--reply-bg: #0b0d20;
-	--reply-text: #acacac;
-	--spoiler-hover: #111111;
-	--spoiler-open-bg: #1e1e1e;
-	--unknown-file-bg: #141316;
-	--unknown-file-border: #474555;
-	--login-border: #131315;
-	--loading-bg: #22232c;
-	--dialog-bg: #33363d;
-	--dialog-border: #1c1b31;
-	--scrollbar-track: #34313c;
-	--scrollbar-thumb: #201f29;
-	--scrollbar-thumb-hover: #16161f;
-	--markdown-timestamp: #2f2f33;
-	--embed: color-mix(in srgb, #131313 90%, var(--accent-color));
-	--link: #8888ff;
-	--discovery-bg: #37373b;
-	--message-jump:#7678b0;
-	--icon-color:white;
-	--server-list: color-mix(in srgb, #1d1d1d 90%, var(--accent-color));
+
+	--primary-bg: #303339;
+	--primary-hover: #272b31;
+	--primary-text: #dfdfdf;
+	--primary-text-soft: #adb8b9;
+
+	--secondary-bg: #16191b;
+	--secondary-hover: #252b2c;
+
+	--servers-bg: #141718;
+	--channels-bg: #25282b;
+	--channel-selected: #3c4046;
+	--typebox-bg: #3a3e45;
+
+	--button-bg: #4e5457;
+	--button-hover: #6b7174;
+	--spoiler-bg: #000000;
+	--link: #5ca9ed;
+
+	--primary-text-prominent: #efefef;
+	--dock-bg: #1b1e20;
+	--card-bg: #000000;
 }
+
 .WHITE-theme {
 	color-scheme: light;
-	--primary-text: #000;
-	--primary-bg: #FFF;
-	--black: #FFF;
-	--red: #dd6c6c;
-	--green: #639d63;
-	--shadow: #777;
-	--focus: #47bbff;
-	--message-bg-hover: #dedee2;
-	--typing-bg: #dad8d8;
-	--timestamp-color: #929297;
-	--code-bg: #cbcbcc;
-	--user-info-bg: #b0abc2;
-	--user-dock-bg: #b2b2c4;
-	--channels-bg: #cbcbd8;
-	--channel-hover: #b8b5cc;
-	--blank-bg: #ceccdd;
-	--light-border: #96959e;
-	--settings-hover: #b5b1bb;
-	--quote-bg: #7a798e;
-	--button-bg: #b7b7cc;
-	--button-hover: #FFF;
-	--textarea-bg: #b1b6ce;
-	--filename: #47bbff;
-	--mention-bg: #F00;
-	--mention-md-bg: #3b588b;
-	--pronouns: #6a6a6d;
-	--profile-bg: #cacad8;
-	--profile-info-bg: #bbbbce;
-	--server-border: #bebed3;
-	--channel-name-bg: #c0c0d4;
-	--server-name-bg: #a3a3b5;
-	--reply-border: #b1b2bd;
-	--reply-bg: #d4d6e9;
-	--reply-text: #2e2e30;
-	--spoiler-hover: #b9b9b9;
-	--spoiler-open-bg: #dadada;
-	--unknown-file-bg: #bdbdbd;
-	--unknown-file-border: #adadad;
-	--login-border: #c3c0e0;
-	--loading-bg: #b5b7cc;
-	--dialog-bg: #c1c8d6;
-	--dialog-border: #b9b7db;
-	--scrollbar-track: #d5d1e2;
-	--scrollbar-thumb: #b0afc0;
-	--scrollbar-thumb-hover: #a5a5b8;
-	--markdown-timestamp: #c8c8da;
-	--embed: #f2f3f5;
-	--link: #3333ee;
-	--discovery-bg: #c6c6d8;
-	--message-jump:#ccceff;
-	--icon-color:black;
+
+	--primary-bg: #fefefe;
+	--primary-hover: #f6f6f9;
+	--primary-text: #4b4b59;
+	--primary-text-soft: #656575;
+
+	--secondary-bg: #e0e0ea;
+	--secondary-hover: #d0d0dd;
+
+	--servers-bg: #b4b4ca;
+	--channels-bg: #eaeaf0;
+	--channel-selected: #c7c7d9;
+	--typebox-bg: #ededf4;
+
+	--button-bg: #cacad8;
+	--button-hover: #b3b3c4;
+	--spoiler-bg: #dadada;
+	--link: #056cd9;
+
+	--black: #4b4b59;
+	--green: #68d79d;
+	--primary-text-prominent: #08080d;
+	--secondary-text: #3c3c46;
+	--secondary-text-soft: #4c4c5a;
+	--dock-bg: #d1d1df;
+	--dock-hover: #b8b8d0;
 }
+
 .Light-theme {
 	color-scheme: light;
 
-	--primary-text: #000;
-	--primary-bg: #8e90c3;
-	--black: #fff;
-	--shadow: #000;
-	--focus: #5e50c5;
+	--primary-bg: #aaafce;
+	--primary-hover: #b1b6d4;
+	--primary-text: #060415;
+	--primary-text-soft: #424268;
 
-	--message-bg-hover: #5757b5;
-	--typing-bg: #d4d6e9;
-	--profile-bg: #8075bf;
-	--profile-info-bg: #8075bf;
-	--timestamp-color: #000000;
-	--code-bg: #a89adf;
-	--info-bg: #6060a3;
-	--user-info-bg: #796f9a;
-	--user-dock-bg: #83839d;
-	--channels-bg: #c2c2d1;
-	--channel-hover: #726e88;
-	--blank-bg: #5e50c5;
-	--light-border: #000000;
-	--settings-hover: #b5b1bb;
-	--quote-bg: #7a798e;
-	--button-bg: #5757b5;
-	--button-hover: #8e90c3;
-	--textarea-bg: #abb1cd;
-	--filename: #47bbff;
-	--mention-bg: #F00;
-	--mention-md-bg: #3b588b;
-	--pronouns: #202020;
-	--channel-name-bg: #c0c0d4;
-	--server-name-bg: #a3a3b5;
+	--secondary-bg: #9397bd;
+	--secondary-hover: #9ea5cc;
+	
+	--servers-bg: #7a7aaa;
+	--channels-bg: #babdd2;
+	--channel-selected: #9c9fbf;
+	--typebox-bg: #bac0df;
 
-	--server-border: #aaaac4;
-	--server-hover: #7f7fa8;
+	--button-bg: #babdd2;
+	--button-hover: #9c9fbf;
+	--spoiler-bg: #34333a;
+	--link: #283c8b;
 
-	--reply-border: #474b76;
-	--reply-bg: #d4d6e9;
-	--reply-text: #38383d;
+	--black: #434392;
+	--red: #ca304d;
+	--secondary-text-soft: #211f2e;
+	--blank-bg: #494985;
+	--spoiler-text: #e4e6ed;
+}
 
-	--spoiler-hover: #34333a;
-	--spoiler-open-bg: #767587;
+.Dark-Accent-theme {
+	color-scheme: dark;
+	
+	--primary-bg: color-mix(in srgb, #3f3f3f 65%, var(--accent-color));
+	--primary-hover: color-mix(in srgb, #373737 68%, var(--accent-color));
+	--primary-text: #ebebeb;
+	--primary-text-soft: #ebebebb8;
 
-	--unknown-file-bg: #bdbdbd;
-	--unknown-file-border: #adadad;
+	--secondary-bg: color-mix(in srgb, #222222 72%, var(--accent-color));
+	--secondary-hover: color-mix(in srgb, #222222 65%, var(--accent-color));
 
-	--login-border: #c3c0e0;
-	--loading-bg: #b5b7cc;
+	--servers-bg: color-mix(in srgb, #0b0b0b 70%, var(--accent-color));
+	--channels-bg: color-mix(in srgb, #292929 68%, var(--accent-color));
+	--channel-selected: color-mix(in srgb, #555555 65%, var(--accent-color));
+	--typebox-bg: color-mix(in srgb, #666666 60%, var(--accent-color));
 
-	--dialog-bg: #c1c8d6;
-	--dialog-border: #b9b7db;
+	--button-bg: color-mix(in srgb, #777777 56%, var(--accent-color));
+	--button-hover: color-mix(in srgb, #585858 58%, var(--accent-color));
 
-	--scrollbar-track: #d2cedf;
-	--scrollbar-thumb: #bdbcca;
-	--scrollbar-thumb-hover: #a7a7be;
-	--markdown-timestamp: #c8c8da;
-	--embed: #cdccd1;
-	--link: #5566cc;
-	--discovery-bg: #c6c6d8;
-	--message-jump:#ccceff;
-	--icon-color:black;
+	--spoiler: color-mix(in srgb, #101010 72%, var(--accent-color));
+	--link: color-mix(in srgb, #99ccff 75%, var(--accent-color));
+	
+	--black: color-mix(in srgb, #000000 90%, var(--accent-color));
+	--icon: color-mix(in srgb, #ffffff, var(--accent-color));
+	--dock-bg: color-mix(in srgb, #171717 68%, var(--accent-color));
+	--spoiler-hover: color-mix(in srgb, #111111 80%, var(--accent-color));
+	--card-bg: color-mix(in srgb, #0b0b0b 70%, var(--accent-color));
+}
+
+/* Optional Variables */
+body {
+	--primary-text-prominent: var(--primary-text);
+	--secondary-text: var(--primary-text);
+	--secondary-text-soft: var(--primary-text-soft);
+	--text-input-bg: var(--secondary-bg);
+	--button-text: var(--primary-text);
+	--button-disabled-text: color-mix(in srgb, var(--button-text), transparent);
+
+	--icon: var(--accent-color);
+	--focus: var(--accent-color);
+	--shadow: color-mix(in srgb, var(--black) 30%, transparent);
+	--scrollbar: var(--primary-text-soft);
+	--scrollbar-track: var(--primary-hover);
+
+	--blank-bg: var(--channels-bg);
+	--divider: color-mix(in srgb, var(--primary-text), transparent);
+	--channels-header-bg: var(--channels-bg);
+	--channel-hover: color-mix(in srgb, var(--channel-selected) 60%, transparent);
+	--dock-bg: var(--secondary-bg);
+	--dock-hover: var(--secondary-hover);
+	--user-info-bg: var(--dock-bg);
+	--user-info-text: var(--secondary-text);
+
+	--main-header-bg: transparent;
+	--message-jump-bg: color-mix(in srgb, var(--accent-color) 20%, transparent);
+	--code-bg: var(--secondary-bg);
+	--code-text: var(--secondary-text);
+	--spoiler-text: var(--primary-text);
+	--spoiler-hover: color-mix(in srgb, var(--spoiler-bg), var(--primary-text-soft) 10%);
+	--quote-line: color-mix(in srgb, var(--primary-text-soft), transparent);
+	--reply-line: color-mix(in srgb, var(--primary-text-soft) 20%, transparent);
+	--reply-text: var(--primary-text-soft);
+	--reply-highlight: var(--accent-color);
+	--mention: color-mix(in srgb, var(--accent-color) 80%, transparent);
+	--mention-highlight: var(--yellow);
+	--reaction-bg: var(--secondary-bg);
+	--reaction-reacted-bg: var(--secondary-hover);
+	--filename: var(--link);
+	--embed-bg: var(--secondary-bg);
+
+	--sidebar-bg: var(--channels-bg);
+	--sidebar-hover: var(--channel-hover);
+	--card-bg: var(--primary-bg);
+	--role-bg: var(--primary-bg);
+	--role-text: var(--primary-text);
+	--settings-bg: var(--primary-bg);
+	--settings-header-bg: var(--main-header-bg);
+	--settings-panel-bg: var(--channels-bg);
+	--settings-panel-selected: var(--channel-selected);
+	--settings-panel-hover: color-mix(in srgb, var(--settings-panel-selected), transparent);
+	--loading-bg: var(--secondary-bg);
+	--loading-text: var(--secondary-text);
 }

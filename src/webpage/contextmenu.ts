@@ -90,6 +90,13 @@ class Contextmenu<x, y>{
 			this.makemenu(event.clientX, event.clientY, addinfo, other);
 		};
 		obj.addEventListener("contextmenu", func);
+		obj.addEventListener("touchstart",(event: TouchEvent)=>{
+			if(event.touches.length > 1){
+				event.preventDefault();
+				event.stopImmediatePropagation();
+				this.makemenu(event.touches[0].clientX, event.touches[0].clientY, addinfo, other);
+			}
+		});
 		return func;
 	}
 	static keepOnScreen(obj: HTMLElement){
