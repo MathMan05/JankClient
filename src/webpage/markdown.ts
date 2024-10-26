@@ -765,12 +765,12 @@ txt[j + 1] === undefined)
 				}else{
 					const full: Dialog = new Dialog([
 						"vdiv",
-						["title", "You're leaving spacebar"],
+						["title", "You're leaving Spacebar"],
 						[
 							"text",
 							"You're going to " +
 	Url.host +
-	" are you sure you want to go there?",
+	". Are you sure you want to go there?",
 						],
 						[
 							"hdiv",

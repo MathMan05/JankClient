@@ -11,6 +11,7 @@ import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, messagejson }from"./jsontypes.js";
 import{ Emoji }from"./emoji.js";
 import{ Dialog }from"./dialog.js";
+import{ mobile }from"./login.js";
 import { I18n } from "./i18n.js";
 
 class Message extends SnowFlake{
@@ -403,22 +404,19 @@ class Message extends SnowFlake{
 		}
 		if(this.message_reference){
 			const replyline = document.createElement("div");
-			const line = document.createElement("hr");
 			const minipfp = document.createElement("img");
 			minipfp.classList.add("replypfp");
-			replyline.appendChild(line);
 			replyline.appendChild(minipfp);
 			const username = document.createElement("span");
 			replyline.appendChild(username);
 			const reply = document.createElement("div");
 			username.classList.add("username");
-			reply.classList.add("replytext");
+			reply.classList.add("replytext","ellipsis");
 			replyline.appendChild(reply);
 			const line2 = document.createElement("hr");
 			replyline.appendChild(line2);
 			line2.classList.add("reply");
-			line.classList.add("startreply");
-			replyline.classList.add("replyflex");
+			replyline.classList.add("flexltr","replyflex");
 			// TODO: Fix this
 			this.channel.getmessage(this.message_reference.message_id).then(message=>{
 				if(message.author.relationshipType === 2){
@@ -441,7 +439,6 @@ class Message extends SnowFlake{
 		div.appendChild(build);
 		if({ 0: true, 19: true }[this.type] || this.attachments.length !== 0){
 			const pfpRow = document.createElement("div");
-			pfpRow.classList.add("flexltr");
 			let pfpparent, current;
 			if(premessage != null){
 				pfpparent ??= premessage;
@@ -465,10 +462,7 @@ class Message extends SnowFlake{
 			pfpRow.classList.add("pfprow");
 			build.appendChild(pfpRow);
 			const text = document.createElement("div");
-			text.classList.add("flexttb");
-			const texttxt = document.createElement("div");
-			texttxt.classList.add("commentrow", "flexttb");
-			text.appendChild(texttxt);
+			text.classList.add("commentrow", "flexttb");
 			if(combine){
 				const username = document.createElement("span");
 				username.classList.add("username");
@@ -476,7 +470,6 @@ class Message extends SnowFlake{
 				div.classList.add("topMessage");
 				username.textContent = this.author.username;
 				const userwrap = document.createElement("div");
-				userwrap.classList.add("flexltr");
 				userwrap.appendChild(username);
 				if(this.author.bot){
 					const username = document.createElement("span");
@@ -489,7 +482,7 @@ class Message extends SnowFlake{
 				time.classList.add("timestamp");
 				userwrap.appendChild(time);
 
-				texttxt.appendChild(userwrap);
+				text.appendChild(userwrap);
 			}else{
 				div.classList.remove("topMessage");
 			}
@@ -498,13 +491,13 @@ class Message extends SnowFlake{
 			const messagedwrap = document.createElement("div");
 			messagedwrap.classList.add("flexttb");
 			messagedwrap.appendChild(messaged);
-			texttxt.appendChild(messagedwrap);
+			text.appendChild(messagedwrap);
 
 			build.appendChild(text);
 			if(this.attachments.length){
 				console.log(this.attachments);
 				const attach = document.createElement("div");
-				attach.classList.add("flexltr");
+				attach.classList.add("flexltr","attachments");
 				for(const thing of this.attachments){
 					attach.appendChild(thing.getHTML());
 				}
@@ -512,7 +505,6 @@ class Message extends SnowFlake{
 			}
 			if(this.embeds.length){
 				const embeds = document.createElement("div");
-				embeds.classList.add("flexltr");
 				for(const thing of this.embeds){
 					embeds.appendChild(thing.generateHTML());
 				}
@@ -521,27 +513,23 @@ class Message extends SnowFlake{
 			//
 		}else if(this.type === 7){
 			const text = document.createElement("div");
-			text.classList.add("flexttb");
-			const texttxt = document.createElement("div");
-			text.appendChild(texttxt);
 			build.appendChild(text);
-			texttxt.classList.add("flexltr");
 			const messaged = document.createElement("span");
 			div.txt = messaged;
 			messaged.textContent = "welcome: ";
-			texttxt.appendChild(messaged);
+			text.appendChild(messaged);
 
 			const username = document.createElement("span");
 			username.textContent = this.author.username;
 			//this.author.profileclick(username);
 			this.author.bind(username, this.guild);
-			texttxt.appendChild(username);
+			text.appendChild(username);
 			username.classList.add("username");
 
 			const time = document.createElement("span");
 			time.textContent = "  " + formatTime(new Date(this.timestamp));
 			time.classList.add("timestamp");
-			texttxt.append(time);
+			text.append(time);
 			div.classList.add("topMessage");
 		}
 		const reactions = document.createElement("div");
@@ -556,6 +544,7 @@ class Message extends SnowFlake{
 		if(this.div){
 			let buttons: HTMLDivElement | undefined;
 			this.div.onmouseenter = _=>{
+				if(mobile)return;
 				if(buttons){
 					buttons.remove();
 					buttons = undefined;
@@ -564,9 +553,9 @@ class Message extends SnowFlake{
 					buttons = document.createElement("div");
 					buttons.classList.add("messageButtons", "flexltr");
 					if(this.channel.hasPermission("SEND_MESSAGES")){
-						const container = document.createElement("div");
+						const container = document.createElement("button");
 						const reply = document.createElement("span");
-						reply.classList.add("svgtheme", "svg-reply", "svgicon");
+						reply.classList.add("svg-reply", "svgicon");
 						container.append(reply);
 						buttons.append(container);
 						container.onclick = _=>{
@@ -574,9 +563,9 @@ class Message extends SnowFlake{
 						};
 					}
 					if(this.author === this.localuser.user){
-						const container = document.createElement("div");
+						const container = document.createElement("button");
 						const edit = document.createElement("span");
-						edit.classList.add("svgtheme", "svg-edit", "svgicon");
+						edit.classList.add("svg-edit", "svgicon");
 						container.append(edit);
 						buttons.append(container);
 						container.onclick = _=>{
@@ -584,9 +573,9 @@ class Message extends SnowFlake{
 						};
 					}
 					if(this.canDelete()){
-						const container = document.createElement("div");
+						const container = document.createElement("button");
 						const reply = document.createElement("span");
-						reply.classList.add("svgtheme", "svg-delete", "svgicon");
+						reply.classList.add("svg-delete", "svgicon");
 						container.append(reply);
 						buttons.append(container);
 						container.onclick = _=>{
@@ -595,25 +584,28 @@ class Message extends SnowFlake{
 								return;
 							}
 							const diaolog = new Dialog([
-								"hdiv",
-								["title", "are you sure you want to delete this?"],
+								"vdiv",
+								["title", "Are you sure you want to delete this?"],
 								[
-									"button",
-									"",
-									"yes",
-									()=>{
-										this.delete();
-										diaolog.hide();
-									},
-								],
-								[
-									"button",
-									"",
-									"no",
-									()=>{
-										diaolog.hide();
-									},
-								],
+									"hdiv",
+									[
+										"button",
+										"",
+										"Yes",
+										()=>{
+											this.delete();
+											diaolog.hide();
+										},
+									],
+									[
+										"button",
+										"",
+										"No",
+										()=>{
+											diaolog.hide();
+										},
+									],
+								]
 							]);
 							diaolog.show();
 						};

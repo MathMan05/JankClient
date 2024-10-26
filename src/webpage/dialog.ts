@@ -191,11 +191,17 @@ class Dialog{
 		case"select": {
 			const div = document.createElement("div");
 			const label = document.createElement("label");
+			const selectSpan = document.createElement("span");
+			selectSpan.classList.add("selectspan");
 			const select = document.createElement("select");
+			const selectArrow = document.createElement("span");
+			selectArrow.classList.add("svgicon","svg-category","selectarrow");
 
 			label.textContent = array[1];
+			selectSpan.append(select);
+			selectSpan.append(selectArrow);
 			div.append(label);
-			div.appendChild(select);
+			div.appendChild(selectSpan);
 			for(const thing of array[2]){
 				const option = document.createElement("option");
 				option.textContent = thing;
