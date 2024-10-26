@@ -1023,12 +1023,7 @@ class Channel extends SnowFlake{
 			return;
 		}
 		await fetch(
-			this.info.api +
-											"/channels/" +
-											this.id +
-											"/messages?limit=100&after=" +
-											id,
-			{
+			this.info.api + "/channels/" +this.id +"/messages?limit=100&after=" +id,{
 				headers: this.headers,
 			}
 		)
