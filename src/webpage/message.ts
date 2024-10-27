@@ -429,6 +429,11 @@ class Message extends SnowFlake{
 				author.bind(minipfp, this.guild);
 				username.textContent = author.username;
 				author.bind(username, this.guild);
+				Member.resolveMember(author, this.guild).then(_=>{
+					if(_){
+						username.textContent=_.name;
+					}
+				})
 			});
 			reply.onclick = _=>{
 				// TODO: FIX this
@@ -467,6 +472,11 @@ class Message extends SnowFlake{
 				const username = document.createElement("span");
 				username.classList.add("username");
 				this.author.bind(username, this.guild);
+				Member.resolveMember(this.author, this.guild).then(_=>{
+					if(_){
+						username.textContent=_.name;
+					}
+				})
 				div.classList.add("topMessage");
 				username.textContent = this.author.username;
 				const userwrap = document.createElement("div");
