@@ -1934,3 +1934,28 @@ fieldset input[type="radio"] {
 		width: 100%;
 	}
 }
+.addrole{
+	width:.1in;
+	height: .1in;
+	margin-left: .1in;
+	margin-top: .04in;
+	cursor: pointer;
+}
+.fixedsearch{
+	position: absolute;
+	background: var(--primary-bg);
+	min-height: .2in;
+	padding:.05in;
+	border:solid .03in var(--black);
+	border-radius:.05in;
+	span{
+		margin-top:.1in;
+		width:100%;
+		padding:.03in;
+		border:solid .03in var(--black);
+		box-sizing:border-box;
+		border-radius:.05in;
+		cursor:pointer;
+	}
+
+}

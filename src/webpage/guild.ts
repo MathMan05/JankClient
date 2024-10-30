@@ -13,6 +13,7 @@ import{
 	emojijson,
 	memberjson,
 	invitejson,
+    rolesjson,
 }from"./jsontypes.js";
 import{ User }from"./user.js";
 
@@ -114,15 +115,66 @@ class Guild extends SnowFlake{
 			}
 			form.addTextInput("Region:", "region", { initText: region });
 		}
-		const s1 = settings.addButton("roles");
+		const s1 = settings.addButton("Roles");
 		const permlist: [Role, Permissions][] = [];
 		for(const thing of this.roles){
 			permlist.push([thing, thing.permissions]);
 		}
 		s1.options.push(
-			new RoleList(permlist, this, this.updateRolePermissions.bind(this))
+			new RoleList(permlist, this, this.updateRolePermissions.bind(this),false)
 		);
 		settings.show();
+	}
+	roleUpdate:(role:Role,added:-1|0|1)=>unknown=()=>{};
+	sortRoles(){
+		this.roles.sort((a,b)=>(b.position-a.position));
+	}
+	async recalcRoles(){
+		let position=this.roles.length;
+		const map=this.roles.map(_=>{
+			position--;
+			return {id:_.id,position};
+		})
+		await fetch(this.info.api+"/guilds/"+this.id+"/roles",{
+			method:"PATCH",
+			body:JSON.stringify(map),
+			headers:this.headers
+		})
+	}
+	newRole(rolej:rolesjson){
+		const role=new Role(rolej,this);
+		this.roles.push(role);
+		this.roleids.set(role.id, role);
+		this.sortRoles();
+		this.roleUpdate(role,1);
+	}
+	updateRole(rolej:rolesjson){
+		const role=this.roleids.get(rolej.id) as Role;
+		role.newJson(rolej);
+		this.roleUpdate(role,0);
+	}
+	memberupdate(json:memberjson){
+		let member:undefined|Member=undefined;
+		for(const thing of this.members){
+			if(thing.id===json.id){
+				member=thing;
+				break;
+			}
+		}
+
+		if(!member) return;
+		member.update(json);
+		if(member===this.member){
+			console.log(member);
+			this.loadGuild();
+		}
+	}
+	deleteRole(id:string){
+		const role = this.roleids.get(id);
+		if(!role) return;
+		this.roleids.delete(id);
+		this.roles.splice(this.roles.indexOf(role),1);
+		this.roleUpdate(role,-1);
 	}
 	constructor(
 		json: guildjson | -1,
@@ -153,6 +205,7 @@ class Guild extends SnowFlake{
 			this.roles.push(roleh);
 			this.roleids.set(roleh.id, roleh);
 		}
+		this.sortRoles();
 		if(member instanceof User){
 			Member.resolveMember(member, this).then(_=>{
 				if(_){
