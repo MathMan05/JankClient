@@ -538,6 +538,7 @@ if(!localStorage.getItem("SWMode")){
 class SW{
 	static worker:undefined|ServiceWorker;
 	static setMode(mode:"false"|"offlineOnly"|"true"){
+		localStorage.setItem("SWMode",mode);
 		if(this.worker){
 			this.worker.postMessage({data:mode,code:"setMode"});
 		}
