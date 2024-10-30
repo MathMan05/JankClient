@@ -93,7 +93,9 @@ async function getfile(event: FetchEvent):Promise<Response>{
 	}
 
 	let path=toPath(event.request.url);
-
+	if(path === "/instances.json"){
+		return await fetch(path);
+	}
 	console.log("Getting path: "+path);
 	const responseFromCache = await caches.match(path);
 	if(responseFromCache){
