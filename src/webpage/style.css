@@ -581,6 +581,7 @@ span.instanceStatus {
 .channels {
 	overflow-y: hidden;
 	transition: height .2s ease-in-out;
+	padding-left: 6px;
 }
 #channels > div > div:first-child {
 	margin-top: 8px;
@@ -592,7 +593,7 @@ span.instanceStatus {
 }
 .channelbutton {
 	height: 2em;
-	padding: 0 8px;
+	padding: 0 5px;
 	background: transparent;
 	color: var(--primary-text-soft);
 	display: flex;
