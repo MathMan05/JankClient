@@ -1,4 +1,5 @@
-<body class="Dark-theme">
+<!DOCTYPE html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,51 +13,49 @@
 		<meta content="#4b458c" data-react-helmet="true" name="theme-color">
 		<link href="/style.css" rel="stylesheet">
 		<link href="/themes.css" rel="stylesheet" id="lightcss">
+		<style>body.no-theme{background:#16191b;}@media(prefers-color-scheme:light){body.no-theme{background:#9397bd;}}</style>
 	</head>
-	<div id="logindiv">
-		<h1>Login</h1>
-		<br >
-		<form id="form" submit="check(e)">
-			<label for="instance"><b>Instance:</b></label
-      ><br >
-			<p id="verify"></p>
-			<input
-				type="search"
-				list="instances"
-				placeholder="Instance URL"
-				name="instance"
-				id="instancein"
-				value=""
-				id="instancein"
-				required
-			><br ><br >
+	<body class="no-theme">
+		<div id="logindiv">
+			<h1>Login</h1>
+			<form id="form" submit="check(e)">
+				<label for="instance"><b>Instance:</b></label>
+				<p id="verify"></p>
+				<input
+					type="search"
+					list="instances"
+					placeholder="Instance URL"
+					name="instance"
+					id="instancein"
+					value=""
+					required
+				>
 
-			<label for="uname"><b>Email:</b></label
-      ><br >
-			<input
-				type="text"
-				placeholder="Enter email address"
-				name="uname"
-				id="uname"
-				required
-			><br ><br >
+				<label for="uname"><b>Email:</b></label>
+				<input
+					type="text"
+					placeholder="Enter email address"
+					name="uname"
+					id="uname"
+					required
+				>
 
-			<label for="psw"><b>Password:</b></label
-      ><br >
-			<input
-				type="password"
-				placeholder="Enter Password"
-				name="psw"
-				id="psw"
-				required
-			><br ><br ><br ><br >
-			<p class="wrongred" id="wrong"></p>
+				<label for="psw"><b>Password:</b></label>
+				<input
+					type="password"
+					placeholder="Enter Password"
+					name="psw"
+					id="psw"
+					required
+				>
+				<p class="wrongred" id="wrong"></p>
 
-			<div id="h-captcha"></div>
-			<button type="submit">Login</button>
-		</form>
-		<a href="/register.html" id="switch">Don't have an account?</a>
-	</div>
-	<datalist id="instances"></datalist>
-	<script src="/login.js" type="module"></script>
-</body>
+				<div id="h-captcha"></div>
+				<button type="submit">Login</button>
+			</form>
+			<a href="/register.html" id="switch">Don't have an account?</a>
+		</div>
+		<datalist id="instances"></datalist>
+		<script src="/login.js" type="module"></script>
+	</body>
+</html>
