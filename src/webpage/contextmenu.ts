@@ -96,7 +96,7 @@ class Contextmenu<x, y>{
 				event.stopImmediatePropagation();
 				this.makemenu(event.touches[0].clientX, event.touches[0].clientY, addinfo, other);
 			}
-		});
+		},{passive:true});
 		return func;
 	}
 	static keepOnScreen(obj: HTMLElement){
