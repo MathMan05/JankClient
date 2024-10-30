@@ -1276,7 +1276,7 @@ class Localuser{
 		}
 		{
 			const update=settings.addButton("Update settings")
-			const sw=update.addSelect("Service Worker setting",()=>{},["false","offlineOnly","true"],{
+			const sw=update.addSelect("Service Worker setting",()=>{},["False","Offline only","True"],{
 				defaultIndex:["false","offlineOnly","true"].indexOf(localStorage.getItem("SWMode") as string)
 			});
 			sw.onchange=(e)=>{
