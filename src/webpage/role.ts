@@ -210,7 +210,8 @@ class RoleList extends Buttons{
 			const form=option.addSubForm("Display settings",()=>{},{
 				fetchURL:this.info.api+"/guilds/"+this.guild.id+"/roles/"+this.curid,
 				method:"PATCH",
-				headers:this.headers
+				headers:this.headers,
+				traditionalSubmit:true
 			});
 			form.addTextInput("Role Name:","name",{
 				initText:role.name
