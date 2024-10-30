@@ -843,7 +843,7 @@ class Channel extends SnowFlake{
 		loading.classList.add("loading");
 		this.rendertyping();
 		this.localuser.getSidePannel();
-		if(this.voice){
+		if(this.voice&&localStorage.getItem("Voice enabled")){
 			this.localuser.joinVoice(this);
 		}
 		await this.putmessages();

@@ -1254,6 +1254,25 @@ class Localuser{
 					{ initColor: userinfos.accent_color }
 				);
 			}
+			{
+				const box=tas.addCheckboxInput("Enable experimental Voice support",()=>{},{initState:Boolean(localStorage.getItem("Voice enabled"))});
+				box.onchange=(e)=>{
+					if(e){
+						if(confirm("Are you sure you want to enable this, this is very experimental and is likely to cause issues")){
+							localStorage.setItem("Voice enabled","true")
+
+						}else{
+							box.value=true;
+							const checkbox=box.input.deref();
+							if(checkbox){
+								checkbox.checked=false;
+							}
+						}
+					}else{
+						localStorage.removeItem("Voice enabled");
+					}
+				}
+			}
 		}
 		{
 			const security = settings.addButton("Account Settings");
