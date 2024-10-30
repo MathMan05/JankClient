@@ -47,7 +47,7 @@ function trimswitcher(){
 		if(wellknown.at(-1) !== "/"){
 			wellknown += "/";
 		}
-		wellknown += user.username;
+		wellknown =(user.id||user.email)+"@"+wellknown;
 		if(map.has(wellknown)){
 			const otheruser = map.get(wellknown);
 			if(otheruser[1].serverurls.wellknown.at(-1) === "/"){
@@ -177,6 +177,13 @@ class Specialuser{
 	}
 	get localuserStore(){
 		return this.json.localuserStore;
+	}
+	set id(e){
+		this.json.id = e;
+		this.updateLocal();
+	}
+	get id(){
+		return this.json.id;
 	}
 	get uid(){
 		return this.email + this.serverurls.wellknown;
