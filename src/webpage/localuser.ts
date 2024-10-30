@@ -4,7 +4,7 @@ import{ Direct }from"./direct.js";
 import{ AVoice }from"./audio.js";
 import{ User }from"./user.js";
 import{ Dialog }from"./dialog.js";
-import{ getapiurls, getBulkInfo, setTheme, Specialuser }from"./login.js";
+import{ getapiurls, getBulkInfo, setTheme, Specialuser, SW }from"./login.js";
 import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
 import{ Member }from"./member.js";
 import{ Form, FormError, Options, Settings }from"./settings.js";
@@ -1273,6 +1273,21 @@ class Localuser{
 					}
 				}
 			}
+		}
+		{
+			const update=settings.addButton("Update settings")
+			const sw=update.addSelect("Service Worker setting",()=>{},["false","offlineOnly","true"],{
+				defaultIndex:["false","offlineOnly","true"].indexOf(localStorage.getItem("SWMode") as string)
+			});
+			sw.onchange=(e)=>{
+				SW.setMode(["false","offlineOnly","true"][e] as "false"|"offlineOnly"|"true")
+			}
+			update.addButtonInput("","Check for update",()=>{
+				SW.checkUpdate();
+			});
+			update.addButtonInput("","Clear cache",()=>{
+				SW.forceClear();
+			});
 		}
 		{
 			const security = settings.addButton("Account Settings");
