@@ -354,147 +354,172 @@ class Localuser{
 		if(temp.s)this.lastSequence = temp.s;
 		if(temp.op == 0){
 			switch(temp.t){
-			case"MESSAGE_CREATE":
-				if(this.initialized){
-					this.messageCreate(temp);
-				}
-				break;
-			case"MESSAGE_DELETE": {
-				temp.d.guild_id ??= "@me";
-				const channel = this.channelids.get(temp.d.channel_id);
-				if(!channel)break;
-				const message = channel.messages.get(temp.d.id);
-				if(!message)break;
-				message.deleteEvent();
-				break;
-			}
-			case"READY":
-				await this.gottenReady(temp as readyjson);
-				break;
-			case"MESSAGE_UPDATE": {
-				temp.d.guild_id ??= "@me";
-				const channel = this.channelids.get(temp.d.channel_id);
-				if(!channel)break;
-				const message = channel.messages.get(temp.d.id);
-				if(!message)break;
-				message.giveData(temp.d);
-				break;
-			}
-			case"TYPING_START":
-				if(this.initialized){
-					this.typingStart(temp);
-				}
-				break;
-			case"USER_UPDATE":
-				if(this.initialized){
-					const users = this.userMap.get(temp.d.id);
-					if(users){
-						users.userupdate(temp.d);
+				case"MESSAGE_CREATE":
+					if(this.initialized){
+						this.messageCreate(temp);
 					}
-				}
-				break;
-			case"CHANNEL_UPDATE":
-				if(this.initialized){
-					this.updateChannel(temp.d);
-				}
-				break;
-			case"CHANNEL_CREATE":
-				if(this.initialized){
-					this.createChannel(temp.d);
-				}
-				break;
-			case"CHANNEL_DELETE":
-				if(this.initialized){
-					this.delChannel(temp.d);
-				}
-				break;
-			case"GUILD_DELETE": {
-				const guildy = this.guildids.get(temp.d.id);
-				if(guildy){
-					this.guildids.delete(temp.d.id);
-					this.guilds.splice(this.guilds.indexOf(guildy), 1);
-					guildy.html.remove();
-				}
-				break;
-			}
-			case"GUILD_CREATE": {
-				const guildy = new Guild(temp.d, this, this.user);
-				this.guilds.push(guildy);
-				this.guildids.set(guildy.id, guildy);
-				(document.getElementById("servers") as HTMLDivElement).insertBefore(
-					guildy.generateGuildIcon(),
-					document.getElementById("bottomseparator")
-				);
-				break;
-			}
-			case"MESSAGE_REACTION_ADD":
-				{
+					break;
+				case"MESSAGE_DELETE": {
 					temp.d.guild_id ??= "@me";
-					const guild = this.guildids.get(temp.d.guild_id);
-					if(!guild)break;
 					const channel = this.channelids.get(temp.d.channel_id);
 					if(!channel)break;
-					const message = channel.messages.get(temp.d.message_id);
+					const message = channel.messages.get(temp.d.id);
 					if(!message)break;
-					let thing: Member | { id: string };
-					if(temp.d.member){
-						thing = (await Member.new(temp.d.member, guild)) as Member;
-					}else{
-						thing = { id: temp.d.user_id };
+					message.deleteEvent();
+					break;
+				}
+				case"READY":
+					await this.gottenReady(temp as readyjson);
+					break;
+				case"MESSAGE_UPDATE": {
+					temp.d.guild_id ??= "@me";
+					const channel = this.channelids.get(temp.d.channel_id);
+					if(!channel)break;
+					const message = channel.messages.get(temp.d.id);
+					if(!message)break;
+					message.giveData(temp.d);
+					break;
+				}
+				case"TYPING_START":
+					if(this.initialized){
+						this.typingStart(temp);
 					}
-					message.reactionAdd(temp.d.emoji, thing);
+					break;
+				case"USER_UPDATE":
+					if(this.initialized){
+						const users = this.userMap.get(temp.d.id);
+						if(users){
+							users.userupdate(temp.d);
+						}
+					}
+					break;
+				case"CHANNEL_UPDATE":
+					if(this.initialized){
+						this.updateChannel(temp.d);
+					}
+					break;
+				case"CHANNEL_CREATE":
+					if(this.initialized){
+						this.createChannel(temp.d);
+					}
+					break;
+				case"CHANNEL_DELETE":
+					if(this.initialized){
+						this.delChannel(temp.d);
+					}
+					break;
+				case"GUILD_DELETE": {
+					const guildy = this.guildids.get(temp.d.id);
+					if(guildy){
+						this.guildids.delete(temp.d.id);
+						this.guilds.splice(this.guilds.indexOf(guildy), 1);
+						guildy.html.remove();
+					}
+					break;
 				}
-				break;
-			case"MESSAGE_REACTION_REMOVE":
+				case"GUILD_CREATE": {
+					const guildy = new Guild(temp.d, this, this.user);
+					this.guilds.push(guildy);
+					this.guildids.set(guildy.id, guildy);
+					(document.getElementById("servers") as HTMLDivElement).insertBefore(
+						guildy.generateGuildIcon(),
+						document.getElementById("bottomseparator")
+					);
+					break;
+				}
+				case"MESSAGE_REACTION_ADD":
+					{
+						temp.d.guild_id ??= "@me";
+						const guild = this.guildids.get(temp.d.guild_id);
+						if(!guild)break;
+						const channel = this.channelids.get(temp.d.channel_id);
+						if(!channel)break;
+						const message = channel.messages.get(temp.d.message_id);
+						if(!message)break;
+						let thing: Member | { id: string };
+						if(temp.d.member){
+							thing = (await Member.new(temp.d.member, guild)) as Member;
+						}else{
+							thing = { id: temp.d.user_id };
+						}
+						message.reactionAdd(temp.d.emoji, thing);
+					}
+					break;
+				case"MESSAGE_REACTION_REMOVE":
+					{
+						temp.d.guild_id ??= "@me";
+						const channel = this.channelids.get(temp.d.channel_id);
+						if(!channel)break;
+						const message = channel.messages.get(temp.d.message_id);
+						if(!message)break;
+						message.reactionRemove(temp.d.emoji, temp.d.user_id);
+					}
+					break;
+				case"MESSAGE_REACTION_REMOVE_ALL":
+					{
+						temp.d.guild_id ??= "@me";
+						const channel = this.channelids.get(temp.d.channel_id);
+						if(!channel)break;
+						const message = channel.messages.get(temp.d.message_id);
+						if(!message)break;
+						message.reactionRemoveAll();
+					}
+					break;
+				case"MESSAGE_REACTION_REMOVE_EMOJI":
+					{
+						temp.d.guild_id ??= "@me";
+						const channel = this.channelids.get(temp.d.channel_id);
+						if(!channel)break;
+						const message = channel.messages.get(temp.d.message_id);
+						if(!message)break;
+						message.reactionRemoveEmoji(temp.d.emoji);
+					}
+					break;
+				case"GUILD_MEMBERS_CHUNK":
+					this.gotChunk(temp.d);
+					break;
+				case"GUILD_MEMBER_LIST_UPDATE":
 				{
-					temp.d.guild_id ??= "@me";
-					const channel = this.channelids.get(temp.d.channel_id);
-					if(!channel)break;
-					const message = channel.messages.get(temp.d.message_id);
-					if(!message)break;
-					message.reactionRemove(temp.d.emoji, temp.d.user_id);
+					this.memberListUpdate(temp)
+					break;
 				}
-				break;
-			case"MESSAGE_REACTION_REMOVE_ALL":
-				{
-					temp.d.guild_id ??= "@me";
-					const channel = this.channelids.get(temp.d.channel_id);
-					if(!channel)break;
-					const message = channel.messages.get(temp.d.message_id);
-					if(!message)break;
-					message.reactionRemoveAll();
-				}
-				break;
-			case"MESSAGE_REACTION_REMOVE_EMOJI":
-				{
-					temp.d.guild_id ??= "@me";
-					const channel = this.channelids.get(temp.d.channel_id);
-					if(!channel)break;
-					const message = channel.messages.get(temp.d.message_id);
-					if(!message)break;
-					message.reactionRemoveEmoji(temp.d.emoji);
-				}
-				break;
-			case"GUILD_MEMBERS_CHUNK":
-				this.gotChunk(temp.d);
-				break;
-			case"GUILD_MEMBER_LIST_UPDATE":
-			{
-				this.memberListUpdate(temp)
-				break;
-			}
-			case "VOICE_STATE_UPDATE":
-				if(this.voiceFactory){
-					this.voiceFactory.voiceStateUpdate(temp)
-				}
+				case "VOICE_STATE_UPDATE":
+					if(this.voiceFactory){
+						this.voiceFactory.voiceStateUpdate(temp)
+					}
 
-				break;
-			case "VOICE_SERVER_UPDATE":
-				if(this.voiceFactory){
-					this.voiceFactory.voiceServerUpdate(temp)
+					break;
+				case "VOICE_SERVER_UPDATE":
+					if(this.voiceFactory){
+						this.voiceFactory.voiceServerUpdate(temp)
+					}
+					break;
+				case "GUILD_ROLE_CREATE":{
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					guild.newRole(temp.d.role);
+					break;
 				}
-				break;
+				case "GUILD_ROLE_UPDATE":{
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					guild.updateRole(temp.d.role);
+					break;
+				}
+				case "GUILD_ROLE_DELETE":{
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					guild.deleteRole(temp.d.role_id);
+					break;
+				}
+				case "GUILD_MEMBER_UPDATE":{
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					guild.memberupdate(temp.d)
+					break
+				}
 			}
+
 
 
 		}else if(temp.op === 10){

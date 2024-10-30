@@ -478,7 +478,28 @@ roleCreate | {
 		guild_id: string;
 		emoji: emojijson;
 	};
-	s: 3;
+	s: number;
+}|{
+    op: 0,
+    t: "GUILD_ROLE_UPDATE",
+    d: {
+        guild_id: string,
+        role: rolesjson
+    },
+    "s": number
+}|{
+    op: 0,
+    t: "GUILD_ROLE_DELETE",
+    d: {
+        guild_id: string,
+        role_id: string
+    },
+    s:number
+}|{
+    op: 0,
+    t: "GUILD_MEMBER_UPDATE",
+    d: memberjson,
+    "s": 3
 }|memberlistupdatejson|voiceupdate|voiceserverupdate;
 
 

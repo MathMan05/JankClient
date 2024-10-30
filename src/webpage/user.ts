@@ -5,6 +5,8 @@ import{ Localuser }from"./localuser.js";
 import{ Guild }from"./guild.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ presencejson, userjson }from"./jsontypes.js";
+import { Role } from "./role.js";
+import { Search } from "./search.js";
 
 class User extends SnowFlake{
 	owner: Localuser;
@@ -172,6 +174,58 @@ class User extends SnowFlake{
 					return false;
 				}
 				return us.hasPermission("BAN_MEMBERS") || false;
+			}
+		);
+		this.contextmenu.addbutton(
+			"Add roles",
+			async function(this: User, member: Member | undefined,e){
+				if(member){
+					e.stopPropagation();
+					const roles:[Role,string[]][]=[];
+					for(const role of member.guild.roles){
+						if(!role.canManage()||member.roles.indexOf(role)!==-1){
+							continue;
+						}
+						roles.push([role,[role.name]]);
+					}
+					const search=new Search(roles);
+					const result=await search.find(e.x,e.y);
+					if(!result) return;
+					member.addRole(result);
+				}
+			},
+			null,
+			member=>{
+				if(!member)return false;
+				const us = member.guild.member;
+				console.log(us.hasPermission("MANAGE_ROLES"))
+				return us.hasPermission("MANAGE_ROLES") || false;
+			}
+		);
+		this.contextmenu.addbutton(
+			"Remove roles",
+			async function(this: User, member: Member | undefined,e){
+				if(member){
+					e.stopPropagation();
+					const roles:[Role,string[]][]=[];
+					for(const role of member.roles){
+						if(!role.canManage()){
+							continue;
+						}
+						roles.push([role,[role.name]]);
+					}
+					const search=new Search(roles);
+					const result=await search.find(e.x,e.y);
+					if(!result) return;
+					member.removeRole(result);
+				}
+			},
+			null,
+			member=>{
+				if(!member)return false;
+				const us = member.guild.member;
+				console.log(us.hasPermission("MANAGE_ROLES"))
+				return us.hasPermission("MANAGE_ROLES") || false;
 			}
 		);
 	}
