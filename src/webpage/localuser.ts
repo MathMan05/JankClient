@@ -80,6 +80,7 @@ class Localuser{
 		this.handleVoice();
 		this.mfa_enabled = ready.d.user.mfa_enabled as boolean;
 		this.userinfo.username = this.user.username;
+		this.userinfo.id = this.user.id;
 		this.userinfo.pfpsrc = this.user.getpfpsrc();
 		this.status = this.ready.d.user_settings.status;
 		this.channelfocus = undefined;
