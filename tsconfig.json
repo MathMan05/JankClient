@@ -9,7 +9,8 @@
     "incremental": true,
     "lib": [
       "esnext",
-      "DOM"
+      "DOM",
+      "webworker"
     ],
     "module": "ESNext",
     "moduleResolution": "Bundler",
