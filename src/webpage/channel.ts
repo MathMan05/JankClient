@@ -1,6 +1,6 @@
 "use strict";
 import{ Message }from"./message.js";
-import{ Voice }from"./audio.js";
+import{ AVoice }from"./audio.js";
 import{ Contextmenu }from"./contextmenu.js";
 import{ Dialog }from"./dialog.js";
 import{ Guild }from"./guild.js";
@@ -10,16 +10,11 @@ import{ Settings }from"./settings.js";
 import{ Role, RoleList }from"./role.js";
 import{ InfiniteScroller }from"./infiniteScroller.js";
 import{ SnowFlake }from"./snowflake.js";
-import{
-	channeljson,
-	embedjson,
-	messageCreateJson,
-	messagejson,
-	readyjson,
-	startTypingjson,
-}from"./jsontypes.js";
+import{channeljson,embedjson,messageCreateJson,messagejson,readyjson,startTypingjson}from"./jsontypes.js";
 import{ MarkDown }from"./markdown.js";
 import{ Member }from"./member.js";
+import { Voice } from "./voice.js";
+import { User } from "./user.js";
 
 declare global {
 interface NotificationOptions {
@@ -55,6 +50,8 @@ class Channel extends SnowFlake{
 	idToPrev: Map<string, string> = new Map();
 	idToNext: Map<string, string> = new Map();
 	messages: Map<string, Message> = new Map();
+	voice?:Voice;
+	bitrate:number=128000;
 	static setupcontextmenu(){
 		this.contextmenu.addbutton("Copy channel id", function(this: Channel){
 			navigator.clipboard.writeText(this.id);
@@ -64,7 +61,7 @@ class Channel extends SnowFlake{
 			this.readbottom();
 		});
 
-		this.contextmenu.addbutton("Settings[temp]", function(this: Channel){
+		this.contextmenu.addbutton("Settings", function(this: Channel){
 			this.generateSettings();
 		});
 
@@ -72,17 +69,6 @@ class Channel extends SnowFlake{
 			"Delete channel",
 			function(this: Channel){
 				this.deleteChannel();
-			},
-			null,
-			function(){
-				return this.isAdmin();
-			}
-		);
-
-		this.contextmenu.addbutton(
-			"Edit channel",
-			function(this: Channel){
-				this.editChannel();
 			},
 			null,
 			function(){
@@ -123,13 +109,14 @@ class Channel extends SnowFlake{
 		const div = document.createElement("div");
 		div.classList.add("invitediv");
 		const text = document.createElement("span");
+		text.classList.add("ellipsis");
 		div.append(text);
 		let uses = 0;
 		let expires = 1800;
 		const copycontainer = document.createElement("div");
 		copycontainer.classList.add("copycontainer");
 		const copy = document.createElement("span");
-		copy.classList.add("copybutton", "svgtheme", "svg-copy");
+		copy.classList.add("copybutton", "svgicon", "svg-copy");
 		copycontainer.append(copy);
 		copycontainer.onclick = _=>{
 			if(text.textContent){
@@ -207,15 +194,33 @@ class Channel extends SnowFlake{
 	generateSettings(){
 		this.sortPerms();
 		const settings = new Settings("Settings for " + this.name);
-
-		const s1 = settings.addButton("roles");
-
+		{
+			const gensettings=settings.addButton("Settings");
+			const form=gensettings.addForm("",()=>{},{
+				fetchURL:this.info.api + "/channels/" + this.id,
+				method: "PATCH",
+				headers: this.headers,
+			});
+			form.addTextInput("Name:","name",{initText:this.name});
+			form.addMDInput("Topic:","topic",{initText:this.topic});
+			form.addCheckboxInput("NSFW:","nsfw",{initState:this.nsfw});
+			if(this.type!==4){
+				const options=["voice", "text", "announcement"];
+				form.addSelect("Type:","type",options,{
+					defaultIndex:options.indexOf({0:"text", 2:"voice", 5:"announcement", 4:"category" }[this.type] as string)
+				})
+			}
+			form.addPreprocessor((obj:any)=>{
+				obj.type={text: 0, voice: 2, announcement: 5, category: 4 }[obj.type as string]
+			})
+		}
+		const s1 = settings.addButton("Permisions");
 		s1.options.push(
 			new RoleList(
 				this.permission_overwritesar,
 				this.guild,
 				this.updateRolePermissions.bind(this),
-				true
+				this
 			)
 		);
 		settings.show();
@@ -336,6 +341,10 @@ class Channel extends SnowFlake{
 		}
 		this.setUpInfiniteScroller();
 		this.perminfo ??= {};
+		if(this.type===2&&this.localuser.voiceFactory){
+			this.voice=this.localuser.voiceFactory.makeVoice(this.guild.id,this.id,{bitrate:this.bitrate});
+			this.setUpVoice();
+		}
 	}
 	get perminfo(){
 		return this.guild.perminfo.channels[this.id];
@@ -457,6 +466,7 @@ class Channel extends SnowFlake{
 	get visable(){
 		return this.hasPermission("VIEW_CHANNEL");
 	}
+	voiceUsers=new WeakRef(document.createElement("div"));
 	createguildHTML(admin = false): HTMLDivElement{
 		const div = document.createElement("div");
 		this.html = new WeakRef(div);
@@ -487,18 +497,18 @@ class Channel extends SnowFlake{
 
 			const decdiv = document.createElement("div");
 			const decoration = document.createElement("span");
-			decoration.classList.add("svgtheme", "collapse-icon", "svg-category");
+			decoration.classList.add("svgicon", "collapse-icon", "svg-category");
 			decdiv.appendChild(decoration);
 
 			const myhtml = document.createElement("p2");
+			myhtml.classList.add("ellipsis");
 			myhtml.textContent = this.name;
 			decdiv.appendChild(myhtml);
 			caps.appendChild(decdiv);
 			const childrendiv = document.createElement("div");
 			if(admin){
 				const addchannel = document.createElement("span");
-				addchannel.textContent = "+";
-				addchannel.classList.add("addchannel");
+				addchannel.classList.add("addchannel","svgicon","svg-plus");
 				caps.appendChild(addchannel);
 				addchannel.onclick = _=>{
 					this.guild.createchannels(this.createChannel.bind(this));
@@ -506,8 +516,8 @@ class Channel extends SnowFlake{
 				this.coatDropDiv(decdiv, childrendiv);
 			}
 			div.appendChild(caps);
-			caps.classList.add("capsflex");
-			decdiv.classList.add("channeleffects");
+			caps.classList.add("flexltr","capsflex");
+			decdiv.classList.add("flexltr","channeleffects");
 			decdiv.classList.add("channel");
 
 			Channel.contextmenu.bindContextmenu(decdiv, this,undefined);
@@ -552,31 +562,83 @@ class Channel extends SnowFlake{
 			}
 			// @ts-ignore I dont wanna deal with this
 			div.all = this;
+			const button = document.createElement("button");
+			button.classList.add("channelbutton");
+			div.append(button);
 			const myhtml = document.createElement("span");
+			myhtml.classList.add("ellipsis");
 			myhtml.textContent = this.name;
 			if(this.type === 0){
 				const decoration = document.createElement("span");
-				div.appendChild(decoration);
-				decoration.classList.add("space", "svgtheme", "svg-channel");
+				button.appendChild(decoration);
+				decoration.classList.add("space", "svgicon", "svg-channel");
 			}else if(this.type === 2){
 				//
 				const decoration = document.createElement("span");
-				div.appendChild(decoration);
-				decoration.classList.add("space", "svgtheme", "svg-voice");
+				button.appendChild(decoration);
+				decoration.classList.add("space", "svgicon", "svg-voice");
 			}else if(this.type === 5){
 				//
 				const decoration = document.createElement("span");
-				div.appendChild(decoration);
-				decoration.classList.add("space", "svgtheme", "svg-announce");
+				button.appendChild(decoration);
+				decoration.classList.add("space", "svgicon", "svg-announce");
 			}else{
 				console.log(this.type);
 			}
-			div.appendChild(myhtml);
-			div.onclick = _=>{
+			button.appendChild(myhtml);
+			button.onclick = _=>{
 				this.getHTML();
+				const toggle = document.getElementById("maintoggle") as HTMLInputElement;
+				toggle.checked = true;
 			};
+			if(this.type===2){
+				const voiceUsers=document.createElement("div");
+				div.append(voiceUsers);
+				this.voiceUsers=new WeakRef(voiceUsers);
+				this.updateVoiceUsers();
+			}
 		}
 		return div;
+	}
+	async setUpVoice(){
+		if(!this.voice) return;
+		this.voice.onMemberChange=async (memb,joined)=>{
+			console.log(memb,joined);
+			if(typeof memb!=="string"){
+				await Member.new(memb,this.guild);
+			}
+			this.updateVoiceUsers();
+			if(this.voice===this.localuser.currentVoice){
+				AVoice.noises("join");
+			}
+		}
+	}
+	async updateVoiceUsers(){
+		const voiceUsers=this.voiceUsers.deref();
+		if(!voiceUsers||!this.voice) return;
+		console.warn(this.voice.userids)
+
+		const html=(await Promise.all(this.voice.userids.entries().toArray().map(async _=>{
+			const user=await User.resolve(_[0],this.localuser);
+			console.log(user);
+			const member=await Member.resolveMember(user,this.guild);
+			const array=[member,_[1]] as [Member, typeof _[1]];
+			return array;
+		}))).flatMap(([member,_obj])=>{
+			if(!member){
+				console.warn("This is weird, member doesn't exist :P");
+				return [];
+			}
+			const div=document.createElement("div");
+			div.classList.add("voiceuser");
+			const span=document.createElement("span");
+			span.textContent=member.name;
+			div.append(span);
+			return div;
+		});
+
+		voiceUsers.innerHTML="";
+		voiceUsers.append(...html);
 	}
 	get myhtml(){
 		if(this.html){
@@ -684,68 +746,6 @@ class Channel extends SnowFlake{
 			}),
 		});
 	}
-	editChannel(){
-		let name = this.name;
-		let topic = this.topic;
-		let nsfw = this.nsfw;
-		const thisid = this.id;
-		const thistype = this.type;
-		const full = new Dialog([
-			"hdiv",
-			[
-				"vdiv",
-				[
-					"textbox",
-					"Channel name:",
-					this.name,
-					function(this: HTMLInputElement){
-						name = this.value;
-					},
-				],
-				[
-					"mdbox",
-					"Channel topic:",
-					this.topic,
-					function(this: HTMLTextAreaElement){
-						topic = this.value;
-					},
-				],
-				[
-					"checkbox",
-					"NSFW Channel",
-					this.nsfw,
-					function(this: HTMLInputElement){
-						nsfw = this.checked;
-					},
-				],
-				[
-					"button",
-					"",
-					"submit",
-					()=>{
-						fetch(this.info.api + "/channels/" + thisid, {
-							method: "PATCH",
-							headers: this.headers,
-							body: JSON.stringify({
-								name,
-								type: thistype,
-								topic,
-								bitrate: 64000,
-								user_limit: 0,
-								nsfw,
-								flags: 0,
-								rate_limit_per_user: 0,
-							}),
-						});
-						console.log(full);
-						full.hide();
-					},
-				],
-			],
-		]);
-		full.show();
-		console.log(full);
-	}
 	deleteChannel(){
 		fetch(this.info.api + "/channels/" + this.id, {
 			method: "DELETE",
@@ -764,6 +764,7 @@ class Channel extends SnowFlake{
 	}
 	makereplybox(){
 		const replybox = document.getElementById("replybox") as HTMLElement;
+		const typebox = document.getElementById("typebox") as HTMLElement;
 		if(this.replyingto){
 			replybox.innerHTML = "";
 			const span = document.createElement("span");
@@ -776,14 +777,16 @@ class Channel extends SnowFlake{
 				replybox.classList.add("hideReplyBox");
 				this.replyingto = null;
 				replybox.innerHTML = "";
+				typebox.classList.remove("typeboxreplying");
 			};
 			replybox.classList.remove("hideReplyBox");
-			X.textContent = "⦻";
-			X.classList.add("cancelReply");
+			X.classList.add("cancelReply","svgicon","svg-x");
 			replybox.append(span);
 			replybox.append(X);
+			typebox.classList.add("typeboxreplying");
 		}else{
 			replybox.classList.add("hideReplyBox");
+			typebox.classList.remove("typeboxreplying");
 		}
 	}
 	async getmessage(id: string): Promise<Message>{
@@ -840,6 +843,9 @@ class Channel extends SnowFlake{
 		loading.classList.add("loading");
 		this.rendertyping();
 		this.localuser.getSidePannel();
+		if(this.voice&&localStorage.getItem("Voice enabled")){
+			this.localuser.joinVoice(this);
+		}
 		await this.putmessages();
 		await prom;
 		if(id !== Channel.genid){
@@ -972,12 +978,7 @@ class Channel extends SnowFlake{
 			return;
 		}
 		await fetch(
-			this.info.api +
-											"/channels/" +
-											this.id +
-											"/messages?limit=100&after=" +
-											id,
-			{
+			this.info.api + "/channels/" +this.id +"/messages?limit=100&after=" +id,{
 				headers: this.headers,
 			}
 		)
@@ -1175,12 +1176,11 @@ class Channel extends SnowFlake{
 
 		this.children = [];
 		this.guild_id = json.guild_id;
+		const oldover=this.permission_overwrites;
 		this.permission_overwrites = new Map();
+		this.permission_overwritesar=[];
 		for(const thing of json.permission_overwrites){
-			if(
-				thing.id === "1182819038095799904" ||
-											thing.id === "1182820803700625444"
-			){
+			if(thing.id === "1182819038095799904" || thing.id === "1182820803700625444"){
 				continue;
 			}
 			this.permission_overwrites.set(
@@ -1195,9 +1195,26 @@ class Channel extends SnowFlake{
 				}
 			}
 		}
+		const nchange=[...new Set<string>().union(oldover).difference(this.permission_overwrites)];
+		const pchange=[...new Set<string>().union(this.permission_overwrites).difference(oldover)];
+		for(const thing of nchange){
+			const role=this.guild.roleids.get(thing);
+			if(role){
+				this.croleUpdate(role,new Permissions("0"),false)
+			}
+		}
+		for(const thing of pchange){
+			const role=this.guild.roleids.get(thing);
+			const perms=this.permission_overwrites.get(thing);
+			if(role&&perms){
+				this.croleUpdate(role,perms,true);
+			}
+		}
+		console.log(pchange,nchange);
 		this.topic = json.topic;
 		this.nsfw = json.nsfw;
 	}
+	croleUpdate:(role:Role,perm:Permissions,added:boolean)=>unknown=()=>{};
 	typingstart(){
 		if(this.typing > Date.now()){
 			return;
@@ -1310,31 +1327,25 @@ class Channel extends SnowFlake{
 			return;
 		}
 		if(
-			this.localuser.lookingguild?.prevchannel === this &&
-											document.hasFocus()
+			this.localuser.lookingguild?.prevchannel === this && document.hasFocus()
 		){
 			return;
 		}
 		if(this.notification === "all"){
 			this.notify(messagez);
 		}else if(
-			this.notification === "mentions" &&
-											messagez.mentionsuser(this.localuser.user)
+			this.notification === "mentions" && messagez.mentionsuser(this.localuser.user)
 		){
 			this.notify(messagez);
 		}
 	}
 	notititle(message: Message): string{
 		return(
-			message.author.username +
-											" > " +
-											this.guild.properties.name +
-											" > " +
-											this.name
+			message.author.username + " > " + this.guild.properties.name + " > " + this.name
 		);
 	}
 	notify(message: Message, deep = 0){
-		Voice.noises(Voice.getNotificationSound());
+		AVoice.noises(AVoice.getNotificationSound());
 		if(!("Notification" in window)){
 		}else if(Notification.permission === "granted"){
 			let noticontent: string | undefined | null = message.content.textContent;
@@ -1393,20 +1404,22 @@ class Channel extends SnowFlake{
 		if(permission){
 			permission.allow = perms.allow;
 			permission.deny = perms.deny;
-			await fetch(
-				this.info.api + "/channels/" + this.id + "/permissions/" + id,
-				{
-					method: "PUT",
-					headers: this.headers,
-					body: JSON.stringify({
-						allow: permission.allow.toString(),
-						deny: permission.deny.toString(),
-						id,
-						type: 0,
-					}),
-				}
-			);
+		}else{
+			//this.permission_overwrites.set(id,perms);
 		}
+		await fetch(
+			this.info.api + "/channels/" + this.id + "/permissions/" + id,
+			{
+				method: "PUT",
+				headers: this.headers,
+				body: JSON.stringify({
+					allow: perms.allow.toString(),
+					deny: perms.deny.toString(),
+					id,
+					type: 0,
+				}),
+			}
+		);
 	}
 }
 Channel.setupcontextmenu();

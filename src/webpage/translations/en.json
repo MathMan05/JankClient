@@ -1,0 +1,16 @@
+{
+	"@metadata": {
+		"authors": [
+			"MathMan05"
+		],
+		"last-updated": "2024/15/24",
+		"locale": "en",
+		"comment":"Don't know how often I'll update this top part lol"
+	},
+	"en": {
+		"reply": "Reply",
+		"copyrawtext":"Copy raw text",
+		"copymessageid":"Copy message id"
+    },
+	"ru": "./ru.json"
+}

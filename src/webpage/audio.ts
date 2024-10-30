@@ -1,6 +1,6 @@
 import{ getBulkInfo }from"./login.js";
 
-class Voice{
+class AVoice{
 	audioCtx: AudioContext;
 	info: { wave: string | Function; freq: number };
 	playing: boolean;
@@ -95,7 +95,7 @@ class Voice{
 	static noises(noise: string): void{
 		switch(noise){
 		case"three": {
-			const voicy = new Voice("sin", 800);
+			const voicy = new AVoice("sin", 800);
 			voicy.play();
 			setTimeout(_=>{
 				voicy.freq = 1000;
@@ -109,7 +109,7 @@ class Voice{
 			break;
 		}
 		case"zip": {
-			const voicy = new Voice((t: number, freq: number)=>{
+			const voicy = new AVoice((t: number, freq: number)=>{
 				return Math.sin((t + 2) ** Math.cos(t * 4) * Math.PI * 2 * freq);
 			}, 700);
 			voicy.play();
@@ -119,7 +119,7 @@ class Voice{
 			break;
 		}
 		case"square": {
-			const voicy = new Voice("square", 600, 0.4);
+			const voicy = new AVoice("square", 600, 0.4);
 			voicy.play();
 			setTimeout(_=>{
 				voicy.freq = 800;
@@ -133,7 +133,7 @@ class Voice{
 			break;
 		}
 		case"beep": {
-			const voicy = new Voice("sin", 800);
+			const voicy = new AVoice("sin", 800);
 			voicy.play();
 			setTimeout(_=>{
 				voicy.stop();
@@ -144,6 +144,38 @@ class Voice{
 			setTimeout(_=>{
 				voicy.stop();
 			}, 150);
+			break;
+		}
+		case "join":{
+			const voicy = new AVoice("triangle", 600,.1);
+			voicy.play();
+			setTimeout(_=>{
+				voicy.freq=800;
+			}, 75);
+			setTimeout(_=>{
+				voicy.freq=1000;
+			}, 150);
+			setTimeout(_=>{
+				voicy.stop();
+			}, 200);
+			break;
+		}
+		case "leave":{
+			const voicy = new AVoice("triangle", 850,.5);
+			voicy.play();
+			setTimeout(_=>{
+				voicy.freq=700;
+			}, 100);
+			setTimeout(_=>{
+				voicy.stop();
+				voicy.freq=400;
+			}, 180);
+			setTimeout(_=>{
+				voicy.play();
+			}, 200);
+			setTimeout(_=>{
+				voicy.stop();
+			}, 250);
 			break;
 		}
 		}
@@ -161,4 +193,4 @@ class Voice{
 		return userinfos.preferences.notisound;
 	}
 }
-export{ Voice };
+export{ AVoice as AVoice };

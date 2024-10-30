@@ -1,5 +1,5 @@
-<body class="Dark-theme">
-
+<!DOCTYPE html>
+<html lang="en">
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -10,53 +10,55 @@
 		<meta content="#4b458c" data-react-helmet="true" name="theme-color">
 		<link href="/style.css" rel="stylesheet">
 		<link href="/themes.css" rel="stylesheet" id="lightcss">
+		<style>body.no-theme{background:#16191b;}@media(prefers-color-scheme:light){body.no-theme{background:#9397bd;}}</style>
 	</head>
-	<div id="logindiv">
-		<h1>Create an account</h1><br>
-		<form id="register" submit="registertry(e)">
-			<div>
-				<label for="instance"><b>Instance:</b></label><br>
-				<p id="verify"></p>
-				<input type="search" list="instances" placeholder="Instance URL" id="instancein" name="instance" value=""
-					id="instancein" required>
-			</div>
-			<div>
-				<label for="uname"><b>Email:</b></label><br>
-				<input type="text" placeholder="Enter Email" name="uname" id="uname" required>
-			</div>
+	<body class="no-theme">
+		<div id="logindiv">
+			<h1>Create an account</h1>
+			<form id="register" submit="registertry(e)">
+				<div>
+					<label for="instance"><b>Instance:</b></label>
+					<p id="verify"></p>
+					<input type="search" list="instances" placeholder="Instance URL" id="instancein" name="instance" value="" required>
+				</div>
+				<div>
+					<label for="uname"><b>Email:</b></label>
+					<input type="text" placeholder="Enter Email" name="uname" id="uname" required>
+				</div>
 
-			<div>
-				<label for="uname"><b>Username:</b></label><br>
-				<input type="text" placeholder="Enter Username" name="username" id="username" required>
-			</div>
-			<div>
-				<label for="psw"><b>Password:</b></label><br>
-				<input type="password" placeholder="Enter Password" name="psw" id="psw" required>
-			</div>
+				<div>
+					<label for="uname"><b>Username:</b></label>
+					<input type="text" placeholder="Enter Username" name="username" id="username" required>
+				</div>
+				<div>
+					<label for="psw"><b>Password:</b></label>
+					<input type="password" placeholder="Enter Password" name="psw" id="psw" required>
+				</div>
 
-			<div>
-				<label for="psw2"><b>Enter password again:</b></label><br>
-				<input type="password" placeholder="Enter Password Again" name="psw2" id="psw2" required>
-			</div>
+				<div>
+					<label for="psw2"><b>Enter password again:</b></label>
+					<input type="password" placeholder="Enter Password Again" name="psw2" id="psw2" required>
+				</div>
 
-			<div>
-				<label for="date"><b>Date of birth:</b></label><br>
-				<input type="date" id="date" name="date">
-			</div>
+				<div>
+					<label for="date"><b>Date of birth:</b></label>
+					<input type="date" id="date" name="date">
+				</div>
 
-			<div>
-				<b id="TOSbox">I agree to the <a href="" id="TOSa">Terms of Service</a>:</b>
-				<input type="checkbox" id="TOS" name="TOS">
-			</div>
+				<div>
+					<b id="TOSbox">I agree to the <a href="" id="TOSa">Terms of Service</a>:</b>
+					<input type="checkbox" id="TOS" name="TOS">
+				</div>
 
-			<p class="wrongred" id="wrong"></p>
-			<div id="h-captcha">
+				<p class="wrongred" id="wrong"></p>
+				<div id="h-captcha">
 
-			</div>
-			<button type="submit" class="dontgrow">Create account</button>
-		</form>
-		<a href="/login.html" id="switch">Already have an account?</a>
-	</div>
-	<datalist id="instances"></datalist>
-	<script src="/register.js" type="module"></script>
-</body>
+				</div>
+				<button type="submit" class="dontgrow">Create account</button>
+			</form>
+			<a href="/login.html" id="switch">Already have an account?</a>
+		</div>
+		<datalist id="instances"></datalist>
+		<script src="/register.js" type="module"></script>
+	</body>
+</html>

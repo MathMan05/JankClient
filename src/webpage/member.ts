@@ -49,6 +49,32 @@ class Member extends SnowFlake{
 			return this.guild.roles.indexOf(a) - this.guild.roles.indexOf(b);
 		});
 	}
+	update(memberjson: memberjson){
+		this.roles=[];
+		for(const key of Object.keys(memberjson)){
+			if(key === "guild" || key === "owner" || key === "user"){
+				continue;
+			}
+
+			if(key === "roles"){
+				for(const strrole of memberjson.roles){
+					const role = this.guild.roleids.get(strrole);
+					if(!role)continue;
+					this.roles.push(role);
+				}
+				continue;
+			}
+			if(key === "presence"){
+				this.getPresence(memberjson.presence);
+				continue;
+			}
+			(this as any)[key] = (memberjson as any)[key];
+		}
+
+		this.roles.sort((a, b)=>{
+			return this.guild.roles.indexOf(a) - this.guild.roles.indexOf(b);
+		});
+	}
 	get guild(){
 		return this.owner;
 	}
@@ -240,6 +266,24 @@ class Member extends SnowFlake{
 			],
 		]);
 		menu.show();
+	}
+	addRole(role:Role){
+		const roles=this.roles.map(_=>_.id)
+		roles.push(role.id);
+		fetch(this.info.api+"/guilds/"+this.guild.id+"/members/"+this.id,{
+			method:"PATCH",
+			headers:this.guild.headers,
+			body:JSON.stringify({roles})
+		})
+	}
+	removeRole(role:Role){
+		let roles=this.roles.map(_=>_.id)
+		roles=roles.filter(_=>_!==role.id);
+		fetch(this.info.api+"/guilds/"+this.guild.id+"/members/"+this.id,{
+			method:"PATCH",
+			headers:this.guild.headers,
+			body:JSON.stringify({roles})
+		})
 	}
 	banAPI(reason: string){
 		const headers = structuredClone(this.guild.headers);

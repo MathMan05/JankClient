@@ -5,6 +5,8 @@ import{ Localuser }from"./localuser.js";
 import{ Guild }from"./guild.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ presencejson, userjson }from"./jsontypes.js";
+import { Role } from "./role.js";
+import { Search } from "./search.js";
 
 class User extends SnowFlake{
 	owner: Localuser;
@@ -174,6 +176,58 @@ class User extends SnowFlake{
 				return us.hasPermission("BAN_MEMBERS") || false;
 			}
 		);
+		this.contextmenu.addbutton(
+			"Add roles",
+			async function(this: User, member: Member | undefined,e){
+				if(member){
+					e.stopPropagation();
+					const roles:[Role,string[]][]=[];
+					for(const role of member.guild.roles){
+						if(!role.canManage()||member.roles.indexOf(role)!==-1){
+							continue;
+						}
+						roles.push([role,[role.name]]);
+					}
+					const search=new Search(roles);
+					const result=await search.find(e.x,e.y);
+					if(!result) return;
+					member.addRole(result);
+				}
+			},
+			null,
+			member=>{
+				if(!member)return false;
+				const us = member.guild.member;
+				console.log(us.hasPermission("MANAGE_ROLES"))
+				return us.hasPermission("MANAGE_ROLES") || false;
+			}
+		);
+		this.contextmenu.addbutton(
+			"Remove roles",
+			async function(this: User, member: Member | undefined,e){
+				if(member){
+					e.stopPropagation();
+					const roles:[Role,string[]][]=[];
+					for(const role of member.roles){
+						if(!role.canManage()){
+							continue;
+						}
+						roles.push([role,[role.name]]);
+					}
+					const search=new Search(roles);
+					const result=await search.find(e.x,e.y);
+					if(!result) return;
+					member.removeRole(result);
+				}
+			},
+			null,
+			member=>{
+				if(!member)return false;
+				const us = member.guild.member;
+				console.log(us.hasPermission("MANAGE_ROLES"))
+				return us.hasPermission("MANAGE_ROLES") || false;
+			}
+		);
 	}
 
 	static checkuser(user: User | userjson, owner: Localuser): User{
@@ -245,7 +299,7 @@ class User extends SnowFlake{
 
 	async buildstatuspfp(): Promise<HTMLDivElement>{
 		const div = document.createElement("div");
-		div.style.position = "relative";
+		div.classList.add("pfpDiv")
 		const pfp = this.buildpfp();
 		div.append(pfp);
 		const status = document.createElement("div");
@@ -301,7 +355,7 @@ class User extends SnowFlake{
 			localuser.info.api.toString() + "/users/" + id + "/profile",
 			{ headers: localuser.headers }
 		).then(res=>res.json());
-		return new User(json, localuser);
+		return new User(json.user, localuser);
 	}
 
 	changepfp(update: string | null): void{
@@ -399,7 +453,7 @@ class User extends SnowFlake{
 			div.classList.add("profile", "flexttb");
 		}else{
 			this.setstatus("online");
-			div.classList.add("hypoprofile", "flexttb");
+			div.classList.add("hypoprofile", "profile", "flexttb");
 		}
 		const badgediv = document.createElement("div");
 		badgediv.classList.add("badges");
@@ -426,7 +480,7 @@ class User extends SnowFlake{
 		const pfp = await this.buildstatuspfp();
 		div.appendChild(pfp);
 		const userbody = document.createElement("div");
-		userbody.classList.add("infosection");
+		userbody.classList.add("flexttb","infosection");
 		div.appendChild(userbody);
 		const usernamehtml = document.createElement("h2");
 		usernamehtml.textContent = this.username;
@@ -449,8 +503,9 @@ class User extends SnowFlake{
 		if(guild){
 			Member.resolveMember(this, guild).then(member=>{
 				if(!member)return;
+				usernamehtml.textContent=member.name;
 				const roles = document.createElement("div");
-				roles.classList.add("rolesbox");
+				roles.classList.add("flexltr","rolesbox");
 				for(const role of member.roles){
 					const roleDiv = document.createElement("div");
 					roleDiv.classList.add("rolediv");
