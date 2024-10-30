@@ -208,8 +208,8 @@ class CheckboxInput implements OptionsElement<boolean>{
 		const input = this.input.deref();
 		if(input){
 			const value = input.checked as boolean;
-			this.onchange(value);
 			this.value = value;
+			this.onchange(value);
 		}
 	}
 	setState(state:boolean){
