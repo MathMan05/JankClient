@@ -1258,7 +1258,7 @@ class Localuser{
 				const box=tas.addCheckboxInput("Enable experimental Voice support",()=>{},{initState:Boolean(localStorage.getItem("Voice enabled"))});
 				box.onchange=(e)=>{
 					if(e){
-						if(confirm("Are you sure you want to enable this, this is very experimental and is likely to cause issues")){
+						if(confirm("Are you sure you want to enable this, this is very experimental and is likely to cause issues. (this feature is for devs, please don't enable if you don't know what you're doing)")){
 							localStorage.setItem("Voice enabled","true")
 
 						}else{
