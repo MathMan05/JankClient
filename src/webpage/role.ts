@@ -314,7 +314,7 @@ class RoleList extends Buttons{
 		buttonTable.classList.add("flexttb");
 
 		const roleRow=document.createElement("div");
-		roleRow.classList.add("flexltr");
+		roleRow.classList.add("flexltr","rolesheader");
 		roleRow.append("Roles");
 		const add=document.createElement("span");
 		add.classList.add("svg-plus","svgicon","addrole");

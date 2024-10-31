@@ -1952,7 +1952,7 @@ fieldset input[type="radio"] {
 		transform: translate(-50%, -50%);
 		min-width: 80svw;
 	}
-	.flexltr:has(>.addrole) {
+	.rolesheader {
 		margin: 6px 12px;
 	}
 }
