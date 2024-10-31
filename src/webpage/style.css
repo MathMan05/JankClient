@@ -581,19 +581,18 @@ span.instanceStatus {
 .channels {
 	overflow-y: hidden;
 	transition: height .2s ease-in-out;
-	padding-left: 6px;
 }
 #channels > div > div:first-child {
-	margin-top: 8px;
+	margin-top: 6px;
 }
 .channel {
-	margin: 0 8px;
+	margin: 0 6px;
 	display: flex;
 	flex-direction: column;
 }
 .channelbutton {
 	height: 2em;
-	padding: 0 5px;
+	padding: 0 8px;
 	background: transparent;
 	color: var(--primary-text-soft);
 	display: flex;
@@ -603,6 +602,9 @@ span.instanceStatus {
 .channelbutton:hover {
 	background: var(--channel-hover);
 	color: var(--primary-text-prominent);
+}
+.channels .channelbutton {
+	margin-left: 8px;
 }
 .viewChannel .channelbutton, .viewChannel .channelbutton:hover {
 	background: var(--channel-selected);
@@ -617,7 +619,7 @@ span.instanceStatus {
 	content: '';
 	position: absolute;
 	top: calc(50% - 4px);
-	left: -12px;
+	left: -10px;
 	height: 8px;
 	width: 8px;
 	background: var(--primary-text);
