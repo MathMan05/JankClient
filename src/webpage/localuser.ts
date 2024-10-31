@@ -602,13 +602,14 @@ class Localuser{
 			}
 		}
 
-		const elms:Map<Role|"offline"|"online",Member[]>=new Map([["offline",[]],["online",[]]]);
+		const elms:Map<Role|"offline"|"online",Member[]>=new Map([]);
 		for(const role of guild.roles){
-			console.log(guild.roles);
 			if(role.hoist){
 				elms.set(role,[]);
 			}
 		}
+		elms.set("online",[]);
+		elms.set("offline",[])
 		const members=new Set(guild.members);
 		members.forEach((member)=>{
 			if(!channel.hasPermission("VIEW_CHANNEL",member)){
@@ -624,6 +625,9 @@ class Localuser{
 						list.push(member);
 						members.delete(member);
 					}
+					return;
+				}
+				if(member.user.status === "offline"){
 					return;
 				}
 				if(role !== "online"&&member.hasRole(role.id)){
@@ -671,7 +675,7 @@ class Localuser{
 				membershtml.append(memberdiv);
 			}
 			category.append(membershtml);
-			div.prepend(category);
+			div.append(category);
 		}
 
 		console.log(elms);

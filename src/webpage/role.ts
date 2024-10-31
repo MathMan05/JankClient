@@ -338,18 +338,21 @@ class RoleList extends Buttons{
 				console.log(found);
 				this.onchange(found.id,new Permissions("0","0"));
 			}else{
+				const div=document.createElement("div");
 				const bar=document.createElement("input");
-				bar.classList.add("fixedsearch");
-				bar.style.left=(box.left^0)+"px";
-				bar.style.top=(box.top^0)+"px";
-				document.body.append(bar);
+				div.classList.add("fixedsearch","OptionList");
+				bar.type="text";
+				div.style.left=(box.left^0)+"px";
+				div.style.top=(box.top^0)+"px";
+				div.append(bar)
+				document.body.append(div);
 				if(Contextmenu.currentmenu != ""){
 					Contextmenu.currentmenu.remove();
 				}
-				Contextmenu.currentmenu=bar;
-				Contextmenu.keepOnScreen(bar);
+				Contextmenu.currentmenu=div;
+				Contextmenu.keepOnScreen(div);
 				bar.onchange=()=>{
-					bar.remove();
+					div.remove();
 					console.log(bar.value)
 					if(bar.value==="") return;
 					fetch(this.info.api+`/guilds/${this.guild.id}/roles`,{
