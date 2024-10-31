@@ -7,22 +7,22 @@ fetch("/instances.json")
 	.then(
 		(
 			json: {
-name: string;
-description?: string;
-descriptionLong?: string;
-image?: string;
-url?: string;
-display?: boolean;
-online?: boolean;
-uptime: { alltime: number; daytime: number; weektime: number };
-urls: {
-wellknown: string;
-api: string;
-cdn: string;
-gateway: string;
-login?: string;
-};
-}[]
+				name: string;
+				description?: string;
+				descriptionLong?: string;
+				image?: string;
+				url?: string;
+				display?: boolean;
+				online?: boolean;
+				uptime: { alltime: number; daytime: number; weektime: number };
+				urls: {
+				wellknown: string;
+				api: string;
+				cdn: string;
+				gateway: string;
+				login?: string;
+				};
+			}[]
 		)=>{
 			console.warn(json);
 			for(const instance of json){
@@ -77,8 +77,7 @@ login?: string;
 				div.append(statbox);
 				div.onclick = _=>{
 					if(instance.online){
-						window.location.href =
-"/register.html?instance=" + encodeURI(instance.name);
+						window.location.href = "/register.html?instance=" + encodeURI(instance.name);
 					}else{
 						alert("Instance is offline, can't connect");
 					}

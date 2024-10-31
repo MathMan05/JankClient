@@ -61,7 +61,7 @@ class Channel extends SnowFlake{
 			this.readbottom();
 		});
 
-		this.contextmenu.addbutton("Settings[temp]", function(this: Channel){
+		this.contextmenu.addbutton("Settings", function(this: Channel){
 			this.generateSettings();
 		});
 
@@ -69,17 +69,6 @@ class Channel extends SnowFlake{
 			"Delete channel",
 			function(this: Channel){
 				this.deleteChannel();
-			},
-			null,
-			function(){
-				return this.isAdmin();
-			}
-		);
-
-		this.contextmenu.addbutton(
-			"Edit channel",
-			function(this: Channel){
-				this.editChannel();
 			},
 			null,
 			function(){
@@ -205,15 +194,33 @@ class Channel extends SnowFlake{
 	generateSettings(){
 		this.sortPerms();
 		const settings = new Settings("Settings for " + this.name);
-
-		const s1 = settings.addButton("roles");
-
+		{
+			const gensettings=settings.addButton("Settings");
+			const form=gensettings.addForm("",()=>{},{
+				fetchURL:this.info.api + "/channels/" + this.id,
+				method: "PATCH",
+				headers: this.headers,
+			});
+			form.addTextInput("Name:","name",{initText:this.name});
+			form.addMDInput("Topic:","topic",{initText:this.topic});
+			form.addCheckboxInput("NSFW:","nsfw",{initState:this.nsfw});
+			if(this.type!==4){
+				const options=["voice", "text", "announcement"];
+				form.addSelect("Type:","type",options,{
+					defaultIndex:options.indexOf({0:"text", 2:"voice", 5:"announcement", 4:"category" }[this.type] as string)
+				})
+			}
+			form.addPreprocessor((obj:any)=>{
+				obj.type={text: 0, voice: 2, announcement: 5, category: 4 }[obj.type as string]
+			})
+		}
+		const s1 = settings.addButton("Permisions");
 		s1.options.push(
 			new RoleList(
 				this.permission_overwritesar,
 				this.guild,
 				this.updateRolePermissions.bind(this),
-				true
+				this
 			)
 		);
 		settings.show();
@@ -739,68 +746,6 @@ class Channel extends SnowFlake{
 			}),
 		});
 	}
-	editChannel(){
-		let name = this.name;
-		let topic = this.topic;
-		let nsfw = this.nsfw;
-		const thisid = this.id;
-		const thistype = this.type;
-		const full = new Dialog([
-			"hdiv",
-			[
-				"vdiv",
-				[
-					"textbox",
-					"Channel name:",
-					this.name,
-					function(this: HTMLInputElement){
-						name = this.value;
-					},
-				],
-				[
-					"mdbox",
-					"Channel topic:",
-					this.topic,
-					function(this: HTMLTextAreaElement){
-						topic = this.value;
-					},
-				],
-				[
-					"checkbox",
-					"NSFW Channel",
-					this.nsfw,
-					function(this: HTMLInputElement){
-						nsfw = this.checked;
-					},
-				],
-				[
-					"button",
-					"",
-					"submit",
-					()=>{
-						fetch(this.info.api + "/channels/" + thisid, {
-							method: "PATCH",
-							headers: this.headers,
-							body: JSON.stringify({
-								name,
-								type: thistype,
-								topic,
-								bitrate: 64000,
-								user_limit: 0,
-								nsfw,
-								flags: 0,
-								rate_limit_per_user: 0,
-							}),
-						});
-						console.log(full);
-						full.hide();
-					},
-				],
-			],
-		]);
-		full.show();
-		console.log(full);
-	}
 	deleteChannel(){
 		fetch(this.info.api + "/channels/" + this.id, {
 			method: "DELETE",
@@ -898,7 +843,7 @@ class Channel extends SnowFlake{
 		loading.classList.add("loading");
 		this.rendertyping();
 		this.localuser.getSidePannel();
-		if(this.voice){
+		if(this.voice&&localStorage.getItem("Voice enabled")){
 			this.localuser.joinVoice(this);
 		}
 		await this.putmessages();
@@ -1231,12 +1176,11 @@ class Channel extends SnowFlake{
 
 		this.children = [];
 		this.guild_id = json.guild_id;
+		const oldover=this.permission_overwrites;
 		this.permission_overwrites = new Map();
+		this.permission_overwritesar=[];
 		for(const thing of json.permission_overwrites){
-			if(
-				thing.id === "1182819038095799904" ||
-											thing.id === "1182820803700625444"
-			){
+			if(thing.id === "1182819038095799904" || thing.id === "1182820803700625444"){
 				continue;
 			}
 			this.permission_overwrites.set(
@@ -1251,9 +1195,26 @@ class Channel extends SnowFlake{
 				}
 			}
 		}
+		const nchange=[...new Set<string>().union(oldover).difference(this.permission_overwrites)];
+		const pchange=[...new Set<string>().union(this.permission_overwrites).difference(oldover)];
+		for(const thing of nchange){
+			const role=this.guild.roleids.get(thing);
+			if(role){
+				this.croleUpdate(role,new Permissions("0"),false)
+			}
+		}
+		for(const thing of pchange){
+			const role=this.guild.roleids.get(thing);
+			const perms=this.permission_overwrites.get(thing);
+			if(role&&perms){
+				this.croleUpdate(role,perms,true);
+			}
+		}
+		console.log(pchange,nchange);
 		this.topic = json.topic;
 		this.nsfw = json.nsfw;
 	}
+	croleUpdate:(role:Role,perm:Permissions,added:boolean)=>unknown=()=>{};
 	typingstart(){
 		if(this.typing > Date.now()){
 			return;
@@ -1366,16 +1327,14 @@ class Channel extends SnowFlake{
 			return;
 		}
 		if(
-			this.localuser.lookingguild?.prevchannel === this &&
-											document.hasFocus()
+			this.localuser.lookingguild?.prevchannel === this && document.hasFocus()
 		){
 			return;
 		}
 		if(this.notification === "all"){
 			this.notify(messagez);
 		}else if(
-			this.notification === "mentions" &&
-											messagez.mentionsuser(this.localuser.user)
+			this.notification === "mentions" && messagez.mentionsuser(this.localuser.user)
 		){
 			this.notify(messagez);
 		}
@@ -1445,20 +1404,22 @@ class Channel extends SnowFlake{
 		if(permission){
 			permission.allow = perms.allow;
 			permission.deny = perms.deny;
-			await fetch(
-				this.info.api + "/channels/" + this.id + "/permissions/" + id,
-				{
-					method: "PUT",
-					headers: this.headers,
-					body: JSON.stringify({
-						allow: permission.allow.toString(),
-						deny: permission.deny.toString(),
-						id,
-						type: 0,
-					}),
-				}
-			);
+		}else{
+			//this.permission_overwrites.set(id,perms);
 		}
+		await fetch(
+			this.info.api + "/channels/" + this.id + "/permissions/" + id,
+			{
+				method: "PUT",
+				headers: this.headers,
+				body: JSON.stringify({
+					allow: perms.allow.toString(),
+					deny: perms.deny.toString(),
+					id,
+					type: 0,
+				}),
+			}
+		);
 	}
 }
 Channel.setupcontextmenu();

@@ -47,7 +47,7 @@ function trimswitcher(){
 		if(wellknown.at(-1) !== "/"){
 			wellknown += "/";
 		}
-		wellknown += user.username;
+		wellknown =(user.id||user.email)+"@"+wellknown;
 		if(map.has(wellknown)){
 			const otheruser = map.get(wellknown);
 			if(otheruser[1].serverurls.wellknown.at(-1) === "/"){
@@ -177,6 +177,13 @@ class Specialuser{
 	}
 	get localuserStore(){
 		return this.json.localuserStore;
+	}
+	set id(e){
+		this.json.id = e;
+		this.updateLocal();
+	}
+	get id(){
+		return this.json.id;
 	}
 	get uid(){
 		return this.email + this.serverurls.wellknown;
@@ -532,31 +539,55 @@ if(document.getElementById("form")){
 	}
 }
 //this currently does not work, and need to be implemented better at some time.
-/*
-	if ("serviceWorker" in navigator){
+if(!localStorage.getItem("SWMode")){
+	localStorage.setItem("SWMode","true");
+}
+class SW{
+	static worker:undefined|ServiceWorker;
+	static setMode(mode:"false"|"offlineOnly"|"true"){
+		localStorage.setItem("SWMode",mode);
+		if(this.worker){
+			this.worker.postMessage({data:mode,code:"setMode"});
+		}
+	}
+	static checkUpdate(){
+		if(this.worker){
+			this.worker.postMessage({code:"CheckUpdate"});
+		}
+	}
+	static forceClear(){
+		if(this.worker){
+			this.worker.postMessage({code:"ForceClear"});
+		}
+	}
+}
+export {SW};
+if ("serviceWorker" in navigator){
 	navigator.serviceWorker.register("/service.js", {
 	scope: "/",
 	}).then((registration) => {
-	let serviceWorker:ServiceWorker;
-	if (registration.installing) {
-	serviceWorker = registration.installing;
-	console.log("installing");
-	} else if (registration.waiting) {
-	serviceWorker = registration.waiting;
-	console.log("waiting");
-	} else if (registration.active) {
-	serviceWorker = registration.active;
-	console.log("active");
-	}
-	if (serviceWorker) {
-	console.log(serviceWorker.state);
-	serviceWorker.addEventListener("statechange", (e) => {
-	console.log(serviceWorker.state);
-	});
-	}
+		let serviceWorker:ServiceWorker|undefined;
+		if (registration.installing) {
+			serviceWorker = registration.installing;
+			console.log("installing");
+		} else if (registration.waiting) {
+			serviceWorker = registration.waiting;
+			console.log("waiting");
+		} else if (registration.active) {
+			serviceWorker = registration.active;
+			console.log("active");
+		}
+		SW.worker=serviceWorker;
+		SW.setMode(localStorage.getItem("SWMode") as "false"|"offlineOnly"|"true");
+		if (serviceWorker) {
+			console.log(serviceWorker.state);
+			serviceWorker.addEventListener("statechange", (_) => {
+				console.log(serviceWorker.state);
+			});
+		}
 	})
-	}
-	*/
+}
+
 const switchurl = document.getElementById("switch") as HTMLAreaElement;
 if(switchurl){
 	switchurl.href += window.location.search;

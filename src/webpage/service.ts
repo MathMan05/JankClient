@@ -13,13 +13,13 @@ async function putInCache(request: URL | RequestInfo, response: Response){
 		console.error(error);
 	}
 }
-console.log("test");
 
 let lastcache: string;
 self.addEventListener("activate", async ()=>{
-	console.log("test2");
+	console.log("Service Worker activated");
 	checkCache();
 });
+
 async function checkCache(){
 	if(checkedrecently){
 		return;
@@ -34,7 +34,7 @@ async function checkCache(){
 		console.log(text, lastcache);
 		if(lastcache !== text){
 			deleteoldcache();
-			putInCache("/getupdates", data.clone());
+			putInCache("/getupdates", data);
 		}
 		checkedrecently = true;
 		setTimeout((_: any)=>{
@@ -43,54 +43,99 @@ async function checkCache(){
 	});
 }
 var checkedrecently = false;
+
 function samedomain(url: string | URL){
 	return new URL(url).origin === self.origin;
 }
-function isindexhtml(url: string | URL){
-	console.log(url);
-	if(new URL(url).pathname.startsWith("/channels")){
-		return true;
+
+const htmlFiles=new Set(["/index","/login","/home","/register","/oauth2/auth"]);
+
+
+function isHtml(url:string):string|void{
+	const path=new URL(url).pathname;
+	if(htmlFiles.has(path)||htmlFiles.has(path+".html")){
+		return path+path.endsWith(".html")?"":".html";
 	}
-	return false;
 }
-async function getfile(event: {
-request: { url: URL | RequestInfo; clone: () => string | URL | Request };
-}){
-	checkCache();
-	if(!samedomain(event.request.url.toString())){
-		return await fetch(event.request.clone());
+let enabled="false";
+let offline=false;
+
+function toPath(url:string):string{
+	const Url= new URL(url);
+	let html=isHtml(url);
+	if(!html){
+		const path=Url.pathname;
+		if(path.startsWith("/channels")){
+			html="./index.html"
+		}else if(path.startsWith("/invite")){
+			html="./invite.html"
+		}
 	}
-	const responseFromCache = await caches.match(event.request.url);
-	console.log(responseFromCache, caches);
+	return html||Url.pathname;
+}
+let fails=0;
+async function getfile(event: FetchEvent):Promise<Response>{
+	checkCache();
+	if(!samedomain(event.request.url)||enabled==="false"||(enabled==="offlineOnly"&&!offline)){
+		const responce=await fetch(event.request.clone());
+		if(samedomain(event.request.url)){
+			if(enabled==="offlineOnly"&&responce.ok){
+				putInCache(toPath(event.request.url),responce.clone());
+			}
+			if(!responce.ok){
+				fails++;
+				if(fails>5){
+					offline=true;
+				}
+			}
+		}
+		return responce;
+	}
+
+	let path=toPath(event.request.url);
+	if(path === "/instances.json"){
+		return await fetch(path);
+	}
+	console.log("Getting path: "+path);
+	const responseFromCache = await caches.match(path);
 	if(responseFromCache){
 		console.log("cache hit");
 		return responseFromCache;
 	}
-	if(isindexhtml(event.request.url.toString())){
-		console.log("is index.html");
-		const responseFromCache = await caches.match("/index.html");
-		if(responseFromCache){
-			console.log("cache hit");
-			return responseFromCache;
-		}
-		const responseFromNetwork = await fetch("/index.html");
-		await putInCache("/index.html", responseFromNetwork.clone());
-		return responseFromNetwork;
-	}
-	const responseFromNetwork = await fetch(event.request.clone());
-	console.log(event.request.clone());
-	await putInCache(event.request.clone(), responseFromNetwork.clone());
 	try{
+		const responseFromNetwork = await fetch(path);
+		if(responseFromNetwork.ok){
+			await putInCache(path, responseFromNetwork.clone());
+		}
 		return responseFromNetwork;
 	}catch(e){
 		console.error(e);
-		return e;
+		return new Response(null);
 	}
 }
-self.addEventListener("fetch", (event: any)=>{
+
+
+self.addEventListener("fetch", (e)=>{
+	const event=e as FetchEvent;
 	try{
 		event.respondWith(getfile(event));
 	}catch(e){
 		console.error(e);
 	}
 });
+
+self.addEventListener("message", (message)=>{
+	const data=message.data;
+	switch(data.code){
+		case "setMode":
+			enabled=data.data;
+			break;
+		case "CheckUpdate":
+			checkedrecently=false;
+			checkCache();
+			break;
+		case "ForceClear":
+			deleteoldcache();
+			break;
+	}
+})
