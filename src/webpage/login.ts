@@ -474,9 +474,7 @@ async function login(username: string, password: string, captcha: string){
 												console.warn(res);
 												if(!res.token)return;
 												adduser({
-													serverurls: JSON.parse(
-	localStorage.getItem("instanceinfo")!
-													),
+													serverurls: JSON.parse(localStorage.getItem("instanceinfo") as string),
 													email: username,
 													token: res.token,
 												}).username = username;
