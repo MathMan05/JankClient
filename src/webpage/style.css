@@ -1919,7 +1919,7 @@ fieldset input[type="radio"] {
 		width: 100%;
 		box-sizing: border-box;
 		border-radius: 16px 16px 0 0;
-		box-shadow: 0 0 14px var(--shadow), 0 0 28px var(--shadow)
+		box-shadow: 0 0 14px var(--shadow), 0 0 28px var(--shadow);
 	}
 	.contextbutton {
 		width: 100%;
@@ -1945,6 +1945,12 @@ fieldset input[type="radio"] {
 	.settingbuttons {
 		height: 100px;
 		width: 100%;
+	}
+	.fixedsearch {
+		top: 50% !important;
+		left: 50% !important;
+		transform: translate(-50%, -50%);
+		min-width: 80svw;
 	}
 }
 
