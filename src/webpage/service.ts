@@ -30,6 +30,7 @@ async function checkCache(){
 	}
 	console.log(lastcache);
 	fetch("/getupdates").then(async data=>{
+		if(!data.ok) return;
 		const text = await data.clone().text();
 		console.log(text, lastcache);
 		if(lastcache !== text){
