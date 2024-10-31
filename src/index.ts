@@ -140,6 +140,8 @@ app.use("/", async (req: Request, res: Response)=>{
 	}
 });
 
+app.set('trust proxy', (ip:string) => ip.startsWith("127."));
+
 const PORT = process.env.PORT || Number(process.argv[2]) || 8080;
 app.listen(PORT, ()=>{
 	console.log(`Server running on port ${PORT}`);
