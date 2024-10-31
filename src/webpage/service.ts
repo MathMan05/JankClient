@@ -30,6 +30,9 @@ async function checkCache(){
 	}
 	console.log(lastcache);
 	fetch("/getupdates").then(async data=>{
+		setTimeout((_: any)=>{
+			checkedrecently = false;
+		}, 1000 * 60 * 30);
 		if(!data.ok) return;
 		const text = await data.clone().text();
 		console.log(text, lastcache);
@@ -38,9 +41,6 @@ async function checkCache(){
 			putInCache("/getupdates", data);
 		}
 		checkedrecently = true;
-		setTimeout((_: any)=>{
-			checkedrecently = false;
-		}, 1000 * 60 * 30);
 	});
 }
 var checkedrecently = false;
