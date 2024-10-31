@@ -581,6 +581,7 @@ span.instanceStatus {
 .channels {
 	overflow-y: hidden;
 	transition: height .2s ease-in-out;
+	padding-left: 6px;
 }
 #channels > div > div:first-child {
 	margin-top: 8px;
@@ -592,7 +593,7 @@ span.instanceStatus {
 }
 .channelbutton {
 	height: 2em;
-	padding: 0 8px;
+	padding: 0 5px;
 	background: transparent;
 	color: var(--primary-text-soft);
 	display: flex;
@@ -1933,4 +1934,29 @@ fieldset input[type="radio"] {
 		height: 100px;
 		width: 100%;
 	}
+}
+.addrole{
+	width:.1in;
+	height: .1in;
+	margin-left: .1in;
+	margin-top: .04in;
+	cursor: pointer;
+}
+.fixedsearch{
+	position: absolute;
+	background: var(--primary-bg);
+	min-height: .2in;
+	padding:.05in;
+	border:solid .03in var(--black);
+	border-radius:.05in;
+	span{
+		margin-top:.1in;
+		width:100%;
+		padding:.03in;
+		border:solid .03in var(--black);
+		box-sizing:border-box;
+		border-radius:.05in;
+		cursor:pointer;
+	}
+
 }
