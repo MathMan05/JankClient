@@ -1,3 +1,4 @@
+import{ iOS }from"./login.js";
 class Contextmenu<x, y>{
 	static currentmenu: HTMLElement | "";
 	name: string;
@@ -90,13 +91,15 @@ class Contextmenu<x, y>{
 			this.makemenu(event.clientX, event.clientY, addinfo, other);
 		};
 		obj.addEventListener("contextmenu", func);
-		obj.addEventListener("touchstart",(event: TouchEvent)=>{
-			if(event.touches.length > 1){
-				event.preventDefault();
-				event.stopImmediatePropagation();
-				this.makemenu(event.touches[0].clientX, event.touches[0].clientY, addinfo, other);
-			}
-		},{passive:true});
+		if(iOS){
+			obj.addEventListener("touchstart",(event: TouchEvent)=>{
+				if(event.touches.length > 1){
+					event.preventDefault();
+					event.stopImmediatePropagation();
+					this.makemenu(event.touches[0].clientX, event.touches[0].clientY, addinfo, other);
+				}
+			},{passive: false});
+		}
 		return func;
 	}
 	static keepOnScreen(obj: HTMLElement){
