@@ -1082,6 +1082,9 @@ span .quote:last-of-type .quoteline {
 .replytext a {
 	pointer-events: none;
 }
+.replytext pre {
+	display: inline;
+}
 .reply {
 	flex: 1;
 	background: var(--reply-line);
