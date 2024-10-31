@@ -214,7 +214,7 @@ class Channel extends SnowFlake{
 				obj.type={text: 0, voice: 2, announcement: 5, category: 4 }[obj.type as string]
 			})
 		}
-		const s1 = settings.addButton("Permisions");
+		const s1 = settings.addButton("Permissions");
 		s1.options.push(
 			new RoleList(
 				this.permission_overwritesar,
