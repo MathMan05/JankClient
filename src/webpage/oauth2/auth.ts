@@ -1,3 +1,4 @@
+import { I18n } from "../i18n.js";
 import{ getBulkUsers, Specialuser, getapiurls }from"../login.js";
 import { Permissions } from "../permissions.js";
 type botjsonfetch={
@@ -86,7 +87,7 @@ type botjsonfetch={
 	if(!joinable.length){
         document.getElementById("AcceptInvite")!.textContent = "Create an account to invite the bot";
 	}
-
+	await I18n.done;
 	function showGuilds(user:Specialuser){
 		if(!urls) return;
 		fetch(urls.api+"/oauth2/authorize/"+window.location.search,{
@@ -230,6 +231,7 @@ type botjsonfetch={
 		const perms=document.getElementById("permissions") as HTMLDivElement;
 
 		if(perms&&permstr){
+			perms.children[0].textContent=I18n.getTranslation("htmlPages.idpermissions")
 			const permisions=new Permissions(permstr)
 			for(const perm of Permissions.info()){
 				if(permisions.hasPermission(perm.name,false)){
@@ -243,7 +245,9 @@ type botjsonfetch={
 			}
 		}
 	})
-    document
-	.getElementById("AcceptInvite")!
-	.addEventListener("click", showAccounts);
+    const AcceptInvite=document.getElementById("AcceptInvite");
+	if(AcceptInvite){
+		AcceptInvite.addEventListener("click", showAccounts);
+		AcceptInvite.textContent=I18n.getTranslation("htmlPages.addBot")
+	}
 })();

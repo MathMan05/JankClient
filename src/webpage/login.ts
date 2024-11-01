@@ -32,6 +32,21 @@ login?: string;
 }[]
 | null;
 
+(async ()=>{
+	await I18n.done
+	const instanceField=document.getElementById("instanceField");
+	const emailField= document.getElementById("emailField");
+	const pwField= document.getElementById("pwField");
+	const loginButton=document.getElementById("loginButton");
+	const noAccount=document.getElementById("switch")
+	if(instanceField&&emailField&&pwField&&loginButton&&noAccount){
+		instanceField.textContent=I18n.getTranslation("htmlPages.instanceField");
+		emailField.textContent=I18n.getTranslation("htmlPages.emailField");
+		pwField.textContent=I18n.getTranslation("htmlPages.pwField");
+		loginButton.textContent=I18n.getTranslation("htmlPages.loginButton");
+		noAccount.textContent=I18n.getTranslation("htmlPages.noAccount");
+	}
+})()
 setTheme();
 function getBulkUsers(){
 	const json = getBulkInfo();

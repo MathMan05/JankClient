@@ -20,7 +20,17 @@ import { I18n } from "./i18n.js";
 		window.location.href = "/login.html";
 		return;
 	}
-
+	{
+		const loadingText=document.getElementById("loadingText");
+		const loaddesc=document.getElementById("load-desc");
+		const switchaccounts=document.getElementById("switchaccounts");
+		if(loadingText&&loaddesc&&switchaccounts){
+			loadingText.textContent=I18n.getTranslation("htmlPages.loadingText");
+			loaddesc.textContent=I18n.getTranslation("htmlPages.loaddesc");
+			switchaccounts.textContent=I18n.getTranslation("htmlPages.switchaccounts");
+		}
+	}
+	I18n
 	function showAccountSwitcher(): void{
 		const table = document.createElement("div");
 		table.classList.add("flexttb","accountSwitcher");
