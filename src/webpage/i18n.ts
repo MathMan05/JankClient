@@ -105,6 +105,27 @@ class I18n{
             return trans;
         }
     }
+    static options(){
+        return ["en","ru"]
+    }
+    static setLanguage(lang:string){
+        if(this.options().indexOf(userLocale)!==-1){
+            localStorage.setItem("lang",lang);
+            I18n.create("/translations/en.json",lang);
+        }
+    }
 }
-I18n.create("/translations/en.json","en")
+
+let userLocale = navigator.language.slice(0,2) || "en";
+if(I18n.options().indexOf(userLocale)===-1){
+    userLocale="en";
+}
+const storage=localStorage.getItem("lang");
+if(storage){
+    userLocale=storage;
+}else{
+    localStorage.setItem("lang",userLocale)
+}
+I18n.create("/translations/en.json",userLocale);
+
 export{I18n};

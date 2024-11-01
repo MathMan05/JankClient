@@ -303,7 +303,8 @@
 			"saveToken":"Save token to localStorage",
 			"noToken":"Don't know token so can't save it to localStorage, sorry",
 			"advancedBot":"Advanced Bot Settings",
-			"botInviteCreate":"Bot Invite Creator"
+			"botInviteCreate":"Bot Invite Creator",
+			"language":"Language:"
 		},
 		"instanceStats":{
 			"name":"Instance stats: $1",
@@ -370,5 +371,5 @@
 		"retrying":"Retrying...",
 		"unableToConnect":"Unable to connect to the Spacebar server. Please try logging out and back in."
     },
-	"ru": "./ru.json"
+	"ru": "/translations/ru.json"
 }
