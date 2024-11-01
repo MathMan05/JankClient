@@ -65,7 +65,6 @@ class Localuser{
 			"Content-type": "application/json; charset=UTF-8",
 			Authorization: this.userinfo.token,
 		};
-		I18n.create("/translations/en.json","en")
 	}
 	async gottenReady(ready: readyjson): Promise<void>{
 		await I18n.done;

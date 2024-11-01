@@ -2,6 +2,7 @@ import{ Contextmenu }from"./contextmenu.js";
 import{ Guild }from"./guild.js";
 import{ Localuser }from"./localuser.js";
 
+//I need to recompile the emoji format for translation
 class Emoji{
 	static emojis: {
     name: string;
@@ -158,13 +159,7 @@ class Emoji{
 					const img = document.createElement("img");
 					img.classList.add("pfp", "servericon", "emoji-server");
 					img.crossOrigin = "anonymous";
-					img.src =
-            localuser.info.cdn +
-            "/icons/" +
-            guild.properties.id +
-            "/" +
-            guild.properties.icon +
-            ".png?size=48";
+					img.src = localuser.info.cdn+"/icons/"+guild.properties.id+"/"+guild.properties.icon+".png?size=48";
 					img.alt = "Server: " + guild.properties.name;
 					select.appendChild(img);
 				}else{

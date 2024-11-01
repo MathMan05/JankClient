@@ -938,15 +938,18 @@ class Form implements OptionsElement<object>{
 			(this.button.deref() as HTMLElement).hidden=false;
 		}
 	}
+	selectMap=new WeakMap<SelectInput,string[]>();
 	addSelect(
 		label: string,
 		formName: string,
 		selections: string[],
-		{ defaultIndex = 0, required = false } = {}
+		{ defaultIndex = 0, required = false}={},
+		correct:string[]=selections
 	){
 		const select = this.options.addSelect(label, _=>{}, selections, {
 			defaultIndex,
 		});
+		this.selectMap.set(select,correct);
 		this.names.set(formName, select);
 		if(required){
 			this.required.add(select);
@@ -1110,7 +1113,7 @@ class Form implements OptionsElement<object>{
 			if(thing === "")continue;
 			const input = this.names.get(thing) as OptionsElement<any>;
 			if(input instanceof SelectInput){
-				(build as any)[thing] = input.options[input.value];
+				(build as any)[thing] = (this.selectMap.get(input) as string[])[input.value];
 				continue;
 			}else if(input instanceof FileInput){
 				const options = this.fileOptions.get(input);

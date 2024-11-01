@@ -16,6 +16,7 @@ import{
     rolesjson,
 }from"./jsontypes.js";
 import{ User }from"./user.js";
+import { I18n } from "./i18n.js";
 
 class Guild extends SnowFlake{
 	owner!: Localuser;
@@ -38,20 +39,20 @@ class Guild extends SnowFlake{
 	members=new Set<Member>();
 	static contextmenu = new Contextmenu<Guild, undefined>("guild menu");
 	static setupcontextmenu(){
-		Guild.contextmenu.addbutton("Copy Guild id", function(this: Guild){
+		Guild.contextmenu.addbutton(()=>I18n.getTranslation("guild.copyId"), function(this: Guild){
 			navigator.clipboard.writeText(this.id);
 		});
 
-		Guild.contextmenu.addbutton("Mark as read", function(this: Guild){
+		Guild.contextmenu.addbutton(()=>I18n.getTranslation("guild.markRead"), function(this: Guild){
 			this.markAsRead();
 		});
 
-		Guild.contextmenu.addbutton("Notifications", function(this: Guild){
+		Guild.contextmenu.addbutton(()=>I18n.getTranslation("guild.notifications"), function(this: Guild){
 			this.setnotifcation();
 		});
 
 		Guild.contextmenu.addbutton(
-			"Leave guild",
+			()=>I18n.getTranslation("guild.leave"),
 			function(this: Guild){
 				this.confirmleave();
 			},
@@ -62,7 +63,7 @@ class Guild extends SnowFlake{
 		);
 
 		Guild.contextmenu.addbutton(
-			"Delete guild",
+			()=>I18n.getTranslation("guild.delete"),
 			function(this: Guild){
 				this.confirmDelete();
 			},
@@ -73,13 +74,13 @@ class Guild extends SnowFlake{
 		);
 
 		Guild.contextmenu.addbutton(
-			"Create invite",
+			()=>I18n.getTranslation("guild.makeInvite"),
 			function(this: Guild){},
 			null,
 			_=>true,
 			_=>false
 		);
-		Guild.contextmenu.addbutton("Settings", function(this: Guild){
+		Guild.contextmenu.addbutton(()=>I18n.getTranslation("guild.settings"), function(this: Guild){
 			this.generateSettings();
 		});
 		/* -----things left for later-----
@@ -94,28 +95,28 @@ class Guild extends SnowFlake{
 		*/
 	}
 	generateSettings(){
-		const settings = new Settings("Settings for " + this.properties.name);
+		const settings = new Settings(I18n.getTranslation("guild.settingsFor",this.properties.name));
 		{
-			const overview = settings.addButton("Overview");
+			const overview = settings.addButton(I18n.getTranslation("guild.overview"));
 			const form = overview.addForm("", _=>{}, {
 				headers: this.headers,
 				traditionalSubmit: true,
 				fetchURL: this.info.api + "/guilds/" + this.id,
 				method: "PATCH",
 			});
-			form.addTextInput("Name:", "name", { initText: this.properties.name });
+			form.addTextInput(I18n.getTranslation("guild.name:"), "name", { initText: this.properties.name });
 			form.addMDInput("Description:", "description", {
 				initText: this.properties.description,
 			});
-			form.addFileInput("Banner:", "banner", { clear: true });
-			form.addFileInput("Icon:", "icon", { clear: true });
+			form.addFileInput(I18n.getTranslation("guild.banner:"), "banner", { clear: true });
+			form.addFileInput(I18n.getTranslation("guild.icon:"), "icon", { clear: true });
 			let region = this.properties.region;
 			if(!region){
 				region = "";
 			}
-			form.addTextInput("Region:", "region", { initText: region });
+			form.addTextInput(I18n.getTranslation("guild.region:"), "region", { initText: region });
 		}
-		const s1 = settings.addButton("Roles");
+		const s1 = settings.addButton(I18n.getTranslation("guild.roles"));
 		const permlist: [Role, Permissions][] = [];
 		for(const thing of this.roles){
 			permlist.push([thing, thing.permissions]);
@@ -261,14 +262,15 @@ class Guild extends SnowFlake{
 	}
 	setnotifcation(){
 		let noti = this.message_notifications;
+		const options=["all", "onlyMentions", "none"].map(e=>I18n.getTranslation("guild."+e))
 		const notiselect = new Dialog([
 			"vdiv",
 			[
 				"radio",
-				"select notifications type",
-				["all", "only mentions", "none"],
-				function(e: string /* "all" | "only mentions" | "none" */){
-					noti = ["all", "only mentions", "none"].indexOf(e);
+				I18n.getTranslation("guild.selectnoti"),
+				options,
+				function(e: string){
+					noti = options.indexOf(e);
 				},
 				noti,
 			],
@@ -294,13 +296,13 @@ class Guild extends SnowFlake{
 	confirmleave(){
 		const full = new Dialog([
 			"vdiv",
-			["title", "Are you sure you want to leave?"],
+			["title", I18n.getTranslation("guild.confirmLeave")],
 			[
 				"hdiv",
 				[
 					"button",
 					"",
-					"Yes, I'm sure",
+					I18n.getTranslation("yesLeave"),
 					(_: any)=>{
 						this.leave().then(_=>{
 							full.hide();
@@ -310,7 +312,7 @@ class Guild extends SnowFlake{
 				[
 					"button",
 					"",
-					"Nevermind",
+					I18n.getTranslation("noLeave"),
 					(_: any)=>{
 						full.hide();
 					},
@@ -467,11 +469,11 @@ class Guild extends SnowFlake{
 			"vdiv",
 			[
 				"title",
-				"Are you sure you want to delete " + this.properties.name + "?",
+				I18n.getTranslation("guild.confirmDelete",this.properties.name)
 			],
 			[
 				"textbox",
-				"Name of server:",
+				I18n.getTranslation("serverName"),
 				"",
 				function(this: HTMLInputElement){
 					confirmname = this.value;
@@ -482,7 +484,7 @@ class Guild extends SnowFlake{
 				[
 					"button",
 					"",
-					"Yes, I'm sure",
+					I18n.getTranslation("yesDelete"),
 					(_: any)=>{
 						console.log(confirmname);
 						if(confirmname !== this.properties.name){
@@ -496,7 +498,7 @@ class Guild extends SnowFlake{
 				[
 					"button",
 					"",
-					"Nevermind",
+					I18n.getTranslation("noDelete"),
 					(_: any)=>{
 						full.hide();
 					},
@@ -638,22 +640,23 @@ class Guild extends SnowFlake{
 	createchannels(func = this.createChannel){
 		let name = "";
 		let category = 0;
+		const options=["voice", "text", "announcement"].map(e=>I18n.getTranslation("channel."+e));
+		const numbers=[2,0,5]
 		const channelselect = new Dialog([
 			"vdiv",
 			[
 				"radio",
-				"select channel type",
-				["voice", "text", "announcement"],
+				I18n.getTranslation("channel.selectType"),
+				options,
 				function(radio: string){
 					console.log(radio);
-					category =
-		{ text: 0, voice: 2, announcement: 5, category: 4 }[radio] || 0;
+					category = numbers[options.indexOf(radio)] || 0;
 				},
 				1,
 			],
 			[
 				"textbox",
-				"Name of channel",
+				I18n.getTranslation("channel.selectName"),
 				"",
 				function(this: HTMLInputElement){
 					name = this.value;
@@ -662,7 +665,7 @@ class Guild extends SnowFlake{
 			[
 				"button",
 				"",
-				"submit",
+				I18n.getTranslation("submit"),
 				()=>{
 					console.log(name, category);
 					func.bind(this)(name, category);
@@ -679,7 +682,7 @@ class Guild extends SnowFlake{
 			"vdiv",
 			[
 				"textbox",
-				"Name of category",
+				I18n.getTranslation("channel.selectCatName"),
 				"",
 				function(this: HTMLInputElement){
 					name = this.value;
@@ -688,7 +691,7 @@ class Guild extends SnowFlake{
 			[
 				"button",
 				"",
-				"submit",
+				I18n.getTranslation("submit"),
 				function(this:Guild){
 					console.log(name, category);
 					this.createChannel(name, category);
