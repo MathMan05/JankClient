@@ -259,7 +259,7 @@ class Bot{
 		params.set("scope", "bot");
 		const url=gen.addText("");
 		const perms=new Permissions("0");
-		for(const perm of Permissions.info){
+		for(const perm of Permissions.info()){
 			const permsisions=new PermissionToggle(perm,perms,gen);
 			gen.options.push(permsisions);
 			gen.generate(permsisions);

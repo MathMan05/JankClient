@@ -231,7 +231,7 @@ type botjsonfetch={
 
 		if(perms&&permstr){
 			const permisions=new Permissions(permstr)
-			for(const perm of Permissions.info){
+			for(const perm of Permissions.info()){
 				if(permisions.hasPermission(perm.name,false)){
 					const div=document.createElement("div");
 					const h2=document.createElement("h2");

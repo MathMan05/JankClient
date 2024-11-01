@@ -170,7 +170,7 @@ class RoleList extends Buttons{
 			this.permission = new Permissions("0");
 		}
 		this.makeguildmenus(options);
-		for(const thing of Permissions.info){
+		for(const thing of Permissions.info()){
 			options.options.push(
 				new PermissionToggle(thing, this.permission, options)
 			);
