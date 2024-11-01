@@ -341,8 +341,7 @@ class Message extends SnowFlake{
 			if(ignoredblock){
 				if(premessage?.author !== this.author){
 					const span = document.createElement("span");
-					span.textContent =
-				"You have this user blocked, click to hide these messages.";
+					span.textContent = I18n.getTranslation("hideBlockedMessages");
 					div.append(span);
 					span.classList.add("blocked");
 					span.onclick = _=>{
@@ -379,7 +378,7 @@ class Message extends SnowFlake{
 				this.channel.idToNext.get(next.id) as string
 						);
 					}
-					span.textContent = `You have this user blocked, click to see the ${count} blocked messages.`;
+					span.textContent = I18n.getTranslation("showBlockedMessages",count+"");
 					build.append(span);
 					span.onclick = _=>{
 						const scroll = this.channel.infinite.scrollTop;
@@ -595,13 +594,13 @@ class Message extends SnowFlake{
 							}
 							const diaolog = new Dialog([
 								"vdiv",
-								["title", "Are you sure you want to delete this?"],
+								["title", I18n.getTranslation("deleteConfirm")],
 								[
 									"hdiv",
 									[
 										"button",
 										"",
-										"Yes",
+										I18n.getTranslation("yes"),
 										()=>{
 											this.delete();
 											diaolog.hide();
@@ -610,7 +609,7 @@ class Message extends SnowFlake{
 									[
 										"button",
 										"",
-										"No",
+										I18n.getTranslation("no"),
 										()=>{
 											diaolog.hide();
 										},
@@ -750,11 +749,11 @@ function formatTime(date: Date){
 	const formatTime = (date: Date)=>date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
 	if(datestring === now){
-		return`Today at ${formatTime(date)}`;
+		return I18n.getTranslation("todayAt",formatTime(date));
 	}else if(datestring === yesterdayStr){
-		return`Yesterday at ${formatTime(date)}`;
+		return I18n.getTranslation("yesterdayAt",formatTime(date));
 	}else{
-		return`${date.toLocaleDateString()} at ${formatTime(date)}`;
+		return I18n.getTranslation("otherAt",formatTime(date),date.toLocaleDateString(),formatTime(date));
 	}
 }
 let tomorrow = 0;

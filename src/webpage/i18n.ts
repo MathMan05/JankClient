@@ -57,6 +57,14 @@ class I18n{
     }
     static fillInBlanks(msg:string,params:string[]):string{
         //thanks to geotale for the regex
+        msg=msg.replace(/\$\d+/g,(match) => {
+            const number=Number(match.slice(1));
+            if(params[number-1]){
+                return params[number-1];
+            }else{
+                return match;
+            }
+        });
         msg=msg.replace(/{{(.+?)}}/g,
             (str, match:string) => {
                 const [op,strsSplit]=this.fillInBlanks(match,params).split(":");
@@ -86,14 +94,7 @@ class I18n{
                 return str;
             }
         );
-        msg=msg.replace(/\$\d+/g,(str, match:string) => {
-            const number=Number(match);
-            if(params[number-1]){
-                return params[number-1];
-            }else{
-                return str;
-            }
-        });
+
         return msg;
     }
     private static async toTranslation(trans:string|translation,lang:string):Promise<translation>{

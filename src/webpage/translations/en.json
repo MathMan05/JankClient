@@ -114,7 +114,15 @@
 				"SEND_POLLS": "Create polls",
 				"USE_EXTERNAL_APPS": "Use external apps"
 			}
-		}
+		},
+		"hideBlockedMessages":"You have this user blocked, click to hide these messages.",
+		"showBlockedMessages":"You have this user blocked, click to see the $1 blocked {{PLURAL:$1|message|messages}}.",
+		"deleteConfirm":"Are you sure you want to delete this?",
+		"yes":"Yes",
+		"no":"No",
+		"todayAt":"Today at $1",
+		"yesterdayAt":"Yesterday at $1",
+		"otherAt":"$1 at $2"
     },
 	"ru": "./ru.json"
 }
