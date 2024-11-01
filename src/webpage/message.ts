@@ -56,13 +56,13 @@ class Message extends SnowFlake{
 		Message.setupcmenu();
 	}
 	static setupcmenu(){
-		Message.contextmenu.addbutton(I18n.getTranslation.bind(I18n,"copyrawtext"), function(this: Message){
+		Message.contextmenu.addbutton(()=>I18n.getTranslation("copyrawtext"), function(this: Message){
 			navigator.clipboard.writeText(this.content.rawString);
 		});
-		Message.contextmenu.addbutton(I18n.getTranslation.bind(I18n,"reply"), function(this: Message){
+		Message.contextmenu.addbutton(()=>I18n.getTranslation("reply"), function(this: Message){
 			this.channel.setReplying(this);
 		});
-		Message.contextmenu.addbutton(I18n.getTranslation.bind(I18n,"copymessageid"), function(this: Message){
+		Message.contextmenu.addbutton(()=>I18n.getTranslation("copymessageid"), function(this: Message){
 			navigator.clipboard.writeText(this.id);
 		});
 		Message.contextmenu.addsubmenu(

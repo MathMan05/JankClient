@@ -6,6 +6,7 @@ import { User } from "./user.js";
 import {guildjson} from "./jsontypes.js";
 import { PermissionToggle } from "./role.js";
 import { Permissions } from "./permissions.js";
+import { I18n } from "./i18n.js";
 class Bot{
 	readonly owner:Localuser;
 	readonly token:string;
@@ -27,7 +28,7 @@ class Bot{
 		};
 	}
 	settings(){
-		const settings = new Settings("Bot Settings");
+		const settings = new Settings(I18n.getTranslation("botSettings"));
 		const botOptions = settings.addButton("Profile",{ltr:true});
 		const bot=new User(this.json,this.localuser);
 		{
@@ -50,7 +51,7 @@ class Bot{
 			settingsRight.addHTMLArea(hypotheticalProfile);
 
 			const finput = settingsLeft.addFileInput(
-				"Upload pfp:",
+				I18n.getTranslation("uploadPfp"),
 				_=>{
 					if(file){
 						this.updatepfp(file);
@@ -76,7 +77,7 @@ class Bot{
 			});
 			let bfile: undefined | File | null;
 			const binput = settingsLeft.addFileInput(
-				"Upload banner:",
+				I18n.getTranslation("uploadBanner"),
 				_=>{
 					if(bfile !== undefined){
 						this.updatebanner(bfile);
@@ -102,7 +103,7 @@ class Bot{
 			});
 			let changed = false;
 			const pronounbox = settingsLeft.addTextInput(
-				"Pronouns",
+				I18n.getTranslation("pronouns"),
 				_=>{
 					if(newpronouns || newbio || changed){
 						this.updateProfile({
@@ -119,7 +120,7 @@ class Bot{
 				newpronouns = _;
 				regen();
 			});
-			const bioBox = settingsLeft.addMDInput("Bio:", _=>{}, {
+			const bioBox = settingsLeft.addMDInput(I18n.getTranslation("bio"), _=>{}, {
 				initText: bot.bio.rawString,
 			});
 			bioBox.watchForChange(_=>{
@@ -134,7 +135,7 @@ class Bot{
 				color = "transparent";
 			}
 			const colorPicker = settingsLeft.addColorInput(
-				"Profile color",
+				I18n.getTranslation("profileColor"),
 				_=>{},
 				{ initColor: color }
 			);
@@ -148,7 +149,7 @@ class Bot{
 		}
 		{
 			const guildsettings=settings.addButton("Guilds");
-			guildsettings.addTitle("Guilds bot is in:");
+			guildsettings.addTitle(I18n.getTranslation("botGuilds"));
 			fetch(this.info.api+"/users/@me/guilds/",{
 				headers:this.headers
 			}).then(_=>_.json()).then((json:(guildjson["properties"])[])=>{
@@ -187,8 +188,8 @@ class Bot{
 					content.onclick=()=>{
 						const guildsetting=guildsettings.addSubOptions(guild.name);
 						guildsetting.addHTMLArea(content);
-						guildsetting.addButtonInput("","Leave Guild",()=>{
-							if(confirm(`Are you sure you want to leave ${guild.name}?`)){
+						guildsetting.addButtonInput("",I18n.getTranslation("leaveGuild"),()=>{
+							if(confirm(I18n.getTranslation("confirmGuildLeave",guild.name))){
 								fetch(this.info.api+"/users/@me/guilds/"+guild.id,{
 									method:"DELETE",
 									headers:this.headers
@@ -250,7 +251,7 @@ class Bot{
 		});
 	}
 	static InviteMaker(id:string,container:Form,info:Localuser["info"]){
-		const gen=container.addSubOptions("URL generator",{
+		const gen=container.addSubOptions(I18n.getTranslation("UrlGen"),{
 			noSubmit:true
 		});
 		const params = new URLSearchParams("");

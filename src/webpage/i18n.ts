@@ -105,4 +105,5 @@ class I18n{
         }
     }
 }
+I18n.create("/translations/en.json","en")
 export{I18n};

@@ -1,3 +1,4 @@
+import { I18n } from "./i18n.js";
 import{ mobile }from"./login.js";
 console.log(mobile);
 const serverbox = document.getElementById("instancebox") as HTMLDivElement;
@@ -5,7 +6,7 @@ const serverbox = document.getElementById("instancebox") as HTMLDivElement;
 fetch("/instances.json")
 	.then(_=>_.json())
 	.then(
-		(
+		async (
 			json: {
 				name: string;
 				description?: string;
@@ -24,6 +25,7 @@ fetch("/instances.json")
 				};
 			}[]
 		)=>{
+			await I18n.done;
 			console.warn(json);
 			for(const instance of json){
 				if(instance.display === false){
@@ -66,11 +68,11 @@ fetch("/instances.json")
 					const stats = document.createElement("div");
 					stats.classList.add("flexltr");
 					const span = document.createElement("span");
-					span.innerText = `Uptime: All time: ${Math.round(
+					span.innerText = I18n.getTranslation("home.uptimeStats",Math.round(
 						instance.uptime.alltime * 100
-					)}% This week: ${Math.round(
+					)+"",Math.round(
 						instance.uptime.weektime * 100
-					)}% Today: ${Math.round(instance.uptime.daytime * 100)}%`;
+					)+"",Math.round(instance.uptime.daytime * 100)+"")
 					stats.append(span);
 					statbox.append(stats);
 				}
@@ -79,7 +81,7 @@ fetch("/instances.json")
 					if(instance.online){
 						window.location.href = "/register.html?instance=" + encodeURI(instance.name);
 					}else{
-						alert("Instance is offline, can't connect");
+						alert(I18n.getTranslation("home.warnOffiline"));
 					}
 				};
 				serverbox.append(div);

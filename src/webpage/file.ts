@@ -145,9 +145,7 @@ class File{
 	static filesizehuman(fsize: number){
 		const i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024));
 		return(
-			Number((fsize / Math.pow(1024, i)).toFixed(2)) * 1 +
-" " +
-["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i]
+			Number((fsize / Math.pow(1024, i)).toFixed(2)) * 1 + " " + ["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i] // I don't think this changes across languages, correct me if I'm wrong
 		);
 	}
 }

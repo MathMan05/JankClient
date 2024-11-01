@@ -4,6 +4,7 @@ import{ MarkDown }from"./markdown.js";
 import{ embedjson, invitejson }from"./jsontypes.js";
 import{ getapiurls, getInstances }from"./login.js";
 import{ Guild }from"./guild.js";
+import { I18n } from "./i18n.js";
 
 class Embed{
 	type: string;
@@ -296,8 +297,7 @@ guild as invitejson["guild"] & { info: { cdn: string } }
 				guildinfo.append(name);
 
 				const members = document.createElement("span");
-				members.innerText =
-"#" + json.channel.name + " • Members: " + guild.member_count;
+				members.innerText = "#" + json.channel.name + " • Members: " + guild.member_count;
 				guildinfo.append(members);
 				members.classList.add("subtext");
 				iconrow.append(guildinfo);
@@ -305,12 +305,12 @@ guild as invitejson["guild"] & { info: { cdn: string } }
 
 			div.append(iconrow);
 			const h2 = document.createElement("h2");
-			h2.textContent = `You've been invited by ${json.inviter.username}`;
+			h2.textContent = I18n.getTranslation("invite.invitedBy",json.inviter.username);
 			div.append(h2);
 			const button = document.createElement("button");
-			button.textContent = "Accept";
+			button.textContent = I18n.getTranslation("invite.accept");
 			if(this.localuser.info.api.startsWith(info.api) && this.localuser.guildids.has(guild.id)){
-				button.textContent = "Already joined";
+				button.textContent = I18n.getTranslation("invite.alreadyJoined");
 				button.disabled = true;
 			}
 			button.classList.add("acceptinvbutton");

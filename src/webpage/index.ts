@@ -4,6 +4,7 @@ import{ mobile, getBulkUsers, setTheme, Specialuser }from"./login.js";
 import{ MarkDown }from"./markdown.js";
 import{ Message }from"./message.js";
 import{ File }from"./file.js";
+import { I18n } from "./i18n.js";
 
 (async ()=>{
 	async function waitForLoad(): Promise<void>{
@@ -13,7 +14,7 @@ import{ File }from"./file.js";
 	}
 
 	await waitForLoad();
-
+	await I18n.done
 	const users = getBulkUsers();
 	if(!users.currentuser){
 		window.location.href = "/login.html";
@@ -74,7 +75,7 @@ import{ File }from"./file.js";
 
 		const switchAccountDiv = document.createElement("div");
 		switchAccountDiv.classList.add("switchtable");
-		switchAccountDiv.textContent = "Switch accounts ⇌";
+		switchAccountDiv.textContent = I18n.getTranslation("switchAccounts");
 		switchAccountDiv.addEventListener("click", ()=>{
 			window.location.href = "/login.html";
 		});
@@ -93,9 +94,7 @@ import{ File }from"./file.js";
 		showAccountSwitcher();
 	});
 
-	const switchAccountsElement = document.getElementById(
-		"switchaccounts"
-	) as HTMLDivElement;
+	const switchAccountsElement = document.getElementById("switchaccounts") as HTMLDivElement;
 	switchAccountsElement.addEventListener("click", event=>{
 		event.stopImmediatePropagation();
 		showAccountSwitcher();
@@ -115,14 +114,13 @@ import{ File }from"./file.js";
 		});
 	}catch(e){
 		console.error(e);
-		(document.getElementById("load-desc") as HTMLSpanElement).textContent =
-	"Account unable to start";
+		(document.getElementById("load-desc") as HTMLSpanElement).textContent = I18n.getTranslation("accountNotStart");
 		thisUser = new Localuser(-1);
 	}
 
-	const menu = new Contextmenu("create rightclick");
+	const menu = new Contextmenu<void,void>("create rightclick");
 	menu.addbutton(
-		"Create channel",
+		I18n.getTranslation("channel.createChannel"),
 		()=>{
 			if(thisUser.lookingguild){
 				thisUser.lookingguild.createchannels();
@@ -133,7 +131,7 @@ import{ File }from"./file.js";
 	);
 
 	menu.addbutton(
-		"Create category",
+		I18n.getTranslation("channel.createCatagory"),
 		()=>{
 			if(thisUser.lookingguild){
 				thisUser.lookingguild.createcategory();
@@ -143,15 +141,9 @@ import{ File }from"./file.js";
 		()=>thisUser.isAdmin()
 	);
 
-	menu.bindContextmenu(
-	document.getElementById("channels") as HTMLDivElement,
-	0,
-	0
-	);
+	menu.bindContextmenu(document.getElementById("channels") as HTMLDivElement);
 
-	const pasteImageElement = document.getElementById(
-		"pasteimage"
-	) as HTMLDivElement;
+	const pasteImageElement = document.getElementById("pasteimage") as HTMLDivElement;
 	let replyingTo: Message | null = null;
 
 	async function handleEnter(event: KeyboardEvent): Promise<void>{
