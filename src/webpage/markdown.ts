@@ -2,6 +2,7 @@ import{ Channel }from"./channel.js";
 import{ Dialog }from"./dialog.js";
 import{ Emoji }from"./emoji.js";
 import{ Guild }from"./guild.js";
+import { I18n } from "./i18n.js";
 import{ Localuser }from"./localuser.js";
 import{ Member }from"./member.js";
 
@@ -9,8 +10,8 @@ class MarkDown{
 	txt: string[];
 	keep: boolean;
 	stdsize: boolean;
-	owner: Localuser | Channel;
-	info: Localuser["info"];
+	owner: Localuser | Channel|void;
+	info: Localuser["info"]|void=undefined;
 	constructor(
 		text: string | string[],
 		owner: MarkDown["owner"],
@@ -24,7 +25,9 @@ class MarkDown{
 		if(this.txt === undefined){
 			this.txt = [];
 		}
-		this.info = owner.info;
+		if(owner){
+			this.info = owner.info;
+		}
 		this.keep = keep;
 		this.owner = owner;
 		this.stdsize = stdsize;
@@ -32,9 +35,10 @@ class MarkDown{
 	get localuser(){
 		if(this.owner instanceof Localuser){
 			return this.owner;
-		}else{
+		}else if(this.owner){
 			return this.owner.localuser;
 		}
+		return null;
 	}
 	get rawString(){
 		return this.txt.join("");
@@ -437,7 +441,7 @@ txt[j + 1] === undefined)
 					continue;
 				}
 			}
-			if(txt[i] === "<" && (txt[i + 1] === "@" || txt[i + 1] === "#")){
+			if((txt[i] === "<" && (txt[i + 1] === "@" || txt[i + 1] === "#"))&&this.localuser){
 				let id = "";
 				let j = i + 2;
 				const numbers = new Set(["0","1","2","3","4","5","6","7","8","9",]);
@@ -485,6 +489,7 @@ txt[j + 1] === undefined)
 							mention.textContent = `#${channel.name}`;
 							if(!keep){
 								mention.onclick = _=>{
+									if(!this.localuser) return;
 									this.localuser.goToChannel(id);
 								};
 							}
@@ -586,7 +591,7 @@ txt[j + 1] === undefined)
 
 			if(
 				txt[i] === "<" &&
-	(txt[i + 1] === ":" || (txt[i + 1] === "a" && txt[i + 2] === ":"))
+	(txt[i + 1] === ":" || (txt[i + 1] === "a" && txt[i + 2] === ":")&&this.owner)
 			){
 				let found = false;
 				const build = txt[i + 1] === "a" ? ["<", "a", ":"] : ["<", ":"];
@@ -609,6 +614,7 @@ txt[j + 1] === undefined)
 						const isEmojiOnly = txt.join("").trim() === buildjoin.trim();
 						const owner =
 	this.owner instanceof Channel ? this.owner.guild : this.owner;
+						if(!owner) continue;
 						const emoji = new Emoji(
 							{ name: buildjoin, id: parts[2], animated: Boolean(parts[1]) },
 							owner
@@ -765,20 +771,18 @@ txt[j + 1] === undefined)
 				}else{
 					const full: Dialog = new Dialog([
 						"vdiv",
-						["title", "You're leaving Spacebar"],
+						["title", I18n.getTranslation("leaving")],
 						[
 							"text",
-							"You're going to " +
-	Url.host +
-	". Are you sure you want to go there?",
+							I18n.getTranslation("goingToURL",Url.host)
 						],
 						[
 							"hdiv",
-							["button", "", "Nevermind", (_: any)=>full.hide()],
+							["button", "", I18n.getTranslation("nevermind"), (_: any)=>full.hide()],
 							[
 								"button",
 								"",
-								"Go there",
+								I18n.getTranslation("goThere"),
 								(_: any)=>{
 									open();
 									full.hide();
@@ -787,7 +791,7 @@ txt[j + 1] === undefined)
 							[
 								"button",
 								"",
-								"Go there and trust in the future",
+								I18n.getTranslation("goThereTrust"),
 								(_: any)=>{
 									open();
 									full.hide();

@@ -953,7 +953,7 @@ class Localuser{
 
 		content.innerHTML = "";
 		const title = document.createElement("h2");
-		title.textContent = I18n.getTranslation("guild.disoveryTitle");
+		title.textContent = I18n.getTranslation("guild.disoveryTitle",json.guilds.length+"");
 		content.appendChild(title);
 
 		const guilds = document.createElement("div");
@@ -1365,7 +1365,7 @@ class Localuser{
 					);
 					form.addTextInput(I18n.getTranslation("lcoaluser.newDiscriminator"), "discriminator");
 				});
-				security.addButtonInput("", I18n.getTranslation("lcoaluser.changeEmail"), ()=>{
+				security.addButtonInput("", I18n.getTranslation("localuser.changeEmail"), ()=>{
 					const form = security.addSubForm(
 						I18n.getTranslation("lcoaluser.changeEmail"),
 						_=>{
@@ -1401,9 +1401,9 @@ class Localuser{
 					}
 					form.addTextInput(I18n.getTranslation("localuser.newUsername"), "username");
 				});
-				security.addButtonInput("", "Change password", ()=>{
+				security.addButtonInput("", I18n.getTranslation("localuser.changePassword"), ()=>{
 					const form = security.addSubForm(
-						"Change Password",
+						I18n.getTranslation("localuser.changePassword"),
 						_=>{
 							security.returnFromSub();
 						},
@@ -1413,13 +1413,13 @@ class Localuser{
 							method: "PATCH",
 						}
 					);
-					form.addTextInput("Old password:", "password", { password: true });
+					form.addTextInput(I18n.getTranslation("localuser.oldPassword:"), "password", { password: true });
 					if(this.mfa_enabled){
-						form.addTextInput("Code:", "code");
+						form.addTextInput(I18n.getTranslation("localuser.2faCode"), "code");
 					}
 					let in1 = "";
 					let in2 = "";
-					form.addTextInput("New password:", "").watchForChange(text=>{
+					form.addTextInput(I18n.getTranslation("localuser.newPassword:"), "").watchForChange(text=>{
 						in1 = text;
 					});
 					const copy = form.addTextInput("New password again:", "");
@@ -1430,7 +1430,7 @@ class Localuser{
 						if(in1 === in2){
 							return in1;
 						}else{
-							throw new FormError(copy, "Passwords don't match");
+							throw new FormError(copy, I18n.getTranslation("localuser.PasswordsNoMatch"));
 						}
 					});
 				});
@@ -1473,8 +1473,7 @@ class Localuser{
 								});
 							}else{
 								container.classList.add("disabled");
-								container.title =
-                  "This connection has been disabled server-side.";
+								container.title = I18n.getTranslation("localuser.PasswordsNoMatch");
 							}
 
 							connectionContainer.appendChild(container);
@@ -1483,16 +1482,16 @@ class Localuser{
 			connections.addHTMLArea(connectionContainer);
 		}
 		{
-			const devPortal = settings.addButton("Developer Portal");
+			const devPortal = settings.addButton(I18n.getTranslation("localuser.devPortal"));
 
 			fetch(this.info.api + "/teams", {
 				headers: this.headers,
 			}).then(async (teamsRes)=>{
 				const teams = await teamsRes.json();
 
-				devPortal.addButtonInput("", "Create application", ()=>{
+				devPortal.addButtonInput("", I18n.getTranslation("localuser.createApp"), ()=>{
 					const form = devPortal.addSubForm(
-						"Create application",
+						I18n.getTranslation("localuser.createApp"),
 						(json: any)=>{
 							if(json.message) form.error("name", json.message);
 							else{
@@ -1509,7 +1508,7 @@ class Localuser{
 
 					form.addTextInput("Name:", "name", { required: true });
 					form.addSelect(
-						"Team:",
+						I18n.getTranslation("localuser.team:"),
 						"team_id",
 						["Personal", ...teams.map((team: { name: string })=>team.name)],
 						{
@@ -1583,16 +1582,16 @@ class Localuser{
 			headers:this.headers,
 			traditionalSubmit:true
 		});
-		form.addTextInput("Application name:","name",{initText:json.name});
-		form.addMDInput("Description:","description",{initText:json.description});
+		form.addTextInput(I18n.getTranslation("localuser.appName"),"name",{initText:json.name});
+		form.addMDInput(I18n.getTranslation("localuser.description"),"description",{initText:json.description});
 		form.addFileInput("Icon:","icon");
-		form.addTextInput("Privacy policy URL:","privacy_policy_url",{initText:json.privacy_policy_url});
-		form.addTextInput("Terms of Service URL:","terms_of_service_url",{initText:json.terms_of_service_url});
-		form.addCheckboxInput("Make bot publicly inviteable?","bot_public",{initState:json.bot_public});
-		form.addCheckboxInput("Require code grant to invite the bot?","bot_require_code_grant",{initState:json.bot_require_code_grant});
-		form.addButtonInput("",(json.bot ? "Manage" : "Add")+" bot",async ()=>{
+		form.addTextInput(I18n.getTranslation("localuser.privacyPolcyURL"),"privacy_policy_url",{initText:json.privacy_policy_url});
+		form.addTextInput(I18n.getTranslation("localuser.TOSURL"),"terms_of_service_url",{initText:json.terms_of_service_url});
+		form.addCheckboxInput(I18n.getTranslation("localuser.publicAvaliable"),"bot_public",{initState:json.bot_public});
+		form.addCheckboxInput(I18n.getTranslation("localuser.requireCode"),"bot_require_code_grant",{initState:json.bot_require_code_grant});
+		form.addButtonInput("",I18n.getTranslation("localuser."+(json.bot?"manageBot":"addBot")),async ()=>{
 			if(!json.bot){
-				if(!confirm("Are you sure you want to add a bot to this application? There's no going back.")){
+				if(!confirm(I18n.getTranslation("localuser.confirmAddBot"))){
 					return;
 				}
 				const updateRes = await fetch(
@@ -1614,19 +1613,19 @@ class Localuser{
 		});
 		const json = await res.json();
 		if(!json.bot){
-			return alert("For some reason, this application doesn't have a bot (yet).");
+			return alert(I18n.getTranslation("localuser.confuseNoBot"));
 		}
 		const bot:mainuserjson=json.bot;
-		const form=container.addSubForm("Editing bot "+bot.username,out=>{console.log(out)},{
+		const form=container.addSubForm(I18n.getTranslation("localuser.editingBot",bot.username),out=>{console.log(out)},{
 			method:"PATCH",
 			fetchURL:this.info.api + "/applications/" + appId + "/bot",
 			headers:this.headers,
 			traditionalSubmit:true
 		});
-		form.addTextInput("Bot username:","username",{initText:bot.username});
-		form.addFileInput("Bot avatar:","avatar");
-		form.addButtonInput("","Reset Token",async ()=>{
-			if(!confirm("Are you sure you want to reset the bot token? Your bot will stop working until you update it.")){
+		form.addTextInput(I18n.getTranslation("localuser.botUsername"),"username",{initText:bot.username});
+		form.addFileInput(I18n.getTranslation("localuser.botAvatar"),"avatar");
+		form.addButtonInput("",I18n.getTranslation("localuser.resetToken"),async ()=>{
+			if(!confirm(I18n.getTranslation("localuser.confirmReset"))){
 				return;
 			}
 			const updateRes = await fetch(
@@ -1637,27 +1636,27 @@ class Localuser{
 				}
 			);
 			const updateJSON = await updateRes.json();
-			text.setText("Token: "+updateJSON.token);
+			text.setText(I18n.getTranslation("localuser.tokenDisplay",updateJSON.token));
 			this.botTokens.set(appId,updateJSON.token);
 			if(this.perminfo.applications[appId]){
 				this.perminfo.applications[appId]=updateJSON.token;
 				this.userinfo.updateLocal();
 			}
 		});
-		const text=form.addText(this.botTokens.has(appId)?"Token: "+this.botTokens.get(appId):"Token: *****************");
+		const text=form.addText(I18n.getTranslation("localuser.tokenDisplay",this.botTokens.has(appId)?this.botTokens.get(appId) as string:"*****************") );
 		const check=form.addOptions("",{noSubmit:true});
 		if(!this.perminfo.applications){
 			this.perminfo.applications={};
 			this.userinfo.updateLocal();
 		}
-		const checkbox=check.addCheckboxInput("Save token to localStorage",()=>{},{initState:!!this.perminfo.applications[appId]});
+		const checkbox=check.addCheckboxInput(I18n.getTranslation("localuser.saveToken"),()=>{},{initState:!!this.perminfo.applications[appId]});
 		checkbox.watchForChange(_=>{
 			if(_){
 				if(this.botTokens.has(appId)){
 					this.perminfo.applications[appId]=this.botTokens.get(appId);
 					this.userinfo.updateLocal();
 				}else{
-					alert("Don't know token so can't save it to localStorage, sorry");
+					alert(I18n.getTranslation("localuser.noToken"));
 					checkbox.setState(false);
 				}
 			}else{
@@ -1665,14 +1664,14 @@ class Localuser{
 				this.userinfo.updateLocal();
 			}
 		});
-		form.addButtonInput("","Advanced Bot Settings",()=>{
+		form.addButtonInput("",I18n.getTranslation("localuser.advancedBot"),()=>{
 			const token=this.botTokens.get(appId);
 			if(token){
 				const botc=new Bot(bot,token,this);
 				botc.settings();
 			}
 		});
-		form.addButtonInput("","Bot Invite Creator",()=>{
+		form.addButtonInput("",I18n.getTranslation("localuser.botInviteCreate"),()=>{
 			Bot.InviteMaker(appId,form,this.info);
 		})
 	}
@@ -1849,11 +1848,11 @@ class Localuser{
 
 		const dialog = new Dialog([
 			"vdiv",
-			["title", "Instance stats: " + this.instancePing.name],
-			["text", "Registered users: " + json.counts.user],
-			["text", "Servers: " + json.counts.guild],
-			["text", "Messages: " + json.counts.message],
-			["text", "Members: " + json.counts.members],
+			["title", I18n.getTranslation("instanceStats.name",this.instancePing.name) ],
+			["text", I18n.getTranslation("instanceStats.users",json.counts.user)],
+			["text", I18n.getTranslation("instanceStats.servers",json.counts.guild)],
+			["text", I18n.getTranslation("instanceStats.messages",json.counts.message)],
+			["text", I18n.getTranslation("instanceStats.members",json.counts.members)],
 		]);
 		dialog.show();
 	}

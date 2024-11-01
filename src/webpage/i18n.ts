@@ -36,7 +36,7 @@ class I18n{
         for(const json of this.translations){
             let jsont:string|translation=json;
             for(const thing of path){
-                if(typeof jsont !== "string" ){
+                if(typeof jsont !== "string" && jsont!==undefined){
                     jsont=jsont[thing];
 
                 }else{

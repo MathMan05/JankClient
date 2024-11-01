@@ -7,6 +7,7 @@ import{ SnowFlake }from"./snowflake.js";
 import{ presencejson, userjson }from"./jsontypes.js";
 import { Role } from "./role.js";
 import { Search } from "./search.js";
+import { I18n } from "./i18n.js";
 
 class User extends SnowFlake{
 	owner: Localuser;
@@ -96,10 +97,10 @@ class User extends SnowFlake{
 	static contextmenu = new Contextmenu<User, Member | undefined>("User Menu");
 
 	static setUpContextMenu(): void{
-		this.contextmenu.addbutton("Copy user id", function(this: User){
+		this.contextmenu.addbutton(()=>I18n.getTranslation("user.copyId"), function(this: User){
 			navigator.clipboard.writeText(this.id);
 		});
-		this.contextmenu.addbutton("Message user", function(this: User){
+		this.contextmenu.addbutton(()=>I18n.getTranslation("user.message"), function(this: User){
 			fetch(this.info.api + "/users/@me/channels", {
 				method: "POST",
 				body: JSON.stringify({ recipients: [this.id] }),
@@ -111,7 +112,7 @@ class User extends SnowFlake{
 				});
 		});
 		this.contextmenu.addbutton(
-			"Block user",
+			()=>I18n.getTranslation("user.block"),
 			function(this: User){
 				this.block();
 			},
@@ -122,7 +123,7 @@ class User extends SnowFlake{
 		);
 
 		this.contextmenu.addbutton(
-			"Unblock user",
+			()=>I18n.getTranslation("user.unblock"),
 			function(this: User){
 				this.unblock();
 			},
@@ -131,7 +132,7 @@ class User extends SnowFlake{
 				return this.relationshipType === 2;
 			}
 		);
-		this.contextmenu.addbutton("Friend request", function(this: User){
+		this.contextmenu.addbutton(()=>I18n.getTranslation("user.friendReq"), function(this: User){
 			fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
 				method: "PUT",
 				headers: this.owner.headers,
@@ -141,7 +142,7 @@ class User extends SnowFlake{
 			});
 		});
 		this.contextmenu.addbutton(
-			"Kick member",
+			()=>I18n.getTranslation("user.kick"),
 			function(this: User, member: Member | undefined){
 				member?.kick();
 			},
@@ -159,7 +160,7 @@ class User extends SnowFlake{
 			}
 		);
 		this.contextmenu.addbutton(
-			"Ban member",
+			()=>I18n.getTranslation("user.ban"),
 			function(this: User, member: Member | undefined){
 				member?.ban();
 			},
@@ -177,7 +178,7 @@ class User extends SnowFlake{
 			}
 		);
 		this.contextmenu.addbutton(
-			"Add roles",
+			()=>I18n.getTranslation("user.addRole"),
 			async function(this: User, member: Member | undefined,e){
 				if(member){
 					e.stopPropagation();
@@ -203,7 +204,7 @@ class User extends SnowFlake{
 			}
 		);
 		this.contextmenu.addbutton(
-			"Remove roles",
+			()=>I18n.getTranslation("user.removeRole"),
 			async function(this: User, member: Member | undefined,e){
 				if(member){
 					e.stopPropagation();
