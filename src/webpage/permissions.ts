@@ -89,10 +89,10 @@ class Permissions{
 		if(undefined===Permissions.permisions.indexOf(name)){
 			console.error(name +" is not found in map",Permissions.permisions);
 		}
-		if(this.getPermissionbit(Permissions.permisions.indexOf(name) as number, this.allow)){
+		if(this.getPermissionbit(Permissions.permisions.indexOf(name), this.allow)){
 			return 1;
 		}else if(
-			this.getPermissionbit(Permissions.permisions.indexOf(name) as number, this.deny)
+			this.getPermissionbit(Permissions.permisions.indexOf(name), this.deny)
 		){
 			return-1;
 		}else{
@@ -105,13 +105,13 @@ class Permissions{
 				"This function may of been used in error, think about using getPermision instead"
 			);
 		}
-		if(this.getPermissionbit(Permissions.permisions.indexOf(name) as number, this.allow))
+		if(this.getPermissionbit(Permissions.permisions.indexOf(name), this.allow))
 			return true;
 		if(name !== "ADMINISTRATOR"&&adminOverride)return this.hasPermission("ADMINISTRATOR");
 		return false;
 	}
 	setPermission(name: string, setto: number): void{
-		const bit = Permissions.permisions.indexOf(name) as number;
+		const bit = Permissions.permisions.indexOf(name);
 		if(bit===undefined){
 			return console.error(
 				"Tried to set permission to " +
