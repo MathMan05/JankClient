@@ -284,10 +284,7 @@ class Localuser{
 				else this.errorBackoff++;
 				this.connectionSucceed = 0;
 
-				(document.getElementById("load-desc") as HTMLElement).innerHTML =
-          "Unable to connect to the Spacebar server, retrying in <b>" +
-          Math.round(0.2 + this.errorBackoff * 2.8) +
-          "</b> seconds...";
+				(document.getElementById("load-desc") as HTMLElement).innerHTML = I18n.getTranslation("errorReconnect",Math.round(0.2 + this.errorBackoff * 2.8)+"")
 				switch(
 					this.errorBackoff //try to recover from bad domain
 				){
@@ -331,8 +328,7 @@ class Localuser{
 				}
 				setTimeout(()=>{
 					if(this.swapped)return;
-					(document.getElementById("load-desc") as HTMLElement).textContent =
-            "Retrying...";
+					(document.getElementById("load-desc") as HTMLElement).textContent =I18n.getTranslation("retrying");
 					this.initwebsocket().then(()=>{
 						this.loaduser();
 						this.init();
@@ -343,10 +339,8 @@ class Localuser{
 					});
 				}, 200 + this.errorBackoff * 2800);
 			}else
-				(document.getElementById("load-desc") as HTMLElement).textContent =
-          "Unable to connect to the Spacebar server. Please try logging out and back in.";
+				(document.getElementById("load-desc") as HTMLElement).textContent = I18n.getTranslation("unableToConnect")
 		});
-
 		await promise;
 	}
 	async handleEvent(temp: wsjson){
@@ -650,10 +644,10 @@ class Localuser{
 			category.classList.add("memberList");
 			let title=document.createElement("h3");
 			if(role==="offline"){
-				title.textContent="Offline";
+				title.textContent=I18n.getTranslation("user.offline");
 				category.classList.add("offline");
 			}else if(role==="online"){
-				title.textContent="Online";
+				title.textContent=I18n.getTranslation("user.online");
 			}else{
 				title.textContent=role.name;
 			}
@@ -734,12 +728,9 @@ class Localuser{
 		}
 	}
 	loaduser(): void{
-		(document.getElementById("username") as HTMLSpanElement).textContent =
-      this.user.username;
-		(document.getElementById("userpfp") as HTMLImageElement).src =
-      this.user.getpfpsrc();
-		(document.getElementById("status") as HTMLSpanElement).textContent =
-      this.status;
+		(document.getElementById("username") as HTMLSpanElement).textContent = this.user.username;
+		(document.getElementById("userpfp") as HTMLImageElement).src = this.user.getpfpsrc();
+		(document.getElementById("status") as HTMLSpanElement).textContent = this.status;
 	}
 	isAdmin(): boolean{
 		if(this.lookingguild){
@@ -854,12 +845,12 @@ class Localuser{
 			"tabs",
 			[
 				[
-					"Join using invite",
+					I18n.getTranslation("invite.joinUsing"),
 					[
 						"vdiv",
 						[
 							"textbox",
-							"Invite Link/Code",
+							I18n.getTranslation("invite.inviteLinkCode"),
 							"",
 							function(this: HTMLInputElement){
 								inviteurl = this.value;
@@ -869,7 +860,7 @@ class Localuser{
 						[
 							"button",
 							"",
-							"Submit",
+							I18n.getTranslation("submit"),
 							(_: any)=>{
 								let parsed = "";
 								if(inviteurl.includes("/")){
@@ -893,13 +884,13 @@ class Localuser{
 					],
 				],
 				[
-					"Create Guild",
+					I18n.getTranslation("guild.create"),
 					[
 						"vdiv",
-						["title", "Create a guild"],
+						["title", I18n.getTranslation("guild.create")],
 						[
 							"fileupload",
-							"Icon: ",
+							I18n.getTranslation("guild.icon:"),
 							function(event: Event){
 								const target = event.target as HTMLInputElement;
 								if(!target.files)return;
@@ -912,7 +903,7 @@ class Localuser{
 						],
 						[
 							"textbox",
-							"Name:",
+							I18n.getTranslation("guild.name:"),
 							"",
 							function(this: HTMLInputElement, event: Event){
 								const target = event.target as HTMLInputElement;
@@ -922,7 +913,7 @@ class Localuser{
 						[
 							"button",
 							"",
-							"Submit",
+							I18n.getTranslation("submit"),
 							()=>{
 								this.makeGuild(fields).then(_=>{
 									if(_.message){
@@ -951,7 +942,7 @@ class Localuser{
 	async guildDiscovery(){
 		const content = document.createElement("div");
 		content.classList.add("flexttb","guildy");
-		content.textContent = "Loading...";
+		content.textContent = I18n.getTranslation("guild.loadingDiscovery");
 		const full = new Dialog(["html", content]);
 		full.show();
 
@@ -962,7 +953,7 @@ class Localuser{
 
 		content.innerHTML = "";
 		const title = document.createElement("h2");
-		title.textContent = "Guild discovery (" + json.total + " entries)";
+		title.textContent = I18n.getTranslation("guild.disoveryTitle");
 		content.appendChild(title);
 
 		const guilds = document.createElement("div");
@@ -976,13 +967,7 @@ class Localuser{
 				const banner = document.createElement("img");
 				banner.classList.add("banner");
 				banner.crossOrigin = "anonymous";
-				banner.src =
-          this.info.cdn +
-          "/icons/" +
-          guild.id +
-          "/" +
-          guild.banner +
-          ".png?size=256";
+				banner.src =this.info.cdn +"/icons/" +guild.id +"/" +guild.banner +".png?size=256";
 				banner.alt = "";
 				content.appendChild(banner);
 			}
@@ -1092,9 +1077,9 @@ class Localuser{
 		});
 	}
 	async showusersettings(){
-		const settings = new Settings("Settings");
+		const settings = new Settings(I18n.getTranslation("localuser.settings"));
 		{
-			const userOptions = settings.addButton("User Settings", { ltr: true });
+			const userOptions = settings.addButton(I18n.getTranslation("localuser.userSettings"), { ltr: true });
 			const hypotheticalProfile = document.createElement("div");
 			let file: undefined | File | null;
 			let newpronouns: string | undefined;
@@ -1113,7 +1098,7 @@ class Localuser{
 			settingsRight.addHTMLArea(hypotheticalProfile);
 
 			const finput = settingsLeft.addFileInput(
-				"Upload pfp:",
+				I18n.getTranslation("uploadPfp"),
 				_=>{
 					if(file){
 						this.updatepfp(file);
@@ -1139,7 +1124,7 @@ class Localuser{
 			});
 			let bfile: undefined | File | null;
 			const binput = settingsLeft.addFileInput(
-				"Upload banner:",
+				I18n.getTranslation("uploadBanner"),
 				_=>{
 					if(bfile !== undefined){
 						this.updatebanner(bfile);
@@ -1165,7 +1150,7 @@ class Localuser{
 			});
 			let changed = false;
 			const pronounbox = settingsLeft.addTextInput(
-				"Pronouns:",
+				I18n.getTranslation("pronouns"),
 				_=>{
 					if(newpronouns || newbio || changed){
 						this.updateProfile({
@@ -1182,7 +1167,7 @@ class Localuser{
 				newpronouns = _;
 				regen();
 			});
-			const bioBox = settingsLeft.addMDInput("Bio:", _=>{}, {
+			const bioBox = settingsLeft.addMDInput(I18n.getTranslation("bio"), _=>{}, {
 				initText: this.user.bio.rawString,
 			});
 			bioBox.watchForChange(_=>{
@@ -1197,7 +1182,7 @@ class Localuser{
 				color = "transparent";
 			}
 			const colorPicker = settingsLeft.addColorInput(
-				"Profile color:",
+				I18n.getTranslation("profileColor"),
 				_=>{},
 				{ initColor: color }
 			);
@@ -1210,11 +1195,11 @@ class Localuser{
 			});
 		}
 		{
-			const tas = settings.addButton("Themes & Sounds");
+			const tas = settings.addButton(I18n.getTranslation("localuser.themesAndSounds"));
 			{
 				const themes = ["Dark", "WHITE", "Light", "Dark-Accent"];
 				tas.addSelect(
-					"Theme:",
+					I18n.getTranslation("localuser.theme:"),
 					_=>{
 						localStorage.setItem("theme", themes[_]);
 						setTheme();
@@ -1231,7 +1216,7 @@ class Localuser{
 				const sounds = AVoice.sounds;
 				tas
 					.addSelect(
-						"Notification sound:",
+						I18n.getTranslation("localuser.notisound"),
 						_=>{
 							AVoice.setNotificationSound(sounds[_]);
 						},
@@ -1246,7 +1231,7 @@ class Localuser{
 			{
 				const userinfos = getBulkInfo();
 				tas.addColorInput(
-					"Accent color:",
+					I18n.getTranslation("localuser.accentColor"),
 					_=>{
 						userinfos.accent_color = _;
 						localStorage.setItem("userinfos", JSON.stringify(userinfos));
@@ -1259,10 +1244,10 @@ class Localuser{
 				);
 			}
 			{
-				const box=tas.addCheckboxInput("Enable experimental Voice support",()=>{},{initState:Boolean(localStorage.getItem("Voice enabled"))});
+				const box=tas.addCheckboxInput(I18n.getTranslation("localuser.enableEVoice"),()=>{},{initState:Boolean(localStorage.getItem("Voice enabled"))});
 				box.onchange=(e)=>{
 					if(e){
-						if(confirm("Are you sure you want to enable this, this is very experimental and is likely to cause issues. (this feature is for devs, please don't enable if you don't know what you're doing)")){
+						if(confirm(I18n.getTranslation("localuser.VoiceWarning"))){
 							localStorage.setItem("Voice enabled","true")
 
 						}else{
@@ -1279,33 +1264,33 @@ class Localuser{
 			}
 		}
 		{
-			const update=settings.addButton("Update settings")
-			const sw=update.addSelect("Service Worker setting",()=>{},["False","Offline only","True"],{
+			const update=settings.addButton(I18n.getTranslation("localuser.updateSettings"))
+			const sw=update.addSelect(I18n.getTranslation("localuser.swSettings"),()=>{},["SWOff","SWOffline","SWOn"].map(e=>I18n.getTranslation("localuser."+e)),{
 				defaultIndex:["false","offlineOnly","true"].indexOf(localStorage.getItem("SWMode") as string)
 			});
 			sw.onchange=(e)=>{
 				SW.setMode(["false","offlineOnly","true"][e] as "false"|"offlineOnly"|"true")
 			}
-			update.addButtonInput("","Check for update",()=>{
+			update.addButtonInput("",I18n.getTranslation("localuser.CheckUpdate"),()=>{
 				SW.checkUpdate();
 			});
-			update.addButtonInput("","Clear cache",()=>{
+			update.addButtonInput("",I18n.getTranslation("localuser.clearCache"),()=>{
 				SW.forceClear();
 			});
 		}
 		{
-			const security = settings.addButton("Account Settings");
+			const security = settings.addButton(I18n.getTranslation("localuser.accountSettings"));
 			const genSecurity = ()=>{
 				security.removeAll();
 				if(this.mfa_enabled){
-					security.addButtonInput("", "Disable 2FA", ()=>{
+					security.addButtonInput("", I18n.getTranslation("localuser.2faDisable"), ()=>{
 						const form = security.addSubForm(
-							"2FA Disable",
+							I18n.getTranslation("localuser.2faDisable"),
 							(_: any)=>{
 								if(_.message){
 									switch(_.code){
 									case 60008:
-										form.error("code", "Invalid code");
+										form.error("code", I18n.getTranslation("badCode"));
 										break;
 									}
 								}else{
@@ -1319,10 +1304,10 @@ class Localuser{
 								headers: this.headers,
 							}
 						);
-						form.addTextInput("Code:", "code", { required: true });
+						form.addTextInput(I18n.getTranslation("localuser.2faCode"), "code", { required: true });
 					});
 				}else{
-					security.addButtonInput("", "Enable 2FA", async ()=>{
+					security.addButtonInput("", I18n.getTranslation("localuser.2faEnable"), async ()=>{
 						let secret = "";
 						for(let i = 0; i < 18; i++){
 							secret += "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567"[
@@ -1330,15 +1315,15 @@ class Localuser{
 							];
 						}
 						const form = security.addSubForm(
-							"2FA Setup",
+							I18n.getTranslation("localuser.setUp2fa"),
 							(_: any)=>{
 								if(_.message){
 									switch(_.code){
 									case 60008:
-										form.error("code", "Invalid code");
+										form.error("code", I18n.getTranslation("localuser.badCode"));
 										break;
 									case 400:
-										form.error("password", "Incorrect password");
+										form.error("password", I18n.getTranslation("localuser.badPassword"));
 										break;
 									}
 								}else{
@@ -1353,22 +1338,22 @@ class Localuser{
 							}
 						);
 						form.addTitle(
-							"Copy this secret into your totp(time-based one time password) app"
+							I18n.getTranslation("localuser.setUp2faInstruction")
 						);
 						form.addText(
-							`Your secret is: ${secret} and it's 6 digits, with a 30 second token period`
+							I18n.getTranslation("localuser.2faCodeGive",secret)
 						);
-						form.addTextInput("Account Password:", "password", {
+						form.addTextInput(I18n.getTranslation("localuser.password:"), "password", {
 							required: true,
 							password: true,
 						});
-						form.addTextInput("Code:", "code", { required: true });
+						form.addTextInput(I18n.getTranslation("localuser.2faCode"), "code", { required: true });
 						form.setValue("secret", secret);
 					});
 				}
-				security.addButtonInput("", "Change discriminator", ()=>{
+				security.addButtonInput("", I18n.getTranslation("localuser.changeDiscriminator"), ()=>{
 					const form = security.addSubForm(
-						"Change Discriminator",
+						I18n.getTranslation("localuser.changeDiscriminator"),
 						_=>{
 							security.returnFromSub();
 						},
@@ -1378,11 +1363,11 @@ class Localuser{
 							method: "PATCH",
 						}
 					);
-					form.addTextInput("New discriminator:", "discriminator");
+					form.addTextInput(I18n.getTranslation("lcoaluser.newDiscriminator"), "discriminator");
 				});
-				security.addButtonInput("", "Change email", ()=>{
+				security.addButtonInput("", I18n.getTranslation("lcoaluser.changeEmail"), ()=>{
 					const form = security.addSubForm(
-						"Change Email",
+						I18n.getTranslation("lcoaluser.changeEmail"),
 						_=>{
 							security.returnFromSub();
 						},
@@ -1392,15 +1377,15 @@ class Localuser{
 							method: "PATCH",
 						}
 					);
-					form.addTextInput("Password:", "password", { password: true });
+					form.addTextInput(I18n.getTranslation("localuser.password:"), "password", { password: true });
 					if(this.mfa_enabled){
-						form.addTextInput("Code:", "code");
+						form.addTextInput(I18n.getTranslation("localuser.2faCode"), "code");
 					}
-					form.addTextInput("New email:", "email");
+					form.addTextInput(I18n.getTranslation("localuser.newEmail:"), "email");
 				});
-				security.addButtonInput("", "Change username", ()=>{
+				security.addButtonInput("", I18n.getTranslation("localuser.changeUsername"), ()=>{
 					const form = security.addSubForm(
-						"Change Username",
+						I18n.getTranslation("localuser.changeUsername"),
 						_=>{
 							security.returnFromSub();
 						},
@@ -1410,11 +1395,11 @@ class Localuser{
 							method: "PATCH",
 						}
 					);
-					form.addTextInput("Password:", "password", { password: true });
+					form.addTextInput(I18n.getTranslation("localuser.password:"), "password", { password: true });
 					if(this.mfa_enabled){
-						form.addTextInput("Code:", "code");
+						form.addTextInput(I18n.getTranslation("localuser.2faCode"), "code");
 					}
-					form.addTextInput("New username:", "username");
+					form.addTextInput(I18n.getTranslation("localuser.newUsername"), "username");
 				});
 				security.addButtonInput("", "Change password", ()=>{
 					const form = security.addSubForm(

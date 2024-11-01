@@ -188,7 +188,43 @@
 			"confirmDelete":"Are you sure you want to delete $1?",
 			"serverName":"Name of server:",
 			"yesDelete":"Yes, I'm sure",
-			"noDelete":"Nevermind"
+			"noDelete":"Nevermind",
+			"create":"Create guild",
+			"loadingDiscovery":"Loading...",
+			"disoveryTitle":"Guild discovery ($1) {{PLURAL:$1|entrie|entries}}"
+		},
+		"localuser":{
+			"settings":"Settings",
+			"userSettings":"User Settings",
+			"themesAndSounds":"Themes & Sounds",
+			"theme:":"Theme",
+			"notisound":"Notification sound:",
+			"accentColor":"Accent color:",
+			"enableEVoice":"Enable experimental Voice support",
+			"VoiceWarning":"Are you sure you want to enable this, this is very experimental and is likely to cause issues. (this feature is for devs, please don't enable if you don't know what you're doing)",
+			"updateSettings":"Update Settings",
+			"swSettings":"Service Worker setting",
+			"SWOff":"Off",
+			"SWOffline":"Offline only",
+			"SWOn":"On",
+			"clearCache":"Clear cache",
+			"CheckUpdate":"Check for updates",
+			"accountSettings":"Account Settings",
+			"2faDisable":"Disable 2FA",
+			"badCode":"Invalid code",
+			"2faEnable":"Enable 2FA",
+			"2faCode:":"Code:",
+			"setUp2fa":"2FA Setup",
+			"badPassword":"Incorrect password",
+			"setUp2faInstruction":"Copy this secret into your totp(time-based one time password) app",
+			"2faCodeGive":"Your secret is: $1 and it's 6 digits, with a 30 second token period",
+			"changeDiscriminator":"Change discriminator",
+			"newDiscriminator":"New discriminator:",
+			"changeEmail":"Change email",
+			"password:":"Password",
+			"newEmail:":"New email",
+			"changeUsername":"Change username",
+			"newUsername":"New username:"
 		},
 		"inviteOptions":{
 			"title":"Invite People",
@@ -206,7 +242,12 @@
 		"invite":{
 			"invitedBy":"You've been invited by $1",
 			"alreadyJoined":"Already joined",
-			"accept":"Accept"
+			"accept":"Accept",
+			"noAccount":"Create an account to accept the invite",
+			"longInvitedBy":"$1 invited you to join $2",
+			"loginOrCreateAccount":"Login or create an account ⇌",
+			"joinUsing":"Join using invite",
+			"inviteLinkCode":"Invite Link/Code"
 		},
 		"replyingTo":"Replying to $1",
 		"DMs":{
@@ -215,8 +256,13 @@
 			"close":"Close DM"
 		},
 		"user":{
-			"copyId":"Copy user ID"
-		}
+			"copyId":"Copy user ID",
+			"online":"Online",
+			"offline":"Offline"
+		},
+		"errorReconnect":"Unable to connect to the server, retrying in <b>$1</b> seconds...",
+		"retrying":"Retrying...",
+		"unableToConnect":"Unable to connect to the Spacebar server. Please try logging out and back in."
     },
 	"ru": "./ru.json"
 }
