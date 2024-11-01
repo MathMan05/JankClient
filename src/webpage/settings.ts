@@ -1,3 +1,5 @@
+import { I18n } from "./i18n.js";
+
 interface OptionsElement<x> {
 	//
 	generateHTML(): HTMLElement;
@@ -828,9 +830,9 @@ class Options implements OptionsElement<void>{
 			div.classList.add("flexltr", "savediv");
 			const span = document.createElement("span");
 			div.append(span);
-			span.textContent = "Careful, you have unsaved changes";
+			span.textContent = I18n.getTranslation("settings.unsaved");
 			const button = document.createElement("button");
-			button.textContent = "Save changes";
+			button.textContent = I18n.getTranslation("settings.save");
 			div.append(button);
 			this.haschanged = true;
 			this.owner.changed(div);
@@ -886,7 +888,7 @@ class Form implements OptionsElement<object>{
 		onSubmit: (arg1: object) => void,
 		{
 			ltr = false,
-			submitText = "Submit",
+			submitText = I18n.getTranslation("submit"),
 			fetchURL = "",
 			headers = {},
 			method = "POST",
@@ -919,7 +921,7 @@ class Form implements OptionsElement<object>{
 		onSubmit: (arg1: object) => void,
 		{
 			ltr = false,
-			submitText = "Submit",
+			submitText = I18n.getTranslation("submit"),
 			fetchURL = "",
 			headers = {},
 			method = "POST",

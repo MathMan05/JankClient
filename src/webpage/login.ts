@@ -1,4 +1,5 @@
 import{ Dialog }from"./dialog.js";
+import { I18n } from "./i18n.js";
 
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -338,7 +339,7 @@ async function getapiurls(str: string): Promise<
 async function checkInstance(instance?: string){
 	const verify = document.getElementById("verify");
 	try{
-		verify!.textContent = "Checking Instance";
+		verify!.textContent = I18n.getTranslation("login.checking");
 		const instanceValue = instance || (instancein as HTMLInputElement).value;
 		const instanceinfo = (await getapiurls(instanceValue)) as {
 			wellknown: string;
@@ -351,7 +352,7 @@ async function checkInstance(instance?: string){
 		if(instanceinfo){
 			instanceinfo.value = instanceValue;
 			localStorage.setItem("instanceinfo", JSON.stringify(instanceinfo));
-			verify!.textContent = "Instance is all good";
+			verify!.textContent = I18n.getTranslation("login.allGood");
 			// @ts-ignore
 			if(checkInstance.alt){
 			// @ts-ignore
@@ -362,11 +363,11 @@ async function checkInstance(instance?: string){
 			verify!.textContent = "";
 			}, 3000);
 		}else{
-			verify!.textContent = "Invalid Instance, try again";
+			verify!.textContent = I18n.getTranslation("login.invalid");
 		}
 	}catch{
 		console.log("catch");
-		verify!.textContent = "Invalid Instance, try again";
+		verify!.textContent = I18n.getTranslation("login.invalid");
 	}
 }
 
@@ -374,7 +375,7 @@ if(instancein){
 	console.log(instancein);
 	instancein.addEventListener("keydown", ()=>{
 		const verify = document.getElementById("verify");
-	verify!.textContent = "Waiting to check Instance";
+	verify!.textContent = I18n.getTranslation("login.waiting");
 	if(timeout !== null && typeof timeout !== "string"){
 		clearTimeout(timeout);
 	}
@@ -442,7 +443,7 @@ async function login(username: string, password: string, captcha: string){
 						let onetimecode = "";
 						new Dialog([
 							"vdiv",
-							["title", "2FA code:"],
+							["title", I18n.getTranslation("2faCode")],
 							[
 								"textbox",
 								"",
@@ -455,7 +456,7 @@ async function login(username: string, password: string, captcha: string){
 							[
 								"button",
 								"",
-								"Submit",
+								I18n.getTranslation("submit"),
 								function(){
 									fetch(api + "/auth/mfa/totp", {
 										method: "POST",

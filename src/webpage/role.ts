@@ -142,6 +142,7 @@ class PermissionToggle implements OptionsElement<number>{
 import{ OptionsElement, Buttons }from"./settings.js";
 import { Contextmenu } from "./contextmenu.js";
 import { Channel } from "./channel.js";
+import { I18n } from "./i18n.js";
 class RoleList extends Buttons{
 	permissions: [Role, Permissions][];
 	permission: Permissions;
@@ -204,26 +205,26 @@ class RoleList extends Buttons{
 		this.redoButtons();
 	}
 	makeguildmenus(option:Options){
-		option.addButtonInput("","Display settings",()=>{
+		option.addButtonInput("",I18n.getTranslation("role.displaySettings"),()=>{
 			const role=this.guild.roleids.get(this.curid as string);
 			if(!role) return;
-			const form=option.addSubForm("Display settings",()=>{},{
+			const form=option.addSubForm(I18n.getTranslation("role.displaySettings"),()=>{},{
 				fetchURL:this.info.api+"/guilds/"+this.guild.id+"/roles/"+this.curid,
 				method:"PATCH",
 				headers:this.headers,
 				traditionalSubmit:true
 			});
-			form.addTextInput("Role Name:","name",{
+			form.addTextInput(I18n.getTranslation("role.name"),"name",{
 				initText:role.name
 			});
-			form.addCheckboxInput("Hoisted:","hoist",{
+			form.addCheckboxInput(I18n.getTranslation("role.hoisted"),"hoist",{
 				initState:role.hoist
 			});
-			form.addCheckboxInput("Allow anyone to ping this role:","mentionable",{
+			form.addCheckboxInput(I18n.getTranslation("role.mentionable"),"mentionable",{
 				initState:role.mentionable
 			});
 			const color="#"+role.color.toString(16).padStart(6,"0");
-			form.addColorInput("Color","color",{
+			form.addColorInput(I18n.getTranslation("role.color"),"color",{
 				initColor:color
 			});
 			form.addPreprocessor((obj:any)=>{
@@ -236,7 +237,7 @@ class RoleList extends Buttons{
 	static guildrolemenu=this.GuildRoleMenu();
 	private static ChannelRoleMenu(){
 		const menu=new Contextmenu<RoleList,Role>("role settings");
-		menu.addbutton("Remove role",function(role){
+		menu.addbutton(()=>I18n.getTranslation("role.remove"),function(role){
 			if(!this.channel) return;
 			console.log(role);
 			fetch(this.info.api+"/channels/"+this.channel.id+"/permissions/"+role.id,{
@@ -248,8 +249,8 @@ class RoleList extends Buttons{
 	}
 	private static GuildRoleMenu(){
 		const menu=new Contextmenu<RoleList,Role>("role settings");
-		menu.addbutton("Delete Role",function(role){
-			if(!confirm("Are you sure you want to delete "+role.name+"?")) return;
+		menu.addbutton(()=>I18n.getTranslation("role.delete"),function(role){
+			if(!confirm(I18n.getTranslation("role.confirmDelete"))) return;
 			console.log(role);
 			fetch(this.info.api+"/guilds/"+this.guild.id+"/roles/"+role.id,{
 				method:"DELETE",

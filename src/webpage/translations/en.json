@@ -161,6 +161,19 @@
 			"uptimeStats":"Uptime: \n All time: $1\nThis week: $2\nToday: $3",
 			"warnOffiline":"Instance is offline, can't connect"
 		},
+		"register":{
+			"passwordError:":"Password: $1",
+			"usernameError":"Username: $1",
+			"emailError":"Email: $1",
+			"DOBError":"Date of Birth: $1",
+			"agreeTOS":"I agree to the [Terms of Service]($1):",
+			"noTOS":"This instance has no Terms of Service, accept ToS anyways:"
+		},
+		"leaving":"You're leaving Spacebar",
+		"goingToURL":"You're going to $1. Are you sure you want to go there?",
+		"goThere":"Go there",
+		"goThereTrust":"Go there and trust in the future",
+		"nevermind":"Nevermind",
 		"submit":"submit",
 		"guild":{
 			"copyId":"Copy guild id",
@@ -191,7 +204,21 @@
 			"noDelete":"Nevermind",
 			"create":"Create guild",
 			"loadingDiscovery":"Loading...",
-			"disoveryTitle":"Guild discovery ($1) {{PLURAL:$1|entrie|entries}}"
+			"disoveryTitle":"Guild discovery ($1) {{PLURAL:$1|entry|entries}}"
+		},
+		"role":{
+			"displaySettings":"Display settings",
+			"name":"Role name:",
+			"hoisted":"Hoisted:",
+			"mentionable":"Allow anyone to ping this role:",
+			"color":"Color",
+			"remove":"Remove role",
+			"delete":"Delete Role",
+			"confirmDelete":"Are you sure you want to delete $1?"
+		},
+		"settings":{
+			"unsaved":"Careful, you have unsaved changes",
+			"save":"Save changes"
 		},
 		"localuser":{
 			"settings":"Settings",
@@ -224,7 +251,42 @@
 			"password:":"Password",
 			"newEmail:":"New email",
 			"changeUsername":"Change username",
-			"newUsername":"New username:"
+			"newUsername":"New username:",
+			"changePassword":"Change password",
+			"oldPassword:":"Old password:",
+			"newPassword:":"New password:",
+			"PasswordsNoMatch":"Password don't match",
+			"disableConnection":"This connection has been disabled server-side",
+			"devPortal":"Developer Portal",
+			"createApp":"Create application",
+			"team:":"Team:",
+			"appName":"Application name:",
+			"description":"Description:",
+			"privacyPolcyURL":"Privacy policy URL:",
+			"TOSURL":"Terms of Service URL:",
+			"publicAvaliable":"Make bot publicly inviteable?",
+			"requireCode":"Require code grant to invite the bot?",
+			"manageBot":"Manage bot",
+			"addBot":"Add bot",
+			"confirmAddBot":"Are you sure you want to add a bot to this application? There's no going back.",
+			"confuseNoBot":"For some reason, this application doesn't have a bot (yet).",
+			"editingBot":"Editing bot $1",
+			"botUsername":"Bot username:",
+			"botAvatar":"Bot avatar:",
+			"resetToken":"Reset Token",
+			"confirmReset":"Are you sure you want to reset the bot token? Your bot will stop working until you update it.",
+			"tokenDisplay":"Token: $1",
+			"saveToken":"Save token to localStorage",
+			"noToken":"Don't know token so can't save it to localStorage, sorry",
+			"advancedBot":"Advanced Bot Settings",
+			"botInviteCreate":"Bot Invite Creator"
+		},
+		"instanceStats":{
+			"name":"Instance stats: $1",
+			"users":"Registered users: $1",
+			"servers":"Servers: $1",
+			"messages":"Messages: $1",
+			"members":"Members: $1"
 		},
 		"inviteOptions":{
 			"title":"Invite People",
@@ -239,6 +301,7 @@
 			"limit":"$1 {{PLURAL:$1|use|uses}}",
 			"noLimit":"No limit"
 		},
+		"2faCode":"2FA code:",
 		"invite":{
 			"invitedBy":"You've been invited by $1",
 			"alreadyJoined":"Already joined",
@@ -258,7 +321,26 @@
 		"user":{
 			"copyId":"Copy user ID",
 			"online":"Online",
-			"offline":"Offline"
+			"offline":"Offline",
+			"message":"Message user",
+			"block":"Block user",
+			"unblock":"unblock user",
+			"friendReq":"Friend request",
+			"kick":"Kick member",
+			"ban":"Ban member",
+			"addRole":"Add roles",
+			"removeRole":"Remove roles"
+		},
+		"login":{
+			"checking":"Checking Instance",
+			"allGood":"All good",
+			"invalid":"Invalid Instance, try again",
+			"waiting":"Waiting to check Instance"
+		},
+		"member":{
+			"kick":"Kick $1 from $2",
+			"reason:":"Reason:",
+			"ban":"Ban $1 from $2"
 		},
 		"errorReconnect":"Unable to connect to the server, retrying in <b>$1</b> seconds...",
 		"retrying":"Retrying...",

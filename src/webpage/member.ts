@@ -4,6 +4,7 @@ import{ Guild }from"./guild.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, presencejson }from"./jsontypes.js";
 import{ Dialog }from"./dialog.js";
+import { I18n } from "./i18n.js";
 
 class Member extends SnowFlake{
 	static already = {};
@@ -213,10 +214,10 @@ class Member extends SnowFlake{
 		let reason = "";
 		const menu = new Dialog([
 			"vdiv",
-			["title", "Kick " + this.name + " from " + this.guild.properties.name],
+			["title", I18n.getTranslation("member.kick",this.name,this.guild.properties.name)],
 			[
 				"textbox",
-				"Reason:",
+				I18n.getTranslation("member.reason:"),
 				"",
 				function(e: Event){
 					reason = (e.target as HTMLInputElement).value;
@@ -225,7 +226,7 @@ class Member extends SnowFlake{
 			[
 				"button",
 				"",
-				"submit",
+				I18n.getTranslation("submit"),
 				()=>{
 					this.kickAPI(reason);
 					menu.hide();
@@ -246,10 +247,10 @@ class Member extends SnowFlake{
 		let reason = "";
 		const menu = new Dialog([
 			"vdiv",
-			["title", "Ban " + this.name + " from " + this.guild.properties.name],
+			["title", I18n.getTranslation("member.ban",this.name,this.guild.properties.name)],
 			[
 				"textbox",
-				"Reason:",
+				I18n.getTranslation("member.reason",this.name,this.guild.properties.name),
 				"",
 				function(e: Event){
 					reason = (e.target as HTMLInputElement).value;
@@ -258,7 +259,7 @@ class Member extends SnowFlake{
 			[
 				"button",
 				"",
-				"submit",
+				I18n.getTranslation("submit",this.name,this.guild.properties.name),
 				()=>{
 					this.banAPI(reason);
 					menu.hide();
