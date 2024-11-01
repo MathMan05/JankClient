@@ -1243,25 +1243,7 @@ class Localuser{
 					{ initColor: userinfos.accent_color }
 				);
 			}
-			{
-				const box=tas.addCheckboxInput(I18n.getTranslation("localuser.enableEVoice"),()=>{},{initState:Boolean(localStorage.getItem("Voice enabled"))});
-				box.onchange=(e)=>{
-					if(e){
-						if(confirm(I18n.getTranslation("localuser.VoiceWarning"))){
-							localStorage.setItem("Voice enabled","true")
 
-						}else{
-							box.value=true;
-							const checkbox=box.input.deref();
-							if(checkbox){
-								checkbox.checked=false;
-							}
-						}
-					}else{
-						localStorage.removeItem("Voice enabled");
-					}
-				}
-			}
 		}
 		{
 			const update=settings.addButton(I18n.getTranslation("localuser.updateSettings"))
@@ -1434,6 +1416,31 @@ class Localuser{
 						}
 					});
 				});
+
+				security.addSelect(I18n.getTranslation("localuser.language"),(e)=>{
+					I18n.setLanguage(I18n.options()[e]);
+				},I18n.options(),{
+					defaultIndex:I18n.options().indexOf(I18n.lang)
+				});
+				{
+				const box=security.addCheckboxInput(I18n.getTranslation("localuser.enableEVoice"),()=>{},{initState:Boolean(localStorage.getItem("Voice enabled"))});
+				box.onchange=(e)=>{
+					if(e){
+						if(confirm(I18n.getTranslation("localuser.VoiceWarning"))){
+							localStorage.setItem("Voice enabled","true")
+
+						}else{
+							box.value=true;
+							const checkbox=box.input.deref();
+							if(checkbox){
+								checkbox.checked=false;
+							}
+						}
+					}else{
+						localStorage.removeItem("Voice enabled");
+					}
+				}
+			}
 			};
 			genSecurity();
 		}
