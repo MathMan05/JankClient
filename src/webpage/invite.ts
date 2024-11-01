@@ -1,3 +1,4 @@
+import { I18n } from "./i18n.js";
 import{ getBulkUsers, Specialuser, getapiurls }from"./login.js";
 
 (async ()=>{
@@ -38,10 +39,9 @@ import{ getBulkUsers, Specialuser, getapiurls }from"./login.js";
 	}else{
 		urls = joinable[0].serverurls;
 	}
-
+	await I18n.done;
 	if(!joinable.length){
-document.getElementById("AcceptInvite")!.textContent =
-"Create an account to accept the invite";
+document.getElementById("AcceptInvite")!.textContent = I18n.getTranslation("noAccount");
 	}
 
 	const code = window.location.pathname.split("/")[2];
@@ -57,7 +57,7 @@ document.getElementById("AcceptInvite")!.textContent =
 document.getElementById("invitename")!.textContent = guildjson.name;
 document.getElementById(
 	"invitedescription"
-)!.textContent = `${json.inviter.username} invited you to join ${guildjson.name}`;
+)!.textContent = I18n.getTranslation("invite.longInvitedBy",json.inviter.username,guildjson.name)
 if(guildjson.icon){
 	const img = document.createElement("img");
 	img.src = `${urls!.cdn}/icons/${guildjson.id}/${guildjson.icon}.png`;
@@ -120,7 +120,7 @@ document.getElementById("inviteimg")!.append(div);
 
 		const td = document.createElement("div");
 		td.classList.add("switchtable");
-		td.textContent = "Login or create an account ⇌";
+		td.textContent = I18n.getTranslation("invite.loginOrCreateAccount");
 		td.addEventListener("click", ()=>{
 			const l = new URLSearchParams("?");
 			l.set("goback", window.location.href);

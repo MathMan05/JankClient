@@ -38,6 +38,7 @@ class I18n{
             for(const thing of path){
                 if(typeof jsont !== "string" ){
                     jsont=jsont[thing];
+
                 }else{
                     jsont=json;
                     break;
