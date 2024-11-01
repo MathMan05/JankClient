@@ -17,4 +17,10 @@ Firstly, modify `en.json` to include your languages file like for example for ru
 ```
 Then to add the actual translations, just take the english version and in the same structure add your language, you must keep the left side, as that's what jank needs to know what the translation is.
 
-Thank you so much for contributing another lanuage, or even just parts, as jank will fall back to the english translation if your translation has gaps in it, so it's not all or nothing
+Thank you so much for contributing another lanuage, or even just parts, as jank will fall back to the english translation if your translation has gaps in it, so it's not all or nothing.
+
+## What is the format?
+It's the same format found (here)[https://github.com/wikimedia/jquery.i18n#message-file-format], though we are not using jquery, and you might notice some of the strings use markdown, but most do not.
+
+## I want to help correct a translation
+Go ahead! We're more than happy to take corrections to translations as well!
