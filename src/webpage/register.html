@@ -17,31 +17,31 @@
 			<h1>Create an account</h1>
 			<form id="register" submit="registertry(e)">
 				<div>
-					<label for="instance"><b>Instance:</b></label>
+					<label for="instance"  id="instanceField"><b>Instance:</b></label>
 					<p id="verify"></p>
 					<input type="search" list="instances" placeholder="Instance URL" id="instancein" name="instance" value="" required>
 				</div>
 				<div>
-					<label for="uname"><b>Email:</b></label>
+					<label for="uname" id="emailField"><b>Email:</b></label>
 					<input type="text" placeholder="Enter Email" name="uname" id="uname" required>
 				</div>
 
 				<div>
-					<label for="uname"><b>Username:</b></label>
+					<label for="uname" id="userField"><b>Username:</b></label>
 					<input type="text" placeholder="Enter Username" name="username" id="username" required>
 				</div>
 				<div>
-					<label for="psw"><b>Password:</b></label>
+					<label for="psw" id="pwField"><b>Password:</b></label>
 					<input type="password" placeholder="Enter Password" name="psw" id="psw" required>
 				</div>
 
 				<div>
-					<label for="psw2"><b>Enter password again:</b></label>
+					<label for="psw2" id="pw2Field"><b>Enter password again:</b></label>
 					<input type="password" placeholder="Enter Password Again" name="psw2" id="psw2" required>
 				</div>
 
 				<div>
-					<label for="date"><b>Date of birth:</b></label>
+					<label for="date" id="dobField"><b>Date of birth:</b></label>
 					<input type="date" id="date" name="date">
 				</div>
 
@@ -54,9 +54,9 @@
 				<div id="h-captcha">
 
 				</div>
-				<button type="submit" class="dontgrow">Create account</button>
+				<button type="submit" class="dontgrow" id="createAccount">Create account</button>
 			</form>
-			<a href="/login.html" id="switch">Already have an account?</a>
+			<a href="/login.html" id="switch" id="alreadyHave">Already have an account?</a>
 		</div>
 		<datalist id="instances"></datalist>
 		<script src="/register.js" type="module"></script>

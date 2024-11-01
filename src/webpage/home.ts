@@ -3,6 +3,36 @@ import{ mobile }from"./login.js";
 console.log(mobile);
 const serverbox = document.getElementById("instancebox") as HTMLDivElement;
 
+(async ()=>{
+	await I18n.done;
+	const openClient=document.getElementById("openClient")
+	const welcomeJank=document.getElementById("welcomeJank")
+	const box1title=document.getElementById("box1title")
+	const box1Items=document.getElementById("box1Items")
+	const compatableInstances=document.getElementById("compatableInstances")
+	const box3title=document.getElementById("box3title")
+	const box3description=document.getElementById("box3description")
+	if(openClient&&welcomeJank&&compatableInstances&&box3title&&box3description&&box1title&&box1Items){
+		openClient.textContent=I18n.getTranslation("htmlPages.openClient");
+		welcomeJank.textContent=I18n.getTranslation("htmlPages.welcomeJank");
+		box1title.textContent=I18n.getTranslation("htmlPages.box1title");
+
+		compatableInstances.textContent=I18n.getTranslation("htmlPages.compatableInstances");
+		box3title.textContent=I18n.getTranslation("htmlPages.box3title");
+		box3description.textContent=I18n.getTranslation("htmlPages.box3description");
+
+		const items=I18n.getTranslation("htmlPages.box1Items").split("|");
+		let i=0;
+		//@ts-ignore ts is being dumb here
+		for(const item of box1Items.children){
+			(item as HTMLElement).textContent=items[i];
+			i++;
+		}
+	}else{
+		console.error(openClient,welcomeJank,compatableInstances,box3title,box3description,box1title,box1Items)
+	}
+})()
+
 fetch("/instances.json")
 	.then(_=>_.json())
 	.then(

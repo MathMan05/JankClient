@@ -19,7 +19,7 @@
 		<div id="logindiv">
 			<h1>Login</h1>
 			<form id="form" submit="check(e)">
-				<label for="instance"><b>Instance:</b></label>
+				<label for="instance" id="instanceField"><b>Instance:</b></label>
 				<p id="verify"></p>
 				<input
 					type="search"
@@ -31,7 +31,7 @@
 					required
 				>
 
-				<label for="uname"><b>Email:</b></label>
+				<label for="uname" id="emailField"><b>Email:</b></label>
 				<input
 					type="text"
 					placeholder="Enter email address"
@@ -40,7 +40,7 @@
 					required
 				>
 
-				<label for="psw"><b>Password:</b></label>
+				<label for="psw" id="pwField"><b>Password:</b></label>
 				<input
 					type="password"
 					placeholder="Enter Password"
@@ -51,7 +51,7 @@
 				<p class="wrongred" id="wrong"></p>
 
 				<div id="h-captcha"></div>
-				<button type="submit">Login</button>
+				<button type="submit" id="loginButton">Login</button>
 			</form>
 			<a href="/register.html" id="switch">Don't have an account?</a>
 		</div>

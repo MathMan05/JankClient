@@ -6,7 +6,21 @@ const registerElement = document.getElementById("register");
 if(registerElement){
 	registerElement.addEventListener("submit", registertry);
 }
-
+(async ()=>{
+	await I18n.done;
+	const userField=document.getElementById("userField");
+	const pw2Field=document.getElementById("pw2Field");
+	const dobField=document.getElementById("dobField");
+	const createAccount=document.getElementById("createAccount");
+	const alreadyHave=document.getElementById("alreadyHave");
+	if(userField&&pw2Field&&alreadyHave&&createAccount&&dobField){
+		userField.textContent=I18n.getTranslation("htmlPages.userField")
+		pw2Field.textContent=I18n.getTranslation("htmlPages.pw2Field")
+		dobField.textContent=I18n.getTranslation("htmlPages.dobField")
+		createAccount.textContent=I18n.getTranslation("htmlPages.createAccount")
+		alreadyHave.textContent=I18n.getTranslation("htmlPages.alreadyHave")
+	}
+})()
 async function registertry(e: Event){
 	e.preventDefault();
 	const elements = (e.target as HTMLFormElement)
