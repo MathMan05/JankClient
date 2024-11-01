@@ -1,10 +1,10 @@
 type translation={
-    [key:string]:string|{[key:string]:string}
+    [key:string]:string|translation
 };
 let res:()=>unknown=()=>{};
 class I18n{
     static lang:string;
-    static translations:{[key:string]:string}[]=[];
+    static translations:translation[]=[];
     static done=new Promise<void>((res2,_reject)=>{
         res=res2;
     });
@@ -12,7 +12,7 @@ class I18n{
         if(typeof json === "string"){
             json=await (await fetch(json)).json() as translation;
         }
-        const translations:{[key:string]:string}[]=[];
+        const translations:translation[]=[];
         let translation=json[lang];
         if(!translation){
             translation=json[lang[0]+lang[1]];
@@ -32,9 +32,20 @@ class I18n{
     }
     static getTranslation(msg:string,...params:string[]):string{
         let str:string|undefined;
+        const path=msg.split(".");
         for(const json of this.translations){
-            str=json[msg];
-            if(str){
+            let jsont:string|translation=json;
+            for(const thing of path){
+                if(typeof jsont !== "string" ){
+                    jsont=jsont[thing];
+                }else{
+                    jsont=json;
+                    break;
+                }
+            }
+
+            if(typeof jsont === "string"){
+                str=jsont;
                 break;
             }
         }
@@ -85,7 +96,7 @@ class I18n{
         });
         return msg;
     }
-    private static async toTranslation(trans:string|{[key:string]:string},lang:string):Promise<{[key:string]:string}>{
+    private static async toTranslation(trans:string|translation,lang:string):Promise<translation>{
         if(typeof trans==='string'){
             return this.toTranslation((await (await fetch(trans)).json() as translation)[lang],lang);
         }else{

@@ -30,9 +30,7 @@ app.use(compression());
 
 async function updateInstances(): Promise<void>{
 	try{
-		const response = await fetch(
-			"https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/instances/instances.json"
-		);
+		const response = await fetch("https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/instances/instances.json");
 		const json = (await response.json()) as Instance[];
 		for(const instance of json){
 			if(instanceNames.has(instance.name)){
