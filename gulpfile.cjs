@@ -70,6 +70,13 @@ gulp.task("copy-html", () => {
     .pipe(gulp.dest("dist"));
 });
 
+gulp.task("copy-translations", () => {
+  return gulp
+    .src("translations/*.json")
+    .pipe(plumber()) // Prevent pipe breaking caused by errors
+    .pipe(gulp.dest("dist/webpage/translations"));
+});
+
 // Task to copy other static assets (e.g., CSS, images)
 gulp.task("copy-assets", () => {
   return gulp
@@ -92,5 +99,5 @@ gulp.task("copy-assets", () => {
 // Default task to run all tasks
 gulp.task(
   "default",
-  gulp.series("clean", gulp.parallel("scripts", "copy-html", "copy-assets"))
+  gulp.series("clean", gulp.parallel("scripts", "copy-html", "copy-assets","copy-translations"))
 );
