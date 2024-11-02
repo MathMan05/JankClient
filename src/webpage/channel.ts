@@ -803,10 +803,11 @@ class Channel extends SnowFlake{
 		this.localuser.pageTitle("#" + this.name);
 		const channelTopic = document.getElementById("channelTopic") as HTMLSpanElement;
 		if(this.topic){
-			channelTopic.innerHTML = new MarkDown(
+			channelTopic.innerHTML ="";
+			channelTopic.append(new MarkDown(
 				this.topic,
 				this
-			).makeHTML().innerHTML;
+			).makeHTML());
 			channelTopic.removeAttribute("hidden");
 		}else channelTopic.setAttribute("hidden", "");
 
