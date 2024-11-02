@@ -264,8 +264,11 @@ textarea {
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--primary-text-soft);
 }
-#servers::-webkit-scrollbar, #channels::-webkit-scrollbar {
+#servers::-webkit-scrollbar, #channels::-webkit-scrollbar, #sideDiv::-webkit-scrollbar {
 	display: none;
+}
+#servers, #channels, #sideDiv {
+	scrollbar-width: none;
 }
 
 /* Homepage */
