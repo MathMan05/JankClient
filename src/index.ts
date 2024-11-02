@@ -46,7 +46,7 @@ type instace={
         mastodon?:string
     }
 }
-const instances=JSON.parse(readFileSync(process.env.INSTANCES||(__dirname+"/webpage/instances.json")).toString()) as instace[];
+const instances=JSON.parse(readFileSync(process.env.JANK_INSTANCES_PATH||(__dirname+"/webpage/instances.json")).toString()) as instace[];
 
 const instanceNames = new Map<string, Instance>();
 
