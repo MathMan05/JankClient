@@ -283,8 +283,10 @@ class Localuser{
 					this.errorBackoff = 0;
 				else this.errorBackoff++;
 				this.connectionSucceed = 0;
+				const loaddesc=document.getElementById("load-desc") as HTMLElement;
 
-				(document.getElementById("load-desc") as HTMLElement).innerHTML = I18n.getTranslation("errorReconnect",Math.round(0.2 + this.errorBackoff * 2.8)+"")
+				loaddesc.innerHTML ="";
+				loaddesc.append(new MarkDown(I18n.getTranslation("errorReconnect",Math.round(0.2 + this.errorBackoff * 2.8)+"")).makeHTML());
 				switch(
 					this.errorBackoff //try to recover from bad domain
 				){
