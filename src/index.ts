@@ -7,6 +7,7 @@ import path from"node:path";
 import{ observe, uptime }from"./stats.js";
 import{ getApiUrls, inviteResponse }from"./utils.js";
 import{ fileURLToPath }from"node:url";
+import {readFileSync} from "fs";
 import process from"node:process";
 
 const devmode = (process.env.NODE_ENV || "development") === "development";
@@ -19,7 +20,34 @@ interface Instance {
 }
 
 const app = express();
-import instances from"./webpage/instances.json" with { type: "json" };
+
+type instace={
+	name:string,
+    description?:string,
+    descriptionLong?:string,
+    image?:string,
+    url?:string,
+    language:string,
+    country:string,
+    display:boolean,
+    urls?:{
+        wellknown:string,
+        api:string,
+        cdn:string,
+        gateway:string,
+        login?:string
+    },
+    contactInfo?:{
+        discord?:string,
+        github?:string,
+        email?:string,
+        spacebar?:string,
+        matrix?:string,
+        mastodon?:string
+    }
+}
+const instances=JSON.parse(readFileSync(__dirname+"/webpage/instances.json").toString()) as instace[];
+
 const instanceNames = new Map<string, Instance>();
 
 for(const instance of instances){
