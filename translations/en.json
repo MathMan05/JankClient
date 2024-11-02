@@ -158,7 +158,7 @@
 		"switchAccounts":"Switch accounts ⇌",
 		"accountNotStart":"Account unable to start",
 		"home":{
-			"uptimeStats":"Uptime: \n All time: $1\nThis week: $2\nToday: $3",
+			"uptimeStats":"Uptime: \n All time: $1%\nThis week: $2%\nToday: $3%",
 			"warnOffiline":"Instance is offline, can't connect"
 		},
 		"htmlPages":{
