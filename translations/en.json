@@ -367,7 +367,7 @@
 			"reason:":"Reason:",
 			"ban":"Ban $1 from $2"
 		},
-		"errorReconnect":"Unable to connect to the server, retrying in <b>$1</b> seconds...",
+		"errorReconnect":"Unable to connect to the server, retrying in **$1** seconds...",
 		"retrying":"Retrying...",
 		"unableToConnect":"Unable to connect to the Spacebar server. Please try logging out and back in."
     },
