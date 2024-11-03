@@ -731,6 +731,8 @@ class Channel extends SnowFlake{
 			this.replyingto.div.classList.remove("replying");
 		}
 		this.replyingto = message;
+		const typebox = document.getElementById("typebox") as HTMLElement;
+		typebox.focus();
 		if(!this.replyingto?.div)return;
 		console.log(message);
 		this.replyingto.div.classList.add("replying");
