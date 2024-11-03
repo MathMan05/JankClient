@@ -133,7 +133,7 @@
 		"leaveGuild":"Leave Guild",
 		"confirmGuildLeave":"Are you sure you want to leave $1",
 		"UrlGen":"URL generator",
-		"typing":"$2 {{PLURAL:$1|are|is}} typing",
+		"typing":"$2 {{PLURAL:$1|is|are}} typing",
 		"noMessages":"No messages appear to be here, be the first to say something!",
 		"blankMessage":"Blank Message",
 		"channel":{
