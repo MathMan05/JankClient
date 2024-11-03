@@ -99,5 +99,5 @@ gulp.task("copy-assets", () => {
 // Default task to run all tasks
 gulp.task(
   "default",
-  gulp.series("clean", gulp.parallel("scripts", "copy-html", "copy-assets","copy-translations"))
+  gulp.series("clean", gulp.parallel("scripts", "copy-html", "copy-assets"), "copy-translations")
 );
