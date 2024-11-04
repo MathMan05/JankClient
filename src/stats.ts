@@ -28,7 +28,7 @@ const uptimeObject: Map<string, UptimeEntry[]> = loadUptimeObject();
 export{ uptimeObject as uptime };
 
 function loadUptimeObject(): Map<string, UptimeEntry[]>{
-	const filePath = process.env.UPTIMEJSON||path.join(__dirname, "..", "uptime.json");
+	const filePath = process.env.JANK_UPTIME_JSON||path.join(__dirname, "..", "uptime.json");
 	if(fs.existsSync(filePath)){
 		try{
 			const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
@@ -50,7 +50,7 @@ function saveUptimeObject(): void{
 	saveTimeout = setTimeout(()=>{
 		const data = Object.fromEntries(uptimeObject);
 		fs.writeFile(
-			process.env.UPTIMEJSON||path.join(__dirname, "..", "uptime.json"),
+			process.env.JANK_UPTIME_JSON||path.join(__dirname, "..", "uptime.json"),
 			JSON.stringify(data),
 			error=>{
 				if(error){
