@@ -1,0 +1,65 @@
+{
+    "@metadata": {
+		"authors": [
+			"MathMan05"
+		],
+		"last-updated": "2024/11/4",
+		"locale": "en",
+		"comment":"Don't know how often I'll update this top part lol"
+	},
+	"qqq":{
+        "How this works":"For the strings I'm using much of the same logic as https://github.com/wikimedia/jquery.i18n with some minor modifications, though I am not using jquery, some strings are are using MarkDown, the ones that are should hopefully be obvious. \nA quick summary of everything here, $number will be replaced by something after the fact, wether it be a name or number. You'll also see {{PLURAL:$1|message|messages}} which can support as many plural forms as you need, the first one $1 will be used to select the next ones, the next ones will be the number in order, so if $1 is one it'll select the first item, if it's 2 it'll select the second item, if $1 does not point to a valid item it'll select the last item. I've also implemented GENDER, though it's unused in the translations, it'd go {{GENDER:$1|male|female|neutral}}.\nThe json format is relatively simple, the base object has a @metadata that'll credit the authors of the translation, then for each language it'll have a string that either contains the translation in json, or points to the translation as a string, for example you'll see \"ru\": \"/translations/ru.json\" in en.json as en.json does not contain the russian translation directly, instead it says that the russian translation is at that location. Untranslated strings should remain blank, Jank Client has code to fallback to other languages if strings don't exist in a translation, so do not leave the english translations in translation files that are not the english one, this is why the russian translation is largely empty.",
+        "context":"Jank Client is a spacebar client, and due to spacebar being an implementation of the discord APIs, much of Jank Clients text is like that of discord.",
+        "permissions":{
+            "description":"This object contains the descriptions of permisions, along with their names."
+        },
+        "channel":{
+            "description":"This object contains strings related to channels, which are analogous to discord channels."
+        },
+        "home":{
+            "description":"This contains the dynamic text for the homepage"
+        },
+        "htmlPages":{
+            "description":"This contains much of the text for the html pages so that they can have translations applied as well.",
+            "box1Items":"this string is slightly atypical, it has a list of items separated by |, please try to keep the same list size as this"
+        },
+        "register":{
+            "description":"This contains the dynamic text for the register page",
+            "agreeTOS":"uses MarkDown"
+        },
+        "guild":{
+            "description":"This object contains strings related to guilds, which are analogous to discord guilds."
+        },
+        "role":{
+            "description":"This object contains some strings related to roles, which are analogous to discord roles."
+        },
+        "settings":{
+            "description":"This object contains some strings related to settings menu which are fairly generic"
+        },
+        "localuser":{
+            "description":"This object contains strings related to the logged in user, which is mostly the settings for the user"
+        },
+        "instanceStats":{
+            "description":"This object contains strings related to instance stats"
+        },
+        "inviteOptions":{
+            "description":"This object contains strings for the invite creator"
+        },
+        "invite":{
+            "description":"This object contains strings for invites outside of their creation"
+        },
+        "DMs":{
+            "description":"This object contains strings related to dirrect messaging"
+        },
+        "user":{
+            "description":"This object contains strings related to users"
+        },
+        "login":{
+            "description":"This object contains strings related to the login page"
+        },
+        "member":{
+            "description":"This object contains strings related to guild members"
+        },
+        "errorReconnect":"Uses MarkDown"
+	}
+}
