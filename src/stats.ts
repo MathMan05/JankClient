@@ -28,7 +28,7 @@ const uptimeObject: Map<string, UptimeEntry[]> = loadUptimeObject();
 export{ uptimeObject as uptime };
 
 function loadUptimeObject(): Map<string, UptimeEntry[]>{
-	const filePath = path.join(__dirname, "..", "uptime.json");
+	const filePath = process.env.UPTIMEJSON||path.join(__dirname, "..", "uptime.json");
 	if(fs.existsSync(filePath)){
 		try{
 			const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
