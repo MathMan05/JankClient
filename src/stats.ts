@@ -50,7 +50,7 @@ function saveUptimeObject(): void{
 	saveTimeout = setTimeout(()=>{
 		const data = Object.fromEntries(uptimeObject);
 		fs.writeFile(
-			path.join(__dirname, "..", "uptime.json"),
+			process.env.UPTIMEJSON||path.join(__dirname, "..", "uptime.json"),
 			JSON.stringify(data),
 			error=>{
 				if(error){
