@@ -14,7 +14,7 @@ import { Role } from "./role.js";
 import { VoiceFactory } from "./voice.js";
 import { I18n } from "./i18n.js";
 
-const wsCodesRetry = new Set([4000, 4003, 4005, 4007, 4008, 4009]);
+const wsCodesRetry = new Set([4000,4001,4002, 4003, 4005, 4007, 4008, 4009]);
 
 class Localuser{
 	badges: Map<string,{ id: string; description: string; icon: string; link: string }> = new Map();
@@ -74,6 +74,8 @@ class Localuser{
 		this.guildids = new Map();
 		this.user = new User(ready.d.user, this);
 		this.user.setstatus("online");
+		this.resume_gateway_url=ready.d.resume_gateway_url;
+		this.session_id=ready.d.session_id;
 
 		this.voiceFactory=new VoiceFactory({id:this.user.id});
 		this.handleVoice();
@@ -141,16 +143,21 @@ class Localuser{
 		this.guilds = [];
 		this.guildids = new Map();
 		if(this.ws){
-			this.ws.close(4001);
+			this.ws.close(4040);
 		}
 	}
 	swapped = false;
-	async initwebsocket(): Promise<void>{
+	resume_gateway_url?:string;
+	session_id?:string;
+	async initwebsocket(resume=false): Promise<void>{
 		let returny: () => void;
+		if(!this.resume_gateway_url||!this.session_id){
+			resume=false;
+		}
 		const ws = new WebSocket(
-			this.serverurls.gateway.toString() +
-        "?encoding=json&v=9" +
-        (DecompressionStream ? "&compress=zlib-stream" : "")
+			(resume?this.resume_gateway_url:this.serverurls.gateway.toString())
+			+"?encoding=json&v=9" +
+			(DecompressionStream ? "&compress=zlib-stream" : "")
 		);
 		this.ws = ws;
 		let ds: DecompressionStream;
@@ -168,28 +175,43 @@ class Localuser{
 			returny = res;
 			ws.addEventListener("open", _event=>{
 				console.log("WebSocket connected");
-				ws.send(
-					JSON.stringify({
-						op: 2,
-						d: {
-							token: this.token,
-							capabilities: 16381,
-							properties: {
-								browser: "Jank Client",
-								client_build_number: 0, //might update this eventually lol
-								release_channel: "Custom",
-								browser_user_agent: navigator.userAgent,
+				if(resume){
+					ws.send(
+						JSON.stringify({
+							op: 6,
+							d: {
+								token: this.token,
+								session_id: this.session_id,
+								seq: this.lastSequence
+							}
+						})
+					);
+					this.resume_gateway_url=undefined;
+					this.session_id=undefined;
+				}else{
+					ws.send(
+						JSON.stringify({
+							op: 2,
+							d: {
+								token: this.token,
+								capabilities: 16381,
+								properties: {
+									browser: "Jank Client",
+									client_build_number: 0, //might update this eventually lol
+									release_channel: "Custom",
+									browser_user_agent: navigator.userAgent,
+								},
+								compress: Boolean(DecompressionStream),
+								presence: {
+									status: "online",
+									since: null, //new Date().getTime()
+									activities: [],
+									afk: false,
+								},
 							},
-							compress: Boolean(DecompressionStream),
-							presence: {
-								status: "online",
-								since: null, //new Date().getTime()
-								activities: [],
-								afk: false,
-							},
-						},
-					})
-				);
+						})
+					);
+				}
 			});
 			const textdecode = new TextDecoder();
 			if(DecompressionStream){
@@ -261,35 +283,29 @@ class Localuser{
 		ws.addEventListener("close", async event=>{
 			this.ws = undefined;
 			console.log("WebSocket closed with code " + event.code);
-
+			if((event.code > 1000 && event.code < 1016) || (wsCodesRetry.has(event.code)&&this.errorBackoff===0)){
+				this.errorBackoff++;
+				this.initwebsocket(true).then(()=>{
+					this.loaduser();
+				});
+				return;
+			}
 			this.unload();
-			(document.getElementById("loading") as HTMLElement).classList.remove(
-				"doneloading"
-			);
-			(document.getElementById("loading") as HTMLElement).classList.add(
-				"loading"
-			);
+			(document.getElementById("loading") as HTMLElement).classList.remove("doneloading");
+			(document.getElementById("loading") as HTMLElement).classList.add("loading");
 			this.fetchingmembers = new Map();
 			this.noncemap = new Map();
 			this.noncebuild = new Map();
-			if(
-				(event.code > 1000 && event.code < 1016) ||
-        wsCodesRetry.has(event.code)
-			){
-				if(
-					this.connectionSucceed !== 0 &&
-          Date.now() > this.connectionSucceed + 20000
-				)
+			if((event.code > 1000 && event.code < 1016) || wsCodesRetry.has(event.code)||event.code==4041){
+				if(this.connectionSucceed !== 0 && Date.now() > this.connectionSucceed + 20000){
 					this.errorBackoff = 0;
-				else this.errorBackoff++;
+				}else this.errorBackoff++;
 				this.connectionSucceed = 0;
 				const loaddesc=document.getElementById("load-desc") as HTMLElement;
 
 				loaddesc.innerHTML ="";
 				loaddesc.append(new MarkDown(I18n.getTranslation("errorReconnect",Math.round(0.2 + this.errorBackoff * 2.8)+"")).makeHTML());
-				switch(
-					this.errorBackoff //try to recover from bad domain
-				){
+				switch(this.errorBackoff){//try to recover from bad domain
 				case 3:
 					const newurls = await getapiurls(this.info.wellknown);
 					if(newurls){
@@ -348,6 +364,10 @@ class Localuser{
 	async handleEvent(temp: wsjson){
 		console.debug(temp);
 		if(temp.s)this.lastSequence = temp.s;
+		if(temp.op ===9&&this.ws){
+			this.errorBackoff=0;
+			this.ws.close(4041);
+		}
 		if(temp.op == 0){
 			switch(temp.t){
 				case"MESSAGE_CREATE":
