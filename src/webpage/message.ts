@@ -208,11 +208,17 @@ class Message extends SnowFlake{
 		return this.owner.info;
 	}
 	messageevents(obj: HTMLDivElement){
+		let drag=false;
 		Message.contextmenu.bindContextmenu(obj, this, undefined,(x)=>{
 			//console.log(x,y);
+			if(!drag&&x<20){
+				return
+			}
+			drag=true;
 			this.channel.moveForDrag(Math.max(x,0));
 
 		},(x,y)=>{
+			drag=false;
 			console.log(x,y);
 			this.channel.moveForDrag(-1);
 			if(x>60){
