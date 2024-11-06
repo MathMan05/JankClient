@@ -45,7 +45,12 @@ class Member extends SnowFlake{
 			}
 			(this as any)[key] = (memberjson as any)[key];
 		}
-
+		if(!this.user.bot){
+			const everyone=this.guild.roleids.get(this.guild.id);
+			if(everyone&&(this.roles.indexOf(everyone)===-1)){
+				this.roles.push(everyone)
+			}
+		}
 		this.roles.sort((a, b)=>{
 			return this.guild.roles.indexOf(a) - this.guild.roles.indexOf(b);
 		});
@@ -164,7 +169,6 @@ class Member extends SnowFlake{
 		);
 	}
 	hasRole(ID: string){
-		console.log(this.roles, ID);
 		for(const thing of this.roles){
 			if(thing.id === ID){
 				return true;
