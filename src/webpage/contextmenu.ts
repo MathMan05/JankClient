@@ -53,11 +53,11 @@ class Contextmenu<x, y>{
 
 		let visibleButtons = 0;
 		for(const thing of this.buttons){
-			if(!thing[3].bind(addinfo).call(addinfo, other))continue;
+			if(!thing[3].call(addinfo, other))continue;
 			visibleButtons++;
 
 			const intext = document.createElement("button");
-			intext.disabled = !thing[4].bind(addinfo).call(addinfo, other);
+			intext.disabled = !thing[4].call(addinfo, other);
 			intext.classList.add("contextbutton");
 			if(thing[0] instanceof Function){
 				intext.textContent = thing[0]();
@@ -66,7 +66,10 @@ class Contextmenu<x, y>{
 			}
 			console.log(thing);
 			if(thing[5] === "button" || thing[5] === "submenu"){
-				intext.onclick = thing[1].bind(addinfo, other);
+				intext.onclick = (e)=>{
+					div.remove();
+					thing[1].call(addinfo, other,e)
+				};
 			}
 
 			div.appendChild(intext);
