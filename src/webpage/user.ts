@@ -508,6 +508,7 @@ class User extends SnowFlake{
 				const roles = document.createElement("div");
 				roles.classList.add("flexltr","rolesbox");
 				for(const role of member.roles){
+					if(role.id===member.guild.id) continue;
 					const roleDiv = document.createElement("div");
 					roleDiv.classList.add("rolediv");
 					const color = document.createElement("div");
