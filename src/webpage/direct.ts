@@ -163,6 +163,8 @@ class Group extends Channel{
 		(div as any).myinfo = this;
 		div.onclick = _=>{
 			this.getHTML();
+			const toggle = document.getElementById("maintoggle") as HTMLInputElement;
+			toggle.checked = true;
 		};
 
 		return div;
@@ -290,6 +292,8 @@ class Group extends Channel{
 			div.onclick = _=>{
 				this.guild.loadGuild();
 				this.getHTML();
+				const toggle = document.getElementById("maintoggle") as HTMLInputElement;
+				toggle.checked = true;
 			};
 		}else if(current){
 			current.remove();
