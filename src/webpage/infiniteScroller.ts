@@ -147,6 +147,7 @@ offset: number
 
 				if(nextid){
 					const html = await this.getHTMLFromID(nextid);
+
 					if(!html){
 						this.destroyFromID(nextid);
 						return false;
@@ -155,6 +156,7 @@ offset: number
 					fragment.prepend(html);
 					this.HTMLElements.unshift([html, nextid]);
 					this.scrollTop += this.averageheight;
+
 				}
 			}
 			if(this.scrollTop > this.maxDist){
@@ -162,7 +164,9 @@ offset: number
 				if(html){
 					again = true;
 					await this.destroyFromID(html[1]);
+
 					this.scrollTop -= this.averageheight;
+
 				}
 			}
 			if(again){

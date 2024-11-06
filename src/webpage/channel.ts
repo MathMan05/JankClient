@@ -579,6 +579,17 @@ class Channel extends SnowFlake{
 		}
 		return div;
 	}
+	async moveForDrag(x:number){
+		const mainarea=document.getElementById("mainarea");
+		if(!mainarea) return;
+		if(x===-1){
+			mainarea.style.removeProperty("left");
+			mainarea.style.removeProperty("transition");
+			return;
+		}
+		mainarea.style.left=x+"px";
+		mainarea.style.transition="left 0s"
+	}
 	async setUpVoice(){
 		if(!this.voice) return;
 		this.voice.onMemberChange=async (memb,joined)=>{
