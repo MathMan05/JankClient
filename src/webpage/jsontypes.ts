@@ -499,7 +499,11 @@ roleCreate | {
     op: 0,
     t: "GUILD_MEMBER_UPDATE",
     d: memberjson,
-    "s": 3
+    s: 3
+}|{
+	op:9,
+	d:boolean,
+	s:number
 }|memberlistupdatejson|voiceupdate|voiceserverupdate;
 
 
