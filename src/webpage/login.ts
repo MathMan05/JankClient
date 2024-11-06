@@ -89,7 +89,7 @@ function trimswitcher(){
 }
 
 function getBulkInfo(){
-	return JSON.parse(localStorage.getItem("userinfos")!);
+	return JSON.parse(localStorage.getItem("userinfos") as string);
 }
 function setDefaults(){
 	let userinfos = getBulkInfo();
@@ -126,6 +126,7 @@ function setDefaults(){
 		};
 	}
 	if(userinfos.preferences && userinfos.preferences.notisound === undefined){
+		console.warn("uhoh")
 		userinfos.preferences.notisound = "three";
 	}
 	localStorage.setItem("userinfos", JSON.stringify(userinfos));

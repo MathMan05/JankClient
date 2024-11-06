@@ -1231,10 +1231,11 @@ class Localuser{
 			}
 
 			{
-				const userinfos = getBulkInfo();
+				let userinfos = getBulkInfo();
 				tas.addColorInput(
 					I18n.getTranslation("localuser.accentColor"),
 					_=>{
+						userinfos = getBulkInfo();
 						userinfos.accent_color = _;
 						localStorage.setItem("userinfos", JSON.stringify(userinfos));
 						document.documentElement.style.setProperty(
@@ -1347,11 +1348,11 @@ class Localuser{
 							method: "PATCH",
 						}
 					);
-					form.addTextInput(I18n.getTranslation("lcoaluser.newDiscriminator"), "discriminator");
+					form.addTextInput(I18n.getTranslation("localuser.newDiscriminator"), "discriminator");
 				});
 				security.addButtonInput("", I18n.getTranslation("localuser.changeEmail"), ()=>{
 					const form = security.addSubForm(
-						I18n.getTranslation("lcoaluser.changeEmail"),
+						I18n.getTranslation("localuser.changeEmail"),
 						_=>{
 							security.returnFromSub();
 						},

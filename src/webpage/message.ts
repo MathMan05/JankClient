@@ -208,7 +208,21 @@ class Message extends SnowFlake{
 		return this.owner.info;
 	}
 	messageevents(obj: HTMLDivElement){
-		Message.contextmenu.bindContextmenu(obj, this, undefined);
+		Message.contextmenu.bindContextmenu(obj, this, undefined,(x)=>{
+			//console.log(x,y);
+			this.channel.moveForDrag(Math.max(x,0));
+
+		},(x,y)=>{
+			console.log(x,y);
+			this.channel.moveForDrag(-1);
+			if(x>60){
+				console.log("In here?")
+				const toggle = document.getElementById("maintoggle") as HTMLInputElement;
+				toggle.checked = false;
+				console.log(toggle);
+			}
+
+		},);
 		this.div = obj;
 		obj.classList.add("messagediv");
 	}
