@@ -372,4 +372,5 @@
 		"unableToConnect":"Unable to connect to the Spacebar server. Please try logging out and back in."
     },
 	"ru": "/translations/ru.json"
+	"tr": "/translations/tr.json"
 }
