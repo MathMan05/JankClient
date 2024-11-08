@@ -254,7 +254,7 @@ class Member extends SnowFlake{
 			["title", I18n.getTranslation("member.ban",this.name,this.guild.properties.name)],
 			[
 				"textbox",
-				I18n.getTranslation("member.reason",this.name,this.guild.properties.name),
+				I18n.getTranslation("member.reason:",this.name,this.guild.properties.name),
 				"",
 				function(e: Event){
 					reason = (e.target as HTMLInputElement).value;

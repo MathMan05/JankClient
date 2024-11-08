@@ -534,6 +534,10 @@ class Localuser{
 					guild.memberupdate(temp.d)
 					break
 				}
+				default :{
+					//@ts-ignore
+					console.warn("Unhandled case "+temp.t,temp);
+				}
 			}
 
 
@@ -549,6 +553,8 @@ class Localuser{
 				if(this.connectionSucceed === 0)this.connectionSucceed = Date.now();
 				this.ws.send(JSON.stringify({ op: 1, d: this.lastSequence }));
 			}, this.heartbeat_interval);
+		}else{
+			console.log("Unhandled case "+temp.d,temp);
 		}
 	}
 	get currentVoice(){
