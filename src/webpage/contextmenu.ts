@@ -38,7 +38,7 @@ class Contextmenu<x, y>{
 		return{};
 	}
 	addsubmenu(
-		text: string,
+		text: string|(()=>string),
 		onclick: (this: x, arg: y, e: MouseEvent) => void,
 		img = null,
 		shown: (this: x, arg: y) => boolean = _=>true,

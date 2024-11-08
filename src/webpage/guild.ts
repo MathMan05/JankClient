@@ -302,7 +302,7 @@ class Guild extends SnowFlake{
 				[
 					"button",
 					"",
-					I18n.getTranslation("yesLeave"),
+					I18n.getTranslation("guild.yesLeave"),
 					(_: any)=>{
 						this.leave().then(_=>{
 							full.hide();
@@ -312,7 +312,7 @@ class Guild extends SnowFlake{
 				[
 					"button",
 					"",
-					I18n.getTranslation("noLeave"),
+					I18n.getTranslation("guild.noLeave"),
 					(_: any)=>{
 						full.hide();
 					},
@@ -473,7 +473,7 @@ class Guild extends SnowFlake{
 			],
 			[
 				"textbox",
-				I18n.getTranslation("serverName"),
+				I18n.getTranslation("guild.serverName"),
 				"",
 				function(this: HTMLInputElement){
 					confirmname = this.value;
@@ -484,7 +484,7 @@ class Guild extends SnowFlake{
 				[
 					"button",
 					"",
-					I18n.getTranslation("yesDelete"),
+					I18n.getTranslation("guild.yesDelete"),
 					(_: any)=>{
 						console.log(confirmname);
 						if(confirmname !== this.properties.name){
@@ -498,7 +498,7 @@ class Guild extends SnowFlake{
 				[
 					"button",
 					"",
-					I18n.getTranslation("noDelete"),
+					I18n.getTranslation("guild.noDelete"),
 					(_: any)=>{
 						full.hide();
 					},

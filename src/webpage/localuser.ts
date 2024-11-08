@@ -1474,7 +1474,7 @@ class Localuser{
 			genSecurity();
 		}
 		{
-			const connections = settings.addButton("Connections");
+			const connections = settings.addButton(I18n.getTranslation("localuser.connections"));
 			const connectionContainer = document.createElement("div");
 			connectionContainer.id = "connection-container";
 
