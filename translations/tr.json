@@ -370,5 +370,5 @@
         "errorReconnect": "Sunucuya bağlanılamadı, **$1** saniye içinde yeniden denenecek...",
         "retrying": "Yeniden deneniyor...",
         "unableToConnect": "Spacebar sunucusuna bağlanılamıyor. Lütfen çıkış yapıp tekrar deneyin."
-    },
+    }
 }

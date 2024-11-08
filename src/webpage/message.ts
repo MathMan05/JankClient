@@ -66,7 +66,7 @@ class Message extends SnowFlake{
 			navigator.clipboard.writeText(this.id);
 		});
 		Message.contextmenu.addsubmenu(
-			"Add reaction",
+			()=>I18n.getTranslation("message.reactionAdd"),
 			function(this: Message, _, e: MouseEvent){
 				Emoji.emojiPicker(e.x, e.y, this.localuser).then(_=>{
 					this.reactionToggle(_);
@@ -74,7 +74,7 @@ class Message extends SnowFlake{
 			}
 		);
 		Message.contextmenu.addbutton(
-			"Edit",
+			()=>I18n.getTranslation("message.delete"),
 			function(this: Message){
 				this.setEdit();
 			},

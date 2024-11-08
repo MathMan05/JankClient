@@ -106,7 +106,7 @@ class I18n{
         }
     }
     static options(){
-        return ["en","ru"]
+        return ["en","ru","tr"]
     }
     static setLanguage(lang:string){
         if(this.options().indexOf(userLocale)!==-1){
