@@ -1,3 +1,10 @@
+//@ts-ignore
+import {langs} from "./translations/langs.js";
+const langmap=new Map<string,string>();
+for(const lang of Object.keys(langs) as string[]){
+    langmap.set(lang,langs[lang]);
+}
+console.log(langs);
 type translation={
     [key:string]:string|translation
 };
@@ -8,23 +15,13 @@ class I18n{
     static done=new Promise<void>((res2,_reject)=>{
         res=res2;
     });
-    static async create(json:translation|string,lang:string){
-        if(typeof json === "string"){
-            json=await (await fetch(json)).json() as translation;
-        }
+    static async create(lang:string){
+
+        const json=await (await fetch("/translations/"+lang+".json")).json() as translation;
         const translations:translation[]=[];
-        let translation=json[lang];
-        if(!translation){
-            translation=json[lang[0]+lang[1]];
-            if(!translation){
-                console.error(lang+" does not exist in the translations");
-                translation=json["en"];
-                lang="en";
-            }
-        }
-        translations.push(await this.toTranslation(translation,lang));
+        translations.push(json);
         if(lang!=="en"){
-            translations.push(await this.toTranslation(json["en"],"en"))
+            translations.push(await (await fetch("/translations/en.json")).json() as translation);
         }
         this.lang=lang;
         this.translations=translations;
@@ -98,24 +95,17 @@ class I18n{
 
         return msg;
     }
-    private static async toTranslation(trans:string|translation,lang:string):Promise<translation>{
-        if(typeof trans==='string'){
-            return this.toTranslation((await (await fetch(trans)).json() as translation)[lang],lang);
-        }else{
-            return trans;
-        }
-    }
     static options(){
-        return ["en","ru","tr"]
+        return [...langmap.keys()].map(e=>e.replace(".json",""));
     }
     static setLanguage(lang:string){
         if(this.options().indexOf(userLocale)!==-1){
             localStorage.setItem("lang",lang);
-            I18n.create("/translations/en.json",lang);
+            I18n.create(lang);
         }
     }
 }
-
+console.log(langmap);
 let userLocale = navigator.language.slice(0,2) || "en";
 if(I18n.options().indexOf(userLocale)===-1){
     userLocale="en";
@@ -126,6 +116,6 @@ if(storage){
 }else{
     localStorage.setItem("lang",userLocale)
 }
-I18n.create("/translations/en.json",userLocale);
+I18n.create(userLocale);
 
 export{I18n};

@@ -1,7 +1,7 @@
 import { I18n } from "./i18n.js";
 import{ checkInstance, adduser }from"./login.js";
 import { MarkDown } from "./markdown.js";
-
+await I18n.done
 const registerElement = document.getElementById("register");
 if(registerElement){
 	registerElement.addEventListener("submit", registertry);

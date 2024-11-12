@@ -4,6 +4,64 @@ import { I18n } from "./i18n.js";
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
+
+const instancefetch=fetch("/instances.json")
+	.then(res=>res.json())
+	.then(
+		(json: {
+			name: string;
+			description?: string;
+			descriptionLong?: string;
+			image?: string;
+			url?: string;
+			display?: boolean;
+			online?: boolean;
+			uptime: { alltime: number; daytime: number; weektime: number };
+			urls: {
+				wellknown: string;
+				api: string;
+				cdn: string;
+				gateway: string;
+				login?: string;
+			}
+		}[]
+		)=>{
+			instances = json;
+			if(datalist){
+				console.warn(json);
+				if(instancein && instancein.value === ""){
+					instancein.value = json[0].name;
+				}
+				for(const instance of json){
+					if(instance.display === false){
+						continue;
+					}
+					const option = document.createElement("option");
+					option.disabled = !instance.online;
+					option.value = instance.name;
+					if(instance.url){
+						stringURLMap.set(option.value, instance.url);
+						if(instance.urls){
+							stringURLsMap.set(instance.url, instance.urls);
+						}
+					}else if(instance.urls){
+						stringURLsMap.set(option.value, instance.urls);
+					}else{
+						option.disabled = true;
+					}
+					if(instance.description){
+						option.label = instance.description;
+					}else{
+						option.label = instance.name;
+					}
+					datalist.append(option);
+				}
+				checkInstance("");
+			}
+		}
+	);
+
+await I18n.done
 function setTheme(){
 	let name = localStorage.getItem("theme");
 	if(!name){
@@ -353,6 +411,7 @@ async function getapiurls(str: string): Promise<
 	}
 }
 async function checkInstance(instance?: string){
+	await instancefetch;
 	const verify = document.getElementById("verify");
 	try{
 		verify!.textContent = I18n.getTranslation("login.checking");
@@ -633,58 +692,4 @@ export function getInstances(){
 	return instances;
 }
 
-fetch("/instances.json")
-	.then(res=>res.json())
-	.then(
-		(json: {
-			name: string;
-			description?: string;
-			descriptionLong?: string;
-			image?: string;
-			url?: string;
-			display?: boolean;
-			online?: boolean;
-			uptime: { alltime: number; daytime: number; weektime: number };
-			urls: {
-				wellknown: string;
-				api: string;
-				cdn: string;
-				gateway: string;
-				login?: string;
-			}
-		}[]
-		)=>{
-			instances = json;
-			if(datalist){
-				console.warn(json);
-				if(instancein && instancein.value === ""){
-					instancein.value = json[0].name;
-				}
-				for(const instance of json){
-					if(instance.display === false){
-						continue;
-					}
-					const option = document.createElement("option");
-					option.disabled = !instance.online;
-					option.value = instance.name;
-					if(instance.url){
-						stringURLMap.set(option.value, instance.url);
-						if(instance.urls){
-							stringURLsMap.set(instance.url, instance.urls);
-						}
-					}else if(instance.urls){
-						stringURLsMap.set(option.value, instance.urls);
-					}else{
-						option.disabled = true;
-					}
-					if(instance.description){
-						option.label = instance.description;
-					}else{
-						option.label = instance.name;
-					}
-					datalist.append(option);
-				}
-				checkInstance("");
-			}
-		}
-	);
+

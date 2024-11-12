@@ -405,9 +405,7 @@ class Guild extends SnowFlake{
 			return a.position - b.position;
 		});
 	}
-	static generateGuildIcon(
-		guild: Guild | (invitejson["guild"] & { info: { cdn: string } })
-	){
+	static generateGuildIcon(guild: Guild | (invitejson["guild"] & { info: { cdn: string } })){
 		const divy = document.createElement("div");
 		divy.classList.add("servernoti");
 
