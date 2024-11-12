@@ -158,6 +158,7 @@ class Member extends SnowFlake{
 				}
 			});
 			user.members.set(guild, promise);
+			return await promise;
 		}
 		if(maybe instanceof Promise){
 			return await maybe;

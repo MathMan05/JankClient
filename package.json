@@ -1,6 +1,6 @@
 {
   "name": "jankclient",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A SpaceBar Client written in TS HTML and CSS to run, clone the repo and do either `npm start` or `bun start` both bun and node are supported, and both should function as expected. To access Jank Client after init simply go to http://localhost:8080/login and login with your username and password.",
   "main": ".dist/index.js",
   "type": "module",
@@ -15,8 +15,8 @@
     "@html-eslint/parser": "^0.27.0",
     "@stylistic/eslint-plugin-js": "^2.8.0",
     "@swc/core": "^1.7.26",
-    "@typescript-eslint/eslint-plugin": "^8.6.0",
-    "@typescript-eslint/parser": "^8.6.0",
+    "@typescript-eslint/eslint-plugin": "^8.14.0",
+    "@typescript-eslint/parser": "^8.14.0",
     "compression": "^1.7.4",
     "eslint-plugin-html": "^8.1.1",
     "express": "^4.19.2",
@@ -41,6 +41,6 @@
     "gulp-plumber": "^1.2.1",
     "gulp-typescript": "^6.0.0-alpha.1",
     "typescript": "^5.6.2",
-    "typescript-eslint": "^8.6.0"
+    "typescript-eslint": "^8.14.0"
   }
 }
