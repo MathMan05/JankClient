@@ -309,7 +309,8 @@
 		},
 		"message":{
 			"reactionAdd":"Add reaction",
-			"delete":"Delete message"
+			"delete":"Delete message",
+			"edit":"Edit message"
 		},
 		"instanceStats":{
 			"name":"Instance stats: $1",

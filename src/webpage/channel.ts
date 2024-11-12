@@ -856,6 +856,16 @@ class Channel extends SnowFlake{
 		setTimeout(this.rendertyping.bind(this), 10000);
 		this.rendertyping();
 	}
+	similar(str:string){
+		if(this.type===4) return -1;
+		const strl=Math.max(str.length,1)
+		if(this.name.includes(str)){
+			return strl/this.name.length;
+		}else if(this.name.toLowerCase().includes(str.toLowerCase())){
+			return strl/this.name.length/1.2;
+		}
+		return 0;
+	}
 	rendertyping(): void{
 		const typingtext = document.getElementById("typing") as HTMLDivElement;
 		let build = "";

@@ -74,7 +74,7 @@ class Message extends SnowFlake{
 			}
 		);
 		Message.contextmenu.addbutton(
-			()=>I18n.getTranslation("message.delete"),
+			()=>I18n.getTranslation("message.edit"),
 			function(this: Message){
 				this.setEdit();
 			},
@@ -84,7 +84,7 @@ class Message extends SnowFlake{
 			}
 		);
 		Message.contextmenu.addbutton(
-			"Delete message",
+			()=>I18n.getTranslation("message.delete"),
 			function(this: Message){
 				this.delete();
 			},
