@@ -1854,7 +1854,7 @@ class Localuser{
 				}
 			}
 		}
-		members.sort((a,b)=>a[1]-b[1]);
+		members.sort((a,b)=>b[1]-a[1]);
 		this.MDSearchOptions(members.map((a)=>["@"+a[0].name,`<@${a[0].id}> `]),original);
 	}
 	MDFindMention(name:string,original:string){
