@@ -135,7 +135,7 @@ class Member extends SnowFlake{
 			}
 			return 0;
 		}
-		return Math.max(similar(this.user.name),similar(this.user.nickname),similar(this.nick),similar(this.user.username))
+		return Math.max(similar(this.user.name),similar(this.user.nickname),similar(this.nick),similar(this.user.username),similar(this.id));
 	}
 	static async resolveMember(
 		user: User,
