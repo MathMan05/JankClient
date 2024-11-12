@@ -4,7 +4,27 @@ import { I18n } from "./i18n.js";
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 
-
+let instances:
+| {
+name: string;
+description?: string;
+descriptionLong?: string;
+image?: string;
+url?: string;
+display?: boolean;
+online?: boolean;
+uptime: { alltime: number; daytime: number; weektime: number };
+urls: {
+wellknown: string;
+api: string;
+cdn: string;
+gateway: string;
+login?: string;
+};
+}[]
+| null;
+const datalist = document.getElementById("instances");
+console.warn(datalist);
 const instancefetch=fetch("/instances.json")
 	.then(res=>res.json())
 	.then(
@@ -70,25 +90,7 @@ function setTheme(){
 	}
 	document.body.className = name + "-theme";
 }
-let instances:
-| {
-name: string;
-description?: string;
-descriptionLong?: string;
-image?: string;
-url?: string;
-display?: boolean;
-online?: boolean;
-uptime: { alltime: number; daytime: number; weektime: number };
-urls: {
-wellknown: string;
-api: string;
-cdn: string;
-gateway: string;
-login?: string;
-};
-}[]
-| null;
+
 
 (async ()=>{
 	await I18n.done
@@ -686,8 +688,7 @@ export{
 	adduser,
 };
 
-const datalist = document.getElementById("instances");
-console.warn(datalist);
+
 export function getInstances(){
 	return instances;
 }

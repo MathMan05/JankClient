@@ -7,13 +7,6 @@ import{ File }from"./file.js";
 import { I18n } from "./i18n.js";
 
 (async ()=>{
-	async function waitForLoad(): Promise<void>{
-		return new Promise(resolve=>{
-			document.addEventListener("DOMContentLoaded", _=>resolve());
-		});
-	}
-
-	await waitForLoad();
 	await I18n.done
 	const users = getBulkUsers();
 	if(!users.currentuser){
