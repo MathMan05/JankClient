@@ -208,6 +208,7 @@ class Guild extends SnowFlake{
 		}
 		this.sortRoles();
 		if(member instanceof User){
+			console.warn(member);
 			Member.resolveMember(member, this).then(_=>{
 				if(_){
 					this.member = _;
@@ -415,6 +416,7 @@ class Guild extends SnowFlake{
 		divy.append(noti);
 		if(guild instanceof Guild){
 			guild.localuser.guildhtml.set(guild.id, divy);
+			guild.html=divy;
 		}
 		let icon: string | null;
 		if(guild instanceof Guild){

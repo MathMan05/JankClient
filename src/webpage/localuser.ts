@@ -436,7 +436,7 @@ class Localuser{
 					}
 					break;
 				}
-				case"GUILD_CREATE": {
+				case"GUILD_CREATE": (async()=>{
 					const guildy = new Guild(temp.d, this, this.user);
 					this.guilds.push(guildy);
 					this.guildids.set(guildy.id, guildy);
@@ -444,8 +444,9 @@ class Localuser{
 						guildy.generateGuildIcon(),
 						document.getElementById("bottomseparator")
 					);
-					break;
-				}
+
+				})();
+				break;
 				case"MESSAGE_REACTION_ADD":
 					{
 						temp.d.guild_id ??= "@me";
@@ -600,7 +601,7 @@ class Localuser{
 		if(!guild)return;
 		const channel = guild.createChannelpac(json);
 		if(json.guild_id === this.lookingguild?.id){
-			this.loadGuild(json.guild_id);
+			this.loadGuild(json.guild_id,true);
 		}
 		if(channel.id === this.gotoid){
 			guild.loadGuild();
@@ -743,7 +744,7 @@ class Localuser{
 		}
 
 		if(json.guild_id === this.lookingguild?.id){
-			this.loadGuild(json.guild_id);
+			this.loadGuild(json.guild_id,true);
 		}
 	}
 	init(): void{
@@ -770,12 +771,13 @@ class Localuser{
 			return false;
 		}
 	}
-	loadGuild(id: string): Guild | undefined{
+	loadGuild(id: string,forceReload=false): Guild | undefined{
 		let guild = this.guildids.get(id);
 		if(!guild){
 			guild = this.guildids.get("@me");
 		}
-		if(this.lookingguild === guild){
+		console.log(forceReload);
+		if((!forceReload)&&(this.lookingguild === guild)){
 			return guild;
 		}
 		if(this.channelfocus){
@@ -1939,11 +1941,11 @@ class Localuser{
 		}
 		const guild = this.guildids.get(guildid);
 		const borked = true;
-		if(borked && guild && guild.member_count > 250){
+		if( !guild || borked && guild.member_count > 250){
 			//sorry puyo, I need to fix member resolving while it's broken on large guilds
 			try{
 				const req = await fetch(
-					this.info.api + "/guilds/" + guild.id + "/members/" + id,
+					this.info.api + "/guilds/" + guildid + "/members/" + id,
 					{
 						headers: this.headers,
 					}
