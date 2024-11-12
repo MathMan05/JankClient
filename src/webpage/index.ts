@@ -157,6 +157,7 @@ import { I18n } from "./i18n.js";
 	let replyingTo: Message | null = null;
 
 	async function handleEnter(event: KeyboardEvent): Promise<void>{
+		if(thisUser.keyup(event)){return}
 		const channel = thisUser.channelfocus;
 		if(!channel)return;
 
@@ -198,15 +199,14 @@ import { I18n } from "./i18n.js";
 		}
 	}
 
-		interface CustomHTMLDivElement extends HTMLDivElement {
-		markdown: MarkDown;
-		}
+		interface CustomHTMLDivElement extends HTMLDivElement {markdown: MarkDown;}
 
 		const typebox = document.getElementById("typebox") as CustomHTMLDivElement;
 		const markdown = new MarkDown("", thisUser);
 		typebox.markdown = markdown;
 		typebox.addEventListener("keyup", handleEnter);
 		typebox.addEventListener("keydown", event=>{
+			thisUser.keydown(event)
 			if(event.key === "Enter" && !event.shiftKey) event.preventDefault();
 		});
 		markdown.giveBox(typebox);

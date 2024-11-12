@@ -124,6 +124,19 @@ class Member extends SnowFlake{
 			return memb;
 		}
 	}
+	compare(str:string){
+		function similar(str2:string|null|undefined){
+			if(!str2) return 0;
+			const strl=Math.max(str.length,1)
+			if(str2.includes(str)){
+				return strl/str2.length;
+			}else if(str2.toLowerCase().includes(str.toLowerCase())){
+				return strl/str2.length/1.2;
+			}
+			return 0;
+		}
+		return Math.max(similar(this.user.name),similar(this.user.nickname),similar(this.nick),similar(this.user.username))
+	}
 	static async resolveMember(
 		user: User,
 		guild: Guild

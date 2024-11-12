@@ -687,7 +687,9 @@ txt[j + 1] === undefined)
 		e.target.classList.remove("spoiler");
 		e.target.classList.add("unspoiled");
 	}
-	giveBox(box: HTMLDivElement){
+	onUpdate:(upto:string,pre:boolean)=>unknown=()=>{};
+	giveBox(box: HTMLDivElement,onUpdate:(upto:string,pre:boolean)=>unknown=()=>{}){
+		this.onUpdate=onUpdate;
 		box.onkeydown = _=>{
 			//console.log(_);
 		};
@@ -698,7 +700,9 @@ txt[j + 1] === undefined)
 				prevcontent = content;
 				this.txt = content.split("");
 				this.boxupdate(box);
+				MarkDown.gatherBoxText(box);
 			}
+
 		};
 		box.onpaste = _=>{
 			if(!_.clipboardData)return;
@@ -717,7 +721,10 @@ txt[j + 1] === undefined)
 		box.append(this.makeHTML({ keep: true }));
 		if(restore){
 			restore();
+			const test=saveCaretPosition(box);
+			if(test) test();
 		}
+		this.onUpdate(text,formatted);
 	}
 	static gatherBoxText(element: HTMLElement): string{
 		if(element.tagName.toLowerCase() === "img"){
@@ -729,11 +736,17 @@ txt[j + 1] === undefined)
 		if(element.hasAttribute("real")){
 			return element.getAttribute("real") as string;
 		}
+		if(element.tagName.toLowerCase() === "pre"||element.tagName.toLowerCase() === "samp"){
+			formatted=true;
+		}else{
+			formatted=false;
+		}
 		let build = "";
 		for(const thing of Array.from(element.childNodes)){
 			if(thing instanceof Text){
 				const text = thing.textContent;
 				build += text;
+
 				continue;
 			}
 			const text = this.gatherBoxText(thing as HTMLElement);
@@ -747,10 +760,7 @@ txt[j + 1] === undefined)
 	static safeLink(elm: HTMLElement, url: string){
 		if(URL.canParse(url)){
 			const Url = new URL(url);
-			if(
-				elm instanceof HTMLAnchorElement &&
-	this.trustedDomains.has(Url.host)
-			){
+			if(elm instanceof HTMLAnchorElement && this.trustedDomains.has(Url.host)){
 				elm.href = url;
 				elm.target = "_blank";
 				return;
@@ -820,20 +830,81 @@ txt[j + 1] === undefined)
 
 //solution from https://stackoverflow.com/questions/4576694/saving-and-restoring-caret-position-for-contenteditable-div
 let text = "";
-function saveCaretPosition(context: Node){
-	const selection = window.getSelection();
+let formatted=false;
+function saveCaretPosition(context: HTMLElement){
+	const selection = window.getSelection() as Selection;
 	if(!selection)return;
 	const range = selection.getRangeAt(0);
+	let base=selection.anchorNode as Node;
+	range.setStart(base, 0);
+	let baseString:string;
+	if(!(base instanceof Text)){
+		let i=0;
+		const index=selection.focusOffset;
+		//@ts-ignore
+		for(const thing of base.childNodes){
+			if(i===index){
+				base=thing;
+				break;
+			}
+			i++;
+		}
+		if(base instanceof HTMLElement){
+			baseString=MarkDown.gatherBoxText(base)
+		}else{
+			baseString=base.textContent as string;
+		}
+	}else{
+		baseString=selection.toString();
+	}
+
+
 	range.setStart(context, 0);
-	text = selection.toString();
-	let len = text.length + 1;
-	for(const str in text.split("\n")){
-		if(str.length !== 0){
-			len--;
+
+	let build="";
+	//I think this is working now :3
+	function crawlForText(context:Node){
+		//@ts-ignore
+		const children=[...context.childNodes];
+		if(children.length===1&&children[0] instanceof Text){
+			if(selection.containsNode(context,false)){
+				build+=MarkDown.gatherBoxText(context as HTMLElement);
+			}else if(selection.containsNode(context,true)){
+				if(context.contains(base)||context===base||base.contains(context)){
+					build+=baseString;
+				}else{
+					build+=context.textContent;
+				}
+			}else{
+				console.error(context);
+			}
+			return;
+		}
+		for(const node of children as Node[]){
+
+			if(selection.containsNode(node,false)){
+				if(node instanceof HTMLElement){
+					build+=MarkDown.gatherBoxText(node);
+				}else{
+					build+=node.textContent;
+				}
+			}else if(selection.containsNode(node,true)){
+				if(node instanceof HTMLElement){
+					crawlForText(node);
+				}else{
+					console.error(node,"This shouldn't happen")
+				}
+			}else{
+				console.error(node,"This shouldn't happen");
+			}
 		}
 	}
-	len += Number(text.at(-1) === "\n");
-
+	crawlForText(context);
+	if(baseString==="\n"){
+		build+=baseString;
+	}
+	text=build;
+	const len=build.length;
 	return function restore(){
 		if(!selection)return;
 		const pos = getTextNodeAtPosition(context, len);
@@ -844,20 +915,49 @@ function saveCaretPosition(context: Node){
 	};
 }
 
-function getTextNodeAtPosition(root: Node, index: number){
-	const NODE_TYPE = NodeFilter.SHOW_TEXT;
-	const treeWalker = document.createTreeWalker(root, NODE_TYPE, elem=>{
-		if(!elem.textContent)return 0;
-		if(index > elem.textContent.length){
-			index -= elem.textContent.length;
-			return NodeFilter.FILTER_REJECT;
+function getTextNodeAtPosition(root: Node, index: number):{
+			node: Node,
+			position: number,
+		}{
+	if(root instanceof Text){
+		return{
+			node: root,
+			position: index,
+		};
+	}else if(root instanceof HTMLBRElement){
+		return{
+			node: root,
+			position: 0,
+		};
+	}else if(root instanceof HTMLElement&&root.hasAttribute("real")){
+		return{
+			node: root,
+			position: -1,
+		};
+	}
+	for(const node of root.childNodes as unknown as Node[]){
+		let len:number
+		if(node instanceof HTMLElement){
+			len=MarkDown.gatherBoxText(node).length;
+		}else{
+			len=(node.textContent as string).length
 		}
-		return NodeFilter.FILTER_ACCEPT;
-	});
-	const c = treeWalker.nextNode();
+		if(len<index){
+			index-=len;
+		}else{
+			const returny=getTextNodeAtPosition(node,index);
+			if(returny.position===-1){
+				index=0;
+				continue;
+			}
+			return returny;
+		}
+	}
+	const span=document.createElement("span");
+	root.appendChild(span)
 	return{
-		node: c ? c : root,
-		position: index,
+		node: span,
+		position: 0,
 	};
 }
-export{ MarkDown };
+export{ MarkDown , saveCaretPosition, getTextNodeAtPosition};

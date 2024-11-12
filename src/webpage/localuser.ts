@@ -5,10 +5,10 @@ import{ AVoice }from"./audio.js";
 import{ User }from"./user.js";
 import{ Dialog }from"./dialog.js";
 import{ getapiurls, getBulkInfo, setTheme, Specialuser, SW }from"./login.js";
-import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
+import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,userjson,wsjson,}from"./jsontypes.js";
 import{ Member }from"./member.js";
 import{ Form, FormError, Options, Settings }from"./settings.js";
-import{ MarkDown }from"./markdown.js";
+import{ getTextNodeAtPosition, MarkDown, saveCaretPosition }from"./markdown.js";
 import { Bot } from "./bot.js";
 import { Role } from "./role.js";
 import { VoiceFactory } from "./voice.js";
@@ -67,6 +67,7 @@ class Localuser{
 		};
 	}
 	async gottenReady(ready: readyjson): Promise<void>{
+
 		await I18n.done;
 		this.initialized = true;
 		this.ready = ready;
@@ -76,6 +77,8 @@ class Localuser{
 		this.user.setstatus("online");
 		this.resume_gateway_url=ready.d.resume_gateway_url;
 		this.session_id=ready.d.session_id;
+
+		this.mdBox();
 
 		this.voiceFactory=new VoiceFactory({id:this.user.id});
 		this.handleVoice();
@@ -1711,11 +1714,226 @@ class Localuser{
 			Bot.InviteMaker(appId,form,this.info);
 		})
 	}
+	typeMd?:MarkDown;
+	readonly autofillregex=Object.freeze(/[@#:]([a-z0-9 ]*)$/i);
+	mdBox(){
+		interface CustomHTMLDivElement extends HTMLDivElement {markdown: MarkDown;}
+
+		const typebox = document.getElementById("typebox") as CustomHTMLDivElement;
+		this.typeMd=typebox.markdown;
+		this.typeMd.onUpdate=this.search.bind(this);
+	}
+	MDReplace(replacewith:string,original:string){
+		const typebox = document.getElementById("typebox") as HTMLDivElement;
+		if(!this.typeMd)return;
+		let raw=this.typeMd.rawString;
+		raw=raw.split(original)[1];
+		if(raw===undefined) return;
+		raw=original.replace(this.autofillregex,"")+replacewith+raw;
+		console.log(raw);
+		console.log(replacewith);
+		console.log(original);
+		this.typeMd.txt = raw.split("");
+		this.typeMd.boxupdate(typebox);
+	}
+	MDSearchOptions(options:[string,string][],original:string){
+		console.warn(original);
+		const div=document.getElementById("searchOptions");
+		if(!div)return;
+		div.innerHTML="";
+		let i=0;
+		const htmloptions:HTMLSpanElement[]=[];
+		for(const thing of options){
+			if(i==8){
+				break;
+			}
+			i++;
+			const span=document.createElement("span");
+			htmloptions.push(span);
+			span.textContent=thing[0];
+			span.onclick=(e)=>{
+
+				if(e){
+					const selection = window.getSelection() as Selection;
+					const typebox = document.getElementById("typebox") as HTMLDivElement;
+					if(selection){
+						console.warn(original);
+						const pos = getTextNodeAtPosition(typebox, original.length-(original.match(this.autofillregex) as RegExpMatchArray)[0].length+thing[1].length);
+						selection.removeAllRanges();
+						const range = new Range();
+						range.setStart(pos.node, pos.position);
+						selection.addRange(range);
+					}
+					e.preventDefault();
+					typebox.focus();
+				}
+				this.MDReplace(thing[1],original);
+				div.innerHTML="";
+				remove();
+			}
+			div.prepend(span);
+		}
+		const remove=()=>{
+			if(div&&div.innerHTML===""){
+				this.keyup=()=>false;
+				this.keydown=()=>{};
+				return true;
+			}
+			return false;
+		}
+		if(htmloptions[0]){
+			let curindex=0;
+			let cur=htmloptions[0];
+			cur.classList.add("selected");
+			const cancel=new Set(["ArrowUp","ArrowDown","Enter","Tab"]);
+			this.keyup=(event)=>{
+				if(remove()) return false;
+				if(cancel.has(event.key)){
+					switch(event.key){
+						case "ArrowUp":
+							if(htmloptions[curindex+1]){
+								cur.classList.remove("selected");
+								curindex++;
+								cur=htmloptions[curindex];
+								cur.classList.add("selected");
+							}
+							break;
+						case "ArrowDown":
+							if(htmloptions[curindex-1]){
+								cur.classList.remove("selected");
+								curindex--;
+								cur=htmloptions[curindex];
+								cur.classList.add("selected");
+							}
+							break;
+						case "Enter":
+						case "Tab":
+							//@ts-ignore
+							cur.onclick();
+							break;
+					}
+					return true;
+				}
+				return false;
+			}
+			this.keydown=(event)=>{
+				if(remove()) return;
+				if(cancel.has(event.key)){
+					event.preventDefault();
+				}
+			}
+		}else{
+			remove();
+		}
+	}
+	MDFindChannel(name:string,orginal:string){
+		const maybe:[number,Channel][]=[];
+		if(this.lookingguild&&this.lookingguild.id!=="@me"){
+			for(const channel of this.lookingguild.channels){
+				const confidence=channel.similar(name);
+				if(confidence>0){
+					maybe.push([confidence,channel]);
+				}
+			}
+		}
+		maybe.sort((a,b)=>b[0]-a[0]);
+		this.MDSearchOptions(maybe.map((a)=>["# "+a[1].name,`<#${a[1].id}> `]),orginal);
+	}
+	async getUser(id:string){
+		if(this.userMap.has(id)){
+			return this.userMap.get(id) as User;
+		}
+		return new User(await (await fetch(this.info.api+"/users/"+id)).json(),this);
+	}
+	MDFineMentionGen(name:string,original:string){
+		let members:[Member,number][]=[];
+		if(this.lookingguild){
+			for(const member of this.lookingguild.members){
+				const rank=member.compare(name);
+				if(rank>0){
+					members.push([member,rank])
+				}
+			}
+		}
+		members.sort((a,b)=>a[1]-b[1]);
+		console.log(members);
+		this.MDSearchOptions(members.map((a)=>["@"+a[0].name,`<@${a[0].id}> `]),original);
+	}
+	MDFindMention(name:string,original:string){
+		console.log(original);
+		if(this.ws&&this.lookingguild){
+			this.MDFineMentionGen(name,original);
+			const nonce=Math.floor(Math.random()*10**8)+"";
+			if(this.lookingguild.member_count<=this.lookingguild.members.size) return;
+			this.ws.send(JSON.stringify(
+				{op:8,
+					d:{
+						guild_id:[this.lookingguild.id],
+						query:name,
+						limit:8,
+						presences:true,
+						nonce
+					}
+				}
+			));
+			this.searchMap.set(nonce,async (e)=>{
+				console.log(e);
+				if(e.members&&e.members[0]){
+					if(e.members[0].user){
+						for(const thing of e.members){
+							await Member.new(thing,this.lookingguild as Guild)
+						}
+					}else{
+						const prom1:Promise<User>[]=[];
+						for(const thing of e.members){
+							prom1.push(this.getUser(thing.id));
+						}
+						Promise.all(prom1);
+						for(const thing of e.members){
+							if(!this.userMap.has(thing.id)){
+								console.warn("Dumb server bug for this member",thing);
+								continue;
+							}
+							await Member.new(thing,this.lookingguild as Guild)
+						}
+					}
+					this.MDFineMentionGen(name,original);
+				}
+			})
+		}
+	}
+	search(str:string,pre:boolean){
+		if(!pre){
+			const match=str.match(this.autofillregex);
+
+			if(match){
+				console.log(str,match);
+				const [type, search]=[match[0][0],match[0].split(/@|#|:/)[1]];
+				console.log(type,search);
+				switch(type){
+					case "#":
+						this.MDFindChannel(search,str);
+						break;
+					case "@":
+						this.MDFindMention(search,str);
+						break;
+					case ":":
+						if(search.length>=2){
+							console.log("implement me");
+						}
+						break;
+				}
+				return
+			}
+		}
+		const div=document.getElementById("searchOptions");
+		if(!div)return;
+		div.innerHTML="";
+	}
+	keydown:(event:KeyboardEvent)=>unknown=()=>{};
+	keyup:(event:KeyboardEvent)=>boolean=()=>false;
 	//---------- resolving members code -----------
-	readonly waitingmembers: Map<
-    string,
-    Map<string, (returns: memberjson | undefined) => void>
-  > = new Map();
+	readonly waitingmembers = new Map<string,Map<string, (returns: memberjson | undefined) => void>>();
 	readonly presences: Map<string, presencejson> = new Map();
 	async resolvemember(
 		id: string,
@@ -1757,17 +1975,33 @@ class Localuser{
 	fetchingmembers: Map<string, boolean> = new Map();
 	noncemap: Map<string, (r: [memberjson[], string[]]) => void> = new Map();
 	noncebuild: Map<string, [memberjson[], string[], number[]]> = new Map();
+	searchMap=new Map<string,(arg:{
+		chunk_index: number,
+		chunk_count: number,
+		nonce: string,
+		not_found?: string[],
+		members?: memberjson[],
+		presences: presencejson[],
+	})=>unknown>();
 	async gotChunk(chunk: {
-    chunk_index: number;
-    chunk_count: number;
-    nonce: string;
-    not_found?: string[];
-    members?: memberjson[];
-    presences: presencejson[];
-  }){
+		chunk_index: number;
+		chunk_count: number;
+		nonce: string;
+		not_found?: string[];
+		members?: memberjson[];
+		presences: presencejson[];
+	}){
 		for(const thing of chunk.presences){
 			if(thing.user){
 				this.presences.set(thing.user.id, thing);
+			}
+		}
+		if(this.searchMap.has(chunk.nonce)){
+			const func=this.searchMap.get(chunk.nonce);
+			this.searchMap.delete(chunk.nonce);
+			if(func){
+				func(chunk);
+				return;
 			}
 		}
 		chunk.members ??= [];

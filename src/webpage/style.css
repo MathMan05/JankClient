@@ -21,6 +21,37 @@ body {
 	display: flex;
 	flex-direction: column;
 }
+#searchOptions{
+	padding:.05in .15in;
+	border-radius: .1in;
+	background: var(--channels-bg);
+	position:absolute;
+	bottom:0;
+	width: calc(100% - 32px);
+	box-sizing: border-box;
+	span {
+		transition: background .1s;
+		margin-bottom:.025in;
+		margin-top:.025in;
+		padding:.075in .05in;
+		border-radius:.03in;
+		cursor:pointer;
+	}
+	span.selected{
+		background:var(--button-bg);
+	}
+	span:hover{
+		background:var(--button-bg);
+	}
+	
+;
+	margin: 16px;
+	border: solid .025in var(--black);
+}
+#searchOptions:empty{
+	padding: 0;
+	border: 0;
+}
 .flexgrow {
 	flex-grow: 1;
 	min-height: 0;
