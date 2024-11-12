@@ -25,6 +25,7 @@ class I18n{
         }
         this.lang=lang;
         this.translations=translations;
+
         res();
     }
     static getTranslation(msg:string,...params:string[]):string{
@@ -118,4 +119,4 @@ if(storage){
 }
 I18n.create(userLocale);
 
-export{I18n};
+export{I18n,langmap};

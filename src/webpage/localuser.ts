@@ -12,7 +12,7 @@ import{ getTextNodeAtPosition, MarkDown, saveCaretPosition }from"./markdown.js";
 import { Bot } from "./bot.js";
 import { Role } from "./role.js";
 import { VoiceFactory } from "./voice.js";
-import { I18n } from "./i18n.js";
+import { I18n, langmap } from "./i18n.js";
 
 const wsCodesRetry = new Set([4000,4001,4002, 4003, 4005, 4007, 4008, 4009]);
 
@@ -1453,7 +1453,7 @@ class Localuser{
 
 				security.addSelect(I18n.getTranslation("localuser.language"),(e)=>{
 					I18n.setLanguage(I18n.options()[e]);
-				},I18n.options(),{
+				},[...langmap.values()],{
 					defaultIndex:I18n.options().indexOf(I18n.lang)
 				});
 				{
