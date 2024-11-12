@@ -1737,7 +1737,6 @@ class Localuser{
 		this.typeMd.boxupdate(typebox);
 	}
 	MDSearchOptions(options:[string,string][],original:string){
-		console.warn(original);
 		const div=document.getElementById("searchOptions");
 		if(!div)return;
 		div.innerHTML="";
@@ -1856,11 +1855,9 @@ class Localuser{
 			}
 		}
 		members.sort((a,b)=>a[1]-b[1]);
-		console.log(members);
 		this.MDSearchOptions(members.map((a)=>["@"+a[0].name,`<@${a[0].id}> `]),original);
 	}
 	MDFindMention(name:string,original:string){
-		console.log(original);
 		if(this.ws&&this.lookingguild){
 			this.MDFineMentionGen(name,original);
 			const nonce=Math.floor(Math.random()*10**8)+"";
@@ -1907,9 +1904,7 @@ class Localuser{
 			const match=str.match(this.autofillregex);
 
 			if(match){
-				console.log(str,match);
 				const [type, search]=[match[0][0],match[0].split(/@|#|:/)[1]];
-				console.log(type,search);
 				switch(type){
 					case "#":
 						this.MDFindChannel(search,str);
