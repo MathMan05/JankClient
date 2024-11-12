@@ -6,6 +6,7 @@ const argv = require("yargs").argv;
 const rimraf = require("rimraf");
 const plumber = require("gulp-plumber");
 const sourcemaps = require('gulp-sourcemaps');
+const fs=require("fs");
 const swcOptions = {
   jsc: {
     parser: {
@@ -69,14 +70,21 @@ gulp.task("copy-html", () => {
     .pipe(plumber()) // Prevent pipe breaking caused by errors
     .pipe(gulp.dest("dist"));
 });
-
 gulp.task("copy-translations", () => {
+  let langs=fs.readdirSync("translations");
+  langs=langs.filter((e)=>e!=="qqq.json");
+  const langobj={};
+  for(const lang of langs){
+    const json=JSON.parse(fs.readFileSync("translations/"+lang).toString());
+    langobj[lang]=json.readableName;
+  }
+  if(!fs.existsSync("dist/webpage/translations")) fs.mkdirSync("dist/webpage/translations")
+  fs.writeFileSync("dist/webpage/translations/langs.js",`const langs=${JSON.stringify(langobj)};export{langs}`);
   return gulp
     .src("translations/*.json")
     .pipe(plumber()) // Prevent pipe breaking caused by errors
     .pipe(gulp.dest("dist/webpage/translations"));
 });
-
 // Task to copy other static assets (e.g., CSS, images)
 gulp.task("copy-assets", () => {
   return gulp
