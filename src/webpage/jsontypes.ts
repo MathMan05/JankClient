@@ -166,6 +166,7 @@ type emojijson = {
 	name: string;
 	id?: string;
 	animated?: boolean;
+	emoji?:string
 };
 
 type guildjson = {
