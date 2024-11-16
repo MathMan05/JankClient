@@ -29,13 +29,16 @@ body {
 	bottom:0;
 	width: calc(100% - 32px);
 	box-sizing: border-box;
-	span {
+	> span {
 		transition: background .1s;
 		margin-bottom:.025in;
 		margin-top:.025in;
 		padding:.075in .05in;
 		border-radius:.03in;
 		cursor:pointer;
+		> span, img{
+			margin-right:.05in;
+		}
 	}
 	span.selected{
 		background:var(--button-bg);

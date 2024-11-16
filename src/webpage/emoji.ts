@@ -1,18 +1,20 @@
 import{ Contextmenu }from"./contextmenu.js";
 import{ Guild }from"./guild.js";
+import { emojijson } from "./jsontypes.js";
 import{ Localuser }from"./localuser.js";
 
 //I need to recompile the emoji format for translation
 class Emoji{
 	static emojis: {
-    name: string;
-    emojis: {
-      name: string;
-      emoji: string;
-    }[];
-  }[];
+		name: string;
+		emojis: {
+		name: string;
+		emoji: string;
+		}[];
+	}[];
 	name: string;
-	id: string;
+	id?: string;
+	emoji?:string;
 	animated: boolean;
 	owner: Guild | Localuser;
 	get guild(){
@@ -32,30 +34,34 @@ class Emoji{
 		return this.owner.info;
 	}
 	constructor(
-		json: { name: string; id: string; animated: boolean },
+		json: emojijson,
 		owner: Guild | Localuser
 	){
 		this.name = json.name;
 		this.id = json.id;
-		this.animated = json.animated;
+		this.animated = json.animated||false;
 		this.owner = owner;
+		this.emoji=json.emoji;
 	}
 	getHTML(bigemoji: boolean = false){
-		const emojiElem = document.createElement("img");
-		emojiElem.classList.add("md-emoji");
-		emojiElem.classList.add(bigemoji ? "bigemoji" : "smallemoji");
-		emojiElem.crossOrigin = "anonymous";
-		emojiElem.src =
-      this.info.cdn +
-      "/emojis/" +
-      this.id +
-      "." +
-      (this.animated ? "gif" : "png") +
-      "?size=32";
-
-		emojiElem.alt = this.name;
-		emojiElem.loading = "lazy";
-		return emojiElem;
+		if(this.id){
+			const emojiElem = document.createElement("img");
+			emojiElem.classList.add("md-emoji");
+			emojiElem.classList.add(bigemoji ? "bigemoji" : "smallemoji");
+			emojiElem.crossOrigin = "anonymous";
+			emojiElem.src =this.info.cdn+"/emojis/"+this.id+"."+(this.animated ? "gif" : "png")+"?size=32";
+			emojiElem.alt = this.name;
+			emojiElem.loading = "lazy";
+			return emojiElem;
+		}else if(this.emoji){
+			const emojiElem = document.createElement("span");
+			emojiElem.classList.add("md-emoji");
+			emojiElem.classList.add(bigemoji ? "bigemoji" : "smallemoji");
+			emojiElem.textContent=this.emoji;
+			return emojiElem;
+		}else{
+			throw new Error("This path should *never* be gone down, this means a malformed emoji");
+		}
 	}
 	static decodeEmojiList(buffer: ArrayBuffer){
 		const view = new DataView(buffer, 0);
@@ -92,10 +98,10 @@ class Emoji{
 		for(; cats !== 0; cats--){
 			const name = readString16();
 			const emojis: {
-        name: string;
-        skin_tone_support: boolean;
-        emoji: string;
-      }[] = [];
+				name: string;
+				skin_tone_support: boolean;
+				emoji: string;
+			}[] = [];
 			let emojinumber = read16();
 			for(; emojinumber !== 0; emojinumber--){
 				//console.log(emojis);
@@ -247,6 +253,40 @@ class Emoji{
 		menu.append(selection);
 		menu.append(body);
 		return promise;
+	}
+	static searchEmoji(search:string,localuser:Localuser,results=50):[Emoji,number][]{
+		const ranked:[emojijson,number][]=[];
+		function similar(json:emojijson){
+			if(json.name.includes(search)){
+				ranked.push([json,search.length/json.name.length]);
+				return true;
+			}else if(json.name.toLowerCase().includes(search.toLowerCase())){
+				ranked.push([json,search.length/json.name.length/1.4]);
+				return true;
+			}else{
+				return false;
+			}
+		}
+		for(const group of this.emojis){
+			for(const emoji of group.emojis){
+				similar(emoji)
+			}
+		}
+		const weakGuild=new WeakMap<emojijson,Guild>();
+		for(const guild of localuser.guilds){
+			if(guild.id!=="@me"&&guild.emojis.length!==0){
+				for(const emoji of guild.emojis){
+					if(similar(emoji)){
+						weakGuild.set(emoji,guild);
+					};
+				}
+			}
+		}
+		ranked.sort((a,b)=>b[1]-a[1]);
+		return ranked.splice(0,results).map(a=>{
+			return [new Emoji(a[0],weakGuild.get(a[0])||localuser),a[1]];
+
+		})
 	}
 }
 Emoji.grabEmoji();

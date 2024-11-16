@@ -5,14 +5,15 @@ import{ AVoice }from"./audio.js";
 import{ User }from"./user.js";
 import{ Dialog }from"./dialog.js";
 import{ getapiurls, getBulkInfo, setTheme, Specialuser, SW }from"./login.js";
-import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,userjson,wsjson,}from"./jsontypes.js";
+import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
 import{ Member }from"./member.js";
 import{ Form, FormError, Options, Settings }from"./settings.js";
-import{ getTextNodeAtPosition, MarkDown, saveCaretPosition }from"./markdown.js";
+import{ getTextNodeAtPosition, MarkDown }from"./markdown.js";
 import { Bot } from "./bot.js";
 import { Role } from "./role.js";
 import { VoiceFactory } from "./voice.js";
 import { I18n, langmap } from "./i18n.js";
+import { Emoji } from "./emoji.js";
 
 const wsCodesRetry = new Set([4000,4001,4002, 4003, 4005, 4007, 4008, 4009]);
 
@@ -1738,7 +1739,7 @@ class Localuser{
 		this.typeMd.txt = raw.split("");
 		this.typeMd.boxupdate(typebox);
 	}
-	MDSearchOptions(options:[string,string][],original:string){
+	MDSearchOptions(options:[string,string,void|HTMLElement][],original:string){
 		const div=document.getElementById("searchOptions");
 		if(!div)return;
 		div.innerHTML="";
@@ -1751,7 +1752,12 @@ class Localuser{
 			i++;
 			const span=document.createElement("span");
 			htmloptions.push(span);
-			span.textContent=thing[0];
+			if(thing[2]){
+				console.log(thing);
+				span.append(thing[2]);
+			}
+
+			span.append(thing[0]);
 			span.onclick=(e)=>{
 
 				if(e){
@@ -1838,7 +1844,7 @@ class Localuser{
 			}
 		}
 		maybe.sort((a,b)=>b[0]-a[0]);
-		this.MDSearchOptions(maybe.map((a)=>["# "+a[1].name,`<#${a[1].id}> `]),orginal);
+		this.MDSearchOptions(maybe.map((a)=>["# "+a[1].name,`<#${a[1].id}> `,undefined]),orginal);
 	}
 	async getUser(id:string){
 		if(this.userMap.has(id)){
@@ -1857,7 +1863,7 @@ class Localuser{
 			}
 		}
 		members.sort((a,b)=>b[1]-a[1]);
-		this.MDSearchOptions(members.map((a)=>["@"+a[0].name,`<@${a[0].id}> `]),original);
+		this.MDSearchOptions(members.map((a)=>["@"+a[0].name,`<@${a[0].id}> `,undefined]),original);
 	}
 	MDFindMention(name:string,original:string){
 		if(this.ws&&this.lookingguild){
@@ -1901,6 +1907,13 @@ class Localuser{
 			})
 		}
 	}
+	findEmoji(search:string,orginal:string){
+		const emj=Emoji.searchEmoji(search,this,10);
+		const map=emj.map(([emoji]):[string,string,HTMLElement]=>{
+			return [emoji.name,emoji.id?`<${emoji.animated?"a":""}:${emoji.name}:${emoji.id}`:emoji.emoji as string,emoji.getHTML()]
+		})
+		this.MDSearchOptions(map,orginal);
+	}
 	search(str:string,pre:boolean){
 		if(!pre){
 			const match=str.match(this.autofillregex);
@@ -1916,7 +1929,9 @@ class Localuser{
 						break;
 					case ":":
 						if(search.length>=2){
-							console.log("implement me");
+							this.findEmoji(search,str)
+						}else{
+							this.MDSearchOptions([],"");
 						}
 						break;
 				}

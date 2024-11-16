@@ -612,8 +612,7 @@ txt[j + 1] === undefined)
 						appendcurrent();
 						i = j;
 						const isEmojiOnly = txt.join("").trim() === buildjoin.trim();
-						const owner =
-	this.owner instanceof Channel ? this.owner.guild : this.owner;
+						const owner = this.owner instanceof Channel ? this.owner.guild : this.owner;
 						if(!owner) continue;
 						const emoji = new Emoji(
 							{ name: buildjoin, id: parts[2], animated: Boolean(parts[1]) },
