@@ -1910,7 +1910,7 @@ class Localuser{
 	findEmoji(search:string,orginal:string){
 		const emj=Emoji.searchEmoji(search,this,10);
 		const map=emj.map(([emoji]):[string,string,HTMLElement]=>{
-			return [emoji.name,emoji.id?`<${emoji.animated?"a":""}:${emoji.name}:${emoji.id}`:emoji.emoji as string,emoji.getHTML()]
+			return [emoji.name,emoji.id?`<${emoji.animated?"a":""}:${emoji.name}:${emoji.id}>`:emoji.emoji as string,emoji.getHTML()]
 		})
 		this.MDSearchOptions(map,orginal);
 	}
