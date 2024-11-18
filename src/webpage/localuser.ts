@@ -1918,7 +1918,6 @@ class Localuser{
 		this.MDSearchOptions(map,orginal);
 	}
 	search(str:string,pre:boolean){
-		console.log(str);
 		if(!pre){
 			const match=str.match(this.autofillregex);
 
