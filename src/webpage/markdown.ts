@@ -130,6 +130,17 @@ class MarkDown{
 					i++;
 				}
 			}
+			if(txt[i] === "\\"){
+				const chatset=new Set("\\`{}[]()<>*_#+-.!|".split(""));
+				if(chatset.has(txt[i+1])){
+					if(keep){
+						current.textContent += txt[i];
+					}
+					current.textContent += txt[i+1];
+					i++;
+					continue;
+				}
+			}
 			if(txt[i] === "\n"){
 				if(!stdsize){
 					appendcurrent();
@@ -152,13 +163,7 @@ class MarkDown{
 				let find = 0;
 				let j = i + count;
 				let init = true;
-				for(
-					;
-					txt[j] !== undefined &&
-(txt[j] !== "\n" || count === 3) &&
-find !== count;
-					j++
-				){
+				for(;txt[j] !== undefined &&(txt[j] !== "\n" || count === 3) &&find !== count;j++){
 					if(txt[j] === "`"){
 						find++;
 					}else{
@@ -540,29 +545,29 @@ txt[j + 1] === undefined)
 							});
 						else if(!parts[3] || parts[3] === "f")
 							time =
-	dateInput.toLocaleString(void 0, {
-		day: "numeric",
-		month: "long",
-		year: "numeric",
-	}) +
-	" " +
-	dateInput.toLocaleString(void 0, {
-		hour: "2-digit",
-		minute: "2-digit",
-	});
+							dateInput.toLocaleString(void 0, {
+								day: "numeric",
+								month: "long",
+								year: "numeric",
+							}) +
+							" " +
+							dateInput.toLocaleString(void 0, {
+								hour: "2-digit",
+								minute: "2-digit",
+							});
 						else if(parts[3] === "F")
 							time =
-	dateInput.toLocaleString(void 0, {
-		day: "numeric",
-		month: "long",
-		year: "numeric",
-		weekday: "long",
-	}) +
-	" " +
-	dateInput.toLocaleString(void 0, {
-		hour: "2-digit",
-		minute: "2-digit",
-	});
+							dateInput.toLocaleString(void 0, {
+								day: "numeric",
+								month: "long",
+								year: "numeric",
+								weekday: "long",
+							}) +
+							" " +
+							dateInput.toLocaleString(void 0, {
+								hour: "2-digit",
+								minute: "2-digit",
+							});
 						else if(parts[3] === "t")
 							time = dateInput.toLocaleString(void 0, {
 								hour: "2-digit",
@@ -575,10 +580,7 @@ txt[j + 1] === undefined)
 								second: "2-digit",
 							});
 						else if(parts[3] === "R")
-							time =
-	Math.round(
-		(Date.now() - Number.parseInt(parts[1]) * 1000) / 1000 / 60
-	) + " minutes ago";
+							time =Math.round((Date.now() - Number.parseInt(parts[1]) * 1000) / 1000 / 60) + " minutes ago";
 					}
 
 					const timeElem = document.createElement("span");
@@ -589,10 +591,7 @@ txt[j + 1] === undefined)
 				}
 			}
 
-			if(
-				txt[i] === "<" &&
-	(txt[i + 1] === ":" || (txt[i + 1] === "a" && txt[i + 2] === ":")&&this.owner)
-			){
+			if(txt[i] === "<" && (txt[i + 1] === ":" || (txt[i + 1] === "a" && txt[i + 2] === ":")&&this.owner)){
 				let found = false;
 				const build = txt[i + 1] === "a" ? ["<", "a", ":"] : ["<", ":"];
 				let j = i + build.length;
