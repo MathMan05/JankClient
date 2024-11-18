@@ -713,8 +713,8 @@ txt[j + 1] === undefined)
 			box.onkeyup(new KeyboardEvent("_"));
 		};
 	}
-	boxupdate(box: HTMLElement){
-		const restore = saveCaretPosition(box);
+	boxupdate(box: HTMLElement,offset=0){
+		const restore = saveCaretPosition(box,offset);
 		box.innerHTML = "";
 		box.append(this.makeHTML({ keep: true }));
 		if(restore){
@@ -829,7 +829,7 @@ txt[j + 1] === undefined)
 //solution from https://stackoverflow.com/questions/4576694/saving-and-restoring-caret-position-for-contenteditable-div
 let text = "";
 let formatted=false;
-function saveCaretPosition(context: HTMLElement){
+function saveCaretPosition(context: HTMLElement,offset=0){
 	const selection = window.getSelection() as Selection;
 	if(!selection)return;
 	const range = selection.getRangeAt(0);
@@ -902,7 +902,7 @@ function saveCaretPosition(context: HTMLElement){
 		build+=baseString;
 	}
 	text=build;
-	const len=build.length;
+	const len=build.length+offset;
 	return function restore(){
 		if(!selection)return;
 		const pos = getTextNodeAtPosition(context, len);
@@ -933,29 +933,46 @@ function getTextNodeAtPosition(root: Node, index: number):{
 			position: -1,
 		};
 	}
+	let lastElm:Node=root;
 	for(const node of root.childNodes as unknown as Node[]){
+		lastElm=node;
 		let len:number
 		if(node instanceof HTMLElement){
 			len=MarkDown.gatherBoxText(node).length;
 		}else{
 			len=(node.textContent as string).length
 		}
-		if(len<index){
+		if(len<=index&&(len<index||len!==0)){
 			index-=len;
 		}else{
 			const returny=getTextNodeAtPosition(node,index);
 			if(returny.position===-1){
+				console.warn("in here");
 				index=0;
 				continue;
 			}
 			return returny;
 		}
 	}
+	if( !((lastElm instanceof HTMLElement && lastElm.hasAttribute("real")))){
+		while(lastElm&&!(lastElm instanceof Text||lastElm instanceof HTMLBRElement)){
+			lastElm=lastElm.childNodes[lastElm.childNodes.length-1];
+		}
+		if(lastElm){
+			const position=(lastElm.textContent as string).length;
+			console.log(lastElm,lastElm.childNodes,root,position);
+			return{
+				node: lastElm,
+				position
+			};
+		}
+	}
 	const span=document.createElement("span");
-	root.appendChild(span)
-	return{
-		node: span,
-		position: 0,
-	};
+		root.appendChild(span)
+		return{
+			node: span,
+			position: 0,
+		};
+
 }
 export{ MarkDown , saveCaretPosition, getTextNodeAtPosition};

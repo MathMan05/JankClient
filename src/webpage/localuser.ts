@@ -1737,7 +1737,10 @@ class Localuser{
 		console.log(replacewith);
 		console.log(original);
 		this.typeMd.txt = raw.split("");
-		this.typeMd.boxupdate(typebox);
+		const match=original.match(this.autofillregex);
+		if(match){
+			this.typeMd.boxupdate(typebox,replacewith.length-match[0].length);
+		}
 	}
 	MDSearchOptions(options:[string,string,void|HTMLElement][],original:string){
 		const div=document.getElementById("searchOptions");
@@ -1915,6 +1918,7 @@ class Localuser{
 		this.MDSearchOptions(map,orginal);
 	}
 	search(str:string,pre:boolean){
+		console.log(str);
 		if(!pre){
 			const match=str.match(this.autofillregex);
 
