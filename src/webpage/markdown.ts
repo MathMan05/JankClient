@@ -960,7 +960,6 @@ function getTextNodeAtPosition(root: Node, index: number):{
 		}
 		if(lastElm){
 			const position=(lastElm.textContent as string).length;
-			console.log(lastElm,lastElm.childNodes,root,position);
 			return{
 				node: lastElm,
 				position
