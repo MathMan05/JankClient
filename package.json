@@ -16,8 +16,7 @@
     "express": "^4.19.2",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-swc": "^2.2.0",
-    "rimraf": "^6.0.1",
-    "ts-to-jsdoc": "^2.2.0"
+    "rimraf": "^6.0.1"
   },
   "devDependencies": {
     "@html-eslint/parser": "^0.27.0",
@@ -28,7 +27,6 @@
     "@rsbuild/core": "^1.1.4",
     "@rsbuild/plugin-node-polyfill": "^1.2.0",
     "@swc/core": "^1.7.26",
-    "rspack": "^0.1.1",
     "swc": "^1.0.11",
     "@eslint/js": "^9.10.0",
     "@html-eslint/eslint-plugin": "^0.25.0",
