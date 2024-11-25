@@ -259,7 +259,15 @@ textarea {
 	width: 12px;
 	pointer-events: none;
 }
-
+.hoverthing{
+	position:absolute;
+	background:var(--dock-bg);
+	padding:.04in;
+	border-radius:.05in;
+	transform: translate(-50%, 0);
+	transition: opacity .2s;
+	border: solid .03in var(--black);
+}
 /* Animations */
 @keyframes fade {
 	0%, 100% {

@@ -13,6 +13,7 @@ import{ Emoji }from"./emoji.js";
 import{ Dialog }from"./dialog.js";
 import{ mobile }from"./login.js";
 import { I18n } from "./i18n.js";
+import { Hover } from "./hover.js";
 
 class Message extends SnowFlake{
 	static contextmenu = new Contextmenu<Message, undefined>("message menu");
@@ -133,6 +134,7 @@ class Message extends SnowFlake{
 			}
 		);
 	}
+	edited_timestamp:string|null=null;
 	giveData(messagejson: messagejson){
 		const func = this.channel.infinite.snapBottom();
 		for(const thing of Object.keys(messagejson)){
@@ -510,7 +512,16 @@ class Message extends SnowFlake{
 				time.textContent = "  " + formatTime(new Date(this.timestamp));
 				time.classList.add("timestamp");
 				userwrap.appendChild(time);
-
+				const hover=new Hover(new Date(this.timestamp).toString());
+				hover.addEvent(time);
+				if(this.edited_timestamp){
+					const edit=document.createElement("span");
+					edit.classList.add("timestamp");
+					edit.textContent="(edited)";
+					const hover=new Hover(new Date(this.edited_timestamp).toString());
+					hover.addEvent(edit);
+					userwrap.append(edit);
+				}
 				text.appendChild(userwrap);
 			}else{
 				div.classList.remove("topMessage");
