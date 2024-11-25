@@ -311,7 +311,8 @@
 	"message":{
 		"reactionAdd":"Add reaction",
 		"delete":"Delete message",
-		"edit":"Edit message"
+		"edit":"Edit message",
+		"edited":"(edited)"
 	},
 	"instanceStats":{
 		"name":"Instance stats: $1",

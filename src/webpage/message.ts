@@ -517,7 +517,7 @@ class Message extends SnowFlake{
 				if(this.edited_timestamp){
 					const edit=document.createElement("span");
 					edit.classList.add("timestamp");
-					edit.textContent="(edited)";
+					edit.textContent=I18n.getTranslation("message.edited");
 					const hover=new Hover(new Date(this.edited_timestamp).toString());
 					hover.addEvent(edit);
 					userwrap.append(edit);
