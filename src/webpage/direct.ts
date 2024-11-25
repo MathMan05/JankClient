@@ -197,6 +197,7 @@ class Group extends Channel{
 		}
 		this.buildmessages();
 		(document.getElementById("typebox") as HTMLDivElement).contentEditable ="" + true;
+		(document.getElementById("typebox") as HTMLDivElement).focus();
 	}
 	messageCreate(messagep: { d: messagejson }){
 		const messagez = new Message(messagep.d, this);

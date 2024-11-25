@@ -21,7 +21,7 @@ body {
 	display: flex;
 	flex-direction: column;
 }
-#searchOptions{
+.searchOptions{
 	padding:.05in .15in;
 	border-radius: .1in;
 	background: var(--channels-bg);
@@ -46,14 +46,16 @@ body {
 	span:hover{
 		background:var(--button-bg);
 	}
-	
-;
 	margin: 16px;
 	border: solid .025in var(--black);
 }
-#searchOptions:empty{
+.searchOptions:empty{
 	padding: 0;
 	border: 0;
+}
+.messageEditContainer{
+	position: relative;
+	width:100%;
 }
 .flexgrow {
 	flex-grow: 1;
@@ -267,6 +269,11 @@ textarea {
 	transform: translate(-50%, 0);
 	transition: opacity .2s;
 	border: solid .03in var(--black);
+}
+.editMessage{
+	background: var(--typebox-bg);
+	padding: .05in;
+	border-radius: .04in;
 }
 /* Animations */
 @keyframes fade {
@@ -1004,6 +1011,7 @@ span.instanceStatus {
 .commentrow {
 	word-break: break-word;
 	gap: 4px;
+	width: 100%;
 }
 .username {
 	margin-top: auto;
