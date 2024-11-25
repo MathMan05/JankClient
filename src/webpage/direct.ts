@@ -180,7 +180,7 @@ class Group extends Channel{
 		this.guild.prevchannel = this;
 		this.localuser.channelfocus = this;
 		const prom = this.infinite.delete();
-		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id);
+		history.pushState([this.guild_id,this.id], "", "/channels/" + this.guild_id + "/" + this.id);
 		this.localuser.pageTitle("@" + this.name);
 		(document.getElementById("channelTopic") as HTMLElement).setAttribute("hidden","");
 

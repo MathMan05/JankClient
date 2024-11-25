@@ -148,7 +148,12 @@ import { I18n } from "./i18n.js";
 
 	const pasteImageElement = document.getElementById("pasteimage") as HTMLDivElement;
 	let replyingTo: Message | null = null;
-
+	window.addEventListener("popstate",(e)=>{
+		if(e.state instanceof Object){
+			thisUser.goToChannel(e.state[1],false);
+		}
+		//console.log(e.state,"state:3")
+	})
 	async function handleEnter(event: KeyboardEvent): Promise<void>{
 		if(thisUser.keyup(event)){return}
 		const channel = thisUser.channelfocus;

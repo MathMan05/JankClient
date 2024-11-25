@@ -726,12 +726,12 @@ class Localuser{
 		}
 	}
 	gotoid: string | undefined;
-	async goToChannel(id: string){
+	async goToChannel(id: string,addstate=true){
 		const channel = this.channelids.get(id);
 		if(channel){
 			const guild = channel.guild;
 			guild.loadGuild();
-			guild.loadChannel(id);
+			guild.loadChannel(id,addstate);
 		}else{
 			this.gotoid = id;
 		}
