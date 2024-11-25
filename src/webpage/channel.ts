@@ -801,7 +801,7 @@ class Channel extends SnowFlake{
 		}
 	}
 	static genid: number = 0;
-	async getHTML(){
+	async getHTML(addstate=true){
 		const id = ++Channel.genid;
 		if(this.localuser.channelfocus){
 			this.localuser.channelfocus.infinite.delete();
@@ -820,8 +820,9 @@ class Channel extends SnowFlake{
 		this.localuser.userinfo.updateLocal();
 		this.localuser.channelfocus = this;
 		const prom = this.infinite.delete();
-		history.pushState(null, "", "/channels/" + this.guild_id + "/" + this.id);
-
+		if(addstate){
+			history.pushState([this.guild_id,this.id], "", "/channels/" + this.guild_id + "/" + this.id);
+		}
 		this.localuser.pageTitle("#" + this.name);
 		const channelTopic = document.getElementById("channelTopic") as HTMLSpanElement;
 		if(this.topic){

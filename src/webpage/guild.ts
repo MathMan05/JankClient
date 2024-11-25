@@ -584,22 +584,22 @@ class Guild extends SnowFlake{
 		}
 		return this.member.hasRole(r);
 	}
-	loadChannel(ID?: string | undefined){
+	loadChannel(ID?: string | undefined,addstate=true){
 		if(ID){
 			const channel = this.localuser.channelids.get(ID);
 			if(channel){
-				channel.getHTML();
+				channel.getHTML(addstate);
 				return;
 			}
 		}
 		if(this.prevchannel){
 			console.log(this.prevchannel);
-			this.prevchannel.getHTML();
+			this.prevchannel.getHTML(addstate);
 			return;
 		}
 		for(const thing of this.channels){
 			if(thing.children.length === 0){
-				thing.getHTML();
+				thing.getHTML(addstate);
 				return;
 			}
 		}
