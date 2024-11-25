@@ -7,14 +7,7 @@ import{ Member }from"./member.js";
 import{ Settings }from"./settings.js";
 import{ Permissions }from"./permissions.js";
 import{ SnowFlake }from"./snowflake.js";
-import{
-	channeljson,
-	guildjson,
-	emojijson,
-	memberjson,
-	invitejson,
-    rolesjson,
-}from"./jsontypes.js";
+import{channeljson,guildjson,emojijson,memberjson,invitejson,rolesjson,}from"./jsontypes.js";
 import{ User }from"./user.js";
 import { I18n } from "./i18n.js";
 
