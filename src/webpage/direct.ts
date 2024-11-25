@@ -169,7 +169,7 @@ class Group extends Channel{
 
 		return div;
 	}
-	async getHTML(){
+	async getHTML(addstate=true){
 		const id = ++Channel.genid;
 		if(this.localuser.channelfocus){
 			this.localuser.channelfocus.infinite.delete();
@@ -180,7 +180,9 @@ class Group extends Channel{
 		this.guild.prevchannel = this;
 		this.localuser.channelfocus = this;
 		const prom = this.infinite.delete();
-		history.pushState([this.guild_id,this.id], "", "/channels/" + this.guild_id + "/" + this.id);
+		if(addstate){
+			history.pushState([this.guild_id,this.id], "", "/channels/" + this.guild_id + "/" + this.id);
+		}
 		this.localuser.pageTitle("@" + this.name);
 		(document.getElementById("channelTopic") as HTMLElement).setAttribute("hidden","");
 
