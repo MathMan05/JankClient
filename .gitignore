@@ -136,3 +136,4 @@ uptime.json
 .directory
 .dist/
 bun.lockb
+src/webpage/translations/langs.js

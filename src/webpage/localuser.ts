@@ -1724,6 +1724,7 @@ class Localuser{
 
 		const typebox = document.getElementById("typebox") as CustomHTMLDivElement;
 		this.typeMd=typebox.markdown;
+		this.typeMd.owner=this;
 		this.typeMd.onUpdate=this.search.bind(this);
 	}
 	MDReplace(replacewith:string,original:string){
