@@ -1,0 +1,124 @@
+{
+	"@metadata": {
+		"authors": [
+			"Booky",
+			"Brettchenweber"
+		]
+	},
+	"readableName": "Deutsch",
+	"reply": "Antworten",
+	"copyrawtext": "Rohen Text kopieren",
+	"copymessageid": "Nachrichten-Id kopieren",
+	"permissions": {
+		"descriptions": {
+			"CREATE_INSTANT_INVITE": "Erlaubt dem Nutzer, Server-Einladungen zu erstellen",
+			"KICK_MEMBERS": "Erlaubt dem Nutzer, Mitglieder vom Server zu werfen",
+			"BAN_MEMBERS": "Erlaubt dem Nutzer, Mitglieder vom Server zu bannen",
+			"ADMINISTRATOR": "Erlaubt dem Nutzer alle Berechtigungen und umgeht das Überschreiben von Kanalberechtigungen. Dies ist eine gefährliche Berechtigung!",
+			"MANAGE_CHANNELS": "Erlaubt dem Nutzer, Kanäle zu verwalten und zu editieren",
+			"MANAGE_GUILD": "Erlaubt dem Nutzer, den Server zu verwalten und zu editieren",
+			"ADD_REACTIONS": "Erlaubt dem Nutzer, auf Nachrichten zu reagieren",
+			"VIEW_AUDIT_LOG": "Erlaubt dem Nutzer die Einsicht des Audit-Logs",
+			"PRIORITY_SPEAKER": "Erlaubt dem Nutzer, ein Prioritätssprecher in Sprachkanälen zu sein",
+			"STREAM": "Erlaubt dem Nutzer zu streamen",
+			"VIEW_CHANNEL": "Erlaubt dem Nutzer, den Kanal zu sehen",
+			"SEND_MESSAGES": "Erlaubt dem Nutzer, Nachrichten zu senden",
+			"SEND_TTS_MESSAGES": "Erlaubt dem Nutzer das Senden von Text-zu-Sprache Nachrichten",
+			"MANAGE_MESSAGES": "Erlaubt dem Nutzer das Löschen von Nachrichten anderer Nutzer",
+			"EMBED_LINKS": "Erlaubt dem Nutzer die automatische Einbettung von Links",
+			"ATTACH_FILES": "Erlaubt dem Nutzer den Anhang von Dateien",
+			"READ_MESSAGE_HISTORY": "Erlaubt dem Nutzer, den Nachrichtenverlauf einzusehen",
+			"MENTION_EVERYONE": "Erlaubt dem Nutzer die Erwähnung von @everyone",
+			"USE_EXTERNAL_EMOJIS": "Erlaubt dem Nutzer die Benutzung von externen Emojis",
+			"VIEW_GUILD_INSIGHTS": "Erlaubt dem Nutzer die Einsicht von Server Insights",
+			"CONNECT": "Erlaubt dem Nutzer die Verbindung zu Sprachkanälen",
+			"SPEAK": "Erlaubt dem Nutzer das Sprechen in Sprachkanälen",
+			"MUTE_MEMBERS": "Erlaubt dem Nutzer, andere Nutzer serverweit stummzuschalten",
+			"MOVE_MEMBERS": "Erlaubt dem Nutzer, andere Nutzer zwischen Sprachkanälen zu verschieben",
+			"USE_VAD": "Erlaubt dem Nutzer, in Sprachkanälen ohne Push-to-Talk zu sprechen",
+			"CHANGE_NICKNAME": "Erlaubt dem Nutzer, seinen eigenen Nicknamen zu ändern",
+			"MANAGE_NICKNAMES": "Erlaubt dem Nutzer, die Nicknamen von anderen Nutzern zu verwalten",
+			"MANAGE_ROLES": "Erlaubt dem Nutzer, die Serverrollen zu verwalten und zu editieren",
+			"MANAGE_WEBHOOKS": "Erlaubt dem Nutzer, Webhooks zu verwalten und zu editieren",
+			"MANAGE_GUILD_EXPRESSIONS": "Erlaubt dem Nutzer, Emojis, Sticker und Soundboard Sounds zu verwalten",
+			"USE_APPLICATION_COMMANDS": "Erlaubt dem Nutzer die Verwendung von Befehlen bestimmter Anwendungen",
+			"REQUEST_TO_SPEAK": "Erlaubt dem Nutzer, in einem Bühnenkanal das Rederecht zu erbitten",
+			"MANAGE_EVENTS": "Erlaubt dem Nutzer das Verwalten und Editieren von Events"
+		}
+	},
+	"hideBlockedMessages": "Dieser Benutzer ist blockiert, klicke, um die Nachrichten zu verbergen.",
+	"showBlockedMessages": "Dieser Benutzer ist blockiert, klicke, um die {{PLURAL:$1| blockierte Nachricht|$1 blockierten Nachrichten}} anzuzeigen.",
+	"deleteConfirm": "Bist du dir sicher, dass das gelöscht werden soll?",
+	"yes": "Ja",
+	"no": "Nein",
+	"todayAt": "Heute um $1",
+	"yesterdayAt": "Gestern um $1",
+	"otherAt": "$1, $2",
+	"botSettings": "Boteinstellungen",
+	"uploadPfp": "Profilbild hochladen:",
+	"uploadBanner": "Banner hochladen:",
+	"pronouns": "Pronomen:",
+	"bio": "Bio:",
+	"profileColor": "Profilfarbe",
+	"leaveGuild": "Server verlassen",
+	"noMessages": "Es scheinen keinen Nachrichten vorhanden zu sein, sei der Erste, der etwas sagt!",
+	"blankMessage": "Leere Nachricht",
+	"channel": {
+		"copyId": "Kanal-ID kopieren",
+		"markRead": "Als gelesen markieren",
+		"settings": "Einstellungen",
+		"delete": "Kanal löschen",
+		"makeInvite": "Einladung erstellen",
+		"settingsFor": "Einstellungen für $1",
+		"voice": "Sprache",
+		"text": "Text",
+		"announcement": "Ankündigungen"
+	},
+	"switchAccounts": "Konto wechseln ⇌",
+	"home": {
+		"uptimeStats": "Uptime: \n Insgesamt: $1%\nDiese Woche: $2%\nHeute: $3%",
+		"warnOffiline": "Instanz ist offline, Verbindung kann nicht hergestellt werden"
+	},
+	"htmlPages": {
+		"loadingText": "Jank Client wird geladen",
+		"loaddesc": "Das sollte nicht lange dauern",
+		"openClient": "Client öffnen",
+		"welcomeJank": "Willkommen bei Jank Client",
+		"box1title": "Jank Client ist ein Spacebar-kompatibler Client, welcher versucht so gut wie möglich sein durch einige Funktionen wie:",
+		"box1Items": "Direktnachrichten|Reaktionen auf Nachrichten|Einladungen|Kontowechsel|Benutzereinstellungen|Entwicklerportal|Bot-Einladungen|Übersetzungen",
+		"compatableInstances": "Einige Spacebar-Instanzen:",
+		"box3title": "Unterstützung in der Entwicklung von Jank Client",
+		"box3description": "Wir freuen uns immer über Hilfe, sei es in Form von Fehlerberichten, Programmierung oder einfach nur das Hinweisen auf Tippfehler."
+	},
+	"register": {
+		"passwordError:": "Passwort: $1",
+		"usernameError": "Benutzername: $1",
+		"emailError": "E-Mail-Adresse: $1",
+		"DOBError": "Geburtsdatum: $1",
+		"agreeTOS": "Ich stimme den [Nutzungsbedingungen]($1) zu:",
+		"noTOS": "Diese Instanz hat keine Nutzungsbedingungen, akzeptiere die ToS trotzdem:"
+	},
+	"leaving": "Du verlässt Spacebar",
+	"goingToURL": "Du wirst zu $1 gehen. Bist du sicher, dass du dorthin gehen willst?",
+	"goThere": "Ja",
+	"goThereTrust": "Ja, vertraue auch in der Zukunft",
+	"nevermind": "Nein",
+	"guild": {
+		"confirmLeave": "Bist du dir sicher, dass du den Server verlassen möchtest?",
+		"yesLeave": "Ja, ich bin mir sicher",
+		"noLeave": "Doch nicht",
+		"serverName": "Name des Servers:",
+		"yesDelete": "Ja, ich bin mir sicher",
+		"noDelete": "Doch nicht",
+		"loadingDiscovery": "Lade..."
+	},
+	"role": {
+		"color": "Farbe",
+		"remove": "Rolle entfernen",
+		"delete": "Rolle löschen"
+	},
+	"localuser": {
+		"privacyPolcyURL": "Datenschutzerklärung:",
+		"TOSURL": "Nutzungsbedingungen:"
+	}
+}
