@@ -153,36 +153,30 @@ import { I18n } from "./i18n.js";
 		if(thisUser.keyup(event)){return}
 		const channel = thisUser.channelfocus;
 		if(!channel)return;
-
+		if(markdown.rawString===""&&event.key==="ArrowUp"){
+			channel.editLast();
+			return;
+		}
 		channel.typingstart();
 
 		if(event.key === "Enter" && !event.shiftKey){
 			event.preventDefault();
-
-			if(channel.editing){
-				channel.editing.edit(markdown.rawString);
-				channel.editing = null;
-			}else{
-				replyingTo = thisUser.channelfocus
-					? thisUser.channelfocus.replyingto
-					: null;
-				if(replyingTo?.div){
-					replyingTo.div.classList.remove("replying");
-				}
-				if(thisUser.channelfocus){
-					thisUser.channelfocus.replyingto = null;
-				}
-				channel.sendMessage(markdown.rawString, {
-					attachments: images,
-					// @ts-ignore This is valid according to the API
-					embeds: [], // Add an empty array for the embeds property
-					replyingto: replyingTo,
-				});
-				if(thisUser.channelfocus){
-					thisUser.channelfocus.makereplybox();
-				}
+			replyingTo = thisUser.channelfocus? thisUser.channelfocus.replyingto: null;
+			if(replyingTo?.div){
+				replyingTo.div.classList.remove("replying");
 			}
-
+			if(thisUser.channelfocus){
+				thisUser.channelfocus.replyingto = null;
+			}
+			channel.sendMessage(markdown.rawString, {
+				attachments: images,
+				// @ts-ignore This is valid according to the API
+				embeds: [], // Add an empty array for the embeds property
+				replyingto: replyingTo,
+			});
+			if(thisUser.channelfocus){
+				thisUser.channelfocus.makereplybox();
+			}
 			while(images.length){
 				images.pop();
 				pasteImageElement.removeChild(imagesHtml.pop() as HTMLElement);

@@ -1,7 +1,7 @@
 import{ Contextmenu }from"./contextmenu.js";
 import{ User }from"./user.js";
 import{ Member }from"./member.js";
-import{ MarkDown }from"./markdown.js";
+import{ MarkDown, saveCaretPosition }from"./markdown.js";
 import{ Embed }from"./embed.js";
 import{ Channel }from"./channel.js";
 import{ Localuser }from"./localuser.js";
@@ -96,14 +96,10 @@ class Message extends SnowFlake{
 		);
 	}
 	setEdit(){
+		const prev=this.channel.editing;
 		this.channel.editing = this;
-		const markdown = (
-			document.getElementById("typebox") as HTMLDivElement & {
-			markdown: MarkDown;
-			}
-			).markdown as MarkDown;
-		markdown.txt = this.content.rawString.split("");
-		markdown.boxupdate(document.getElementById("typebox") as HTMLDivElement);
+		if(prev) prev.generateMessage();
+		this.generateMessage(undefined,false)
 	}
 	constructor(messagejson: messagejson, owner: Channel){
 		super(messagejson.id);
@@ -340,6 +336,7 @@ class Message extends SnowFlake{
 	}
 	generateMessage(premessage?: Message | undefined, ignoredblock = false){
 		if(!this.div)return;
+		const editmode=this.channel.editing===this;
 		if(!premessage){
 			premessage = this.channel.messages.get(
 				this.channel.idToPrev.get(this.id) as string
@@ -476,8 +473,7 @@ class Message extends SnowFlake{
 				const newt = new Date(this.timestamp).getTime() / 1000;
 				current = newt - old > 600;
 			}
-			const combine =
-				premessage?.author != this.author || current || this.message_reference;
+			const combine = premessage?.author != this.author || current || this.message_reference;
 			if(combine){
 				const pfp = this.author.buildpfp();
 				this.author.bind(pfp, this.guild, false);
@@ -526,13 +522,56 @@ class Message extends SnowFlake{
 			}else{
 				div.classList.remove("topMessage");
 			}
-			const messaged = this.content.makeHTML();
-			(div as any).txt = messaged;
 			const messagedwrap = document.createElement("div");
-			messagedwrap.classList.add("flexttb");
-			messagedwrap.appendChild(messaged);
-			text.appendChild(messagedwrap);
+			if(editmode){
+				const box=document.createElement("div");
+				box.classList.add("messageEditContainer");
+				const area=document.createElement("div");
+				const sb=document.createElement("div");
+				sb.style.position="absolute";
+				sb.style.width="100%";
+				const search=document.createElement("div");
+				search.classList.add("searchOptions","flexttb");
+				area.classList.add("editMessage");
+				area.contentEditable="true";
+				const md=new MarkDown(this.content.rawString,this.owner)
+				area.append(md.makeHTML());
+				area.addEventListener("keyup", (event)=>{
+					if(this.localuser.keyup(event)) return;
+					if(event.key === "Enter" && !event.shiftKey){
+						this.edit(md.rawString);
+						this.channel.editing=null;
+						this.generateMessage();
+					}
+				});
+				area.addEventListener("keydown", event=>{
+					this.localuser.keydown(event);
+					if(event.key === "Enter" && !event.shiftKey) event.preventDefault();
+					if(event.key === "Escape"){
+						this.channel.editing=null;
+						this.generateMessage();
+					}
+				});
+				md.giveBox(area,(str,pre)=>{
+					this.localuser.search(search,md,str,pre)
+				})
+				sb.append(search);
+				box.append(sb,area);
+				messagedwrap.append(box);
+				setTimeout(()=>{
+					area.focus();
+					const fun=saveCaretPosition(area,Infinity);
+					if(fun) fun();
+				})
+			}else{
+				this.content.onUpdate=()=>{};
+				const messaged = this.content.makeHTML();
+				(div as any).txt = messaged;
+				messagedwrap.classList.add("flexttb");
+				messagedwrap.appendChild(messaged);
 
+			}
+			text.appendChild(messagedwrap);
 			build.appendChild(text);
 			if(this.attachments.length){
 				console.log(this.attachments);

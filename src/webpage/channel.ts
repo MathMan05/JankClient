@@ -791,6 +791,15 @@ class Channel extends SnowFlake{
 			return new Message(json[0], this);
 		}
 	}
+	editLast(){
+		let message:Message|undefined=this.lastmessage;
+		while(message&&message.author!==this.localuser.user){
+			message=this.messages.get(this.idToPrev.get(message.id) as string);
+		}
+		if(message){
+			message.setEdit();
+		}
+	}
 	static genid: number = 0;
 	async getHTML(){
 		const id = ++Channel.genid;
@@ -842,6 +851,7 @@ class Channel extends SnowFlake{
 		await this.buildmessages();
 		//loading.classList.remove("loading");
 		(document.getElementById("typebox") as HTMLDivElement).contentEditable =""+this.canMessage;
+		(document.getElementById("typebox") as HTMLDivElement).focus();
 	}
 	typingmap: Map<Member, number> = new Map();
 	async typingStart(typing: startTypingjson): Promise<void>{

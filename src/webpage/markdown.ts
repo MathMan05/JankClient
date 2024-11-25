@@ -686,7 +686,9 @@ txt[j + 1] === undefined)
 		e.target.classList.add("unspoiled");
 	}
 	onUpdate:(upto:string,pre:boolean)=>unknown=()=>{};
+	box=new WeakRef(document.createElement("div"));
 	giveBox(box: HTMLDivElement,onUpdate:(upto:string,pre:boolean)=>unknown=()=>{}){
+		this.box=new WeakRef(box);
 		this.onUpdate=onUpdate;
 		box.onkeydown = _=>{
 			//console.log(_);
@@ -697,7 +699,7 @@ txt[j + 1] === undefined)
 			if(content !== prevcontent){
 				prevcontent = content;
 				this.txt = content.split("");
-				this.boxupdate(box);
+				this.boxupdate();
 				MarkDown.gatherBoxText(box);
 			}
 
@@ -713,7 +715,9 @@ txt[j + 1] === undefined)
 			box.onkeyup(new KeyboardEvent("_"));
 		};
 	}
-	boxupdate(box: HTMLElement,offset=0){
+	boxupdate(offset=0){
+		const box=this.box.deref();
+		if(!box) return;
 		const restore = saveCaretPosition(box,offset);
 		box.innerHTML = "";
 		box.append(this.makeHTML({ keep: true }));
@@ -832,85 +836,91 @@ let formatted=false;
 function saveCaretPosition(context: HTMLElement,offset=0){
 	const selection = window.getSelection() as Selection;
 	if(!selection)return;
-	const range = selection.getRangeAt(0);
-	let base=selection.anchorNode as Node;
-	range.setStart(base, 0);
-	let baseString:string;
-	if(!(base instanceof Text)){
-		let i=0;
-		const index=selection.focusOffset;
-		//@ts-ignore
-		for(const thing of base.childNodes){
-			if(i===index){
-				base=thing;
-				break;
+	try{
+		const range = selection.getRangeAt(0);
+
+		let base=selection.anchorNode as Node;
+		range.setStart(base, 0);
+		let baseString:string;
+		if(!(base instanceof Text)){
+			let i=0;
+			const index=selection.focusOffset;
+			//@ts-ignore
+			for(const thing of base.childNodes){
+				if(i===index){
+					base=thing;
+					break;
+				}
+				i++;
 			}
-			i++;
-		}
-		if(base instanceof HTMLElement){
-			baseString=MarkDown.gatherBoxText(base)
+			if(base instanceof HTMLElement){
+				baseString=MarkDown.gatherBoxText(base)
+			}else{
+				baseString=base.textContent as string;
+			}
 		}else{
-			baseString=base.textContent as string;
+			baseString=selection.toString();
 		}
-	}else{
-		baseString=selection.toString();
-	}
 
 
-	range.setStart(context, 0);
+		range.setStart(context, 0);
 
-	let build="";
-	//I think this is working now :3
-	function crawlForText(context:Node){
-		//@ts-ignore
-		const children=[...context.childNodes];
-		if(children.length===1&&children[0] instanceof Text){
-			if(selection.containsNode(context,false)){
-				build+=MarkDown.gatherBoxText(context as HTMLElement);
-			}else if(selection.containsNode(context,true)){
-				if(context.contains(base)||context===base||base.contains(context)){
-					build+=baseString;
+		let build="";
+		//I think this is working now :3
+		function crawlForText(context:Node){
+			//@ts-ignore
+			const children=[...context.childNodes];
+			if(children.length===1&&children[0] instanceof Text){
+				if(selection.containsNode(context,false)){
+					build+=MarkDown.gatherBoxText(context as HTMLElement);
+				}else if(selection.containsNode(context,true)){
+					if(context.contains(base)||context===base||base.contains(context)){
+						build+=baseString;
+					}else{
+						build+=context.textContent;
+					}
 				}else{
-					build+=context.textContent;
+					console.error(context);
 				}
-			}else{
-				console.error(context);
+				return;
 			}
-			return;
-		}
-		for(const node of children as Node[]){
+			for(const node of children as Node[]){
 
-			if(selection.containsNode(node,false)){
-				if(node instanceof HTMLElement){
-					build+=MarkDown.gatherBoxText(node);
+				if(selection.containsNode(node,false)){
+					if(node instanceof HTMLElement){
+						build+=MarkDown.gatherBoxText(node);
+					}else{
+						build+=node.textContent;
+					}
+				}else if(selection.containsNode(node,true)){
+					if(node instanceof HTMLElement){
+						crawlForText(node);
+					}else{
+						console.error(node,"This shouldn't happen")
+					}
 				}else{
-					build+=node.textContent;
+					//console.error(node,"This shouldn't happen");
 				}
-			}else if(selection.containsNode(node,true)){
-				if(node instanceof HTMLElement){
-					crawlForText(node);
-				}else{
-					console.error(node,"This shouldn't happen")
-				}
-			}else{
-				console.error(node,"This shouldn't happen");
 			}
 		}
+		crawlForText(context);
+		if(baseString==="\n"){
+			build+=baseString;
+		}
+		text=build;
+		let len=build.length+offset;
+		len=Math.min(len,MarkDown.gatherBoxText(context).length)
+		return function restore(){
+			if(!selection)return;
+			const pos = getTextNodeAtPosition(context, len);
+			selection.removeAllRanges();
+			const range = new Range();
+			range.setStart(pos.node, pos.position);
+			selection.addRange(range);
+		};
+	}catch{
+		return undefined;
 	}
-	crawlForText(context);
-	if(baseString==="\n"){
-		build+=baseString;
-	}
-	text=build;
-	const len=build.length+offset;
-	return function restore(){
-		if(!selection)return;
-		const pos = getTextNodeAtPosition(context, len);
-		selection.removeAllRanges();
-		const range = new Range();
-		range.setStart(pos.node, pos.position);
-		selection.addRange(range);
-	};
 }
 
 function getTextNodeAtPosition(root: Node, index: number):{

@@ -1717,34 +1717,32 @@ class Localuser{
 			Bot.InviteMaker(appId,form,this.info);
 		})
 	}
-	typeMd?:MarkDown;
 	readonly autofillregex=Object.freeze(/[@#:]([a-z0-9 ]*)$/i);
 	mdBox(){
 		interface CustomHTMLDivElement extends HTMLDivElement {markdown: MarkDown;}
 
 		const typebox = document.getElementById("typebox") as CustomHTMLDivElement;
-		this.typeMd=typebox.markdown;
-		this.typeMd.owner=this;
-		this.typeMd.onUpdate=this.search.bind(this);
+		const typeMd=typebox.markdown;
+		typeMd.owner=this;
+		typeMd.onUpdate=(str,pre)=>{
+			this.search(document.getElementById("searchOptions") as HTMLDivElement,typeMd,str,pre);
+		}
 	}
-	MDReplace(replacewith:string,original:string){
-		const typebox = document.getElementById("typebox") as HTMLDivElement;
-		if(!this.typeMd)return;
-		let raw=this.typeMd.rawString;
+	MDReplace(replacewith:string,original:string,typebox:MarkDown){
+		let raw=typebox.rawString;
 		raw=raw.split(original)[1];
 		if(raw===undefined) return;
 		raw=original.replace(this.autofillregex,"")+replacewith+raw;
 		console.log(raw);
 		console.log(replacewith);
 		console.log(original);
-		this.typeMd.txt = raw.split("");
+		typebox.txt = raw.split("");
 		const match=original.match(this.autofillregex);
 		if(match){
-			this.typeMd.boxupdate(typebox,replacewith.length-match[0].length);
+			typebox.boxupdate(replacewith.length-match[0].length);
 		}
 	}
-	MDSearchOptions(options:[string,string,void|HTMLElement][],original:string){
-		const div=document.getElementById("searchOptions");
+	MDSearchOptions(options:[string,string,void|HTMLElement][],original:string,div:HTMLDivElement,typebox:MarkDown){
 		if(!div)return;
 		div.innerHTML="";
 		let i=0;
@@ -1757,7 +1755,6 @@ class Localuser{
 			const span=document.createElement("span");
 			htmloptions.push(span);
 			if(thing[2]){
-				console.log(thing);
 				span.append(thing[2]);
 			}
 
@@ -1766,19 +1763,21 @@ class Localuser{
 
 				if(e){
 					const selection = window.getSelection() as Selection;
-					const typebox = document.getElementById("typebox") as HTMLDivElement;
+					const box=typebox.box.deref();
+					if(!box) return;
 					if(selection){
 						console.warn(original);
-						const pos = getTextNodeAtPosition(typebox, original.length-(original.match(this.autofillregex) as RegExpMatchArray)[0].length+thing[1].length);
+
+						const pos = getTextNodeAtPosition(box, original.length-(original.match(this.autofillregex) as RegExpMatchArray)[0].length+thing[1].length);
 						selection.removeAllRanges();
 						const range = new Range();
 						range.setStart(pos.node, pos.position);
 						selection.addRange(range);
 					}
 					e.preventDefault();
-					typebox.focus();
+					box.focus();
 				}
-				this.MDReplace(thing[1],original);
+				this.MDReplace(thing[1],original,typebox);
 				div.innerHTML="";
 				remove();
 			}
@@ -1837,7 +1836,7 @@ class Localuser{
 			remove();
 		}
 	}
-	MDFindChannel(name:string,orginal:string){
+	MDFindChannel(name:string,orginal:string,box:HTMLDivElement,typebox:MarkDown){
 		const maybe:[number,Channel][]=[];
 		if(this.lookingguild&&this.lookingguild.id!=="@me"){
 			for(const channel of this.lookingguild.channels){
@@ -1848,7 +1847,7 @@ class Localuser{
 			}
 		}
 		maybe.sort((a,b)=>b[0]-a[0]);
-		this.MDSearchOptions(maybe.map((a)=>["# "+a[1].name,`<#${a[1].id}> `,undefined]),orginal);
+		this.MDSearchOptions(maybe.map((a)=>["# "+a[1].name,`<#${a[1].id}> `,undefined]),orginal,box,typebox);
 	}
 	async getUser(id:string){
 		if(this.userMap.has(id)){
@@ -1856,7 +1855,7 @@ class Localuser{
 		}
 		return new User(await (await fetch(this.info.api+"/users/"+id)).json(),this);
 	}
-	MDFineMentionGen(name:string,original:string){
+	MDFineMentionGen(name:string,original:string,box:HTMLDivElement,typebox:MarkDown){
 		let members:[Member,number][]=[];
 		if(this.lookingguild){
 			for(const member of this.lookingguild.members){
@@ -1867,11 +1866,11 @@ class Localuser{
 			}
 		}
 		members.sort((a,b)=>b[1]-a[1]);
-		this.MDSearchOptions(members.map((a)=>["@"+a[0].name,`<@${a[0].id}> `,undefined]),original);
+		this.MDSearchOptions(members.map((a)=>["@"+a[0].name,`<@${a[0].id}> `,undefined]),original,box,typebox);
 	}
-	MDFindMention(name:string,original:string){
+	MDFindMention(name:string,original:string,box:HTMLDivElement,typebox:MarkDown){
 		if(this.ws&&this.lookingguild){
-			this.MDFineMentionGen(name,original);
+			this.MDFineMentionGen(name,original,box,typebox);
 			const nonce=Math.floor(Math.random()*10**8)+"";
 			if(this.lookingguild.member_count<=this.lookingguild.members.size) return;
 			this.ws.send(JSON.stringify(
@@ -1906,19 +1905,19 @@ class Localuser{
 							await Member.new(thing,this.lookingguild as Guild)
 						}
 					}
-					this.MDFineMentionGen(name,original);
+					this.MDFineMentionGen(name,original,box,typebox);
 				}
 			})
 		}
 	}
-	findEmoji(search:string,orginal:string){
+	findEmoji(search:string,orginal:string,box:HTMLDivElement,typebox:MarkDown){
 		const emj=Emoji.searchEmoji(search,this,10);
 		const map=emj.map(([emoji]):[string,string,HTMLElement]=>{
 			return [emoji.name,emoji.id?`<${emoji.animated?"a":""}:${emoji.name}:${emoji.id}>`:emoji.emoji as string,emoji.getHTML()]
 		})
-		this.MDSearchOptions(map,orginal);
+		this.MDSearchOptions(map,orginal,box,typebox);
 	}
-	search(str:string,pre:boolean){
+	search(box:HTMLDivElement,md:MarkDown,str:string,pre:boolean){
 		if(!pre){
 			const match=str.match(this.autofillregex);
 
@@ -1926,25 +1925,23 @@ class Localuser{
 				const [type, search]=[match[0][0],match[0].split(/@|#|:/)[1]];
 				switch(type){
 					case "#":
-						this.MDFindChannel(search,str);
+						this.MDFindChannel(search,str,box,md);
 						break;
 					case "@":
-						this.MDFindMention(search,str);
+						this.MDFindMention(search,str,box,md);
 						break;
 					case ":":
 						if(search.length>=2){
-							this.findEmoji(search,str)
+							this.findEmoji(search,str,box,md)
 						}else{
-							this.MDSearchOptions([],"");
+							this.MDSearchOptions([],"",box,md);
 						}
 						break;
 				}
 				return
 			}
 		}
-		const div=document.getElementById("searchOptions");
-		if(!div)return;
-		div.innerHTML="";
+		box.innerHTML="";
 	}
 	keydown:(event:KeyboardEvent)=>unknown=()=>{};
 	keyup:(event:KeyboardEvent)=>boolean=()=>false;
