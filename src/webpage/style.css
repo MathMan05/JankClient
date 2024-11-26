@@ -246,6 +246,11 @@ textarea {
 .svg-plus {
 	mask: url(/icons/plus.svg);
 }
+.svg-upload {
+	mask: url(/icons/upload.svg);
+	width: .2in !important;!i;!;
+	cursor: pointer;
+}
 .svg-x {
 	mask: url(/icons/x.svg);
 }
@@ -277,6 +282,13 @@ textarea {
 	background: var(--typebox-bg);
 	padding: .05in;
 	border-radius: .04in;
+}
+#gimmefile{
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: #00000070;
+	top:0px;
 }
 /* Animations */
 @keyframes fade {
@@ -832,6 +844,7 @@ span.instanceStatus {
 	display: flex;
 	gap: 12px;
 	overflow-y: auto;
+	flex-wrap: wrap;
 }
 #pasteimage:empty {
 	height: 0;
@@ -885,14 +898,21 @@ span.instanceStatus {
 #realbox {
 	padding: 0 16px 28px 16px;
 }
-#typebox {
+#typebox{
+	flex-grow:1;
+	width:100%;
+	margin-left: .06in;
+}
+.outerTypeBox {
 	max-height: 50svh;
-	padding: 10px 14px;
+	padding: 10px 10px;
 	background: var(--typebox-bg);
 	border-radius: 4px;
 	overflow-y: auto;
+	display:flex;
+	flex-direction: row;
 }
-#typebox > span::before {
+.outerTypeBox > span::before {
 	content: "\feff";
 }
 #typebox[contenteditable=false] {

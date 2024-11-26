@@ -81,7 +81,10 @@
 						<div id="replybox" class="hideReplyBox"></div>
 						<div id="typediv">
 							<div id="realbox">
-								<div id="typebox" contentEditable="true"></div>
+								<div class="outerTypeBox">
+									<span class="svg-upload svgicon" id="upload"></span>
+									<div id="typebox" contentEditable="true"></div>
+								</div>
 							</div>
 							<div id="typing" class="hidden flexltr">
 								<p id="typingtext">typing</p>
@@ -96,6 +99,9 @@
 					<div class="flexttb" id="sideDiv"></div>
 				</div>
 			</div>
+		</div>
+		<div hidden id="gimmefile">
+			<div id="filedroptext" class="centeritem nonimagecenter">Upload your files here!</div>
 		</div>
 	</body>
 	<script src="/index.js" type="module"></script>
