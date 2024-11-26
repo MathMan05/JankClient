@@ -641,6 +641,18 @@ class Message extends SnowFlake{
 							this.channel.setReplying(this);
 						};
 					}
+					if(this.channel.hasPermission("ADD_REACTIONS")){
+						const container = document.createElement("button");
+						const reply = document.createElement("span");
+						reply.classList.add("svg-emoji", "svgicon");
+						container.append(reply);
+						buttons.append(container);
+						container.onclick = e=>{
+							Emoji.emojiPicker(e.x, e.y, this.localuser).then(_=>{
+								this.reactionToggle(_);
+							});
+						};
+					}
 					if(this.author === this.localuser.user){
 						const container = document.createElement("button");
 						const edit = document.createElement("span");
