@@ -248,11 +248,17 @@ textarea {
 }
 .svg-upload {
 	mask: url(/icons/upload.svg);
-	width: .2in !important;!i;!;
+	width: .2in !important;
 	cursor: pointer;
 }
 .svg-x {
 	mask: url(/icons/x.svg);
+}
+.svg-friends{
+	mask: url(/icons/friends.svg);
+	width: 24px !important;!i;!;
+	height: 24px !important;!i;!;
+	margin-right: 0 !important;!i;!;
 }
 .svgicon {
 	display: block;
@@ -327,6 +333,10 @@ textarea {
 }
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--primary-text-soft);
+}
+#sideDiv:empty{
+	width:0px;
+	padding:0;
 }
 #servers::-webkit-scrollbar, #channels::-webkit-scrollbar, #sideDiv::-webkit-scrollbar {
 	display: none;
@@ -2053,6 +2063,11 @@ fieldset input[type="radio"] {
 		cursor:pointer;
 	}
 
+}
+.friendsbutton{
+	transition: background-color .2s;
+	background-color: #00000050;
+	padding: .08in;
 }
 .bigemoji{
 	width:.6in;

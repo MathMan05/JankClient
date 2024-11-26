@@ -3,12 +3,7 @@ import{ Channel }from"./channel.js";
 import{ Message }from"./message.js";
 import{ Localuser }from"./localuser.js";
 import{ User }from"./user.js";
-import{
-	channeljson,
-	dirrectjson,
-	memberjson,
-	messagejson,
-}from"./jsontypes.js";
+import{channeljson,dirrectjson,memberjson,messagejson}from"./jsontypes.js";
 import{ Permissions }from"./permissions.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ Contextmenu }from"./contextmenu.js";
@@ -23,9 +18,6 @@ class Direct extends Guild{
 		super(-1, owner, null);
 		this.message_notifications = 0;
 		this.owner = owner;
-		if(!this.localuser){
-			console.error("Owner was not included, please fix");
-		}
 		this.headers = this.localuser.headers;
 		this.channels = [];
 		this.channelids = {};
@@ -57,6 +49,25 @@ class Direct extends Guild{
 		if(channel){
 			channel.del();
 		}
+	}
+	getHTML(){
+		const ddiv=document.createElement("div");
+		const build=super.getHTML();
+		const freindDiv=document.createElement("div");
+		freindDiv.classList.add("liststyle","flexltr","friendsbutton");
+
+		const icon=document.createElement("span");
+		icon.classList.add("svgicon","svg-friends","space");
+		freindDiv.append(icon);
+
+		freindDiv.append("Friends");
+		ddiv.append(freindDiv);
+		freindDiv.onclick=()=>{
+			this.loadChannel(null);
+		}
+
+		ddiv.append(build);
+		return ddiv;
 	}
 	giveMember(_member: memberjson){
 		console.error("not a real guild, can't give member object");
@@ -200,6 +211,7 @@ class Group extends Channel{
 		this.buildmessages();
 		(document.getElementById("typebox") as HTMLDivElement).contentEditable ="" + true;
 		(document.getElementById("upload") as HTMLElement).style.visibility="visible";
+		(document.getElementById("typediv") as HTMLElement).style.visibility="visible";
 		(document.getElementById("typebox") as HTMLDivElement).focus();
 	}
 	messageCreate(messagep: { d: messagejson }){

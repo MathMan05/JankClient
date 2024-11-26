@@ -577,7 +577,7 @@ class Guild extends SnowFlake{
 		}
 		return this.member.hasRole(r);
 	}
-	loadChannel(ID?: string | undefined,addstate=true){
+	loadChannel(ID?: string | undefined| null,addstate=true){
 		if(ID){
 			const channel = this.localuser.channelids.get(ID);
 			if(channel){
@@ -585,17 +585,63 @@ class Guild extends SnowFlake{
 				return;
 			}
 		}
-		if(this.prevchannel){
+		if(this.prevchannel&&ID!==null){
 			console.log(this.prevchannel);
 			this.prevchannel.getHTML(addstate);
 			return;
 		}
-		for(const thing of this.channels){
-			if(thing.children.length === 0){
-				thing.getHTML(addstate);
-				return;
+		if(this.id!=="@me"){
+			for(const thing of this.channels){
+				if(thing.type!==4){
+					thing.getHTML(addstate);
+					return;
+				}
 			}
 		}
+		this.removePrevChannel();
+		this.noChannel(addstate);
+	}
+	removePrevChannel(){
+		if(this.localuser.channelfocus){
+			this.localuser.channelfocus.infinite.delete();
+		}
+		if(this !== this.localuser.lookingguild){
+			this.loadGuild();
+		}
+		if(this.localuser.channelfocus && this.localuser.channelfocus.myhtml){
+			this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
+		}
+		this.prevchannel = undefined;
+		this.localuser.channelfocus = undefined;
+		const replybox = document.getElementById("replybox") as HTMLElement;
+		const typebox = document.getElementById("typebox") as HTMLElement;
+		replybox.classList.add("hideReplyBox");
+		typebox.classList.remove("typeboxreplying");
+		(document.getElementById("typebox") as HTMLDivElement).contentEditable ="false";
+		(document.getElementById("upload") as HTMLElement).style.visibility="hidden";
+		(document.getElementById("typediv") as HTMLElement).style.visibility="hidden";
+		(document.getElementById("sideDiv") as HTMLElement).innerHTML="";
+	}
+	noChannel(addstate:boolean){
+		if(addstate){
+			history.pushState([this.id,undefined], "", "/channels/" + this.id);
+		}
+		this.localuser.pageTitle("Weird spot");
+		const channelTopic = document.getElementById("channelTopic") as HTMLSpanElement;
+		channelTopic.setAttribute("hidden", "");
+
+		const loading = document.getElementById("loadingdiv") as HTMLDivElement;
+		loading.classList.remove("loading");
+		this.localuser.getSidePannel();
+
+		const messages = document.getElementById("channelw") as HTMLDivElement;
+		for(const thing of Array.from(messages.getElementsByClassName("messagecontainer"))){
+			thing.remove();
+		}
+		const h1=document.createElement("h1");
+		h1.classList.add("messagecontainer")
+		h1.textContent="You're in a weird spot, this guild has no channels";
+		messages.append(h1);
 	}
 	loadGuild(){
 		this.localuser.loadGuild(this.id);
@@ -703,7 +749,9 @@ class Guild extends SnowFlake{
 		if(indexy !== -1){
 			this.headchannels.splice(indexy, 1);
 		}
-
+		if(channel===this.prevchannel){
+			this.prevchannel=undefined;
+		}
 		/*
 		const build=[];
 		for(const thing of this.channels){

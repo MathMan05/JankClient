@@ -853,6 +853,7 @@ class Channel extends SnowFlake{
 		//loading.classList.remove("loading");
 		(document.getElementById("typebox") as HTMLDivElement).contentEditable =""+this.canMessage;
 		(document.getElementById("upload") as HTMLElement).style.visibility=this.canMessage?"visible":"hidden";
+		(document.getElementById("typediv") as HTMLElement).style.visibility="visible";
 		(document.getElementById("typebox") as HTMLDivElement).focus();
 	}
 	typingmap: Map<Member, number> = new Map();
@@ -1086,10 +1087,8 @@ class Channel extends SnowFlake{
 		let id: string | undefined;
 		if(this.lastreadmessageid && this.messages.has(this.lastreadmessageid)){
 			id = this.lastreadmessageid;
-		}else if(
-			this.lastreadmessageid &&
-											(id = this.findClosest(this.lastreadmessageid))
-		){
+		}else if(this.lastreadmessageid && (id = this.findClosest(this.lastreadmessageid))){
+
 		}else if(this.lastmessageid && this.messages.has(this.lastmessageid)){
 			id = this.goBackIds(this.lastmessageid, 50);
 		}
@@ -1098,7 +1097,7 @@ class Channel extends SnowFlake{
 				const title = document.createElement("h2");
 				title.id = "removetitle";
 				title.textContent = I18n.getTranslation("noMessages");
-				title.classList.add("titlespace");
+				title.classList.add("titlespace","messagecontainer");
 				messages.append(title);
 			}
 			this.infinitefocus = false;
