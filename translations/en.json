@@ -375,6 +375,7 @@
 		"reason:":"Reason:",
 		"ban":"Ban $1 from $2"
 	},
+	"uploadFilesText":"Upload your files here!",
 	"errorReconnect":"Unable to connect to the server, retrying in **$1** seconds...",
 	"retrying":"Retrying...",
 	"unableToConnect":"Unable to connect to the Spacebar server. Please try logging out and back in."

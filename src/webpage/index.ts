@@ -3,7 +3,7 @@ import{ Contextmenu }from"./contextmenu.js";
 import{ mobile, getBulkUsers, setTheme, Specialuser }from"./login.js";
 import{ MarkDown }from"./markdown.js";
 import{ Message }from"./message.js";
-import{ File }from"./file.js";
+import{File}from"./file.js";
 import { I18n } from "./i18n.js";
 
 (async ()=>{
@@ -17,10 +17,12 @@ import { I18n } from "./i18n.js";
 		const loadingText=document.getElementById("loadingText");
 		const loaddesc=document.getElementById("load-desc");
 		const switchaccounts=document.getElementById("switchaccounts");
-		if(loadingText&&loaddesc&&switchaccounts){
+		const filedroptext=document.getElementById("filedroptext");
+		if(loadingText&&loaddesc&&switchaccounts&&filedroptext){
 			loadingText.textContent=I18n.getTranslation("htmlPages.loadingText");
 			loaddesc.textContent=I18n.getTranslation("htmlPages.loaddesc");
 			switchaccounts.textContent=I18n.getTranslation("htmlPages.switchaccounts");
+			filedroptext.textContent=I18n.getTranslation("uploadFilesText");
 		}
 	}
 	I18n
@@ -191,50 +193,115 @@ import { I18n } from "./i18n.js";
 		}
 	}
 
-		interface CustomHTMLDivElement extends HTMLDivElement {markdown: MarkDown;}
+	interface CustomHTMLDivElement extends HTMLDivElement {markdown: MarkDown;}
 
-		const typebox = document.getElementById("typebox") as CustomHTMLDivElement;
-		const markdown = new MarkDown("", thisUser);
-		typebox.markdown = markdown;
-		typebox.addEventListener("keyup", handleEnter);
-		typebox.addEventListener("keydown", event=>{
-			thisUser.keydown(event)
-			if(event.key === "Enter" && !event.shiftKey) event.preventDefault();
-		});
-		markdown.giveBox(typebox);
+	const typebox = document.getElementById("typebox") as CustomHTMLDivElement;
+	const markdown = new MarkDown("", thisUser);
+	typebox.markdown = markdown;
+	typebox.addEventListener("keyup", handleEnter);
+	typebox.addEventListener("keydown", event=>{
+		thisUser.keydown(event)
+		if(event.key === "Enter" && !event.shiftKey) event.preventDefault();
+	});
+	markdown.giveBox(typebox);
 
-		const images: Blob[] = [];
-		const imagesHtml: HTMLElement[] = [];
+	const images: Blob[] = [];
+	const imagesHtml: HTMLElement[] = [];
 
-		document.addEventListener("paste", async (e: ClipboardEvent)=>{
-			if(!e.clipboardData)return;
+	document.addEventListener("paste", async (e: ClipboardEvent)=>{
+		if(!e.clipboardData)return;
 
-			for(const file of Array.from(e.clipboardData.files)){
-				const fileInstance = File.initFromBlob(file);
-				e.preventDefault();
-				const html = fileInstance.upHTML(images, file);
-				pasteImageElement.appendChild(html);
-				images.push(file);
-				imagesHtml.push(html);
+		for(const file of Array.from(e.clipboardData.files)){
+			const fileInstance = File.initFromBlob(file);
+			e.preventDefault();
+			const html = fileInstance.upHTML(images, file);
+			pasteImageElement.appendChild(html);
+			images.push(file);
+			imagesHtml.push(html);
+		}
+	});
+
+	setTheme();
+
+	function userSettings(): void{
+		thisUser.showusersettings();
+	}
+
+	(document.getElementById("settings") as HTMLImageElement).onclick =
+	userSettings;
+
+	if(mobile){
+		const channelWrapper = document.getElementById("channelw") as HTMLDivElement;
+		channelWrapper.onclick = ()=>{
+			const toggle = document.getElementById("maintoggle") as HTMLInputElement;
+			toggle.checked = true;
+		};
+		const memberListToggle = document.getElementById("memberlisttoggle") as HTMLInputElement;
+		memberListToggle.checked = false;
+	}
+	let dragendtimeout=setTimeout(()=>{})
+	document.addEventListener("dragover",(e)=>{
+		clearTimeout(dragendtimeout);
+		const data = e.dataTransfer;
+		const bg=document.getElementById("gimmefile") as HTMLDivElement;
+
+		if(data){
+			const isfile=data.types.includes("Files")||data.types.includes("application/x-moz-file");
+			if(!isfile){
+				bg.hidden=true;
+				return;
 			}
-		});
-
-		setTheme();
-
-		function userSettings(): void{
-			thisUser.showusersettings();
+			e.preventDefault();
+			bg.hidden=false;
+			//console.log(data.types,data)
+		}else{
+			bg.hidden=true;
 		}
-
-		(document.getElementById("settings") as HTMLImageElement).onclick =
-		userSettings;
-
-		if(mobile){
-			const channelWrapper = document.getElementById("channelw") as HTMLDivElement;
-			channelWrapper.onclick = ()=>{
-				const toggle = document.getElementById("maintoggle") as HTMLInputElement;
-				toggle.checked = true;
-			};
-			const memberListToggle = document.getElementById("memberlisttoggle") as HTMLInputElement;
-			memberListToggle.checked = false;
+	});
+	document.addEventListener("dragleave",(_)=>{
+		dragendtimeout=setTimeout(()=>{
+			const bg=document.getElementById("gimmefile") as HTMLDivElement;
+			bg.hidden=true;
+		},1000)
+	});
+	document.addEventListener("dragenter",(e)=>{
+		e.preventDefault();
+	})
+	document.addEventListener("drop",e=>{
+		const data = e.dataTransfer;
+		const bg=document.getElementById("gimmefile") as HTMLDivElement;
+		bg.hidden=true;
+		if(data){
+			const isfile=data.types.includes("Files")||data.types.includes("application/x-moz-file");
+			if(isfile){
+				e.preventDefault();
+				console.log(data.files);
+				for(const file of Array.from(data.files)){
+					const fileInstance = File.initFromBlob(file);
+					const html = fileInstance.upHTML(images, file);
+					pasteImageElement.appendChild(html);
+					images.push(file);
+					imagesHtml.push(html);
+				}
+			}
 		}
+	});
+	(document.getElementById("upload") as HTMLElement).onclick=()=>{
+		const input=document.createElement("input");
+		input.type="file";
+		input.click();
+		console.log("clicked")
+		input.onchange=(() => {
+			if(input.files){
+				for(const file of Array.from(input.files)){
+					const fileInstance = File.initFromBlob(file);
+					const html = fileInstance.upHTML(images, file);
+					pasteImageElement.appendChild(html);
+					images.push(file);
+					imagesHtml.push(html);
+				}
+			}
+		})
+	}
+
 })();

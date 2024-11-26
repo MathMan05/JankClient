@@ -199,6 +199,7 @@ class Group extends Channel{
 		}
 		this.buildmessages();
 		(document.getElementById("typebox") as HTMLDivElement).contentEditable ="" + true;
+		(document.getElementById("upload") as HTMLElement).style.visibility="visible";
 		(document.getElementById("typebox") as HTMLDivElement).focus();
 	}
 	messageCreate(messagep: { d: messagejson }){

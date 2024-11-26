@@ -852,6 +852,7 @@ class Channel extends SnowFlake{
 		await this.buildmessages();
 		//loading.classList.remove("loading");
 		(document.getElementById("typebox") as HTMLDivElement).contentEditable =""+this.canMessage;
+		(document.getElementById("upload") as HTMLElement).style.visibility=this.canMessage?"visible":"hidden";
 		(document.getElementById("typebox") as HTMLDivElement).focus();
 	}
 	typingmap: Map<Member, number> = new Map();
