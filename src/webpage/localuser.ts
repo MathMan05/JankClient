@@ -794,8 +794,7 @@ class Localuser{
 			guild.html.classList.add("serveropen");
 		}
 		this.lookingguild = guild;
-		(document.getElementById("serverName") as HTMLElement).textContent =
-      guild.properties.name;
+		(document.getElementById("serverName") as HTMLElement).textContent = guild.properties.name;
 		//console.log(this.guildids,id)
 		const channels = document.getElementById("channels") as HTMLDivElement;
 		channels.innerHTML = "";

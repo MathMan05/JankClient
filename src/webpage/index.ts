@@ -5,7 +5,6 @@ import{ MarkDown }from"./markdown.js";
 import{ Message }from"./message.js";
 import{File}from"./file.js";
 import { I18n } from "./i18n.js";
-
 (async ()=>{
 	await I18n.done
 	const users = getBulkUsers();
