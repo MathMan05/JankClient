@@ -210,6 +210,9 @@ textarea {
 .svg-announce {
 	mask: url(/icons/announce.svg);
 }
+.svg-emoji {
+	mask: url(/icons/emoji.svg);
+}
 .svg-edit {
 	mask: url(/icons/edit.svg);
 }
