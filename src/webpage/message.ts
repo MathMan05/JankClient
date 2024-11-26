@@ -534,7 +534,7 @@ class Message extends SnowFlake{
 				search.classList.add("searchOptions","flexttb");
 				area.classList.add("editMessage");
 				area.contentEditable="true";
-				const md=new MarkDown(this.content.rawString,this.owner,{keep:true})
+				const md=new MarkDown(this.content.rawString,this.owner,{keep:true});
 				area.append(md.makeHTML());
 				area.addEventListener("keyup", (event)=>{
 					if(this.localuser.keyup(event)) return;
