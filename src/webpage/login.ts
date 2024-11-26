@@ -80,7 +80,7 @@ const instancefetch=fetch("/instances.json")
 			}
 		}
 	);
-
+setTheme();
 await I18n.done
 function setTheme(){
 	let name = localStorage.getItem("theme");
@@ -107,7 +107,7 @@ function setTheme(){
 		noAccount.textContent=I18n.getTranslation("htmlPages.noAccount");
 	}
 })()
-setTheme();
+
 function getBulkUsers(){
 	const json = getBulkInfo();
 	for(const thing in json.users){
