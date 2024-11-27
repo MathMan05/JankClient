@@ -842,6 +842,10 @@ class Channel extends SnowFlake{
 		if(this.voice&&localStorage.getItem("Voice enabled")){
 			this.localuser.joinVoice(this);
 		}
+		(document.getElementById("typebox") as HTMLDivElement).contentEditable =""+this.canMessage;
+		(document.getElementById("upload") as HTMLElement).style.visibility=this.canMessage?"visible":"hidden";
+		(document.getElementById("typediv") as HTMLElement).style.visibility="visible";
+		(document.getElementById("typebox") as HTMLDivElement).focus();
 		await this.putmessages();
 		await prom;
 		if(id !== Channel.genid){
@@ -851,10 +855,7 @@ class Channel extends SnowFlake{
 
 		await this.buildmessages();
 		//loading.classList.remove("loading");
-		(document.getElementById("typebox") as HTMLDivElement).contentEditable =""+this.canMessage;
-		(document.getElementById("upload") as HTMLElement).style.visibility=this.canMessage?"visible":"hidden";
-		(document.getElementById("typediv") as HTMLElement).style.visibility="visible";
-		(document.getElementById("typebox") as HTMLDivElement).focus();
+
 	}
 	typingmap: Map<Member, number> = new Map();
 	async typingStart(typing: startTypingjson): Promise<void>{
@@ -938,6 +939,7 @@ class Channel extends SnowFlake{
 	}
 	lastmessage: Message | undefined;
 	async putmessages(){
+		//TODO swap out with the WS op code
 		if(this.allthewayup){
 			return;
 		}

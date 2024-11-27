@@ -516,11 +516,27 @@ class HtmlArea implements OptionsElement<void>{
 	}
 	watchForChange(){}
 }
+/**
+* This is a simple wrapper class for Options to make it happy so it can be used outside of Settings.
+*/
+class Float{
+	options:Options;
+	/**
+	 * This is a simple wrapper class for Options to make it happy so it can be used outside of Settings.
+	 */
+	constructor(name:string, options={ ltr:false, noSubmit:false}){
+		this.options=new Options(name,this,options)
+	}
+	changed=()=>{};
+	generateHTML(){
+		return this.options.generateHTML();
+	}
+}
 class Options implements OptionsElement<void>{
 	name: string;
 	haschanged = false;
 	readonly options: OptionsElement<any>[];
-	readonly owner: Buttons | Options | Form;
+	readonly owner: Buttons | Options | Form | Float;
 	readonly ltr: boolean;
 	value!: void;
 	readonly html: WeakMap<OptionsElement<any>, WeakRef<HTMLDivElement>> = new WeakMap();
@@ -530,7 +546,7 @@ class Options implements OptionsElement<void>{
 	);
 	constructor(
 		name: string,
-		owner: Buttons | Options | Form,
+		owner: Buttons | Options | Form | Float,
 		{ ltr = false, noSubmit=false} = {}
 	){
 		this.name = name;
@@ -1145,38 +1161,84 @@ class Form implements OptionsElement<object>{
 		}
 		console.log("middle2");
 		await Promise.allSettled(promises);
-		this.preprocessor(build);
+		try{
+			this.preprocessor(build);
+		}catch(e){
+			if(e instanceof FormError){
+				const elm = this.options.html.get(e.elem);
+				if(elm){
+					const html = elm.deref();
+					if(html){
+						this.makeError(html, e.message);
+					}
+				}
+			}
+			return;
+		}
 		if(this.fetchURL !== ""){
 			fetch(this.fetchURL, {
 				method: this.method,
 				body: JSON.stringify(build),
 				headers: this.headers,
 			})
-				.then(_=>_.json())
+				.then(_=>{
+					return _.text()
+				}).then(_=>{
+					if(_==="") return {};
+					return JSON.parse(_)
+				})
 				.then(json=>{
-					if(json.errors && this.errors(json.errors))return;
-					this.onSubmit(json);
+					if(json.errors){
+						if(this.errors(json)){
+							return;
+						}
+					}
+					try{
+						this.onSubmit(json);
+					}catch(e){
+						console.error(e);
+						if(e instanceof FormError){
+							const elm = this.options.html.get(e.elem);
+							if(elm){
+								const html = elm.deref();
+								if(html){
+									this.makeError(html, e.message);
+								}
+							}
+						}
+						return;
+					}
 				});
 		}else{
-			this.onSubmit(build);
+			try{
+				this.onSubmit(build);
+			}catch(e){
+				if(e instanceof FormError){
+					const elm = this.options.html.get(e.elem);
+					if(elm){
+						const html = elm.deref();
+						if(html){
+							this.makeError(html, e.message);
+						}
+					}
+				}
+				return;
+			}
 		}
 		console.warn("needs to be implemented");
 	}
-	errors(errors: {
-																																		code: number;
-																																		message: string;
-																																		errors: { [key: string]: { _errors: { message: string; code: string } } };
-																																		}){
+	errors(errors: {code: number; message: string; errors: { [key: string]: { _errors: { message: string; code: string }[] } }}){
 		if(!(errors instanceof Object)){
 			return;
 		}
-		for(const error of Object.keys(errors)){
+		for(const error of Object.keys(errors.errors)){
 			const elm = this.names.get(error);
 			if(elm){
 				const ref = this.options.html.get(elm);
 				if(ref && ref.deref()){
 					const html = ref.deref() as HTMLDivElement;
-					this.makeError(html, errors.errors[error]._errors.message);
+					const errorMessage=errors.errors[error]._errors[0].message;
+					this.makeError(html, errorMessage);
 					return true;
 				}
 			}
@@ -1253,4 +1315,4 @@ class Settings extends Buttons{
 	}
 }
 
-export{ Settings, OptionsElement, Buttons, Options,Form };
+export{ Settings, OptionsElement, Buttons, Options,Form,Float };

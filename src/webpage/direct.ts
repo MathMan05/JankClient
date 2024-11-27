@@ -8,9 +8,11 @@ import{ Permissions }from"./permissions.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ Contextmenu }from"./contextmenu.js";
 import { I18n } from "./i18n.js";
+import { Float, FormError } from "./settings.js";
 
 class Direct extends Guild{
 	declare channelids: { [key: string]: Group };
+	channels: Group[];
 	getUnixTime(): number{
 		throw new Error("Do not call this for Direct, it does not make sense");
 	}
@@ -26,7 +28,7 @@ class Direct extends Guild{
 		this.roles = [];
 		this.roleids = new Map();
 		this.prevchannel = undefined;
-		this.properties.name = "Direct Messages";
+		this.properties.name = I18n.getTranslation("DMs.name");
 		for(const thing of json){
 			const temp = new Group(thing, this);
 			this.channels.push(temp);
@@ -60,7 +62,7 @@ class Direct extends Guild{
 		icon.classList.add("svgicon","svg-friends","space");
 		freindDiv.append(icon);
 
-		freindDiv.append("Friends");
+		freindDiv.append(I18n.getTranslation("friends.friends"));
 		ddiv.append(freindDiv);
 		freindDiv.onclick=()=>{
 			this.loadChannel(null);
@@ -68,6 +70,217 @@ class Direct extends Guild{
 
 		ddiv.append(build);
 		return ddiv;
+	}
+	noChannel(addstate:boolean){
+		if(addstate){
+			history.pushState([this.id,undefined], "", "/channels/" + this.id);
+		}
+		this.localuser.pageTitle(I18n.getTranslation("friends.friendlist"));
+		const channelTopic = document.getElementById("channelTopic") as HTMLSpanElement;
+		channelTopic.removeAttribute("hidden");
+		channelTopic.textContent="";
+
+		const loading = document.getElementById("loadingdiv") as HTMLDivElement;
+		loading.classList.remove("loading");
+		this.localuser.getSidePannel();
+
+		const messages = document.getElementById("channelw") as HTMLDivElement;
+		for(const thing of Array.from(messages.getElementsByClassName("messagecontainer"))){
+			thing.remove();
+		}
+		const container=document.createElement("div");
+		container.classList.add("messagecontainer","flexttb","friendcontainer")
+
+		messages.append(container);
+		const checkVoid=()=>{
+			if(this.localuser.channelfocus!==undefined||this.localuser.lookingguild!==this){
+				this.localuser.relationshipsUpdate=()=>{};
+			}
+		}
+		function genuserstrip(user:User,icons:HTMLElement):HTMLElement{
+			const div=document.createElement("div");
+			div.classList.add("flexltr","liststyle");
+			user.bind(div);
+			div.append(user.buildpfp());
+
+			const userinfos=document.createElement("div");
+			userinfos.classList.add("flexttb");
+			const username=document.createElement("span");
+			username.textContent=user.name;
+			userinfos.append(username,user.getStatus());
+			div.append(userinfos);
+			User.contextmenu.bindContextmenu(div,user,undefined);
+			userinfos.style.flexGrow="1";
+
+			div.append(icons);
+			return div;
+		}
+		{
+			//TODO update on users coming online
+			const online=document.createElement("button");
+			online.textContent=I18n.getTranslation("friends.online");
+			channelTopic.append(online);
+			const genOnline=()=>{
+				this.localuser.relationshipsUpdate=genOnline;
+				checkVoid();
+				container.innerHTML="";
+				container.append(I18n.getTranslation("friends.online:"));
+				for(const user of this.localuser.inrelation){
+					if(user.relationshipType===1&&user.online){
+						const buttonc=document.createElement("div");
+						const button1=document.createElement("span");
+						button1.classList.add("svg-frmessage","svgicon");
+						buttonc.append(button1);
+						buttonc.classList.add("friendlyButton");
+						buttonc.onclick=(e)=>{
+							e.stopImmediatePropagation();
+							user.opendm();
+						}
+						container.append(genuserstrip(user,buttonc));
+					}
+				}
+			}
+			online.onclick=genOnline;
+			genOnline();
+		}
+		{
+			const all=document.createElement("button");
+			all.textContent=I18n.getTranslation("friends.all");
+			const genAll=()=>{
+				this.localuser.relationshipsUpdate=genAll;
+				checkVoid();
+				container.innerHTML="";
+				container.append(I18n.getTranslation("friends.all:"));
+				for(const user of this.localuser.inrelation){
+					if(user.relationshipType===1){
+						const buttonc=document.createElement("div");
+						const button1=document.createElement("span");
+						button1.classList.add("svg-frmessage","svgicon");
+						buttonc.append(button1);
+						buttonc.classList.add("friendlyButton");
+						buttonc.onclick=(e)=>{
+							e.stopImmediatePropagation();
+							user.opendm();
+						}
+						container.append(genuserstrip(user,buttonc));
+					}
+				}
+			}
+			all.onclick=genAll;
+			channelTopic.append(all);
+		}
+		{
+			const pending=document.createElement("button");
+			pending.textContent=I18n.getTranslation("friends.pending");
+			const genPending=()=>{
+				this.localuser.relationshipsUpdate=genPending;
+				checkVoid();
+				container.innerHTML="";
+				container.append(I18n.getTranslation("friends.pending:"));
+				for(const user of this.localuser.inrelation){
+					if(user.relationshipType===3||user.relationshipType===4){
+						const buttons=document.createElement("div");
+						buttons.classList.add("flexltr");
+						const buttonc=document.createElement("div");
+						const button1=document.createElement("span");
+						button1.classList.add("svgicon","svg-x");
+						if(user.relationshipType===3){
+							const buttonc=document.createElement("div");
+							const button2=document.createElement("span");
+							button2.classList.add("svgicon","svg-x");
+							button2.classList.add("svg-addfriend");
+							buttonc.append(button2);
+							buttonc.classList.add("friendlyButton");
+							buttonc.append(button2);
+							buttons.append(buttonc);
+							buttonc.onclick=(e)=>{
+								e.stopImmediatePropagation();
+								user.changeRelationship(1);
+								outerDiv.remove();
+							}
+						}
+						buttonc.append(button1);
+						buttonc.classList.add("friendlyButton");
+						buttonc.onclick=(e)=>{
+							e.stopImmediatePropagation();
+							user.changeRelationship(0);
+							outerDiv.remove();
+						}
+						buttons.append(buttonc);
+						const outerDiv=genuserstrip(user,buttons);
+						container.append(outerDiv);
+					}
+				}
+			}
+			pending.onclick=genPending;
+			channelTopic.append(pending);
+		}
+		{
+			const blocked=document.createElement("button");
+			blocked.textContent=I18n.getTranslation("friends.blocked");
+
+			const genBlocked=()=>{
+				this.localuser.relationshipsUpdate=genBlocked;
+				checkVoid();
+				container.innerHTML="";
+				container.append(I18n.getTranslation("friends.blockedusers"));
+				for(const user of this.localuser.inrelation){
+					if(user.relationshipType===2){
+						const buttonc=document.createElement("div");
+						const button1=document.createElement("span");
+						button1.classList.add("svg-x","svgicon");
+						buttonc.append(button1);
+						buttonc.classList.add("friendlyButton");
+						buttonc.onclick=(e)=>{
+							user.changeRelationship(0);
+							e.stopImmediatePropagation();
+							outerDiv.remove();
+						}
+						const outerDiv=genuserstrip(user,buttonc);
+						container.append(outerDiv);
+					}
+				}
+			}
+			blocked.onclick=genBlocked;
+			channelTopic.append(blocked);
+		}
+		{
+			const add=document.createElement("button");
+			add.textContent=I18n.getTranslation("friends.addfriend");
+			add.onclick=()=>{
+				this.localuser.relationshipsUpdate=()=>{};
+				container.innerHTML="";
+				const float=new Float("");
+				const options=float.options;
+				const form=options.addForm("",(e:any)=>{
+					console.log(e);
+					if(e.code===404){
+						throw new FormError(text,I18n.getTranslation("friends.notfound"));
+					}else if(e.code===400){
+						throw new FormError(text,e.message.split("Error: ")[1]);
+					}else{
+						const box=text.input.deref();
+						if(!box)return;
+						box.value="";
+					}
+				},{
+					method:"POST",
+					fetchURL:this.info.api+"/users/@me/relationships",
+					headers:this.headers
+				});
+				const text=form.addTextInput(I18n.getTranslation("friends.addfriendpromt"),"username");
+				form.addPreprocessor((obj:any)=>{
+					const [username,discriminator]=obj.username.split("#");
+					obj.username=username;
+					obj.discriminator=discriminator;
+					if(!discriminator){
+						throw new FormError(text,I18n.getTranslation("friends.discnotfound"));
+					}
+				});
+				container.append(float.generateHTML());
+			}
+			channelTopic.append(add);
+		}
 	}
 	giveMember(_member: memberjson){
 		console.error("not a real guild, can't give member object");
@@ -143,15 +356,15 @@ class Group extends Channel{
 			this.user = this.localuser.user;
 		}
 		this.name ??= this.localuser.user.username;
-	this.parent_id!;
-	this.parent!;
-	this.children = [];
-	this.guild_id = "@me";
-	this.permission_overwrites = new Map();
-	this.lastmessageid = json.last_message_id;
-	this.mentions = 0;
-	this.setUpInfiniteScroller();
-	this.updatePosition();
+		this.parent_id!;
+		this.parent!;
+		this.children = [];
+		this.guild_id = "@me";
+		this.permission_overwrites = new Map();
+		this.lastmessageid = json.last_message_id;
+		this.mentions = 0;
+		this.setUpInfiniteScroller();
+		this.updatePosition();
 	}
 	updatePosition(){
 		if(this.lastmessageid){
@@ -202,6 +415,10 @@ class Group extends Channel{
 
 		loading.classList.add("loading");
 		this.rendertyping();
+		(document.getElementById("typebox") as HTMLDivElement).contentEditable ="" + true;
+		(document.getElementById("upload") as HTMLElement).style.visibility="visible";
+		(document.getElementById("typediv") as HTMLElement).style.visibility="visible";
+		(document.getElementById("typebox") as HTMLDivElement).focus();
 		await this.putmessages();
 		await prom;
 		this.localuser.getSidePannel();
@@ -209,10 +426,7 @@ class Group extends Channel{
 			return;
 		}
 		this.buildmessages();
-		(document.getElementById("typebox") as HTMLDivElement).contentEditable ="" + true;
-		(document.getElementById("upload") as HTMLElement).style.visibility="visible";
-		(document.getElementById("typediv") as HTMLElement).style.visibility="visible";
-		(document.getElementById("typebox") as HTMLDivElement).focus();
+
 	}
 	messageCreate(messagep: { d: messagejson }){
 		const messagez = new Message(messagep.d, this);

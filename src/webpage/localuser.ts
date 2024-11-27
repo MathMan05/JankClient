@@ -124,12 +124,14 @@ class Localuser{
 			const user = new User(thing.user, this);
 			user.nickname = thing.nickname;
 			user.relationshipType = thing.type;
+			this.inrelation.add(user);
 		}
 
 		this.pingEndpoint();
 		this.userinfo.updateLocal();
 
 	}
+	inrelation=new Set<User>();
 	outoffocus(): void{
 		const servers = document.getElementById("servers") as HTMLDivElement;
 		servers.innerHTML = "";
@@ -365,6 +367,7 @@ class Localuser{
 		});
 		await promise;
 	}
+	relationshipsUpdate=()=>{};
 	async handleEvent(temp: wsjson){
 		console.debug(temp);
 		if(temp.s)this.lastSequence = temp.s;
@@ -538,6 +541,23 @@ class Localuser{
 					if(!guild) break;
 					guild.memberupdate(temp.d)
 					break
+				}
+				case "RELATIONSHIP_ADD":{
+					const user = new User(temp.d.user, this);
+					user.nickname = null;
+					user.relationshipType = temp.d.type;
+					this.inrelation.add(user);
+					this.relationshipsUpdate();
+					break;
+				}
+				case "RELATIONSHIP_REMOVE":{
+					const user = this.userMap.get(temp.d.id);
+					if(!user) return;
+					user.nickname = null;
+					user.relationshipType = 0;
+					this.inrelation.delete(user);
+					this.relationshipsUpdate();
+					break;
 				}
 				default :{
 					//@ts-ignore
