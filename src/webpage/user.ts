@@ -8,6 +8,7 @@ import{ presencejson, userjson }from"./jsontypes.js";
 import { Role } from "./role.js";
 import { Search } from "./search.js";
 import { I18n } from "./i18n.js";
+import { Direct } from "./direct.js";
 
 class User extends SnowFlake{
 	owner: Localuser;
@@ -15,7 +16,7 @@ class User extends SnowFlake{
 	avatar!: string | null;
 	username!: string;
 	nickname: string | null = null;
-	relationshipType: 0 | 1 | 2 | 3 | 4 = 0;
+	relationshipType: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 0;
 	bio!: MarkDown;
 	discriminator!: string;
 	pronouns!: string;
@@ -85,31 +86,59 @@ class User extends SnowFlake{
 			this.setstatus("offline");
 		}
 	}
-
+	get online(){
+		return (this.status)&&(this.status!="offline");
+	}
 	setstatus(status: string): void{
 		this.status = status;
 	}
 
-	async getStatus(): Promise<string>{
+	getStatus(): string{
 		return this.status || "offline";
 	}
 
 	static contextmenu = new Contextmenu<User, Member | undefined>("User Menu");
-
+	async opendm(){
+		for(const dm of (this.localuser.guildids.get("@me") as Direct).channels){
+			if(dm.user.id===this.id){
+				this.localuser.goToChannel(dm.id);
+				return;
+			}
+		}
+		await fetch(this.info.api + "/users/@me/channels", {
+			method: "POST",
+			body: JSON.stringify({ recipients: [this.id] }),
+			headers: this.localuser.headers,
+		})
+		.then(res=>res.json())
+		.then(json=>{
+			this.localuser.goToChannel(json.id);
+		});
+		return;
+	}
+	async changeRelationship(type:0|1|2|3|4|5){
+		if(type!==0){
+			await fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
+				method: "PUT",
+				headers: this.owner.headers,
+				body: JSON.stringify({
+					type,
+				}),
+			});
+		}else{
+			await fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
+				method: "DELETE",
+				headers: this.owner.headers
+			});
+		}
+		this.relationshipType=type;
+	}
 	static setUpContextMenu(): void{
 		this.contextmenu.addbutton(()=>I18n.getTranslation("user.copyId"), function(this: User){
 			navigator.clipboard.writeText(this.id);
 		});
 		this.contextmenu.addbutton(()=>I18n.getTranslation("user.message"), function(this: User){
-			fetch(this.info.api + "/users/@me/channels", {
-				method: "POST",
-				body: JSON.stringify({ recipients: [this.id] }),
-				headers: this.localuser.headers,
-			})
-				.then(res=>res.json())
-				.then(json=>{
-					this.localuser.goToChannel(json.id);
-				});
+			this.opendm();
 		});
 		this.contextmenu.addbutton(
 			()=>I18n.getTranslation("user.block"),
@@ -133,13 +162,7 @@ class User extends SnowFlake{
 			}
 		);
 		this.contextmenu.addbutton(()=>I18n.getTranslation("user.friendReq"), function(this: User){
-			fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
-				method: "PUT",
-				headers: this.owner.headers,
-				body: JSON.stringify({
-					type: 1,
-				}),
-			});
+			this.changeRelationship(1);
 		});
 		this.contextmenu.addbutton(
 			()=>I18n.getTranslation("user.kick"),
@@ -370,15 +393,8 @@ class User extends SnowFlake{
 		);
 	}
 
-	block(): void{
-		fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
-			method: "PUT",
-			headers: this.owner.headers,
-			body: JSON.stringify({
-				type: 2,
-			}),
-		});
-		this.relationshipType = 2;
+	async block(){
+		await this.changeRelationship(2);
 		const channel = this.localuser.channelfocus;
 		if(channel){
 			for(const message of channel.messages){
@@ -387,12 +403,8 @@ class User extends SnowFlake{
 		}
 	}
 
-	unblock(): void{
-		fetch(`${this.info.api}/users/@me/relationships/${this.id}`, {
-			method: "DELETE",
-			headers: this.owner.headers,
-		});
-		this.relationshipType = 0;
+	async unblock(){
+		await this.changeRelationship(0);
 		const channel = this.localuser.channelfocus;
 		if(channel){
 			for(const message of channel.messages){

@@ -40,6 +40,7 @@ jsc: {
 
 gulp.task('watch', function () {
     gulp.watch('./src', gulp.series("default"));
+    gulp.watch('./translations', gulp.series("default"));
 }, {debounceDelay: 10});
 
 // Clean task to delete the dist directory

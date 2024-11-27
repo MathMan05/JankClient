@@ -505,7 +505,25 @@ roleCreate | {
 	op:9,
 	d:boolean,
 	s:number
-}|memberlistupdatejson|voiceupdate|voiceserverupdate;
+}|memberlistupdatejson|voiceupdate|voiceserverupdate|{
+    op: 0,
+    t: "RELATIONSHIP_ADD",
+    d: {
+        id: string,
+        type: 0|1|2|3|4|5|6,
+        user: userjson
+    },
+    s: number
+}|{
+    op: 0,
+    t: "RELATIONSHIP_REMOVE",
+    d: {
+        id: string,
+        type: number,
+        nickname: null
+    },
+    s: number
+};
 
 
 type memberChunk = {

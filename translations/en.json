@@ -229,7 +229,9 @@
 		"noDelete":"Nevermind",
 		"create":"Create guild",
 		"loadingDiscovery":"Loading...",
-		"disoveryTitle":"Guild discovery ($1) {{PLURAL:$1|entry|entries}}"
+		"disoveryTitle":"Guild discovery ($1) {{PLURAL:$1|entry|entries}}",
+		"emptytitle":"Weird spot",
+		"emptytext":"You're in a weird spot, this guild has no channels"
 	},
 	"role":{
 		"displaySettings":"Display settings",
@@ -345,11 +347,28 @@
 		"joinUsing":"Join using invite",
 		"inviteLinkCode":"Invite Link/Code"
 	},
+	"friends":{
+		"blocked":"Blocked",
+		"blockedusers":"Blocked Users:",
+		"addfriend":"Add Friend",
+		"addfriendpromt":"Add friends by username:",
+		"notfound":"User not found",
+		"discnotfound":"Discriminator not found",
+		"pending":"Pending",
+		"pending:":"Pending friend requests:",
+		"all":"All",
+		"all:":"All friends:",
+		"online":"Online",
+		"online:":"Online friends:",
+		"friendlist":"Friend List",
+		"friends":"Friends"
+	},
 	"replyingTo":"Replying to $1",
 	"DMs":{
 		"copyId":"Copy DM id",
 		"markRead":"Mark as read",
-		"close":"Close DM"
+		"close":"Close DM",
+		"name":"Dirrect Messages"
 	},
 	"user":{
 		"copyId":"Copy user ID",

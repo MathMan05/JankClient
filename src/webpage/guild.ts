@@ -626,7 +626,7 @@ class Guild extends SnowFlake{
 		if(addstate){
 			history.pushState([this.id,undefined], "", "/channels/" + this.id);
 		}
-		this.localuser.pageTitle("Weird spot");
+		this.localuser.pageTitle(I18n.getTranslation("guild.emptytitle"));
 		const channelTopic = document.getElementById("channelTopic") as HTMLSpanElement;
 		channelTopic.setAttribute("hidden", "");
 
@@ -640,7 +640,7 @@ class Guild extends SnowFlake{
 		}
 		const h1=document.createElement("h1");
 		h1.classList.add("messagecontainer")
-		h1.textContent="You're in a weird spot, this guild has no channels";
+		h1.textContent=I18n.getTranslation("guild.emptytext");
 		messages.append(h1);
 	}
 	loadGuild(){
