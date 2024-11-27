@@ -368,7 +368,7 @@
 		"copyId":"Copy DM id",
 		"markRead":"Mark as read",
 		"close":"Close DM",
-		"name":"Dirrect Messages"
+		"name":"Direct Messages"
 	},
 	"user":{
 		"copyId":"Copy user ID",
