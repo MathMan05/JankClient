@@ -1760,6 +1760,8 @@ fieldset input[type="radio"] {
 }
 .settingbuttons.flexltr{
 	width: 100%;
+	border-right: 0;
+	border-radius: .04in;
 	.SettingsButton{
 		width:auto;
 	}
