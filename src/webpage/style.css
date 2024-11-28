@@ -1810,6 +1810,7 @@ fieldset input[type="radio"] {
 	margin: 16px 16px 0 16px;
 	/* word-break: break-word; */
 	overflow: hidden;
+	flex-shrink: 0;
 }
 .optionElement:has(.optionElement) {
 	margin: 0;
@@ -1924,7 +1925,7 @@ fieldset input[type="radio"] {
 		height: calc(100svh - 50px);
 	}
 	.flexspace {
-		/*flex-direction: column;*/
+		/* flex-direction: column; */
 	}
 	.optionElement input[type="text"],
 	.optionElement textarea,
