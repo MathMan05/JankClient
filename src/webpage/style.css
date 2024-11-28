@@ -1633,6 +1633,9 @@ img.bigembedimg {
 	padding-bottom: 0;
 	border-bottom: none;
 }
+.nonimagecenter .flexspace, .nonimagecenter .FormSettings {
+	padding: 0;
+}
 .nonimagecenter button {
 	height: 100%;
 }
@@ -1809,11 +1812,18 @@ fieldset input[type="radio"] {
 	height: 100%;
 }
 .flexspace {
+	padding-bottom: 32px;
 	overflow-y: auto;
 }
 .flexspace:has(.flexspace) {
 	height: 100%;
 	padding-bottom: 0;
+}
+.FormSettings .flexspace {
+	padding-bottom: 0;
+}
+.FormSettings {
+	padding-bottom: 32px;
 }
 .optionElement, .FormSettings > button {
 	margin: 16px 16px 0 16px;
@@ -1941,8 +1951,8 @@ fieldset input[type="radio"] {
 		right: 0;
 		height: calc(100svh - 50px);
 	}
-	.flexspace {
-		/* flex-direction: column; */
+	.flexspace:has(.hypoprofile) {
+		flex-direction: column;
 	}
 	.optionElement input[type="text"],
 	.optionElement textarea,
@@ -2070,6 +2080,9 @@ fieldset input[type="radio"] {
 	.settingbuttons {
 		height: 100px;
 		width: 100%;
+	}
+	.nonimagecenter .settingbuttons {
+		height: auto;
 	}
 	.fixedsearch {
 		top: 50% !important;
