@@ -1801,7 +1801,7 @@ fieldset input[type="radio"] {
 .flexspace {
 	overflow-y: auto;
 	padding-bottom: 32px;
-	flex-shrink: 0;
+	/* flex-shrink: 0; */
 }
 .flexspace:has(.flexspace) {
 	height: 100%;
