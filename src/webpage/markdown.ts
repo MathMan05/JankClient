@@ -4,7 +4,7 @@ import{ Guild }from"./guild.js";
 import { I18n } from "./i18n.js";
 import{ Localuser }from"./localuser.js";
 import{ Member }from"./member.js";
-import { BDialog } from "./settings.js";
+import { Dialog } from "./settings.js";
 
 class MarkDown{
 	txt: string[];
@@ -781,7 +781,7 @@ txt[j + 1] === undefined)
 				if(this.trustedDomains.has(Url.host)){
 					open();
 				}else{
-					const full=new BDialog("");
+					const full=new Dialog("");
 					full.options.addTitle(I18n.getTranslation("leaving"));
 					full.options.addText(I18n.getTranslation("goingToURL",Url.host));
 					const options=full.options.addOptions("",{ltr:true});

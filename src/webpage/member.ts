@@ -4,7 +4,7 @@ import{ Guild }from"./guild.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, presencejson }from"./jsontypes.js";
 import { I18n } from "./i18n.js";
-import { BDialog } from "./settings.js";
+import { Dialog } from "./settings.js";
 
 class Member extends SnowFlake{
 	static already = {};
@@ -229,7 +229,7 @@ class Member extends SnowFlake{
 		return this.nick || this.user.username;
 	}
 	kick(){
-		const menu = new BDialog("");
+		const menu = new Dialog("");
 		const form=menu.options.addForm("",((e:any)=>{
 			this.kickAPI(e.reason);
 			menu.hide();
@@ -247,7 +247,7 @@ class Member extends SnowFlake{
 		});
 	}
 	ban(){
-		const menu = new BDialog("");
+		const menu = new Dialog("");
 		const form=menu.options.addForm("",((e:any)=>{
 			this.banAPI(e.reason);
 			menu.hide();

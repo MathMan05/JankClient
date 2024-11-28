@@ -3,7 +3,7 @@ import{ Localuser }from"./localuser.js";
 import{ Contextmenu }from"./contextmenu.js";
 import{ Role, RoleList }from"./role.js";
 import{ Member }from"./member.js";
-import{ BDialog, Settings }from"./settings.js";
+import{ Dialog, Settings }from"./settings.js";
 import{ Permissions }from"./permissions.js";
 import{ SnowFlake }from"./snowflake.js";
 import{channeljson,guildjson,emojijson,memberjson,invitejson,rolesjson,}from"./jsontypes.js";
@@ -261,7 +261,7 @@ class Guild extends SnowFlake{
 	setnotifcation(){
 
 		const options=["all", "onlyMentions", "none"].map(e=>I18n.getTranslation("guild."+e));
-		const notiselect=new BDialog("");
+		const notiselect=new Dialog("");
 		const form=notiselect.options.addForm("",(_,sent:any)=>{
 			notiselect.hide();
 			this.message_notifications = sent.message_notifications;
@@ -277,7 +277,7 @@ class Guild extends SnowFlake{
 		notiselect.show();
 	}
 	confirmleave(){
-		const full = new BDialog("");
+		const full = new Dialog("");
 		full.options.addTitle(I18n.getTranslation("guild.confirmLeave"))
 		const options=full.options.addOptions("",{ltr:true});
 		options.addButtonInput("",I18n.getTranslation("guild.yesLeave"),()=>{
@@ -434,7 +434,7 @@ class Guild extends SnowFlake{
 	confirmDelete(){
 		let confirmname = "";
 
-		const full = new BDialog("");
+		const full = new Dialog("");
 		full.options.addTitle(I18n.getTranslation("guild.confirmDelete",this.properties.name));
 		full.options.addTextInput(I18n.getTranslation("guild.serverName"),()=>{}).onchange=(e)=>confirmname=e;
 
@@ -634,7 +634,7 @@ class Guild extends SnowFlake{
 	createchannels(func = this.createChannel){
 		const options=["text", "announcement","voice"].map(e=>I18n.getTranslation("channel."+e));
 
-		const channelselect=new BDialog("");
+		const channelselect=new Dialog("");
 		const form=channelselect.options.addForm("",(e:any)=>{
 			func(e.name,e.type);
 			channelselect.hide();
@@ -646,7 +646,7 @@ class Guild extends SnowFlake{
 	}
 	createcategory(){
 		const category = 4;
-		const channelselect=new BDialog("");
+		const channelselect=new Dialog("");
 		const options=channelselect.options;
 		const form=options.addForm("",(e:any)=>{
 			this.createChannel(e.name, category);

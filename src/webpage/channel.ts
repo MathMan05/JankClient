@@ -5,7 +5,7 @@ import{ Contextmenu }from"./contextmenu.js";
 import{ Guild }from"./guild.js";
 import{ Localuser }from"./localuser.js";
 import{ Permissions }from"./permissions.js";
-import{ BDialog, Settings }from"./settings.js";
+import{ Dialog, Settings }from"./settings.js";
 import{ Role, RoleList }from"./role.js";
 import{ InfiniteScroller }from"./infiniteScroller.js";
 import{ SnowFlake }from"./snowflake.js";
@@ -142,7 +142,7 @@ class Channel extends SnowFlake{
 				});
 		};
 		update();
-		const inviteOptions=new BDialog("",{noSubmit:true});
+		const inviteOptions=new Dialog("",{noSubmit:true});
 		inviteOptions.options.addTitle(I18n.getTranslation("inviteOptions.title"));
 		inviteOptions.options.addText(I18n.getTranslation("invite.subtext",this.name,this.guild.properties.name));
 
@@ -925,7 +925,7 @@ class Channel extends SnowFlake{
 	setnotifcation(){
 		const defualt=I18n.getTranslation("guild."+["all", "onlyMentions", "none","default"][this.guild.message_notifications])
 		const options=["all", "onlyMentions", "none","default"].map(e=>I18n.getTranslation("guild."+e,defualt));
-		const notiselect=new BDialog("");
+		const notiselect=new Dialog("");
 		const form=notiselect.options.addForm("",(_,sent:any)=>{
 			notiselect.hide();
 			console.log(sent);

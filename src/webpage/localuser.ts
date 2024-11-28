@@ -6,7 +6,7 @@ import{ User }from"./user.js";
 import{ getapiurls, getBulkInfo, setTheme, Specialuser, SW }from"./login.js";
 import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
 import{ Member }from"./member.js";
-import{ BDialog, Form, FormError, Options, Settings }from"./settings.js";
+import{ Dialog, Form, FormError, Options, Settings }from"./settings.js";
 import{ getTextNodeAtPosition, MarkDown }from"./markdown.js";
 import { Bot } from "./bot.js";
 import { Role } from "./role.js";
@@ -892,7 +892,7 @@ class Localuser{
 	}
 	createGuild(){
 
-		const full=new BDialog("");
+		const full=new Dialog("");
 		const buttons=full.options.addButtons("",{top:true});
 		const viacode=buttons.add(I18n.getTranslation("invite.joinUsing"));
 		{
@@ -944,7 +944,7 @@ class Localuser{
 		const content = document.createElement("div");
 		content.classList.add("flexttb","guildy");
 		content.textContent = I18n.getTranslation("guild.loadingDiscovery");
-		const full = new BDialog("");
+		const full = new Dialog("");
 		full.options.addHTMLArea(content);
 		full.show();
 
@@ -2096,7 +2096,7 @@ class Localuser{
 			headers: this.headers,
 		});
 		const json = await res.json();
-		const dialog = new BDialog("");
+		const dialog = new Dialog("");
 		dialog.options.addTitle(I18n.getTranslation("instanceStats.name",this.instancePing.name));
 		dialog.options.addText(I18n.getTranslation("instanceStats.users",json.counts.user));
 		dialog.options.addText(I18n.getTranslation("instanceStats.servers",json.counts.guild));

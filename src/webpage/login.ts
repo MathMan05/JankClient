@@ -1,5 +1,5 @@
 import { I18n } from "./i18n.js";
-import { BDialog, FormError } from "./settings.js";
+import { Dialog, FormError } from "./settings.js";
 
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -517,7 +517,7 @@ async function login(username: string, password: string, captcha: string){
 				}else{
 					console.log(response);
 					if(response.ticket){
-						const better=new BDialog("");
+						const better=new Dialog("");
 						const form=better.options.addForm("",(res:any)=>{
 							if(res.message){
 								throw new FormError(ti,res.message);

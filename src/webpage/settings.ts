@@ -589,7 +589,7 @@ class Float{
 		return this.options.generateHTML();
 	}
 }
-class BDialog{
+class Dialog{
 	float:Float;
 	get options(){
 		return this.float.options;
@@ -620,7 +620,7 @@ class BDialog{
 		background.remove();
 	}
 }
-export{BDialog};
+export{Dialog};
 class Options implements OptionsElement<void>{
 	name: string;
 	haschanged = false;
