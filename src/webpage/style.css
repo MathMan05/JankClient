@@ -1614,12 +1614,12 @@ img.bigembedimg {
 	gap: 8px;
 	overflow-y: auto;
 }
-.nonimagecenter .flexttb, .nonimagecenter .flexltr  {
+.nonimagecenter & .flexttb, .nonimagecenter & .flexltr  {
 	flex: 1;
 	gap: 8px;
 }
 .nonimagecenter > .flexttb, .nonimagecenter > .flexltr {
-	padding: 16px;
+	padding: 16px !important;
 	background: var(--primary-bg);
 	border-radius: 8px;
 }
@@ -1758,6 +1758,12 @@ fieldset input[type="radio"] {
 .Buttons {
 	flex: 1;
 }
+.settingbuttons.flexltr{
+	width: 100%;
+	.SettingsButton{
+		width:auto;
+	}
+}
 .settingbuttons {
 	flex: none;
 	width: 192px;
@@ -1800,7 +1806,8 @@ fieldset input[type="radio"] {
 }
 .optionElement, .FormSettings > button {
 	margin: 16px 16px 0 16px;
-	word-break: break-word;
+	/* word-break: break-word; */
+	overflow: hidden;
 }
 .optionElement:has(.optionElement) {
 	margin: 0;
@@ -1915,7 +1922,7 @@ fieldset input[type="radio"] {
 		height: calc(100svh - 50px);
 	}
 	.flexspace {
-		flex-direction: column;
+		/*flex-direction: column;*/
 	}
 	.optionElement input[type="text"],
 	.optionElement textarea,

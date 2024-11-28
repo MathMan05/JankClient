@@ -1,10 +1,10 @@
 import{ Channel }from"./channel.js";
-import{ Dialog }from"./dialog.js";
 import{ Emoji }from"./emoji.js";
 import{ Guild }from"./guild.js";
 import { I18n } from "./i18n.js";
 import{ Localuser }from"./localuser.js";
 import{ Member }from"./member.js";
+import { BDialog } from "./settings.js";
 
 class MarkDown{
 	txt: string[];
@@ -781,37 +781,20 @@ txt[j + 1] === undefined)
 				if(this.trustedDomains.has(Url.host)){
 					open();
 				}else{
-					const full: Dialog = new Dialog([
-						"vdiv",
-						["title", I18n.getTranslation("leaving")],
-						[
-							"text",
-							I18n.getTranslation("goingToURL",Url.host)
-						],
-						[
-							"hdiv",
-							["button", "", I18n.getTranslation("nevermind"), (_: any)=>full.hide()],
-							[
-								"button",
-								"",
-								I18n.getTranslation("goThere"),
-								(_: any)=>{
-									open();
-									full.hide();
-								},
-							],
-							[
-								"button",
-								"",
-								I18n.getTranslation("goThereTrust"),
-								(_: any)=>{
-									open();
-									full.hide();
-									this.trustedDomains.add(Url.host);
-								},
-							],
-						],
-					]);
+					const full=new BDialog("");
+					full.options.addTitle(I18n.getTranslation("leaving"));
+					full.options.addText(I18n.getTranslation("goingToURL",Url.host));
+					const options=full.options.addOptions("",{ltr:true});
+					options.addButtonInput("",I18n.getTranslation("nevermind"),()=>full.hide());
+					options.addButtonInput("",I18n.getTranslation("goThere"),()=>{
+						open();
+						full.hide();
+					});
+					options.addButtonInput("",I18n.getTranslation("goThereTrust"),()=>{
+						open();
+						full.hide();
+						this.trustedDomains.add(Url.host);
+					});
 					full.show();
 				}
 			};

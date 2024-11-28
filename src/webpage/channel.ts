@@ -2,11 +2,10 @@
 import{ Message }from"./message.js";
 import{ AVoice }from"./audio.js";
 import{ Contextmenu }from"./contextmenu.js";
-import{ Dialog }from"./dialog.js";
 import{ Guild }from"./guild.js";
 import{ Localuser }from"./localuser.js";
 import{ Permissions }from"./permissions.js";
-import{ Settings }from"./settings.js";
+import{ BDialog, Settings }from"./settings.js";
 import{ Role, RoleList }from"./role.js";
 import{ InfiniteScroller }from"./infiniteScroller.js";
 import{ SnowFlake }from"./snowflake.js";
@@ -43,7 +42,7 @@ class Channel extends SnowFlake{
 	lastpin!: string;
 	move_id?: string;
 	typing!: number;
-	message_notifications!: number;
+	message_notifications:number=3;
 	allthewayup!: boolean;
 	static contextmenu = new Contextmenu<Channel, undefined>("channel menu");
 	replyingto!: Message | null;
@@ -53,6 +52,14 @@ class Channel extends SnowFlake{
 	messages: Map<string, Message> = new Map();
 	voice?:Voice;
 	bitrate:number=128000;
+
+	muted:boolean=false;
+	mute_config= {selected_time_window: -1,end_time: 0}
+	handleUserOverrides(settings:{message_notifications: number,muted: boolean,mute_config: {selected_time_window: number,end_time: number},channel_id: string}){
+		this.message_notifications=settings.message_notifications;
+		this.muted=settings.muted;
+		this.mute_config=settings.mute_config;
+	}
 	static setupcontextmenu(){
 		this.contextmenu.addbutton(()=>I18n.getTranslation("channel.copyId"), function(this: Channel){
 			navigator.clipboard.writeText(this.id);
@@ -76,6 +83,12 @@ class Channel extends SnowFlake{
 				return this.isAdmin();
 			}
 		);
+		this.contextmenu.addbutton(
+			()=>I18n.getTranslation("guild.notifications"),
+			function(){
+				this.setnotifcation();
+			}
+		)
 
 		this.contextmenu.addbutton(
 			()=>I18n.getTranslation("channel.makeInvite"),
@@ -129,50 +142,21 @@ class Channel extends SnowFlake{
 				});
 		};
 		update();
-		new Dialog([
-			"vdiv",
-			["title", I18n.getTranslation("inviteOptions.title")],
-			["text", `to #${this.name} in ${this.guild.properties.name}`],
-			[
-				"select",
-				"Expire after:",
-				[
-					I18n.getTranslation("inviteOptions.30m"),
-					I18n.getTranslation("inviteOptions.1h"),
-					I18n.getTranslation("inviteOptions.6h"),
-					I18n.getTranslation("inviteOptions.12h"),
-					I18n.getTranslation("inviteOptions.1d"),
-					I18n.getTranslation("inviteOptions.7d"),
-					I18n.getTranslation("inviteOptions.30d"),
-					I18n.getTranslation("inviteOptions.never"),
-				],
-				function(e: Event){
-					expires = [1800, 3600, 21600, 43200, 86400, 604800, 2592000, 0,][(e.srcElement as HTMLSelectElement).selectedIndex];
+		const inviteOptions=new BDialog("",{noSubmit:true});
+		inviteOptions.options.addTitle(I18n.getTranslation("inviteOptions.title"));
+		inviteOptions.options.addText(I18n.getTranslation("invite.subtext",this.name,this.guild.properties.name));
 
-					update();
-				},
-				0,
-			],
-			[
-				"select",
-				"Max uses:",
-				[
-					I18n.getTranslation("inviteOptions.noLimit"),
-					I18n.getTranslation("inviteOptions.limit","1"),
-					I18n.getTranslation("inviteOptions.limit","5"),
-					I18n.getTranslation("inviteOptions.limit","10"),
-					I18n.getTranslation("inviteOptions.limit","25"),
-					I18n.getTranslation("inviteOptions.limit","50"),
-					I18n.getTranslation("inviteOptions.limit","100"),
-				],
-				function(e: Event){
-					uses = [0, 1, 5, 10, 25, 50, 100][(e.srcElement as HTMLSelectElement).selectedIndex];
-					update();
-				},
-				0,
-			],
-			["html", div],
-		]).show();
+		inviteOptions.options.addSelect(I18n.getTranslation("invite.expireAfter"),()=>{},
+			["30m","1h","6h","12h","1d","7d","30d","never"].map((e)=>I18n.getTranslation("inviteOptions."+e))
+		).onchange=(e)=>{expires=[1800, 3600, 21600, 43200, 86400, 604800, 2592000, 0][e];update()};
+
+		const timeOptions=["1","5","10","25","50","100"].map((e)=>I18n.getTranslation("inviteOptions.limit",e))
+		timeOptions.unshift(I18n.getTranslation("inviteOptions.noLimit"))
+		inviteOptions.options.addSelect(I18n.getTranslation("invite.expireAfter"),()=>{},timeOptions)
+		.onchange=(e)=>{uses=[0, 1, 5, 10, 25, 50, 100][e];update()};
+
+		inviteOptions.options.addHTMLArea(div);
+		inviteOptions.show();
 	}
 	generateSettings(){
 		this.sortPerms();
@@ -938,6 +922,81 @@ class Channel extends SnowFlake{
 		}
 	}
 	lastmessage: Message | undefined;
+	setnotifcation(){
+		const defualt=I18n.getTranslation("guild."+["all", "onlyMentions", "none","default"][this.guild.message_notifications])
+		const options=["all", "onlyMentions", "none","default"].map(e=>I18n.getTranslation("guild."+e,defualt));
+		const notiselect=new BDialog("");
+		const form=notiselect.options.addForm("",(_,sent:any)=>{
+			notiselect.hide();
+			console.log(sent);
+			this.message_notifications = sent.channel_overrides[this.id].message_notifications;
+		},{
+			fetchURL:`${this.info.api}/users/@me/guilds/${this.guild.id}/settings/`,
+			method:"PATCH",
+			headers:this.headers
+		});
+		form.addSelect(I18n.getTranslation("guild.selectnoti"),"message_notifications",options,{
+			radio:true,
+			defaultIndex:this.message_notifications
+		},[0,1,2,3]);
+
+		form.addPreprocessor((e:any)=>{
+			const message_notifications=e.message_notifications;
+			delete e.message_notifications;
+			e.channel_overrides={
+				[this.id]:{
+					message_notifications,
+					muted:this.muted,
+					mute_config:this.mute_config,
+					channel_id:this.id
+				}
+			}
+		})
+		/*
+		let noti = this.message_notifications;
+		const defualt=I18n.getTranslation("guild."+["all", "onlyMentions", "none","default"][this.guild.message_notifications])
+		const options=["all", "onlyMentions", "none","default"].map(e=>I18n.getTranslation("guild."+e,defualt))
+		const notiselect = new Dialog([
+			"vdiv",
+			[
+				"radio",
+				I18n.getTranslation("guild.selectnoti"),
+				options,
+				function(e: string){
+					noti = options.indexOf(e);
+				},
+				noti,
+			],
+			[
+				"button",
+				"",
+				"submit",
+				(_: any)=>{
+					//
+					fetch(this.info.api + `/users/@me/guilds/${this.guild.id}/settings/`, {
+						method: "PATCH",
+						headers: this.headers,
+						body: JSON.stringify({
+							channel_overrides:{
+								[this.id]:{
+									message_notifications: noti,
+									muted:false,
+									mute_config:{
+										selected_time_window:0,
+										end_time:0
+									},
+									channel_id:this.id
+								}
+							}
+						}),
+					}).then(()=>notiselect.hide());
+					this.message_notifications = noti;
+				},
+			],
+		]);
+		*/
+		notiselect.show();
+	}
 	async putmessages(){
 		//TODO swap out with the WS op code
 		if(this.allthewayup){
@@ -1229,16 +1288,17 @@ class Channel extends SnowFlake{
 			notinumber = null;
 		}
 		notinumber ??= this.guild.message_notifications;
+		console.warn("info:",notinumber);
 		switch(Number(notinumber)){
-		case 0:
-			return"all";
-		case 1:
-			return"mentions";
-		case 2:
-			return"none";
-		case 3:
-		default:
-			return"default";
+			case 0:
+				return"all";
+			case 1:
+				return"mentions";
+			case 2:
+				return"none";
+			case 3:
+			default:
+				return"default";
 		}
 	}
 	async sendMessage(

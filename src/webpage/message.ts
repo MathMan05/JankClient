@@ -10,10 +10,10 @@ import{ File }from"./file.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, messagejson }from"./jsontypes.js";
 import{ Emoji }from"./emoji.js";
-import{ Dialog }from"./dialog.js";
 import{ mobile }from"./login.js";
 import { I18n } from "./i18n.js";
 import { Hover } from "./hover.js";
+import { BDialog } from "./settings.js";
 
 class Message extends SnowFlake{
 	static contextmenu = new Contextmenu<Message, undefined>("message menu");
@@ -87,7 +87,7 @@ class Message extends SnowFlake{
 		Message.contextmenu.addbutton(
 			()=>I18n.getTranslation("message.delete"),
 			function(this: Message){
-				this.delete();
+				this.confirmDelete();
 			},
 			null,
 			function(){
@@ -674,31 +674,7 @@ class Message extends SnowFlake{
 								this.delete();
 								return;
 							}
-							const diaolog = new Dialog([
-								"vdiv",
-								["title", I18n.getTranslation("deleteConfirm")],
-								[
-									"hdiv",
-									[
-										"button",
-										"",
-										I18n.getTranslation("yes"),
-										()=>{
-											this.delete();
-											diaolog.hide();
-										},
-									],
-									[
-										"button",
-										"",
-										I18n.getTranslation("no"),
-										()=>{
-											diaolog.hide();
-										},
-									],
-								]
-							]);
-							diaolog.show();
+							this.confirmDelete();
 						};
 					}
 					if(buttons.childNodes.length !== 0){
@@ -713,6 +689,19 @@ class Message extends SnowFlake{
 				}
 			};
 		}
+	}
+	confirmDelete(){
+		const diaolog=new BDialog("");
+		diaolog.options.addTitle(I18n.getTranslation("deleteConfirm"));
+		const options=diaolog.options.addOptions("",{ltr:true});
+		options.addButtonInput("",I18n.getTranslation("yes"),()=>{
+			this.delete();
+			diaolog.hide();
+		});
+		options.addButtonInput("",I18n.getTranslation("no"),()=>{
+			diaolog.hide();
+		})
+		diaolog.show();
 	}
 	updateReactions(){
 		const reactdiv = this.reactdiv.deref();

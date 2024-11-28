@@ -152,7 +152,7 @@
 		"nsfw:":"NSFW:",
 		"selectType":"Select channel type",
 		"selectName":"Name of channel",
-		"selectCatName":"Name of channel",
+		"selectCatName":"Name of category",
 		"createChannel":"Create channel",
 		"createCatagory":"Create category"
 	},
@@ -219,7 +219,7 @@
 		"selectnoti":"Select notifications type",
 		"all":"all",
 		"onlyMentions":"only mentions",
-		"none":"node",
+		"none":"none",
 		"confirmLeave":"Are you sure you want to leave?",
 		"yesLeave":"Yes, I'm sure",
 		"noLeave":"Nevermind",
@@ -231,7 +231,8 @@
 		"loadingDiscovery":"Loading...",
 		"disoveryTitle":"Guild discovery ($1) {{PLURAL:$1|entry|entries}}",
 		"emptytitle":"Weird spot",
-		"emptytext":"You're in a weird spot, this guild has no channels"
+		"emptytext":"You're in a weird spot, this guild has no channels",
+		"default":"Default ($1)"
 	},
 	"role":{
 		"displaySettings":"Display settings",
@@ -345,7 +346,9 @@
 		"longInvitedBy":"$1 invited you to join $2",
 		"loginOrCreateAccount":"Login or create an account ⇌",
 		"joinUsing":"Join using invite",
-		"inviteLinkCode":"Invite Link/Code"
+		"inviteLinkCode":"Invite Link/Code",
+		"subtext":"to $1 in $2",
+		"expireAfter":"Expire after:"
 	},
 	"friends":{
 		"blocked":"Blocked",

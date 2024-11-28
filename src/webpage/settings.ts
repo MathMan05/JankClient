@@ -14,7 +14,9 @@ class Buttons implements OptionsElement<unknown>{
 	buttonList!: HTMLDivElement;
 	warndiv!: HTMLElement;
 	value: unknown;
-	constructor(name: string){
+	top=false;
+	constructor(name: string,{top=false}={}){
+		this.top=top;
 		this.buttons = [];
 		this.name = name;
 	}
@@ -28,7 +30,7 @@ class Buttons implements OptionsElement<unknown>{
 	generateHTML(){
 		const buttonList = document.createElement("div");
 		buttonList.classList.add("Buttons");
-		buttonList.classList.add("flexltr");
+		buttonList.classList.add(this.top?"flexttb":"flexltr");
 		this.buttonList = buttonList;
 		const htmlarea = document.createElement("div");
 		htmlarea.classList.add("flexgrow");
@@ -43,6 +45,9 @@ class Buttons implements OptionsElement<unknown>{
 	generateButtons(optionsArea:HTMLElement){
 		const buttonTable = document.createElement("div");
 		buttonTable.classList.add("settingbuttons");
+		if(this.top){
+			buttonTable.classList.add("flexltr");
+		}
 		for(const thing of this.buttons){
 			const button = document.createElement("button");
 			button.classList.add("SettingsButton");
@@ -328,6 +333,7 @@ class SelectInput implements OptionsElement<number>{
 	options: string[];
 	index: number;
 	select!: WeakRef<HTMLSelectElement>;
+	radio:boolean;
 	get value(){
 		return this.index;
 	}
@@ -336,15 +342,61 @@ class SelectInput implements OptionsElement<number>{
 		onSubmit: (str: number) => void,
 		options: string[],
 		owner: Options,
-		{ defaultIndex = 0 } = {}
+		{ defaultIndex = 0,radio=false } = {}
 	){
 		this.label = label;
 		this.index = defaultIndex;
 		this.owner = owner;
 		this.onSubmit = onSubmit;
 		this.options = options;
+		this.radio=radio;
 	}
 	generateHTML(): HTMLDivElement{
+		if(this.radio){
+			const map=new WeakMap<HTMLInputElement,number>();
+			const div = document.createElement("div");
+			const fieldset = document.createElement("fieldset");
+			fieldset.addEventListener("change", ()=>{
+				let i = -1;
+				for(const thing of Array.from(fieldset.children)){
+					i++;
+					if(i === 0){
+						continue;
+					}
+					const checkbox = thing.children[0].children[0] as HTMLInputElement;
+					if(checkbox.checked){
+						this.onChange(map.get(checkbox));
+					}
+				}
+			});
+			const legend = document.createElement("legend");
+			legend.textContent = this.label;
+			fieldset.appendChild(legend);
+			let i = 0;
+			for(const thing of this.options){
+				const div = document.createElement("div");
+				const input = document.createElement("input");
+				input.classList.add("radio");
+				input.type = "radio";
+				input.name = this.label;
+				input.value = thing;
+				map.set(input,i);
+				if(i === this.index){
+					input.checked = true;
+				}
+				const label = document.createElement("label");
+
+				label.appendChild(input);
+				const span = document.createElement("span");
+				span.textContent = thing;
+				label.appendChild(span);
+				div.appendChild(label);
+				fieldset.appendChild(div);
+				i++;
+			}
+			div.appendChild(fieldset);
+			return div;
+		}
 		const div = document.createElement("div");
 		const span = document.createElement("span");
 		span.textContent = this.label;
@@ -353,7 +405,7 @@ class SelectInput implements OptionsElement<number>{
 		selectSpan.classList.add("selectspan");
 		const select = document.createElement("select");
 
-		select.onchange = this.onChange.bind(this);
+		select.onchange = this.onChange.bind(this,-1);
 		for(const thing of this.options){
 			const option = document.createElement("option");
 			option.textContent = thing;
@@ -368,8 +420,13 @@ class SelectInput implements OptionsElement<number>{
 		div.append(selectSpan);
 		return div;
 	}
-	private onChange(){
+	private onChange(index=-1){
 		this.owner.changed();
+		if(index!==-1){
+			this.onchange(index);
+			this.index = index;
+			return;
+		}
 		const select = this.select.deref();
 		if(select){
 			const value = select.selectedIndex;
@@ -524,7 +581,7 @@ class Float{
 	/**
 	 * This is a simple wrapper class for Options to make it happy so it can be used outside of Settings.
 	 */
-	constructor(name:string, options={ ltr:false, noSubmit:false}){
+	constructor(name:string, options={ ltr:false, noSubmit:true}){
 		this.options=new Options(name,this,options)
 	}
 	changed=()=>{};
@@ -532,6 +589,38 @@ class Float{
 		return this.options.generateHTML();
 	}
 }
+class BDialog{
+	float:Float;
+	get options(){
+		return this.float.options;
+	}
+	background=new WeakRef(document.createElement("div"));
+	constructor(name:string, { ltr=false, noSubmit=true}={}){
+		this.float=new Float(name,{ltr,noSubmit});
+	}
+	show(){
+		const background = document.createElement("div");
+		background.classList.add("background");
+		const center=this.float.generateHTML();
+		center.classList.add("centeritem","nonimagecenter");
+		center.classList.remove("titlediv");
+		background.append(center);
+		center.onclick=e=>{
+			e.stopImmediatePropagation();
+		}
+		document.body.append(background);
+		this.background=new WeakRef(background);
+		background.onclick = _=>{
+			background.remove();
+		};
+	}
+	hide(){
+		const background=this.background.deref();
+		if(!background) return;
+		background.remove();
+	}
+}
+export{BDialog};
 class Options implements OptionsElement<void>{
 	name: string;
 	haschanged = false;
@@ -571,6 +660,12 @@ class Options implements OptionsElement<void>{
 		this.generate(options);
 		return options;
 	}
+	addButtons(name: string, { top = false } = {}){
+		const buttons = new Buttons(name, { top });
+		this.options.push(buttons);
+		this.generate(buttons);
+		return buttons;
+	}
 	subOptions: Options | Form | undefined;
 	genTop(){
 		const container = this.container.deref();
@@ -596,7 +691,7 @@ class Options implements OptionsElement<void>{
 	}
 	addSubForm(
 		name: string,
-		onSubmit: (arg1: object) => void,
+		onSubmit: (arg1: object,sent:object) => void,
 		{
 			ltr = false,
 			submitText = "Submit",
@@ -626,10 +721,10 @@ class Options implements OptionsElement<void>{
 		label: string,
 		onSubmit: (str: number) => void,
 		selections: string[],
-		{ defaultIndex = 0 } = {}
+		{ defaultIndex = 0,radio=false } = {}
 	){
 		const select = new SelectInput(label, onSubmit, selections, this, {
-			defaultIndex,
+			defaultIndex,radio
 		});
 		this.options.push(select);
 		this.generate(select);
@@ -717,7 +812,7 @@ class Options implements OptionsElement<void>{
 	}
 	addForm(
 		name: string,
-		onSubmit: (arg1: object) => void,
+		onSubmit: (arg1: object,sent:object) => void,
 		{
 			ltr = false,
 			submitText = "Submit",
@@ -901,7 +996,7 @@ class Form implements OptionsElement<object>{
 	constructor(
 		name: string,
 		owner: Options,
-		onSubmit: (arg1: object) => void,
+		onSubmit: (arg1: object,sent:object) => void,
 		{
 			ltr = false,
 			submitText = I18n.getTranslation("submit"),
@@ -934,7 +1029,7 @@ class Form implements OptionsElement<object>{
 	}
 	addSubForm(
 		name: string,
-		onSubmit: (arg1: object) => void,
+		onSubmit: (arg1: object,sent:object) => void,
 		{
 			ltr = false,
 			submitText = I18n.getTranslation("submit"),
@@ -956,16 +1051,16 @@ class Form implements OptionsElement<object>{
 			(this.button.deref() as HTMLElement).hidden=false;
 		}
 	}
-	selectMap=new WeakMap<SelectInput,string[]>();
+	selectMap=new WeakMap<SelectInput,(number|string)[]>();
 	addSelect(
 		label: string,
 		formName: string,
 		selections: string[],
-		{ defaultIndex = 0, required = false}={},
-		correct:string[]=selections
+		{ defaultIndex = 0, required = false,radio=false}={},
+		correct:(string|number)[]=selections
 	){
 		const select = this.options.addSelect(label, _=>{}, selections, {
-			defaultIndex,
+			defaultIndex,radio
 		});
 		this.selectMap.set(select,correct);
 		this.names.set(formName, select);
@@ -1084,7 +1179,7 @@ class Form implements OptionsElement<object>{
 		}
 		return div;
 	}
-	onSubmit: (arg1: object) => void;
+	onSubmit: ((arg1: object,sent:object) => void )|((arg1: object,sent:object) => Promise<void> );
 	watchForChange(func: (arg1: object) => void){
 		this.onSubmit = func;
 	}
@@ -1187,14 +1282,14 @@ class Form implements OptionsElement<object>{
 					if(_==="") return {};
 					return JSON.parse(_)
 				})
-				.then(json=>{
+				.then(async json=>{
 					if(json.errors){
 						if(this.errors(json)){
 							return;
 						}
 					}
 					try{
-						this.onSubmit(json);
+						await this.onSubmit(json,build);
 					}catch(e){
 						console.error(e);
 						if(e instanceof FormError){
@@ -1211,7 +1306,7 @@ class Form implements OptionsElement<object>{
 				});
 		}else{
 			try{
-				this.onSubmit(build);
+				await this.onSubmit(build,build);
 			}catch(e){
 				if(e instanceof FormError){
 					const elm = this.options.html.get(e.elem);
