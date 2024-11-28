@@ -26,6 +26,13 @@ offset: number
 		this.scrollBottom=0;
 		this.averageheight=60;
 		this.watchtime=false;
+		this.needsupdate=true;
+		this.beenloaded=false;
+		this.changePromise=undefined;
+		if(this.timeout){
+			clearTimeout(this.timeout);
+			this.timeout=null;
+		}
 	}
 	constructor(
 		getIDFromOffset: InfiniteScroller["getIDFromOffset"],
@@ -43,7 +50,7 @@ offset: number
 		if(this.div){
 			throw new Error("Div already exists, exiting.");
 		}
-
+		this.resetVars();
 		const scroll = document.createElement("div");
 		scroll.classList.add("scroller");
 		this.div = scroll;
