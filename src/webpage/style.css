@@ -64,6 +64,9 @@ body {
 p, h1, h2, h3, pre, form {
 	margin: 0;
 }
+h2:empty {
+	display: none;
+}
 .title {
 	font-size: 1.5rem;
 	font-weight: bold;
@@ -1619,9 +1622,13 @@ img.bigembedimg {
 	gap: 8px;
 }
 .nonimagecenter > .flexttb, .nonimagecenter > .flexltr {
-	padding: 16px !important;
+	padding: 0 0 16px 0 !important;
 	background: var(--primary-bg);
 	border-radius: 8px;
+}
+.nonimagecenter .settingstitle {
+	padding-bottom: 0;
+	border-bottom: none;
 }
 .nonimagecenter button {
 	height: 100%;
@@ -1800,8 +1807,6 @@ fieldset input[type="radio"] {
 }
 .flexspace {
 	overflow-y: auto;
-	padding-bottom: 32px;
-	/* flex-shrink: 0; */
 }
 .flexspace:has(.flexspace) {
 	height: 100%;
@@ -1809,15 +1814,17 @@ fieldset input[type="radio"] {
 }
 .optionElement, .FormSettings > button {
 	margin: 16px 16px 0 16px;
-	/* word-break: break-word; */
+	word-break: break-word;
 	overflow: hidden;
 	flex-shrink: 0;
 }
-.flexltr:has(.optionElement){
-	/* margin: 16px 16px 0 16px !important; */
+.flexltr:has(>.optionElement) {
+	margin: 16px 16px 0 16px;
+	flex-wrap: wrap;
+	gap: 6px;
 }
-.flexltr > .optionElement{
-	 margin: 16px 6px 0 0px;
+.flexltr > .optionElement {
+	margin: 0;
 }
 .optionElement:has(.optionElement) {
 	margin: 0;
