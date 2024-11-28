@@ -13,7 +13,7 @@ import{ Emoji }from"./emoji.js";
 import{ mobile }from"./login.js";
 import { I18n } from "./i18n.js";
 import { Hover } from "./hover.js";
-import { BDialog } from "./settings.js";
+import { Dialog } from "./settings.js";
 
 class Message extends SnowFlake{
 	static contextmenu = new Contextmenu<Message, undefined>("message menu");
@@ -691,7 +691,7 @@ class Message extends SnowFlake{
 		}
 	}
 	confirmDelete(){
-		const diaolog=new BDialog("");
+		const diaolog=new Dialog("");
 		diaolog.options.addTitle(I18n.getTranslation("deleteConfirm"));
 		const options=diaolog.options.addOptions("",{ltr:true});
 		options.addButtonInput("",I18n.getTranslation("yes"),()=>{
