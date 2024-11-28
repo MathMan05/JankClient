@@ -1690,11 +1690,13 @@ fieldset input[type="radio"] {
 	overflow: hidden;
 	display: flex;
 	align-items: center;
+	position: relative;
 }
 .copycontainer {
 	flex: none;
 	background: var(--button-bg);
 	cursor: pointer;
+	margin-left: auto;
 }
 .copycontainer:hover {
 	background: var(--button-hover);

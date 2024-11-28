@@ -804,6 +804,12 @@ class Options implements OptionsElement<void>{
 		this.generate(text);
 		return text;
 	}
+	addHR(){
+		const rule = new HorrizonalRule();
+		this.options.push(rule);
+		this.generate(rule);
+		return rule;
+	}
 	addTitle(str: string){
 		const text = new SettingsTitle(str);
 		this.options.push(text);
@@ -1054,13 +1060,13 @@ class Form implements OptionsElement<object>{
 			(this.button.deref() as HTMLElement).hidden=false;
 		}
 	}
-	selectMap=new WeakMap<SelectInput,(number|string)[]>();
+	selectMap=new WeakMap<SelectInput,(number|string|null)[]>();
 	addSelect(
 		label: string,
 		formName: string,
 		selections: string[],
 		{ defaultIndex = 0, required = false,radio=false}={},
-		correct:(string|number)[]=selections
+		correct:(string|number|null)[]=selections
 	){
 		const select = this.options.addSelect(label, _=>{}, selections, {
 			defaultIndex,radio
@@ -1159,6 +1165,9 @@ class Form implements OptionsElement<object>{
 	}
 	addText(str: string){
 		return this.options.addText(str);
+	}
+	addHR(){
+		return this.options.addHR();
 	}
 	addTitle(str: string){
 		this.options.addTitle(str);
@@ -1372,6 +1381,17 @@ class Form implements OptionsElement<object>{
 		}
 		element.textContent = message;
 	}
+}
+class HorrizonalRule implements OptionsElement<unknown>{
+	constructor(){}
+	generateHTML(): HTMLElement {
+		return document.createElement("hr");
+	}
+	watchForChange (_: (arg1: undefined) => void){
+		throw new Error("don't do this")
+	};
+	submit= () => {};
+	value=undefined;
 }
 class Settings extends Buttons{
 	static readonly Buttons = Buttons;

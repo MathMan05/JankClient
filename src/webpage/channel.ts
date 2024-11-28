@@ -71,6 +71,8 @@ class Channel extends SnowFlake{
 
 		this.contextmenu.addbutton(()=>I18n.getTranslation("channel.settings"), function(this: Channel){
 			this.generateSettings();
+		},null,function(){
+			return this.hasPermission("MANAGE_CHANNELS");
 		});
 
 		this.contextmenu.addbutton(
