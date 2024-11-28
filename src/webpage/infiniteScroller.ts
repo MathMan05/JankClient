@@ -311,6 +311,7 @@ offset: number
 				element.scrollIntoView();
 			}
 		}else{
+			this.resetVars();
 			for(const thing of this.HTMLElements){
 				await this.destroyFromID(thing[1]);
 			}
