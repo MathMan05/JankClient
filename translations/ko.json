@@ -181,7 +181,8 @@
 	"message": {
 		"reactionAdd": "반응 추가",
 		"delete": "메시지 삭제",
-		"edit": "메시지 편집"
+		"edit": "메시지 편집",
+		"edited": "(편집됨)"
 	},
 	"instanceStats": {
 		"name": "인스턴스 통계: $1",
@@ -209,6 +210,19 @@
 		"longInvitedBy": "$1님이 당신을 $2에 초대했습니다",
 		"inviteLinkCode": "초대 링크/코드"
 	},
+	"friends": {
+		"blocked": "차단됨",
+		"blockedusers": "차단된 사용자:",
+		"addfriend": "친구 추가",
+		"notfound": "사용자를 찾을 수 없습니다",
+		"pending": "보류 중",
+		"all": "모두",
+		"all:": "모든 친구:",
+		"online": "온라인",
+		"online:": "온라인 친구:",
+		"friendlist": "친구 목록",
+		"friends": "친구"
+	},
 	"DMs": {
 		"copyId": "DM ID 복사",
 		"markRead": "읽은 것으로 표시",
@@ -232,5 +246,6 @@
 	"member": {
 		"reason:": "이유:"
 	},
+	"uploadFilesText": "여기에 파일을 올리세요!",
 	"retrying": "다시 시도하는 중..."
 }
