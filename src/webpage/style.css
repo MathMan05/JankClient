@@ -1204,6 +1204,9 @@ span .quote:last-of-type .quoteline {
 	border-radius: 4px;
 	cursor: pointer;
 }
+.mentionMD::after{
+	content:"​";
+}
 .mentionMD:hover {
 	background: var(--mention);
 }
