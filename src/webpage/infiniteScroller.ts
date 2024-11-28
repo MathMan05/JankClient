@@ -33,6 +33,11 @@ offset: number
 			clearTimeout(this.timeout);
 			this.timeout=null;
 		}
+		for(const thing of this.HTMLElements){
+			this.destroyFromID(thing[1]);
+		}
+		this.HTMLElements=[];
+		this.div=null;
 	}
 	constructor(
 		getIDFromOffset: InfiniteScroller["getIDFromOffset"],
@@ -283,7 +288,6 @@ offset: number
 	}
 	async focus(id: string, flash = true): Promise<void>{
 		let element: HTMLElement | undefined;
-		this.resetVars();
 		for(const thing of this.HTMLElements){
 			if(thing[1] === id){
 				element = thing[0];
