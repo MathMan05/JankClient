@@ -49,8 +49,6 @@ class File{
 				div.style.width = this.width + "px";
 				div.style.height = this.height + "px";
 			}
-			console.log(img);
-			console.log(this.width, this.height);
 			return div;
 		}else if(this.content_type.startsWith("video/")){
 			const video = document.createElement("video");

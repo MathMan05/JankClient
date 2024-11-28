@@ -761,7 +761,6 @@ class Channel extends SnowFlake{
 		}
 	}
 	async getmessage(id: string): Promise<Message>{
-		console.log("getting:"+id);
 		const message = this.messages.get(id);
 		if(message){
 			return message;
@@ -771,7 +770,6 @@ class Channel extends SnowFlake{
 				{ headers: this.headers }
 			);
 			const json = await gety.json();
-			console.log(json);
 			return new Message(json[0], this);
 		}
 	}
