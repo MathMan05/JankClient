@@ -1812,8 +1812,11 @@ fieldset input[type="radio"] {
 	overflow: hidden;
 	flex-shrink: 0;
 }
+ .flexltr > .optionElement{
+	 margin: 16px 6px 0 0px;
+	}
 .optionElement:has(.optionElement) {
-	margin: 0;
+	/* margin: 0; */
 }
 .optionElement:has(.Buttons) {
 	height: 100%;

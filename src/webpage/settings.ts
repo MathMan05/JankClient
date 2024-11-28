@@ -851,6 +851,9 @@ class Options implements OptionsElement<void>{
 	generateHTML(): HTMLElement{
 		const div = document.createElement("div");
 		div.classList.add("flexttb","titlediv");
+		if(this.owner instanceof Options){
+			div.classList.add("optionElement");
+		}
 		const title = document.createElement("h2");
 		title.textContent = this.name;
 		div.append(title);
