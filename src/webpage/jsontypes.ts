@@ -63,7 +63,7 @@ type readyjson = {
 		};
 		user_guild_settings: {
 			entries: {
-				channel_overrides: unknown[]; //will have to find example
+				channel_overrides: {message_notifications: number,muted: boolean,mute_config: {selected_time_window: number,end_time: number},channel_id: string}[];
 				message_notifications: number;
 				flags: number;
 				hide_muted_channels: boolean;
@@ -523,6 +523,11 @@ roleCreate | {
         nickname: null
     },
     s: number
+}|{
+    op: 0,
+    t: "PRESENCE_UPDATE",
+    d: presencejson,
+    s:number
 };
 
 

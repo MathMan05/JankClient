@@ -2,9 +2,8 @@ import{ Channel }from"./channel.js";
 import{ Localuser }from"./localuser.js";
 import{ Contextmenu }from"./contextmenu.js";
 import{ Role, RoleList }from"./role.js";
-import{ Dialog }from"./dialog.js";
 import{ Member }from"./member.js";
-import{ Settings }from"./settings.js";
+import{ BDialog, Settings }from"./settings.js";
 import{ Permissions }from"./permissions.js";
 import{ SnowFlake }from"./snowflake.js";
 import{channeljson,guildjson,emojijson,memberjson,invitejson,rolesjson,}from"./jsontypes.js";
@@ -238,7 +237,7 @@ class Guild extends SnowFlake{
 		this.localuser.perminfo.guilds[this.id] = e;
 	}
 	notisetting(settings: {
-		channel_overrides?: unknown[];
+		channel_overrides: {message_notifications: number,muted: boolean,mute_config: {selected_time_window: number,end_time: number},channel_id: string}[];
 		message_notifications: any;
 		flags?: number;
 		hide_muted_channels?: boolean;
@@ -253,66 +252,42 @@ class Guild extends SnowFlake{
 		guild_id?: string;
 		}){
 		this.message_notifications = settings.message_notifications;
+		for(const override of settings.channel_overrides){
+			const channel=this.localuser.channelids.get(override.channel_id);
+			if(!channel) continue;
+			channel.handleUserOverrides(override);
+		}
 	}
 	setnotifcation(){
-		let noti = this.message_notifications;
-		const options=["all", "onlyMentions", "none"].map(e=>I18n.getTranslation("guild."+e))
-		const notiselect = new Dialog([
-			"vdiv",
-			[
-				"radio",
-				I18n.getTranslation("guild.selectnoti"),
-				options,
-				function(e: string){
-					noti = options.indexOf(e);
-				},
-				noti,
-			],
-			[
-				"button",
-				"",
-				"submit",
-				(_: any)=>{
-					//
-					fetch(this.info.api + `/users/@me/guilds/${this.id}/settings/`, {
-						method: "PATCH",
-						headers: this.headers,
-						body: JSON.stringify({
-							message_notifications: noti,
-						}),
-					});
-					this.message_notifications = noti;
-				},
-			],
-		]);
+
+		const options=["all", "onlyMentions", "none"].map(e=>I18n.getTranslation("guild."+e));
+		const notiselect=new BDialog("");
+		const form=notiselect.options.addForm("",(_,sent:any)=>{
+			notiselect.hide();
+			this.message_notifications = sent.message_notifications;
+		},{
+			fetchURL:`${this.info.api}/users/@me/guilds/${this.id}/settings/`,
+			method:"PATCH",
+			headers:this.headers
+		});
+		form.addSelect(I18n.getTranslation("guild.selectnoti"),"message_notifications",options,{
+			radio:true,
+			defaultIndex:this.message_notifications
+		},[0,1,2]);
 		notiselect.show();
 	}
 	confirmleave(){
-		const full = new Dialog([
-			"vdiv",
-			["title", I18n.getTranslation("guild.confirmLeave")],
-			[
-				"hdiv",
-				[
-					"button",
-					"",
-					I18n.getTranslation("guild.yesLeave"),
-					(_: any)=>{
-						this.leave().then(_=>{
-							full.hide();
-						});
-					},
-				],
-				[
-					"button",
-					"",
-					I18n.getTranslation("guild.noLeave"),
-					(_: any)=>{
-						full.hide();
-					},
-				],
-			],
-		]);
+		const full = new BDialog("");
+		full.options.addTitle(I18n.getTranslation("guild.confirmLeave"))
+		const options=full.options.addOptions("",{ltr:true});
+		options.addButtonInput("",I18n.getTranslation("guild.yesLeave"),()=>{
+			this.leave().then(_=>{
+				full.hide();
+			});
+		});
+		options.addButtonInput("",I18n.getTranslation("guild.noLeave"),()=>{
+			full.hide();
+		});
 		full.show();
 	}
 	async leave(){
@@ -458,46 +433,26 @@ class Guild extends SnowFlake{
 	}
 	confirmDelete(){
 		let confirmname = "";
-		const full = new Dialog([
-			"vdiv",
-			[
-				"title",
-				I18n.getTranslation("guild.confirmDelete",this.properties.name)
-			],
-			[
-				"textbox",
-				I18n.getTranslation("guild.serverName"),
-				"",
-				function(this: HTMLInputElement){
-					confirmname = this.value;
-				},
-			],
-			[
-				"hdiv",
-				[
-					"button",
-					"",
-					I18n.getTranslation("guild.yesDelete"),
-					(_: any)=>{
-						console.log(confirmname);
-						if(confirmname !== this.properties.name){
-							return;
-						}
-						this.delete().then(_=>{
-							full.hide();
-						});
-					},
-				],
-				[
-					"button",
-					"",
-					I18n.getTranslation("guild.noDelete"),
-					(_: any)=>{
-						full.hide();
-					},
-				],
-			],
-		]);
+
+		const full = new BDialog("");
+		full.options.addTitle(I18n.getTranslation("guild.confirmDelete",this.properties.name));
+		full.options.addTextInput(I18n.getTranslation("guild.serverName"),()=>{}).onchange=(e)=>confirmname=e;
+
+		const options=full.options.addOptions("",{ltr:true});
+		options.addButtonInput("",I18n.getTranslation("guild.yesDelete"),()=>{
+			if(confirmname !== this.properties.name){
+				//TODO maybe some sort of form error? idk
+				alert("names don't match");
+				return;
+			}
+			this.delete().then(_=>{
+				full.hide();
+			});
+		});
+
+		options.addButtonInput("",I18n.getTranslation("guild.noDelete"),()=>{
+			full.hide();
+		});
 		full.show();
 	}
 	async delete(){
@@ -677,67 +632,27 @@ class Guild extends SnowFlake{
 		return thischannel;
 	}
 	createchannels(func = this.createChannel){
-		let name = "";
-		let category = 0;
-		const options=["voice", "text", "announcement"].map(e=>I18n.getTranslation("channel."+e));
-		const numbers=[2,0,5]
-		const channelselect = new Dialog([
-			"vdiv",
-			[
-				"radio",
-				I18n.getTranslation("channel.selectType"),
-				options,
-				function(radio: string){
-					console.log(radio);
-					category = numbers[options.indexOf(radio)] || 0;
-				},
-				1,
-			],
-			[
-				"textbox",
-				I18n.getTranslation("channel.selectName"),
-				"",
-				function(this: HTMLInputElement){
-					name = this.value;
-				},
-			],
-			[
-				"button",
-				"",
-				I18n.getTranslation("submit"),
-				()=>{
-					console.log(name, category);
-					func.bind(this)(name, category);
-					channelselect.hide();
-				},
-			],
-		]);
+		const options=["text", "announcement","voice"].map(e=>I18n.getTranslation("channel."+e));
+
+		const channelselect=new BDialog("");
+		const form=channelselect.options.addForm("",(e:any)=>{
+			func(e.name,e.type);
+			channelselect.hide();
+		});
+
+		form.addSelect(I18n.getTranslation("channel.selectType"),"type",options,{radio:true},[0,5,2]);
+		form.addTextInput(I18n.getTranslation("channel.selectName"),"name");
 		channelselect.show();
 	}
 	createcategory(){
-		let name = "";
 		const category = 4;
-		const channelselect = new Dialog([
-			"vdiv",
-			[
-				"textbox",
-				I18n.getTranslation("channel.selectCatName"),
-				"",
-				function(this: HTMLInputElement){
-					name = this.value;
-				},
-			],
-			[
-				"button",
-				"",
-				I18n.getTranslation("submit"),
-				function(this:Guild){
-					console.log(name, category);
-					this.createChannel(name, category);
-					channelselect.hide();
-				}.bind(this),
-			],
-		]);
+		const channelselect=new BDialog("");
+		const options=channelselect.options;
+		const form=options.addForm("",(e:any)=>{
+			this.createChannel(e.name, category);
+			channelselect.hide();
+		});
+		form.addTextInput(I18n.getTranslation("channel.selectCatName"),"name");
 		channelselect.show();
 	}
 	delChannel(json: channeljson){

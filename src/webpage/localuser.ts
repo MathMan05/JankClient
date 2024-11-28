@@ -3,11 +3,10 @@ import{ Channel }from"./channel.js";
 import{ Direct }from"./direct.js";
 import{ AVoice }from"./audio.js";
 import{ User }from"./user.js";
-import{ Dialog }from"./dialog.js";
 import{ getapiurls, getBulkInfo, setTheme, Specialuser, SW }from"./login.js";
 import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
 import{ Member }from"./member.js";
-import{ Form, FormError, Options, Settings }from"./settings.js";
+import{ BDialog, Form, FormError, Options, Settings }from"./settings.js";
 import{ getTextNodeAtPosition, MarkDown }from"./markdown.js";
 import { Bot } from "./bot.js";
 import { Role } from "./role.js";
@@ -26,8 +25,6 @@ class Localuser{
 	initialized!: boolean;
 	info!: Specialuser["serverurls"];
 	headers!: { "Content-type": string; Authorization: string };
-	userConnections!: Dialog;
-	devPortal!: Dialog;
 	ready!: readyjson;
 	guilds!: Guild[];
 	guildids: Map<string, Guild> = new Map();
@@ -559,6 +556,12 @@ class Localuser{
 					this.relationshipsUpdate();
 					break;
 				}
+				case "PRESENCE_UPDATE":{
+					if(temp.d.user){
+						this.presences.set(temp.d.user.id, temp.d);
+					}
+					break;
+				}
 				default :{
 					//@ts-ignore
 					console.warn("Unhandled case "+temp.t,temp);
@@ -888,99 +891,44 @@ class Localuser{
 		this.unreads();
 	}
 	createGuild(){
-		let inviteurl = "";
-		const error = document.createElement("span");
-		const fields: { name: string; icon: string | null } = {
-			name: "",
-			icon: null,
-		};
-		const full = new Dialog([
-			"tabs",
-			[
-				[
-					I18n.getTranslation("invite.joinUsing"),
-					[
-						"vdiv",
-						[
-							"textbox",
-							I18n.getTranslation("invite.inviteLinkCode"),
-							"",
-							function(this: HTMLInputElement){
-								inviteurl = this.value;
-							},
-						],
-						["html", error],
-						[
-							"button",
-							"",
-							I18n.getTranslation("submit"),
-							(_: any)=>{
-								let parsed = "";
-								if(inviteurl.includes("/")){
-									parsed =
-                    inviteurl.split("/")[inviteurl.split("/").length - 1];
-								}else{
-									parsed = inviteurl;
-								}
-								fetch(this.info.api + "/invites/" + parsed, {
-									method: "POST",
-									headers: this.headers,
-								})
-									.then(r=>r.json())
-									.then(_=>{
-										if(_.message){
-											error.textContent = _.message;
-										}
-									});
-							},
-						],
-					],
-				],
-				[
-					I18n.getTranslation("guild.create"),
-					[
-						"vdiv",
-						["title", I18n.getTranslation("guild.create")],
-						[
-							"fileupload",
-							I18n.getTranslation("guild.icon:"),
-							function(event: Event){
-								const target = event.target as HTMLInputElement;
-								if(!target.files)return;
-								const reader = new FileReader();
-								reader.readAsDataURL(target.files[0]);
-								reader.onload = ()=>{
-									fields.icon = reader.result as string;
-								};
-							},
-						],
-						[
-							"textbox",
-							I18n.getTranslation("guild.name:"),
-							"",
-							function(this: HTMLInputElement, event: Event){
-								const target = event.target as HTMLInputElement;
-								fields.name = target.value;
-							},
-						],
-						[
-							"button",
-							"",
-							I18n.getTranslation("submit"),
-							()=>{
-								this.makeGuild(fields).then(_=>{
-									if(_.message){
-										alert(_.errors.name._errors[0].message);
-									}else{
-										full.hide();
-									}
-								});
-							},
-						],
-					],
-				],
-			],
-		]);
+
+		const full=new BDialog("");
+		const buttons=full.options.addButtons("",{top:true});
+		const viacode=buttons.add(I18n.getTranslation("invite.joinUsing"));
+		{
+			const form=viacode.addForm("",async (e: any)=>{
+				let parsed = "";
+				if(e.code.includes("/")){
+					parsed = e.code.split("/")[e.code.split("/").length - 1];
+				}else{
+					parsed = e.code;
+				}
+				const json=await (await fetch(this.info.api + "/invites/" + parsed, {
+					method: "POST",
+					headers: this.headers,
+				})).json()
+				if(json.message){
+					throw new FormError(text,json.message);
+				}
+				full.hide();
+			});
+			const text=form.addTextInput(I18n.getTranslation("invite.inviteLinkCode"),"code");
+		}
+		const guildcreate=buttons.add(I18n.getTranslation("guild.create"));
+		{
+			const form=guildcreate.addForm("",(fields:any)=>{
+				this.makeGuild(fields).then(_=>{
+					if(_.message){
+						alert(_.errors.name._errors[0].message);
+					}else{
+						full.hide();
+					}
+				});
+			});
+			form.addFileInput(I18n.getTranslation("guild.icon:"),"icon",{files:"one"});
+			form.addTextInput(I18n.getTranslation("guild.name:"),"name",{required:true});
+
+		}
 		full.show();
 	}
 	async makeGuild(fields: { name: string; icon: string | null }){
@@ -996,7 +944,8 @@ class Localuser{
 		const content = document.createElement("div");
 		content.classList.add("flexttb","guildy");
 		content.textContent = I18n.getTranslation("guild.loadingDiscovery");
-		const full = new Dialog(["html", content]);
+		const full = new BDialog("");
+		full.options.addHTMLArea(content);
 		full.show();
 
 		const res = await fetch(this.info.api + "/discoverable-guilds?limit=50", {
@@ -2147,15 +2096,12 @@ class Localuser{
 			headers: this.headers,
 		});
 		const json = await res.json();
-
-		const dialog = new Dialog([
-			"vdiv",
-			["title", I18n.getTranslation("instanceStats.name",this.instancePing.name) ],
-			["text", I18n.getTranslation("instanceStats.users",json.counts.user)],
-			["text", I18n.getTranslation("instanceStats.servers",json.counts.guild)],
-			["text", I18n.getTranslation("instanceStats.messages",json.counts.message)],
-			["text", I18n.getTranslation("instanceStats.members",json.counts.members)],
-		]);
+		const dialog = new BDialog("");
+		dialog.options.addTitle(I18n.getTranslation("instanceStats.name",this.instancePing.name));
+		dialog.options.addText(I18n.getTranslation("instanceStats.users",json.counts.user));
+		dialog.options.addText(I18n.getTranslation("instanceStats.servers",json.counts.guild));
+		dialog.options.addText(I18n.getTranslation("instanceStats.messages",json.counts.message));
+		dialog.options.addText(I18n.getTranslation("instanceStats.members",json.counts.members));
 		dialog.show();
 	}
 }

@@ -1,10 +1,10 @@
-import{ Dialog }from"./dialog.js";
 import{ Message }from"./message.js";
 import{ MarkDown }from"./markdown.js";
 import{ embedjson, invitejson }from"./jsontypes.js";
 import{ getapiurls, getInstances }from"./login.js";
 import{ Guild }from"./guild.js";
 import { I18n } from "./i18n.js";
+import { ImagesDisplay } from "./disimg.js";
 
 class Embed{
 	type: string;
@@ -178,7 +178,7 @@ Url.pathname.split("/")[Url.pathname.split("/").length - 1];
 		const img = document.createElement("img");
 		img.classList.add("messageimg");
 		img.onclick = function(){
-			const full = new Dialog(["img", img.src, ["fit"]]);
+			const full = new ImagesDisplay([img.src]);
 			full.show();
 		};
 		img.src = this.json.thumbnail.proxy_url;
@@ -214,7 +214,7 @@ Url.pathname.split("/")[Url.pathname.split("/").length - 1];
 			if(this.json.thumbnail){
 				img.classList.add("embedimg");
 				img.onclick = function(){
-					const full = new Dialog(["img", img.src, ["fit"]]);
+					const full = new ImagesDisplay([img.src]);
 					full.show();
 				};
 				img.src = this.json.thumbnail.proxy_url;
@@ -392,7 +392,7 @@ guild as invitejson["guild"] & { info: { cdn: string } }
 				};
 			}else{
 				img.onclick = async ()=>{
-					const full = new Dialog(["img", img.src, ["fit"]]);
+					const full = new ImagesDisplay([img.src]);
 					full.show();
 				};
 			}

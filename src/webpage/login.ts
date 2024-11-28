@@ -1,5 +1,5 @@
-import{ Dialog }from"./dialog.js";
 import { I18n } from "./i18n.js";
+import { BDialog, FormError } from "./settings.js";
 
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -511,65 +511,43 @@ async function login(username: string, password: string, captcha: string){
 						capty.setAttribute("data-sitekey", response.captcha_sitekey);
 						const script = document.createElement("script");
 						script.src = "https://js.hcaptcha.com/1/api.js";
-	capt!.append(script);
-	capt!.append(capty);
+						capt!.append(script);
+						capt!.append(capty);
 					}
 				}else{
 					console.log(response);
 					if(response.ticket){
-						let onetimecode = "";
-						new Dialog([
-							"vdiv",
-							["title", I18n.getTranslation("2faCode")],
-							[
-								"textbox",
-								"",
-								"",
-								function(this: HTMLInputElement){
-									// eslint-disable-next-line no-invalid-this
-									onetimecode = this.value;
-								},
-							],
-							[
-								"button",
-								"",
-								I18n.getTranslation("submit"),
-								function(){
-									fetch(api + "/auth/mfa/totp", {
-										method: "POST",
-										headers: {
-											"Content-Type": "application/json",
-										},
-										body: JSON.stringify({
-											code: onetimecode,
-											ticket: response.ticket,
-										}),
-									})
-										.then(r=>r.json())
-										.then(res=>{
-											if(res.message){
-												alert(res.message);
-											}else{
-												console.warn(res);
-												if(!res.token)return;
-												adduser({
-													serverurls: JSON.parse(localStorage.getItem("instanceinfo") as string),
-													email: username,
-													token: res.token,
-												}).username = username;
-												const redir = new URLSearchParams(
-													window.location.search
-												).get("goback");
-												if(redir){
-													window.location.href = redir;
-												}else{
-													window.location.href = "/channels/@me";
-												}
-											}
-										});
-								},
-							],
-						]).show();
+						const better=new BDialog("");
+						const form=better.options.addForm("",(res:any)=>{
+							if(res.message){
+								throw new FormError(ti,res.message);
+							}else{
+								console.warn(res);
+								if(!res.token)return;
+								adduser({
+									serverurls: JSON.parse(localStorage.getItem("instanceinfo") as string),
+									email: username,
+									token: res.token,
+								}).username = username;
+								const redir = new URLSearchParams(
+									window.location.search
+								).get("goback");
+								if(redir){
+									window.location.href = redir;
+								}else{
+									window.location.href = "/channels/@me";
+								}
+							}
+						},{
+							fetchURL:api + "/auth/mfa/totp",
+							method:"POST",
+							headers:{
+								"Content-Type": "application/json",
+							}
+						});
+						form.addTitle(I18n.getTranslation("2faCode"));
+						const ti=form.addTextInput("","code");
+						better.show()
 					}else{
 						console.warn(response);
 						if(!response.token)return;
