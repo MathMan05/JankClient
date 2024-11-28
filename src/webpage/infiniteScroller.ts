@@ -21,6 +21,12 @@ offset: number
 	changePromise: Promise<boolean> | undefined;
 	scollDiv!: { scrollTop: number; scrollHeight: number; clientHeight: number };
 
+	resetVars(){
+		this.scrollTop=0;
+		this.scrollBottom=0;
+		this.averageheight=60;
+		this.watchtime=false;
+	}
 	constructor(
 		getIDFromOffset: InfiniteScroller["getIDFromOffset"],
 		getHTMLFromID: InfiniteScroller["getHTMLFromID"],
@@ -268,9 +274,9 @@ offset: number
 
 		return await this.changePromise;
 	}
-
 	async focus(id: string, flash = true): Promise<void>{
 		let element: HTMLElement | undefined;
+		this.resetVars();
 		for(const thing of this.HTMLElements){
 			if(thing[1] === id){
 				element = thing[0];
@@ -313,6 +319,7 @@ offset: number
 			this.div.remove();
 			this.div = null;
 		}
+		this.resetVars();
 		try{
 			for(const thing of this.HTMLElements){
 				await this.destroyFromID(thing[1]);
