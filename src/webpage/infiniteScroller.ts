@@ -312,6 +312,7 @@ offset: number
 			}
 		}else{
 			this.resetVars();
+			//TODO may be a redundent loop, not 100% sure :P
 			for(const thing of this.HTMLElements){
 				await this.destroyFromID(thing[1]);
 			}
