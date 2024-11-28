@@ -1801,6 +1801,7 @@ fieldset input[type="radio"] {
 .flexspace {
 	overflow-y: auto;
 	padding-bottom: 32px;
+	flex-shrink: 0;
 }
 .flexspace:has(.flexspace) {
 	height: 100%;
@@ -1812,11 +1813,14 @@ fieldset input[type="radio"] {
 	overflow: hidden;
 	flex-shrink: 0;
 }
- .flexltr > .optionElement{
+.flexltr:has(.optionElement){
+	/* margin: 16px 16px 0 16px !important; */
+}
+.flexltr > .optionElement{
 	 margin: 16px 6px 0 0px;
-	}
+}
 .optionElement:has(.optionElement) {
-	/* margin: 0; */
+	margin: 0;
 }
 .optionElement:has(.Buttons) {
 	height: 100%;
