@@ -232,7 +232,14 @@
 		"disoveryTitle":"Guild discovery ($1) {{PLURAL:$1|entry|entries}}",
 		"emptytitle":"Weird spot",
 		"emptytext":"You're in a weird spot, this guild has no channels",
-		"default":"Default ($1)"
+		"default":"Default ($1)",
+		"description:":"Description:",
+		"systemSelect:":"Systems messages channel:",
+		"sendrandomwelcome?":"Send a random message when someone joins this guild",
+		"stickWelcomeReact?":"Prompt members of your guild to react with a sticker when someone joins!",
+		"boostMessage?":"Send a message when someone boosts your guild!",
+		"helpTips?":"Send helpful tips for your guild!",
+		"defaultNoti":"Set the default notification settings of your guild!"
 	},
 	"role":{
 		"displaySettings":"Display settings",
@@ -348,7 +355,10 @@
 		"joinUsing":"Join using invite",
 		"inviteLinkCode":"Invite Link/Code",
 		"subtext":"to $1 in $2",
-		"expireAfter":"Expire after:"
+		"expireAfter":"Expire after:",
+		"channel:":"Channel:",
+		"inviteMaker":"Invite Maker",
+		"createInvite":"Create invite"
 	},
 	"friends":{
 		"blocked":"Blocked",

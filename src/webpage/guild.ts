@@ -3,7 +3,7 @@ import{ Localuser }from"./localuser.js";
 import{ Contextmenu }from"./contextmenu.js";
 import{ Role, RoleList }from"./role.js";
 import{ Member }from"./member.js";
-import{ Dialog, Settings }from"./settings.js";
+import{ Dialog, Options, Settings }from"./settings.js";
 import{ Permissions }from"./permissions.js";
 import{ SnowFlake }from"./snowflake.js";
 import{channeljson,guildjson,emojijson,memberjson,invitejson,rolesjson,}from"./jsontypes.js";
@@ -67,13 +67,21 @@ class Guild extends SnowFlake{
 
 		Guild.contextmenu.addbutton(
 			()=>I18n.getTranslation("guild.makeInvite"),
-			function(this: Guild){},
+			function(this: Guild){
+				const d=new Dialog("");
+				this.makeInviteMenu(d.options);
+				d.show();
+			},
 			null,
 			_=>true,
-			_=>false
+			function(){
+				return this.member.hasPermission("CREATE_INSTANT_INVITE");
+			}
 		);
 		Guild.contextmenu.addbutton(()=>I18n.getTranslation("guild.settings"), function(this: Guild){
 			this.generateSettings();
+		},null,function(){
+			return this.member.hasPermission("MANAGE_GUILD");
 		});
 		/* -----things left for later-----
 		guild.contextmenu.addbutton("Leave Guild",function(){
@@ -88,6 +96,10 @@ class Guild extends SnowFlake{
 	}
 	generateSettings(){
 		const settings = new Settings(I18n.getTranslation("guild.settingsFor",this.properties.name));
+		const textChannels=this.channels.filter(e=>{
+			//TODO there are almost certainly more types. is Voice valid?
+			return new Set([0,5]).has(e.type);
+		});
 		{
 			const overview = settings.addButton(I18n.getTranslation("guild.overview"));
 			const form = overview.addForm("", _=>{}, {
@@ -97,17 +109,60 @@ class Guild extends SnowFlake{
 				method: "PATCH",
 			});
 			form.addTextInput(I18n.getTranslation("guild.name:"), "name", { initText: this.properties.name });
-			form.addMDInput("Description:", "description", {
+			form.addMDInput(I18n.getTranslation("guild.description:"), "description", {
 				initText: this.properties.description,
 			});
+
 			form.addFileInput(I18n.getTranslation("guild.banner:"), "banner", { clear: true });
 			form.addFileInput(I18n.getTranslation("guild.icon:"), "icon", { clear: true });
+
+			form.addHR();
+
+			const sysmap=[null,...textChannels.map(e=>e.id)];
+			form.addSelect(I18n.getTranslation("guild.systemSelect:"), "system_channel_id",
+				["No system messages",...textChannels.map(e=>e.name)],{defaultIndex:sysmap.indexOf(this.properties.system_channel_id)}
+			,sysmap);
+
+			form.addCheckboxInput(I18n.getTranslation("guild.sendrandomwelcome?"),"s1",{
+				initState:!(this.properties.system_channel_flags&1)
+			});
+			form.addCheckboxInput(I18n.getTranslation("guild.stickWelcomeReact?"),"s4",{
+				initState:!(this.properties.system_channel_flags&8)
+			});
+			form.addCheckboxInput(I18n.getTranslation("guild.boostMessage?"),"s2",{
+				initState:!(this.properties.system_channel_flags&2)
+			});
+			form.addCheckboxInput(I18n.getTranslation("guild.helpTips?"),"s3",{
+				initState:!(this.properties.system_channel_flags&4)
+			});
+			form.addPreprocessor((e:any)=>{
+				let bits=0;
+				bits+=(1-e.s1)*1;
+				delete e.s1;
+				bits+=(1-e.s2)*2;
+				delete e.s2;
+				bits+=(1-e.s3)*4;
+				delete e.s3;
+				bits+= (1-e.s4)*8;
+				delete e.s4;
+				e.system_channel_flags=bits;
+			})
+
+			form.addHR();
+			form.addSelect(I18n.getTranslation("guild.defaultNoti"),"default_message_notifications",
+			[I18n.getTranslation("guild.onlyMentions"),I18n.getTranslation("guild.all")],
+			{
+				defaultIndex:[1,0].indexOf(this.properties.default_message_notifications),
+				radio:true
+			},[1,0]);
+			form.addHR();
 			let region = this.properties.region;
 			if(!region){
 				region = "";
 			}
 			form.addTextInput(I18n.getTranslation("guild.region:"), "region", { initText: region });
 		}
+		this.makeInviteMenu(settings.addButton(I18n.getTranslation("invite.inviteMaker")),textChannels);
 		const s1 = settings.addButton(I18n.getTranslation("guild.roles"));
 		const permlist: [Role, Permissions][] = [];
 		for(const thing of this.roles){
@@ -117,6 +172,78 @@ class Guild extends SnowFlake{
 			new RoleList(permlist, this, this.updateRolePermissions.bind(this),false)
 		);
 		settings.show();
+	}
+	makeInviteMenu(options:Options,valid:void|(Channel[])){
+		if(!valid){
+			valid=this.channels.filter(e=>{
+				//TODO there are almost certainly more types. is Voice valid?
+				return new Set([0,5]).has(e.type);
+			});
+		}
+		let channel=valid[0];
+		const div = document.createElement("div");
+		div.classList.add("invitediv");
+		const text = document.createElement("span");
+		text.classList.add("ellipsis");
+		div.append(text);
+		let uses = 0;
+		let expires = 1800;
+		const copycontainer = document.createElement("div");
+		copycontainer.classList.add("copycontainer");
+		const copy = document.createElement("span");
+		copy.classList.add("copybutton", "svgicon", "svg-copy");
+		copycontainer.append(copy);
+		copycontainer.onclick = _=>{
+			if(text.textContent){
+				navigator.clipboard.writeText(text.textContent);
+			}
+		};
+		div.append(copycontainer);
+		const update = ()=>{
+			fetch(`${this.info.api}/channels/${channel.id}/invites`, {
+				method: "POST",
+				headers: this.headers,
+				body: JSON.stringify({
+					flags: 0,
+					target_type: null,
+					target_user_id: null,
+					max_age: expires + "",
+					max_uses: uses,
+					temporary: uses !== 0
+				}),
+			})
+				.then(_=>_.json())
+				.then(json=>{
+					const params = new URLSearchParams("");
+					params.set("instance", this.info.wellknown);
+					const encoded = params.toString();
+					text.textContent = `${location.origin}/invite/${json.code}?${encoded}`;
+				});
+		};
+
+		options.addTitle(I18n.getTranslation("inviteOptions.title"));
+		const text2=options.addText("");
+		options.addSelect(I18n.getTranslation("invite.channel:"),()=>{},valid.map(e=>e.name))
+		.watchForChange((e)=>{
+			channel=valid[e];
+			text2.setText(I18n.getTranslation("invite.subtext",channel.name,this.properties.name));
+		})
+
+
+		options.addSelect(I18n.getTranslation("invite.expireAfter"),()=>{},
+			["30m","1h","6h","12h","1d","7d","30d","never"].map((e)=>I18n.getTranslation("inviteOptions."+e))
+		).onchange=(e)=>{expires=[1800, 3600, 21600, 43200, 86400, 604800, 2592000, 0][e];};
+
+		const timeOptions=["1","5","10","25","50","100"].map((e)=>I18n.getTranslation("inviteOptions.limit",e))
+		timeOptions.unshift(I18n.getTranslation("inviteOptions.noLimit"))
+		options.addSelect(I18n.getTranslation("invite.expireAfter"),()=>{},timeOptions)
+		.onchange=(e)=>{uses=[0, 1, 5, 10, 25, 50, 100][e];};
+
+		options.addButtonInput("",I18n.getTranslation("invite.createInvite"),()=>{
+			update();
+		})
+
+		options.addHTMLArea(div);
 	}
 	roleUpdate:(role:Role,added:-1|0|1)=>unknown=()=>{};
 	sortRoles(){
