@@ -368,9 +368,7 @@ class Message extends SnowFlake{
 						let next: Message | undefined = this;
 						while(next?.author === this.author){
 							next.generateMessage();
-							next = this.channel.messages.get(
-				this.channel.idToNext.get(next.id) as string
-							);
+							next = this.channel.messages.get(this.channel.idToNext.get(next.id) as string);
 						}
 						if(this.channel.infinite.scollDiv && scroll){
 							this.channel.infinite.scollDiv.scrollTop = scroll;
@@ -460,10 +458,11 @@ class Message extends SnowFlake{
 			div.appendChild(replyline);
 		}
 		div.appendChild(build);
-		if({ 0: true, 19: true }[this.type] || this.attachments.length !== 0){
+		const messageTypes=new Set([0,19])
+		if(messageTypes.has(this.type) || this.attachments.length !== 0){
 			const pfpRow = document.createElement("div");
 			let pfpparent, current;
-			if(premessage != null){
+			if(premessage !== null){
 				pfpparent ??= premessage;
 				// @ts-ignore
 				// TODO: type this
@@ -473,7 +472,7 @@ class Message extends SnowFlake{
 				const newt = new Date(this.timestamp).getTime() / 1000;
 				current = newt - old > 600;
 			}
-			const combine = premessage?.author != this.author || current || this.message_reference;
+			const combine = premessage?.author != this.author || current || this.message_reference || !messageTypes.has(premessage.type);
 			if(combine){
 				const pfp = this.author.buildpfp();
 				this.author.bind(pfp, this.guild, false);
