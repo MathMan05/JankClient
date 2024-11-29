@@ -562,6 +562,21 @@ class Localuser{
 					}
 					break;
 				}
+				case "GUILD_MEMBER_ADD":{
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					Member.new(temp.d,guild);
+					break;
+				}
+				case "GUILD_MEMBER_REMOVE":{
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					const user=new User(temp.d.user,this);
+					const member=user.members.get(guild);
+					if(!(member instanceof Member)) break;
+					member.remove();
+					break;
+				}
 				default :{
 					//@ts-ignore
 					console.warn("Unhandled case "+temp.t,temp);

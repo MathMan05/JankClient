@@ -528,6 +528,19 @@ roleCreate | {
     t: "PRESENCE_UPDATE",
     d: presencejson,
     s:number
+}|{
+	op:0,
+	t:"GUILD_MEMBER_ADD",
+	d:memberjson,
+	s:number
+}|{
+	op:0,
+	t:"GUILD_MEMBER_REMOVE",
+	d:{
+		guild_id:string,
+		user:userjson
+	},
+	s:number
 };
 
 
