@@ -55,6 +55,10 @@ class Member extends SnowFlake{
 			return this.guild.roles.indexOf(a) - this.guild.roles.indexOf(b);
 		});
 	}
+	remove(){
+		this.user.members.delete(this.guild);
+		this.guild.members.delete(this);
+	}
 	update(memberjson: memberjson){
 		this.roles=[];
 		for(const key of Object.keys(memberjson)){
