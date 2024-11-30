@@ -462,7 +462,7 @@ class Message extends SnowFlake{
 		if(messageTypes.has(this.type) || this.attachments.length !== 0){
 			const pfpRow = document.createElement("div");
 			let pfpparent, current;
-			if(premessage !== null){
+			if(premessage !== undefined){
 				pfpparent ??= premessage;
 				// @ts-ignore
 				// TODO: type this
