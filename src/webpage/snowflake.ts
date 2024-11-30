@@ -10,10 +10,7 @@ abstract class SnowFlake{
 		try{
 			return Number((BigInt(str) >> 22n) + 1420070400000n);
 		}catch{
-			console.error(
-				`The ID is corrupted, it's ${str} when it should be some number.`
-			);
-			return 0;
+			throw new Error(`The ID is corrupted, it's ${str} when it should be some number.`);
 		}
 	}
 }
