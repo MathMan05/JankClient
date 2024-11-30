@@ -163,6 +163,8 @@ class User extends SnowFlake{
 		);
 		this.contextmenu.addbutton(()=>I18n.getTranslation("user.friendReq"), function(this: User){
 			this.changeRelationship(1);
+		},null,function(){
+			return this.relationshipType===0;
 		});
 		this.contextmenu.addbutton(
 			()=>I18n.getTranslation("user.kick"),
