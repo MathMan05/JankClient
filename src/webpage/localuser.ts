@@ -652,19 +652,21 @@ class Localuser{
 	async memberListUpdate(list:memberlistupdatejson|void){
 		const div=document.getElementById("sideDiv") as HTMLDivElement;
 		div.innerHTML="";
-		if(!list) return;
-		const counts=new Map<string,number>();
 		const guild=this.lookingguild;
 		if(!guild) return;
 		const channel=this.channelfocus;
 		if(!channel) return;
-		for(const thing of list.d.ops[0].items){
-			if("member" in thing){
-				await Member.new(thing.member,guild);
-			}else{
-				counts.set(thing.group.id,thing.group.count);
+		if(list){
+			const counts=new Map<string,number>();
+			for(const thing of list.d.ops[0].items){
+				if("member" in thing){
+					await Member.new(thing.member,guild);
+				}else{
+					counts.set(thing.group.id,thing.group.count);
+				}
 			}
 		}
+
 
 		const elms:Map<Role|"offline"|"online",Member[]>=new Map([]);
 		for(const role of guild.roles){
@@ -678,7 +680,7 @@ class Localuser{
 		members.forEach((member)=>{
 			if(!channel.hasPermission("VIEW_CHANNEL",member)){
 				members.delete(member);
-				console.log(member)
+				console.log(member,"can't see")
 				return;
 			}
 		})
