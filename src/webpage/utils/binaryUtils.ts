@@ -20,6 +20,11 @@ class BinRead{
     readString16(){
         return this.readStringNo(this.read16());
     }
+    readFloat32(){
+        const float = this.view.getFloat32(this.i);
+        this.i += 4;
+        return float;
+    }
     readStringNo(length: number){
         const array = new Uint8Array(length);
         for(let i = 0; i < length; i++){
@@ -37,6 +42,10 @@ class BinWrite{
     constructor(maxSize:number=2**26){
         this.buffer=new ArrayBuffer(maxSize);
         this.view=new DataView(this.buffer, 0);
+    }
+    write32Float(numb:number){
+        this.view.setFloat32(this.i,numb);
+        this.i+=4;
     }
     write16(numb:number){
         this.view.setUint16(this.i,numb);

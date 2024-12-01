@@ -1,6 +1,6 @@
 "use strict";
 import{ Message }from"./message.js";
-import{ AVoice }from"./audio/audio.js";
+import{ AVoice }from"./audio/voice.js";
 import{ Contextmenu }from"./contextmenu.js";
 import{ Guild }from"./guild.js";
 import{ Localuser }from"./localuser.js";
@@ -1403,7 +1403,12 @@ class Channel extends SnowFlake{
 		);
 	}
 	notify(message: Message, deep = 0){
-		AVoice.noises(this.localuser.getNotificationSound());
+		if(this.localuser.play){
+			const voice=this.localuser.play.audios.get(this.localuser.getNotificationSound());
+			if(voice){
+				voice.play();
+			}
+		}
 		if(!("Notification" in window)){
 		}else if(Notification.permission === "granted"){
 			let noticontent: string | undefined | null = message.content.textContent;
