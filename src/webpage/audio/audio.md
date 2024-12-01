@@ -12,7 +12,7 @@ Given a non-zero length, this will parse the sounds as following:
 |instruction | description |
 | ---------- | ----------- |
 | 000 | read float32 and use as value |
-| 001 | read time(it'll always be a value between 0 and 1) |
+| 001 | read time(it'll be the time in seconds) |
 | 002 | read frequency in hz |
 | 003 | the constant PI |
 | 004 | Math.sin() on the following sequence |
