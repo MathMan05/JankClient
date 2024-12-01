@@ -2,6 +2,7 @@ import{ Contextmenu }from"./contextmenu.js";
 import{ Guild }from"./guild.js";
 import { emojijson } from "./jsontypes.js";
 import{ Localuser }from"./localuser.js";
+import { BinRead } from "./utils/binaryUtils.js";
 
 //I need to recompile the emoji format for translation
 class Emoji{
@@ -64,51 +65,24 @@ class Emoji{
 		}
 	}
 	static decodeEmojiList(buffer: ArrayBuffer){
-		const view = new DataView(buffer, 0);
-		let i = 0;
-		function read16(){
-			const int = view.getUint16(i);
-			i += 2;
-			return int;
-		}
-		function read8(){
-			const int = view.getUint8(i);
-			i += 1;
-			return int;
-		}
-		function readString8(){
-			return readStringNo(read8());
-		}
-		function readString16(){
-			return readStringNo(read16());
-		}
-		function readStringNo(length: number){
-			const array = new Uint8Array(length);
-
-			for(let i = 0; i < length; i++){
-				array[i] = read8();
-			}
-			//console.log(array);
-			return new TextDecoder("utf8").decode(array.buffer as ArrayBuffer);
-		}
-		const build: { name: string; emojis: { name: string; emoji: string }[] }[] =
-      [];
-		let cats = read16();
+		const reader=new BinRead(buffer)
+		const build: { name: string; emojis: { name: string; emoji: string }[] }[] = [];
+		let cats = reader.read16();
 
 		for(; cats !== 0; cats--){
-			const name = readString16();
+			const name = reader.readString16();
 			const emojis: {
 				name: string;
 				skin_tone_support: boolean;
 				emoji: string;
 			}[] = [];
-			let emojinumber = read16();
+			let emojinumber = reader.read16();
 			for(; emojinumber !== 0; emojinumber--){
 				//console.log(emojis);
-				const name = readString8();
-				const len = read8();
+				const name = reader.readString8();
+				const len = reader.read8();
 				const skin_tone_support = len > 127;
-				const emoji = readStringNo(len - Number(skin_tone_support) * 128);
+				const emoji = reader.readStringNo(len - Number(skin_tone_support) * 128);
 				emojis.push({
 					name,
 					skin_tone_support,

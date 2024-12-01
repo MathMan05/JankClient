@@ -10,7 +10,7 @@ import{ File }from"./file.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, messagejson }from"./jsontypes.js";
 import{ Emoji }from"./emoji.js";
-import{ mobile }from"./login.js";
+import{ mobile }from"./utils/utils.js";
 import { I18n } from "./i18n.js";
 import { Hover } from "./hover.js";
 import { Dialog } from "./settings.js";

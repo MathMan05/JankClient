@@ -1,5 +1,5 @@
 import { I18n } from "./i18n.js";
-import{ mobile }from"./login.js";
+import{ mobile }from"./utils/utils.js";
 console.log(mobile);
 const serverbox = document.getElementById("instancebox") as HTMLDivElement;
 

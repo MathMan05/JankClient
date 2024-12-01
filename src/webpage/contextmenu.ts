@@ -1,4 +1,4 @@
-import{ iOS }from"./login.js";
+import{ iOS }from"./utils/utils.js";
 class Contextmenu<x, y>{
 	static currentmenu: HTMLElement | "";
 	name: string;
