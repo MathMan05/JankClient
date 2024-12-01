@@ -26,6 +26,7 @@ Given a non-zero length, this will parse the sounds as following:
 | 012 | round the next expression |
 | 013 | Math.cos() on the next expression |
 > note
+
 > this is likely to expand in the future as more things are needed, but this is just how it is right now.
 
 Once you've read all of the sounds in the file, you can move on to parsing the tracks.
