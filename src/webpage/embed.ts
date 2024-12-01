@@ -1,7 +1,7 @@
 import{ Message }from"./message.js";
 import{ MarkDown }from"./markdown.js";
 import{ embedjson, invitejson }from"./jsontypes.js";
-import{ getapiurls, getInstances }from"./login.js";
+import{ getapiurls, getInstances }from"./utils/utils.js";
 import{ Guild }from"./guild.js";
 import { I18n } from "./i18n.js";
 import { ImagesDisplay } from "./disimg.js";

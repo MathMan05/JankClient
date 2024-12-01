@@ -1,5 +1,6 @@
 import { I18n } from "./i18n.js";
-import{ getBulkUsers, Specialuser, getapiurls }from"./login.js";
+import{ getapiurls }from"./utils/utils.js";
+import { getBulkUsers, Specialuser } from "./utils/utils.js";
 
 (async ()=>{
 	const users = getBulkUsers();

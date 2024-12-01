@@ -1,9 +1,10 @@
 import{ Guild }from"./guild.js";
 import{ Channel }from"./channel.js";
 import{ Direct }from"./direct.js";
-import{ AVoice }from"./audio.js";
+import{ AVoice }from"./audio/audio.js";
 import{ User }from"./user.js";
-import{ getapiurls, getBulkInfo, setTheme, Specialuser, SW }from"./login.js";
+import{ getapiurls, SW }from"./utils/utils.js";
+import { getBulkInfo, setTheme, Specialuser } from "./utils/utils.js";
 import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
 import{ Member }from"./member.js";
 import{ Dialog, Form, FormError, Options, Settings }from"./settings.js";
@@ -1237,10 +1238,10 @@ class Localuser{
 					.addSelect(
 						I18n.getTranslation("localuser.notisound"),
 						_=>{
-							AVoice.setNotificationSound(sounds[_]);
+							this.setNotificationSound(sounds[_]);
 						},
 						sounds,
-						{ defaultIndex: sounds.indexOf(AVoice.getNotificationSound()) }
+						{ defaultIndex: sounds.indexOf(this.getNotificationSound()) }
 					)
 					.watchForChange(_=>{
 						AVoice.noises(sounds[_]);
@@ -2120,6 +2121,15 @@ class Localuser{
 		dialog.options.addText(I18n.getTranslation("instanceStats.messages",json.counts.message));
 		dialog.options.addText(I18n.getTranslation("instanceStats.members",json.counts.members));
 		dialog.show();
+	}
+	setNotificationSound(sound: string){
+		const userinfos = getBulkInfo();
+		userinfos.preferences.notisound = sound;
+		localStorage.setItem("userinfos", JSON.stringify(userinfos));
+	}
+	getNotificationSound(){
+		const userinfos = getBulkInfo();
+		return userinfos.preferences.notisound;
 	}
 }
 export{ Localuser };

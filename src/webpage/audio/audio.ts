@@ -1,5 +1,3 @@
-import{ getBulkInfo }from"./login.js";
-
 class AVoice{
 	audioCtx: AudioContext;
 	info: { wave: string | Function; freq: number };
@@ -71,10 +69,6 @@ class AVoice{
 		case"white":
 			return(_t: number, _freq: number)=>{
 				return Math.random() * 2 - 1;
-			};
-		case"noise":
-			return(_t: number, _freq: number)=>{
-				return 0;
 			};
 		}
 		return new Function();
@@ -182,15 +176,6 @@ class AVoice{
 	}
 	static get sounds(){
 		return["three", "zip", "square", "beep"];
-	}
-	static setNotificationSound(sound: string){
-		const userinfos = getBulkInfo();
-		userinfos.preferences.notisound = sound;
-		localStorage.setItem("userinfos", JSON.stringify(userinfos));
-	}
-	static getNotificationSound(){
-		const userinfos = getBulkInfo();
-		return userinfos.preferences.notisound;
 	}
 }
 export{ AVoice as AVoice };
