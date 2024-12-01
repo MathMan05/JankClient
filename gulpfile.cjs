@@ -113,6 +113,7 @@ return gulp
     "src/**/*.webp",
     "src/**/*.gif",
     "src/**/*.svg",
+    "src/**/*.jasf",
     ],{encoding:false})
     .pipe(plumber()) // Prevent pipe breaking caused by errors
     .pipe(gulp.dest("dist"));

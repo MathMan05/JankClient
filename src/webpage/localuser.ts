@@ -1,7 +1,7 @@
 import{ Guild }from"./guild.js";
 import{ Channel }from"./channel.js";
 import{ Direct }from"./direct.js";
-import{ AVoice }from"./audio/audio.js";
+import{ AVoice }from"./audio/voice.js";
 import{ User }from"./user.js";
 import{ getapiurls, SW }from"./utils/utils.js";
 import { getBulkInfo, setTheme, Specialuser } from "./utils/utils.js";
@@ -14,6 +14,7 @@ import { Role } from "./role.js";
 import { VoiceFactory } from "./voice.js";
 import { I18n, langmap } from "./i18n.js";
 import { Emoji } from "./emoji.js";
+import { Play } from "./audio/play.js";
 
 const wsCodesRetry = new Set([4000,4001,4002, 4003, 4005, 4007, 4008, 4009]);
 
@@ -40,6 +41,7 @@ class Localuser{
 	channelids: Map<string, Channel> = new Map();
 	readonly userMap: Map<string, User> = new Map();
 	voiceFactory?:VoiceFactory;
+	play?:Play;
 	instancePing = {
 		name: "Unknown",
 	};
@@ -51,6 +53,9 @@ class Localuser{
 		this.userinfo.localuserStore = e;
 	}
 	constructor(userinfo: Specialuser | -1){
+		Play.playURL("/audio/sounds.jasf").then((_)=>{
+			this.play=_;
+		})
 		if(userinfo === -1){
 			return;
 		}
@@ -1234,8 +1239,7 @@ class Localuser{
 			}
 			{
 				const sounds = AVoice.sounds;
-				tas
-					.addSelect(
+				tas.addSelect(
 						I18n.getTranslation("localuser.notisound"),
 						_=>{
 							this.setNotificationSound(sounds[_]);
@@ -1244,7 +1248,12 @@ class Localuser{
 						{ defaultIndex: sounds.indexOf(this.getNotificationSound()) }
 					)
 					.watchForChange(_=>{
-						AVoice.noises(sounds[_]);
+						if(this.play){
+							const voice=this.play.audios.get(sounds[_])
+							if(voice){
+								voice.play();
+							}
+						}
 					});
 			}
 
