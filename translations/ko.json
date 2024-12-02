@@ -1,6 +1,7 @@
 {
 	"@metadata": {
 		"authors": [
+			"Suleiman the Magnificent Television",
 			"Ykhwong"
 		]
 	},
@@ -72,7 +73,7 @@
 		"nsfw:": "NSFW:",
 		"selectType": "채널 유형 선택",
 		"selectName": "채널 이름",
-		"selectCatName": "채널 이름",
+		"selectCatName": "분류 이름",
 		"createChannel": "채널 만들기",
 		"createCatagory": "분류 만들기"
 	},
@@ -114,12 +115,15 @@
 		"region:": "지역:",
 		"roles": "역할",
 		"all": "모두",
-		"none": "노드",
+		"none": "없음",
 		"confirmLeave": "떠나시겠습니까?",
 		"yesLeave": "네, 확실합니다",
 		"serverName": "서버 이름:",
 		"yesDelete": "네, 확실합니다",
-		"loadingDiscovery": "불러오는 중..."
+		"loadingDiscovery": "불러오는 중...",
+		"default": "기본값 ($1)",
+		"description:": "설명:",
+		"systemSelect:": "시스템 메시지 채널:"
 	},
 	"role": {
 		"displaySettings": "표시 설정",
@@ -208,14 +212,18 @@
 		"alreadyJoined": "이미 참여했습니다",
 		"accept": "수락",
 		"longInvitedBy": "$1님이 당신을 $2에 초대했습니다",
-		"inviteLinkCode": "초대 링크/코드"
+		"inviteLinkCode": "초대 링크/코드",
+		"channel:": "채널:",
+		"createInvite": "초대장 만들기"
 	},
 	"friends": {
 		"blocked": "차단됨",
 		"blockedusers": "차단된 사용자:",
 		"addfriend": "친구 추가",
+		"addfriendpromt": "사용자 이름으로 친구 추가:",
 		"notfound": "사용자를 찾을 수 없습니다",
 		"pending": "보류 중",
+		"pending:": "대기 중인 친구 요청:",
 		"all": "모두",
 		"all:": "모든 친구:",
 		"online": "온라인",
@@ -226,7 +234,8 @@
 	"DMs": {
 		"copyId": "DM ID 복사",
 		"markRead": "읽은 것으로 표시",
-		"close": "DM 닫기"
+		"close": "DM 닫기",
+		"name": "직신"
 	},
 	"user": {
 		"copyId": "사용자 ID 복사",

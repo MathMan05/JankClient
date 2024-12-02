@@ -2,7 +2,8 @@
 	"@metadata": {
 		"authors": [
 			"Booky",
-			"Brettchenweber"
+			"Brettchenweber",
+			"SomeRandomDeveloper"
 		]
 	},
 	"readableName": "Deutsch",
@@ -110,7 +111,12 @@
 		"serverName": "Name des Servers:",
 		"yesDelete": "Ja, ich bin mir sicher",
 		"noDelete": "Doch nicht",
-		"loadingDiscovery": "Lade..."
+		"loadingDiscovery": "Lade...",
+		"description:": "Beschreibung:",
+		"systemSelect:": "Kanal für Systemnachrichten:",
+		"sendrandomwelcome?": "Sende eine zufällige Nachricht, wenn jemand dieser Gilde beitritt",
+		"helpTips?": "Sende hilfreiche Tipps für deine Gilde!",
+		"defaultNoti": "Lege die Standardbenachrichtigungseinstellungen deiner Gilde fest!"
 	},
 	"role": {
 		"color": "Farbe",
@@ -120,5 +126,10 @@
 	"localuser": {
 		"privacyPolcyURL": "Datenschutzerklärung:",
 		"TOSURL": "Nutzungsbedingungen:"
+	},
+	"invite": {
+		"channel:": "Kanal:",
+		"inviteMaker": "Einladungsgenerator",
+		"createInvite": "Einladung erstellen"
 	}
 }
