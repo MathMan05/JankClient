@@ -4,10 +4,11 @@
 		"locale": "en",
 		"comment": "Don't know how often I'll update this top part lol",
 		"authors": [
-			"MathMan05"
+			"MathMan05",
+			"McDutchie"
 		]
 	},
-	"readableName": "This should be the name of the language in the language, please do not translate english into the language for this name",
+	"readableName": "{{doc-important|This should be the name of the language you are translating into, in that language. Please DO NOT translate this into your language’s word for “English”!}}",
 	"htmlPages": {
 		"box1Items": "this string is slightly atypical, it has a list of items separated by |, please try to keep the same list size as this"
 	},

@@ -1,11 +1,12 @@
 {
 	"@metadata": {
 		"authors": [
+			"McDutchie",
 			"Suleiman the Magnificent Television",
 			"Ykhwong"
 		]
 	},
-	"readableName": "영어",
+	"readableName": "한국어",
 	"reply": "답변",
 	"copymessageid": "메시지 ID 복사",
 	"permissions": {
