@@ -611,6 +611,10 @@ span.instanceStatus {
 	border-radius: 4px;
 	transition: transform .2s, height .2s;
 }
+.servernoti:hover .unread.pinged {
+ 	transform: translate(34px, 14px);
+	height: 20px;
+}
 .servernoti:hover .unread {
  	transform: translate(-12px, 12px);
 	height: 24px;
@@ -618,6 +622,11 @@ span.instanceStatus {
 .serveropen .unread {
 	transform: translate(-12px, 8px) !important;
 	height: 32px !important;
+	width: 8px !important;
+
+}
+.serveropen .unread.pinged{
+	color: transparent;
 }
 .notiunread {
 	transform: translate(-12px, 20px);
@@ -625,18 +634,19 @@ span.instanceStatus {
 #sentdms {
 	position: relative;
 }
-.unread.pinged, .servernoti:hover .unread.pinged {
+.unread.pinged{
 	height: 16px;
 	width: 16px;
-	transform: translate(28px, 28px);
+	transform: translate(34px, 34px);
 	background: var(--red);
 	font-size: .75rem;
 	font-weight: bold;
 	line-height: 15px;
 	text-align: center;
-	border: 4px solid var(--servers-bg);
-	border-radius: 50%;
+	/* border: 4px solid var(--servers-bg); */
+	/* border-radius: 50%; */
 	pointer-events: none;
+	z-index: 10;
 }
 
 /* Channel Panel */
@@ -710,6 +720,9 @@ span.instanceStatus {
 	width: 8px;
 	background: var(--primary-text);
 	border-radius: 50%;
+}
+.cunread.mentioned:after{
+	background: var(--red);
 }
 .space {
 	flex: none;

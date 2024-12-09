@@ -41,6 +41,7 @@ class Direct extends Guild{
 		const thischannel = new Group(json, this);
 		this.channelids[thischannel.id] = thischannel;
 		this.channels.push(thischannel);
+		this.localuser.channelids.set(thischannel.id, thischannel);
 		this.sortchannels();
 		this.printServers();
 		return thischannel;
@@ -282,8 +283,17 @@ class Direct extends Guild{
 			channelTopic.append(add);
 		}
 	}
+	get mentions(){
+		let mentions=0;
+		for(const thing of this.localuser.inrelation){
+			if(thing.relationshipType===3){
+				mentions+=1;
+			}
+		}
+		return mentions;
+	}
 	giveMember(_member: memberjson){
-		console.error("not a real guild, can't give member object");
+		throw new Error("not a real guild, can't give member object");
 	}
 	getRole(/* ID: string */){
 		return null;
@@ -429,6 +439,7 @@ class Group extends Channel{
 
 	}
 	messageCreate(messagep: { d: messagejson }){
+		this.mentions++;
 		const messagez = new Message(messagep.d, this);
 		if(this.lastmessageid){
 			this.idToNext.set(this.lastmessageid, messagez.id);
@@ -461,20 +472,15 @@ class Group extends Channel{
 		}
 		this.unreads();
 		if(messagez.author === this.localuser.user){
+			this.mentions=0;
 			return;
 		}
-		if(
-			this.localuser.lookingguild?.prevchannel === this &&
-	document.hasFocus()
-		){
+		if(this.localuser.lookingguild?.prevchannel === this && document.hasFocus()){
 			return;
 		}
 		if(this.notification === "all"){
 			this.notify(messagez);
-		}else if(
-			this.notification === "mentions" &&
-	messagez.mentionsuser(this.localuser.user)
-		){
+		}else if(this.notification === "mentions" && messagez.mentionsuser(this.localuser.user)){
 			this.notify(messagez);
 		}
 	}

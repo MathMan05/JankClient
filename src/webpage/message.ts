@@ -243,7 +243,11 @@ class Message extends SnowFlake{
 		if(userd instanceof User){
 			return this.mentions.includes(userd);
 		}else if(userd instanceof Member){
-			return this.mentions.includes(userd.user);
+			if(this.mentions.includes(userd.user)){
+				return true
+			}else{
+				return !new Set(this.mentions).isDisjointFrom(new Set(userd.roles));//if the message mentions a role the user has
+			}
 		}else{
 			return false;
 		}

@@ -38,7 +38,7 @@ class Channel extends SnowFlake{
 	position: number = 0;
 	lastreadmessageid: string | undefined;
 	lastmessageid: string | undefined;
-	mentions!: number;
+	mentions=0;
 	lastpin!: string;
 	move_id?: string;
 	typing!: number;
@@ -518,9 +518,7 @@ class Channel extends SnowFlake{
 			};
 		}else{
 			div.classList.add("channel");
-			if(this.hasunreads){
-				div.classList.add("cunread");
-			}
+			this.unreads();
 			Channel.contextmenu.bindContextmenu(div, this,undefined);
 			if(admin){
 				this.coatDropDiv(div);
@@ -624,7 +622,9 @@ class Channel extends SnowFlake{
 		}
 	}
 	readbottom(){
+		this.mentions=0;
 		if(!this.hasunreads){
+			this.guild.unreads();
 			return;
 		}
 		fetch(
@@ -637,10 +637,9 @@ class Channel extends SnowFlake{
 		);
 		this.lastreadmessageid = this.lastmessageid;
 		this.guild.unreads();
-		if(this.myhtml){
-			this.myhtml.classList.remove("cunread");
-		}
+		this.unreads();
 	}
+
 	coatDropDiv(div: HTMLDivElement, container: HTMLElement | boolean = false){
 		div.addEventListener("dragenter", event=>{
 			console.log("enter");
@@ -1351,6 +1350,20 @@ class Channel extends SnowFlake{
 			});
 		}
 	}
+	unreads(){
+		if(!this.hasunreads){
+			if(this.myhtml){
+				this.myhtml.classList.remove("cunread","mentioned");
+			}
+		}else{
+			if(this.myhtml){
+				this.myhtml.classList.add("cunread");
+			}
+			if(this.mentions!==0){
+				this.myhtml?.classList.add("mentioned")
+			}
+		}
+	}
 	messageCreate(messagep: messageCreateJson): void{
 		if(!this.hasPermission("VIEW_CHANNEL")){
 			return;
@@ -1361,19 +1374,15 @@ class Channel extends SnowFlake{
 			this.idToNext.set(this.lastmessageid, messagez.id);
 			this.idToPrev.set(messagez.id, this.lastmessageid);
 		}
-
+		if(messagez.mentionsuser(this.localuser.user)&&messagez.author!==this.localuser.user){
+			this.mentions++;
+		}
 		this.lastmessageid = messagez.id;
 
 		if(messagez.author === this.localuser.user){
 			this.lastreadmessageid = messagez.id;
-			if(this.myhtml){
-				this.myhtml.classList.remove("cunread");
-			}
-		}else{
-			if(this.myhtml){
-				this.myhtml.classList.add("cunread");
-			}
 		}
+		this.unreads();
 		this.guild.unreads();
 		if(this === this.localuser.channelfocus){
 			if(!this.infinitefocus){
