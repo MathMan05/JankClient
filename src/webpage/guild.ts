@@ -588,27 +588,42 @@ class Guild extends SnowFlake{
 			headers: this.headers,
 		});
 	}
+	get mentions(){
+		let mentions=0;
+		for(const thing of this.channels){
+			mentions+=thing.mentions;
+		}
+		return mentions;
+	}
 	unreads(html?: HTMLElement | undefined){
 		if(html){
 			this.html = html;
 		}else{
 			html = this.html;
 		}
+		if(!html){
+			return;
+		}
 		let read = true;
+		let mentions=this.mentions;
 		for(const thing of this.channels){
 			if(thing.hasunreads){
-				console.log(thing);
 				read = false;
 				break;
 			}
 		}
-		if(!html){
-			return;
+		const noti=html.children[0];
+		if(mentions!==0){
+			noti.classList.add("pinged");
+			noti.textContent=""+mentions;
+		}else{
+			noti.textContent="";
+			noti.classList.remove("pinged");
 		}
 		if(read){
-			html.children[0].classList.remove("notiunread");
+			noti.classList.remove("notiunread");
 		}else{
-			html.children[0].classList.add("notiunread");
+			noti.classList.add("notiunread");
 		}
 	}
 	getHTML(){

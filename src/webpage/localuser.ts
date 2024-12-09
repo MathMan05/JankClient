@@ -551,6 +551,9 @@ class Localuser{
 					user.relationshipType = temp.d.type;
 					this.inrelation.add(user);
 					this.relationshipsUpdate();
+					const me=this.guildids.get("@me");
+					if(!me)break;
+					me.unreads();
 					break;
 				}
 				case "RELATIONSHIP_REMOVE":{
