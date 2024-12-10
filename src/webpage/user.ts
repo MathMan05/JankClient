@@ -164,7 +164,12 @@ class User extends SnowFlake{
 		this.contextmenu.addbutton(()=>I18n.getTranslation("user.friendReq"), function(this: User){
 			this.changeRelationship(1);
 		},null,function(){
-			return this.relationshipType===0;
+			return this.relationshipType===0||this.relationshipType===3;
+		});
+		this.contextmenu.addbutton(()=>I18n.getTranslation("friends.removeFriend"), function(this: User){
+			this.changeRelationship(0);
+		},null,function(){
+			return this.relationshipType===1;
 		});
 		this.contextmenu.addbutton(
 			()=>I18n.getTranslation("user.kick"),
@@ -363,11 +368,15 @@ class User extends SnowFlake{
 					}
 					if(member){
 						member.bind(html);
+					}else{
+						User.contextmenu.bindContextmenu(html, this, undefined);
 					}
 				})
 				.catch(err=>{
 					console.log(err);
 				});
+		}else{
+			User.contextmenu.bindContextmenu(html, this, undefined);
 		}
 		if(guild){
 			this.profileclick(html, guild);
