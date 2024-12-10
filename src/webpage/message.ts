@@ -439,6 +439,12 @@ class Message extends SnowFlake{
 			replyline.classList.add("flexltr","replyflex");
 			// TODO: Fix this
 			this.channel.getmessage(this.message_reference.message_id).then(message=>{
+				if(!message){
+					minipfp.remove();
+					username.textContent=I18n.getTranslation("message.deleted");
+					username.classList.remove("username");
+					return;
+				}
 				if(message.author.relationshipType === 2){
 					username.textContent = "Blocked user";
 					return;

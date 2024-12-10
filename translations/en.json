@@ -322,7 +322,8 @@
 		"reactionAdd":"Add reaction",
 		"delete":"Delete message",
 		"edit":"Edit message",
-		"edited":"(edited)"
+		"edited":"(edited)",
+		"deleted":"Deleted message"
 	},
 	"instanceStats":{
 		"name":"Instance stats: $1",
@@ -364,6 +365,7 @@
 		"blocked":"Blocked",
 		"blockedusers":"Blocked Users:",
 		"addfriend":"Add Friend",
+		"removeFriend":"Remove Friend",
 		"addfriendpromt":"Add friends by username:",
 		"notfound":"User not found",
 		"discnotfound":"Discriminator not found",

@@ -761,7 +761,7 @@ class Channel extends SnowFlake{
 			typebox.classList.remove("typeboxreplying");
 		}
 	}
-	async getmessage(id: string): Promise<Message>{
+	async getmessage(id: string): Promise<Message|undefined>{
 		const message = this.messages.get(id);
 		if(message){
 			return message;
@@ -771,6 +771,9 @@ class Channel extends SnowFlake{
 				{ headers: this.headers }
 			);
 			const json = await gety.json();
+			if(json.length===0){
+				return undefined;
+			}
 			return new Message(json[0], this);
 		}
 	}
