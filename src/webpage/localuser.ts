@@ -90,6 +90,7 @@ class Localuser{
 		this.userinfo.username = this.user.username;
 		this.userinfo.id = this.user.id;
 		this.userinfo.pfpsrc = this.user.getpfpsrc();
+
 		this.status = this.ready.d.user_settings.status;
 		this.channelfocus = undefined;
 		this.lookingguild = undefined;
@@ -477,8 +478,10 @@ class Localuser{
 						temp.d.guild_id ??= "@me";
 						const channel = this.channelids.get(temp.d.channel_id);
 						if(!channel)break;
+
 						const message = channel.messages.get(temp.d.message_id);
 						if(!message)break;
+
 						message.reactionRemove(temp.d.emoji, temp.d.user_id);
 					}
 					break;
@@ -739,7 +742,7 @@ class Localuser{
 
 			for(const member of list){
 				const memberdiv=document.createElement("div");
-				const pfp=await member.user.buildstatuspfp();
+				const pfp=await member.user.buildstatuspfp(member);
 				const username=document.createElement("span");
 				username.classList.add("ellipsis");
 				username.textContent=member.name;
@@ -1094,10 +1097,10 @@ class Localuser{
 		}
 	}
 	updateProfile(json: {
-    bio?: string;
-    pronouns?: string;
-    accent_color?: number;
-  }){
+		bio?: string;
+		pronouns?: string;
+		accent_color?: number;
+	}){
 		fetch(this.info.api + "/users/@me/profile", {
 			method: "PATCH",
 			headers: this.headers,
@@ -1180,7 +1183,7 @@ class Localuser{
 			const pronounbox = settingsLeft.addTextInput(
 				I18n.getTranslation("pronouns"),
 				_=>{
-					if(newpronouns || newbio || changed){
+					if(newpronouns!==undefined||newbio!==undefined||changed!==undefined){
 						this.updateProfile({
 							pronouns: newpronouns,
 							bio: newbio,
