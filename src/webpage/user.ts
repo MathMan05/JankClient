@@ -201,9 +201,7 @@ class User extends SnowFlake{
 			()=>I18n.getTranslation("user.editServerProfile"),
 			function(this: User, member: Member | undefined){
 				if(!member) return;
-				const settings=new Settings(I18n.getTranslation("user.editServerProfile"));
-				member.editProfile(settings.addButton(I18n.getTranslation("user.editServerProfile"),{ltr:true}));
-				settings.show();
+				member.showEditProfile();
 			},
 			null,
 			member=>{

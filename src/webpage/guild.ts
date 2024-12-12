@@ -43,6 +43,13 @@ class Guild extends SnowFlake{
 			this.setnotifcation();
 		});
 
+		this.contextmenu.addbutton(
+			()=>I18n.getTranslation("user.editServerProfile"),
+			function(){
+				this.member.showEditProfile();
+			}
+		);
+
 		Guild.contextmenu.addbutton(
 			()=>I18n.getTranslation("guild.leave"),
 			function(this: Guild){
