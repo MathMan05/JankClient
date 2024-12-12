@@ -4,7 +4,7 @@ import{ Guild }from"./guild.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, presencejson }from"./jsontypes.js";
 import { I18n } from "./i18n.js";
-import { Dialog, Options } from "./settings.js";
+import { Dialog, Options, Settings } from "./settings.js";
 
 class Member extends SnowFlake{
 	static already = {};
@@ -178,6 +178,11 @@ class Member extends SnowFlake{
 			headers: this.headers,
 			body: JSON.stringify(json),
 		});
+	}
+	showEditProfile(){
+		const settings=new Settings("");
+		this.editProfile(settings.addButton(I18n.getTranslation("user.editServerProfile"),{ltr:true}));
+		settings.show();
 	}
 	editProfile(options:Options){
 		if(this.hasPermission("CHANGE_NICKNAME")){
