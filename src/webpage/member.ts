@@ -15,9 +15,6 @@ class Member extends SnowFlake{
 	avatar:void|string=undefined;
 	banner:void|string=undefined;
 	private constructor(memberjson: memberjson, owner: Guild){
-		if(memberjson.id==="1086860370880362328"&&owner.id==="1006649183970562092"){
-			console.trace(memberjson);
-		}
 		super(memberjson.id);
 		this.owner = owner;
 		if(this.localuser.userMap.has(memberjson.id)){
