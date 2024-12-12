@@ -9,6 +9,7 @@ import { Role } from "./role.js";
 import { Search } from "./search.js";
 import { I18n } from "./i18n.js";
 import { Direct } from "./direct.js";
+import { Settings } from "./settings.js";
 
 class User extends SnowFlake{
 	owner: Localuser;
@@ -19,7 +20,7 @@ class User extends SnowFlake{
 	relationshipType: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 0;
 	bio!: MarkDown;
 	discriminator!: string;
-	pronouns!: string;
+	pronouns?: string;
 	bot!: boolean;
 	public_flags!: number;
 	accent_color!: number;
@@ -57,11 +58,10 @@ class User extends SnowFlake{
 		}
 	}
 
-	clone(): User{
-		return new User(
-			{
+	tojson():userjson{
+		return {
 				username: this.username,
-				id: this.id + "#clone",
+				id: this.id,
 				public_flags: this.public_flags,
 				discriminator: this.discriminator,
 				avatar: this.avatar,
@@ -74,7 +74,14 @@ class User extends SnowFlake{
 				theme_colors: this.theme_colors,
 				pronouns: this.pronouns,
 				badge_ids: this.badge_ids,
-			},
+			}
+	}
+
+	clone(): User{
+		const json=this.tojson();
+		json.id+="#clone";
+		return new User(
+			json,
 			this.owner
 		);
 	}
@@ -187,6 +194,20 @@ class User extends SnowFlake{
 					return false;
 				}
 				return us.hasPermission("KICK_MEMBERS") || false;
+			}
+		);
+
+		this.contextmenu.addbutton(
+			()=>I18n.getTranslation("user.editServerProfile"),
+			function(this: User, member: Member | undefined){
+				if(!member) return;
+				const settings=new Settings(I18n.getTranslation("user.editServerProfile"));
+				member.editProfile(settings.addButton(I18n.getTranslation("user.editServerProfile"),{ltr:true}));
+				settings.show();
+			},
+			null,
+			member=>{
+				return !!member;
 			}
 		);
 		this.contextmenu.addbutton(
@@ -319,19 +340,32 @@ class User extends SnowFlake{
 		}
 	}
 
-	buildpfp(): HTMLImageElement{
+	buildpfp(guild:Guild|void|Member|null): HTMLImageElement{
 		const pfp = document.createElement("img");
 		pfp.loading = "lazy";
 		pfp.src = this.getpfpsrc();
 		pfp.classList.add("pfp");
 		pfp.classList.add("userid:" + this.id);
+		if(guild){
+			(async()=>{
+				if(guild instanceof Guild){
+					const memb= await Member.resolveMember(this,guild)
+					if(!memb) return;
+					pfp.src = memb.getpfpsrc();
+				}else{
+					pfp.src = guild.getpfpsrc();
+				}
+
+			})();
+
+		}
 		return pfp;
 	}
 
-	async buildstatuspfp(): Promise<HTMLDivElement>{
+	async buildstatuspfp(guild:Guild|void|Member|null): Promise<HTMLDivElement>{
 		const div = document.createElement("div");
 		div.classList.add("pfpDiv")
-		const pfp = this.buildpfp();
+		const pfp = this.buildpfp(guild);
 		div.append(pfp);
 		const status = document.createElement("div");
 		status.classList.add("statusDiv");
@@ -423,10 +457,18 @@ class User extends SnowFlake{
 			}
 		}
 	}
-
-	getpfpsrc(): string{
+	/**
+	 * @param guild this is an optional thing that'll get the src of the member if it exists, otherwise ignores it, this is meant to be fast, not accurate
+	 */
+	getpfpsrc(guild:Guild|void): string{
 		if(this.hypotheticalpfp && this.avatar){
 			return this.avatar;
+		}
+		if(guild){
+			const member=this.members.get(guild)
+			if(member instanceof Member){
+				return member.getpfpsrc();
+			}
 		}
 		if(this.avatar !== null){
 			return`${this.info.cdn}/avatars/${this.id.replace("#clone", "")}/${
@@ -441,12 +483,21 @@ class User extends SnowFlake{
 	async buildprofile(
 		x: number,
 		y: number,
-		guild: Guild | null = null
+		guild: Guild | null | Member = null
 	): Promise<HTMLDivElement>{
 		if(Contextmenu.currentmenu != ""){
 			Contextmenu.currentmenu.remove();
 		}
-
+		const membres=(async ()=>{
+			if(!guild) return;
+			let member:Member|undefined;
+			if(guild instanceof Guild){
+				member=await Member.resolveMember(this,guild)
+			}else{
+				member=guild;
+			}
+			return member;
+		})()
 		const div = document.createElement("div");
 
 		if(this.accent_color){
@@ -457,20 +508,18 @@ class User extends SnowFlake{
 		}else{
 			div.style.setProperty("--accent_color", "transparent");
 		}
-		if(this.banner){
-			const banner = document.createElement("img");
-			let src: string;
-			if(!this.hypotheticalbanner){
-				src = `${this.info.cdn}/avatars/${this.id.replace("#clone", "")}/${
-					this.banner
-				}.png`;
-			}else{
-				src = this.banner;
+		const banner=this.getBanner(guild);
+		div.append(banner);
+		membres.then(member=>{
+			if(!member) return;
+			if(member.accent_color&&member.accent_color!==0){
+				div.style.setProperty(
+					"--accent_color",
+					`#${member.accent_color.toString(16).padStart(6, "0")}`
+				);
 			}
-			banner.src = src;
-			banner.classList.add("banner");
-			div.append(banner);
-		}
+		})
+
 		if(x !== -1){
 			div.style.left = `${x}px`;
 			div.style.top = `${y}px`;
@@ -501,7 +550,7 @@ class User extends SnowFlake{
 				}
 			}
 		})();
-		const pfp = await this.buildstatuspfp();
+		const pfp = await this.buildstatuspfp(guild);
 		div.appendChild(pfp);
 		const userbody = document.createElement("div");
 		userbody.classList.add("flexttb","infosection");
@@ -516,16 +565,33 @@ class User extends SnowFlake{
 		userbody.appendChild(discrimatorhtml);
 
 		const pronounshtml = document.createElement("p");
-		pronounshtml.textContent = this.pronouns;
+		pronounshtml.textContent = this.pronouns||"";
 		pronounshtml.classList.add("pronouns");
 		userbody.appendChild(pronounshtml);
+
+		membres.then(member=>{
+			if(!member) return;
+			if(member.pronouns&&member.pronouns!==""){
+				pronounshtml.textContent=member.pronouns;
+			}
+		});
 
 		const rule = document.createElement("hr");
 		userbody.appendChild(rule);
 		const biohtml = this.bio.makeHTML();
 		userbody.appendChild(biohtml);
+
+		membres.then(member=>{
+			if(!member)return;
+			if(member.bio&&member.bio!==""){
+				//TODO make markdown take Guild
+				userbody.insertBefore(new MarkDown(member.bio,this.localuser).makeHTML(),biohtml);
+				biohtml.remove();
+			}
+		});
+
 		if(guild){
-			Member.resolveMember(this, guild).then(member=>{
+			membres.then(member=>{
 				if(!member)return;
 				usernamehtml.textContent=member.name;
 				const roles = document.createElement("div");
@@ -556,7 +622,48 @@ class User extends SnowFlake{
 		}
 		return div;
 	}
+	getBanner(guild:Guild|null|Member):HTMLImageElement{
+		const banner = document.createElement("img");
 
+		const bsrc=this.getBannerUrl();
+		if(bsrc){
+			banner.src = bsrc;
+			banner.classList.add("banner");
+		}
+
+		if(guild){
+			if(guild instanceof Member){
+				const bsrc=guild.getBannerUrl();
+				if(bsrc){
+					banner.src = bsrc;
+					banner.classList.add("banner");
+				}
+			}else{
+				Member.resolveMember(this,guild).then(memb=>{
+					if(!memb) return;
+					const bsrc=memb.getBannerUrl();
+					if(bsrc){
+						banner.src = bsrc;
+						banner.classList.add("banner");
+					}
+				})
+			}
+		}
+		return banner
+	}
+	getBannerUrl():string|undefined{
+		if(this.banner){
+			if(!this.hypotheticalbanner){
+				return `${this.info.cdn}/avatars/${this.id.replace("#clone", "")}/${
+					this.banner
+				}.png`;
+			}else{
+				return this.banner;
+			}
+		}else{
+			return undefined;
+		}
+	}
 	profileclick(obj: HTMLElement, guild?: Guild): void{
 		obj.onclick = (e: MouseEvent)=>{
 			this.buildprofile(e.clientX, e.clientY, guild);

@@ -141,7 +141,7 @@ type userjson = {
 	premium_since: string;
 	premium_type: number;
 	theme_colors: string;
-	pronouns: string;
+	pronouns?: string;
 	badge_ids: string[];
 };
 type memberjson = {
@@ -149,6 +149,8 @@ type memberjson = {
 	id: string;
 	user: userjson | null;
 	guild_id: string;
+	avatar?:string;
+	banner?:string;
 	guild: {
 		id: string;
 	} | null;

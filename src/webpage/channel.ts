@@ -1440,7 +1440,7 @@ class Channel extends SnowFlake{
 			}
 			const notification = new Notification(this.notititle(message), {
 				body: noticontent,
-				icon: message.author.getpfpsrc(),
+				icon: message.author.getpfpsrc(this.guild),
 				image: imgurl,
 			});
 			notification.addEventListener("click", _=>{

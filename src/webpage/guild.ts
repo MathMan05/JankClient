@@ -342,6 +342,7 @@ class Guild extends SnowFlake{
 				}
 			});
 		}
+
 		this.perminfo ??= { channels: {} };
 		for(const thing of json.channels){
 			const temp = new Channel(thing, this);
@@ -436,9 +437,9 @@ class Guild extends SnowFlake{
 	calculateReorder(){
 		let position = -1;
 		const build: {
-		id: string;
-		position: number | undefined;
-		parent_id: string | undefined;
+			id: string;
+			position: number | undefined;
+			parent_id: string | undefined;
 		}[] = [];
 		for(const thing of this.headchannels){
 			const thisthing: {

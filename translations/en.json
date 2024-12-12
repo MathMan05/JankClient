@@ -396,7 +396,8 @@
 		"kick":"Kick member",
 		"ban":"Ban member",
 		"addRole":"Add roles",
-		"removeRole":"Remove roles"
+		"removeRole":"Remove roles",
+		"editServerProfile":"Edit server profile"
 	},
 	"login":{
 		"checking":"Checking Instance",
@@ -407,7 +408,8 @@
 	"member":{
 		"kick":"Kick $1 from $2",
 		"reason:":"Reason:",
-		"ban":"Ban $1 from $2"
+		"ban":"Ban $1 from $2",
+		"nick:":"Nickname:"
 	},
 	"uploadFilesText":"Upload your files here!",
 	"errorReconnect":"Unable to connect to the server, retrying in **$1** seconds...",

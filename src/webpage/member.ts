@@ -4,7 +4,7 @@ import{ Guild }from"./guild.js";
 import{ SnowFlake }from"./snowflake.js";
 import{ memberjson, presencejson }from"./jsontypes.js";
 import { I18n } from "./i18n.js";
-import { Dialog } from "./settings.js";
+import { Dialog, Options } from "./settings.js";
 
 class Member extends SnowFlake{
 	static already = {};
@@ -12,8 +12,12 @@ class Member extends SnowFlake{
 	user: User;
 	roles: Role[] = [];
 	nick!: string;
-
+	avatar:void|string=undefined;
+	banner:void|string=undefined;
 	private constructor(memberjson: memberjson, owner: Guild){
+		if(memberjson.id==="1086860370880362328"&&owner.id==="1006649183970562092"){
+			console.trace(memberjson);
+		}
 		super(memberjson.id);
 		this.owner = owner;
 		if(this.localuser.userMap.has(memberjson.id)){
@@ -58,6 +62,251 @@ class Member extends SnowFlake{
 	remove(){
 		this.user.members.delete(this.guild);
 		this.guild.members.delete(this);
+	}
+	getpfpsrc():string{
+		if(this.hypotheticalpfp&&this.avatar){
+			return this.avatar;
+		}
+		if(this.avatar !== undefined&&this.avatar!==null){
+			return`${this.info.cdn}/guilds/${this.guild.id}/users/${this.id}/avatars${
+				this.avatar
+			}.${this.avatar.startsWith("a_")?"gif":"png"}`;
+		}
+		return this.user.getpfpsrc();
+	}
+	getBannerUrl():string|undefined{
+		if(this.hypotheticalbanner&&this.banner){
+			return this.banner;
+		}
+		if(this.banner){
+			return `${this.info.cdn}/banners/${this.guild.id}/${
+					this.banner
+				}.${this.banner.startsWith("a_")?"gif":"png"}`;;
+		}else{
+			return undefined;
+		}
+	}
+	joined_at!:string;
+	premium_since!:string;
+	deaf!:boolean;
+	mute!:boolean;
+	pending!:boolean
+	clone(){
+		return new Member({
+			id:this.id+"#clone",
+			user:this.user.tojson(),
+			guild_id:this.guild.id,
+			guild:{id:this.guild.id},
+			avatar:this.avatar as (string|undefined),
+			banner:this.banner as (string|undefined),
+			//TODO presence
+			nick:this.nick,
+			roles:this.roles.map(_=>_.id),
+			joined_at:this.joined_at,
+			premium_since:this.premium_since,
+			deaf:this.deaf,
+			mute:this.mute,
+			pending:this.pending
+
+		},this.owner)
+	}
+	pronouns?:string;
+	bio?:string;
+	hypotheticalpfp=false;
+	hypotheticalbanner=false;
+	accent_color?:number;
+	get headers(){
+		return this.owner.headers;
+	}
+
+	updatepfp(file: Blob): void{
+		const reader = new FileReader();
+		reader.readAsDataURL(file);
+		reader.onload = ()=>{
+			fetch(this.info.api + `/guilds/${this.guild.id}/members/${this.id}/`, {
+				method: "PATCH",
+				headers: this.headers,
+				body: JSON.stringify({
+					avatar: reader.result,
+				}),
+			});
+		};
+	}
+	updatebanner(file: Blob | null): void{
+		if(file){
+			const reader = new FileReader();
+			reader.readAsDataURL(file);
+			reader.onload = ()=>{
+				fetch(this.info.api + `/guilds/${this.guild.id}/profile/${this.id}`, {
+					method: "PATCH",
+					headers: this.headers,
+					body: JSON.stringify({
+						banner: reader.result,
+					}),
+				});
+			};
+		}else{
+			fetch(this.info.api + `/guilds/${this.guild.id}/profile/${this.id}`, {
+				method: "PATCH",
+				headers: this.headers,
+				body: JSON.stringify({
+					banner: null,
+				}),
+			});
+		}
+	}
+
+	updateProfile(json: {
+		bio?: string|null;
+		pronouns?: string|null;
+		nick?:string|null;
+	}){
+		console.log(JSON.stringify(json));
+		/*
+		if(json.bio===""){
+			json.bio=null;
+		}
+		if(json.pronouns===""){
+			json.pronouns=null;
+		}
+		if(json.nick===""){
+			json.nick=null;
+		}
+		*/
+		fetch(this.info.api + `/guilds/${this.guild.id}/profile/${this.id}`, {
+			method: "PATCH",
+			headers: this.headers,
+			body: JSON.stringify(json),
+		});
+	}
+	editProfile(options:Options){
+		if(this.hasPermission("CHANGE_NICKNAME")){
+			const hypotheticalProfile = document.createElement("div");
+			let file: undefined | File | null;
+			let newpronouns: string | undefined;
+			let newbio: string | undefined;
+			let nick:string|undefined;
+			const hypomember = this.clone();
+
+			let color: string;
+			async function regen(){
+				hypotheticalProfile.textContent = "";
+				const hypoprofile = await hypomember.user.buildprofile(-1, -1,hypomember);
+
+				hypotheticalProfile.appendChild(hypoprofile);
+			}
+			regen();
+			const settingsLeft = options.addOptions("");
+			const settingsRight = options.addOptions("");
+			settingsRight.addHTMLArea(hypotheticalProfile);
+
+			const nicky=settingsLeft.addTextInput(I18n.getTranslation("member.nick:"),()=>{},{
+				initText:this.nick||""
+			});
+			nicky.watchForChange(_=>{
+				hypomember.nick=_;
+				nick=_;
+				regen();
+			})
+
+			const finput = settingsLeft.addFileInput(
+				I18n.getTranslation("uploadPfp"),
+				_=>{
+					if(file){
+						this.updatepfp(file);
+					}
+				},
+				{ clear: true }
+			);
+			finput.watchForChange(_=>{
+				if(!_){
+					file = null;
+					hypomember.avatar = undefined;
+					hypomember.hypotheticalpfp = true;
+					regen();
+					return;
+				}
+				if(_.length){
+					file = _[0];
+					const blob = URL.createObjectURL(file);
+					hypomember.avatar = blob;
+					hypomember.hypotheticalpfp = true;
+					regen();
+				}
+			});
+			let bfile: undefined | File | null;
+			const binput = settingsLeft.addFileInput(
+				I18n.getTranslation("uploadBanner"),
+				_=>{
+					if(bfile !== undefined){
+						this.updatebanner(bfile);
+					}
+				},
+				{ clear: true }
+			);
+			binput.watchForChange(_=>{
+				if(!_){
+					bfile = null;
+					hypomember.banner = undefined;
+					hypomember.hypotheticalbanner = true;
+					regen();
+					return;
+				}
+				if(_.length){
+					bfile = _[0];
+					const blob = URL.createObjectURL(bfile);
+					hypomember.banner = blob;
+					hypomember.hypotheticalbanner = true;
+					regen();
+				}
+			});
+			let changed = false;
+			const pronounbox = settingsLeft.addTextInput(
+				I18n.getTranslation("pronouns"),
+				_=>{
+					if(newpronouns!==undefined||newbio!==undefined||changed!==undefined){
+						this.updateProfile({
+							pronouns: newpronouns,
+							bio: newbio,
+							//accent_color: Number.parseInt("0x" + color.substr(1), 16),
+							nick
+						});
+					}
+				},
+				{ initText: this.pronouns }
+			);
+			pronounbox.watchForChange(_=>{
+				hypomember.pronouns = _;
+				newpronouns = _;
+				regen();
+			});
+			const bioBox = settingsLeft.addMDInput(I18n.getTranslation("bio"), _=>{}, {
+				initText: this.bio,
+			});
+			bioBox.watchForChange(_=>{
+				newbio = _;
+				hypomember.bio = _;
+				regen();
+			});
+			return;//Returns early to stop errors
+			if(this.accent_color){
+				color = "#" + this.accent_color.toString(16);
+			}else{
+				color = "transparent";
+			}
+			const colorPicker = settingsLeft.addColorInput(
+				I18n.getTranslation("profileColor"),
+				_=>{},
+				{ initColor: color }
+			);
+			colorPicker.watchForChange(_=>{
+				console.log();
+				color = _;
+				hypomember.accent_color = Number.parseInt("0x" + _.substr(1), 16);
+				changed = true;
+				regen();
+			});
+		}
 	}
 	update(memberjson: memberjson){
 		this.roles=[];
@@ -114,11 +363,16 @@ class Member extends SnowFlake{
 				owner.members.add(memb);
 				return memb;
 			}else if(memb instanceof Promise){
-				return await memb; //I should do something else, though for now this is "good enough"
+				const member=await memb; //I should do something else, though for now this is "good enough";
+				if(member){
+					member.update(memberjson);
+				}
+				return member;
 			}else{
 				if(memberjson.presence){
 					memb.getPresence(memberjson.presence);
 				}
+				memb.update(memberjson);
 				return memb;
 			}
 		}else{
