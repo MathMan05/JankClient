@@ -314,7 +314,9 @@ class Member extends SnowFlake{
 		}
 	}
 	update(memberjson: memberjson){
-		this.roles=[];
+		if(memberjson.roles){
+			this.roles=[];
+		}
 		for(const key of Object.keys(memberjson)){
 			if(key === "guild" || key === "owner" || key === "user"){
 				continue;
@@ -325,6 +327,12 @@ class Member extends SnowFlake{
 					const role = this.guild.roleids.get(strrole);
 					if(!role)continue;
 					this.roles.push(role);
+				}
+				if(!this.user.bot){
+					const everyone=this.guild.roleids.get(this.guild.id);
+					if(everyone&&(this.roles.indexOf(everyone)===-1)){
+						this.roles.push(everyone)
+					}
 				}
 				continue;
 			}
