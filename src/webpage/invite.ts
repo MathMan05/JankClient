@@ -42,7 +42,7 @@ import { getBulkUsers, Specialuser } from "./utils/utils.js";
 	}
 	await I18n.done;
 	if(!joinable.length){
-document.getElementById("AcceptInvite")!.textContent = I18n.getTranslation("noAccount");
+		document.getElementById("AcceptInvite")!.textContent = I18n.getTranslation("htmlPages.noAccount");
 	}
 
 	const code = window.location.pathname.split("/")[2];

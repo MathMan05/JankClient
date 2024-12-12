@@ -68,7 +68,7 @@ function toPath(url:string):string{
 		const path=Url.pathname;
 		if(path.startsWith("/channels")){
 			html="./index.html"
-		}else if(path.startsWith("/invite")){
+		}else if(path.startsWith("/invite/")){
 			html="./invite.html"
 		}
 	}
