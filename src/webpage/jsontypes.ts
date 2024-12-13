@@ -168,14 +168,24 @@ type emojijson = {
 	name: string;
 	id?: string;
 	animated?: boolean;
-	emoji?:string
+	emoji?:string;
 };
+type emojipjson=emojijson&{
+	available: boolean,
+	guild_id:string,
+	user_id:string,
+	managed:boolean,
+	require_colons:boolean,
+	roles:string[],
+	groups:null//TODO figure out what this means lol
+};
+
 
 type guildjson = {
 	application_command_counts: { [key: string]: number };
 	channels: channeljson[];
 	data_mode: string;
-	emojis: emojijson[];
+	emojis: emojipjson[];
 	guild_scheduled_events: [];
 	id: string;
 	large: boolean;
@@ -543,6 +553,14 @@ roleCreate | {
 		user:userjson
 	},
 	s:number
+}|{
+    op: 0,
+    t: "GUILD_EMOJIS_UPDATE",
+    d: {
+        guild_id: string,
+        emojis: emojipjson[]
+    },
+    s: number
 };
 
 
@@ -706,5 +724,6 @@ export{
 	voiceserverupdate,
 	webRTCSocket,
 	sdpback,
-	opRTC12
+	opRTC12,
+	emojipjson
 };

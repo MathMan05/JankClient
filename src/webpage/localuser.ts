@@ -5,7 +5,7 @@ import{ AVoice }from"./audio/voice.js";
 import{ User }from"./user.js";
 import{ getapiurls, SW }from"./utils/utils.js";
 import { getBulkInfo, setTheme, Specialuser } from "./utils/utils.js";
-import{channeljson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
+import{channeljson,emojipjson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
 import{ Member }from"./member.js";
 import{ Dialog, Form, FormError, Options, Settings }from"./settings.js";
 import{ getTextNodeAtPosition, MarkDown }from"./markdown.js";
@@ -587,6 +587,13 @@ class Localuser{
 					const member=user.members.get(guild);
 					if(!(member instanceof Member)) break;
 					member.remove();
+					break;
+				}
+				case "GUILD_EMOJIS_UPDATE":{
+					const guild=this.guildids.get(temp.d.guild_id);
+					if(!guild) break;
+					guild.emojis=temp.d.emojis;
+					guild.onEmojiUpdate(guild.emojis);
 					break;
 				}
 				default :{
