@@ -26,7 +26,7 @@
     "@rsbuild/plugin-node-polyfill": "^1.2.0",
     "@stylistic/eslint-plugin": "^2.3.0",
     "@stylistic/eslint-plugin-js": "^2.8.0",
-    "@swc/core": "^1.7.26",
+    "@swc/core": "^1.10.1",
     "@types/compression": "^1.7.5",
     "@types/eslint__js": "^8.42.3",
     "@types/express": "^4.17.21",
@@ -41,7 +41,6 @@
     "gulp-copy": "^5.0.0",
     "gulp-plumber": "^1.2.1",
     "gulp-typescript": "^6.0.0-alpha.1",
-    "swc": "^1.0.11",
     "typescript": "^5.6.2",
     "typescript-eslint": "^8.14.0"
   }
