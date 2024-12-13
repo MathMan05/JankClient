@@ -468,7 +468,7 @@ class Message extends SnowFlake{
 			div.appendChild(replyline);
 		}
 		div.appendChild(build);
-		const messageTypes=new Set([0,19])
+		const messageTypes=new Set([0,19]);
 		if(messageTypes.has(this.type) || this.attachments.length !== 0){
 			const pfpRow = document.createElement("div");
 			let pfpparent, current;
