@@ -137,3 +137,6 @@ uptime.json
 .dist/
 bun.lockb
 src/webpage/translations/langs.js
+
+package-lock.json
+pnpm-lock.yaml
