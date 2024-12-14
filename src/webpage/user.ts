@@ -204,8 +204,8 @@ class User extends SnowFlake{
 				member.showEditProfile();
 			},
 			null,
-			member=>{
-				return !!member;
+			function(member){
+				return member?.id===this.localuser.user.id;
 			}
 		);
 		this.contextmenu.addbutton(
