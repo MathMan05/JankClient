@@ -269,6 +269,16 @@ textarea {
 .svg-addfriend{
 	mask: url(/icons/addfriend.svg);
 }
+
+.svg-channelnsfw {
+	mask: url(/icons/channelnsfw.svg);
+}
+.svg-announcensfw {
+	mask: url(/icons/announcensfw.svg);
+}
+.svg-voicensfw{
+	mask: url(/icons/voicensfw.svg);
+}
 .svgicon {
 	display: block;
 	height: 100%;
