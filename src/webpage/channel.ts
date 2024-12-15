@@ -5,7 +5,7 @@ import{ Contextmenu }from"./contextmenu.js";
 import{ Guild }from"./guild.js";
 import{ Localuser }from"./localuser.js";
 import{ Permissions }from"./permissions.js";
-import{ Dialog, Settings }from"./settings.js";
+import{ Dialog, Float, Settings }from"./settings.js";
 import{ Role, RoleList }from"./role.js";
 import{ InfiniteScroller }from"./infiniteScroller.js";
 import{ SnowFlake }from"./snowflake.js";
@@ -534,17 +534,17 @@ class Channel extends SnowFlake{
 			if(this.type === 0){
 				const decoration = document.createElement("span");
 				button.appendChild(decoration);
-				decoration.classList.add("space", "svgicon", "svg-channel");
+				decoration.classList.add("space", "svgicon", this.nsfw?"svg-channelnsfw":"svg-channel");
 			}else if(this.type === 2){
 				//
 				const decoration = document.createElement("span");
 				button.appendChild(decoration);
-				decoration.classList.add("space", "svgicon", "svg-voice");
+				decoration.classList.add("space", "svgicon", this.nsfw?"svg-voicensfw":"svg-voice");
 			}else if(this.type === 5){
 				//
 				const decoration = document.createElement("span");
 				button.appendChild(decoration);
-				decoration.classList.add("space", "svgicon", "svg-announce");
+				decoration.classList.add("space", "svgicon", this.nsfw?"svg-announcensfw":"svg-announce");
 			}else{
 				console.log(this.type);
 			}
@@ -787,25 +787,50 @@ class Channel extends SnowFlake{
 		}
 	}
 	static genid: number = 0;
+	nsfwPannel(){
+		(document.getElementById("typebox") as HTMLDivElement).contentEditable =""+false;
+		(document.getElementById("upload") as HTMLElement).style.visibility="hidden";
+		(document.getElementById("typediv") as HTMLElement).style.visibility="hidden";
+		const messages = document.getElementById("channelw") as HTMLDivElement;
+		const messageContainers = Array.from(
+			messages.getElementsByClassName("messagecontainer")
+		);
+		for(const thing of messageContainers){
+			thing.remove();
+		}
+		const elements = Array.from(messages.getElementsByClassName("scroller"));
+		for(const elm of elements){
+			elm.remove();
+			console.warn("rouge element detected and removed");
+		}
+		const div=document.getElementById("sideDiv") as HTMLDivElement;
+		div.innerHTML="";
+		const float=new Float("");
+		const options=float.options;
+		//@ts-ignore weird hack, ik, but the user here does have that information
+		//TODO make an extention of the user class with these aditional properties
+		//TODO make a popup for `nsfw_allowed==null` to input age
+		if(this.localuser.user.nsfw_allowed){
+			options.addTitle("This is a NSFW channel, do you wish to proceed?");
+			const buttons=options.addOptions("",{ltr:true});
+			buttons.addButtonInput("","Yes",()=>{
+				this.perminfo.nsfwOk=true;
+				this.localuser.userinfo.updateLocal();
+				this.getHTML();
+			});
+			buttons.addButtonInput("","No",()=>{
+				window.history.back();
+			})
+		}else{
+			options.addTitle("You are not allowed in this channel.");
+		}
+		const html=float.generateHTML();
+		html.classList.add("messagecontainer")
+		messages.append(html);
+
+	}
 	async getHTML(addstate=true){
-		const id = ++Channel.genid;
-		if(this.localuser.channelfocus){
-			this.localuser.channelfocus.infinite.delete();
-		}
-		if(this.guild !== this.localuser.lookingguild){
-			this.guild.loadGuild();
-		}
-		if(this.localuser.channelfocus && this.localuser.channelfocus.myhtml){
-			this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
-		}
-		if(this.myhtml){
-			this.myhtml.classList.add("viewChannel");
-		}
-		this.guild.prevchannel = this;
-		this.guild.perminfo.prevchannel = this.id;
-		this.localuser.userinfo.updateLocal();
-		this.localuser.channelfocus = this;
-		const prom = this.infinite.delete();
+
 		if(addstate){
 			history.pushState([this.guild_id,this.id], "", "/channels/" + this.guild_id + "/" + this.id);
 		}
@@ -819,6 +844,30 @@ class Channel extends SnowFlake{
 			).makeHTML());
 			channelTopic.removeAttribute("hidden");
 		}else channelTopic.setAttribute("hidden", "");
+		if(this.guild !== this.localuser.lookingguild){
+			this.guild.loadGuild();
+		}
+		if(this.localuser.channelfocus && this.localuser.channelfocus.myhtml){
+			this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
+		}
+		if(this.myhtml){
+			this.myhtml.classList.add("viewChannel");
+		}
+		const id = ++Channel.genid;
+		if(this.localuser.channelfocus){
+			this.localuser.channelfocus.infinite.delete();
+		}
+		this.guild.prevchannel = this;
+		this.guild.perminfo.prevchannel = this.id;
+		this.localuser.userinfo.updateLocal();
+		this.localuser.channelfocus = this;
+		//@ts-ignore another hack
+		if(this.nsfw&&(!this.perminfo.nsfwOk||!this.localuser.user.nsfw_allowed)){
+			this.nsfwPannel();
+			return;
+		}
+
+		const prom = this.infinite.delete();
 
 		const loading = document.getElementById("loadingdiv") as HTMLDivElement;
 		Channel.regenLoadingMessages();
