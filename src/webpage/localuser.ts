@@ -1473,7 +1473,7 @@ class Localuser{
 							localStorage.setItem("Voice enabled","true")
 
 						}else{
-							box.value=true;
+							box.value=false;
 							const checkbox=box.input.deref();
 							if(checkbox){
 								checkbox.checked=false;
@@ -1481,6 +1481,23 @@ class Localuser{
 						}
 					}else{
 						localStorage.removeItem("Voice enabled");
+					}
+				}
+				const box2=security.addCheckboxInput("Enable logging of bad stuff",()=>{},{initState:Boolean(localStorage.getItem("logbad"))});
+				box2.onchange=(e)=>{
+					if(e){
+						if(confirm("this is meant for spacebar devs")){
+							localStorage.setItem("logbad","true")
+
+						}else{
+							box2.value=false;
+							const checkbox=box2.input.deref();
+							if(checkbox){
+								checkbox.checked=false;
+							}
+						}
+					}else{
+						localStorage.removeItem("logbad");
 					}
 				}
 			}

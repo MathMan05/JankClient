@@ -359,6 +359,9 @@ class Member extends SnowFlake{
 	): Promise<Member | undefined>{
 		let user: User;
 		if(owner.localuser.userMap.has(memberjson.id)){
+			if(memberjson.user){
+				new User(memberjson.user, owner.localuser);
+			}
 			user = owner.localuser.userMap.get(memberjson.id) as User;
 		}else if(memberjson.user){
 			user = new User(memberjson.user, owner.localuser);
