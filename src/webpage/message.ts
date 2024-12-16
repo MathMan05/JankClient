@@ -8,7 +8,7 @@ import{ Localuser }from"./localuser.js";
 import{ Role }from"./role.js";
 import{ File }from"./file.js";
 import{ SnowFlake }from"./snowflake.js";
-import{ memberjson, messagejson }from"./jsontypes.js";
+import{ memberjson, messagejson, userjson }from"./jsontypes.js";
 import{ Emoji }from"./emoji.js";
 import{ mobile }from"./utils/utils.js";
 import { I18n } from "./i18n.js";
@@ -725,17 +725,42 @@ class Message extends SnowFlake{
 			}
 			let emoji: HTMLElement;
 			if(thing.emoji.id || /\d{17,21}/.test(thing.emoji.name)){
-				if(/\d{17,21}/.test(thing.emoji.name))
+				if(/\d{17,21}/.test(thing.emoji.name)){
 					thing.emoji.id = thing.emoji.name; //Should stop being a thing once the server fixes this bug
-				const emo = new Emoji(
-				thing.emoji as { name: string; id: string; animated: boolean },
-				this.guild
-				);
+				}
+				const emo = new Emoji(thing.emoji as { name: string; id: string; animated: boolean },this.guild);
 				emoji = emo.getHTML(false);
 			}else{
 				emoji = document.createElement("p");
 				emoji.textContent = thing.emoji.name;
 			}
+			const h=new Hover(async ()=>{
+				//TODO this can't be real, name conflicts must happen, but for now it's fine
+				const f=await fetch(`${this.info.api}/channels/${this.channel.id}/messages/${this.id}/reactions/${thing.emoji.name}?limit=3&type=0`,{headers:this.headers});
+				const json=await f.json() as userjson[];
+				let build="";
+				let users=json.map(_=>new User(_,this.localuser));
+				//FIXME this is a spacebar bug, I can't fix this the api ignores limit and just sends everything.
+				users=users.splice(0,3);
+				let first=true;
+				for(const user of users){
+					if(!first){
+						build+=", ";
+					}
+					build+=user.name;
+					first=false;
+				}
+				if(thing.count>3){
+					build+=", and more!"
+				}else{
+
+				}
+				build+="\nReacted with "+thing.emoji.name;
+				console.log(build);
+				return build;
+
+			});
+			h.addEvent(reaction);
 			const count = document.createElement("p");
 			count.textContent = "" + thing.count;
 			count.classList.add("reactionCount");

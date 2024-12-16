@@ -38,6 +38,9 @@ class User extends SnowFlake{
 	constructor(userjson: userjson, owner: Localuser, dontclone = false){
 		super(userjson.id);
 		this.owner = owner;
+		if(localStorage.getItem("logbad")&&owner.user&&owner.user.id!==userjson.id){
+			this.checkfortmi(userjson)
+		}
 		if(!owner){
 			console.error("missing localuser");
 		}
@@ -57,7 +60,22 @@ class User extends SnowFlake{
 			return User.checkuser(userjson, owner);
 		}
 	}
-
+	/**
+	 * function is meant to check if userjson contains too much information IE non-public stuff
+	 *
+	 *
+	 */
+	checkfortmi(json:any){
+		if(json.data){
+			console.error("Server sent *way* too much info, this is really bad, it sent data")
+		}
+		const bad=new Set(["fingerprints", "extended_settings", "mfa_enabled", "nsfw_allowed", "premium_usage_flags", "totp_last_ticket", "totp_secret", "webauthn_enabled"]);
+		for(const thing of bad){
+			if(json.hasOwnProperty(thing)){
+				console.error(thing+" should not be exposed to the client");
+			}
+		}
+	}
 	tojson():userjson{
 		return {
 				username: this.username,
