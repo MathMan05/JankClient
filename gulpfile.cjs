@@ -60,7 +60,7 @@ gulp.task("clean", (cb) => {
         .pipe(gulp.dest("dist"));
     } else if(argv.bunswc){
         return await new Promise(ret=>{
-            exec("bun swc --strip-leading-paths ./src -s -d ./dist/").on('exit', function (code) {
+            exec("bun swc --strip-leading-paths ./src -s -d ./dist/ -C jsc.target=es2022").on('exit', function (code) {
                 ret();
             });
         })
