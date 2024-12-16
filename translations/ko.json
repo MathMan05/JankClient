@@ -187,7 +187,8 @@
 		"reactionAdd": "반응 추가",
 		"delete": "메시지 삭제",
 		"edit": "메시지 편집",
-		"edited": "(편집됨)"
+		"edited": "(편집됨)",
+		"deleted": "삭제된 메시지"
 	},
 	"instanceStats": {
 		"name": "인스턴스 통계: $1",
@@ -221,6 +222,7 @@
 		"blocked": "차단됨",
 		"blockedusers": "차단된 사용자:",
 		"addfriend": "친구 추가",
+		"removeFriend": "친구 제거",
 		"addfriendpromt": "사용자 이름으로 친구 추가:",
 		"notfound": "사용자를 찾을 수 없습니다",
 		"pending": "보류 중",
@@ -247,14 +249,16 @@
 		"unblock": "사용자 차단 해제",
 		"friendReq": "친구 요청",
 		"addRole": "역할 추가",
-		"removeRole": "역할 제거"
+		"removeRole": "역할 제거",
+		"editServerProfile": "서버 프로필 편집"
 	},
 	"login": {
 		"checking": "인스턴스 확인 중",
 		"invalid": "유효하지 않은 인스턴스입니다. 다시 시도하세요"
 	},
 	"member": {
-		"reason:": "이유:"
+		"reason:": "이유:",
+		"nick:": "별명:"
 	},
 	"uploadFilesText": "여기에 파일을 올리세요!",
 	"retrying": "다시 시도하는 중..."
