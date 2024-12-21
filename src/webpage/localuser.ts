@@ -28,11 +28,15 @@ import {I18n, langmap} from "./i18n.js";
 import {Emoji} from "./emoji.js";
 import {Play} from "./audio/play.js";
 import {Message} from "./message.js";
+import {badgeArr} from "./Dbadges.js";
 
 const wsCodesRetry = new Set([4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009]);
 
 class Localuser {
-	badges: Map<string, {id: string; description: string; icon: string; link: string}> = new Map();
+	badges: Map<
+		string,
+		{id: string; description: string; icon: string; link?: string; translate?: boolean}
+	> = new Map(badgeArr);
 	lastSequence: number | null = null;
 	token!: string;
 	userinfo!: Specialuser;

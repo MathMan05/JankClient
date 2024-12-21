@@ -9,6 +9,7 @@ import {Role} from "./role.js";
 import {Search} from "./search.js";
 import {I18n} from "./i18n.js";
 import {Direct} from "./direct.js";
+import {Hover} from "./hover.js";
 
 class User extends SnowFlake {
 	owner: Localuser;
@@ -356,7 +357,7 @@ class User extends SnowFlake {
 		).then((res) => res.json());
 	}
 
-	async getBadge(id: string): Promise<any> {
+	async getBadge(id: string) {
 		if (this.localuser.badges.has(id)) {
 			return this.localuser.badges.get(id);
 		} else {
@@ -508,7 +509,65 @@ class User extends SnowFlake {
 			return `${this.info.cdn}/embed/avatars/${int}.png`;
 		}
 	}
+	async getBadges() {
+		let i = 0;
+		let flagbits = this.public_flags;
+		const ids = [
+			"staff",
+			"partner",
+			"certified_moderator",
+			"hypesquad",
+			"hypesquad_house_1",
+			"hypesquad_house_2",
+			"hypesquad_house_3",
+			"bug_hunter_level_1",
+			"bug_hunter_level_2",
+			"active_developer",
+			"verified_developer",
+			"early_supporter",
+			"premium",
+			"guild_booster_lvl1",
+			"guild_booster_lvl2",
+			"guild_booster_lvl3",
+			"guild_booster_lvl4",
+			"guild_booster_lvl5",
+			"guild_booster_lvl6",
+			"guild_booster_lvl7",
+			"guild_booster_lvl8",
+			"guild_booster_lvl9",
+			"bot_commands",
+			"automod",
+			"application_guild_subscription",
+			"legacy_username",
+			"quest_completed",
+		];
+		let badgeids: string[] = [];
+		while (flagbits !== 0) {
+			if (flagbits & 1) {
+				badgeids.push(ids[i]);
+			}
+			flagbits >>= 1;
+			i++;
+		}
+		if (this.badge_ids) {
+			badgeids = badgeids.concat(this.badge_ids);
+		}
 
+		let badges: {
+			id: string;
+			description: string;
+			icon: string;
+			link?: string;
+			translate?: boolean;
+		}[] = [];
+
+		const b = (await Promise.all(badgeids.map((_) => this.getBadge(_)))).filter(
+			(_) => _ !== undefined,
+		);
+		badges = b;
+
+		return badges;
+	}
 	async buildprofile(
 		x: number,
 		y: number,
@@ -560,23 +619,29 @@ class User extends SnowFlake {
 		const badgediv = document.createElement("div");
 		badgediv.classList.add("badges");
 		(async () => {
-			if (!this.badge_ids) return;
-			for (const id of this.badge_ids) {
-				const badgejson = await this.getBadge(id);
-				if (badgejson) {
-					const badge = document.createElement(badgejson.link ? "a" : "div");
-					badge.classList.add("badge");
-					const img = document.createElement("img");
+			const badges = await this.getBadges();
+			for (const badgejson of badges) {
+				const badge = document.createElement(badgejson.link ? "a" : "div");
+				badge.classList.add("badge");
+				const img = document.createElement("img");
+				if (URL.canParse(badgejson.icon)) {
 					img.src = badgejson.icon;
-					badge.append(img);
-					const span = document.createElement("span");
-					span.textContent = badgejson.description;
-					badge.append(span);
-					if (badge instanceof HTMLAnchorElement) {
-						badge.href = badgejson.link;
-					}
-					badgediv.append(badge);
+				} else {
+					img.src = this.info.cdn + "/badge-icons/" + badgejson.icon + ".png";
 				}
+				badge.append(img);
+				let hovertxt: string;
+				if (badgejson.translate) {
+					hovertxt = I18n.getTranslation("badge." + badgejson.description);
+				} else {
+					hovertxt = badgejson.description;
+				}
+				const hover = new Hover(hovertxt);
+				hover.addEvent(badge);
+				if (badgejson.link && badge instanceof HTMLAnchorElement) {
+					badge.href = badgejson.link;
+				}
+				badgediv.append(badge);
 			}
 		})();
 		const pfp = await this.buildstatuspfp(guild);

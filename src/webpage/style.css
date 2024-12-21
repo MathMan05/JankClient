@@ -1582,6 +1582,17 @@ img.bigembedimg {
 	width: 100%;
 	object-fit: cover;
 }
+.badge{
+	display:inline-flex;
+	padding:2px;
+	border:solid 2px var(--black);
+	border-radius:8px;
+	img{
+		object-fit: contain;
+		width:18px;
+		height:18px;
+	}
+}
 .infosection {
 	flex: 1;
 	width: calc(100% - 16px);
@@ -1600,13 +1611,14 @@ img.bigembedimg {
 .infosection h2,
 .infosection h3 {
 	word-break: break-word;
+	font-size: 20px;
 }
 .infosection hr {
 	width: 100%;
 }
 .tag {
 	margin: 4px 0;
-	font-size: 0.9em;
+	font-size: 0.9em !important;!i;!;
 	color: var(--secondary-text);
 }
 .pronouns {
