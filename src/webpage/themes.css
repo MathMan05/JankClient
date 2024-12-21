@@ -73,7 +73,7 @@
 
 	--secondary-bg: #9397bd;
 	--secondary-hover: #9ea5cc;
-	
+
 	--servers-bg: #7a7aaa;
 	--channels-bg: #babdd2;
 	--channel-selected: #9c9fbf;
@@ -93,7 +93,7 @@
 
 .Dark-Accent-theme {
 	color-scheme: dark;
-	
+
 	--primary-bg: color-mix(in srgb, #3f3f3f 65%, var(--accent-color));
 	--primary-hover: color-mix(in srgb, #373737 68%, var(--accent-color));
 	--primary-text: #ebebeb;
@@ -112,7 +112,7 @@
 
 	--spoiler: color-mix(in srgb, #101010 72%, var(--accent-color));
 	--link: color-mix(in srgb, #99ccff 75%, var(--accent-color));
-	
+
 	--black: color-mix(in srgb, #000000 90%, var(--accent-color));
 	--icon: color-mix(in srgb, #ffffff, var(--accent-color));
 	--dock-bg: color-mix(in srgb, #171717 68%, var(--accent-color));

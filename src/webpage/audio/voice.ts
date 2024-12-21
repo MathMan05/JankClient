@@ -1,23 +1,23 @@
-import { BinRead } from "../utils/binaryUtils.js";
+import {BinRead} from "../utils/binaryUtils.js";
 
-class AVoice{
+class AVoice {
 	audioCtx: AudioContext;
-	info: { wave: string | Function; freq: number };
+	info: {wave: string | Function; freq: number};
 	playing: boolean;
 	myArrayBuffer: AudioBuffer;
 	gainNode: GainNode;
 	buffer: Float32Array;
 	source: AudioBufferSourceNode;
-	length=1;
-	constructor(wave: string | Function, freq: number, volume = 1,length=1000){
-		this.length=length;
+	length = 1;
+	constructor(wave: string | Function, freq: number, volume = 1, length = 1000) {
+		this.length = length;
 		this.audioCtx = new window.AudioContext();
-		this.info = { wave, freq };
+		this.info = {wave, freq};
 		this.playing = false;
 		this.myArrayBuffer = this.audioCtx.createBuffer(
 			1,
-			this.audioCtx.sampleRate*length/1000,
-			this.audioCtx.sampleRate
+			(this.audioCtx.sampleRate * length) / 1000,
+			this.audioCtx.sampleRate,
 		);
 		this.gainNode = this.audioCtx.createGain();
 		this.gainNode.gain.value = volume;
@@ -29,193 +29,193 @@ class AVoice{
 		this.source.start();
 		this.updateWave();
 	}
-	clone(volume:number,freq:number,length=this.length){
-		return new AVoice(this.wave,freq,volume,length);
+	clone(volume: number, freq: number, length = this.length) {
+		return new AVoice(this.wave, freq, volume, length);
 	}
-	get wave(): string | Function{
+	get wave(): string | Function {
 		return this.info.wave;
 	}
-	get freq(): number{
+	get freq(): number {
 		return this.info.freq;
 	}
-	set wave(wave: string | Function){
+	set wave(wave: string | Function) {
 		this.info.wave = wave;
 		this.updateWave();
 	}
-	set freq(freq: number){
+	set freq(freq: number) {
 		this.info.freq = freq;
 		this.updateWave();
 	}
-	updateWave(): void{
+	updateWave(): void {
 		const func = this.waveFunction();
-		for(let i = 0; i < this.buffer.length; i++){
+		for (let i = 0; i < this.buffer.length; i++) {
 			this.buffer[i] = func(i / this.audioCtx.sampleRate, this.freq);
 		}
 	}
-	waveFunction(): Function{
-		if(typeof this.wave === "function"){
+	waveFunction(): Function {
+		if (typeof this.wave === "function") {
 			return this.wave;
 		}
-		switch(this.wave){
-		case"sin":
-			return(t: number, freq: number)=>{
-				return Math.sin(t * Math.PI * 2 * freq);
-			};
-		case"triangle":
-			return(t: number, freq: number)=>{
-				return Math.abs(((4 * t * freq) % 4) - 2) - 1;
-			};
-		case"sawtooth":
-			return(t: number, freq: number)=>{
-				return((t * freq) % 1) * 2 - 1;
-			};
-		case"square":
-			return(t: number, freq: number)=>{
-				return(t * freq) % 2 < 1 ? 1 : -1;
-			};
-		case"white":
-			return(_t: number, _freq: number)=>{
-				return Math.random() * 2 - 1;
-			};
+		switch (this.wave) {
+			case "sin":
+				return (t: number, freq: number) => {
+					return Math.sin(t * Math.PI * 2 * freq);
+				};
+			case "triangle":
+				return (t: number, freq: number) => {
+					return Math.abs(((4 * t * freq) % 4) - 2) - 1;
+				};
+			case "sawtooth":
+				return (t: number, freq: number) => {
+					return ((t * freq) % 1) * 2 - 1;
+				};
+			case "square":
+				return (t: number, freq: number) => {
+					return (t * freq) % 2 < 1 ? 1 : -1;
+				};
+			case "white":
+				return (_t: number, _freq: number) => {
+					return Math.random() * 2 - 1;
+				};
 		}
 		return new Function();
 	}
-	play(): void{
-		if(this.playing){
+	play(): void {
+		if (this.playing) {
 			return;
 		}
 		this.source.connect(this.gainNode);
 		this.playing = true;
 	}
-	playL(){
+	playL() {
 		this.play();
-		setTimeout(()=>{
+		setTimeout(() => {
 			this.stop();
-		},this.length);
+		}, this.length);
 	}
-	stop(): void{
-		if(this.playing){
+	stop(): void {
+		if (this.playing) {
 			this.source.disconnect();
 			this.playing = false;
 		}
 	}
-	static noises(noise: string): void{
-		switch(noise){
-		case"three": {
-			const voicy = new AVoice("sin", 800);
-			voicy.play();
-			setTimeout(_=>{
-				voicy.freq = 1000;
-			}, 50);
-			setTimeout(_=>{
-				voicy.freq = 1300;
-			}, 100);
-			setTimeout(_=>{
-				voicy.stop();
-			}, 150);
-			break;
-		}
-		case"zip": {
-			const voicy = new AVoice((t: number, freq: number)=>{
-				return Math.sin((t + 2) ** Math.cos(t * 4) * Math.PI * 2 * freq);
-			}, 700);
-			voicy.play();
-			setTimeout(_=>{
-				voicy.stop();
-			}, 150);
-			break;
-		}
-		case"square": {
-			const voicy = new AVoice("square", 600, 0.4);
-			voicy.play();
-			setTimeout(_=>{
-				voicy.freq = 800;
-			}, 50);
-			setTimeout(_=>{
-				voicy.freq = 1000;
-			}, 100);
-			setTimeout(_=>{
-				voicy.stop();
-			}, 150);
-			break;
-		}
-		case"beep": {
-			const voicy = new AVoice("sin", 800);
-			voicy.play();
-			setTimeout(_=>{
-				voicy.stop();
-			}, 50);
-			setTimeout(_=>{
+	static noises(noise: string): void {
+		switch (noise) {
+			case "three": {
+				const voicy = new AVoice("sin", 800);
 				voicy.play();
-			}, 100);
-			setTimeout(_=>{
-				voicy.stop();
-			}, 150);
-			break;
-		}
-		case "join":{
-			const voicy = new AVoice("triangle", 600,.1);
-			voicy.play();
-			setTimeout(_=>{
-				voicy.freq=800;
-			}, 75);
-			setTimeout(_=>{
-				voicy.freq=1000;
-			}, 150);
-			setTimeout(_=>{
-				voicy.stop();
-			}, 200);
-			break;
-		}
-		case "leave":{
-			const voicy = new AVoice("triangle", 850,.5);
-			voicy.play();
-			setTimeout(_=>{
-				voicy.freq=700;
-			}, 100);
-			setTimeout(_=>{
-				voicy.stop();
-				voicy.freq=400;
-			}, 180);
-			setTimeout(_=>{
+				setTimeout((_) => {
+					voicy.freq = 1000;
+				}, 50);
+				setTimeout((_) => {
+					voicy.freq = 1300;
+				}, 100);
+				setTimeout((_) => {
+					voicy.stop();
+				}, 150);
+				break;
+			}
+			case "zip": {
+				const voicy = new AVoice((t: number, freq: number) => {
+					return Math.sin((t + 2) ** Math.cos(t * 4) * Math.PI * 2 * freq);
+				}, 700);
 				voicy.play();
-			}, 200);
-			setTimeout(_=>{
-				voicy.stop();
-			}, 250);
-			break;
-		}
+				setTimeout((_) => {
+					voicy.stop();
+				}, 150);
+				break;
+			}
+			case "square": {
+				const voicy = new AVoice("square", 600, 0.4);
+				voicy.play();
+				setTimeout((_) => {
+					voicy.freq = 800;
+				}, 50);
+				setTimeout((_) => {
+					voicy.freq = 1000;
+				}, 100);
+				setTimeout((_) => {
+					voicy.stop();
+				}, 150);
+				break;
+			}
+			case "beep": {
+				const voicy = new AVoice("sin", 800);
+				voicy.play();
+				setTimeout((_) => {
+					voicy.stop();
+				}, 50);
+				setTimeout((_) => {
+					voicy.play();
+				}, 100);
+				setTimeout((_) => {
+					voicy.stop();
+				}, 150);
+				break;
+			}
+			case "join": {
+				const voicy = new AVoice("triangle", 600, 0.1);
+				voicy.play();
+				setTimeout((_) => {
+					voicy.freq = 800;
+				}, 75);
+				setTimeout((_) => {
+					voicy.freq = 1000;
+				}, 150);
+				setTimeout((_) => {
+					voicy.stop();
+				}, 200);
+				break;
+			}
+			case "leave": {
+				const voicy = new AVoice("triangle", 850, 0.5);
+				voicy.play();
+				setTimeout((_) => {
+					voicy.freq = 700;
+				}, 100);
+				setTimeout((_) => {
+					voicy.stop();
+					voicy.freq = 400;
+				}, 180);
+				setTimeout((_) => {
+					voicy.play();
+				}, 200);
+				setTimeout((_) => {
+					voicy.stop();
+				}, 250);
+				break;
+			}
 		}
 	}
-	static get sounds(){
-		return["three", "zip", "square", "beep"];
+	static get sounds() {
+		return ["three", "zip", "square", "beep"];
 	}
-	static getVoice(read:BinRead):[AVoice,string]{
+	static getVoice(read: BinRead): [AVoice, string] {
 		const name = read.readString8();
-		let length=read.readFloat32();
-		let special:Function|string
-		if(length!==0){
-			special=this.parseExpression(read);
-		}else{
-			special=name;
-			length=1;
+		let length = read.readFloat32();
+		let special: Function | string;
+		if (length !== 0) {
+			special = this.parseExpression(read);
+		} else {
+			special = name;
+			length = 1;
 		}
-		return [new AVoice(special,0,0,length),name]
+		return [new AVoice(special, 0, 0, length), name];
 	}
-	static parseExpression(read:BinRead):Function{
-		return new Function("t","f",`return ${this.PEHelper(read)};`);
+	static parseExpression(read: BinRead): Function {
+		return new Function("t", "f", `return ${this.PEHelper(read)};`);
 	}
-	static PEHelper(read:BinRead):string{
-		let state=read.read8();
-		switch(state){
+	static PEHelper(read: BinRead): string {
+		let state = read.read8();
+		switch (state) {
 			case 0:
-				return ""+read.readFloat32();
+				return "" + read.readFloat32();
 			case 1:
 				return "t";
 			case 2:
 				return "f";
 			case 3:
-				return `Math.PI`
+				return `Math.PI`;
 			case 4:
 				return `Math.sin(${this.PEHelper(read)})`;
 			case 5:
@@ -238,9 +238,8 @@ class AVoice{
 				return `Math.cos(${this.PEHelper(read)})`;
 			default:
 				throw new Error("unexpected case found!");
-
 		}
 	}
 }
 
-export{ AVoice as AVoice };
+export {AVoice as AVoice};

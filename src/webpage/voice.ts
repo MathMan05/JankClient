@@ -1,137 +1,138 @@
-import { memberjson, sdpback, voiceserverupdate, voiceupdate, webRTCSocket } from "./jsontypes.js";
+import {memberjson, sdpback, voiceserverupdate, voiceupdate, webRTCSocket} from "./jsontypes.js";
 
-class VoiceFactory{
-	settings:{id:string};
-	constructor(usersettings:VoiceFactory["settings"]){
-		this.settings=usersettings;
+class VoiceFactory {
+	settings: {id: string};
+	constructor(usersettings: VoiceFactory["settings"]) {
+		this.settings = usersettings;
 	}
-	voices=new Map<string,Map<string,Voice>>();
-	voiceChannels=new Map<string,Voice>();
-	currentVoice?:Voice;
-	guildUrlMap=new Map<string,{url?:string,geturl:Promise<void>,gotUrl:()=>void}>();
-	makeVoice(guildid:string,channelId:string,settings:Voice["settings"]){
-		let guild=this.voices.get(guildid);
-		if(!guild){
+	voices = new Map<string, Map<string, Voice>>();
+	voiceChannels = new Map<string, Voice>();
+	currentVoice?: Voice;
+	guildUrlMap = new Map<string, {url?: string; geturl: Promise<void>; gotUrl: () => void}>();
+	makeVoice(guildid: string, channelId: string, settings: Voice["settings"]) {
+		let guild = this.voices.get(guildid);
+		if (!guild) {
 			this.setUpGuild(guildid);
-			guild=new Map();
-			this.voices.set(guildid,guild);
+			guild = new Map();
+			this.voices.set(guildid, guild);
 		}
-		const urlobj=this.guildUrlMap.get(guildid);
-		if(!urlobj) throw new Error("url Object doesn't exist (InternalError)");
-		const voice=new Voice(this.settings.id,settings,urlobj);
-		this.voiceChannels.set(channelId,voice);
-		guild.set(channelId,voice);
+		const urlobj = this.guildUrlMap.get(guildid);
+		if (!urlobj) throw new Error("url Object doesn't exist (InternalError)");
+		const voice = new Voice(this.settings.id, settings, urlobj);
+		this.voiceChannels.set(channelId, voice);
+		guild.set(channelId, voice);
 		return voice;
 	}
-	onJoin=(_voice:Voice)=>{};
-	onLeave=(_voice:Voice)=>{};
-	joinVoice(channelId:string,guildId:string){
-		if(this.currentVoice){
+	onJoin = (_voice: Voice) => {};
+	onLeave = (_voice: Voice) => {};
+	joinVoice(channelId: string, guildId: string) {
+		if (this.currentVoice) {
 			this.currentVoice.leave();
 		}
-		const voice=this.voiceChannels.get(channelId);
-		if(!voice) throw new Error(`Voice ${channelId} does not exist`);
+		const voice = this.voiceChannels.get(channelId);
+		if (!voice) throw new Error(`Voice ${channelId} does not exist`);
 		voice.join();
-		this.currentVoice=voice;
+		this.currentVoice = voice;
 		this.onJoin(voice);
 		return {
-			d:{
+			d: {
 				guild_id: guildId,
 				channel_id: channelId,
-				self_mute: true,//todo
-				self_deaf: false,//todo
-				self_video: false,//What is this? I have some guesses
-				flags: 2//?????
+				self_mute: true, //todo
+				self_deaf: false, //todo
+				self_video: false, //What is this? I have some guesses
+				flags: 2, //?????
 			},
-			op:4
-		}
+			op: 4,
+		};
 	}
-	userMap=new Map<string,Voice>();
-	voiceStateUpdate(update:voiceupdate){
-
-		const prev=this.userMap.get(update.d.user_id);
-		console.log(prev,this.userMap);
-		if(prev){
+	userMap = new Map<string, Voice>();
+	voiceStateUpdate(update: voiceupdate) {
+		const prev = this.userMap.get(update.d.user_id);
+		console.log(prev, this.userMap);
+		if (prev) {
 			prev.disconnect(update.d.user_id);
 			this.onLeave(prev);
 		}
-		const voice=this.voiceChannels.get(update.d.channel_id);
-		if(voice){
-			this.userMap.set(update.d.user_id,voice);
+		const voice = this.voiceChannels.get(update.d.channel_id);
+		if (voice) {
+			this.userMap.set(update.d.user_id, voice);
 			voice.voiceupdate(update);
 		}
 	}
-	private setUpGuild(id:string){
-		const obj:{url?:string,geturl?:Promise<void>,gotUrl?:()=>void}={};
-		obj.geturl=new Promise<void>(res=>{obj.gotUrl=res});
-		this.guildUrlMap.set(id,obj as {geturl:Promise<void>,gotUrl:()=>void});
+	private setUpGuild(id: string) {
+		const obj: {url?: string; geturl?: Promise<void>; gotUrl?: () => void} = {};
+		obj.geturl = new Promise<void>((res) => {
+			obj.gotUrl = res;
+		});
+		this.guildUrlMap.set(id, obj as {geturl: Promise<void>; gotUrl: () => void});
 	}
-	voiceServerUpdate(update:voiceserverupdate){
-		const obj=this.guildUrlMap.get(update.d.guild_id);
-		if(!obj) return;
-		obj.url=update.d.endpoint;
+	voiceServerUpdate(update: voiceserverupdate) {
+		const obj = this.guildUrlMap.get(update.d.guild_id);
+		if (!obj) return;
+		obj.url = update.d.endpoint;
 		obj.gotUrl();
 	}
 }
 
-class Voice{
-	private pstatus:string="not connected";
-	public onSatusChange:(e:string)=>unknown=()=>{};
-	set status(e:string){
-		this.pstatus=e;
+class Voice {
+	private pstatus: string = "not connected";
+	public onSatusChange: (e: string) => unknown = () => {};
+	set status(e: string) {
+		this.pstatus = e;
 		this.onSatusChange(e);
 	}
-	get status(){
+	get status() {
 		return this.pstatus;
 	}
-	readonly userid:string;
-	settings:{bitrate:number};
-	urlobj:{url?:string,geturl:Promise<void>,gotUrl:()=>void};
-	constructor(userid:string,settings:Voice["settings"],urlobj:Voice["urlobj"]){
-		this.userid=userid;
-		this.settings=settings;
-		this.urlobj=urlobj;
+	readonly userid: string;
+	settings: {bitrate: number};
+	urlobj: {url?: string; geturl: Promise<void>; gotUrl: () => void};
+	constructor(userid: string, settings: Voice["settings"], urlobj: Voice["urlobj"]) {
+		this.userid = userid;
+		this.settings = settings;
+		this.urlobj = urlobj;
 	}
-	pc?:RTCPeerConnection;
-	ws?:WebSocket;
-	timeout:number=30000;
-	interval:NodeJS.Timeout=0 as unknown as NodeJS.Timeout;
-	time:number=0;
-	seq:number=0;
-	sendAlive(){
-		if(this.ws){
-			this.ws.send(JSON.stringify({ op: 3,d:10}));
+	pc?: RTCPeerConnection;
+	ws?: WebSocket;
+	timeout: number = 30000;
+	interval: NodeJS.Timeout = 0 as unknown as NodeJS.Timeout;
+	time: number = 0;
+	seq: number = 0;
+	sendAlive() {
+		if (this.ws) {
+			this.ws.send(JSON.stringify({op: 3, d: 10}));
 		}
 	}
-	readonly users= new Map<number,string>();
-	readonly speakingMap= new Map<string,number>();
-	onSpeakingChange=(_userid:string,_speaking:number)=>{};
-	disconnect(userid:string){
+	readonly users = new Map<number, string>();
+	readonly speakingMap = new Map<string, number>();
+	onSpeakingChange = (_userid: string, _speaking: number) => {};
+	disconnect(userid: string) {
 		console.warn(userid);
-		if(userid===this.userid){
+		if (userid === this.userid) {
 			this.leave();
 		}
-		const ssrc=this.speakingMap.get(userid);
+		const ssrc = this.speakingMap.get(userid);
 
-		if(ssrc){
+		if (ssrc) {
 			this.users.delete(ssrc);
-			for(const thing of this.ssrcMap){
-				if(thing[1]===ssrc){
+			for (const thing of this.ssrcMap) {
+				if (thing[1] === ssrc) {
 					this.ssrcMap.delete(thing[0]);
 				}
 			}
 		}
 		this.speakingMap.delete(userid);
 		this.userids.delete(userid);
-		console.log(this.userids,userid);
+		console.log(this.userids, userid);
 		//there's more for sure, but this is "good enough" for now
-		this.onMemberChange(userid,false);
+		this.onMemberChange(userid, false);
 	}
-	packet(message:MessageEvent){
-		const data=message.data
-		if(typeof data === "string"){
-			const json:webRTCSocket = JSON.parse(data);
-			switch(json.op){
+	packet(message: MessageEvent) {
+		const data = message.data;
+		if (typeof data === "string") {
+			const json: webRTCSocket = JSON.parse(data);
+			switch (json.op) {
 				case 2:
 					this.startWebRTC();
 					break;
@@ -139,67 +140,68 @@ class Voice{
 					this.continueWebRTC(json);
 					break;
 				case 5:
-					this.speakingMap.set(json.d.user_id,json.d.speaking);
-					this.onSpeakingChange(json.d.user_id,json.d.speaking);
+					this.speakingMap.set(json.d.user_id, json.d.speaking);
+					this.onSpeakingChange(json.d.user_id, json.d.speaking);
 					break;
 				case 6:
-					this.time=json.d.t;
+					this.time = json.d.t;
 					setTimeout(this.sendAlive.bind(this), this.timeout);
 					break;
 				case 8:
-					this.timeout=json.d.heartbeat_interval;
+					this.timeout = json.d.heartbeat_interval;
 					setTimeout(this.sendAlive.bind(this), 1000);
 					break;
 				case 12:
 					this.figureRecivers();
-					if(!this.users.has(json.d.audio_ssrc)){
+					if (!this.users.has(json.d.audio_ssrc)) {
 						console.log("redo 12!");
 						this.makeOp12();
 					}
-					this.users.set(json.d.audio_ssrc,json.d.user_id);
+					this.users.set(json.d.audio_ssrc, json.d.user_id);
 					break;
 			}
 		}
 	}
-	offer?:string;
-	cleanServerSDP(sdp:string):string{
-		const pc=this.pc;
-		if(!pc) throw new Error("pc isn't defined")
-		const ld=pc.localDescription;
-		if(!ld) throw new Error("localDescription isn't defined");
+	offer?: string;
+	cleanServerSDP(sdp: string): string {
+		const pc = this.pc;
+		if (!pc) throw new Error("pc isn't defined");
+		const ld = pc.localDescription;
+		if (!ld) throw new Error("localDescription isn't defined");
 		const parsed = Voice.parsesdp(ld.sdp);
-		const group=parsed.atr.get("group");
-		if(!group) throw new Error("group isn't in sdp");
-		const [_,...bundles]=(group.entries().next().value as [string, string])[0].split(" ");
-		bundles[bundles.length-1]=bundles[bundles.length-1].replace("\r","");
+		const group = parsed.atr.get("group");
+		if (!group) throw new Error("group isn't in sdp");
+		const [_, ...bundles] = (group.entries().next().value as [string, string])[0].split(" ");
+		bundles[bundles.length - 1] = bundles[bundles.length - 1].replace("\r", "");
 		console.log(bundles);
 
-		if(!this.offer) throw new Error("Offer is missing :P");
-		let cline=sdp.split("\n").find(line=>line.startsWith("c="));
-		if(!cline) throw new Error("c line wasn't found");
-		const parsed1=Voice.parsesdp(sdp).medias[0];
+		if (!this.offer) throw new Error("Offer is missing :P");
+		let cline = sdp.split("\n").find((line) => line.startsWith("c="));
+		if (!cline) throw new Error("c line wasn't found");
+		const parsed1 = Voice.parsesdp(sdp).medias[0];
 		//const parsed2=Voice.parsesdp(this.offer);
-		const rtcport=(parsed1.atr.get("rtcp") as Set<string>).values().next().value as string;
-		const ICE_UFRAG=(parsed1.atr.get("ice-ufrag") as Set<string>).values().next().value as string;
-		const ICE_PWD=(parsed1.atr.get("ice-pwd") as Set<string>).values().next().value as string;
-		const FINGERPRINT=(parsed1.atr.get("fingerprint") as Set<string>).values().next().value as string;
-		const candidate=(parsed1.atr.get("candidate") as Set<string>).values().next().value as string;
-		let build=`v=0\r
+		const rtcport = (parsed1.atr.get("rtcp") as Set<string>).values().next().value as string;
+		const ICE_UFRAG = (parsed1.atr.get("ice-ufrag") as Set<string>).values().next().value as string;
+		const ICE_PWD = (parsed1.atr.get("ice-pwd") as Set<string>).values().next().value as string;
+		const FINGERPRINT = (parsed1.atr.get("fingerprint") as Set<string>).values().next()
+			.value as string;
+		const candidate = (parsed1.atr.get("candidate") as Set<string>).values().next().value as string;
+		let build = `v=0\r
 o=- 1420070400000 0 IN IP4 127.0.0.1\r
 s=-\r
 t=0 0\r
 a=msid-semantic: WMS *\r
-a=group:BUNDLE ${bundles.join(" ")}\r`
-		let i=0;
-		for(const grouping of parsed.medias){
-			let mode="recvonly";
-			for(const _ of this.senders){
-				if(i<2){
-					mode="sendrecv";
+a=group:BUNDLE ${bundles.join(" ")}\r`;
+		let i = 0;
+		for (const grouping of parsed.medias) {
+			let mode = "recvonly";
+			for (const _ of this.senders) {
+				if (i < 2) {
+					mode = "sendrecv";
 				}
 			}
-			if(grouping.media==="audio"){
-				build+=`
+			if (grouping.media === "audio") {
+				build += `
 m=audio ${parsed1.port} UDP/TLS/RTP/SAVPF 111\r
 ${cline}\r
 a=rtpmap:111 opus/48000/2\r
@@ -216,9 +218,9 @@ a=ice-ufrag:${ICE_UFRAG}\r
 a=ice-pwd:${ICE_PWD}\r
 a=fingerprint:${FINGERPRINT}\r
 a=candidate:${candidate}\r
-a=rtcp-mux\r`
-			}else{
-				build+=`
+a=rtcp-mux\r`;
+			} else {
+				build += `
 m=video ${rtcport} UDP/TLS/RTP/SAVPF 102 103\r
 ${cline}\r
 a=rtpmap:102 H264/90000\r
@@ -244,32 +246,37 @@ a=fingerprint:${FINGERPRINT}\r
 a=candidate:${candidate}\r
 a=rtcp-mux\r`;
 			}
-		i++
+			i++;
 		}
-		build+="\n";
+		build += "\n";
 		return build;
 	}
-	counter?:string;
-	negotationneeded(){
-		if(this.pc&&this.offer){
-			const pc=this.pc;
-			pc.addEventListener("negotiationneeded", async ()=>{
-				this.offer=(await pc.createOffer({
-					offerToReceiveAudio: true,
-					offerToReceiveVideo: true
-				})).sdp;
-				await pc.setLocalDescription({sdp:this.offer});
+	counter?: string;
+	negotationneeded() {
+		if (this.pc && this.offer) {
+			const pc = this.pc;
+			pc.addEventListener("negotiationneeded", async () => {
+				this.offer = (
+					await pc.createOffer({
+						offerToReceiveAudio: true,
+						offerToReceiveVideo: true,
+					})
+				).sdp;
+				await pc.setLocalDescription({sdp: this.offer});
 
-				if(!this.counter) throw new Error("counter isn't defined");
-				const counter=this.counter;
-				const remote:{sdp:string,type:RTCSdpType}={sdp:this.cleanServerSDP(counter),type:"answer"};
+				if (!this.counter) throw new Error("counter isn't defined");
+				const counter = this.counter;
+				const remote: {sdp: string; type: RTCSdpType} = {
+					sdp: this.cleanServerSDP(counter),
+					type: "answer",
+				};
 				console.log(remote);
 				await pc.setRemoteDescription(remote);
-				const senders=this.senders.difference(this.ssrcMap);
-				for(const sender of senders){
-					for(const thing of (await sender.getStats() as Map<string, any>)){
-						if(thing[1].ssrc){
-							this.ssrcMap.set(sender,thing[1].ssrc);
+				const senders = this.senders.difference(this.ssrcMap);
+				for (const sender of senders) {
+					for (const thing of (await sender.getStats()) as Map<string, any>) {
+						if (thing[1].ssrc) {
+							this.ssrcMap.set(sender, thing[1].ssrc);
 							this.makeOp12(sender);
 						}
 					}
@@ -278,45 +285,49 @@ a=rtcp-mux\r`;
 			});
 		}
 	}
-	async makeOp12(sender:RTCRtpSender|undefined|[RTCRtpSender,number]=(this.ssrcMap.entries().next().value)){
-		if(!sender) throw new Error("sender doesn't exist");
-		if(sender instanceof Array){
-			sender=sender[0];
+	async makeOp12(
+		sender: RTCRtpSender | undefined | [RTCRtpSender, number] = this.ssrcMap.entries().next().value,
+	) {
+		if (!sender) throw new Error("sender doesn't exist");
+		if (sender instanceof Array) {
+			sender = sender[0];
 		}
-		if(this.ws){
-			this.ws.send(JSON.stringify({
-				op: 12,
-				d: {
-					audio_ssrc: this.ssrcMap.get(sender),
-					video_ssrc: 0,
-					rtx_ssrc: 0,
-					streams: [
-						{
-							type: "video",
-							rid: "100",
-							ssrc: 0,//TODO
-							active: false,
-							quality: 100,
-							rtx_ssrc: 0,//TODO
-							max_bitrate: 2500000,//TODO
-							max_framerate: 0,//TODO
-							max_resolution: {
-								type: "fixed",
-								width: 0,//TODO
-								height: 0//TODO
-							}
-						}
-					]
-				}
-			}));
-			this.status="Sending audio streams";
+		if (this.ws) {
+			this.ws.send(
+				JSON.stringify({
+					op: 12,
+					d: {
+						audio_ssrc: this.ssrcMap.get(sender),
+						video_ssrc: 0,
+						rtx_ssrc: 0,
+						streams: [
+							{
+								type: "video",
+								rid: "100",
+								ssrc: 0, //TODO
+								active: false,
+								quality: 100,
+								rtx_ssrc: 0, //TODO
+								max_bitrate: 2500000, //TODO
+								max_framerate: 0, //TODO
+								max_resolution: {
+									type: "fixed",
+									width: 0, //TODO
+									height: 0, //TODO
+								},
+							},
+						],
+					},
+				}),
+			);
+			this.status = "Sending audio streams";
 		}
 	}
-	senders:Set<RTCRtpSender>=new Set();
-	recivers=new Set<RTCRtpReceiver>();
-	ssrcMap:Map<RTCRtpSender,number>=new Map();
-	speaking=false;
-	async setupMic(audioStream:MediaStream){
+	senders: Set<RTCRtpSender> = new Set();
+	recivers = new Set<RTCRtpReceiver>();
+	ssrcMap: Map<RTCRtpSender, number> = new Map();
+	speaking = false;
+	async setupMic(audioStream: MediaStream) {
 		const audioContext = new AudioContext();
 		const analyser = audioContext.createAnalyser();
 		const microphone = audioContext.createMediaStreamSource(audioStream);
@@ -325,249 +336,268 @@ a=rtcp-mux\r`;
 		analyser.fftSize = 32;
 
 		microphone.connect(analyser);
-		const array=new Float32Array(1);
-		const interval=setInterval(()=>{
-			if(!this.ws){
+		const array = new Float32Array(1);
+		const interval = setInterval(() => {
+			if (!this.ws) {
 				clearInterval(interval);
 			}
 			analyser.getFloatFrequencyData(array);
-			const value=array[0]+65;
-			if(value<0){
-				if(this.speaking){
-					this.speaking=false;
+			const value = array[0] + 65;
+			if (value < 0) {
+				if (this.speaking) {
+					this.speaking = false;
 					this.sendSpeaking();
-					console.log("not speaking")
+					console.log("not speaking");
 				}
-			}else if(!this.speaking){
+			} else if (!this.speaking) {
 				console.log("speaking");
-				this.speaking=true;
+				this.speaking = true;
 				this.sendSpeaking();
 			}
-		},500);
+		}, 500);
 	}
-	async sendSpeaking(){
-		if(!this.ws) return;
-		const pair=this.ssrcMap.entries().next().value;
-		if(!pair) return
-		this.ws.send(JSON.stringify({
-			op:5,
-			d:{
-				speaking:+this.speaking,
-				delay:5,//not sure
-				ssrc:pair[1]
-			}
-		}))
+	async sendSpeaking() {
+		if (!this.ws) return;
+		const pair = this.ssrcMap.entries().next().value;
+		if (!pair) return;
+		this.ws.send(
+			JSON.stringify({
+				op: 5,
+				d: {
+					speaking: +this.speaking,
+					delay: 5, //not sure
+					ssrc: pair[1],
+				},
+			}),
+		);
 	}
-	async continueWebRTC(data:sdpback){
-		if(this.pc&&this.offer){
-			const pc=this.pc;
+	async continueWebRTC(data: sdpback) {
+		if (this.pc && this.offer) {
+			const pc = this.pc;
 			this.negotationneeded();
-			this.status="Starting Audio streams";
-			const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true} );
-			for (const track of audioStream.getAudioTracks()){
+			this.status = "Starting Audio streams";
+			const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true});
+			for (const track of audioStream.getAudioTracks()) {
 				//Add track
 
 				this.setupMic(audioStream);
 				const sender = pc.addTrack(track);
 				this.senders.add(sender);
-				console.log(sender)
+				console.log(sender);
 			}
-			for(let i=0;i<10;i++){
-				pc.addTransceiver("audio",{
-					direction:"recvonly",
-					streams:[],
-					sendEncodings:[{active:true,maxBitrate:this.settings.bitrate}]
+			for (let i = 0; i < 10; i++) {
+				pc.addTransceiver("audio", {
+					direction: "recvonly",
+					streams: [],
+					sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
 				});
 			}
-			for(let i=0;i<10;i++){
-				pc.addTransceiver("video",{
-					direction:"recvonly",
-					streams:[],
-					sendEncodings:[{active:true,maxBitrate:this.settings.bitrate}]
+			for (let i = 0; i < 10; i++) {
+				pc.addTransceiver("video", {
+					direction: "recvonly",
+					streams: [],
+					sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
 				});
 			}
-			this.counter=data.d.sdp;
+			this.counter = data.d.sdp;
 			pc.ontrack = async (e) => {
-				this.status="Done";
-				if(e.track.kind==="video"){
+				this.status = "Done";
+				if (e.track.kind === "video") {
 					return;
 				}
 
-				const media=e.streams[0];
-				console.log("got audio:",e);
-				for(const track of media.getTracks()){
+				const media = e.streams[0];
+				console.log("got audio:", e);
+				for (const track of media.getTracks()) {
 					console.log(track);
 				}
 
-				const context= new AudioContext();
+				const context = new AudioContext();
 				await context.resume();
-				const ss=context.createMediaStreamSource(media);
+				const ss = context.createMediaStreamSource(media);
 				console.log(media);
 				ss.connect(context.destination);
-				new Audio().srcObject = media;//weird I know, but it's for chromium/webkit bug
-				this.recivers.add(e.receiver)
+				new Audio().srcObject = media; //weird I know, but it's for chromium/webkit bug
+				this.recivers.add(e.receiver);
 			};
-
-		}else{
-			this.status="Connection failed";
+		} else {
+			this.status = "Connection failed";
 		}
 	}
-	reciverMap=new Map<number,RTCRtpReceiver>()
-	async figureRecivers(){
-		await new Promise(res=>setTimeout(res,500));
-		for(const reciver of this.recivers){
-			const stats=await reciver.getStats() as Map<string,any>;
-			for(const thing of (stats)){
-				if(thing[1].ssrc){
-					this.reciverMap.set(thing[1].ssrc,reciver)
+	reciverMap = new Map<number, RTCRtpReceiver>();
+	async figureRecivers() {
+		await new Promise((res) => setTimeout(res, 500));
+		for (const reciver of this.recivers) {
+			const stats = (await reciver.getStats()) as Map<string, any>;
+			for (const thing of stats) {
+				if (thing[1].ssrc) {
+					this.reciverMap.set(thing[1].ssrc, reciver);
 				}
 			}
 		}
 		console.log(this.reciverMap);
 	}
-	async startWebRTC(){
-		this.status="Making offer";
+	async startWebRTC() {
+		this.status = "Making offer";
 		const pc = new RTCPeerConnection();
-		this.pc=pc;
+		this.pc = pc;
 		const offer = await pc.createOffer({
 			offerToReceiveAudio: true,
-			offerToReceiveVideo: true
+			offerToReceiveVideo: true,
 		});
-		this.status="Starting RTC connection";
-		const sdp=offer.sdp;
-		this.offer=sdp;
+		this.status = "Starting RTC connection";
+		const sdp = offer.sdp;
+		this.offer = sdp;
 
-		if(!sdp){
-			this.status="No SDP";
+		if (!sdp) {
+			this.status = "No SDP";
 			this.ws?.close();
 			return;
 		}
-		const parsed=Voice.parsesdp(sdp);
-		const video=new Map<string,[number,number]>();
-		const audio=new Map<string,number>();
-		let cur:[number,number]|undefined;
-		let i=0;
-		for(const thing of parsed.medias){
-			try{
-				if(thing.media==="video"){
-					const rtpmap=thing.atr.get("rtpmap");
-					if(!rtpmap) continue;
-					for(const codecpair of rtpmap){
-
-						const [port, codec]=codecpair.split(" ");
-						if(cur&&codec.split("/")[0]==="rtx"){
-							cur[1]=Number(port);
-							cur=undefined;
-							continue
+		const parsed = Voice.parsesdp(sdp);
+		const video = new Map<string, [number, number]>();
+		const audio = new Map<string, number>();
+		let cur: [number, number] | undefined;
+		let i = 0;
+		for (const thing of parsed.medias) {
+			try {
+				if (thing.media === "video") {
+					const rtpmap = thing.atr.get("rtpmap");
+					if (!rtpmap) continue;
+					for (const codecpair of rtpmap) {
+						const [port, codec] = codecpair.split(" ");
+						if (cur && codec.split("/")[0] === "rtx") {
+							cur[1] = Number(port);
+							cur = undefined;
+							continue;
 						}
-						if(video.has(codec.split("/")[0])) continue;
-						cur=[Number(port),-1];
-						video.set(codec.split("/")[0],cur);
+						if (video.has(codec.split("/")[0])) continue;
+						cur = [Number(port), -1];
+						video.set(codec.split("/")[0], cur);
 					}
-				}else if(thing.media==="audio"){
-					const rtpmap=thing.atr.get("rtpmap");
-					if(!rtpmap) continue;
-					for(const codecpair of rtpmap){
-						const [port, codec]=codecpair.split(" ");
-						if(audio.has(codec.split("/")[0])) { continue};
-						audio.set(codec.split("/")[0],Number(port));
+				} else if (thing.media === "audio") {
+					const rtpmap = thing.atr.get("rtpmap");
+					if (!rtpmap) continue;
+					for (const codecpair of rtpmap) {
+						const [port, codec] = codecpair.split(" ");
+						if (audio.has(codec.split("/")[0])) {
+							continue;
+						}
+						audio.set(codec.split("/")[0], Number(port));
 					}
 				}
-			}finally{
+			} finally {
 				i++;
 			}
 		}
 
-		const codecs:{
-			name: string,
-			type: "video"|"audio",
-			priority: number,
-			payload_type: number,
-			rtx_payload_type: number|null
-		}[]=[];
-		const include=new Set<string>();
-		const audioAlloweds=new Map([["opus",{priority:1000,}]]);
-		for(const thing of audio){
-			if(audioAlloweds.has(thing[0])){
+		const codecs: {
+			name: string;
+			type: "video" | "audio";
+			priority: number;
+			payload_type: number;
+			rtx_payload_type: number | null;
+		}[] = [];
+		const include = new Set<string>();
+		const audioAlloweds = new Map([["opus", {priority: 1000}]]);
+		for (const thing of audio) {
+			if (audioAlloweds.has(thing[0])) {
 				include.add(thing[0]);
 				codecs.push({
-					name:thing[0],
-					type:"audio",
-					priority:audioAlloweds.get(thing[0])?.priority as number,
-					payload_type:thing[1],
-					rtx_payload_type:null
+					name: thing[0],
+					type: "audio",
+					priority: audioAlloweds.get(thing[0])?.priority as number,
+					payload_type: thing[1],
+					rtx_payload_type: null,
 				});
 			}
 		}
-		const videoAlloweds=new Map([["H264",{priority:1000}],["VP8",{priority:2000}],["VP9",{priority:3000}]]);
-		for(const thing of video){
-			if(videoAlloweds.has(thing[0])){
+		const videoAlloweds = new Map([
+			["H264", {priority: 1000}],
+			["VP8", {priority: 2000}],
+			["VP9", {priority: 3000}],
+		]);
+		for (const thing of video) {
+			if (videoAlloweds.has(thing[0])) {
 				include.add(thing[0]);
 				codecs.push({
-					name:thing[0],
-					type:"video",
-					priority:videoAlloweds.get(thing[0])?.priority as number,
-					payload_type:thing[1][0],
-					rtx_payload_type:thing[1][1]
+					name: thing[0],
+					type: "video",
+					priority: videoAlloweds.get(thing[0])?.priority as number,
+					payload_type: thing[1][0],
+					rtx_payload_type: thing[1][1],
 				});
 			}
 		}
-		let sendsdp="a=extmap-allow-mixed";
-		let first=true;
-		for(const media of parsed.medias){
-
-			for(const thing of first?["ice-ufrag","ice-pwd","ice-options","fingerprint","extmap","rtpmap"]:["extmap","rtpmap"]){
-				const thing2=media.atr.get(thing);
-				if(!thing2) continue;
-				for(const thing3 of thing2){
-					if(thing === "rtpmap"){
-						const name=thing3.split(" ")[1].split("/")[0];
-						if(include.has(name)){
+		let sendsdp = "a=extmap-allow-mixed";
+		let first = true;
+		for (const media of parsed.medias) {
+			for (const thing of first
+				? ["ice-ufrag", "ice-pwd", "ice-options", "fingerprint", "extmap", "rtpmap"]
+				: ["extmap", "rtpmap"]) {
+				const thing2 = media.atr.get(thing);
+				if (!thing2) continue;
+				for (const thing3 of thing2) {
+					if (thing === "rtpmap") {
+						const name = thing3.split(" ")[1].split("/")[0];
+						if (include.has(name)) {
 							include.delete(name);
-						}else{
+						} else {
 							continue;
 						}
 					}
-					sendsdp+=`\na=${thing}:${thing3}`;
+					sendsdp += `\na=${thing}:${thing3}`;
 				}
 			}
-			first=false;
+			first = false;
 		}
-		if(this.ws){
-			this.ws.send(JSON.stringify({
-				d:{
-					codecs,
-					protocol:"webrtc",
-					data:sendsdp,
-					sdp:sendsdp
-				},
-				op:1
-			}));
+		if (this.ws) {
+			this.ws.send(
+				JSON.stringify({
+					d: {
+						codecs,
+						protocol: "webrtc",
+						data: sendsdp,
+						sdp: sendsdp,
+					},
+					op: 1,
+				}),
+			);
 		}
 	}
-	static parsesdp(sdp:string){
-		let currentA=new Map<string,Set<string>>();
-		const out:{version?:number,medias:{media:string,port:number,proto:string,ports:number[],atr:Map<string,Set<string>>}[],atr:Map<string,Set<string>>}={medias:[],atr:currentA};
-		for(const line of sdp.split("\n")){
-			const [code,setinfo]=line.split("=");
-			switch(code){
+	static parsesdp(sdp: string) {
+		let currentA = new Map<string, Set<string>>();
+		const out: {
+			version?: number;
+			medias: {
+				media: string;
+				port: number;
+				proto: string;
+				ports: number[];
+				atr: Map<string, Set<string>>;
+			}[];
+			atr: Map<string, Set<string>>;
+		} = {medias: [], atr: currentA};
+		for (const line of sdp.split("\n")) {
+			const [code, setinfo] = line.split("=");
+			switch (code) {
 				case "v":
-					out.version=Number(setinfo);
+					out.version = Number(setinfo);
 					break;
 				case "o":
 				case "s":
 				case "t":
 					break;
 				case "m":
-					currentA=new Map();
-					const [media,port,proto,...ports]=setinfo.split(" ");
-					const portnums=ports.map(Number);
-					out.medias.push({media,port:Number(port),proto,ports:portnums,atr:currentA});
+					currentA = new Map();
+					const [media, port, proto, ...ports] = setinfo.split(" ");
+					const portnums = ports.map(Number);
+					out.medias.push({media, port: Number(port), proto, ports: portnums, atr: currentA});
 					break;
 				case "a":
 					const [key, ...value] = setinfo.split(":");
-					if(!currentA.has(key)){
-						currentA.set(key,new Set());
+					if (!currentA.has(key)) {
+						currentA.set(key, new Set());
 					}
 					currentA.get(key)?.add(value.join(":"));
 					break;
@@ -575,78 +605,83 @@ a=rtcp-mux\r`;
 		}
 		return out;
 	}
-	open=false;
-	async join(){
+	open = false;
+	async join() {
 		console.warn("Joining");
-		this.open=true
-		this.status="waiting for main WS";
+		this.open = true;
+		this.status = "waiting for main WS";
 	}
-	onMemberChange=(_member:memberjson|string,_joined:boolean)=>{};
-	userids=new Map<string,{}>();
-	async voiceupdate(update:voiceupdate){
+	onMemberChange = (_member: memberjson | string, _joined: boolean) => {};
+	userids = new Map<string, {}>();
+	async voiceupdate(update: voiceupdate) {
 		console.log("Update!");
-		this.userids.set(update.d.member.id,{deaf:update.d.deaf,muted:update.d.mute});
-		this.onMemberChange(update.d.member,true);
-		if(update.d.member.id===this.userid&&this.open){
-			if(!update) {
-				this.status="bad responce from WS";
+		this.userids.set(update.d.member.id, {deaf: update.d.deaf, muted: update.d.mute});
+		this.onMemberChange(update.d.member, true);
+		if (update.d.member.id === this.userid && this.open) {
+			if (!update) {
+				this.status = "bad responce from WS";
 				return;
-			};
-			if(!this.urlobj.url){
-				this.status="waiting for Voice URL";
+			}
+			if (!this.urlobj.url) {
+				this.status = "waiting for Voice URL";
 				await this.urlobj.geturl;
-				if(!this.open){this.leave();return}
+				if (!this.open) {
+					this.leave();
+					return;
+				}
 			}
 
-			const ws=new WebSocket("ws://"+this.urlobj.url as string);
-			this.ws=ws;
-			ws.onclose=()=>{
+			const ws = new WebSocket(("ws://" + this.urlobj.url) as string);
+			this.ws = ws;
+			ws.onclose = () => {
 				this.leave();
-			}
-			this.status="waiting for WS to open";
-			ws.addEventListener("message",(m)=>{
+			};
+			this.status = "waiting for WS to open";
+			ws.addEventListener("message", (m) => {
 				this.packet(m);
-			})
-			await new Promise<void>(res=>{
-				ws.addEventListener("open",()=>{
-					res()
-				})
 			});
-			if(!this.ws){
+			await new Promise<void>((res) => {
+				ws.addEventListener("open", () => {
+					res();
+				});
+			});
+			if (!this.ws) {
 				this.leave();
 				return;
 			}
-			this.status="waiting for WS to authorize";
-			ws.send(JSON.stringify({
-				"op": 0,
-				"d": {
-					server_id: update.d.guild_id,
-					user_id: update.d.user_id,
-					session_id: update.d.session_id,
-					token: update.d.token,
-					video: false,
-					"streams": [
-						{
-							type: "video",
-							rid: "100",
-							quality: 100
-						}
-					]
-				}
-			}));
+			this.status = "waiting for WS to authorize";
+			ws.send(
+				JSON.stringify({
+					op: 0,
+					d: {
+						server_id: update.d.guild_id,
+						user_id: update.d.user_id,
+						session_id: update.d.session_id,
+						token: update.d.token,
+						video: false,
+						streams: [
+							{
+								type: "video",
+								rid: "100",
+								quality: 100,
+							},
+						],
+					},
+				}),
+			);
 		}
 	}
-	async leave(){
-		this.open=false;
-		this.status="Left voice chat";
-		if(this.ws){
+	async leave() {
+		this.open = false;
+		this.status = "Left voice chat";
+		if (this.ws) {
 			this.ws.close();
-			this.ws=undefined;
+			this.ws = undefined;
 		}
-		if(this.pc){
+		if (this.pc) {
 			this.pc.close();
-			this.pc=undefined;
+			this.pc = undefined;
 		}
 	}
 }
-export {Voice,VoiceFactory};
+export {Voice, VoiceFactory};

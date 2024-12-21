@@ -1,22 +1,22 @@
-import{ Guild }from"./guild.js";
-import{ Channel }from"./channel.js";
-import{ Message }from"./message.js";
-import{ Localuser }from"./localuser.js";
-import{ User }from"./user.js";
-import{channeljson,dirrectjson,memberjson,messagejson}from"./jsontypes.js";
-import{ Permissions }from"./permissions.js";
-import{ SnowFlake }from"./snowflake.js";
-import{ Contextmenu }from"./contextmenu.js";
-import { I18n } from "./i18n.js";
-import { Float, FormError } from "./settings.js";
+import {Guild} from "./guild.js";
+import {Channel} from "./channel.js";
+import {Message} from "./message.js";
+import {Localuser} from "./localuser.js";
+import {User} from "./user.js";
+import {channeljson, dirrectjson, memberjson, messagejson} from "./jsontypes.js";
+import {Permissions} from "./permissions.js";
+import {SnowFlake} from "./snowflake.js";
+import {Contextmenu} from "./contextmenu.js";
+import {I18n} from "./i18n.js";
+import {Float, FormError} from "./settings.js";
 
-class Direct extends Guild{
-	declare channelids: { [key: string]: Group };
+class Direct extends Guild {
+	declare channelids: {[key: string]: Group};
 	channels: Group[];
-	getUnixTime(): number{
+	getUnixTime(): number {
 		throw new Error("Do not call this for Direct, it does not make sense");
 	}
-	constructor(json: dirrectjson[], owner: Localuser){
+	constructor(json: dirrectjson[], owner: Localuser) {
 		super(-1, owner, null);
 		this.message_notifications = 0;
 		this.owner = owner;
@@ -29,7 +29,7 @@ class Direct extends Guild{
 		this.roleids = new Map();
 		this.prevchannel = undefined;
 		this.properties.name = I18n.getTranslation("DMs.name");
-		for(const thing of json){
+		for (const thing of json) {
 			const temp = new Group(thing, this);
 			this.channels.push(temp);
 			this.channelids[temp.id] = temp;
@@ -37,7 +37,7 @@ class Direct extends Guild{
 		}
 		this.headchannels = this.channels;
 	}
-	createChannelpac(json: any){
+	createChannelpac(json: any) {
 		const thischannel = new Group(json, this);
 		this.channelids[thischannel.id] = thischannel;
 		this.channels.push(thischannel);
@@ -46,266 +46,270 @@ class Direct extends Guild{
 		this.printServers();
 		return thischannel;
 	}
-	delChannel(json: channeljson){
+	delChannel(json: channeljson) {
 		const channel = this.channelids[json.id];
 		super.delChannel(json);
-		if(channel){
+		if (channel) {
 			channel.del();
 		}
 	}
-	getHTML(){
-		const ddiv=document.createElement("div");
-		const build=super.getHTML();
-		const freindDiv=document.createElement("div");
-		freindDiv.classList.add("liststyle","flexltr","friendsbutton");
+	getHTML() {
+		const ddiv = document.createElement("div");
+		const build = super.getHTML();
+		const freindDiv = document.createElement("div");
+		freindDiv.classList.add("liststyle", "flexltr", "friendsbutton");
 
-		const icon=document.createElement("span");
-		icon.classList.add("svgicon","svg-friends","space");
+		const icon = document.createElement("span");
+		icon.classList.add("svgicon", "svg-friends", "space");
 		freindDiv.append(icon);
 
 		freindDiv.append(I18n.getTranslation("friends.friends"));
 		ddiv.append(freindDiv);
-		freindDiv.onclick=()=>{
+		freindDiv.onclick = () => {
 			this.loadChannel(null);
-		}
+		};
 
 		ddiv.append(build);
 		return ddiv;
 	}
-	noChannel(addstate:boolean){
-		if(addstate){
-			history.pushState([this.id,undefined], "", "/channels/" + this.id);
+	noChannel(addstate: boolean) {
+		if (addstate) {
+			history.pushState([this.id, undefined], "", "/channels/" + this.id);
 		}
 		this.localuser.pageTitle(I18n.getTranslation("friends.friendlist"));
 		const channelTopic = document.getElementById("channelTopic") as HTMLSpanElement;
 		channelTopic.removeAttribute("hidden");
-		channelTopic.textContent="";
+		channelTopic.textContent = "";
 
 		const loading = document.getElementById("loadingdiv") as HTMLDivElement;
 		loading.classList.remove("loading");
 		this.localuser.getSidePannel();
 
 		const messages = document.getElementById("channelw") as HTMLDivElement;
-		for(const thing of Array.from(messages.getElementsByClassName("messagecontainer"))){
+		for (const thing of Array.from(messages.getElementsByClassName("messagecontainer"))) {
 			thing.remove();
 		}
-		const container=document.createElement("div");
-		container.classList.add("messagecontainer","flexttb","friendcontainer")
+		const container = document.createElement("div");
+		container.classList.add("messagecontainer", "flexttb", "friendcontainer");
 
 		messages.append(container);
-		const checkVoid=()=>{
-			if(this.localuser.channelfocus!==undefined||this.localuser.lookingguild!==this){
-				this.localuser.relationshipsUpdate=()=>{};
+		const checkVoid = () => {
+			if (this.localuser.channelfocus !== undefined || this.localuser.lookingguild !== this) {
+				this.localuser.relationshipsUpdate = () => {};
 			}
-		}
-		function genuserstrip(user:User,icons:HTMLElement):HTMLElement{
-			const div=document.createElement("div");
-			div.classList.add("flexltr","liststyle");
+		};
+		function genuserstrip(user: User, icons: HTMLElement): HTMLElement {
+			const div = document.createElement("div");
+			div.classList.add("flexltr", "liststyle");
 			user.bind(div);
 			div.append(user.buildpfp());
 
-			const userinfos=document.createElement("div");
+			const userinfos = document.createElement("div");
 			userinfos.classList.add("flexttb");
-			const username=document.createElement("span");
-			username.textContent=user.name;
-			userinfos.append(username,user.getStatus());
+			const username = document.createElement("span");
+			username.textContent = user.name;
+			userinfos.append(username, user.getStatus());
 			div.append(userinfos);
-			User.contextmenu.bindContextmenu(div,user,undefined);
-			userinfos.style.flexGrow="1";
+			User.contextmenu.bindContextmenu(div, user, undefined);
+			userinfos.style.flexGrow = "1";
 
 			div.append(icons);
 			return div;
 		}
 		{
 			//TODO update on users coming online
-			const online=document.createElement("button");
-			online.textContent=I18n.getTranslation("friends.online");
+			const online = document.createElement("button");
+			online.textContent = I18n.getTranslation("friends.online");
 			channelTopic.append(online);
-			const genOnline=()=>{
-				this.localuser.relationshipsUpdate=genOnline;
+			const genOnline = () => {
+				this.localuser.relationshipsUpdate = genOnline;
 				checkVoid();
-				container.innerHTML="";
+				container.innerHTML = "";
 				container.append(I18n.getTranslation("friends.online:"));
-				for(const user of this.localuser.inrelation){
-					if(user.relationshipType===1&&user.online){
-						const buttonc=document.createElement("div");
-						const button1=document.createElement("span");
-						button1.classList.add("svg-frmessage","svgicon");
+				for (const user of this.localuser.inrelation) {
+					if (user.relationshipType === 1 && user.online) {
+						const buttonc = document.createElement("div");
+						const button1 = document.createElement("span");
+						button1.classList.add("svg-frmessage", "svgicon");
 						buttonc.append(button1);
 						buttonc.classList.add("friendlyButton");
-						buttonc.onclick=(e)=>{
+						buttonc.onclick = (e) => {
 							e.stopImmediatePropagation();
 							user.opendm();
-						}
-						container.append(genuserstrip(user,buttonc));
+						};
+						container.append(genuserstrip(user, buttonc));
 					}
 				}
-			}
-			online.onclick=genOnline;
+			};
+			online.onclick = genOnline;
 			genOnline();
 		}
 		{
-			const all=document.createElement("button");
-			all.textContent=I18n.getTranslation("friends.all");
-			const genAll=()=>{
-				this.localuser.relationshipsUpdate=genAll;
+			const all = document.createElement("button");
+			all.textContent = I18n.getTranslation("friends.all");
+			const genAll = () => {
+				this.localuser.relationshipsUpdate = genAll;
 				checkVoid();
-				container.innerHTML="";
+				container.innerHTML = "";
 				container.append(I18n.getTranslation("friends.all:"));
-				for(const user of this.localuser.inrelation){
-					if(user.relationshipType===1){
-						const buttonc=document.createElement("div");
-						const button1=document.createElement("span");
-						button1.classList.add("svg-frmessage","svgicon");
+				for (const user of this.localuser.inrelation) {
+					if (user.relationshipType === 1) {
+						const buttonc = document.createElement("div");
+						const button1 = document.createElement("span");
+						button1.classList.add("svg-frmessage", "svgicon");
 						buttonc.append(button1);
 						buttonc.classList.add("friendlyButton");
-						buttonc.onclick=(e)=>{
+						buttonc.onclick = (e) => {
 							e.stopImmediatePropagation();
 							user.opendm();
-						}
-						container.append(genuserstrip(user,buttonc));
+						};
+						container.append(genuserstrip(user, buttonc));
 					}
 				}
-			}
-			all.onclick=genAll;
+			};
+			all.onclick = genAll;
 			channelTopic.append(all);
 		}
 		{
-			const pending=document.createElement("button");
-			pending.textContent=I18n.getTranslation("friends.pending");
-			const genPending=()=>{
-				this.localuser.relationshipsUpdate=genPending;
+			const pending = document.createElement("button");
+			pending.textContent = I18n.getTranslation("friends.pending");
+			const genPending = () => {
+				this.localuser.relationshipsUpdate = genPending;
 				checkVoid();
-				container.innerHTML="";
+				container.innerHTML = "";
 				container.append(I18n.getTranslation("friends.pending:"));
-				for(const user of this.localuser.inrelation){
-					if(user.relationshipType===3||user.relationshipType===4){
-						const buttons=document.createElement("div");
+				for (const user of this.localuser.inrelation) {
+					if (user.relationshipType === 3 || user.relationshipType === 4) {
+						const buttons = document.createElement("div");
 						buttons.classList.add("flexltr");
-						const buttonc=document.createElement("div");
-						const button1=document.createElement("span");
-						button1.classList.add("svgicon","svg-x");
-						if(user.relationshipType===3){
-							const buttonc=document.createElement("div");
-							const button2=document.createElement("span");
-							button2.classList.add("svgicon","svg-x");
+						const buttonc = document.createElement("div");
+						const button1 = document.createElement("span");
+						button1.classList.add("svgicon", "svg-x");
+						if (user.relationshipType === 3) {
+							const buttonc = document.createElement("div");
+							const button2 = document.createElement("span");
+							button2.classList.add("svgicon", "svg-x");
 							button2.classList.add("svg-addfriend");
 							buttonc.append(button2);
 							buttonc.classList.add("friendlyButton");
 							buttonc.append(button2);
 							buttons.append(buttonc);
-							buttonc.onclick=(e)=>{
+							buttonc.onclick = (e) => {
 								e.stopImmediatePropagation();
 								user.changeRelationship(1);
 								outerDiv.remove();
-							}
+							};
 						}
 						buttonc.append(button1);
 						buttonc.classList.add("friendlyButton");
-						buttonc.onclick=(e)=>{
+						buttonc.onclick = (e) => {
 							e.stopImmediatePropagation();
 							user.changeRelationship(0);
 							outerDiv.remove();
-						}
+						};
 						buttons.append(buttonc);
-						const outerDiv=genuserstrip(user,buttons);
+						const outerDiv = genuserstrip(user, buttons);
 						container.append(outerDiv);
 					}
 				}
-			}
-			pending.onclick=genPending;
+			};
+			pending.onclick = genPending;
 			channelTopic.append(pending);
 		}
 		{
-			const blocked=document.createElement("button");
-			blocked.textContent=I18n.getTranslation("friends.blocked");
+			const blocked = document.createElement("button");
+			blocked.textContent = I18n.getTranslation("friends.blocked");
 
-			const genBlocked=()=>{
-				this.localuser.relationshipsUpdate=genBlocked;
+			const genBlocked = () => {
+				this.localuser.relationshipsUpdate = genBlocked;
 				checkVoid();
-				container.innerHTML="";
+				container.innerHTML = "";
 				container.append(I18n.getTranslation("friends.blockedusers"));
-				for(const user of this.localuser.inrelation){
-					if(user.relationshipType===2){
-						const buttonc=document.createElement("div");
-						const button1=document.createElement("span");
-						button1.classList.add("svg-x","svgicon");
+				for (const user of this.localuser.inrelation) {
+					if (user.relationshipType === 2) {
+						const buttonc = document.createElement("div");
+						const button1 = document.createElement("span");
+						button1.classList.add("svg-x", "svgicon");
 						buttonc.append(button1);
 						buttonc.classList.add("friendlyButton");
-						buttonc.onclick=(e)=>{
+						buttonc.onclick = (e) => {
 							user.changeRelationship(0);
 							e.stopImmediatePropagation();
 							outerDiv.remove();
-						}
-						const outerDiv=genuserstrip(user,buttonc);
+						};
+						const outerDiv = genuserstrip(user, buttonc);
 						container.append(outerDiv);
 					}
 				}
-			}
-			blocked.onclick=genBlocked;
+			};
+			blocked.onclick = genBlocked;
 			channelTopic.append(blocked);
 		}
 		{
-			const add=document.createElement("button");
-			add.textContent=I18n.getTranslation("friends.addfriend");
-			add.onclick=()=>{
-				this.localuser.relationshipsUpdate=()=>{};
-				container.innerHTML="";
-				const float=new Float("");
-				const options=float.options;
-				const form=options.addForm("",(e:any)=>{
-					console.log(e);
-					if(e.code===404){
-						throw new FormError(text,I18n.getTranslation("friends.notfound"));
-					}else if(e.code===400){
-						throw new FormError(text,e.message.split("Error: ")[1]);
-					}else{
-						const box=text.input.deref();
-						if(!box)return;
-						box.value="";
-					}
-				},{
-					method:"POST",
-					fetchURL:this.info.api+"/users/@me/relationships",
-					headers:this.headers
-				});
-				const text=form.addTextInput(I18n.getTranslation("friends.addfriendpromt"),"username");
-				form.addPreprocessor((obj:any)=>{
-					const [username,discriminator]=obj.username.split("#");
-					obj.username=username;
-					obj.discriminator=discriminator;
-					if(!discriminator){
-						throw new FormError(text,I18n.getTranslation("friends.discnotfound"));
+			const add = document.createElement("button");
+			add.textContent = I18n.getTranslation("friends.addfriend");
+			add.onclick = () => {
+				this.localuser.relationshipsUpdate = () => {};
+				container.innerHTML = "";
+				const float = new Float("");
+				const options = float.options;
+				const form = options.addForm(
+					"",
+					(e: any) => {
+						console.log(e);
+						if (e.code === 404) {
+							throw new FormError(text, I18n.getTranslation("friends.notfound"));
+						} else if (e.code === 400) {
+							throw new FormError(text, e.message.split("Error: ")[1]);
+						} else {
+							const box = text.input.deref();
+							if (!box) return;
+							box.value = "";
+						}
+					},
+					{
+						method: "POST",
+						fetchURL: this.info.api + "/users/@me/relationships",
+						headers: this.headers,
+					},
+				);
+				const text = form.addTextInput(I18n.getTranslation("friends.addfriendpromt"), "username");
+				form.addPreprocessor((obj: any) => {
+					const [username, discriminator] = obj.username.split("#");
+					obj.username = username;
+					obj.discriminator = discriminator;
+					if (!discriminator) {
+						throw new FormError(text, I18n.getTranslation("friends.discnotfound"));
 					}
 				});
 				container.append(float.generateHTML());
-			}
+			};
 			channelTopic.append(add);
 		}
 	}
-	get mentions(){
-		let mentions=0;
-		for(const thing of this.localuser.inrelation){
-			if(thing.relationshipType===3){
-				mentions+=1;
+	get mentions() {
+		let mentions = 0;
+		for (const thing of this.localuser.inrelation) {
+			if (thing.relationshipType === 3) {
+				mentions += 1;
 			}
 		}
 		return mentions;
 	}
-	giveMember(_member: memberjson){
+	giveMember(_member: memberjson) {
 		throw new Error("not a real guild, can't give member object");
 	}
-	getRole(/* ID: string */){
+	getRole(/* ID: string */) {
 		return null;
 	}
-	hasRole(/* r: string */){
+	hasRole(/* r: string */) {
 		return false;
 	}
-	isAdmin(){
+	isAdmin() {
 		return false;
 	}
-	unreaddms(){
-		for(const thing of this.channels){
+	unreaddms() {
+		for (const thing of this.channels) {
 			(thing as Group).unreads();
 		}
 	}
@@ -335,34 +339,46 @@ dmPermissions.setPermission("STREAM", 1);
 dmPermissions.setPermission("USE_VAD", 1);
 
 // @ts-ignore I need to look into this lol
-class Group extends Channel{
+class Group extends Channel {
 	user: User;
 	static contextmenu = new Contextmenu<Group, undefined>("channel menu");
-	static setupcontextmenu(){
-		this.contextmenu.addbutton(()=>I18n.getTranslation("DMs.copyId"), function(this: Group){
-			navigator.clipboard.writeText(this.id);
-		});
+	static setupcontextmenu() {
+		this.contextmenu.addbutton(
+			() => I18n.getTranslation("DMs.copyId"),
+			function (this: Group) {
+				navigator.clipboard.writeText(this.id);
+			},
+		);
 
-		this.contextmenu.addbutton(()=>I18n.getTranslation("DMs.markRead"), function(this: Group){
-			this.readbottom();
-		});
+		this.contextmenu.addbutton(
+			() => I18n.getTranslation("DMs.markRead"),
+			function (this: Group) {
+				this.readbottom();
+			},
+		);
 
-		this.contextmenu.addbutton(()=>I18n.getTranslation("DMs.close"), function(this: Group){
-			this.deleteChannel();
-		});
+		this.contextmenu.addbutton(
+			() => I18n.getTranslation("DMs.close"),
+			function (this: Group) {
+				this.deleteChannel();
+			},
+		);
 
-		this.contextmenu.addbutton(()=>I18n.getTranslation("user.copyId"), function(){
-			navigator.clipboard.writeText(this.user.id);
-		});
+		this.contextmenu.addbutton(
+			() => I18n.getTranslation("user.copyId"),
+			function () {
+				navigator.clipboard.writeText(this.user.id);
+			},
+		);
 	}
-	constructor(json: dirrectjson, owner: Direct){
+	constructor(json: dirrectjson, owner: Direct) {
 		super(-1, owner, json.id);
 		this.owner = owner;
 		this.headers = this.guild.headers;
 		this.name = json.recipients[0]?.username;
-		if(json.recipients[0]){
+		if (json.recipients[0]) {
 			this.user = new User(json.recipients[0], this.localuser);
-		}else{
+		} else {
 			this.user = this.localuser.user;
 		}
 		this.name ??= this.localuser.user.username;
@@ -376,26 +392,26 @@ class Group extends Channel{
 		this.setUpInfiniteScroller();
 		this.updatePosition();
 	}
-	updatePosition(){
-		if(this.lastmessageid){
+	updatePosition() {
+		if (this.lastmessageid) {
 			this.position = SnowFlake.stringToUnixTime(this.lastmessageid);
-		}else{
+		} else {
 			this.position = 0;
 		}
 		this.position = -Math.max(this.position, this.getUnixTime());
 	}
-	createguildHTML(){
+	createguildHTML() {
 		const div = document.createElement("div");
-		Group.contextmenu.bindContextmenu(div, this,undefined);
+		Group.contextmenu.bindContextmenu(div, this, undefined);
 		this.html = new WeakRef(div);
-		div.classList.add("flexltr","liststyle");
+		div.classList.add("flexltr", "liststyle");
 		const myhtml = document.createElement("span");
 		myhtml.classList.add("ellipsis");
 		myhtml.textContent = this.name;
 		div.appendChild(this.user.buildpfp());
 		div.appendChild(myhtml);
 		(div as any).myinfo = this;
-		div.onclick = _=>{
+		div.onclick = (_) => {
 			this.getHTML();
 			const toggle = document.getElementById("maintoggle") as HTMLInputElement;
 			toggle.checked = true;
@@ -403,56 +419,55 @@ class Group extends Channel{
 
 		return div;
 	}
-	async getHTML(addstate=true){
+	async getHTML(addstate = true) {
 		const id = ++Channel.genid;
-		if(this.localuser.channelfocus){
+		if (this.localuser.channelfocus) {
 			this.localuser.channelfocus.infinite.delete();
 		}
-		if(this.guild !== this.localuser.lookingguild){
+		if (this.guild !== this.localuser.lookingguild) {
 			this.guild.loadGuild();
 		}
 		this.guild.prevchannel = this;
 		this.localuser.channelfocus = this;
 		const prom = this.infinite.delete();
-		if(addstate){
-			history.pushState([this.guild_id,this.id], "", "/channels/" + this.guild_id + "/" + this.id);
+		if (addstate) {
+			history.pushState([this.guild_id, this.id], "", "/channels/" + this.guild_id + "/" + this.id);
 		}
 		this.localuser.pageTitle("@" + this.name);
-		(document.getElementById("channelTopic") as HTMLElement).setAttribute("hidden","");
+		(document.getElementById("channelTopic") as HTMLElement).setAttribute("hidden", "");
 
 		const loading = document.getElementById("loadingdiv") as HTMLDivElement;
 		Channel.regenLoadingMessages();
 
 		loading.classList.add("loading");
 		this.rendertyping();
-		(document.getElementById("typebox") as HTMLDivElement).contentEditable ="" + true;
-		(document.getElementById("upload") as HTMLElement).style.visibility="visible";
-		(document.getElementById("typediv") as HTMLElement).style.visibility="visible";
+		(document.getElementById("typebox") as HTMLDivElement).contentEditable = "" + true;
+		(document.getElementById("upload") as HTMLElement).style.visibility = "visible";
+		(document.getElementById("typediv") as HTMLElement).style.visibility = "visible";
 		(document.getElementById("typebox") as HTMLDivElement).focus();
 		await this.putmessages();
 		await prom;
 		this.localuser.getSidePannel();
-		if(id !== Channel.genid){
+		if (id !== Channel.genid) {
 			return;
 		}
 		this.buildmessages();
-
 	}
-	messageCreate(messagep: { d: messagejson }){
+	messageCreate(messagep: {d: messagejson}) {
 		this.mentions++;
 		const messagez = new Message(messagep.d, this);
-		if(this.lastmessageid){
+		if (this.lastmessageid) {
 			this.idToNext.set(this.lastmessageid, messagez.id);
 			this.idToPrev.set(messagez.id, this.lastmessageid);
 		}
 		this.lastmessageid = messagez.id;
-		if(messagez.author === this.localuser.user){
+		if (messagez.author === this.localuser.user) {
 			this.lastreadmessageid = messagez.id;
-			if(this.myhtml){
+			if (this.myhtml) {
 				this.myhtml.classList.remove("cunread");
 			}
-		}else{
-			if(this.myhtml){
+		} else {
+			if (this.myhtml) {
 				this.myhtml.classList.add("cunread");
 			}
 		}
@@ -460,55 +475,55 @@ class Group extends Channel{
 		this.updatePosition();
 		this.infinite.addedBottom();
 		this.guild.sortchannels();
-		if(this.myhtml){
+		if (this.myhtml) {
 			const parrent = this.myhtml.parentElement as HTMLElement;
 			parrent.prepend(this.myhtml);
 		}
-		if(this === this.localuser.channelfocus){
-			if(!this.infinitefocus){
+		if (this === this.localuser.channelfocus) {
+			if (!this.infinitefocus) {
 				this.tryfocusinfinate();
 			}
 			this.infinite.addedBottom();
 		}
 		this.unreads();
-		if(messagez.author === this.localuser.user){
-			this.mentions=0;
+		if (messagez.author === this.localuser.user) {
+			this.mentions = 0;
 			return;
 		}
-		if(this.localuser.lookingguild?.prevchannel === this && document.hasFocus()){
+		if (this.localuser.lookingguild?.prevchannel === this && document.hasFocus()) {
 			return;
 		}
-		if(this.notification === "all"){
+		if (this.notification === "all") {
 			this.notify(messagez);
-		}else if(this.notification === "mentions" && messagez.mentionsuser(this.localuser.user)){
+		} else if (this.notification === "mentions" && messagez.mentionsuser(this.localuser.user)) {
 			this.notify(messagez);
 		}
 	}
-	notititle(message: Message){
+	notititle(message: Message) {
 		return message.author.username;
 	}
-	readbottom(){
+	readbottom() {
 		super.readbottom();
 		this.unreads();
 	}
 	all: WeakRef<HTMLElement> = new WeakRef(document.createElement("div"));
 	noti: WeakRef<HTMLElement> = new WeakRef(document.createElement("div"));
-	del(){
+	del() {
 		const all = this.all.deref();
-		if(all){
+		if (all) {
 			all.remove();
 		}
-		if(this.myhtml){
+		if (this.myhtml) {
 			this.myhtml.remove();
 		}
 	}
-	unreads(){
+	unreads() {
 		const sentdms = document.getElementById("sentdms") as HTMLDivElement; //Need to change sometime
 		const current = this.all.deref();
-		if(this.hasunreads){
+		if (this.hasunreads) {
 			{
 				const noti = this.noti.deref();
-				if(noti){
+				if (noti) {
 					noti.textContent = this.mentions + "";
 					return;
 				}
@@ -525,24 +540,24 @@ class Group extends Channel{
 			buildpfp.classList.add("mentioned");
 			div.append(buildpfp);
 			sentdms.append(div);
-			div.onclick = _=>{
+			div.onclick = (_) => {
 				this.guild.loadGuild();
 				this.getHTML();
 				const toggle = document.getElementById("maintoggle") as HTMLInputElement;
 				toggle.checked = true;
 			};
-		}else if(current){
+		} else if (current) {
 			current.remove();
-		}else{
+		} else {
 		}
 	}
-	isAdmin(): boolean{
+	isAdmin(): boolean {
 		return false;
 	}
-	hasPermission(name: string): boolean{
+	hasPermission(name: string): boolean {
 		return dmPermissions.hasPermission(name);
 	}
 }
-export{ Direct, Group };
+export {Direct, Group};
 
-Group.setupcontextmenu()
+Group.setupcontextmenu();

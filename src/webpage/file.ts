@@ -1,8 +1,8 @@
-import{ Message }from"./message.js";
-import{ filejson }from"./jsontypes.js";
-import { ImagesDisplay } from "./disimg.js";
+import {Message} from "./message.js";
+import {filejson} from "./jsontypes.js";
+import {ImagesDisplay} from "./disimg.js";
 
-class File{
+class File {
 	owner: Message | null;
 	id: string;
 	filename: string;
@@ -12,7 +12,7 @@ class File{
 	proxy_url: string | undefined;
 	url: string;
 	size: number;
-	constructor(fileJSON: filejson, owner: Message | null){
+	constructor(fileJSON: filejson, owner: Message | null) {
 		this.owner = owner;
 		this.id = fileJSON.id;
 		this.filename = fileJSON.filename;
@@ -24,9 +24,9 @@ class File{
 		this.content_type = fileJSON.content_type;
 		this.size = fileJSON.size;
 	}
-	getHTML(temp: boolean = false): HTMLElement{
+	getHTML(temp: boolean = false): HTMLElement {
 		const src = this.proxy_url || this.url;
-		if(this.width && this.height){
+		if (this.width && this.height) {
 			let scale = 1;
 			const max = 96 * 3;
 			scale = Math.max(scale, this.width / max);
@@ -34,35 +34,35 @@ class File{
 			this.width /= scale;
 			this.height /= scale;
 		}
-		if(this.content_type.startsWith("image/")){
+		if (this.content_type.startsWith("image/")) {
 			const div = document.createElement("div");
 			const img = document.createElement("img");
 			img.classList.add("messageimg");
 			div.classList.add("messageimgdiv");
-			img.onclick = function(){
+			img.onclick = function () {
 				const full = new ImagesDisplay([img.src]);
 				full.show();
 			};
 			img.src = src;
 			div.append(img);
-			if(this.width){
+			if (this.width) {
 				div.style.width = this.width + "px";
 				div.style.height = this.height + "px";
 			}
 			return div;
-		}else if(this.content_type.startsWith("video/")){
+		} else if (this.content_type.startsWith("video/")) {
 			const video = document.createElement("video");
 			const source = document.createElement("source");
 			source.src = src;
 			video.append(source);
 			source.type = this.content_type;
 			video.controls = !temp;
-			if(this.width && this.height){
+			if (this.width && this.height) {
 				video.width = this.width;
 				video.height = this.height;
 			}
 			return video;
-		}else if(this.content_type.startsWith("audio/")){
+		} else if (this.content_type.startsWith("audio/")) {
 			const audio = document.createElement("audio");
 			const source = document.createElement("source");
 			source.src = src;
@@ -70,11 +70,11 @@ class File{
 			source.type = this.content_type;
 			audio.controls = !temp;
 			return audio;
-		}else{
+		} else {
 			return this.createunknown();
 		}
 	}
-	upHTML(files: Blob[], file: globalThis.File): HTMLElement{
+	upHTML(files: Blob[], file: globalThis.File): HTMLElement {
 		const div = document.createElement("div");
 		const contained = this.getHTML(true);
 		div.classList.add("containedFile");
@@ -82,9 +82,9 @@ class File{
 		const controls = document.createElement("div");
 		const garbage = document.createElement("button");
 		const icon = document.createElement("span");
-		icon.classList.add("svgicon","svg-delete");
+		icon.classList.add("svgicon", "svg-delete");
 		garbage.append(icon);
-		garbage.onclick = _=>{
+		garbage.onclick = (_) => {
 			div.remove();
 			files.splice(files.indexOf(file), 1);
 		};
@@ -93,7 +93,7 @@ class File{
 		controls.append(garbage);
 		return div;
 	}
-	static initFromBlob(file: globalThis.File){
+	static initFromBlob(file: globalThis.File) {
 		return new File(
 			{
 				filename: file.name,
@@ -105,10 +105,10 @@ class File{
 				url: URL.createObjectURL(file),
 				proxy_url: undefined,
 			},
-			null
+			null,
 		);
 	}
-	createunknown(): HTMLElement{
+	createunknown(): HTMLElement {
 		console.log("🗎");
 		const src = this.proxy_url || this.url;
 		const div = document.createElement("table");
@@ -121,12 +121,12 @@ class File{
 		fileicon.classList.add("fileicon");
 		fileicon.rowSpan = 2;
 		const nametd = document.createElement("td");
-		if(src){
+		if (src) {
 			const a = document.createElement("a");
 			a.href = src;
 			a.textContent = this.filename;
 			nametd.append(a);
-		}else{
+		} else {
 			nametd.textContent = this.filename;
 		}
 
@@ -140,11 +140,13 @@ class File{
 		div.appendChild(sizetr);
 		return div;
 	}
-	static filesizehuman(fsize: number){
+	static filesizehuman(fsize: number) {
 		const i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024));
-		return(
-			Number((fsize / Math.pow(1024, i)).toFixed(2)) * 1 + " " + ["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i] // I don't think this changes across languages, correct me if I'm wrong
+		return (
+			Number((fsize / Math.pow(1024, i)).toFixed(2)) * 1 +
+			" " +
+			["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i] // I don't think this changes across languages, correct me if I'm wrong
 		);
 	}
 }
-export{ File };
+export {File};

@@ -1,36 +1,36 @@
-import{ Localuser }from"./localuser.js";
-import{ Contextmenu }from"./contextmenu.js";
-import{ mobile }from"./utils/utils.js";
-import { getBulkUsers, setTheme, Specialuser } from "./utils/utils.js";
-import{ MarkDown }from"./markdown.js";
-import{ Message }from"./message.js";
-import{File}from"./file.js";
-import { I18n } from "./i18n.js";
-(async ()=>{
-	await I18n.done
+import {Localuser} from "./localuser.js";
+import {Contextmenu} from "./contextmenu.js";
+import {mobile} from "./utils/utils.js";
+import {getBulkUsers, setTheme, Specialuser} from "./utils/utils.js";
+import {MarkDown} from "./markdown.js";
+import {Message} from "./message.js";
+import {File} from "./file.js";
+import {I18n} from "./i18n.js";
+(async () => {
+	await I18n.done;
 	const users = getBulkUsers();
-	if(!users.currentuser){
+	if (!users.currentuser) {
 		window.location.href = "/login.html";
 		return;
 	}
 	{
-		const loadingText=document.getElementById("loadingText");
-		const loaddesc=document.getElementById("load-desc");
-		const switchaccounts=document.getElementById("switchaccounts");
-		const filedroptext=document.getElementById("filedroptext");
-		if(loadingText&&loaddesc&&switchaccounts&&filedroptext){
-			loadingText.textContent=I18n.getTranslation("htmlPages.loadingText");
-			loaddesc.textContent=I18n.getTranslation("htmlPages.loaddesc");
-			switchaccounts.textContent=I18n.getTranslation("htmlPages.switchaccounts");
-			filedroptext.textContent=I18n.getTranslation("uploadFilesText");
+		const loadingText = document.getElementById("loadingText");
+		const loaddesc = document.getElementById("load-desc");
+		const switchaccounts = document.getElementById("switchaccounts");
+		const filedroptext = document.getElementById("filedroptext");
+		if (loadingText && loaddesc && switchaccounts && filedroptext) {
+			loadingText.textContent = I18n.getTranslation("htmlPages.loadingText");
+			loaddesc.textContent = I18n.getTranslation("htmlPages.loaddesc");
+			switchaccounts.textContent = I18n.getTranslation("htmlPages.switchaccounts");
+			filedroptext.textContent = I18n.getTranslation("uploadFilesText");
 		}
 	}
-	I18n
-	function showAccountSwitcher(): void{
+	I18n;
+	function showAccountSwitcher(): void {
 		const table = document.createElement("div");
-		table.classList.add("flexttb","accountSwitcher");
+		table.classList.add("flexttb", "accountSwitcher");
 
-		for(const user of Object.values(users.users)){
+		for (const user of Object.values(users.users)) {
 			const specialUser = user as Specialuser;
 			const userInfo = document.createElement("div");
 			userInfo.classList.add("flexltr", "switchtable");
@@ -55,7 +55,7 @@ import { I18n } from "./i18n.js";
 			userInfo.append(userDiv);
 			table.append(userInfo);
 
-			userInfo.addEventListener("click", ()=>{
+			userInfo.addEventListener("click", () => {
 				thisUser.unload();
 				thisUser.swapped = true;
 				const loading = document.getElementById("loading") as HTMLDivElement;
@@ -66,7 +66,7 @@ import { I18n } from "./i18n.js";
 				users.currentuser = specialUser.uid;
 				localStorage.setItem("userinfos", JSON.stringify(users));
 
-				thisUser.initwebsocket().then(()=>{
+				thisUser.initwebsocket().then(() => {
 					thisUser.loaduser();
 					thisUser.init();
 					loading.classList.add("doneloading");
@@ -81,12 +81,12 @@ import { I18n } from "./i18n.js";
 		const switchAccountDiv = document.createElement("div");
 		switchAccountDiv.classList.add("switchtable");
 		switchAccountDiv.textContent = I18n.getTranslation("switchAccounts");
-		switchAccountDiv.addEventListener("click", ()=>{
+		switchAccountDiv.addEventListener("click", () => {
 			window.location.href = "/login.html";
 		});
 		table.append(switchAccountDiv);
 
-		if(Contextmenu.currentmenu){
+		if (Contextmenu.currentmenu) {
 			Contextmenu.currentmenu.remove();
 		}
 		Contextmenu.currentmenu = table;
@@ -94,22 +94,22 @@ import { I18n } from "./i18n.js";
 	}
 
 	const userInfoElement = document.getElementById("userinfo") as HTMLDivElement;
-	userInfoElement.addEventListener("click", event=>{
+	userInfoElement.addEventListener("click", (event) => {
 		event.stopImmediatePropagation();
 		showAccountSwitcher();
 	});
 
 	const switchAccountsElement = document.getElementById("switchaccounts") as HTMLDivElement;
-	switchAccountsElement.addEventListener("click", event=>{
+	switchAccountsElement.addEventListener("click", (event) => {
 		event.stopImmediatePropagation();
 		showAccountSwitcher();
 	});
 
 	let thisUser: Localuser;
-	try{
+	try {
 		console.log(users.users, users.currentuser);
 		thisUser = new Localuser(users.users[users.currentuser]);
-		thisUser.initwebsocket().then(()=>{
+		thisUser.initwebsocket().then(() => {
 			thisUser.loaduser();
 			thisUser.init();
 			const loading = document.getElementById("loading") as HTMLDivElement;
@@ -117,62 +117,65 @@ import { I18n } from "./i18n.js";
 			loading.classList.remove("loading");
 			console.log("done loading");
 		});
-	}catch(e){
+	} catch (e) {
 		console.error(e);
-		(document.getElementById("load-desc") as HTMLSpanElement).textContent = I18n.getTranslation("accountNotStart");
+		(document.getElementById("load-desc") as HTMLSpanElement).textContent =
+			I18n.getTranslation("accountNotStart");
 		thisUser = new Localuser(-1);
 	}
 
-	const menu = new Contextmenu<void,void>("create rightclick");
+	const menu = new Contextmenu<void, void>("create rightclick");
 	menu.addbutton(
 		I18n.getTranslation("channel.createChannel"),
-		()=>{
-			if(thisUser.lookingguild){
+		() => {
+			if (thisUser.lookingguild) {
 				thisUser.lookingguild.createchannels();
 			}
 		},
 		null,
-		()=>thisUser.isAdmin()
+		() => thisUser.isAdmin(),
 	);
 
 	menu.addbutton(
 		I18n.getTranslation("channel.createCatagory"),
-		()=>{
-			if(thisUser.lookingguild){
+		() => {
+			if (thisUser.lookingguild) {
 				thisUser.lookingguild.createcategory();
 			}
 		},
 		null,
-		()=>thisUser.isAdmin()
+		() => thisUser.isAdmin(),
 	);
 
 	menu.bindContextmenu(document.getElementById("channels") as HTMLDivElement);
 
 	const pasteImageElement = document.getElementById("pasteimage") as HTMLDivElement;
 	let replyingTo: Message | null = null;
-	window.addEventListener("popstate",(e)=>{
-		if(e.state instanceof Object){
-			thisUser.goToChannel(e.state[1],false);
+	window.addEventListener("popstate", (e) => {
+		if (e.state instanceof Object) {
+			thisUser.goToChannel(e.state[1], false);
 		}
 		//console.log(e.state,"state:3")
-	})
-	async function handleEnter(event: KeyboardEvent): Promise<void>{
-		if(thisUser.keyup(event)){return}
+	});
+	async function handleEnter(event: KeyboardEvent): Promise<void> {
+		if (thisUser.keyup(event)) {
+			return;
+		}
 		const channel = thisUser.channelfocus;
-		if(!channel)return;
-		if(markdown.rawString===""&&event.key==="ArrowUp"){
+		if (!channel) return;
+		if (markdown.rawString === "" && event.key === "ArrowUp") {
 			channel.editLast();
 			return;
 		}
 		channel.typingstart();
 
-		if(event.key === "Enter" && !event.shiftKey){
+		if (event.key === "Enter" && !event.shiftKey) {
 			event.preventDefault();
-			replyingTo = thisUser.channelfocus? thisUser.channelfocus.replyingto: null;
-			if(replyingTo?.div){
+			replyingTo = thisUser.channelfocus ? thisUser.channelfocus.replyingto : null;
+			if (replyingTo?.div) {
 				replyingTo.div.classList.remove("replying");
 			}
-			if(thisUser.channelfocus){
+			if (thisUser.channelfocus) {
 				thisUser.channelfocus.replyingto = null;
 			}
 			channel.sendMessage(markdown.rawString, {
@@ -181,10 +184,10 @@ import { I18n } from "./i18n.js";
 				embeds: [], // Add an empty array for the embeds property
 				replyingto: replyingTo,
 			});
-			if(thisUser.channelfocus){
+			if (thisUser.channelfocus) {
 				thisUser.channelfocus.makereplybox();
 			}
-			while(images.length){
+			while (images.length) {
 				images.pop();
 				pasteImageElement.removeChild(imagesHtml.pop() as HTMLElement);
 			}
@@ -193,15 +196,17 @@ import { I18n } from "./i18n.js";
 		}
 	}
 
-	interface CustomHTMLDivElement extends HTMLDivElement {markdown: MarkDown;}
+	interface CustomHTMLDivElement extends HTMLDivElement {
+		markdown: MarkDown;
+	}
 
 	const typebox = document.getElementById("typebox") as CustomHTMLDivElement;
 	const markdown = new MarkDown("", thisUser);
 	typebox.markdown = markdown;
 	typebox.addEventListener("keyup", handleEnter);
-	typebox.addEventListener("keydown", event=>{
-		thisUser.keydown(event)
-		if(event.key === "Enter" && !event.shiftKey) event.preventDefault();
+	typebox.addEventListener("keydown", (event) => {
+		thisUser.keydown(event);
+		if (event.key === "Enter" && !event.shiftKey) event.preventDefault();
 	});
 	markdown.giveBox(typebox);
 	{
@@ -209,30 +214,27 @@ import { I18n } from "./i18n.js";
 		const markdown = new MarkDown("", thisUser);
 		searchBox.markdown = markdown;
 
-		searchBox.addEventListener("keydown", event=>{
-
-			if(event.key === "Enter") {
+		searchBox.addEventListener("keydown", (event) => {
+			if (event.key === "Enter") {
 				event.preventDefault();
-				thisUser.mSearch(markdown.rawString)
-			};
+				thisUser.mSearch(markdown.rawString);
+			}
 		});
 
 		markdown.giveBox(searchBox);
-		markdown.setCustomBox((e)=>{
-			const span=document.createElement("span");
-			span.textContent=e.replace("\n","");
+		markdown.setCustomBox((e) => {
+			const span = document.createElement("span");
+			span.textContent = e.replace("\n", "");
 			return span;
 		});
-
-
 	}
 	const images: Blob[] = [];
 	const imagesHtml: HTMLElement[] = [];
 
-	document.addEventListener("paste", async (e: ClipboardEvent)=>{
-		if(!e.clipboardData)return;
+	document.addEventListener("paste", async (e: ClipboardEvent) => {
+		if (!e.clipboardData) return;
 
-		for(const file of Array.from(e.clipboardData.files)){
+		for (const file of Array.from(e.clipboardData.files)) {
 			const fileInstance = File.initFromBlob(file);
 			e.preventDefault();
 			const html = fileInstance.upHTML(images, file);
@@ -244,60 +246,59 @@ import { I18n } from "./i18n.js";
 
 	setTheme();
 
-	function userSettings(): void{
+	function userSettings(): void {
 		thisUser.showusersettings();
 	}
 
-	(document.getElementById("settings") as HTMLImageElement).onclick =
-	userSettings;
+	(document.getElementById("settings") as HTMLImageElement).onclick = userSettings;
 
-	if(mobile){
+	if (mobile) {
 		const channelWrapper = document.getElementById("channelw") as HTMLDivElement;
-		channelWrapper.onclick = ()=>{
+		channelWrapper.onclick = () => {
 			const toggle = document.getElementById("maintoggle") as HTMLInputElement;
 			toggle.checked = true;
 		};
 		const memberListToggle = document.getElementById("memberlisttoggle") as HTMLInputElement;
 		memberListToggle.checked = false;
 	}
-	let dragendtimeout=setTimeout(()=>{})
-	document.addEventListener("dragover",(e)=>{
+	let dragendtimeout = setTimeout(() => {});
+	document.addEventListener("dragover", (e) => {
 		clearTimeout(dragendtimeout);
 		const data = e.dataTransfer;
-		const bg=document.getElementById("gimmefile") as HTMLDivElement;
+		const bg = document.getElementById("gimmefile") as HTMLDivElement;
 
-		if(data){
-			const isfile=data.types.includes("Files")||data.types.includes("application/x-moz-file");
-			if(!isfile){
-				bg.hidden=true;
+		if (data) {
+			const isfile = data.types.includes("Files") || data.types.includes("application/x-moz-file");
+			if (!isfile) {
+				bg.hidden = true;
 				return;
 			}
 			e.preventDefault();
-			bg.hidden=false;
+			bg.hidden = false;
 			//console.log(data.types,data)
-		}else{
-			bg.hidden=true;
+		} else {
+			bg.hidden = true;
 		}
 	});
-	document.addEventListener("dragleave",(_)=>{
-		dragendtimeout=setTimeout(()=>{
-			const bg=document.getElementById("gimmefile") as HTMLDivElement;
-			bg.hidden=true;
-		},1000)
+	document.addEventListener("dragleave", (_) => {
+		dragendtimeout = setTimeout(() => {
+			const bg = document.getElementById("gimmefile") as HTMLDivElement;
+			bg.hidden = true;
+		}, 1000);
 	});
-	document.addEventListener("dragenter",(e)=>{
+	document.addEventListener("dragenter", (e) => {
 		e.preventDefault();
-	})
-	document.addEventListener("drop",e=>{
+	});
+	document.addEventListener("drop", (e) => {
 		const data = e.dataTransfer;
-		const bg=document.getElementById("gimmefile") as HTMLDivElement;
-		bg.hidden=true;
-		if(data){
-			const isfile=data.types.includes("Files")||data.types.includes("application/x-moz-file");
-			if(isfile){
+		const bg = document.getElementById("gimmefile") as HTMLDivElement;
+		bg.hidden = true;
+		if (data) {
+			const isfile = data.types.includes("Files") || data.types.includes("application/x-moz-file");
+			if (isfile) {
 				e.preventDefault();
 				console.log(data.files);
-				for(const file of Array.from(data.files)){
+				for (const file of Array.from(data.files)) {
 					const fileInstance = File.initFromBlob(file);
 					const html = fileInstance.upHTML(images, file);
 					pasteImageElement.appendChild(html);
@@ -307,14 +308,14 @@ import { I18n } from "./i18n.js";
 			}
 		}
 	});
-	(document.getElementById("upload") as HTMLElement).onclick=()=>{
-		const input=document.createElement("input");
-		input.type="file";
+	(document.getElementById("upload") as HTMLElement).onclick = () => {
+		const input = document.createElement("input");
+		input.type = "file";
 		input.click();
-		console.log("clicked")
-		input.onchange=(() => {
-			if(input.files){
-				for(const file of Array.from(input.files)){
+		console.log("clicked");
+		input.onchange = () => {
+			if (input.files) {
+				for (const file of Array.from(input.files)) {
 					const fileInstance = File.initFromBlob(file);
 					const html = fileInstance.upHTML(images, file);
 					pasteImageElement.appendChild(html);
@@ -322,7 +323,6 @@ import { I18n } from "./i18n.js";
 					imagesHtml.push(html);
 				}
 			}
-		})
-	}
-
+		};
+	};
 })();

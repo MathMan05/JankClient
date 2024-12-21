@@ -63,7 +63,12 @@ type readyjson = {
 		};
 		user_guild_settings: {
 			entries: {
-				channel_overrides: {message_notifications: number,muted: boolean,mute_config: {selected_time_window: number,end_time: number},channel_id: string}[];
+				channel_overrides: {
+					message_notifications: number;
+					muted: boolean;
+					mute_config: {selected_time_window: number; end_time: number};
+					channel_id: string;
+				}[];
 				message_notifications: number;
 				flags: number;
 				hide_muted_channels: boolean;
@@ -149,12 +154,12 @@ type memberjson = {
 	id: string;
 	user: userjson | null;
 	guild_id: string;
-	avatar?:string;
-	banner?:string;
+	avatar?: string;
+	banner?: string;
 	guild: {
 		id: string;
 	} | null;
-	presence?:presencejson
+	presence?: presencejson;
 	nick?: string;
 	roles: string[];
 	joined_at: string;
@@ -168,21 +173,20 @@ type emojijson = {
 	name: string;
 	id?: string;
 	animated?: boolean;
-	emoji?:string;
+	emoji?: string;
 };
-type emojipjson=emojijson&{
-	available: boolean,
-	guild_id:string,
-	user_id:string,
-	managed:boolean,
-	require_colons:boolean,
-	roles:string[],
-	groups:null//TODO figure out what this means lol
+type emojipjson = emojijson & {
+	available: boolean;
+	guild_id: string;
+	user_id: string;
+	managed: boolean;
+	require_colons: boolean;
+	roles: string[];
+	groups: null; //TODO figure out what this means lol
 };
-
 
 type guildjson = {
-	application_command_counts: { [key: string]: number };
+	application_command_counts: {[key: string]: number};
 	channels: channeljson[];
 	data_mode: string;
 	emojis: emojipjson[];
@@ -404,165 +408,178 @@ type messageCreateJson = {
 	s: number;
 	t: "MESSAGE_CREATE";
 };
-type roleCreate={
-    op: 0,
-    t: "GUILD_ROLE_CREATE",
-    d: {
-        guild_id: string,
-        role: rolesjson
-    },
-    s: 6
-}
-type wsjson =
-roleCreate | {
+type roleCreate = {
 	op: 0;
-	d: any;
-	s: number;
-	t:
-		| "TYPING_START"
-		| "USER_UPDATE"
-		| "CHANNEL_UPDATE"
-		| "CHANNEL_CREATE"
-		| "CHANNEL_DELETE"
-		| "GUILD_DELETE"
-		| "GUILD_CREATE"
-		| "MESSAGE_REACTION_REMOVE_ALL"
-		| "MESSAGE_REACTION_REMOVE_EMOJI";
-	}
-| {
-	op: 0;
-	t: "GUILD_MEMBERS_CHUNK";
-	d: memberChunk;
-	s: number;
-}
-| {
-	op: 0;
+	t: "GUILD_ROLE_CREATE";
 	d: {
-		id: string;
-		guild_id?: string;
-		channel_id: string;
-	};
-	s: number;
-	t: "MESSAGE_DELETE";
-}
-| {
-	op: 0;
-	d: {
-		guild_id?: string;
-		channel_id: string;
-	} & messagejson;
-	s: number;
-	t: "MESSAGE_UPDATE";
-}
-| messageCreateJson
-| readyjson
-| {
-	op: 11;
-	s: undefined;
-	d: {};
-}
-| {
-	op: 10;
-	s: undefined;
-	d: {
-		heartbeat_interval: number;
-	};
-}
-| {
-	op: 0;
-	t: "MESSAGE_REACTION_ADD";
-	d: {
-		user_id: string;
-		channel_id: string;
-		message_id: string;
-		guild_id?: string;
-		emoji: emojijson;
-		member?: memberjson;
-	};
-	s: number;
-}
-| {
-	op: 0;
-	t: "MESSAGE_REACTION_REMOVE";
-	d: {
-		user_id: string;
-		channel_id: string;
-		message_id: string;
 		guild_id: string;
-		emoji: emojijson;
+		role: rolesjson;
 	};
-	s: number;
-}|{
-    op: 0,
-    t: "GUILD_ROLE_UPDATE",
-    d: {
-        guild_id: string,
-        role: rolesjson
-    },
-    "s": number
-}|{
-    op: 0,
-    t: "GUILD_ROLE_DELETE",
-    d: {
-        guild_id: string,
-        role_id: string
-    },
-    s:number
-}|{
-    op: 0,
-    t: "GUILD_MEMBER_UPDATE",
-    d: memberjson,
-    s: 3
-}|{
-	op:9,
-	d:boolean,
-	s:number
-}|memberlistupdatejson|voiceupdate|voiceserverupdate|{
-    op: 0,
-    t: "RELATIONSHIP_ADD",
-    d: {
-        id: string,
-        type: 0|1|2|3|4|5|6,
-        user: userjson
-    },
-    s: number
-}|{
-    op: 0,
-    t: "RELATIONSHIP_REMOVE",
-    d: {
-        id: string,
-        type: number,
-        nickname: null
-    },
-    s: number
-}|{
-    op: 0,
-    t: "PRESENCE_UPDATE",
-    d: presencejson,
-    s:number
-}|{
-	op:0,
-	t:"GUILD_MEMBER_ADD",
-	d:memberjson,
-	s:number
-}|{
-	op:0,
-	t:"GUILD_MEMBER_REMOVE",
-	d:{
-		guild_id:string,
-		user:userjson
-	},
-	s:number
-}|{
-    op: 0,
-    t: "GUILD_EMOJIS_UPDATE",
-    d: {
-        guild_id: string,
-        emojis: emojipjson[]
-    },
-    s: number
+	s: 6;
 };
-
+type wsjson =
+	| roleCreate
+	| {
+			op: 0;
+			d: any;
+			s: number;
+			t:
+				| "TYPING_START"
+				| "USER_UPDATE"
+				| "CHANNEL_UPDATE"
+				| "CHANNEL_CREATE"
+				| "CHANNEL_DELETE"
+				| "GUILD_DELETE"
+				| "GUILD_CREATE"
+				| "MESSAGE_REACTION_REMOVE_ALL"
+				| "MESSAGE_REACTION_REMOVE_EMOJI";
+	  }
+	| {
+			op: 0;
+			t: "GUILD_MEMBERS_CHUNK";
+			d: memberChunk;
+			s: number;
+	  }
+	| {
+			op: 0;
+			d: {
+				id: string;
+				guild_id?: string;
+				channel_id: string;
+			};
+			s: number;
+			t: "MESSAGE_DELETE";
+	  }
+	| {
+			op: 0;
+			d: {
+				guild_id?: string;
+				channel_id: string;
+			} & messagejson;
+			s: number;
+			t: "MESSAGE_UPDATE";
+	  }
+	| messageCreateJson
+	| readyjson
+	| {
+			op: 11;
+			s: undefined;
+			d: {};
+	  }
+	| {
+			op: 10;
+			s: undefined;
+			d: {
+				heartbeat_interval: number;
+			};
+	  }
+	| {
+			op: 0;
+			t: "MESSAGE_REACTION_ADD";
+			d: {
+				user_id: string;
+				channel_id: string;
+				message_id: string;
+				guild_id?: string;
+				emoji: emojijson;
+				member?: memberjson;
+			};
+			s: number;
+	  }
+	| {
+			op: 0;
+			t: "MESSAGE_REACTION_REMOVE";
+			d: {
+				user_id: string;
+				channel_id: string;
+				message_id: string;
+				guild_id: string;
+				emoji: emojijson;
+			};
+			s: number;
+	  }
+	| {
+			op: 0;
+			t: "GUILD_ROLE_UPDATE";
+			d: {
+				guild_id: string;
+				role: rolesjson;
+			};
+			s: number;
+	  }
+	| {
+			op: 0;
+			t: "GUILD_ROLE_DELETE";
+			d: {
+				guild_id: string;
+				role_id: string;
+			};
+			s: number;
+	  }
+	| {
+			op: 0;
+			t: "GUILD_MEMBER_UPDATE";
+			d: memberjson;
+			s: 3;
+	  }
+	| {
+			op: 9;
+			d: boolean;
+			s: number;
+	  }
+	| memberlistupdatejson
+	| voiceupdate
+	| voiceserverupdate
+	| {
+			op: 0;
+			t: "RELATIONSHIP_ADD";
+			d: {
+				id: string;
+				type: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+				user: userjson;
+			};
+			s: number;
+	  }
+	| {
+			op: 0;
+			t: "RELATIONSHIP_REMOVE";
+			d: {
+				id: string;
+				type: number;
+				nickname: null;
+			};
+			s: number;
+	  }
+	| {
+			op: 0;
+			t: "PRESENCE_UPDATE";
+			d: presencejson;
+			s: number;
+	  }
+	| {
+			op: 0;
+			t: "GUILD_MEMBER_ADD";
+			d: memberjson;
+			s: number;
+	  }
+	| {
+			op: 0;
+			t: "GUILD_MEMBER_REMOVE";
+			d: {
+				guild_id: string;
+				user: userjson;
+			};
+			s: number;
+	  }
+	| {
+			op: 0;
+			t: "GUILD_EMOJIS_UPDATE";
+			d: {
+				guild_id: string;
+				emojis: emojipjson[];
+			};
+			s: number;
+	  };
 
 type memberChunk = {
 	guild_id: string;
@@ -573,134 +590,140 @@ type memberChunk = {
 	chunk_count: number;
 	not_found: string[];
 };
-type voiceupdate={
-	op: 0,
-	t: "VOICE_STATE_UPDATE",
+type voiceupdate = {
+	op: 0;
+	t: "VOICE_STATE_UPDATE";
 	d: {
-		guild_id: string,
-		channel_id: string,
-		user_id: string,
-		member: memberjson,
-		session_id: string,
-		token: string,
-		deaf: boolean,
-		mute: boolean,
-		self_deaf: boolean,
-		self_mute: boolean,
-		self_video: boolean,
-		suppress: boolean
-	},
-	s: number
+		guild_id: string;
+		channel_id: string;
+		user_id: string;
+		member: memberjson;
+		session_id: string;
+		token: string;
+		deaf: boolean;
+		mute: boolean;
+		self_deaf: boolean;
+		self_mute: boolean;
+		self_video: boolean;
+		suppress: boolean;
+	};
+	s: number;
 };
-type voiceserverupdate={
-	op: 0,
-	t: "VOICE_SERVER_UPDATE",
+type voiceserverupdate = {
+	op: 0;
+	t: "VOICE_SERVER_UPDATE";
 	d: {
-		token: string,
-		guild_id: string,
-		endpoint: string
-	},
-	s: 6
+		token: string;
+		guild_id: string;
+		endpoint: string;
+	};
+	s: 6;
 };
-type memberlistupdatejson={
-	op: 0,
-	s: number,
-	t: "GUILD_MEMBER_LIST_UPDATE",
+type memberlistupdatejson = {
+	op: 0;
+	s: number;
+	t: "GUILD_MEMBER_LIST_UPDATE";
 	d: {
 		ops: [
 			{
-				items:({
-					group:{
-						count:number,
-						id:string
-					}
-				}|{
-					member:memberjson
-				})[]
-				op: "SYNC",
-				range: [
-					number,
-					number
-				]
-			}
-		],
-		online_count: number,
-		member_count: number,
-		id: string,
-		guild_id: string,
+				items: (
+					| {
+							group: {
+								count: number;
+								id: string;
+							};
+					  }
+					| {
+							member: memberjson;
+					  }
+				)[];
+				op: "SYNC";
+				range: [number, number];
+			},
+		];
+		online_count: number;
+		member_count: number;
+		id: string;
+		guild_id: string;
 		groups: {
-			count: number,
-			id: string
-		}[]
-	}
-}
-type webRTCSocket=	{
-	op: 8,
-	d: {
-		heartbeat_interval: number
-	}
-}|{
-	op:6,
-	d:{t: number}
-}|{
-	op: 2,
-	d: {
-		ssrc: number,
-		"streams": {
-				type: "video",//probally more options, but idk
-				rid: string,
-				quality: number,
-				ssrc: number,
-				rtx_ssrc:number
-			}[],
-		ip: number,
-		port: number,
-		"modes": [],//no clue
-		"experiments": []//no clue
-	}
-}|sdpback|opRTC12|{
-    op: 5,
-    d: {
-        user_id: string,
-        speaking: 0,
-        ssrc: 940464811
-    }
+			count: number;
+			id: string;
+		}[];
+	};
 };
-type sdpback={
-	op: 4,
+type webRTCSocket =
+	| {
+			op: 8;
+			d: {
+				heartbeat_interval: number;
+			};
+	  }
+	| {
+			op: 6;
+			d: {t: number};
+	  }
+	| {
+			op: 2;
+			d: {
+				ssrc: number;
+				streams: {
+					type: "video"; //probally more options, but idk
+					rid: string;
+					quality: number;
+					ssrc: number;
+					rtx_ssrc: number;
+				}[];
+				ip: number;
+				port: number;
+				modes: []; //no clue
+				experiments: []; //no clue
+			};
+	  }
+	| sdpback
+	| opRTC12
+	| {
+			op: 5;
+			d: {
+				user_id: string;
+				speaking: 0;
+				ssrc: 940464811;
+			};
+	  };
+type sdpback = {
+	op: 4;
 	d: {
-		audioCodec: string,
-		videoCodec: string,
-		media_session_id: string,
-		sdp: string
-	}
+		audioCodec: string;
+		videoCodec: string;
+		media_session_id: string;
+		sdp: string;
+	};
 };
-type opRTC12={
-	op: 12,
+type opRTC12 = {
+	op: 12;
 	d: {
-		user_id: string,
-		audio_ssrc: number,
-		video_ssrc: number,
+		user_id: string;
+		audio_ssrc: number;
+		video_ssrc: number;
 		streams: [
 			{
-				type: "video",
-				rid: "100",
-				ssrc: number,
-				active: boolean,
-				quality: 100,
-				rtx_ssrc: number,
-				max_bitrate: 2500000,
-				max_framerate: number,
+				type: "video";
+				rid: "100";
+				ssrc: number;
+				active: boolean;
+				quality: 100;
+				rtx_ssrc: number;
+				max_bitrate: 2500000;
+				max_framerate: number;
 				max_resolution: {
-					type: "fixed",
-					width: number,
-					height: number
-				}
-			}
-		]
-	}
-}
-export{
+					type: "fixed";
+					width: number;
+					height: number;
+				};
+			},
+		];
+	};
+};
+export {
 	readyjson,
 	dirrectjson,
 	startTypingjson,
@@ -725,5 +748,5 @@ export{
 	webRTCSocket,
 	sdpback,
 	opRTC12,
-	emojipjson
+	emojipjson,
 };
