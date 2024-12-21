@@ -1,3 +1,4 @@
+//For those wondering what in the world this is, this is the badge data for all of the badges public_flags represents in a seperate file so it's not as much of a mess
 const badgeArr = [
 	[
 		"staff",
