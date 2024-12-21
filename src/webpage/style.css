@@ -61,6 +61,10 @@ body {
 	flex-grow: 1;
 	min-height: 0;
 }
+.channelSTitle{
+	margin-top:.2in;
+	margin-bottom:0;
+}
 p, h1, h2, h3, pre, form {
 	margin: 0;
 }
@@ -957,6 +961,26 @@ span.instanceStatus {
 	display:flex;
 	flex-direction: row;
 }
+
+.searchBox:empty {
+	width:2in;
+}
+.searchBox {
+	white-space: nowrap;
+	height: .075in;
+	padding: 7px 10px 13px 10px;
+	background: var(--dock-bg);
+	border-radius: 4px;
+	/* overflow-y: auto; */
+	display:flex;
+	flex-direction: row;
+	width: 3in;
+	margin: 0 .1in;
+	overflow: hidden;
+	margin-left: auto;
+	flex-shrink: 0;
+	transition: width .2s;
+}
 .outerTypeBox > span::before {
 	content: "\feff";
 }
@@ -1385,7 +1409,21 @@ img.bigembedimg {
 .acceptinvbutton:hover, .acceptinvbutton:disabled {
 	background: color-mix(in hsl, var(--green) 80%, var(--black));
 }
-
+#sideDiv.searchDiv{
+	width: 30vw;
+	.topMessage{
+		margin-top:2px;
+		margin-bottom:10px;
+		cursor:pointer;
+		padding:.05in;
+		border-radius:.075in;
+		background:#00000020;
+	}
+	.topMessage:hover{
+		background:#00000050;
+		
+	}
+}
 /* Sidebar */
 #sideDiv {
 	display: none;
@@ -1396,6 +1434,7 @@ img.bigembedimg {
 	overflow-y: auto;
 	box-sizing: border-box;
 }
+
 .memberList {
 	padding-bottom: 16px;
 	color: var(--primary-text-soft);
@@ -1416,8 +1455,9 @@ img.bigembedimg {
 #memberlisttoggleicon {
 	display: block;
 	padding: 12px 0;
-	margin-left: auto;
+	margin-left: 0;
 	cursor: pointer;
+	flex-grow: 0;
 }
 #memberlisttoggleicon span {
 	height: 16px;

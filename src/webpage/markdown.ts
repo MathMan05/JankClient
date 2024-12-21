@@ -300,11 +300,7 @@ class MarkDown{
 					}
 				}
 				if(
-					find === count &&
-(count != 1 ||
-txt[j + 1] === " " ||
-txt[j + 1] === "\n" ||
-txt[j + 1] === undefined)
+					find === count &&(count != 1 ||txt[j + 1] === " " ||txt[j + 1] === "\n" ||txt[j + 1] === undefined)
 				){
 					appendcurrent();
 					i = j;
@@ -715,16 +711,37 @@ txt[j + 1] === undefined)
 			box.onkeyup(new KeyboardEvent("_"));
 		};
 	}
+	customBox?:[(arg1:string)=>HTMLElement,((arg1:HTMLElement)=>string)];
+	clearCustom(){
+		this.customBox=undefined;
+	}
+	setCustomBox(stringToHTML:(arg1:string)=>HTMLElement,HTMLToString=MarkDown.gatherBoxText.bind(MarkDown)){
+		this.customBox=[stringToHTML,HTMLToString];
+	}
 	boxupdate(offset=0){
 		const box=this.box.deref();
 		if(!box) return;
-		const restore = saveCaretPosition(box,offset);
+		let restore:undefined|(()=>void);
+		if(this.customBox){
+			restore= saveCaretPosition(box,offset,this.customBox[1]);
+		}else{
+			restore= saveCaretPosition(box,offset)
+		}
 		box.innerHTML = "";
-		box.append(this.makeHTML({ keep: true }));
+		if(this.customBox){
+			box.append(this.customBox[0](this.rawString));
+		}else{
+			box.append(this.makeHTML({ keep: true }));
+		}
 		if(restore){
 			restore();
-			const test=saveCaretPosition(box);
-			if(test) test();
+			if(this.customBox){
+				const test=saveCaretPosition(box,0,this.customBox[1]);
+				if(test) test();
+			}else{
+				const test=saveCaretPosition(box);
+				if(test) test();
+			}
 		}
 		this.onUpdate(text,formatted);
 	}
@@ -816,7 +833,7 @@ txt[j + 1] === undefined)
 //solution from https://stackoverflow.com/questions/4576694/saving-and-restoring-caret-position-for-contenteditable-div
 let text = "";
 let formatted=false;
-function saveCaretPosition(context: HTMLElement,offset=0){
+function saveCaretPosition(context: HTMLElement,offset=0,txtLengthFunc=MarkDown.gatherBoxText.bind(MarkDown)){
 	const selection = window.getSelection() as Selection;
 	if(!selection)return;
 	try{
@@ -837,7 +854,7 @@ function saveCaretPosition(context: HTMLElement,offset=0){
 				i++;
 			}
 			if(base instanceof HTMLElement){
-				baseString=MarkDown.gatherBoxText(base)
+				baseString=txtLengthFunc(base)
 			}else{
 				baseString=base.textContent as string;
 			}
@@ -855,7 +872,7 @@ function saveCaretPosition(context: HTMLElement,offset=0){
 			const children=[...context.childNodes];
 			if(children.length===1&&children[0] instanceof Text){
 				if(selection.containsNode(context,false)){
-					build+=MarkDown.gatherBoxText(context as HTMLElement);
+					build+=txtLengthFunc(context as HTMLElement);
 				}else if(selection.containsNode(context,true)){
 					if(context.contains(base)||context===base||base.contains(context)){
 						build+=baseString;
@@ -871,7 +888,7 @@ function saveCaretPosition(context: HTMLElement,offset=0){
 
 				if(selection.containsNode(node,false)){
 					if(node instanceof HTMLElement){
-						build+=MarkDown.gatherBoxText(node);
+						build+=txtLengthFunc(node);
 					}else{
 						build+=node.textContent;
 					}
@@ -892,10 +909,10 @@ function saveCaretPosition(context: HTMLElement,offset=0){
 		}
 		text=build;
 		let len=build.length+offset;
-		len=Math.min(len,MarkDown.gatherBoxText(context).length)
+		len=Math.min(len,txtLengthFunc(context).length)
 		return function restore(){
 			if(!selection)return;
-			const pos = getTextNodeAtPosition(context, len);
+			const pos = getTextNodeAtPosition(context, len,txtLengthFunc);
 			selection.removeAllRanges();
 			const range = new Range();
 			range.setStart(pos.node, pos.position);
@@ -906,7 +923,7 @@ function saveCaretPosition(context: HTMLElement,offset=0){
 	}
 }
 
-function getTextNodeAtPosition(root: Node, index: number):{
+function getTextNodeAtPosition(root: Node, index: number,txtLengthFunc=MarkDown.gatherBoxText.bind(MarkDown)):{
 			node: Node,
 			position: number,
 		}{
@@ -931,7 +948,7 @@ function getTextNodeAtPosition(root: Node, index: number):{
 		lastElm=node;
 		let len:number
 		if(node instanceof HTMLElement){
-			len=MarkDown.gatherBoxText(node).length;
+			len=txtLengthFunc(node).length;
 		}else{
 			len=(node.textContent as string).length
 		}

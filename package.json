@@ -16,6 +16,7 @@
     "express": "^4.19.2",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-swc": "^2.2.0",
+    "prettier": "^3.4.2",
     "rimraf": "^6.0.1"
   },
   "devDependencies": {

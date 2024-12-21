@@ -37,7 +37,6 @@ offset: number
 			this.destroyFromID(thing[1]);
 		}
 		this.HTMLElements=[];
-		this.div=null;
 	}
 	constructor(
 		getIDFromOffset: InfiniteScroller["getIDFromOffset"],
