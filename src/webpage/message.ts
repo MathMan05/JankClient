@@ -101,12 +101,14 @@ class Message extends SnowFlake{
 		if(prev) prev.generateMessage();
 		this.generateMessage(undefined,false)
 	}
-	constructor(messagejson: messagejson, owner: Channel){
+	constructor(messagejson: messagejson, owner: Channel,dontStore=false){
 		super(messagejson.id);
 		this.owner = owner;
 		this.headers = this.owner.headers;
 		this.giveData(messagejson);
-		this.owner.messages.set(this.id, this);
+		if(!dontStore){
+			this.owner.messages.set(this.id, this);
+		}
 	}
 	reactionToggle(emoji: string | Emoji){
 		let remove = false;
@@ -184,8 +186,11 @@ class Message extends SnowFlake{
 		}
 		if(this.div){
 			this.generateMessage();
+			return;
 		}
-		func();
+		if(+this.id>+(this.channel.lastmessageid||"0")){
+			func();
+		}
 	}
 	canDelete(){
 		return(
@@ -338,15 +343,16 @@ class Message extends SnowFlake{
 			this.generateMessage();
 		}
 	}
-	generateMessage(premessage?: Message | undefined, ignoredblock = false){
-		if(!this.div)return;
+	generateMessage(premessage?: Message | undefined, ignoredblock = false,dupe:false|HTMLDivElement=false){
+		const div = dupe||this.div;
+		if(!div)return;
+
 		const editmode=this.channel.editing===this;
-		if(!premessage){
+		if(!premessage&&!dupe){
 			premessage = this.channel.messages.get(
 				this.channel.idToPrev.get(this.id) as string
 			);
 		}
-		const div = this.div;
 		for(const user of this.mentions){
 			if(user === this.localuser.user){
 				div.classList.add("mentioned");
@@ -390,14 +396,10 @@ class Message extends SnowFlake{
 					build.classList.add("blocked", "topMessage");
 					const span = document.createElement("span");
 					let count = 1;
-					let next = this.channel.messages.get(
-				this.channel.idToNext.get(this.id) as string
-					);
+					let next = this.channel.messages.get(this.channel.idToNext.get(this.id) as string);
 					while(next?.author === this.author){
 						count++;
-						next = this.channel.messages.get(
-				this.channel.idToNext.get(next.id) as string
-						);
+						next = this.channel.messages.get(this.channel.idToNext.get(next.id) as string);
 					}
 					span.textContent = I18n.getTranslation("showBlockedMessages",count+"");
 					build.append(span);
@@ -620,12 +622,14 @@ class Message extends SnowFlake{
 			text.append(time);
 			div.classList.add("topMessage");
 		}
-		const reactions = document.createElement("div");
-		reactions.classList.add("flexltr", "reactiondiv");
-		this.reactdiv = new WeakRef(reactions);
-		this.updateReactions();
-		div.append(reactions);
-		this.bindButtonEvent();
+		if(!dupe){
+			const reactions = document.createElement("div");
+			reactions.classList.add("flexltr", "reactiondiv");
+			this.reactdiv = new WeakRef(reactions);
+			this.updateReactions();
+			div.append(reactions);
+			this.bindButtonEvent();
+		}
 		return div;
 	}
 	bindButtonEvent(){
@@ -829,7 +833,10 @@ class Message extends SnowFlake{
 			}
 		}
 	}
-	buildhtml(premessage?: Message | undefined): HTMLElement{
+	buildhtml(premessage?: Message | undefined,dupe=false): HTMLElement{
+		if(dupe){
+			return this.generateMessage(premessage,false,document.createElement("div")) as HTMLElement;
+		}
 		if(this.div){
 			console.error(`HTML for ${this.id} already exists, aborting`);
 			return this.div;

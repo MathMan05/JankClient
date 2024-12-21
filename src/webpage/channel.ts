@@ -777,6 +777,14 @@ class Channel extends SnowFlake{
 			return new Message(json[0], this);
 		}
 	}
+	async focus(id:string){
+		console.time()
+		console.log(await this.getmessage(id));
+		await this.getHTML();
+		console.timeEnd()
+		console.warn(id);
+		this.infinite.focus(id);
+	}
 	editLast(){
 		let message:Message|undefined=this.lastmessage;
 		while(message&&message.author!==this.localuser.user){
@@ -1180,7 +1188,7 @@ class Channel extends SnowFlake{
 	}
 	async buildmessages(){
 		this.infinitefocus = false;
-		this.tryfocusinfinate();
+		await this.tryfocusinfinate();
 	}
 	infinitefocus = false;
 	async tryfocusinfinate(){
@@ -1548,3 +1556,5 @@ class Channel extends SnowFlake{
 }
 Channel.setupcontextmenu();
 export{ Channel };
+
+

@@ -5,7 +5,7 @@ import{ AVoice }from"./audio/voice.js";
 import{ User }from"./user.js";
 import{ getapiurls, SW }from"./utils/utils.js";
 import { getBulkInfo, setTheme, Specialuser } from "./utils/utils.js";
-import{channeljson,emojipjson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
+import{channeljson,emojipjson,guildjson,mainuserjson,memberjson,memberlistupdatejson,messageCreateJson,messagejson,presencejson,readyjson,startTypingjson,wsjson,}from"./jsontypes.js";
 import{ Member }from"./member.js";
 import{ Dialog, Form, FormError, Options, Settings }from"./settings.js";
 import{ getTextNodeAtPosition, MarkDown }from"./markdown.js";
@@ -15,6 +15,7 @@ import { VoiceFactory } from "./voice.js";
 import { I18n, langmap } from "./i18n.js";
 import { Emoji } from "./emoji.js";
 import { Play } from "./audio/play.js";
+import { Message } from "./message.js";
 
 const wsCodesRetry = new Set([4000,4001,4002, 4003, 4005, 4007, 4008, 4009]);
 
@@ -669,8 +670,10 @@ class Localuser{
 		return channel; // Add this line to return the 'channel' variable
 	}
 	async memberListUpdate(list:memberlistupdatejson|void){
+		if(this.searching)return;
 		const div=document.getElementById("sideDiv") as HTMLDivElement;
 		div.innerHTML="";
+		div.classList.remove("searchDiv");
 		const guild=this.lookingguild;
 		if(!guild) return;
 		const channel=this.channelfocus;
@@ -832,6 +835,7 @@ class Localuser{
 		}
 	}
 	loadGuild(id: string,forceReload=false): Guild | undefined{
+		this.searching=false;
 		let guild = this.guildids.get(id);
 		if(!guild){
 			guild = this.guildids.get("@me");
@@ -1968,6 +1972,49 @@ class Localuser{
 		}
 		box.innerHTML="";
 	}
+	searching=false;
+	mSearch(query:string){
+		const p=new URLSearchParams("?");
+		this.searching=true;
+		p.set("content",query.trim());
+		fetch(this.info.api+`/guilds/${this.lookingguild?.id}/messages/search/?`+p.toString(),{
+			headers:this.headers
+		}).then(_=>_.json()).then((json:{messages:[messagejson][],total_results:number})=>{
+			//FIXME total_results shall be ignored as it's known to be bad, spacebar bug.
+			const messages=json.messages.map(([m])=>{
+				const c=this.channelids.get(m.channel_id);
+				if(!c) return;
+				if(c.messages.get(m.id)){
+					return c.messages.get(m.id);
+				}
+				return new Message(m,c,true);
+			}).filter(_=>_!==undefined);
+			const sideDiv= document.getElementById("sideDiv");
+			if(!sideDiv)return;
+			sideDiv.innerHTML="";
+			sideDiv.classList.add("searchDiv");
+			let channel:Channel|undefined=undefined;
+			for(const message of messages){
+				if(channel!==message.channel){
+					channel=message.channel;
+					const h3=document.createElement("h3");
+					h3.textContent=channel.name;
+					h3.classList.add("channelSTitle")
+					sideDiv.append(h3);
+				}
+				const html=message.buildhtml(undefined,true);
+				html.addEventListener("click",async ()=>{
+					try{
+						await message.channel.focus(message.id);
+					}catch(e){
+						console.error(e);
+					}
+				})
+				sideDiv.append(html)
+			}
+		});
+	}
+
 	keydown:(event:KeyboardEvent)=>unknown=()=>{};
 	keyup:(event:KeyboardEvent)=>boolean=()=>false;
 	//---------- resolving members code -----------

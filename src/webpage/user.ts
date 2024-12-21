@@ -9,7 +9,6 @@ import { Role } from "./role.js";
 import { Search } from "./search.js";
 import { I18n } from "./i18n.js";
 import { Direct } from "./direct.js";
-import { Settings } from "./settings.js";
 
 class User extends SnowFlake{
 	owner: Localuser;

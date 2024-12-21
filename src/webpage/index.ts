@@ -204,7 +204,28 @@ import { I18n } from "./i18n.js";
 		if(event.key === "Enter" && !event.shiftKey) event.preventDefault();
 	});
 	markdown.giveBox(typebox);
+	{
+		const searchBox = document.getElementById("searchBox") as CustomHTMLDivElement;
+		const markdown = new MarkDown("", thisUser);
+		searchBox.markdown = markdown;
 
+		searchBox.addEventListener("keydown", event=>{
+
+			if(event.key === "Enter") {
+				event.preventDefault();
+				thisUser.mSearch(markdown.rawString)
+			};
+		});
+
+		markdown.giveBox(searchBox);
+		markdown.setCustomBox((e)=>{
+			const span=document.createElement("span");
+			span.textContent=e.replace("\n","");
+			return span;
+		});
+
+
+	}
 	const images: Blob[] = [];
 	const imagesHtml: HTMLElement[] = [];
 
