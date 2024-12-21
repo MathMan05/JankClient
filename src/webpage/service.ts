@@ -1,42 +1,45 @@
-function deleteoldcache(){
+function deleteoldcache() {
 	caches.delete("cache");
 	console.log("this ran :P");
 }
 
-async function putInCache(request: URL | RequestInfo, response: Response){
+async function putInCache(request: URL | RequestInfo, response: Response) {
 	console.log(request, response);
 	const cache = await caches.open("cache");
 	console.log("Grabbed");
-	try{
+	try {
 		console.log(await cache.put(request, response));
-	}catch(error){
+	} catch (error) {
 		console.error(error);
 	}
 }
 
 let lastcache: string;
-self.addEventListener("activate", async ()=>{
+self.addEventListener("activate", async () => {
 	console.log("Service Worker activated");
 	checkCache();
 });
 
-async function checkCache(){
-	if(checkedrecently){
+async function checkCache() {
+	if (checkedrecently) {
 		return;
 	}
 	const promise = await caches.match("/getupdates");
-	if(promise){
+	if (promise) {
 		lastcache = await promise.text();
 	}
 	console.log(lastcache);
-	fetch("/getupdates").then(async data=>{
-		setTimeout((_: any)=>{
-			checkedrecently = false;
-		}, 1000 * 60 * 30);
-		if(!data.ok) return;
+	fetch("/getupdates").then(async (data) => {
+		setTimeout(
+			(_: any) => {
+				checkedrecently = false;
+			},
+			1000 * 60 * 30,
+		);
+		if (!data.ok) return;
 		const text = await data.clone().text();
 		console.log(text, lastcache);
-		if(lastcache !== text){
+		if (lastcache !== text) {
 			deleteoldcache();
 			putInCache("/getupdates", data);
 		}
@@ -45,98 +48,100 @@ async function checkCache(){
 }
 var checkedrecently = false;
 
-function samedomain(url: string | URL){
+function samedomain(url: string | URL) {
 	return new URL(url).origin === self.origin;
 }
 
-const htmlFiles=new Set(["/index","/login","/home","/register","/oauth2/auth"]);
+const htmlFiles = new Set(["/index", "/login", "/home", "/register", "/oauth2/auth"]);
 
-
-function isHtml(url:string):string|void{
-	const path=new URL(url).pathname;
-	if(htmlFiles.has(path)||htmlFiles.has(path+".html")){
-		return path+path.endsWith(".html")?"":".html";
+function isHtml(url: string): string | void {
+	const path = new URL(url).pathname;
+	if (htmlFiles.has(path) || htmlFiles.has(path + ".html")) {
+		return path + path.endsWith(".html") ? "" : ".html";
 	}
 }
-let enabled="false";
-let offline=false;
+let enabled = "false";
+let offline = false;
 
-function toPath(url:string):string{
-	const Url= new URL(url);
-	let html=isHtml(url);
-	if(!html){
-		const path=Url.pathname;
-		if(path.startsWith("/channels")){
-			html="./index.html"
-		}else if(path.startsWith("/invite/")||path==="/invite"){
-			html="./invite.html"
+function toPath(url: string): string {
+	const Url = new URL(url);
+	let html = isHtml(url);
+	if (!html) {
+		const path = Url.pathname;
+		if (path.startsWith("/channels")) {
+			html = "./index.html";
+		} else if (path.startsWith("/invite/") || path === "/invite") {
+			html = "./invite.html";
 		}
 	}
-	return html||Url.pathname;
+	return html || Url.pathname;
 }
-let fails=0;
-async function getfile(event: FetchEvent):Promise<Response>{
+let fails = 0;
+async function getfile(event: FetchEvent): Promise<Response> {
 	checkCache();
-	if(!samedomain(event.request.url)||enabled==="false"||(enabled==="offlineOnly"&&!offline)){
-		const responce=await fetch(event.request.clone());
-		if(samedomain(event.request.url)){
-			if(enabled==="offlineOnly"&&responce.ok){
-				putInCache(toPath(event.request.url),responce.clone());
+	if (
+		!samedomain(event.request.url) ||
+		enabled === "false" ||
+		(enabled === "offlineOnly" && !offline)
+	) {
+		const responce = await fetch(event.request.clone());
+		if (samedomain(event.request.url)) {
+			if (enabled === "offlineOnly" && responce.ok) {
+				putInCache(toPath(event.request.url), responce.clone());
 			}
-			if(!responce.ok){
+			if (!responce.ok) {
 				fails++;
-				if(fails>5){
-					offline=true;
+				if (fails > 5) {
+					offline = true;
 				}
 			}
 		}
 		return responce;
 	}
 
-	let path=toPath(event.request.url);
-	if(path === "/instances.json"){
+	let path = toPath(event.request.url);
+	if (path === "/instances.json") {
 		return await fetch(path);
 	}
-	console.log("Getting path: "+path);
+	console.log("Getting path: " + path);
 	const responseFromCache = await caches.match(path);
-	if(responseFromCache){
+	if (responseFromCache) {
 		console.log("cache hit");
 		return responseFromCache;
 	}
-	try{
+	try {
 		const responseFromNetwork = await fetch(path);
-		if(responseFromNetwork.ok){
+		if (responseFromNetwork.ok) {
 			await putInCache(path, responseFromNetwork.clone());
 		}
 		return responseFromNetwork;
-	}catch(e){
+	} catch (e) {
 		console.error(e);
 		return new Response(null);
 	}
 }
 
-
-self.addEventListener("fetch", (e)=>{
-	const event=e as FetchEvent;
-	try{
+self.addEventListener("fetch", (e) => {
+	const event = e as FetchEvent;
+	try {
 		event.respondWith(getfile(event));
-	}catch(e){
+	} catch (e) {
 		console.error(e);
 	}
 });
 
-self.addEventListener("message", (message)=>{
-	const data=message.data;
-	switch(data.code){
+self.addEventListener("message", (message) => {
+	const data = message.data;
+	switch (data.code) {
 		case "setMode":
-			enabled=data.data;
+			enabled = data.data;
 			break;
 		case "CheckUpdate":
-			checkedrecently=false;
+			checkedrecently = false;
 			checkCache();
 			break;
 		case "ForceClear":
 			deleteoldcache();
 			break;
 	}
-})
+});

@@ -19,6 +19,12 @@
     "prettier": "^3.4.2",
     "rimraf": "^6.0.1"
   },
+  "prettier":{
+    "useTabs":true,
+    "printWidth":100,
+    "semi":true,
+    "bracketSpacing":false
+  },
   "devDependencies": {
     "@eslint/js": "^9.10.0",
     "@html-eslint/eslint-plugin": "^0.25.0",

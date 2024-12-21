@@ -1,4 +1,4 @@
-import { I18n } from "./i18n.js";
+import {I18n} from "./i18n.js";
 
 interface OptionsElement<x> {
 	//
@@ -7,54 +7,54 @@ interface OptionsElement<x> {
 	readonly watchForChange: (func: (arg1: x) => void) => void;
 	value: x;
 }
-	//future me stuff
-class Buttons implements OptionsElement<unknown>{
+//future me stuff
+class Buttons implements OptionsElement<unknown> {
 	readonly name: string;
 	readonly buttons: [string, Options | string][];
 	buttonList!: HTMLDivElement;
 	warndiv!: HTMLElement;
 	value: unknown;
-	top=false;
-	constructor(name: string,{top=false}={}){
-		this.top=top;
+	top = false;
+	constructor(name: string, {top = false} = {}) {
+		this.top = top;
 		this.buttons = [];
 		this.name = name;
 	}
-	add(name: string, thing?: Options | undefined){
-		if(!thing){
+	add(name: string, thing?: Options | undefined) {
+		if (!thing) {
 			thing = new Options(name, this);
 		}
 		this.buttons.push([name, thing]);
 		return thing;
 	}
-	generateHTML(){
+	generateHTML() {
 		const buttonList = document.createElement("div");
 		buttonList.classList.add("Buttons");
-		buttonList.classList.add(this.top?"flexttb":"flexltr");
+		buttonList.classList.add(this.top ? "flexttb" : "flexltr");
 		this.buttonList = buttonList;
 		const htmlarea = document.createElement("div");
 		htmlarea.classList.add("flexgrow");
 		const buttonTable = this.generateButtons(htmlarea);
-		if(this.buttons[0]){
+		if (this.buttons[0]) {
 			this.generateHTMLArea(this.buttons[0][1], htmlarea);
 		}
 		buttonList.append(buttonTable);
 		buttonList.append(htmlarea);
 		return buttonList;
 	}
-	generateButtons(optionsArea:HTMLElement){
+	generateButtons(optionsArea: HTMLElement) {
 		const buttonTable = document.createElement("div");
 		buttonTable.classList.add("settingbuttons");
-		if(this.top){
+		if (this.top) {
 			buttonTable.classList.add("flexltr");
 		}
-		for(const thing of this.buttons){
+		for (const thing of this.buttons) {
 			const button = document.createElement("button");
 			button.classList.add("SettingsButton");
 			button.textContent = thing[0];
-			button.onclick = _=>{
+			button.onclick = (_) => {
 				this.generateHTMLArea(thing[1], optionsArea);
-				if(this.warndiv){
+				if (this.warndiv) {
 					this.warndiv.remove();
 				}
 			};
@@ -62,35 +62,32 @@ class Buttons implements OptionsElement<unknown>{
 		}
 		return buttonTable;
 	}
-	handleString(str: string): HTMLElement{
+	handleString(str: string): HTMLElement {
 		const div = document.createElement("span");
 		div.textContent = str;
 		return div;
 	}
-	generateHTMLArea(
-		buttonInfo: Options | string,
-		htmlarea: HTMLElement
-	){
+	generateHTMLArea(buttonInfo: Options | string, htmlarea: HTMLElement) {
 		let html: HTMLElement;
-		if(buttonInfo instanceof Options){
+		if (buttonInfo instanceof Options) {
 			buttonInfo.subOptions = undefined;
 			html = buttonInfo.generateHTML();
-		}else{
+		} else {
 			html = this.handleString(buttonInfo);
 		}
 		htmlarea.innerHTML = "";
 		htmlarea.append(html);
 	}
-	changed(html: HTMLElement){
+	changed(html: HTMLElement) {
 		this.warndiv = html;
 		this.buttonList.append(html);
 	}
-	watchForChange(){}
-	save(){}
-	submit(){}
+	watchForChange() {}
+	save() {}
+	submit() {}
 }
 
-class TextInput implements OptionsElement<string>{
+class TextInput implements OptionsElement<string> {
 	readonly label: string;
 	readonly owner: Options;
 	readonly onSubmit: (str: string) => void;
@@ -101,15 +98,15 @@ class TextInput implements OptionsElement<string>{
 		label: string,
 		onSubmit: (str: string) => void,
 		owner: Options,
-		{ initText = "", password = false } = {}
-	){
+		{initText = "", password = false} = {},
+	) {
 		this.label = label;
 		this.value = initText;
 		this.owner = owner;
 		this.onSubmit = onSubmit;
 		this.password = password;
 	}
-	generateHTML(): HTMLDivElement{
+	generateHTML(): HTMLDivElement {
 		const div = document.createElement("div");
 		const span = document.createElement("span");
 		span.textContent = this.label;
@@ -122,65 +119,65 @@ class TextInput implements OptionsElement<string>{
 		div.append(input);
 		return div;
 	}
-	private onChange(){
+	private onChange() {
 		this.owner.changed();
 		const input = this.input.deref();
-		if(input){
+		if (input) {
 			const value = input.value as string;
 			this.onchange(value);
 			this.value = value;
 		}
 	}
-	onchange: (str: string) => void = _=>{};
-	watchForChange(func: (str: string) => void){
+	onchange: (str: string) => void = (_) => {};
+	watchForChange(func: (str: string) => void) {
 		this.onchange = func;
 	}
-	submit(){
+	submit() {
 		this.onSubmit(this.value);
 	}
 }
 
-class SettingsText implements OptionsElement<void>{
+class SettingsText implements OptionsElement<void> {
 	readonly onSubmit!: (str: string) => void;
 	value!: void;
 	readonly text: string;
-	elm!:WeakRef<HTMLSpanElement>;
-	constructor(text: string){
+	elm!: WeakRef<HTMLSpanElement>;
+	constructor(text: string) {
 		this.text = text;
 	}
-	generateHTML(): HTMLSpanElement{
+	generateHTML(): HTMLSpanElement {
 		const span = document.createElement("span");
 		span.innerText = this.text;
-		this.elm=new WeakRef(span);
+		this.elm = new WeakRef(span);
 		return span;
 	}
-	setText(text:string){
-		if(this.elm){
-			const span=this.elm.deref();
-			if(span){
-				span.innerText=text;
+	setText(text: string) {
+		if (this.elm) {
+			const span = this.elm.deref();
+			if (span) {
+				span.innerText = text;
 			}
 		}
 	}
-	watchForChange(){}
-	submit(){}
+	watchForChange() {}
+	submit() {}
 }
-class SettingsTitle implements OptionsElement<void>{
+class SettingsTitle implements OptionsElement<void> {
 	readonly onSubmit!: (str: string) => void;
 	value!: void;
 	readonly text: string;
-	constructor(text: string){
+	constructor(text: string) {
 		this.text = text;
 	}
-	generateHTML(): HTMLSpanElement{
+	generateHTML(): HTMLSpanElement {
 		const span = document.createElement("h2");
 		span.innerText = this.text;
 		return span;
 	}
-	watchForChange(){}
-	submit(){}
+	watchForChange() {}
+	submit() {}
 }
-class CheckboxInput implements OptionsElement<boolean>{
+class CheckboxInput implements OptionsElement<boolean> {
 	readonly label: string;
 	readonly owner: Options;
 	readonly onSubmit: (str: boolean) => void;
@@ -190,14 +187,14 @@ class CheckboxInput implements OptionsElement<boolean>{
 		label: string,
 		onSubmit: (str: boolean) => void,
 		owner: Options,
-		{ initState = false } = {}
-	){
+		{initState = false} = {},
+	) {
 		this.label = label;
 		this.value = initState;
 		this.owner = owner;
 		this.onSubmit = onSubmit;
 	}
-	generateHTML(): HTMLDivElement{
+	generateHTML(): HTMLDivElement {
 		const div = document.createElement("div");
 		const span = document.createElement("span");
 		span.textContent = this.label;
@@ -210,54 +207,48 @@ class CheckboxInput implements OptionsElement<boolean>{
 		div.append(input);
 		return div;
 	}
-	private onChange(){
+	private onChange() {
 		this.owner.changed();
 		const input = this.input.deref();
-		if(input){
+		if (input) {
 			const value = input.checked as boolean;
 			this.value = value;
 			this.onchange(value);
 		}
 	}
-	setState(state:boolean){
-		if(this.input){
-			const checkbox=this.input.deref();
-			if(checkbox){
-				checkbox.checked=state;
-				this.value=state;
+	setState(state: boolean) {
+		if (this.input) {
+			const checkbox = this.input.deref();
+			if (checkbox) {
+				checkbox.checked = state;
+				this.value = state;
 			}
 		}
 	}
-	onchange: (str: boolean) => void = _=>{};
-	watchForChange(func: (str: boolean) => void){
+	onchange: (str: boolean) => void = (_) => {};
+	watchForChange(func: (str: boolean) => void) {
 		this.onchange = func;
 	}
-	submit(){
+	submit() {
 		this.onSubmit(this.value);
 	}
 }
 
-class ButtonInput implements OptionsElement<void>{
+class ButtonInput implements OptionsElement<void> {
 	readonly label: string;
 	readonly owner: Options;
 	readonly onClick: () => void;
 	textContent: string;
 	value!: void;
-	constructor(
-		label: string,
-		textContent: string,
-		onClick: () => void,
-		owner: Options,
-		{} = {}
-	){
+	constructor(label: string, textContent: string, onClick: () => void, owner: Options, {} = {}) {
 		this.label = label;
 		this.owner = owner;
 		this.onClick = onClick;
 		this.textContent = textContent;
 	}
-	generateHTML(): HTMLDivElement{
+	generateHTML(): HTMLDivElement {
 		const div = document.createElement("div");
-		if(this.label){
+		if (this.label) {
 			const span = document.createElement("span");
 			span.classList.add("inlinelabel");
 			span.textContent = this.label;
@@ -269,14 +260,14 @@ class ButtonInput implements OptionsElement<void>{
 		div.append(button);
 		return div;
 	}
-	private onClickEvent(){
+	private onClickEvent() {
 		this.onClick();
 	}
-	watchForChange(){}
-	submit(){}
+	watchForChange() {}
+	submit() {}
 }
 
-class ColorInput implements OptionsElement<string>{
+class ColorInput implements OptionsElement<string> {
 	readonly label: string;
 	readonly owner: Options;
 	readonly onSubmit: (str: string) => void;
@@ -287,14 +278,14 @@ class ColorInput implements OptionsElement<string>{
 		label: string,
 		onSubmit: (str: string) => void,
 		owner: Options,
-		{ initColor = "" } = {}
-	){
+		{initColor = ""} = {},
+	) {
 		this.label = label;
 		this.colorContent = initColor;
 		this.owner = owner;
 		this.onSubmit = onSubmit;
 	}
-	generateHTML(): HTMLDivElement{
+	generateHTML(): HTMLDivElement {
 		const div = document.createElement("div");
 		const span = document.createElement("span");
 		span.textContent = this.label;
@@ -307,34 +298,34 @@ class ColorInput implements OptionsElement<string>{
 		div.append(input);
 		return div;
 	}
-	private onChange(){
+	private onChange() {
 		this.owner.changed();
 		const input = this.input.deref();
-		if(input){
+		if (input) {
 			const value = input.value as string;
 			this.value = value;
 			this.onchange(value);
 			this.colorContent = value;
 		}
 	}
-	onchange: (str: string) => void = _=>{};
-	watchForChange(func: (str: string) => void){
+	onchange: (str: string) => void = (_) => {};
+	watchForChange(func: (str: string) => void) {
 		this.onchange = func;
 	}
-	submit(){
+	submit() {
 		this.onSubmit(this.colorContent);
 	}
 }
 
-class SelectInput implements OptionsElement<number>{
+class SelectInput implements OptionsElement<number> {
 	readonly label: string;
 	readonly owner: Options;
 	readonly onSubmit: (str: number) => void;
 	options: string[];
 	index: number;
 	select!: WeakRef<HTMLSelectElement>;
-	radio:boolean;
-	get value(){
+	radio: boolean;
+	get value() {
 		return this.index;
 	}
 	constructor(
@@ -342,29 +333,29 @@ class SelectInput implements OptionsElement<number>{
 		onSubmit: (str: number) => void,
 		options: string[],
 		owner: Options,
-		{ defaultIndex = 0,radio=false } = {}
-	){
+		{defaultIndex = 0, radio = false} = {},
+	) {
 		this.label = label;
 		this.index = defaultIndex;
 		this.owner = owner;
 		this.onSubmit = onSubmit;
 		this.options = options;
-		this.radio=radio;
+		this.radio = radio;
 	}
-	generateHTML(): HTMLDivElement{
-		if(this.radio){
-			const map=new WeakMap<HTMLInputElement,number>();
+	generateHTML(): HTMLDivElement {
+		if (this.radio) {
+			const map = new WeakMap<HTMLInputElement, number>();
 			const div = document.createElement("div");
 			const fieldset = document.createElement("fieldset");
-			fieldset.addEventListener("change", ()=>{
+			fieldset.addEventListener("change", () => {
 				let i = -1;
-				for(const thing of Array.from(fieldset.children)){
+				for (const thing of Array.from(fieldset.children)) {
 					i++;
-					if(i === 0){
+					if (i === 0) {
 						continue;
 					}
 					const checkbox = thing.children[0].children[0] as HTMLInputElement;
-					if(checkbox.checked){
+					if (checkbox.checked) {
 						this.onChange(map.get(checkbox));
 					}
 				}
@@ -373,15 +364,15 @@ class SelectInput implements OptionsElement<number>{
 			legend.textContent = this.label;
 			fieldset.appendChild(legend);
 			let i = 0;
-			for(const thing of this.options){
+			for (const thing of this.options) {
 				const div = document.createElement("div");
 				const input = document.createElement("input");
 				input.classList.add("radio");
 				input.type = "radio";
 				input.name = this.label;
 				input.value = thing;
-				map.set(input,i);
-				if(i === this.index){
+				map.set(input, i);
+				if (i === this.index) {
 					input.checked = true;
 				}
 				const label = document.createElement("label");
@@ -405,8 +396,8 @@ class SelectInput implements OptionsElement<number>{
 		selectSpan.classList.add("selectspan");
 		const select = document.createElement("select");
 
-		select.onchange = this.onChange.bind(this,-1);
-		for(const thing of this.options){
+		select.onchange = this.onChange.bind(this, -1);
+		for (const thing of this.options) {
 			const option = document.createElement("option");
 			option.textContent = thing;
 			select.appendChild(option);
@@ -415,34 +406,34 @@ class SelectInput implements OptionsElement<number>{
 		select.selectedIndex = this.index;
 		selectSpan.append(select);
 		const selectArrow = document.createElement("span");
-		selectArrow.classList.add("svgicon","svg-category","selectarrow");
+		selectArrow.classList.add("svgicon", "svg-category", "selectarrow");
 		selectSpan.append(selectArrow);
 		div.append(selectSpan);
 		return div;
 	}
-	private onChange(index=-1){
+	private onChange(index = -1) {
 		this.owner.changed();
-		if(index!==-1){
+		if (index !== -1) {
 			this.onchange(index);
 			this.index = index;
 			return;
 		}
 		const select = this.select.deref();
-		if(select){
+		if (select) {
 			const value = select.selectedIndex;
 			this.onchange(value);
 			this.index = value;
 		}
 	}
-	onchange: (str: number) => void = _=>{};
-	watchForChange(func: (str: number) => void){
+	onchange: (str: number) => void = (_) => {};
+	watchForChange(func: (str: number) => void) {
 		this.onchange = func;
 	}
-	submit(){
+	submit() {
 		this.onSubmit(this.index);
 	}
 }
-class MDInput implements OptionsElement<string>{
+class MDInput implements OptionsElement<string> {
 	readonly label: string;
 	readonly owner: Options;
 	readonly onSubmit: (str: string) => void;
@@ -452,14 +443,14 @@ class MDInput implements OptionsElement<string>{
 		label: string,
 		onSubmit: (str: string) => void,
 		owner: Options,
-		{ initText = "" } = {}
-	){
+		{initText = ""} = {},
+	) {
 		this.label = label;
 		this.value = initText;
 		this.owner = owner;
 		this.onSubmit = onSubmit;
 	}
-	generateHTML(): HTMLDivElement{
+	generateHTML(): HTMLDivElement {
 		const div = document.createElement("div");
 		const span = document.createElement("span");
 		span.textContent = this.label;
@@ -472,24 +463,24 @@ class MDInput implements OptionsElement<string>{
 		div.append(input);
 		return div;
 	}
-	onChange(){
+	onChange() {
 		this.owner.changed();
 		const input = this.input.deref();
-		if(input){
+		if (input) {
 			const value = input.value as string;
 			this.onchange(value);
 			this.value = value;
 		}
 	}
-	onchange: (str: string) => void = _=>{};
-	watchForChange(func: (str: string) => void){
+	onchange: (str: string) => void = (_) => {};
+	watchForChange(func: (str: string) => void) {
 		this.onchange = func;
 	}
-	submit(){
+	submit() {
 		this.onSubmit(this.value);
 	}
 }
-class FileInput implements OptionsElement<FileList | null>{
+class FileInput implements OptionsElement<FileList | null> {
 	readonly label: string;
 	readonly owner: Options;
 	readonly onSubmit: (str: FileList | null) => void;
@@ -500,30 +491,30 @@ class FileInput implements OptionsElement<FileList | null>{
 		label: string,
 		onSubmit: (str: FileList | null) => void,
 		owner: Options,
-		{ clear = false } = {}
-	){
+		{clear = false} = {},
+	) {
 		this.label = label;
 		this.owner = owner;
 		this.onSubmit = onSubmit;
 		this.clear = clear;
 	}
-	generateHTML(): HTMLDivElement{
+	generateHTML(): HTMLDivElement {
 		const div = document.createElement("div");
 		const span = document.createElement("span");
 		span.textContent = this.label;
 		div.append(span);
 		const innerDiv = document.createElement("div");
-		innerDiv.classList.add("flexltr","fileinputdiv");
+		innerDiv.classList.add("flexltr", "fileinputdiv");
 		const input = document.createElement("input");
 		input.type = "file";
 		input.oninput = this.onChange.bind(this);
 		this.input = new WeakRef(input);
 		innerDiv.append(input);
-		if(this.clear){
+		if (this.clear) {
 			const button = document.createElement("button");
 			button.textContent = "Clear";
-			button.onclick = _=>{
-				if(this.onchange){
+			button.onclick = (_) => {
+				if (this.onchange) {
 					this.onchange(null);
 				}
 				this.value = null;
@@ -534,94 +525,94 @@ class FileInput implements OptionsElement<FileList | null>{
 		div.append(innerDiv);
 		return div;
 	}
-	onChange(){
+	onChange() {
 		this.owner.changed();
 		const input = this.input.deref();
-		if(input){
+		if (input) {
 			this.value = input.files;
-			if(this.onchange){
+			if (this.onchange) {
 				this.onchange(input.files);
 			}
 		}
 	}
 	onchange: ((str: FileList | null) => void) | null = null;
-	watchForChange(func: (str: FileList | null) => void){
+	watchForChange(func: (str: FileList | null) => void) {
 		this.onchange = func;
 	}
-	submit(){
+	submit() {
 		const input = this.input.deref();
-		if(input){
+		if (input) {
 			this.onSubmit(input.files);
 		}
 	}
 }
 
-class HtmlArea implements OptionsElement<void>{
+class HtmlArea implements OptionsElement<void> {
 	submit: () => void;
 	html: (() => HTMLElement) | HTMLElement;
 	value!: void;
-	constructor(html: (() => HTMLElement) | HTMLElement, submit: () => void){
+	constructor(html: (() => HTMLElement) | HTMLElement, submit: () => void) {
 		this.submit = submit;
 		this.html = html;
 	}
-	generateHTML(): HTMLElement{
-		if(this.html instanceof Function){
+	generateHTML(): HTMLElement {
+		if (this.html instanceof Function) {
 			return this.html();
-		}else{
+		} else {
 			return this.html;
 		}
 	}
-	watchForChange(){}
+	watchForChange() {}
 }
 /**
-* This is a simple wrapper class for Options to make it happy so it can be used outside of Settings.
-*/
-class Float{
-	options:Options;
+ * This is a simple wrapper class for Options to make it happy so it can be used outside of Settings.
+ */
+class Float {
+	options: Options;
 	/**
 	 * This is a simple wrapper class for Options to make it happy so it can be used outside of Settings.
 	 */
-	constructor(name:string, options={ ltr:false, noSubmit:true}){
-		this.options=new Options(name,this,options)
+	constructor(name: string, options = {ltr: false, noSubmit: true}) {
+		this.options = new Options(name, this, options);
 	}
-	changed=()=>{};
-	generateHTML(){
+	changed = () => {};
+	generateHTML() {
 		return this.options.generateHTML();
 	}
 }
-class Dialog{
-	float:Float;
-	get options(){
+class Dialog {
+	float: Float;
+	get options() {
 		return this.float.options;
 	}
-	background=new WeakRef(document.createElement("div"));
-	constructor(name:string, { ltr=false, noSubmit=true}={}){
-		this.float=new Float(name,{ltr,noSubmit});
+	background = new WeakRef(document.createElement("div"));
+	constructor(name: string, {ltr = false, noSubmit = true} = {}) {
+		this.float = new Float(name, {ltr, noSubmit});
 	}
-	show(){
+	show() {
 		const background = document.createElement("div");
 		background.classList.add("background");
-		const center=this.float.generateHTML();
-		center.classList.add("centeritem","nonimagecenter");
+		const center = this.float.generateHTML();
+		center.classList.add("centeritem", "nonimagecenter");
 		center.classList.remove("titlediv");
 		background.append(center);
-		center.onclick=e=>{
+		center.onclick = (e) => {
 			e.stopImmediatePropagation();
-		}
+		};
 		document.body.append(background);
-		this.background=new WeakRef(background);
-		background.onclick = _=>{
+		this.background = new WeakRef(background);
+		background.onclick = (_) => {
 			background.remove();
 		};
 	}
-	hide(){
-		const background=this.background.deref();
-		if(!background) return;
+	hide() {
+		const background = this.background.deref();
+		if (!background) return;
 		background.remove();
 	}
 }
-export{Dialog};
-class Options implements OptionsElement<void>{
+export {Dialog};
+class Options implements OptionsElement<void> {
 	name: string;
 	haschanged = false;
 	readonly options: OptionsElement<any>[];
@@ -629,69 +620,65 @@ class Options implements OptionsElement<void>{
 	readonly ltr: boolean;
 	value!: void;
 	readonly html: WeakMap<OptionsElement<any>, WeakRef<HTMLDivElement>> = new WeakMap();
-	readonly noSubmit:boolean=false;
-	container: WeakRef<HTMLDivElement> = new WeakRef(
-		document.createElement("div")
-	);
+	readonly noSubmit: boolean = false;
+	container: WeakRef<HTMLDivElement> = new WeakRef(document.createElement("div"));
 	constructor(
 		name: string,
 		owner: Buttons | Options | Form | Float,
-		{ ltr = false, noSubmit=false} = {}
-	){
+		{ltr = false, noSubmit = false} = {},
+	) {
 		this.name = name;
 		this.options = [];
 		this.owner = owner;
 		this.ltr = ltr;
-		this.noSubmit=noSubmit;
+		this.noSubmit = noSubmit;
 	}
-	removeAll(){
-		while(this.options.length){
+	removeAll() {
+		while (this.options.length) {
 			this.options.pop();
 		}
 		const container = this.container.deref();
-		if(container){
+		if (container) {
 			container.innerHTML = "";
 		}
 	}
-	watchForChange(){}
-	addOptions(name: string, { ltr = false,noSubmit=false } = {}){
-		const options = new Options(name, this, { ltr,noSubmit });
+	watchForChange() {}
+	addOptions(name: string, {ltr = false, noSubmit = false} = {}) {
+		const options = new Options(name, this, {ltr, noSubmit});
 		this.options.push(options);
 		this.generate(options);
 		return options;
 	}
-	addButtons(name: string, { top = false } = {}){
-		const buttons = new Buttons(name, { top });
+	addButtons(name: string, {top = false} = {}) {
+		const buttons = new Buttons(name, {top});
 		this.options.push(buttons);
 		this.generate(buttons);
 		return buttons;
 	}
 	subOptions: Options | Form | undefined;
-	genTop(){
+	genTop() {
 		const container = this.container.deref();
-		if(container){
-			if(this.isTop()){
+		if (container) {
+			if (this.isTop()) {
 				this.generateContainter();
-			}else if(this.owner instanceof Options){
+			} else if (this.owner instanceof Options) {
 				this.owner.genTop();
-			}else{
+			} else {
 				(this.owner as Form).owner.genTop();
 			}
-		}else{
-			throw new Error(
-				"Tried to make a sub menu when the options weren't rendered"
-			);
+		} else {
+			throw new Error("Tried to make a sub menu when the options weren't rendered");
 		}
 	}
-	addSubOptions(name: string, { ltr = false,noSubmit=false } = {}){
-		const options = new Options(name, this, { ltr,noSubmit });
+	addSubOptions(name: string, {ltr = false, noSubmit = false} = {}) {
+		const options = new Options(name, this, {ltr, noSubmit});
 		this.subOptions = options;
 		this.genTop();
 		return options;
 	}
 	addSubForm(
 		name: string,
-		onSubmit: (arg1: object,sent:object) => void,
+		onSubmit: (arg1: object, sent: object) => void,
 		{
 			ltr = false,
 			submitText = "Submit",
@@ -699,8 +686,8 @@ class Options implements OptionsElement<void>{
 			headers = {},
 			method = "POST",
 			traditionalSubmit = false,
-		} = {}
-	){
+		} = {},
+	) {
 		const options = new Form(name, this, onSubmit, {
 			ltr,
 			submitText,
@@ -713,7 +700,7 @@ class Options implements OptionsElement<void>{
 		this.genTop();
 		return options;
 	}
-	returnFromSub(){
+	returnFromSub() {
 		this.subOptions = undefined;
 		this.genTop();
 	}
@@ -721,21 +708,18 @@ class Options implements OptionsElement<void>{
 		label: string,
 		onSubmit: (str: number) => void,
 		selections: string[],
-		{ defaultIndex = 0,radio=false } = {}
-	){
+		{defaultIndex = 0, radio = false} = {},
+	) {
 		const select = new SelectInput(label, onSubmit, selections, this, {
-			defaultIndex,radio
+			defaultIndex,
+			radio,
 		});
 		this.options.push(select);
 		this.generate(select);
 		return select;
 	}
-	addFileInput(
-		label: string,
-		onSubmit: (files: FileList | null) => void,
-		{ clear = false } = {}
-	){
-		const FI = new FileInput(label, onSubmit, this, { clear });
+	addFileInput(label: string, onSubmit: (files: FileList | null) => void, {clear = false} = {}) {
+		const FI = new FileInput(label, onSubmit, this, {clear});
 		this.options.push(FI);
 		this.generate(FI);
 		return FI;
@@ -743,8 +727,8 @@ class Options implements OptionsElement<void>{
 	addTextInput(
 		label: string,
 		onSubmit: (str: string) => void,
-		{ initText = "", password = false } = {}
-	){
+		{initText = "", password = false} = {},
+	) {
 		const textInput = new TextInput(label, onSubmit, this, {
 			initText,
 			password,
@@ -753,64 +737,49 @@ class Options implements OptionsElement<void>{
 		this.generate(textInput);
 		return textInput;
 	}
-	addColorInput(
-		label: string,
-		onSubmit: (str: string) => void,
-		{ initColor = "" } = {}
-	){
-		const colorInput = new ColorInput(label, onSubmit, this, { initColor });
+	addColorInput(label: string, onSubmit: (str: string) => void, {initColor = ""} = {}) {
+		const colorInput = new ColorInput(label, onSubmit, this, {initColor});
 		this.options.push(colorInput);
 		this.generate(colorInput);
 		return colorInput;
 	}
-	addMDInput(
-		label: string,
-		onSubmit: (str: string) => void,
-		{ initText = "" } = {}
-	){
-		const mdInput = new MDInput(label, onSubmit, this, { initText });
+	addMDInput(label: string, onSubmit: (str: string) => void, {initText = ""} = {}) {
+		const mdInput = new MDInput(label, onSubmit, this, {initText});
 		this.options.push(mdInput);
 		this.generate(mdInput);
 		return mdInput;
 	}
-	addHTMLArea(
-		html: (() => HTMLElement) | HTMLElement,
-		submit: () => void = ()=>{}
-	){
+	addHTMLArea(html: (() => HTMLElement) | HTMLElement, submit: () => void = () => {}) {
 		const htmlarea = new HtmlArea(html, submit);
 		this.options.push(htmlarea);
 		this.generate(htmlarea);
 		return htmlarea;
 	}
-	addButtonInput(label: string, textContent: string, onSubmit: () => void){
+	addButtonInput(label: string, textContent: string, onSubmit: () => void) {
 		const button = new ButtonInput(label, textContent, onSubmit, this);
 		this.options.push(button);
 		this.generate(button);
 		return button;
 	}
-	addCheckboxInput(
-		label: string,
-		onSubmit: (str: boolean) => void,
-		{ initState = false } = {}
-	){
-		const box = new CheckboxInput(label, onSubmit, this, { initState });
+	addCheckboxInput(label: string, onSubmit: (str: boolean) => void, {initState = false} = {}) {
+		const box = new CheckboxInput(label, onSubmit, this, {initState});
 		this.options.push(box);
 		this.generate(box);
 		return box;
 	}
-	addText(str: string){
+	addText(str: string) {
 		const text = new SettingsText(str);
 		this.options.push(text);
 		this.generate(text);
 		return text;
 	}
-	addHR(){
+	addHR() {
 		const rule = new HorrizonalRule();
 		this.options.push(rule);
 		this.generate(rule);
 		return rule;
 	}
-	addTitle(str: string){
+	addTitle(str: string) {
 		const text = new SettingsTitle(str);
 		this.options.push(text);
 		this.generate(text);
@@ -818,7 +787,7 @@ class Options implements OptionsElement<void>{
 	}
 	addForm(
 		name: string,
-		onSubmit: (arg1: object,sent:object) => void,
+		onSubmit: (arg1: object, sent: object) => void,
 		{
 			ltr = false,
 			submitText = "Submit",
@@ -826,8 +795,8 @@ class Options implements OptionsElement<void>{
 			headers = {},
 			method = "POST",
 			traditionalSubmit = false,
-		} = {}
-	){
+		} = {},
+	) {
 		const options = new Form(name, this, onSubmit, {
 			ltr,
 			submitText,
@@ -840,11 +809,11 @@ class Options implements OptionsElement<void>{
 		this.generate(options);
 		return options;
 	}
-	generate(elm: OptionsElement<any>){
+	generate(elm: OptionsElement<any>) {
 		const container = this.container.deref();
-		if(container){
+		if (container) {
 			const div = document.createElement("div");
-			if(!(elm instanceof Options)){
+			if (!(elm instanceof Options)) {
 				div.classList.add("optionElement");
 			}
 			const html = elm.generateHTML();
@@ -854,16 +823,16 @@ class Options implements OptionsElement<void>{
 		}
 	}
 	title: WeakRef<HTMLElement> = new WeakRef(document.createElement("h2"));
-	generateHTML(): HTMLElement{
+	generateHTML(): HTMLElement {
 		const div = document.createElement("div");
-		div.classList.add("flexttb","titlediv");
-		if(this.owner instanceof Options){
+		div.classList.add("flexttb", "titlediv");
+		if (this.owner instanceof Options) {
 			div.classList.add("optionElement");
 		}
 		const title = document.createElement("h2");
 		title.textContent = this.name;
 		div.append(title);
-		if(this.name !== "") title.classList.add("settingstitle");
+		if (this.name !== "") title.classList.add("settingstitle");
 		this.title = new WeakRef(title);
 		const container = document.createElement("div");
 		this.container = new WeakRef(container);
@@ -872,80 +841,82 @@ class Options implements OptionsElement<void>{
 		div.append(container);
 		return div;
 	}
-	generateName():(HTMLElement|string)[]{
-		const build:(HTMLElement|string)[]=[];
-		if(this.subOptions){
-			if(this.name!==""){
+	generateName(): (HTMLElement | string)[] {
+		const build: (HTMLElement | string)[] = [];
+		if (this.subOptions) {
+			if (this.name !== "") {
 				const name = document.createElement("span");
 				name.innerText = this.name;
 				name.classList.add("clickable");
-				name.onclick = ()=>{
+				name.onclick = () => {
 					this.returnFromSub();
 				};
 				build.push(name);
 				build.push(" > ");
 			}
-			if(this.subOptions instanceof Options){
+			if (this.subOptions instanceof Options) {
 				build.push(...this.subOptions.generateName());
-			}else{
+			} else {
 				build.push(...this.subOptions.options.generateName());
 			}
-		}else{
+		} else {
 			const name = document.createElement("span");
 			name.innerText = this.name;
 			build.push(name);
 		}
 		return build;
 	}
-	isTop(){
-		return (this.owner instanceof Options&&this.owner.subOptions!==this)||
-				(this.owner instanceof Form&&this.owner.owner.subOptions!==this.owner)||
-				(this.owner instanceof Settings)||
-				(this.owner instanceof Buttons);
+	isTop() {
+		return (
+			(this.owner instanceof Options && this.owner.subOptions !== this) ||
+			(this.owner instanceof Form && this.owner.owner.subOptions !== this.owner) ||
+			this.owner instanceof Settings ||
+			this.owner instanceof Buttons
+		);
 	}
-	generateContainter(){
+	generateContainter() {
 		const container = this.container.deref();
-		if(container){
+		if (container) {
 			const title = this.title.deref();
-			if(title) title.innerHTML = "";
+			if (title) title.innerHTML = "";
 			container.innerHTML = "";
-			if(this.isTop()){
-				if(title){
-					const elms=this.generateName();
+			if (this.isTop()) {
+				if (title) {
+					const elms = this.generateName();
 					title.append(...elms);
 				}
 			}
-			if(!this.subOptions){
-				for(const thing of this.options){
+			if (!this.subOptions) {
+				for (const thing of this.options) {
 					this.generate(thing);
 				}
-			}else{
+			} else {
 				container.append(this.subOptions.generateHTML());
 			}
-			if(title && title.innerText !== ""){
+			if (title && title.innerText !== "") {
 				title.classList.add("settingstitle");
-			}else if(title){
+			} else if (title) {
 				title.classList.remove("settingstitle");
 			}
-			if(this.owner instanceof Form&&this.owner.button){
-				const button=this.owner.button.deref();
-				if(button){
-					button.hidden=false;
+			if (this.owner instanceof Form && this.owner.button) {
+				const button = this.owner.button.deref();
+				if (button) {
+					button.hidden = false;
 				}
 			}
-		}else{
+		} else {
 			console.warn("tried to generate container, but it did not exist");
 		}
 	}
-	changed(){
-		if(this.noSubmit){
+	changed() {
+		if (this.noSubmit) {
 			return;
 		}
-		if(this.owner instanceof Options || this.owner instanceof Form ){
+		if (this.owner instanceof Options || this.owner instanceof Form) {
 			this.owner.changed();
 			return;
 		}
-		if(!this.haschanged){
+		if (!this.haschanged) {
 			const div = document.createElement("div");
 			div.classList.add("flexltr", "savediv");
 			const span = document.createElement("span");
@@ -957,8 +928,8 @@ class Options implements OptionsElement<void>{
 			this.haschanged = true;
 			this.owner.changed(div);
 
-			button.onclick = _=>{
-				if(this.owner instanceof Buttons){
+			button.onclick = (_) => {
+				if (this.owner instanceof Buttons) {
 					this.owner.save();
 				}
 				div.remove();
@@ -966,29 +937,29 @@ class Options implements OptionsElement<void>{
 			};
 		}
 	}
-	submit(){
+	submit() {
 		this.haschanged = false;
-		if(this.subOptions){
+		if (this.subOptions) {
 			this.subOptions.submit();
 			return;
 		}
 
-		for(const thing of this.options){
+		for (const thing of this.options) {
 			thing.submit();
 		}
 	}
 }
-class FormError extends Error{
+class FormError extends Error {
 	elem: OptionsElement<any>;
 	message: string;
-	constructor(elem: OptionsElement<any>, message: string){
+	constructor(elem: OptionsElement<any>, message: string) {
 		super(message);
 		this.message = message;
 		this.elem = elem;
 	}
 }
-export{ FormError };
-class Form implements OptionsElement<object>{
+export {FormError};
+class Form implements OptionsElement<object> {
 	name: string;
 	readonly options: Options;
 	readonly owner: Options;
@@ -1001,11 +972,11 @@ class Form implements OptionsElement<object>{
 	readonly method: string;
 	value!: object;
 	traditionalSubmit: boolean;
-	values: { [key: string]: any } = {};
+	values: {[key: string]: any} = {};
 	constructor(
 		name: string,
 		owner: Options,
-		onSubmit: (arg1: object,sent:object) => void,
+		onSubmit: (arg1: object, sent: object) => void,
 		{
 			ltr = false,
 			submitText = I18n.getTranslation("submit"),
@@ -1013,32 +984,32 @@ class Form implements OptionsElement<object>{
 			headers = {},
 			method = "POST",
 			traditionalSubmit = false,
-		} = {}
-	){
+		} = {},
+	) {
 		this.traditionalSubmit = traditionalSubmit;
 		this.name = name;
 		this.method = method;
 		this.submitText = submitText;
-		this.options = new Options(name, this, { ltr });
+		this.options = new Options(name, this, {ltr});
 		this.owner = owner;
 		this.fetchURL = fetchURL;
 		this.headers = headers;
 		this.ltr = ltr;
 		this.onSubmit = onSubmit;
 	}
-	setValue(key: string, value: any){
+	setValue(key: string, value: any) {
 		//the value can't really be anything, but I don't care enough to fix this
 		this.values[key] = value;
 	}
-	addSubOptions(name: string, { ltr = false,noSubmit=false } = {}){
-		if(this.button&&this.button.deref()){
-			(this.button.deref() as HTMLElement).hidden=true;
+	addSubOptions(name: string, {ltr = false, noSubmit = false} = {}) {
+		if (this.button && this.button.deref()) {
+			(this.button.deref() as HTMLElement).hidden = true;
 		}
-		return this.options.addSubOptions(name,{ltr, noSubmit});
+		return this.options.addSubOptions(name, {ltr, noSubmit});
 	}
 	addSubForm(
 		name: string,
-		onSubmit: (arg1: object,sent:object) => void,
+		onSubmit: (arg1: object, sent: object) => void,
 		{
 			ltr = false,
 			submitText = I18n.getTranslation("submit"),
@@ -1046,50 +1017,57 @@ class Form implements OptionsElement<object>{
 			headers = {},
 			method = "POST",
 			traditionalSubmit = false,
-		} = {}
-	){
-		if(this.button&&this.button.deref()){
+		} = {},
+	) {
+		if (this.button && this.button.deref()) {
 			console.warn("hidden");
-			(this.button.deref() as HTMLElement).hidden=true;
+			(this.button.deref() as HTMLElement).hidden = true;
 		}
-		return this.options.addSubForm(name,onSubmit,{ltr,submitText,fetchURL,headers,method,traditionalSubmit});
+		return this.options.addSubForm(name, onSubmit, {
+			ltr,
+			submitText,
+			fetchURL,
+			headers,
+			method,
+			traditionalSubmit,
+		});
 	}
-	generateContainter(){
+	generateContainter() {
 		this.options.generateContainter();
-		if((this.options.isTop())&&this.button&&this.button.deref()){
-			(this.button.deref() as HTMLElement).hidden=false;
+		if (this.options.isTop() && this.button && this.button.deref()) {
+			(this.button.deref() as HTMLElement).hidden = false;
 		}
 	}
-	selectMap=new WeakMap<SelectInput,(number|string|null)[]>();
+	selectMap = new WeakMap<SelectInput, (number | string | null)[]>();
 	addSelect(
 		label: string,
 		formName: string,
 		selections: string[],
-		{ defaultIndex = 0, required = false,radio=false}={},
-		correct:(string|number|null)[]=selections
-	){
-		const select = this.options.addSelect(label, _=>{}, selections, {
-			defaultIndex,radio
+		{defaultIndex = 0, required = false, radio = false} = {},
+		correct: (string | number | null)[] = selections,
+	) {
+		const select = this.options.addSelect(label, (_) => {}, selections, {
+			defaultIndex,
+			radio,
 		});
-		this.selectMap.set(select,correct);
+		this.selectMap.set(select, correct);
 		this.names.set(formName, select);
-		if(required){
+		if (required) {
 			this.required.add(select);
 		}
 		return select;
 	}
-	readonly fileOptions: Map<FileInput, { files: "one" | "multi" }> = new Map();
+	readonly fileOptions: Map<FileInput, {files: "one" | "multi"}> = new Map();
 	addFileInput(
 		label: string,
 		formName: string,
-		{ required = false, files = "one", clear = false } = {}
-	){
-		const FI = this.options.addFileInput(label, _=>{}, { clear });
-		if(files !== "one" && files !== "multi")
-			throw new Error("files should equal one or multi");
-		this.fileOptions.set(FI, { files });
+		{required = false, files = "one", clear = false} = {},
+	) {
+		const FI = this.options.addFileInput(label, (_) => {}, {clear});
+		if (files !== "one" && files !== "multi") throw new Error("files should equal one or multi");
+		this.fileOptions.set(FI, {files});
 		this.names.set(formName, FI);
-		if(required){
+		if (required) {
 			this.required.add(FI);
 		}
 		return FI;
@@ -1098,41 +1076,33 @@ class Form implements OptionsElement<object>{
 	addTextInput(
 		label: string,
 		formName: string,
-		{ initText = "", required = false, password = false } = {}
-	){
-		const textInput = this.options.addTextInput(label, _=>{}, {
+		{initText = "", required = false, password = false} = {},
+	) {
+		const textInput = this.options.addTextInput(label, (_) => {}, {
 			initText,
 			password,
 		});
 		this.names.set(formName, textInput);
-		if(required){
+		if (required) {
 			this.required.add(textInput);
 		}
 		return textInput;
 	}
-	addColorInput(
-		label: string,
-		formName: string,
-		{ initColor = "", required = false } = {}
-	){
-		const colorInput = this.options.addColorInput(label, _=>{}, {
+	addColorInput(label: string, formName: string, {initColor = "", required = false} = {}) {
+		const colorInput = this.options.addColorInput(label, (_) => {}, {
 			initColor,
 		});
 		this.names.set(formName, colorInput);
-		if(required){
+		if (required) {
 			this.required.add(colorInput);
 		}
 		return colorInput;
 	}
 
-	addMDInput(
-		label: string,
-		formName: string,
-		{ initText = "", required = false } = {}
-	){
-		const mdInput = this.options.addMDInput(label, _=>{}, { initText });
+	addMDInput(label: string, formName: string, {initText = "", required = false} = {}) {
+		const mdInput = this.options.addMDInput(label, (_) => {}, {initText});
 		this.names.set(formName, mdInput);
-		if(required){
+		if (required) {
 			this.required.add(mdInput);
 		}
 		return mdInput;
@@ -1141,126 +1111,124 @@ class Form implements OptionsElement<object>{
 	 * This function does not integrate with the form, so be aware of that
 	 *
 	 */
-	addButtonInput(label:string,textContent:string,onSubmit:()=>void){
-		return this.options.addButtonInput(label,textContent,onSubmit);
+	addButtonInput(label: string, textContent: string, onSubmit: () => void) {
+		return this.options.addButtonInput(label, textContent, onSubmit);
 	}
 	/**
 	 * This function does not integrate with the form, so be aware of that
 	 *
 	 */
-	addOptions(name: string, { ltr = false,noSubmit=false } = {}){
-		return this.options.addOptions(name, {ltr,noSubmit});
+	addOptions(name: string, {ltr = false, noSubmit = false} = {}) {
+		return this.options.addOptions(name, {ltr, noSubmit});
 	}
-	addCheckboxInput(
-		label: string,
-		formName: string,
-		{ initState = false, required = false } = {}
-	){
-		const box = this.options.addCheckboxInput(label, _=>{}, { initState });
+	addCheckboxInput(label: string, formName: string, {initState = false, required = false} = {}) {
+		const box = this.options.addCheckboxInput(label, (_) => {}, {initState});
 		this.names.set(formName, box);
-		if(required){
+		if (required) {
 			this.required.add(box);
 		}
 		return box;
 	}
-	addText(str: string){
+	addText(str: string) {
 		return this.options.addText(str);
 	}
-	addHR(){
+	addHR() {
 		return this.options.addHR();
 	}
-	addTitle(str: string){
+	addTitle(str: string) {
 		this.options.addTitle(str);
 	}
-	button!:WeakRef<HTMLButtonElement>;
-	generateHTML(): HTMLElement{
+	button!: WeakRef<HTMLButtonElement>;
+	generateHTML(): HTMLElement {
 		const div = document.createElement("div");
 		div.append(this.options.generateHTML());
 		div.classList.add("FormSettings");
-		if(!this.traditionalSubmit){
+		if (!this.traditionalSubmit) {
 			const button = document.createElement("button");
-			button.onclick = _=>{
+			button.onclick = (_) => {
 				this.submit();
 			};
 			button.textContent = this.submitText;
 			div.append(button);
-			if(this.options.subOptions){
-				button.hidden=true;
+			if (this.options.subOptions) {
+				button.hidden = true;
 			}
-			this.button=new WeakRef(button);
+			this.button = new WeakRef(button);
 		}
 		return div;
 	}
-	onSubmit: ((arg1: object,sent:object) => void )|((arg1: object,sent:object) => Promise<void> );
-	watchForChange(func: (arg1: object) => void){
+	onSubmit:
+		| ((arg1: object, sent: object) => void)
+		| ((arg1: object, sent: object) => Promise<void>);
+	watchForChange(func: (arg1: object) => void) {
 		this.onSubmit = func;
 	}
-	changed(){
-		if(this.traditionalSubmit){
+	changed() {
+		if (this.traditionalSubmit) {
 			this.owner.changed();
 		}
 	}
-	preprocessor:(obj:Object)=>void=()=>{};
-	addPreprocessor(func:(obj:Object)=>void){
-		this.preprocessor=func;
+	preprocessor: (obj: Object) => void = () => {};
+	addPreprocessor(func: (obj: Object) => void) {
+		this.preprocessor = func;
 	}
-	async submit(){
-		if(this.options.subOptions){
+	async submit() {
+		if (this.options.subOptions) {
 			this.options.subOptions.submit();
 			return;
 		}
 		console.log("start");
 		const build = {};
-		for(const key of Object.keys(this.values)){
+		for (const key of Object.keys(this.values)) {
 			const thing = this.values[key];
-			if(thing instanceof Function){
-				try{
+			if (thing instanceof Function) {
+				try {
 					(build as any)[key] = thing();
-				}catch(e: any){
-					if(e instanceof FormError){
+				} catch (e: any) {
+					if (e instanceof FormError) {
 						const elm = this.options.html.get(e.elem);
-						if(elm){
+						if (elm) {
 							const html = elm.deref();
-							if(html){
+							if (html) {
 								this.makeError(html, e.message);
 							}
 						}
 					}
 					return;
 				}
-			}else{
+			} else {
 				(build as any)[thing] = thing;
 			}
 		}
 		console.log("middle");
 		const promises: Promise<void>[] = [];
-		for(const thing of this.names.keys()){
-			if(thing === "")continue;
+		for (const thing of this.names.keys()) {
+			if (thing === "") continue;
 			const input = this.names.get(thing) as OptionsElement<any>;
-			if(input instanceof SelectInput){
+			if (input instanceof SelectInput) {
 				(build as any)[thing] = (this.selectMap.get(input) as string[])[input.value];
 				continue;
-			}else if(input instanceof FileInput){
+			} else if (input instanceof FileInput) {
 				const options = this.fileOptions.get(input);
-				if(!options){
+				if (!options) {
 					throw new Error(
-						"FileInput without its options is in this form, this should never happen."
+						"FileInput without its options is in this form, this should never happen.",
 					);
 				}
-				if(options.files === "one"){
+				if (options.files === "one") {
 					console.log(input.value);
-					if(input.value){
+					if (input.value) {
 						const reader = new FileReader();
 						reader.readAsDataURL(input.value[0]);
-						const promise = new Promise<void>(res=>{
-							reader.onload = ()=>{
+						const promise = new Promise<void>((res) => {
+							reader.onload = () => {
 								(build as any)[thing] = reader.result;
 								res();
 							};
 						});
 						promises.push(promise);
 					}
-				}else{
+				} else {
 					console.error(options.files + " is not currently implemented");
 				}
 			}
@@ -1268,47 +1236,48 @@ class Form implements OptionsElement<object>{
 		}
 		console.log("middle2");
 		await Promise.allSettled(promises);
-		try{
+		try {
 			this.preprocessor(build);
-		}catch(e){
-			if(e instanceof FormError){
+		} catch (e) {
+			if (e instanceof FormError) {
 				const elm = this.options.html.get(e.elem);
-				if(elm){
+				if (elm) {
 					const html = elm.deref();
-					if(html){
+					if (html) {
 						this.makeError(html, e.message);
 					}
 				}
 			}
 			return;
 		}
-		if(this.fetchURL !== ""){
+		if (this.fetchURL !== "") {
 			fetch(this.fetchURL, {
 				method: this.method,
 				body: JSON.stringify(build),
 				headers: this.headers,
 			})
-				.then(_=>{
-					return _.text()
-				}).then(_=>{
-					if(_==="") return {};
-					return JSON.parse(_)
+				.then((_) => {
+					return _.text();
 				})
-				.then(async json=>{
-					if(json.errors){
-						if(this.errors(json)){
+				.then((_) => {
+					if (_ === "") return {};
+					return JSON.parse(_);
+				})
+				.then(async (json) => {
+					if (json.errors) {
+						if (this.errors(json)) {
 							return;
 						}
 					}
-					try{
-						await this.onSubmit(json,build);
-					}catch(e){
+					try {
+						await this.onSubmit(json, build);
+					} catch (e) {
 						console.error(e);
-						if(e instanceof FormError){
+						if (e instanceof FormError) {
 							const elm = this.options.html.get(e.elem);
-							if(elm){
+							if (elm) {
 								const html = elm.deref();
-								if(html){
+								if (html) {
 									this.makeError(html, e.message);
 								}
 							}
@@ -1316,15 +1285,15 @@ class Form implements OptionsElement<object>{
 						return;
 					}
 				});
-		}else{
-			try{
-				await this.onSubmit(build,build);
-			}catch(e){
-				if(e instanceof FormError){
+		} else {
+			try {
+				await this.onSubmit(build, build);
+			} catch (e) {
+				if (e instanceof FormError) {
 					const elm = this.options.html.get(e.elem);
-					if(elm){
+					if (elm) {
 						const html = elm.deref();
-						if(html){
+						if (html) {
 							this.makeError(html, e.message);
 						}
 					}
@@ -1334,17 +1303,21 @@ class Form implements OptionsElement<object>{
 		}
 		console.warn("needs to be implemented");
 	}
-	errors(errors: {code: number; message: string; errors: { [key: string]: { _errors: { message: string; code: string }[] } }}){
-		if(!(errors instanceof Object)){
+	errors(errors: {
+		code: number;
+		message: string;
+		errors: {[key: string]: {_errors: {message: string; code: string}[]}};
+	}) {
+		if (!(errors instanceof Object)) {
 			return;
 		}
-		for(const error of Object.keys(errors.errors)){
+		for (const error of Object.keys(errors.errors)) {
 			const elm = this.names.get(error);
-			if(elm){
+			if (elm) {
 				const ref = this.options.html.get(elm);
-				if(ref && ref.deref()){
+				if (ref && ref.deref()) {
 					const html = ref.deref() as HTMLDivElement;
-					const errorMessage=errors.errors[error]._errors[0].message;
+					const errorMessage = errors.errors[error]._errors[0].message;
 					this.makeError(html, errorMessage);
 					return true;
 				}
@@ -1352,62 +1325,62 @@ class Form implements OptionsElement<object>{
 		}
 		return false;
 	}
-	error(formElm: string, errorMessage: string){
+	error(formElm: string, errorMessage: string) {
 		const elm = this.names.get(formElm);
-		if(elm){
+		if (elm) {
 			const htmlref = this.options.html.get(elm);
-			if(htmlref){
+			if (htmlref) {
 				const html = htmlref.deref();
-				if(html){
+				if (html) {
 					this.makeError(html, errorMessage);
 				}
 			}
-		}else{
+		} else {
 			console.warn(formElm + " is not a valid form property");
 		}
 	}
-	makeError(e: HTMLDivElement, message: string){
+	makeError(e: HTMLDivElement, message: string) {
 		let element = e.getElementsByClassName("suberror")[0] as HTMLElement;
-		if(!element){
+		if (!element) {
 			const div = document.createElement("div");
 			div.classList.add("suberror", "suberrora");
 			e.append(div);
 			element = div;
-		}else{
+		} else {
 			element.classList.remove("suberror");
-			setTimeout(_=>{
+			setTimeout((_) => {
 				element.classList.add("suberror");
 			}, 100);
 		}
 		element.textContent = message;
 	}
 }
-class HorrizonalRule implements OptionsElement<unknown>{
-	constructor(){}
+class HorrizonalRule implements OptionsElement<unknown> {
+	constructor() {}
 	generateHTML(): HTMLElement {
 		return document.createElement("hr");
 	}
-	watchForChange (_: (arg1: undefined) => void){
-		throw new Error("don't do this")
-	};
-	submit= () => {};
-	value=undefined;
+	watchForChange(_: (arg1: undefined) => void) {
+		throw new Error("don't do this");
+	}
+	submit = () => {};
+	value = undefined;
 }
-class Settings extends Buttons{
+class Settings extends Buttons {
 	static readonly Buttons = Buttons;
 	static readonly Options = Options;
 	html!: HTMLElement | null;
-	constructor(name: string){
+	constructor(name: string) {
 		super(name);
 	}
-	addButton(name: string, { ltr = false } = {}): Options{
-		const options = new Options(name, this, { ltr });
+	addButton(name: string, {ltr = false} = {}): Options {
+		const options = new Options(name, this, {ltr});
 		this.add(name, options);
 		return options;
 	}
-	show(){
+	show() {
 		const background = document.createElement("div");
-		background.classList.add("flexttb","menu","background");
+		background.classList.add("flexttb", "menu", "background");
 
 		const title = document.createElement("h2");
 		title.textContent = this.name;
@@ -1417,20 +1390,20 @@ class Settings extends Buttons{
 		background.append(this.generateHTML());
 
 		const exit = document.createElement("span");
-		exit.classList.add("exitsettings","svgicon","svg-x");
+		exit.classList.add("exitsettings", "svgicon", "svg-x");
 		background.append(exit);
-		exit.onclick = _=>{
+		exit.onclick = (_) => {
 			this.hide();
 		};
 		document.body.append(background);
 		this.html = background;
 	}
-	hide(){
-		if(this.html){
+	hide() {
+		if (this.html) {
 			this.html.remove();
 			this.html = null;
 		}
 	}
 }
 
-export{ Settings, OptionsElement, Buttons, Options,Form,Float };
+export {Settings, OptionsElement, Buttons, Options, Form, Float};

@@ -1,19 +1,25 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>Jank Client</title>
-		<meta content="Jank Client" property="og:title">
-		<meta
-			content="A spacebar client that has DMs, replying and more"
-			property="og:description"
-		>
-		<meta content="/logo.webp" property="og:image">
-		<meta content="#4b458c" data-react-helmet="true" name="theme-color">
-		<link href="/style.css" rel="stylesheet">
-		<link href="/themes.css" rel="stylesheet" id="lightcss">
-		<style>body.no-theme{background:#16191b;}@media(prefers-color-scheme:light){body.no-theme{background:#9397bd;}}</style>
+		<meta content="Jank Client" property="og:title" />
+		<meta content="A spacebar client that has DMs, replying and more" property="og:description" />
+		<meta content="/logo.webp" property="og:image" />
+		<meta content="#4b458c" data-react-helmet="true" name="theme-color" />
+		<link href="/style.css" rel="stylesheet" />
+		<link href="/themes.css" rel="stylesheet" id="lightcss" />
+		<style>
+			body.no-theme {
+				background: #16191b;
+			}
+			@media (prefers-color-scheme: light) {
+				body.no-theme {
+					background: #9397bd;
+				}
+			}
+		</style>
 	</head>
 	<body class="no-theme">
 		<div id="logindiv">
@@ -29,25 +35,13 @@
 					id="instancein"
 					value=""
 					required
-				>
+				/>
 
 				<label for="uname" id="emailField"><b>Email:</b></label>
-				<input
-					type="text"
-					placeholder="Enter email address"
-					name="uname"
-					id="uname"
-					required
-				>
+				<input type="text" placeholder="Enter email address" name="uname" id="uname" required />
 
 				<label for="psw" id="pwField"><b>Password:</b></label>
-				<input
-					type="password"
-					placeholder="Enter Password"
-					name="psw"
-					id="psw"
-					required
-				>
+				<input type="password" placeholder="Enter Password" name="psw" id="psw" required />
 				<p class="wrongred" id="wrong"></p>
 
 				<div id="h-captcha"></div>

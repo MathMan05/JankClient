@@ -1,48 +1,47 @@
-import { I18n } from "./i18n.js";
-import{ getapiurls }from"./utils/utils.js";
-import { getBulkUsers, Specialuser } from "./utils/utils.js";
+import {I18n} from "./i18n.js";
+import {getapiurls} from "./utils/utils.js";
+import {getBulkUsers, Specialuser} from "./utils/utils.js";
 
-(async ()=>{
+(async () => {
 	const users = getBulkUsers();
 	const well = new URLSearchParams(window.location.search).get("instance");
 	const joinable: Specialuser[] = [];
 
-	for(const key in users.users){
-		if(Object.prototype.hasOwnProperty.call(users.users, key)){
+	for (const key in users.users) {
+		if (Object.prototype.hasOwnProperty.call(users.users, key)) {
 			const user: Specialuser = users.users[key];
-			if(well && user.serverurls.wellknown.includes(well)){
+			if (well && user.serverurls.wellknown.includes(well)) {
 				joinable.push(user);
 			}
 			console.log(user);
 		}
 	}
 
-	let urls: { api: string; cdn: string } | undefined;
+	let urls: {api: string; cdn: string} | undefined;
 
-	if(!joinable.length && well){
+	if (!joinable.length && well) {
 		const out = await getapiurls(well);
-		if(out){
+		if (out) {
 			urls = out;
-			for(const key in users.users){
-				if(Object.prototype.hasOwnProperty.call(users.users, key)){
+			for (const key in users.users) {
+				if (Object.prototype.hasOwnProperty.call(users.users, key)) {
 					const user: Specialuser = users.users[key];
-					if(user.serverurls.api.includes(out.api)){
+					if (user.serverurls.api.includes(out.api)) {
 						joinable.push(user);
 					}
 					console.log(user);
 				}
 			}
-		}else{
-			throw new Error(
-				"Someone needs to handle the case where the servers don't exist"
-			);
+		} else {
+			throw new Error("Someone needs to handle the case where the servers don't exist");
 		}
-	}else{
+	} else {
 		urls = joinable[0].serverurls;
 	}
 	await I18n.done;
-	if(!joinable.length){
-		document.getElementById("AcceptInvite")!.textContent = I18n.getTranslation("htmlPages.noAccount");
+	if (!joinable.length) {
+		document.getElementById("AcceptInvite")!.textContent =
+			I18n.getTranslation("htmlPages.noAccount");
 	}
 
 	const code = window.location.pathname.split("/")[2];
@@ -51,34 +50,36 @@ import { getBulkUsers, Specialuser } from "./utils/utils.js";
 	fetch(`${urls!.api}/invites/${code}`, {
 		method: "GET",
 	})
-		.then(response=>response.json())
-		.then(json=>{
+		.then((response) => response.json())
+		.then((json) => {
 			const guildjson = json.guild;
 			guildinfo = guildjson;
-document.getElementById("invitename")!.textContent = guildjson.name;
-document.getElementById(
-	"invitedescription"
-)!.textContent = I18n.getTranslation("invite.longInvitedBy",json.inviter.username,guildjson.name)
-if(guildjson.icon){
-	const img = document.createElement("img");
-	img.src = `${urls!.cdn}/icons/${guildjson.id}/${guildjson.icon}.png`;
-	img.classList.add("inviteGuild");
-document.getElementById("inviteimg")!.append(img);
-}else{
-	const txt = guildjson.name
-		.replace(/'s /g, " ")
-		.replace(/\w+/g, (word: any[])=>word[0])
-		.replace(/\s/g, "");
-	const div = document.createElement("div");
-	div.textContent = txt;
-	div.classList.add("inviteGuild");
-document.getElementById("inviteimg")!.append(div);
-}
+			document.getElementById("invitename")!.textContent = guildjson.name;
+			document.getElementById("invitedescription")!.textContent = I18n.getTranslation(
+				"invite.longInvitedBy",
+				json.inviter.username,
+				guildjson.name,
+			);
+			if (guildjson.icon) {
+				const img = document.createElement("img");
+				img.src = `${urls!.cdn}/icons/${guildjson.id}/${guildjson.icon}.png`;
+				img.classList.add("inviteGuild");
+				document.getElementById("inviteimg")!.append(img);
+			} else {
+				const txt = guildjson.name
+					.replace(/'s /g, " ")
+					.replace(/\w+/g, (word: any[]) => word[0])
+					.replace(/\s/g, "");
+				const div = document.createElement("div");
+				div.textContent = txt;
+				div.classList.add("inviteGuild");
+				document.getElementById("inviteimg")!.append(div);
+			}
 		});
 
-	function showAccounts(): void{
+	function showAccounts(): void {
 		const table = document.createElement("dialog");
-		for(const user of joinable){
+		for (const user of joinable) {
 			console.log(user.pfpsrc);
 
 			const userinfo = document.createElement("div");
@@ -95,23 +96,21 @@ document.getElementById("inviteimg")!.append(div);
 			userDiv.append(document.createElement("br"));
 
 			const span = document.createElement("span");
-			span.textContent = user.serverurls.wellknown
-				.replace("https://", "")
-				.replace("http://", "");
+			span.textContent = user.serverurls.wellknown.replace("https://", "").replace("http://", "");
 			span.classList.add("serverURL");
 			userDiv.append(span);
 
 			userinfo.append(userDiv);
 			table.append(userinfo);
 
-			userinfo.addEventListener("click", ()=>{
+			userinfo.addEventListener("click", () => {
 				console.log(user);
 				fetch(`${urls!.api}/invites/${code}`, {
 					method: "POST",
 					headers: {
 						Authorization: user.token,
 					},
-				}).then(()=>{
+				}).then(() => {
 					users.currentuser = user.uid;
 					localStorage.setItem("userinfos", JSON.stringify(users));
 					window.location.href = "/channels/" + guildinfo.id;
@@ -122,14 +121,14 @@ document.getElementById("inviteimg")!.append(div);
 		const td = document.createElement("div");
 		td.classList.add("switchtable");
 		td.textContent = I18n.getTranslation("invite.loginOrCreateAccount");
-		td.addEventListener("click", ()=>{
+		td.addEventListener("click", () => {
 			const l = new URLSearchParams("?");
 			l.set("goback", window.location.href);
 			l.set("instance", well!);
 			window.location.href = "/login?" + l.toString();
 		});
 
-		if(!joinable.length){
+		if (!joinable.length) {
 			const l = new URLSearchParams("?");
 			l.set("goback", window.location.href);
 			l.set("instance", well!);
@@ -137,12 +136,10 @@ document.getElementById("inviteimg")!.append(div);
 		}
 
 		table.append(td);
-		table.classList.add("flexttb","accountSwitcher");
+		table.classList.add("flexttb", "accountSwitcher");
 		console.log(table);
 		document.body.append(table);
 	}
 
-document
-	.getElementById("AcceptInvite")!
-	.addEventListener("click", showAccounts);
+	document.getElementById("AcceptInvite")!.addEventListener("click", showAccounts);
 })();
