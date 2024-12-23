@@ -84,8 +84,6 @@ if (instancein) {
 		} else {
 			(instancein as HTMLInputElement).value = json.wellknown;
 		}
-	} else {
-		checkInstance("https://spacebar.chat/");
 	}
 }
 
@@ -224,7 +222,7 @@ if (switchurl) {
 	console.log(instance);
 	if (instance) {
 		instancein.value = instance;
-		checkInstance("");
+		//checkInstance("");
 	}
 }
 trimswitcher();
