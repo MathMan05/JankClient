@@ -206,7 +206,9 @@ const instancefetch = fetch("/instances.json")
 					}
 					datalist.append(option);
 				}
-				checkInstance("");
+				if (json.length !== 0 && !localStorage.getItem("instanceinfo")) {
+					checkInstance(json[0].name);
+				}
 			}
 		},
 	);
@@ -332,7 +334,11 @@ export async function getapiurls(str: string): Promise<
 export async function checkInstance(instance: string) {
 	await instancefetch;
 	const verify = document.getElementById("verify");
+	const loginButton = (document.getElementById("loginButton") ||
+		document.getElementById("createAccount") ||
+		document.createElement("button")) as HTMLButtonElement;
 	try {
+		loginButton.disabled = true;
 		verify!.textContent = I18n.getTranslation("login.checking");
 		const instanceValue = instance;
 		const instanceinfo = (await getapiurls(instanceValue)) as {
@@ -347,6 +353,7 @@ export async function checkInstance(instance: string) {
 			instanceinfo.value = instanceValue;
 			localStorage.setItem("instanceinfo", JSON.stringify(instanceinfo));
 			verify!.textContent = I18n.getTranslation("login.allGood");
+			loginButton.disabled = false;
 			// @ts-ignore
 			if (checkInstance.alt) {
 				// @ts-ignore
@@ -358,10 +365,12 @@ export async function checkInstance(instance: string) {
 			}, 3000);
 		} else {
 			verify!.textContent = I18n.getTranslation("login.invalid");
+			loginButton.disabled = true;
 		}
 	} catch {
 		console.log("catch");
 		verify!.textContent = I18n.getTranslation("login.invalid");
+		loginButton.disabled = true;
 	}
 }
 export function getInstances() {
