@@ -438,6 +438,13 @@
 		"legacy_username": "Has legacy username",
 		"quest_completed": "did a quest"
 	},
+	"emoji": {
+		"title": "Emojis",
+		"upload": "Upload Emojis",
+		"image:": "Image:",
+		"name:": "Name:",
+		"confirmDel": "Are you sure you want to delete this emoji?"
+	},
 	"uploadFilesText": "Upload your files here!",
 	"errorReconnect": "Unable to connect to the server, retrying in **$1** seconds...",
 	"retrying": "Retrying...",

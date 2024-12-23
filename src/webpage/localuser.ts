@@ -33,10 +33,10 @@ import {badgeArr} from "./Dbadges.js";
 const wsCodesRetry = new Set([4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009]);
 
 class Localuser {
-	badges: Map<
+	badges = new Map<
 		string,
 		{id: string; description: string; icon: string; link?: string; translate?: boolean}
-	> = new Map(badgeArr);
+	>(badgeArr);
 	lastSequence: number | null = null;
 	token!: string;
 	userinfo!: Specialuser;

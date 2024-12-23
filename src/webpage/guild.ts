@@ -212,9 +212,9 @@ class Guild extends SnowFlake {
 		}
 		s1.options.push(new RoleList(permlist, this, this.updateRolePermissions.bind(this), false));
 		{
-			const emoji = settings.addButton("Emojis");
-			emoji.addButtonInput("", "Upload Emoji", () => {
-				const popup = new Dialog("Upload emoji");
+			const emoji = settings.addButton(I18n.getTranslation("emoji.title"));
+			emoji.addButtonInput("", I18n.getTranslation("emoji.upload"), () => {
+				const popup = new Dialog(I18n.getTranslation("emoji.upload"));
 				const form = popup.options.addForm(
 					"",
 					() => {
@@ -226,8 +226,8 @@ class Guild extends SnowFlake {
 						headers: this.headers,
 					},
 				);
-				form.addFileInput("Image:", "image", {required: true});
-				form.addTextInput("Name:", "name", {required: true});
+				form.addFileInput(I18n.getTranslation("emoji.image:"), "image", {required: true});
+				form.addTextInput(I18n.getTranslation("emoji.name:"), "name", {required: true});
 				popup.show();
 			});
 			const containdiv = document.createElement("div");
@@ -255,7 +255,7 @@ class Guild extends SnowFlake {
 					del.classList.add("svgicon", "svg-x", "deleteEmoji");
 					del.onclick = () => {
 						const diaolog = new Dialog("");
-						diaolog.options.addTitle("Are you sure you want to delete this emoji?");
+						diaolog.options.addTitle(I18n.getTranslation("emoji.confirmDel"));
 						const options = diaolog.options.addOptions("", {ltr: true});
 						options.addButtonInput("", I18n.getTranslation("yes"), () => {
 							fetch(`${this.info.api}/guilds/${this.id}/emojis/${emoji.id}`, {
