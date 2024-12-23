@@ -1,0 +1,141 @@
+{
+	"@metadata": {
+		"authors": [
+			"Volvox"
+		]
+	},
+	"readableName": "Lëtzebuergesch",
+	"reply": "Äntweren",
+	"permissions": {
+		"readableNames": {
+			"ADMINISTRATOR": "Administrateur",
+			"STREAM": "Video"
+		}
+	},
+	"yes": "Jo",
+	"no": "Neen",
+	"todayAt": "Haut um $1",
+	"yesterdayAt": "Gëschter um $1",
+	"botSettings": "Botastellungen",
+	"pronouns": "Pronomen:",
+	"profileColor": "Profilfaarf",
+	"typing": "$2 {{PLURAL:$1|ass|sinn}} am schreiwen",
+	"channel": {
+		"markRead": "Als gelies markéieren",
+		"settings": "Astellungen",
+		"settingsFor": "Astellunge fir $1",
+		"text": "Text",
+		"name:": "Numm:",
+		"topic:": "Theema:",
+		"selectCatName": "Numm vun der Kategorie",
+		"createCatagory": "Kategorie uleeën"
+	},
+	"htmlPages": {
+		"emailField": "E-Mail:",
+		"pwField": "Passwuert:",
+		"loginButton": "Aloggen",
+		"noAccount": "Hutt Dir kee Benotzerkont?",
+		"userField": "Benotzernumm:",
+		"pw2Field": "Passwuert nach eng Kéier aginn:",
+		"dobField": "Gebuertsdatum:"
+	},
+	"register": {
+		"passwordError:": "Passwuert: $1",
+		"usernameError": "Benotzernumm: $1",
+		"emailError": "E-Mail-Adress: $1",
+		"DOBError": "Gebuertsdatum: $1"
+	},
+	"guild": {
+		"markRead": "Als gelies markéieren",
+		"notifications": "Notifikatiounen",
+		"settings": "Astellungen",
+		"settingsFor": "Astellunge fir $1",
+		"name:": "Numm:",
+		"region:": "Regioun:",
+		"roles": "Rollen",
+		"all": "all",
+		"none": "keng",
+		"yesLeave": "Jo, ech si mer sécher",
+		"serverName": "Servernumm:",
+		"yesDelete": "Jo, ech si mer sécher",
+		"loadingDiscovery": "Lueden…",
+		"description:": "Beschreiwung:"
+	},
+	"role": {
+		"color": "Faarf",
+		"delete": "Roll läschen"
+	},
+	"settings": {
+		"save": "Ännerunge späicheren"
+	},
+	"localuser": {
+		"settings": "Astellungen",
+		"userSettings": "Benotzerastellungen",
+		"notisound": "Notifikatiounstoun:",
+		"updateSettings": "Astellungen aktualiséieren",
+		"SWOff": "Aus",
+		"SWOffline": "Nëmmen offline",
+		"SWOn": "Un",
+		"badCode": "Ongültege Code",
+		"2faEnable": "2FA aktivéieren",
+		"2faCode:": "Code:",
+		"badPassword": "Falscht Passwuert",
+		"changeEmail": "E-Mail-Adress änneren",
+		"password:": "Passwuert",
+		"newEmail:": "Nei E-Mail",
+		"changeUsername": "Benotzernumm änneren",
+		"newUsername": "Neie Benotzernumm:",
+		"changePassword": "Passwuert änneren",
+		"oldPassword:": "Aalt Passwuert:",
+		"newPassword:": "Neit Passwuert:",
+		"PasswordsNoMatch": "D'Passwierder sinn net d'selwecht",
+		"description": "Beschreiwung:",
+		"botUsername": "Botbenotzernumm:",
+		"language": "Sprooch:"
+	},
+	"message": {
+		"delete": "Message läschen",
+		"edit": "Message änneren",
+		"edited": "(geännert)",
+		"deleted": "Geläschte Message"
+	},
+	"instanceStats": {
+		"users": "Registréiert Benotzer: $1",
+		"servers": "Serveren: $1",
+		"messages": "Messagen: $1",
+		"members": "Memberen: $1"
+	},
+	"inviteOptions": {
+		"30m": "30 Minutten",
+		"1h": "1 Stonn",
+		"6h": "6 Stonnen",
+		"12h": "12 Stonnen",
+		"1d": "1 Dag",
+		"7d": "7 Deeg",
+		"30d": "30 Deeg",
+		"never": "Ni"
+	},
+	"2faCode": "2FA-Code:",
+	"invite": {
+		"accept": "Akzeptéieren"
+	},
+	"friends": {
+		"notfound": "Benotzer net fonnt",
+		"online": "Online",
+		"friends": "Frënn"
+	},
+	"DMs": {
+		"markRead": "Als gelies markéieren"
+	},
+	"user": {
+		"online": "Online",
+		"offline": "Offline",
+		"block": "Benotzer spären",
+		"editServerProfile": "Serverprofil änneren"
+	},
+	"member": {
+		"reason:": "Grond:",
+		"nick:": "Spëtznumm:"
+	},
+	"uploadFilesText": "Lued Är Fichieren hei erop!"
+}
