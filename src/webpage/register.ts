@@ -161,4 +161,4 @@ async function tosLogic() {
 
 tosLogic();
 
-(checkInstance as any).alt = tosLogic;
+checkInstance.alt = tosLogic;
