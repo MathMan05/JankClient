@@ -23,7 +23,7 @@ class Direct extends Guild {
 		this.headers = this.localuser.headers;
 		this.channels = [];
 		this.channelids = {};
-		// @ts-ignore
+		// @ts-ignore it's a hack, but it's a hack that works
 		this.properties = {};
 		this.roles = [];
 		this.roleids = new Map();
@@ -337,8 +337,7 @@ dmPermissions.setPermission("CONNECT", 1);
 dmPermissions.setPermission("SPEAK", 1);
 dmPermissions.setPermission("STREAM", 1);
 dmPermissions.setPermission("USE_VAD", 1);
-
-// @ts-ignore I need to look into this lol
+//@ts-ignore No clue how to fix this dumb bug lol
 class Group extends Channel {
 	user: User;
 	static contextmenu = new Contextmenu<Group, undefined>("channel menu");

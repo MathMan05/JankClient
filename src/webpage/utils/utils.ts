@@ -224,6 +224,9 @@ const stringURLsMap = new Map<
 		login?: string;
 	}
 >();
+/**
+ * this fucntion checks if a string is an instance, it'll either return the API urls or false
+ */
 export async function getapiurls(str: string): Promise<
 	| {
 			api: string;
@@ -331,48 +334,56 @@ export async function getapiurls(str: string): Promise<
 		return false;
 	}
 }
-export async function checkInstance(instance: string) {
-	await instancefetch;
-	const verify = document.getElementById("verify");
-	const loginButton = (document.getElementById("loginButton") ||
-		document.getElementById("createAccount") ||
-		document.createElement("button")) as HTMLButtonElement;
-	try {
-		loginButton.disabled = true;
-		verify!.textContent = I18n.getTranslation("login.checking");
-		const instanceValue = instance;
-		const instanceinfo = (await getapiurls(instanceValue)) as {
-			wellknown: string;
-			api: string;
-			cdn: string;
-			gateway: string;
-			login: string;
-			value: string;
-		};
-		if (instanceinfo) {
-			instanceinfo.value = instanceValue;
-			localStorage.setItem("instanceinfo", JSON.stringify(instanceinfo));
-			verify!.textContent = I18n.getTranslation("login.allGood");
-			loginButton.disabled = false;
-			// @ts-ignore
-			if (checkInstance.alt) {
-				// @ts-ignore
-				checkInstance.alt();
+/**
+ *
+ * This function takes in a string and checks if the string is a valid instance
+ * the string may be a URL or the name of the instance
+ * the alt property is something you may fire on success.
+ */
+const checkInstance = Object.assign(
+	async function (instance: string) {
+		await instancefetch;
+		const verify = document.getElementById("verify");
+		const loginButton = (document.getElementById("loginButton") ||
+			document.getElementById("createAccount") ||
+			document.createElement("button")) as HTMLButtonElement;
+		try {
+			loginButton.disabled = true;
+			verify!.textContent = I18n.getTranslation("login.checking");
+			const instanceValue = instance;
+			const instanceinfo = (await getapiurls(instanceValue)) as {
+				wellknown: string;
+				api: string;
+				cdn: string;
+				gateway: string;
+				login: string;
+				value: string;
+			};
+			if (instanceinfo) {
+				instanceinfo.value = instanceValue;
+				localStorage.setItem("instanceinfo", JSON.stringify(instanceinfo));
+				verify!.textContent = I18n.getTranslation("login.allGood");
+				loginButton.disabled = false;
+				if (checkInstance.alt) {
+					checkInstance.alt();
+				}
+				setTimeout((_: any) => {
+					console.log(verify!.textContent);
+					verify!.textContent = "";
+				}, 3000);
+			} else {
+				verify!.textContent = I18n.getTranslation("login.invalid");
+				loginButton.disabled = true;
 			}
-			setTimeout((_: any) => {
-				console.log(verify!.textContent);
-				verify!.textContent = "";
-			}, 3000);
-		} else {
+		} catch {
+			console.log("catch");
 			verify!.textContent = I18n.getTranslation("login.invalid");
 			loginButton.disabled = true;
 		}
-	} catch {
-		console.log("catch");
-		verify!.textContent = I18n.getTranslation("login.invalid");
-		loginButton.disabled = true;
-	}
-}
+	},
+	{} as {alt?: Function},
+);
+export {checkInstance};
 export function getInstances() {
 	return instances;
 }

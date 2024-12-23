@@ -182,7 +182,6 @@ import {I18n} from "./i18n.js";
 			}
 			channel.sendMessage(markdown.rawString, {
 				attachments: images,
-				// @ts-ignore This is valid according to the API
 				embeds: [], // Add an empty array for the embeds property
 				replyingto: replyingTo,
 			});

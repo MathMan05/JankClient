@@ -1397,7 +1397,7 @@ class Channel extends SnowFlake {
 		{
 			attachments = [],
 			replyingto = null,
-		}: {attachments: Blob[]; embeds: embedjson; replyingto: Message | null},
+		}: {attachments: Blob[]; embeds: embedjson[]; replyingto: Message | null},
 	) {
 		let replyjson: any;
 		if (replyingto) {
