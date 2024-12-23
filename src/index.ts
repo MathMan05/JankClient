@@ -110,7 +110,7 @@ app.use("/", async (req: Request, res: Response) => {
 	const host = `${scheme}://${req.get("Host")}`;
 	const ref = host + req.originalUrl;
 
-	if (host && ref) {
+	if (host && ref && false) {
 		const link = `${host}/services/oembed?url=${encodeURIComponent(ref)}`;
 		res.set(
 			"Link",
