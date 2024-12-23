@@ -64,6 +64,7 @@ import {I18n} from "./i18n.js";
 
 				thisUser = new Localuser(specialUser);
 				users.currentuser = specialUser.uid;
+				sessionStorage.setItem("currentuser", specialUser.uid);
 				localStorage.setItem("userinfos", JSON.stringify(users));
 
 				thisUser.initwebsocket().then(() => {
@@ -107,8 +108,9 @@ import {I18n} from "./i18n.js";
 
 	let thisUser: Localuser;
 	try {
-		console.log(users.users, users.currentuser);
-		thisUser = new Localuser(users.users[users.currentuser]);
+		const current = sessionStorage.getItem("currentuser") || users.currentuser;
+		console.log(users.users, current);
+		thisUser = new Localuser(users.users[current]);
 		thisUser.initwebsocket().then(() => {
 			thisUser.loaduser();
 			thisUser.init();

@@ -112,6 +112,7 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 					},
 				}).then(() => {
 					users.currentuser = user.uid;
+					sessionStorage.setItem("currentuser", user.uid);
 					localStorage.setItem("userinfos", JSON.stringify(users));
 					window.location.href = "/channels/" + guildinfo.id;
 				});

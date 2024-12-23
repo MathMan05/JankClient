@@ -59,6 +59,7 @@ function adduser(user: typeof Specialuser.prototype.json) {
 	const info = getBulkInfo();
 	info.users[user.uid] = user;
 	info.currentuser = user.uid;
+	sessionStorage.setItem("currentuser", user.uid);
 	localStorage.setItem("userinfos", JSON.stringify(info));
 	return user;
 }
