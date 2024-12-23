@@ -490,8 +490,6 @@ class Channel extends SnowFlake {
 				return div;
 			}
 		}
-		// @ts-ignore I dont wanna deal with this
-		div.all = this;
 		div.draggable = admin;
 		div.addEventListener("dragstart", (e) => {
 			Channel.dragged = [this, div];
@@ -530,8 +528,6 @@ class Channel extends SnowFlake {
 			decdiv.classList.add("channel");
 
 			Channel.contextmenu.bindContextmenu(decdiv, this, undefined);
-			// @ts-ignore I dont wanna deal with this
-			decdiv.all = this;
 
 			for (const channel of this.children) {
 				childrendiv.appendChild(channel.createguildHTML(admin));
@@ -567,8 +563,6 @@ class Channel extends SnowFlake {
 			if (admin) {
 				this.coatDropDiv(div);
 			}
-			// @ts-ignore I dont wanna deal with this
-			div.all = this;
 			const button = document.createElement("button");
 			button.classList.add("channelbutton");
 			div.append(button);

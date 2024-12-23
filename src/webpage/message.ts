@@ -47,7 +47,7 @@ class Message extends SnowFlake {
 			return this.weakdiv?.deref();
 			}
 			//*/
-	div: (HTMLDivElement & {pfpparent?: Message | undefined; txt?: HTMLElement}) | undefined;
+	div: HTMLDivElement | undefined;
 	member: Member | undefined;
 	reactions!: messagejson["reactions"];
 	static setup() {
@@ -474,14 +474,9 @@ class Message extends SnowFlake {
 		const messageTypes = new Set([0, 19]);
 		if (messageTypes.has(this.type) || this.attachments.length !== 0) {
 			const pfpRow = document.createElement("div");
-			let pfpparent, current;
+			let current = true;
 			if (premessage !== undefined) {
-				pfpparent ??= premessage;
-				// @ts-ignore
-				// TODO: type this
-				let pfpparent2 = pfpparent.all;
-				pfpparent2 ??= pfpparent;
-				const old = new Date(pfpparent2.timestamp).getTime() / 1000;
+				const old = new Date(premessage.timestamp).getTime() / 1000;
 				const newt = new Date(this.timestamp).getTime() / 1000;
 				current = newt - old > 600;
 			}
@@ -494,8 +489,6 @@ class Message extends SnowFlake {
 				const pfp = this.author.buildpfp();
 				this.author.bind(pfp, this.guild, false);
 				pfpRow.appendChild(pfp);
-			} else {
-				div.pfpparent = pfpparent;
 			}
 			pfpRow.classList.add("pfprow");
 			build.appendChild(pfpRow);
@@ -582,7 +575,6 @@ class Message extends SnowFlake {
 			} else {
 				this.content.onUpdate = () => {};
 				const messaged = this.content.makeHTML();
-				(div as any).txt = messaged;
 				messagedwrap.classList.add("flexttb");
 				messagedwrap.appendChild(messaged);
 			}
@@ -609,7 +601,6 @@ class Message extends SnowFlake {
 			const text = document.createElement("div");
 			build.appendChild(text);
 			const messaged = document.createElement("span");
-			div.txt = messaged;
 			messaged.textContent = "welcome: ";
 			text.appendChild(messaged);
 
