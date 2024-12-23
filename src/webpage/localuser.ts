@@ -898,7 +898,6 @@ class Localuser {
 		div.classList.add("home", "servericon");
 
 		home.classList.add("svgicon", "svg-home");
-		home.all = this.guildids.get("@me");
 		(this.guildids.get("@me") as Guild).html = outdiv;
 		const unread = document.createElement("div");
 		unread.classList.add("unread");
@@ -908,9 +907,11 @@ class Localuser {
 
 		outdiv.classList.add("servernoti");
 		serverlist.append(outdiv);
-		home.onclick = function () {
-			this.all.loadGuild();
-			this.all.loadChannel();
+		home.onclick = () => {
+			const guild = this.guildids.get("@me");
+			if (!guild) return;
+			guild.loadGuild();
+			guild.loadChannel();
 		};
 		const sentdms = document.createElement("div");
 		sentdms.classList.add("sentdms");
