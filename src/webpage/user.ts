@@ -183,7 +183,7 @@ class User extends SnowFlake {
 			},
 			null,
 			function () {
-				return this.relationshipType !== 2;
+				return this.relationshipType !== 2 && this.id !== this.localuser.user.id;
 			},
 		);
 
@@ -194,7 +194,7 @@ class User extends SnowFlake {
 			},
 			null,
 			function () {
-				return this.relationshipType === 2;
+				return this.relationshipType === 2 && this.id !== this.localuser.user.id;
 			},
 		);
 		this.contextmenu.addbutton(
@@ -204,7 +204,10 @@ class User extends SnowFlake {
 			},
 			null,
 			function () {
-				return this.relationshipType === 0 || this.relationshipType === 3;
+				return (
+					(this.relationshipType === 0 || this.relationshipType === 3) &&
+					this.id !== this.localuser.user.id
+				);
 			},
 		);
 		this.contextmenu.addbutton(
@@ -214,7 +217,7 @@ class User extends SnowFlake {
 			},
 			null,
 			function () {
-				return this.relationshipType === 1;
+				return this.relationshipType === 1 && this.id !== this.localuser.user.id;
 			},
 		);
 		this.contextmenu.addbutton(
@@ -223,7 +226,7 @@ class User extends SnowFlake {
 				member?.kick();
 			},
 			null,
-			(member) => {
+			function (member) {
 				if (!member) return false;
 				const us = member.guild.member;
 				if (member.id === us.id) {
@@ -232,7 +235,7 @@ class User extends SnowFlake {
 				if (member.id === member.guild.properties.owner_id) {
 					return false;
 				}
-				return us.hasPermission("KICK_MEMBERS") || false;
+				return us.hasPermission("KICK_MEMBERS") && this.id !== this.localuser.user.id;
 			},
 		);
 
@@ -253,7 +256,7 @@ class User extends SnowFlake {
 				member?.ban();
 			},
 			null,
-			(member) => {
+			function (member) {
 				if (!member) return false;
 				const us = member.guild.member;
 				if (member.id === us.id) {
@@ -262,7 +265,7 @@ class User extends SnowFlake {
 				if (member.id === member.guild.properties.owner_id) {
 					return false;
 				}
-				return us.hasPermission("BAN_MEMBERS") || false;
+				return us.hasPermission("BAN_MEMBERS") && this.id !== this.localuser.user.id;
 			},
 		);
 		this.contextmenu.addbutton(
