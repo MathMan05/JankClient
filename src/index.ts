@@ -50,6 +50,11 @@ async function combinePath(path: string, tryAgain = true): Promise<string> {
 	if (find(pathDir, dirs)) {
 		return __dirname + path;
 	} else {
+		const str = await combinePath(path + ".html", false);
+		if (str !== __dirname + "/webpage/index.html") {
+			console.log(str);
+			return str;
+		}
 		if (devmode && tryAgain) {
 			dirs = await getDirectories(__dirname);
 			return combinePath(path, false);
