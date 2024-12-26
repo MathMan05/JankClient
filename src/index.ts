@@ -157,8 +157,14 @@ app.use("/uptime", (req: Request, res: Response) => {
 app.use("/", async (req: Request, res: Response) => {
 	const scheme = req.secure ? "https" : "http";
 	const host = `${scheme}://${req.get("Host")}`;
-	const ref = host + req.originalUrl;
-
+	let ref = host + req.originalUrl;
+	if (Object.keys(req.query).length !== 0) {
+		const parms = new URLSearchParams();
+		for (const key of Object.keys(req.query)) {
+			parms.set(key, req.query[key] as string);
+		}
+		ref + `?${parms}`;
+	}
 	if (host && ref) {
 		const link = `${host}/services/oembed?url=${encodeURIComponent(ref)}`;
 		res.set(

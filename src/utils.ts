@@ -115,7 +115,7 @@ export async function inviteResponse(
 			description,
 		});
 	} catch (error) {
-		console.error("Error processing invite response:", error);
+		//console.error("Error processing invite response:", error);
 		res.json({
 			type: "link",
 			version: "1.0",
