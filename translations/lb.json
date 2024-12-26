@@ -137,5 +137,15 @@
 		"reason:": "Grond:",
 		"nick:": "Spëtznumm:"
 	},
+	"badge": {
+		"certified_moderator": "Moderateur"
+	},
+	"emoji": {
+		"title": "Emojien",
+		"upload": "Emojien eroplueden",
+		"image:": "Bild:",
+		"name:": "Numm:",
+		"confirmDel": "Sidd Dir sécher, datt Dir dësen Emoji läsche wëllt?"
+	},
 	"uploadFilesText": "Lued Är Fichieren hei erop!"
 }
