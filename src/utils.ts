@@ -1,5 +1,5 @@
 import {Request, Response} from "express";
-
+import {instace} from "./index.js";
 interface ApiUrls {
 	api: string;
 	gateway: string;
@@ -19,9 +19,31 @@ interface Invite {
 	};
 }
 
-export async function getApiUrls(url: string): Promise<ApiUrls | null> {
+export async function getApiUrls(
+	url: string,
+	instances: instace[],
+	check = true,
+): Promise<ApiUrls | null> {
 	if (!url.endsWith("/")) {
 		url += "/";
+	}
+	if (check) {
+		let valid = false;
+		for (const instace of instances) {
+			const urlstr = instace.url || instace.urls?.api;
+			if (!urlstr) {
+				continue;
+			}
+			try {
+				if (new URL(urlstr).host === new URL(url).host) {
+					valid = true;
+					break;
+				}
+			} catch (e) {}
+		}
+		if (!valid) {
+			throw new Error("Invalid instance");
+		}
 	}
 	try {
 		const info: ApiUrls = await fetch(`${url}.well-known/spacebar`).then((res) => res.json());
@@ -42,7 +64,11 @@ export async function getApiUrls(url: string): Promise<ApiUrls | null> {
 	}
 }
 
-export async function inviteResponse(req: Request, res: Response): Promise<void> {
+export async function inviteResponse(
+	req: Request,
+	res: Response,
+	instances: instace[],
+): Promise<void> {
 	let url: URL;
 	try {
 		url = new URL(req.query.url as string);
@@ -53,7 +79,7 @@ export async function inviteResponse(req: Request, res: Response): Promise<void>
 	}
 
 	try {
-		if (url.pathname.startsWith("invite")) {
+		if (!url.pathname.startsWith("invite") && !url.pathname.startsWith("/invite")) {
 			throw new Error("Invalid invite URL");
 		}
 
@@ -63,7 +89,7 @@ export async function inviteResponse(req: Request, res: Response): Promise<void>
 			throw new Error("Instance not specified");
 		}
 
-		const urls = await getApiUrls(instance);
+		const urls = await getApiUrls(instance, instances);
 		if (!urls) {
 			throw new Error("Failed to get API URLs");
 		}
