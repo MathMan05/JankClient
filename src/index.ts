@@ -70,7 +70,7 @@ interface Instance {
 
 const app = express();
 
-type instace = {
+export type instace = {
 	name: string;
 	description?: string;
 	descriptionLong?: string;
@@ -146,7 +146,7 @@ app.use("/getupdates", async (_req: Request, res: Response) => {
 });
 
 app.use("/services/oembed", (req: Request, res: Response) => {
-	inviteResponse(req, res);
+	inviteResponse(req, res, instances);
 });
 
 app.use("/uptime", (req: Request, res: Response) => {
@@ -159,7 +159,7 @@ app.use("/", async (req: Request, res: Response) => {
 	const host = `${scheme}://${req.get("Host")}`;
 	const ref = host + req.originalUrl;
 
-	if (host && ref && false) {
+	if (host && ref) {
 		const link = `${host}/services/oembed?url=${encodeURIComponent(ref)}`;
 		res.set(
 			"Link",
