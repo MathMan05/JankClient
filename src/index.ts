@@ -52,7 +52,6 @@ async function combinePath(path: string, tryAgain = true): Promise<string> {
 	} else {
 		const str = await combinePath(path + ".html", false);
 		if (str !== __dirname + "/webpage/index.html") {
-			console.log(str);
 			return str;
 		}
 		if (devmode && tryAgain) {
