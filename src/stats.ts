@@ -98,7 +98,7 @@ async function getApiUrl(instance: Instance): Promise<string | null> {
 		return instance.urls.api;
 	}
 	if (instance.url) {
-		const urls = await getApiUrls(instance.url);
+		const urls = await getApiUrls(instance.url, [], false);
 		return urls ? urls.api : null;
 	}
 	return null;

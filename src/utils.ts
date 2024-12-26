@@ -39,7 +39,9 @@ export async function getApiUrls(
 					valid = true;
 					break;
 				}
-			} catch (e) {}
+			} catch (e) {
+				//console.log(e);
+			}
 		}
 		if (!valid) {
 			throw new Error("Invalid instance");
