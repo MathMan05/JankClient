@@ -13,7 +13,50 @@ import process from "node:process";
 const devmode = (process.env.NODE_ENV || "development") === "development";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-
+type dirtype = Map<string, dirtype | string>;
+async function getDirectories(path: string): Promise<dirtype> {
+	return new Map(
+		await Promise.all(
+			(await fs.readdir(path)).map(async function (file): Promise<[string, string | dirtype]> {
+				if ((await fs.stat(path + "/" + file)).isDirectory()) {
+					return [file, await getDirectories(path + "/" + file)];
+				} else {
+					return [file, file];
+				}
+			}),
+		),
+	);
+}
+let dirs: dirtype | undefined = undefined;
+async function combinePath(path: string, tryAgain = true): Promise<string> {
+	if (!dirs) {
+		dirs = await getDirectories(__dirname);
+	}
+	const pathDir = path
+		.split("/")
+		.reverse()
+		.filter((_) => _ !== "");
+	function find(arr: string[], search: dirtype | string | undefined): boolean {
+		if (search == undefined) return false;
+		if (arr.length === 0) {
+			return typeof search == "string";
+		}
+		if (typeof search == "string") {
+			return false;
+		}
+		const thing = arr.pop() as string;
+		return find(arr, search.get(thing));
+	}
+	if (find(pathDir, dirs)) {
+		return __dirname + path;
+	} else {
+		if (devmode && tryAgain) {
+			dirs = await getDirectories(__dirname);
+			return combinePath(path, false);
+		}
+		return __dirname + "/webpage/index.html";
+	}
+}
 interface Instance {
 	name: string;
 	[key: string]: any;
@@ -132,42 +175,8 @@ app.use("/", async (req: Request, res: Response) => {
 		res.sendFile(path.join(__dirname, "webpage", "invite.html"));
 		return;
 	}
-	const filePath = path.join(__dirname, "webpage", req.path);
-	try {
-		await fs.access(filePath);
-		if (devmode) {
-			const filePath2 = path.join(__dirname, "../src/webpage", req.path);
-			try {
-				await fs.access(filePath2);
-				res.sendFile(filePath2);
-				return;
-			} catch {}
-		}
-		res.sendFile(filePath);
-	} catch {
-		try {
-			await fs.access(`${filePath}.html`);
-			if (devmode) {
-				const filePath2 = path.join(__dirname, "../src/webpage", req.path);
-				try {
-					await fs.access(filePath2 + ".html");
-					res.sendFile(filePath2 + ".html");
-					return;
-				} catch {}
-			}
-			res.sendFile(`${filePath}.html`);
-		} catch {
-			if (req.path.startsWith("/src/webpage")) {
-				const filePath2 = path.join(__dirname, "..", req.path);
-				try {
-					await fs.access(filePath2);
-					res.sendFile(filePath2);
-					return;
-				} catch {}
-			}
-			res.sendFile(path.join(__dirname, "webpage", "index.html"));
-		}
-	}
+	const filePath = await combinePath("/webpage/" + req.path);
+	res.sendFile(filePath);
 });
 
 app.set("trust proxy", (ip: string) => ip.startsWith("127."));
