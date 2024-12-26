@@ -260,6 +260,13 @@
 		"reason:": "이유:",
 		"nick:": "별명:"
 	},
+	"emoji": {
+		"title": "이모티콘",
+		"upload": "이모티콘 업로드",
+		"image:": "이미지:",
+		"name:": "이름:",
+		"confirmDel": "이 이모티콘을 삭제하시겠습니까?"
+	},
 	"uploadFilesText": "여기에 파일을 올리세요!",
 	"retrying": "다시 시도하는 중..."
 }
