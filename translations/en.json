@@ -42,7 +42,7 @@
 			"MANAGE_NICKNAMES": "Allows user to change nicknames of other members",
 			"MANAGE_ROLES": "Allows user to edit and manage roles",
 			"MANAGE_WEBHOOKS": "Allows management and editing of webhooks",
-			"MANAGE_GUILD_EXPRESSIONS": "Allows for managing emoji, stickers, and soundboards",
+			"MANAGE_GUILD_EXPRESSIONS": "Allows for managing emoji, stickers, and the soundboard",
 			"USE_APPLICATION_COMMANDS": "Allows the user to use application commands",
 			"REQUEST_TO_SPEAK": "Allows user to request to speak in stage channel",
 			"MANAGE_EVENTS": "Allows user to edit and manage events",
