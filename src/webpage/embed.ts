@@ -92,7 +92,7 @@ class Embed {
 			const authorline = document.createElement("div");
 			if (this.json.author.icon_url) {
 				const img = document.createElement("img");
-				img.classList.add("embedimg");
+				img.classList.add("authorEmbedImg");
 				img.src = this.json.author.icon_url;
 				authorline.append(img);
 			}

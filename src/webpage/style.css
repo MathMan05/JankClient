@@ -1383,6 +1383,11 @@ img.embedicon {
 img.embedimg {
 	max-width: 96px;
 }
+img.authorEmbedImg {
+	max-width: 20px;
+	padding-right:4px;
+	border-radius:1in;
+}
 img.bigembedimg {
 	height: auto !important;
 	margin-top: 8px;
