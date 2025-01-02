@@ -3,6 +3,7 @@
 		"authors": [
 			"Booky",
 			"Brettchenweber",
+			"SergeCroise",
 			"SomeRandomDeveloper"
 		]
 	},
@@ -41,7 +42,7 @@
 			"MANAGE_NICKNAMES": "Erlaubt dem Nutzer, die Nicknamen von anderen Nutzern zu verwalten",
 			"MANAGE_ROLES": "Erlaubt dem Nutzer, die Serverrollen zu verwalten und zu editieren",
 			"MANAGE_WEBHOOKS": "Erlaubt dem Nutzer, Webhooks zu verwalten und zu editieren",
-			"MANAGE_GUILD_EXPRESSIONS": "Erlaubt dem Nutzer, Emojis, Sticker und Soundboard Sounds zu verwalten",
+			"MANAGE_GUILD_EXPRESSIONS": "Ermöglicht die Verwaltung von Emojis, Stickern und dem Soundboard",
 			"USE_APPLICATION_COMMANDS": "Erlaubt dem Nutzer die Verwendung von Befehlen bestimmter Anwendungen",
 			"REQUEST_TO_SPEAK": "Erlaubt dem Nutzer, in einem Bühnenkanal das Rederecht zu erbitten",
 			"MANAGE_EVENTS": "Erlaubt dem Nutzer das Verwalten und Editieren von Events"
@@ -124,6 +125,7 @@
 		"delete": "Rolle löschen"
 	},
 	"localuser": {
+		"VoiceWarning": "Möchten Sie dies wirklich aktivieren? Es ist sehr experimentell und verursacht wahrscheinlich Probleme. (Diese Funktion ist für Entwickler. Bitte aktivieren Sie sie nicht, wenn Sie nicht wissen, was Sie tun.)",
 		"privacyPolcyURL": "Datenschutzerklärung:",
 		"TOSURL": "Nutzungsbedingungen:"
 	},
@@ -131,5 +133,8 @@
 		"channel:": "Kanal:",
 		"inviteMaker": "Einladungsgenerator",
 		"createInvite": "Einladung erstellen"
+	},
+	"user": {
+		"unblock": "Benutzer entsperren"
 	}
 }
