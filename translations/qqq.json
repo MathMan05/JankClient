@@ -3,18 +3,21 @@
 		"last-updated": "2024/11/4",
 		"locale": "en",
 		"comment": "Don't know how often I'll update this top part lol",
-		"authors": ["MathMan05", "McDutchie"]
+		"authors": [
+			"MathMan05",
+			"McDutchie"
+		]
 	},
-	"typing": "$1 is the number of people typing and $2 is the names of the people typing separated by commas",
 	"readableName": "{{doc-important|This should be the name of the language you are translating into, in that language. Please DO NOT translate this into your language’s word for “English”!}}",
+	"typing": "$1 is the number of people typing and $2 is the names of the people typing separated by commas",
 	"htmlPages": {
 		"box1Items": "this string is slightly atypical, it has a list of items separated by |, please try to keep the same list size as this"
 	},
-	"guild": {
-		"disoveryTitle": "$1 is the number of guilds discovered"
-	},
 	"register": {
 		"agreeTOS": "uses MarkDown"
+	},
+	"guild": {
+		"disoveryTitle": "$1 is the number of guilds discovered"
 	},
 	"localuser": {
 		"description": "This object contains strings related to the logged in user, which is mostly the settings for the user"
