@@ -116,7 +116,7 @@ samp {
 }
 video,
 iframe {
-	max-height: 50svh;
+	/* max-height: 50svh; */
 	max-width: 100%;
 }
 audio::-webkit-media-controls-panel {

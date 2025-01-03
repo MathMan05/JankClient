@@ -280,8 +280,8 @@ class Message extends SnowFlake {
 			body: JSON.stringify({content}),
 		});
 	}
-	delete() {
-		fetch(`${this.info.api}/channels/${this.channel.id}/messages/${this.id}`, {
+	async delete() {
+		await fetch(`${this.info.api}/channels/${this.channel.id}/messages/${this.id}`, {
 			headers: this.headers,
 			method: "DELETE",
 		});
