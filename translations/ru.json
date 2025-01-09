@@ -8,7 +8,8 @@
 			"Kareyac",
 			"Okras",
 			"StealthTheAB",
-			"StealthTheAngryBird"
+			"StealthTheAngryBird",
+			"Vl1"
 		]
 	},
 	"readableName": "Русский",
@@ -267,7 +268,7 @@
 		"accentColor": "Акцентный цвет:",
 		"enableEVoice": "Включить экспериментальную поддержку голосовых каналов",
 		"VoiceWarning": "Вы точно хотите включить это? Оно находится на стадии доработки. (Эта функция создана для разработчиков, пожалуйста, не включайте, если вы не знаете, что делаете)",
-		"updateSettings": "Обновить настройки",
+		"updateSettings": "Настройки обновлений",
 		"swSettings": "Service Worker setting",
 		"SWOff": "Выкл.",
 		"SWOffline": "Только вне сети",
