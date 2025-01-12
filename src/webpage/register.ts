@@ -100,7 +100,7 @@ function handleErrors(errors: any, elements: HTMLFormControlsCollection) {
 	} else if (errors.password) {
 		showError(
 			elements[3] as HTMLElement,
-			I18n.getTranslation("register.passwordError", errors.password._errors[0].message),
+			I18n.getTranslation("register.passwordError:", errors.password._errors[0].message),
 		);
 	} else if (errors.username) {
 		showError(
