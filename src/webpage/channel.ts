@@ -209,6 +209,7 @@ class Channel extends SnowFlake {
 				fetchURL: this.info.api + "/channels/" + this.id,
 				method: "PATCH",
 				headers: this.headers,
+				traditionalSubmit: true,
 			});
 			form.addTextInput(I18n.getTranslation("channel.name:"), "name", {
 				initText: this.name,
