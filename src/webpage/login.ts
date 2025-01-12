@@ -67,6 +67,17 @@ const instancein = document.getElementById("instancein") as HTMLInputElement;
 let timeout: ReturnType<typeof setTimeout> | string | number | undefined | null = null;
 // let instanceinfo;
 
+const switchurl = document.getElementById("switch") as HTMLAreaElement;
+if (switchurl) {
+	switchurl.href += window.location.search;
+	const instance = new URLSearchParams(window.location.search).get("instance");
+	console.log(instance);
+	if (instance) {
+		instancein.value = instance;
+		//checkInstance(instance);
+	}
+}
+
 if (instancein) {
 	console.log(instancein);
 	instancein.addEventListener("keydown", () => {
@@ -215,16 +226,6 @@ if (!localStorage.getItem("SWMode")) {
 	localStorage.setItem("SWMode", "true");
 }
 
-const switchurl = document.getElementById("switch") as HTMLAreaElement;
-if (switchurl) {
-	switchurl.href += window.location.search;
-	const instance = new URLSearchParams(window.location.search).get("instance");
-	console.log(instance);
-	if (instance) {
-		instancein.value = instance;
-		//checkInstance("");
-	}
-}
 trimswitcher();
 
 export {adduser};
