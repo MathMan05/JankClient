@@ -156,7 +156,7 @@ console.warn(datalist);
 const instancefetch = fetch("/instances.json")
 	.then((res) => res.json())
 	.then(
-		(
+		async (
 			json: {
 				name: string;
 				description?: string;
@@ -175,6 +175,7 @@ const instancefetch = fetch("/instances.json")
 				};
 			}[],
 		) => {
+			await I18n.done;
 			instances = json;
 			if (datalist) {
 				console.warn(json);
@@ -206,7 +207,11 @@ const instancefetch = fetch("/instances.json")
 					}
 					datalist.append(option);
 				}
-				if (json.length !== 0 && !localStorage.getItem("instanceinfo")) {
+				if (
+					json.length !== 0 &&
+					!localStorage.getItem("instanceinfo") &&
+					!new URLSearchParams(window.location.search).get("instance")
+				) {
 					checkInstance(json[0].name);
 				}
 			}
