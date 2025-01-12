@@ -700,7 +700,7 @@ class Channel extends SnowFlake {
 			const that = Channel.dragged[0];
 			if (!that) return;
 			event.preventDefault();
-			if (container) {
+			if (container && that.type !== 4) {
 				that.move_id = this.id;
 				if (that.parent) {
 					that.parent.children.splice(that.parent.children.indexOf(that), 1);
@@ -710,34 +710,53 @@ class Channel extends SnowFlake {
 				this.children.unshift(that);
 			} else {
 				console.log(this, Channel.dragged);
-				that.move_id = this.parent_id;
+				let thisy = this as Channel;
+				if (that.type === 4) {
+					console.log("check", this);
+					if (this.parent) {
+						thisy = this.parent;
+						console.log("overwrite :3", thisy);
+					}
+				}
+				that.move_id = thisy.parent_id;
 				if (that.parent) {
 					that.parent.children.splice(that.parent.children.indexOf(that), 1);
 				} else {
-					this.guild.headchannels.splice(this.guild.headchannels.indexOf(that), 1);
+					thisy.guild.headchannels.splice(thisy.guild.headchannels.indexOf(that), 1);
 				}
-				that.parent = this.parent;
+				that.parent = thisy.parent;
 				if (that.parent) {
 					const build: Channel[] = [];
 					for (let i = 0; i < that.parent.children.length; i++) {
 						build.push(that.parent.children[i]);
-						if (that.parent.children[i] === this) {
+						if (that.parent.children[i] === thisy) {
 							build.push(that);
 						}
 					}
 					that.parent.children = build;
 				} else {
 					const build: Channel[] = [];
-					for (let i = 0; i < this.guild.headchannels.length; i++) {
-						build.push(this.guild.headchannels[i]);
-						if (this.guild.headchannels[i] === this) {
+					for (let i = 0; i < thisy.guild.headchannels.length; i++) {
+						build.push(thisy.guild.headchannels[i]);
+						if (thisy.guild.headchannels[i] === thisy) {
 							build.push(that);
 						}
 					}
-					this.guild.headchannels = build;
+					thisy.guild.headchannels = build;
 				}
 				if (Channel.dragged[1]) {
-					div.after(Channel.dragged[1]);
+					if (this === thisy && this.type !== 4) {
+						div.after(Channel.dragged[1]);
+					} else {
+						div = div.parentElement as HTMLDivElement;
+						if (!div) return;
+						div = div.parentElement as HTMLDivElement;
+						if (!div) return;
+
+						console.log(div);
+						Channel.dragged[1].remove();
+						div.after(Channel.dragged[1]);
+					}
 				}
 			}
 			this.guild.calculateReorder();
