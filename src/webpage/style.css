@@ -114,7 +114,10 @@ samp {
 	text-wrap: wrap;
 	word-break: break-word;
 }
-video,
+video {
+	max-height: 50svh;
+	max-width: 100%;
+}
 iframe {
 	/* max-height: 50svh; */
 	max-width: 100%;

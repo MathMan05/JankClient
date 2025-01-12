@@ -127,18 +127,21 @@ class Localuser {
 			this.guilds.push(temp);
 			this.guildids.set(temp.id, temp);
 		}
-		console.log(ready.d.user_guild_settings.entries);
+		if (ready.d.user_guild_settings) {
+			console.log(ready.d.user_guild_settings.entries);
 
-		for (const thing of ready.d.user_guild_settings.entries) {
-			(this.guildids.get(thing.guild_id) as Guild).notisetting(thing);
-		}
-
-		for (const thing of ready.d.read_state.entries) {
-			const channel = this.channelids.get(thing.channel_id);
-			if (!channel) {
-				continue;
+			for (const thing of ready.d.user_guild_settings.entries) {
+				(this.guildids.get(thing.guild_id) as Guild).notisetting(thing);
 			}
-			channel.readStateInfo(thing);
+		}
+		if (ready.d.read_state) {
+			for (const thing of ready.d.read_state.entries) {
+				const channel = this.channelids.get(thing.channel_id);
+				if (!channel) {
+					continue;
+				}
+				channel.readStateInfo(thing);
+			}
 		}
 		for (const thing of ready.d.relationships) {
 			const user = new User(thing.user, this);
