@@ -74,7 +74,7 @@ if (switchurl) {
 	console.log(instance);
 	if (instance) {
 		instancein.value = instance;
-		//checkInstance(instance);
+		checkInstance(instance);
 	}
 }
 
