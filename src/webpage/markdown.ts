@@ -731,11 +731,22 @@ class MarkDown {
 		} else {
 			restore = saveCaretPosition(box, offset);
 		}
-		box.innerHTML = "";
+
 		if (this.customBox) {
+			//TODO maybe the custom logic applies here as well, but that's a later thing
+			box.innerHTML = "";
 			box.append(this.customBox[0](this.rawString));
 		} else {
-			box.append(this.makeHTML({keep: true}));
+			//console.time();
+			const html = this.makeHTML({keep: true});
+			//TODO this may be slow, may want to check in on this in the future if it is
+			if (!box.hasChildNodes() || html.isEqualNode(Array.from(box.childNodes)[0])) {
+				console.log("no replace needed");
+			} else {
+				box.innerHTML = "";
+				box.append(html);
+			}
+			//console.timeEnd();
 		}
 		if (restore) {
 			restore();
