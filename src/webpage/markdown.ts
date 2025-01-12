@@ -741,7 +741,7 @@ class MarkDown {
 			const html = this.makeHTML({keep: true});
 			//TODO this may be slow, may want to check in on this in the future if it is
 			if (!box.hasChildNodes() || html.isEqualNode(Array.from(box.childNodes)[0])) {
-				console.log("no replace needed");
+				//console.log("no replace needed");
 			} else {
 				box.innerHTML = "";
 				box.append(html);
