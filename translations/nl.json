@@ -1,0 +1,215 @@
+{
+	"@metadata": {
+		"authors": [
+			"ABPMAB",
+			"McDutchie"
+		]
+	},
+	"readableName": "Nederlands",
+	"permissions": {
+		"readableNames": {
+			"STREAM": "Video",
+			"MANAGE_MESSAGES": "Berichten beheren",
+			"EMBED_LINKS": "Links insluiten",
+			"ATTACH_FILES": "Bestanden bijvoegen",
+			"READ_MESSAGE_HISTORY": "Berichtgeschiedenis lezen",
+			"USE_EXTERNAL_EMOJIS": "Gebruik externe emoji's",
+			"CONNECT": "Verbinden",
+			"SPEAK": "Spreken",
+			"MUTE_MEMBERS": "Leden dempen",
+			"MOVE_MEMBERS": "Leden verplaatsen",
+			"CHANGE_NICKNAME": "Bijnaam wijzigen",
+			"MANAGE_NICKNAMES": "Bijnamen beheren",
+			"MANAGE_ROLES": "Rollen beheren"
+		}
+	},
+	"yes": "Ja",
+	"no": "Nee",
+	"todayAt": "Vandaag om $1",
+	"yesterdayAt": "Gisteren om $1",
+	"otherAt": "$1 om $2",
+	"uploadBanner": "Banner uploaden:",
+	"pronouns": "Voornaamwoorden:",
+	"profileColor": "Profielkleur",
+	"noMessages": "Er lijken geen berichten te zijn, wees de eerste die iets zegt!",
+	"blankMessage": "Leeg bericht",
+	"channel": {
+		"markRead": "Markeren als gelezen",
+		"settings": "Instellingen",
+		"delete": "Kanaal verwijderen",
+		"settingsFor": "Instellingen voor $1",
+		"voice": "Stem",
+		"text": "Tekst",
+		"announcement": "Aankondigingen",
+		"name:": "Naam:",
+		"topic:": "Onderwerp:",
+		"nsfw:": "Niet geschikt voor werk:",
+		"selectType": "Selecteer kanaaltype",
+		"selectName": "Naam van het kanaal",
+		"selectCatName": "Naam van de categorie",
+		"createChannel": "Kanaal aanmaken",
+		"createCatagory": "Categorie aanmaken"
+	},
+	"switchAccounts": "Accounts wisselen ⇌",
+	"htmlPages": {
+		"addBot": "Toevoegen aan server",
+		"loaddesc": "Dit zou niet lang moeten duren",
+		"switchaccounts": "Accounts wisselen",
+		"emailField": "E-mail:",
+		"pwField": "Wachtwoord:",
+		"noAccount": "Nog geen account?",
+		"userField": "Gebruikersnaam:",
+		"pw2Field": "Voer het wachtwoord opnieuw in:",
+		"dobField": "Geboortedatum:",
+		"createAccount": "Account aanmaken"
+	},
+	"register": {
+		"passwordError:": "Wachtwoord: $1",
+		"usernameError": "Gebruikersnaam: $1",
+		"emailError": "E-mail: $1",
+		"DOBError": "Geboortedatum: $1"
+	},
+	"guild": {
+		"markRead": "Markeren als gelezen",
+		"notifications": "Notificaties",
+		"settings": "Instellingen",
+		"settingsFor": "Instellingen voor $1",
+		"name:": "Naam:",
+		"topic:": "Onderwerp:",
+		"overview": "Overzicht",
+		"region:": "Regio:",
+		"roles": "Rollen",
+		"all": "alle",
+		"onlyMentions": "alleen vermeldingen",
+		"none": "geen",
+		"yesLeave": "Ja, ik weet het zeker",
+		"serverName": "Naam van de server:",
+		"yesDelete": "Ja, ik weet het zeker",
+		"emptytitle": "Vreemde plek",
+		"default": "Standaard ($1)",
+		"description:": "Beschrijving:"
+	},
+	"role": {
+		"name": "Rolnaam:",
+		"mentionable": "Iedereen toestaan deze rol te pingen:",
+		"color": "Kleur",
+		"remove": "Rol verwijderen",
+		"delete": "Rol verwijderen"
+	},
+	"settings": {
+		"save": "Wijzigingen opslaan"
+	},
+	"localuser": {
+		"settings": "Instellingen",
+		"userSettings": "Gebruikersinstellingen",
+		"themesAndSounds": "Thema's & geluiden",
+		"theme:": "Thema",
+		"notisound": "Notificatiegeluid:",
+		"updateSettings": "Instellingen bijwerken",
+		"SWOff": "Uit",
+		"SWOffline": "Alleen offline",
+		"SWOn": "Aan",
+		"clearCache": "Cache wissen",
+		"CheckUpdate": "Controleren op updates",
+		"accountSettings": "Accountinstellingen",
+		"2faCode:": "Code:",
+		"badPassword": "Onjuist wachtwoord",
+		"changeEmail": "E-mailadres wijzigen",
+		"password:": "Wachtwoord",
+		"newEmail:": "Nieuw e-mailadres",
+		"changeUsername": "Gebruikersnaam wijzigen",
+		"newUsername": "Nieuwe gebruikersnaam:",
+		"changePassword": "Wachtwoord wijzigen",
+		"oldPassword:": "Oud wachtwoord:",
+		"newPassword:": "Nieuw wachtwoord:",
+		"PasswordsNoMatch": "Wachtwoorden komen niet overeen",
+		"team:": "Team:",
+		"description": "Beschrijving:",
+		"manageBot": "Beheer bot",
+		"addBot": "Bot toevoegen",
+		"confuseNoBot": "Om een of andere reden heeft deze applicatie (nog) geen bot.",
+		"botUsername": "Bot-gebruikersnaam:",
+		"tokenDisplay": "Token: $1",
+		"advancedBot": "Geavanceerde botinstellingen",
+		"language": "Taal:"
+	},
+	"message": {
+		"reactionAdd": "Reactie toevoegen",
+		"delete": "Bericht verwijderen",
+		"edit": "Bericht bewerken",
+		"edited": "(bewerkt)",
+		"deleted": "Verwijderd bericht"
+	},
+	"instanceStats": {
+		"users": "Geregistreerde gebruikers: $1",
+		"servers": "Servers: $1",
+		"messages": "Berichten: $1",
+		"members": "Leden: $1"
+	},
+	"inviteOptions": {
+		"title": "Mensen uitnodigen",
+		"30m": "30 minuten",
+		"1h": "1 uur",
+		"6h": "6 uur",
+		"12h": "12 uur",
+		"1d": "1 dag",
+		"7d": "7 dagen",
+		"30d": "30 dagen",
+		"never": "Nooit",
+		"noLimit": "Geen limiet"
+	},
+	"invite": {
+		"accept": "Accepteren",
+		"noAccount": "Maak een account aan om de uitnodiging te accepteren",
+		"loginOrCreateAccount": "Inloggen of een account aanmaken ⇌",
+		"inviteLinkCode": "Uitnodigingslink/-code",
+		"channel:": "Kanaal:",
+		"createInvite": "Uitnodiging maken"
+	},
+	"friends": {
+		"blocked": "Geblokkeerd",
+		"blockedusers": "Geblokkeerde gebruikers:",
+		"addfriend": "Vriend toevoegen",
+		"removeFriend": "Vriend verwijderen",
+		"addfriendpromt": "Vrienden toevoegen via gebruikersnaam:",
+		"notfound": "Gebruiker niet gevonden",
+		"pending": "In behandeling",
+		"all": "Alle",
+		"all:": "Alle vrienden:",
+		"online": "Online",
+		"friendlist": "Vriendenlijst",
+		"friends": "Vrienden"
+	},
+	"replyingTo": "Reageren op $1",
+	"DMs": {
+		"markRead": "Markeren als gelezen"
+	},
+	"user": {
+		"online": "Online",
+		"offline": "Offline",
+		"message": "Gebruiker bericht sturen",
+		"block": "Gebruiker blokkeren",
+		"unblock": "Gebruiker deblokkeren",
+		"friendReq": "Vriendschapsverzoek",
+		"ban": "Lid verbannen",
+		"addRole": "Rollen toevoegen",
+		"removeRole": "Rollen verwijderen"
+	},
+	"member": {
+		"reason:": "Reden:",
+		"nick:": "Bijnaam:"
+	},
+	"badge": {
+		"certified_moderator": "Moderator",
+		"hypesquad": "Auteursrechtelijk beschermd ding",
+		"hypesquad_house_1": "Moed"
+	},
+	"emoji": {
+		"title": "Emoji's",
+		"upload": "Emoji's uploaden",
+		"image:": "Afbeelding:",
+		"name:": "Naam:"
+	},
+	"errorReconnect": "Kan geen verbinding maken met de server, opnieuw proberen over ** $1 ** seconden...",
+	"retrying": "Opnieuw proberen..."
+}
