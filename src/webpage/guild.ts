@@ -915,7 +915,7 @@ class Guild extends SnowFlake {
 		this.printServers();
 		return thischannel;
 	}
-	createchannels(func = this.createChannel) {
+	createchannels(func = this.createChannel.bind(this)) {
 		const options = ["text", "announcement", "voice"].map((e) =>
 			I18n.getTranslation("channel." + e),
 		);
