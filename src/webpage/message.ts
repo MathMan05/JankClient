@@ -307,9 +307,15 @@ class Message extends SnowFlake {
 			this.channel.idToPrev.delete(next);
 		}
 		if (prev) {
-			const prevmessage = this.channel.messages.get(prev);
-			if (prevmessage) {
-				prevmessage.generateMessage();
+			const prevMessage = this.channel.messages.get(prev);
+			if (prevMessage) {
+				prevMessage.generateMessage();
+			}
+		}
+		if (next) {
+			const nextMessage = this.channel.messages.get(next);
+			if (nextMessage) {
+				nextMessage.generateMessage();
 			}
 		}
 		if (this.channel.lastmessage === this || this.channel.lastmessageid === this.id) {
@@ -368,6 +374,28 @@ class Message extends SnowFlake {
 		const build = document.createElement("div");
 
 		build.classList.add("flexltr", "message");
+		if (premessage && !dupe) {
+			const thisTime = new Date(this.getUnixTime());
+			const prevTime = new Date(premessage.getUnixTime());
+			const datelineNeeded =
+				thisTime.getDay() !== prevTime.getDay() ||
+				thisTime.getMonth() !== prevTime.getMonth() ||
+				thisTime.getFullYear() !== prevTime.getFullYear();
+			if (datelineNeeded) {
+				const dateline = document.createElement("div");
+				dateline.classList.add("flexltr", "dateline");
+				dateline.append(document.createElement("hr"));
+				const span = document.createElement("span");
+				span.innerText = Intl.DateTimeFormat(I18n.lang, {
+					year: "numeric",
+					month: "long",
+					day: "2-digit",
+				}).format(thisTime);
+				dateline.append(span);
+				dateline.append(document.createElement("hr"));
+				div.append(dateline);
+			}
+		}
 		div.classList.remove("zeroheight");
 		if (this.author.relationshipType === 2) {
 			if (ignoredblock) {
