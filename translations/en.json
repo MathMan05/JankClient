@@ -321,7 +321,8 @@
 		"delete": "Delete message",
 		"edit": "Edit message",
 		"edited": "(edited)",
-		"deleted": "Deleted message"
+		"deleted": "Deleted message",
+		"attached": "Sent an attachment"
 	},
 	"instanceStats": {
 		"name": "Instance stats: $1",
