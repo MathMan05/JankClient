@@ -36,7 +36,12 @@ class Localuser {
 	badges = new Map<
 		string,
 		{id: string; description: string; icon: string; link?: string; translate?: boolean}
-	>(badgeArr);
+	>(
+		badgeArr as [
+			string,
+			{id: string; description: string; icon: string; link?: string; translate?: boolean},
+		][],
+	);
 	lastSequence: number | null = null;
 	token!: string;
 	userinfo!: Specialuser;

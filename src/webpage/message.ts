@@ -455,15 +455,19 @@ class Message extends SnowFlake {
 		}
 		if (this.message_reference) {
 			const replyline = document.createElement("div");
+
 			const minipfp = document.createElement("img");
 			minipfp.classList.add("replypfp");
 			replyline.appendChild(minipfp);
+
 			const username = document.createElement("span");
 			replyline.appendChild(username);
+
 			const reply = document.createElement("div");
 			username.classList.add("username");
 			reply.classList.add("replytext", "ellipsis");
 			replyline.appendChild(reply);
+
 			const line2 = document.createElement("hr");
 			replyline.appendChild(line2);
 			line2.classList.add("reply");
@@ -479,6 +483,11 @@ class Message extends SnowFlake {
 				if (message.author.relationshipType === 2) {
 					username.textContent = "Blocked user";
 					return;
+				}
+				if (message.attachments.length || message.embeds.length) {
+					const b = document.createElement("b");
+					b.innerText = I18n.getTranslation("message.attached");
+					reply.append(b);
 				}
 				const author = message.author;
 				reply.appendChild(message.content.makeHTML({stdsize: true}));
