@@ -103,8 +103,14 @@ class Emoji {
 				Emoji.decodeEmojiList(e);
 			});
 	}
-	static async emojiPicker(x: number, y: number, localuser: Localuser): Promise<Emoji | string> {
+	static async emojiPicker(
+		this: typeof Emoji,
+		x: number,
+		y: number,
+		localuser: Localuser,
+	): Promise<Emoji | string> {
 		let res: (r: Emoji | string) => void;
+		this;
 		const promise: Promise<Emoji | string> = new Promise((r) => {
 			res = r;
 		});
@@ -113,10 +119,51 @@ class Emoji {
 		menu.style.top = y + "px";
 		menu.style.left = x + "px";
 
+		const topBar = document.createElement("div");
+		topBar.classList.add("flexltr", "emojiHeading");
+
 		const title = document.createElement("h2");
 		title.textContent = Emoji.emojis[0].name;
 		title.classList.add("emojiTitle");
-		menu.append(title);
+		topBar.append(title);
+
+		const search = document.createElement("input");
+		search.type = "text";
+		topBar.append(search);
+
+		let html: HTMLElement | undefined = undefined;
+
+		function updateSearch(this: typeof Emoji) {
+			if (search.value === "") {
+				if (html) html.click();
+				search.style.removeProperty("width");
+				return;
+			}
+
+			search.style.setProperty("width", "3in");
+			title.innerText = "";
+			body.innerHTML = "";
+			for (const [emoji] of this.searchEmoji(search.value, localuser, 200)) {
+				const emojiElem = document.createElement("div");
+				emojiElem.classList.add("emojiSelect");
+
+				emojiElem.append(emoji.getHTML());
+				body.append(emojiElem);
+
+				emojiElem.addEventListener("click", () => {
+					res(emoji);
+					if (Contextmenu.currentmenu !== "") {
+						Contextmenu.currentmenu.remove();
+					}
+				});
+			}
+		}
+		search.addEventListener("input", () => {
+			updateSearch.call(this);
+		});
+
+		menu.append(topBar);
+
 		const selection = document.createElement("div");
 		selection.classList.add("flexltr", "emojirow");
 		const body = document.createElement("div");
@@ -154,6 +201,8 @@ class Emoji {
 				selection.append(select);
 
 				const clickEvent = () => {
+					search.value = "";
+					updateSearch.call(this);
 					title.textContent = guild.properties.name;
 					body.innerHTML = "";
 					for (const emojit of guild.emojis) {
@@ -193,7 +242,6 @@ class Emoji {
 		document.body.append(menu);
 		Contextmenu.currentmenu = menu;
 		Contextmenu.keepOnScreen(menu);
-
 		let i = 0;
 		for (const thing of Emoji.emojis) {
 			const select = document.createElement("div");
@@ -201,6 +249,8 @@ class Emoji {
 			select.classList.add("emojiSelect");
 			selection.append(select);
 			const clickEvent = () => {
+				search.value = "";
+				updateSearch.call(this);
 				title.textContent = thing.name;
 				body.innerHTML = "";
 				for (const emojit of thing.emojis) {
@@ -218,15 +268,18 @@ class Emoji {
 			};
 			select.onclick = clickEvent;
 			if (i === 0) {
+				html = select;
 				clickEvent();
 			}
 			i++;
 		}
 		menu.append(selection);
 		menu.append(body);
+		search.focus();
 		return promise;
 	}
 	static searchEmoji(search: string, localuser: Localuser, results = 50): [Emoji, number][] {
+		//NOTE this function is used for searching in the emoji picker for reactions, and the emoji auto-fill
 		const ranked: [emojijson, number][] = [];
 		function similar(json: emojijson) {
 			if (json.name.includes(search)) {
