@@ -394,10 +394,14 @@ class Channel extends SnowFlake {
 		return this.owner.info;
 	}
 	readStateInfo(json: readyjson["d"]["read_state"]["entries"][0]) {
+		const next = this.messages.get(this.idToNext.get(this.lastreadmessageid as string) as string);
 		this.lastreadmessageid = json.last_message_id;
 		this.mentions = json.mention_count;
 		this.mentions ??= 0;
 		this.lastpin = json.last_pin_timestamp;
+		if (next) {
+			next.generateMessage();
+		}
 	}
 	get hasunreads(): boolean {
 		if (!this.hasPermission("VIEW_CHANNEL")) {
@@ -699,9 +703,13 @@ class Channel extends SnowFlake {
 			headers: this.headers,
 			body: JSON.stringify({}),
 		});
+		const next = this.messages.get(this.idToNext.get(this.lastreadmessageid as string) as string);
 		this.lastreadmessageid = this.lastmessageid;
 		this.guild.unreads();
 		this.unreads();
+		if (next) {
+			next.generateMessage();
+		}
 	}
 
 	coatDropDiv(div: HTMLDivElement, container: HTMLElement | boolean = false) {
@@ -1509,7 +1517,11 @@ class Channel extends SnowFlake {
 		this.lastmessageid = messagez.id;
 
 		if (messagez.author === this.localuser.user) {
+			const next = this.messages.get(this.idToNext.get(this.lastreadmessageid as string) as string);
 			this.lastreadmessageid = messagez.id;
+			if (next) {
+				next.generateMessage();
+			}
 		}
 		this.unreads();
 		this.guild.unreads();

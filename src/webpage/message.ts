@@ -405,15 +405,26 @@ class Message extends SnowFlake {
 		const build = document.createElement("div");
 
 		build.classList.add("flexltr", "message");
-		if (premessage && !dupe) {
+
+		const unreadLine = premessage && premessage.id === this.channel.lastreadmessageid;
+		if ((premessage || unreadLine) && !dupe) {
+			let datelineNeeded: boolean;
 			const thisTime = new Date(this.getUnixTime());
-			const prevTime = new Date(premessage.getUnixTime());
-			const datelineNeeded =
-				thisTime.getDay() !== prevTime.getDay() ||
-				thisTime.getMonth() !== prevTime.getMonth() ||
-				thisTime.getFullYear() !== prevTime.getFullYear();
+			if (premessage && !unreadLine) {
+				const prevTime = new Date(premessage.getUnixTime());
+				datelineNeeded =
+					thisTime.getDay() !== prevTime.getDay() ||
+					thisTime.getMonth() !== prevTime.getMonth() ||
+					thisTime.getFullYear() !== prevTime.getFullYear();
+			} else {
+				console.warn(div);
+				datelineNeeded = true;
+			}
 			if (datelineNeeded) {
 				const dateline = document.createElement("div");
+				if (unreadLine) {
+					dateline.classList.add("unreadDateline");
+				}
 				dateline.classList.add("flexltr", "dateline");
 				dateline.append(document.createElement("hr"));
 				const span = document.createElement("span");

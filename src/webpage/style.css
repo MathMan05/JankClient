@@ -827,7 +827,12 @@ span.instanceStatus {
 	padding: 4px 0;
 	font-size: 0.9rem;
 }
-
+.unreadDateline{
+	color:var(--red);
+	hr{
+		background:var(--red);
+	}
+}
 /* Member Info (DM/Member List) */
 .liststyle {
 	padding: 4px 8px;
