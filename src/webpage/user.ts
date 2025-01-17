@@ -165,17 +165,21 @@ class User extends SnowFlake {
 	}
 	static setUpContextMenu(): void {
 		this.contextmenu.addButton(
-			() => I18n.getTranslation("user.copyId"),
-			function (this: User) {
-				navigator.clipboard.writeText(this.id);
-			},
-		);
-		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.message"),
 			function (this: User) {
 				this.opendm();
 			},
+			{
+				icon: {
+					css: "svg-frmessage",
+				},
+			},
 		);
+
+		this.contextmenu.addSeperator((user) => {
+			return user.id !== user.localuser.user.id;
+		});
+
 		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.block"),
 			function (this: User) {
@@ -211,6 +215,9 @@ class User extends SnowFlake {
 						this.id !== this.localuser.user.id
 					);
 				},
+				icon: {
+					css: "svg-addfriend",
+				},
 			},
 		);
 		this.contextmenu.addButton(
@@ -224,6 +231,23 @@ class User extends SnowFlake {
 				},
 			},
 		);
+
+		this.contextmenu.addSeperator();
+
+		this.contextmenu.addButton(
+			() => I18n.getTranslation("user.editServerProfile"),
+			function (this: User, member: Member | undefined) {
+				if (!member) return;
+				member.showEditProfile();
+			},
+			{
+				visable: function (member) {
+					return member?.id === this.localuser.user.id;
+				},
+			},
+		);
+
+		//TODO kick icon
 		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.kick"),
 			function (this: User, member: Member | undefined) {
@@ -241,21 +265,11 @@ class User extends SnowFlake {
 					}
 					return us.hasPermission("KICK_MEMBERS") && this.id !== this.localuser.user.id;
 				},
+				color: "red",
 			},
 		);
 
-		this.contextmenu.addButton(
-			() => I18n.getTranslation("user.editServerProfile"),
-			function (this: User, member: Member | undefined) {
-				if (!member) return;
-				member.showEditProfile();
-			},
-			{
-				visable: function (member) {
-					return member?.id === this.localuser.user.id;
-				},
-			},
-		);
+		//TODO ban icon
 		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.ban"),
 			function (this: User, member: Member | undefined) {
@@ -273,8 +287,12 @@ class User extends SnowFlake {
 					}
 					return us.hasPermission("BAN_MEMBERS") && this.id !== this.localuser.user.id;
 				},
+				color: "red",
 			},
 		);
+
+		this.contextmenu.addSeperator();
+
 		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.addRole"),
 			async function (this: User, member: Member | undefined, e) {
@@ -327,6 +345,14 @@ class User extends SnowFlake {
 					console.log(us.hasPermission("MANAGE_ROLES"));
 					return us.hasPermission("MANAGE_ROLES") || false;
 				},
+			},
+		);
+
+		this.contextmenu.addSeperator();
+		this.contextmenu.addButton(
+			() => I18n.getTranslation("user.copyId"),
+			function (this: User) {
+				navigator.clipboard.writeText(this.id);
 			},
 		);
 	}

@@ -101,8 +101,14 @@ class ContextButton<x, y> implements menuPart<x, y> {
 	}
 }
 class Seperator<x, y> implements menuPart<x, y> {
-	makeContextHTML(_obj1: x, _obj2: y, menu: HTMLDivElement): void {
-		menu.append(document.createElement("hr"));
+	private visable?: (obj1: x, obj2: y) => boolean;
+	constructor(visable?: (obj1: x, obj2: y) => boolean) {
+		this.visable = visable;
+	}
+	makeContextHTML(obj1: x, obj2: y, menu: HTMLDivElement): void {
+		if (!this.visable || this.visable(obj1, obj2)) {
+			menu.append(document.createElement("hr"));
+		}
 	}
 }
 class Contextmenu<x, y> {
@@ -139,8 +145,8 @@ class Contextmenu<x, y> {
 	) {
 		this.buttons.push(new ContextButton(text, onClick, addProps));
 	}
-	addSeperator() {
-		this.buttons.push(new Seperator());
+	addSeperator(visable?: (obj1: x, obj2: y) => boolean) {
+		this.buttons.push(new Seperator(visable));
 	}
 	private makemenu(x: number, y: number, addinfo: x, other: y) {
 		const div = document.createElement("div");

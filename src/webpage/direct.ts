@@ -343,30 +343,36 @@ class Group extends Channel {
 	static contextmenu = new Contextmenu<Group, undefined>("channel menu");
 	static setupcontextmenu() {
 		this.contextmenu.addButton(
-			() => I18n.getTranslation("DMs.copyId"),
-			function (this: Group) {
-				navigator.clipboard.writeText(this.id);
-			},
-		);
-
-		this.contextmenu.addButton(
 			() => I18n.getTranslation("DMs.markRead"),
 			function (this: Group) {
 				this.readbottom();
 			},
 		);
 
+		this.contextmenu.addSeperator();
+
 		this.contextmenu.addButton(
 			() => I18n.getTranslation("DMs.close"),
 			function (this: Group) {
 				this.deleteChannel();
 			},
+			{
+				color: "red",
+			},
 		);
+
+		this.contextmenu.addSeperator();
 
 		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.copyId"),
 			function () {
 				navigator.clipboard.writeText(this.user.id);
+			},
+		);
+		this.contextmenu.addButton(
+			() => I18n.getTranslation("DMs.copyId"),
+			function (this: Group) {
+				navigator.clipboard.writeText(this.id);
 			},
 		);
 	}
