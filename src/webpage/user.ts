@@ -176,9 +176,7 @@ class User extends SnowFlake {
 			},
 		);
 
-		this.contextmenu.addSeperator((user) => {
-			return user.id !== user.localuser.user.id;
-		});
+		this.contextmenu.addSeperator();
 
 		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.block"),
