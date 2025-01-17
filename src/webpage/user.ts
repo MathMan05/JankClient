@@ -212,7 +212,8 @@ class User extends SnowFlake {
 				visable: function () {
 					return (
 						(this.relationshipType === 0 || this.relationshipType === 3) &&
-						this.id !== this.localuser.user.id
+						this.id !== this.localuser.user.id &&
+						!this.bot
 					);
 				},
 				icon: {
