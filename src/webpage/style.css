@@ -835,6 +835,7 @@ span.instanceStatus {
 	align-items: center;
 	gap: 8px;
 	cursor: pointer;
+	flex-shrink: 0;
 }
 .liststyle .statusDiv {
 	right: -1px;
@@ -2280,6 +2281,35 @@ fieldset input[type="radio"] {
 	display: flex;
 	width: 100%;
 	padding: 0.2in;
+	overflow: scroll;
+	height: 100%;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	> div {
 		background: #00000030;
 		margin-bottom: 0.1in;
