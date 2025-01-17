@@ -39,89 +39,96 @@ class Guild extends SnowFlake {
 	members = new Set<Member>();
 	static contextmenu = new Contextmenu<Guild, undefined>("guild menu");
 	static setupcontextmenu() {
-		Guild.contextmenu.addbutton(
-			() => I18n.getTranslation("guild.copyId"),
-			function (this: Guild) {
-				navigator.clipboard.writeText(this.id);
-			},
-		);
-
-		Guild.contextmenu.addbutton(
-			() => I18n.getTranslation("guild.markRead"),
-			function (this: Guild) {
-				this.markAsRead();
-			},
-		);
-
-		Guild.contextmenu.addbutton(
-			() => I18n.getTranslation("guild.notifications"),
-			function (this: Guild) {
-				this.setnotifcation();
-			},
-		);
-
-		this.contextmenu.addbutton(
-			() => I18n.getTranslation("user.editServerProfile"),
-			function () {
-				this.member.showEditProfile();
-			},
-		);
-
-		Guild.contextmenu.addbutton(
-			() => I18n.getTranslation("guild.leave"),
-			function (this: Guild) {
-				this.confirmleave();
-			},
-			null,
-			function (_) {
-				return this.properties.owner_id !== this.member.user.id;
-			},
-		);
-
-		Guild.contextmenu.addbutton(
-			() => I18n.getTranslation("guild.delete"),
-			function (this: Guild) {
-				this.confirmDelete();
-			},
-			null,
-			function (_) {
-				return this.properties.owner_id === this.member.user.id;
-			},
-		);
-
-		Guild.contextmenu.addbutton(
+		Guild.contextmenu.addButton(
 			() => I18n.getTranslation("guild.makeInvite"),
 			function (this: Guild) {
 				const d = new Dialog("");
 				this.makeInviteMenu(d.options);
 				d.show();
 			},
-			null,
-			(_) => true,
-			function () {
-				return this.member.hasPermission("CREATE_INSTANT_INVITE");
+			{
+				enabled: function () {
+					return this.member.hasPermission("CREATE_INSTANT_INVITE");
+				},
+				color: "blue",
 			},
 		);
-		Guild.contextmenu.addbutton(
+		Guild.contextmenu.addSeperator();
+
+		Guild.contextmenu.addButton(
+			() => I18n.getTranslation("guild.markRead"),
+			function (this: Guild) {
+				this.markAsRead();
+			},
+		);
+
+		Guild.contextmenu.addButton(
+			() => I18n.getTranslation("guild.notifications"),
+			function (this: Guild) {
+				this.setnotifcation();
+			},
+		);
+		Guild.contextmenu.addSeperator();
+		this.contextmenu.addButton(
+			() => I18n.getTranslation("user.editServerProfile"),
+			function () {
+				this.member.showEditProfile();
+			},
+		);
+		Guild.contextmenu.addSeperator();
+
+		Guild.contextmenu.addButton(
+			() => I18n.getTranslation("guild.leave"),
+			function (this: Guild) {
+				this.confirmleave();
+			},
+			{
+				visable: function (_) {
+					return this.properties.owner_id !== this.member.user.id;
+				},
+				color: "red",
+			},
+		);
+
+		Guild.contextmenu.addButton(
+			() => I18n.getTranslation("guild.delete"),
+			function (this: Guild) {
+				this.confirmDelete();
+			},
+			{
+				visable: function (_) {
+					return this.properties.owner_id === this.member.user.id;
+				},
+				color: "red",
+				icon: {
+					css: "svg-delete",
+				},
+			},
+		);
+
+		Guild.contextmenu.addButton(
 			() => I18n.getTranslation("guild.settings"),
 			function (this: Guild) {
 				this.generateSettings();
 			},
-			null,
-			function () {
-				return this.member.hasPermission("MANAGE_GUILD");
+			{
+				visable: function () {
+					return this.member.hasPermission("MANAGE_GUILD");
+				},
+				icon: {
+					css: "svg-settings",
+				},
 			},
 		);
-		/* -----things left for later-----
-		guild.contextmenu.addbutton("Leave Guild",function(){
-		console.log(this)
-		this.deleteChannel();
-		},null,_=>{return thisuser.isAdmin()})
 
-		guild.contextmenu.addbutton("Mute Guild",function(){
-		editchannelf(this);
-		},null,_=>{return thisuser.isAdmin()})
-		*/
+		Guild.contextmenu.addSeperator();
+		Guild.contextmenu.addButton(
+			() => I18n.getTranslation("guild.copyId"),
+			function (this: Guild) {
+				navigator.clipboard.writeText(this.id);
+			},
+		);
+		//TODO mute guild button
 	}
 	generateSettings() {
 		const settings = new Settings(I18n.getTranslation("guild.settingsFor", this.properties.name));

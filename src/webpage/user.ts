@@ -164,111 +164,118 @@ class User extends SnowFlake {
 		this.relationshipType = type;
 	}
 	static setUpContextMenu(): void {
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.copyId"),
 			function (this: User) {
 				navigator.clipboard.writeText(this.id);
 			},
 		);
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.message"),
 			function (this: User) {
 				this.opendm();
 			},
 		);
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.block"),
 			function (this: User) {
 				this.block();
 			},
-			null,
-			function () {
-				return this.relationshipType !== 2 && this.id !== this.localuser.user.id;
+			{
+				visable: function () {
+					return this.relationshipType !== 2 && this.id !== this.localuser.user.id;
+				},
 			},
 		);
 
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.unblock"),
 			function (this: User) {
 				this.unblock();
 			},
-			null,
-			function () {
-				return this.relationshipType === 2 && this.id !== this.localuser.user.id;
+			{
+				visable: function () {
+					return this.relationshipType === 2 && this.id !== this.localuser.user.id;
+				},
 			},
 		);
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.friendReq"),
 			function (this: User) {
 				this.changeRelationship(1);
 			},
-			null,
-			function () {
-				return (
-					(this.relationshipType === 0 || this.relationshipType === 3) &&
-					this.id !== this.localuser.user.id
-				);
+			{
+				visable: function () {
+					return (
+						(this.relationshipType === 0 || this.relationshipType === 3) &&
+						this.id !== this.localuser.user.id
+					);
+				},
 			},
 		);
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("friends.removeFriend"),
 			function (this: User) {
 				this.changeRelationship(0);
 			},
-			null,
-			function () {
-				return this.relationshipType === 1 && this.id !== this.localuser.user.id;
+			{
+				visable: function () {
+					return this.relationshipType === 1 && this.id !== this.localuser.user.id;
+				},
 			},
 		);
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.kick"),
 			function (this: User, member: Member | undefined) {
 				member?.kick();
 			},
-			null,
-			function (member) {
-				if (!member) return false;
-				const us = member.guild.member;
-				if (member.id === us.id) {
-					return false;
-				}
-				if (member.id === member.guild.properties.owner_id) {
-					return false;
-				}
-				return us.hasPermission("KICK_MEMBERS") && this.id !== this.localuser.user.id;
+			{
+				visable: function (member) {
+					if (!member) return false;
+					const us = member.guild.member;
+					if (member.id === us.id) {
+						return false;
+					}
+					if (member.id === member.guild.properties.owner_id) {
+						return false;
+					}
+					return us.hasPermission("KICK_MEMBERS") && this.id !== this.localuser.user.id;
+				},
 			},
 		);
 
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.editServerProfile"),
 			function (this: User, member: Member | undefined) {
 				if (!member) return;
 				member.showEditProfile();
 			},
-			null,
-			function (member) {
-				return member?.id === this.localuser.user.id;
+			{
+				visable: function (member) {
+					return member?.id === this.localuser.user.id;
+				},
 			},
 		);
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.ban"),
 			function (this: User, member: Member | undefined) {
 				member?.ban();
 			},
-			null,
-			function (member) {
-				if (!member) return false;
-				const us = member.guild.member;
-				if (member.id === us.id) {
-					return false;
-				}
-				if (member.id === member.guild.properties.owner_id) {
-					return false;
-				}
-				return us.hasPermission("BAN_MEMBERS") && this.id !== this.localuser.user.id;
+			{
+				visable: function (member) {
+					if (!member) return false;
+					const us = member.guild.member;
+					if (member.id === us.id) {
+						return false;
+					}
+					if (member.id === member.guild.properties.owner_id) {
+						return false;
+					}
+					return us.hasPermission("BAN_MEMBERS") && this.id !== this.localuser.user.id;
+				},
 			},
 		);
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.addRole"),
 			async function (this: User, member: Member | undefined, e) {
 				if (member) {
@@ -286,15 +293,16 @@ class User extends SnowFlake {
 					member.addRole(result);
 				}
 			},
-			null,
-			(member) => {
-				if (!member) return false;
-				const us = member.guild.member;
-				console.log(us.hasPermission("MANAGE_ROLES"));
-				return us.hasPermission("MANAGE_ROLES") || false;
+			{
+				visable: (member) => {
+					if (!member) return false;
+					const us = member.guild.member;
+					console.log(us.hasPermission("MANAGE_ROLES"));
+					return us.hasPermission("MANAGE_ROLES") || false;
+				},
 			},
 		);
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.removeRole"),
 			async function (this: User, member: Member | undefined, e) {
 				if (member) {
@@ -312,12 +320,13 @@ class User extends SnowFlake {
 					member.removeRole(result);
 				}
 			},
-			null,
-			(member) => {
-				if (!member) return false;
-				const us = member.guild.member;
-				console.log(us.hasPermission("MANAGE_ROLES"));
-				return us.hasPermission("MANAGE_ROLES") || false;
+			{
+				visable: (member) => {
+					if (!member) return false;
+					const us = member.guild.member;
+					console.log(us.hasPermission("MANAGE_ROLES"));
+					return us.hasPermission("MANAGE_ROLES") || false;
+				},
 			},
 		);
 	}

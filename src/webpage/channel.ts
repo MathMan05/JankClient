@@ -73,56 +73,73 @@ class Channel extends SnowFlake {
 		this.mute_config = settings.mute_config;
 	}
 	static setupcontextmenu() {
-		this.contextmenu.addbutton(
-			() => I18n.getTranslation("channel.copyId"),
-			function (this: Channel) {
-				navigator.clipboard.writeText(this.id);
-			},
-		);
-
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("channel.markRead"),
 			function (this: Channel) {
 				this.readbottom();
 			},
 		);
 
-		this.contextmenu.addbutton(
-			() => I18n.getTranslation("channel.settings"),
+		//TODO invite icon
+		this.contextmenu.addButton(
+			() => I18n.getTranslation("channel.makeInvite"),
 			function (this: Channel) {
-				this.generateSettings();
+				this.createInvite();
 			},
-			null,
-			function () {
-				return this.hasPermission("MANAGE_CHANNELS");
+			{
+				visable: function () {
+					return this.hasPermission("CREATE_INSTANT_INVITE") && this.type !== 4;
+				},
+				color: "blue",
 			},
 		);
-
-		this.contextmenu.addbutton(
-			() => I18n.getTranslation("channel.delete"),
-			function (this: Channel) {
-				this.deleteChannel();
-			},
-			null,
-			function () {
-				return this.isAdmin();
-			},
-		);
-		this.contextmenu.addbutton(
+		this.contextmenu.addSeperator();
+		//TODO notifcations icon
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("guild.notifications"),
 			function () {
 				this.setnotifcation();
 			},
 		);
 
-		this.contextmenu.addbutton(
-			() => I18n.getTranslation("channel.makeInvite"),
+		this.contextmenu.addButton(
+			() => I18n.getTranslation("channel.settings"),
 			function (this: Channel) {
-				this.createInvite();
+				this.generateSettings();
 			},
-			null,
-			function () {
-				return this.hasPermission("CREATE_INSTANT_INVITE") && this.type !== 4;
+			{
+				visable: function () {
+					return this.hasPermission("MANAGE_CHANNELS");
+				},
+				icon: {
+					css: "svg-settings",
+				},
+			},
+		);
+
+		this.contextmenu.addButton(
+			() => I18n.getTranslation("channel.delete"),
+			function (this: Channel) {
+				this.deleteChannel();
+			},
+			{
+				visable: function () {
+					//TODO there is no way that this is correct
+					return this.isAdmin();
+				},
+				icon: {
+					css: "svg-delete",
+				},
+				color: "red",
+			},
+		);
+
+		this.contextmenu.addSeperator();
+		//TODO copy ID icon
+		this.contextmenu.addButton(
+			() => I18n.getTranslation("channel.copyId"),
+			function (this: Channel) {
+				navigator.clipboard.writeText(this.id);
 			},
 		);
 	}
