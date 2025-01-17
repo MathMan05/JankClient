@@ -187,14 +187,12 @@ class Emoji {
 				}
 			});
 
-		setTimeout(() => {
-			if (Contextmenu.currentmenu != "") {
-				Contextmenu.currentmenu.remove();
-			}
-			document.body.append(menu);
-			Contextmenu.currentmenu = menu;
-			Contextmenu.keepOnScreen(menu);
-		}, 10);
+		if (Contextmenu.currentmenu !== "") {
+			Contextmenu.currentmenu.remove();
+		}
+		document.body.append(menu);
+		Contextmenu.currentmenu = menu;
+		Contextmenu.keepOnScreen(menu);
 
 		let i = 0;
 		for (const thing of Emoji.emojis) {

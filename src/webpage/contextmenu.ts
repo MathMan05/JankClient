@@ -87,6 +87,8 @@ class ContextButton<x, y> implements menuPart<x, y> {
 		}
 
 		intext.onclick = (e) => {
+			e.preventDefault();
+			e.stopImmediatePropagation();
 			menu.remove();
 			this.onClick.call(obj1, obj2, e);
 		};
@@ -107,6 +109,9 @@ class Seperator<x, y> implements menuPart<x, y> {
 	}
 	makeContextHTML(obj1: x, obj2: y, menu: HTMLDivElement): void {
 		if (!this.visable || this.visable(obj1, obj2)) {
+			if (menu.children[menu.children.length - 1].tagName === "HR") {
+				return;
+			}
 			menu.append(document.createElement("hr"));
 		}
 	}
@@ -154,6 +159,9 @@ class Contextmenu<x, y> {
 
 		for (const button of this.buttons) {
 			button.makeContextHTML(addinfo, other, div);
+		}
+		if (div.children[div.children.length - 1].tagName === "HR") {
+			div.children[div.children.length - 1].remove();
 		}
 		//NOTE I don't know if this'll ever actually happen in reality
 		if (div.childNodes.length === 0) return;

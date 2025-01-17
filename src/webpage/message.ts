@@ -724,6 +724,8 @@ class Message extends SnowFlake {
 						container.append(reply);
 						buttons.append(container);
 						container.onclick = (e) => {
+							e.stopImmediatePropagation();
+							e.preventDefault();
 							Emoji.emojiPicker(e.x, e.y, this.localuser).then((_) => {
 								this.reactionToggle(_);
 							});
