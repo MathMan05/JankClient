@@ -151,6 +151,9 @@ class Message extends SnowFlake {
 		}
 	}
 	reactionToggle(emoji: string | Emoji) {
+		if (emoji instanceof Emoji && !emoji.id && emoji.emoji) {
+			emoji = emoji.emoji;
+		}
 		let remove = false;
 		for (const thing of this.reactions) {
 			if (thing.emoji.name === emoji) {
