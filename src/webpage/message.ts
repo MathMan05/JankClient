@@ -407,8 +407,8 @@ class Message extends SnowFlake {
 		build.classList.add("flexltr", "message");
 
 		const unreadLine = premessage && premessage.id === this.channel.lastreadmessageid;
+		let datelineNeeded = false;
 		if ((premessage || unreadLine) && !dupe) {
-			let datelineNeeded: boolean;
 			const thisTime = new Date(this.getUnixTime());
 			if (premessage && !unreadLine) {
 				const prevTime = new Date(premessage.getUnixTime());
