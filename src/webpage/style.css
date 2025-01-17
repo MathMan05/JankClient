@@ -1410,7 +1410,6 @@ img.authorEmbedImg {
 	border-radius: 1in;
 }
 img.bigembedimg {
-	height: auto !important;
 	margin-top: 8px;
 	border-radius: 4px;
 	cursor: pointer;
