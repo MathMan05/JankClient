@@ -334,8 +334,20 @@ textarea {
 	padding: 0.04in;
 	border-radius: 0.05in;
 	transform: translate(-50%, 0);
-	transition: opacity 0.2s;
+
+	animation-duration: 0.2s;
+	animation-name: fade-in;
+
 	border: solid 0.03in var(--black);
+}
+@keyframes fade-in {
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
+	}
 }
 .editMessage {
 	background: var(--typebox-bg);
@@ -827,10 +839,10 @@ span.instanceStatus {
 	padding: 4px 0;
 	font-size: 0.9rem;
 }
-.unreadDateline{
-	color:var(--red);
-	hr{
-		background:var(--red);
+.unreadDateline {
+	color: var(--red);
+	hr {
+		background: var(--red);
 	}
 }
 /* Member Info (DM/Member List) */
@@ -1540,8 +1552,8 @@ img.bigembedimg {
 	background: var(--secondary-bg);
 	border-radius: 4px;
 	box-shadow: 0 0 8px var(--shadow);
-	hr{
-		width:90%;
+	hr {
+		width: 90%;
 		height: 1px;
 	}
 }
@@ -1702,16 +1714,16 @@ img.bigembedimg {
 	gap: 8px;
 	box-sizing: border-box;
 	user-select: none;
-	input{
-		width:1in;
-		position:absolute;
-		right:8px;
-		top:2px;
-		transition: width .2s;
+	input {
+		width: 1in;
+		position: absolute;
+		right: 8px;
+		top: 2px;
+		transition: width 0.2s;
 	}
 }
-.emojiHeading{
-	height:.25in;
+.emojiHeading {
+	height: 0.25in;
 }
 .emojiTitle {
 	font-size: 1.2rem;
@@ -2297,33 +2309,7 @@ fieldset input[type="radio"] {
 	padding: 0.2in;
 	overflow: scroll;
 	height: 100%;
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	> div {
 		background: #00000030;
 		margin-bottom: 0.1in;
