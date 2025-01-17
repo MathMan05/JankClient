@@ -1702,6 +1702,16 @@ img.bigembedimg {
 	gap: 8px;
 	box-sizing: border-box;
 	user-select: none;
+	input{
+		width:1in;
+		position:absolute;
+		right:8px;
+		top:2px;
+		transition: width .2s;
+	}
+}
+.emojiHeading{
+	height:.25in;
 }
 .emojiTitle {
 	font-size: 1.2rem;
