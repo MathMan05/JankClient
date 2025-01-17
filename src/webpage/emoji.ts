@@ -1,5 +1,6 @@
 import {Contextmenu} from "./contextmenu.js";
 import {Guild} from "./guild.js";
+import {Hover} from "./hover.js";
 import {emojijson} from "./jsontypes.js";
 import {Localuser} from "./localuser.js";
 import {BinRead} from "./utils/binaryUtils.js";
@@ -41,6 +42,15 @@ class Emoji {
 		this.owner = owner;
 		this.emoji = json.emoji;
 	}
+	get humanName() {
+		if (this.id) {
+			const trim = this.name.split(":")[1];
+			if (trim) {
+				return trim;
+			}
+		}
+		return this.name;
+	}
 	getHTML(bigemoji: boolean = false) {
 		if (this.id) {
 			const emojiElem = document.createElement("img");
@@ -51,12 +61,20 @@ class Emoji {
 				this.info.cdn + "/emojis/" + this.id + "." + (this.animated ? "gif" : "png") + "?size=32";
 			emojiElem.alt = this.name;
 			emojiElem.loading = "lazy";
+
+			const hover = new Hover(this.humanName);
+			hover.addEvent(emojiElem);
+
 			return emojiElem;
 		} else if (this.emoji) {
 			const emojiElem = document.createElement("span");
 			emojiElem.classList.add("md-emoji");
 			emojiElem.classList.add(bigemoji ? "bigemoji" : "smallemoji");
 			emojiElem.textContent = this.emoji;
+
+			const hover = new Hover(this.humanName);
+			hover.addEvent(emojiElem);
+
 			return emojiElem;
 		} else {
 			throw new Error("This path should *never* be gone down, this means a malformed emoji");
@@ -108,10 +126,10 @@ class Emoji {
 		x: number,
 		y: number,
 		localuser: Localuser,
-	): Promise<Emoji | string> {
-		let res: (r: Emoji | string) => void;
+	): Promise<Emoji> {
+		let res: (r: Emoji) => void;
 		this;
-		const promise: Promise<Emoji | string> = new Promise((r) => {
+		const promise: Promise<Emoji> = new Promise((r) => {
 			res = r;
 		});
 		const menu = document.createElement("div");
@@ -266,13 +284,13 @@ class Emoji {
 				updateSearch.call(this);
 				title.textContent = thing.name;
 				body.innerHTML = "";
-				for (const emojit of thing.emojis) {
+				for (const emojit of thing.emojis.map((_) => new Emoji(_, localuser))) {
 					const emoji = document.createElement("div");
 					emoji.classList.add("emojiSelect");
-					emoji.textContent = emojit.emoji;
+					emoji.append(emojit.getHTML());
 					body.append(emoji);
 					emoji.onclick = (_) => {
-						res(emojit.emoji);
+						res(emojit);
 						if (Contextmenu.currentmenu !== "") {
 							Contextmenu.currentmenu.remove();
 						}
