@@ -132,18 +132,23 @@ class Emoji {
 		topBar.append(search);
 
 		let html: HTMLElement | undefined = undefined;
-
+		let topEmoji: undefined | Emoji = undefined;
 		function updateSearch(this: typeof Emoji) {
 			if (search.value === "") {
 				if (html) html.click();
 				search.style.removeProperty("width");
+				topEmoji = undefined;
 				return;
 			}
 
 			search.style.setProperty("width", "3in");
 			title.innerText = "";
 			body.innerHTML = "";
-			for (const [emoji] of this.searchEmoji(search.value, localuser, 200)) {
+			const searchResults = this.searchEmoji(search.value, localuser, 200);
+			if (searchResults[0]) {
+				topEmoji = searchResults[0][0];
+			}
+			for (const [emoji] of searchResults) {
 				const emojiElem = document.createElement("div");
 				emojiElem.classList.add("emojiSelect");
 
@@ -160,6 +165,14 @@ class Emoji {
 		}
 		search.addEventListener("input", () => {
 			updateSearch.call(this);
+		});
+		search.addEventListener("keyup", (e) => {
+			if (e.key === "Enter" && topEmoji) {
+				res(topEmoji);
+				if (Contextmenu.currentmenu !== "") {
+					Contextmenu.currentmenu.remove();
+				}
+			}
 		});
 
 		menu.append(topBar);
