@@ -236,7 +236,7 @@ class RoleList extends Buttons {
 	static guildrolemenu = this.GuildRoleMenu();
 	private static ChannelRoleMenu() {
 		const menu = new Contextmenu<RoleList, Role>("role settings");
-		menu.addbutton(
+		menu.addButton(
 			() => I18n.getTranslation("role.remove"),
 			function (role) {
 				if (!this.channel) return;
@@ -246,13 +246,12 @@ class RoleList extends Buttons {
 					headers: this.headers,
 				});
 			},
-			null,
 		);
 		return menu;
 	}
 	private static GuildRoleMenu() {
 		const menu = new Contextmenu<RoleList, Role>("role settings");
-		menu.addbutton(
+		menu.addButton(
 			() => I18n.getTranslation("role.delete"),
 			function (role) {
 				if (!confirm(I18n.getTranslation("role.confirmDelete"))) return;
@@ -262,7 +261,6 @@ class RoleList extends Buttons {
 					headers: this.headers,
 				});
 			},
-			null,
 		);
 		return menu;
 	}

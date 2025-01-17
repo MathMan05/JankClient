@@ -342,28 +342,28 @@ class Group extends Channel {
 	user: User;
 	static contextmenu = new Contextmenu<Group, undefined>("channel menu");
 	static setupcontextmenu() {
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("DMs.copyId"),
 			function (this: Group) {
 				navigator.clipboard.writeText(this.id);
 			},
 		);
 
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("DMs.markRead"),
 			function (this: Group) {
 				this.readbottom();
 			},
 		);
 
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("DMs.close"),
 			function (this: Group) {
 				this.deleteChannel();
 			},
 		);
 
-		this.contextmenu.addbutton(
+		this.contextmenu.addButton(
 			() => I18n.getTranslation("user.copyId"),
 			function () {
 				navigator.clipboard.writeText(this.user.id);

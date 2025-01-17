@@ -318,6 +318,7 @@ textarea {
 	width: 100%;
 	background: var(--primary-text-soft);
 	mask-repeat: no-repeat;
+	aspect-ratio: 1/1;
 }
 .selectarrow {
 	position: absolute;
@@ -1534,8 +1535,13 @@ img.bigembedimg {
 	background: var(--secondary-bg);
 	border-radius: 4px;
 	box-shadow: 0 0 8px var(--shadow);
+	hr{
+		width:90%;
+		height: 1px;
+	}
 }
 .contextbutton {
+	position: relative;
 	width: 180px;
 	padding: 8px;
 	background: transparent;
@@ -1544,6 +1550,15 @@ img.bigembedimg {
 	color: var(--secondary-text);
 	border: none;
 	transition: none;
+	display: flex;
+	flex-direction: row;
+	.svgicon {
+		height: 0.2in;
+		width: 0.2in;
+		position: absolute;
+		right: 6px;
+		top: 6px;
+	}
 }
 .contextbutton:enabled:hover {
 	background: var(--secondary-hover);

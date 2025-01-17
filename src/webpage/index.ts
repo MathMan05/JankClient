@@ -127,26 +127,24 @@ import {I18n} from "./i18n.js";
 	}
 
 	const menu = new Contextmenu<void, void>("create rightclick");
-	menu.addbutton(
+	menu.addButton(
 		I18n.getTranslation("channel.createChannel"),
 		() => {
 			if (thisUser.lookingguild) {
 				thisUser.lookingguild.createchannels();
 			}
 		},
-		null,
-		() => thisUser.isAdmin(),
+		{visable: () => thisUser.isAdmin()},
 	);
 
-	menu.addbutton(
+	menu.addButton(
 		I18n.getTranslation("channel.createCatagory"),
 		() => {
 			if (thisUser.lookingguild) {
 				thisUser.lookingguild.createcategory();
 			}
 		},
-		null,
-		() => thisUser.isAdmin(),
+		{visable: () => thisUser.isAdmin()},
 	);
 
 	menu.bindContextmenu(document.getElementById("channels") as HTMLDivElement);

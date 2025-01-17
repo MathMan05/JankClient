@@ -57,50 +57,81 @@ class Message extends SnowFlake {
 		Message.setupcmenu();
 	}
 	static setupcmenu() {
-		Message.contextmenu.addbutton(
-			() => I18n.getTranslation("copyrawtext"),
-			function (this: Message) {
-				navigator.clipboard.writeText(this.content.rawString);
-			},
-		);
-		Message.contextmenu.addbutton(
+		Message.contextmenu.addButton(
 			() => I18n.getTranslation("reply"),
 			function (this: Message) {
 				this.channel.setReplying(this);
 			},
-		);
-		Message.contextmenu.addbutton(
-			() => I18n.getTranslation("copymessageid"),
-			function (this: Message) {
-				navigator.clipboard.writeText(this.id);
+			{
+				icon: {
+					css: "svg-reply",
+				},
 			},
 		);
-		Message.contextmenu.addsubmenu(
+
+		Message.contextmenu.addButton(
+			() => I18n.getTranslation("message.edit"),
+			function (this: Message) {
+				this.setEdit();
+			},
+			{
+				visable: function () {
+					return this.author.id === this.localuser.user.id;
+				},
+
+				icon: {
+					css: "svg-edit",
+				},
+			},
+		);
+
+		Message.contextmenu.addButton(
 			() => I18n.getTranslation("message.reactionAdd"),
 			function (this: Message, _, e: MouseEvent) {
 				Emoji.emojiPicker(e.x, e.y, this.localuser).then((_) => {
 					this.reactionToggle(_);
 				});
 			},
+			{
+				icon: {
+					css: "svg-emoji",
+				},
+			},
 		);
-		Message.contextmenu.addbutton(
-			() => I18n.getTranslation("message.edit"),
+
+		Message.contextmenu.addSeperator();
+		Message.contextmenu.addButton(
+			() => I18n.getTranslation("copyrawtext"),
 			function (this: Message) {
-				this.setEdit();
+				navigator.clipboard.writeText(this.content.rawString);
 			},
-			null,
-			function () {
-				return this.author.id === this.localuser.user.id;
+			{
+				icon: {
+					css: "svg-copy",
+				},
 			},
 		);
-		Message.contextmenu.addbutton(
+		Message.contextmenu.addButton(
+			() => I18n.getTranslation("copymessageid"),
+			function (this: Message) {
+				navigator.clipboard.writeText(this.id);
+			},
+		);
+
+		Message.contextmenu.addSeperator();
+		Message.contextmenu.addButton(
 			() => I18n.getTranslation("message.delete"),
 			function (this: Message) {
 				this.confirmDelete();
 			},
-			null,
-			function () {
-				return this.canDelete();
+			{
+				visable: function () {
+					return this.canDelete();
+				},
+				icon: {
+					css: "svg-delete",
+				},
+				color: "red",
 			},
 		);
 	}

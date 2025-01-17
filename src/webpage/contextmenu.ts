@@ -1,15 +1,114 @@
-import {iOS} from "./utils/utils.js";
+import {mobile} from "./utils/utils.js";
+type iconJson =
+	| {
+			src: string;
+	  }
+	| {
+			css: string;
+	  }
+	| {
+			html: HTMLElement;
+	  };
+
+interface menuPart<x, y> {
+	makeContextHTML(obj1: x, obj2: y, menu: HTMLDivElement): void;
+}
+
+class ContextButton<x, y> implements menuPart<x, y> {
+	private text: string | (() => string);
+	private onClick: (this: x, arg: y, e: MouseEvent) => void;
+	private icon?: iconJson;
+	private visable?: (this: x, arg: y) => boolean;
+	private enabled?: (this: x, arg: y) => boolean;
+	//TODO there *will* be more colors
+	private color?: "red" | "blue";
+	constructor(
+		text: ContextButton<x, y>["text"],
+		onClick: ContextButton<x, y>["onClick"],
+		addProps: {
+			icon?: iconJson;
+			visable?: (this: x, arg: y) => boolean;
+			enabled?: (this: x, arg: y) => boolean;
+			color?: "red" | "blue";
+		} = {},
+	) {
+		this.text = text;
+		this.onClick = onClick;
+		this.icon = addProps.icon;
+		this.visable = addProps.visable;
+		this.enabled = addProps.enabled;
+		this.color = addProps.color;
+	}
+	isVisable(obj1: x, obj2: y): boolean {
+		if (!this.visable) return true;
+		return this.visable.call(obj1, obj2);
+	}
+	makeContextHTML(obj1: x, obj2: y, menu: HTMLDivElement) {
+		if (!this.isVisable(obj1, obj2)) {
+			return;
+		}
+
+		const intext = document.createElement("button");
+		intext.classList.add("contextbutton");
+		intext.append(this.textContent);
+
+		intext.disabled = !!this.enabled && !this.enabled.call(obj1, obj2);
+
+		if (this.icon) {
+			if ("src" in this.icon) {
+				const icon = document.createElement("img");
+				icon.classList.add("svgicon");
+				icon.src = this.icon.src;
+				intext.append(icon);
+			} else if ("css" in this.icon) {
+				const icon = document.createElement("span");
+				icon.classList.add(this.icon.css, "svgicon");
+				switch (this.color) {
+					case "red":
+						icon.style.background = "var(--red)";
+						break;
+					case "blue":
+						icon.style.background = "var(--blue)";
+						break;
+				}
+				intext.append(icon);
+			} else {
+				intext.append(this.icon.html);
+			}
+		}
+
+		switch (this.color) {
+			case "red":
+				intext.style.color = "var(--red)";
+				break;
+			case "blue":
+				intext.style.color = "var(--blue)";
+				break;
+		}
+
+		intext.onclick = (e) => {
+			menu.remove();
+			this.onClick.call(obj1, obj2, e);
+		};
+
+		menu.append(intext);
+	}
+	get textContent() {
+		if (this.text instanceof Function) {
+			return this.text();
+		}
+		return this.text;
+	}
+}
+class Seperator<x, y> implements menuPart<x, y> {
+	makeContextHTML(_obj1: x, _obj2: y, menu: HTMLDivElement): void {
+		menu.append(document.createElement("hr"));
+	}
+}
 class Contextmenu<x, y> {
 	static currentmenu: HTMLElement | "";
 	name: string;
-	buttons: [
-		string | (() => string),
-		(this: x, arg: y, e: MouseEvent) => void,
-		string | null,
-		(this: x, arg: y) => boolean,
-		(this: x, arg: y) => boolean,
-		string,
-	][];
+	buttons: menuPart<x, y>[];
 	div!: HTMLDivElement;
 	static setup() {
 		Contextmenu.currentmenu = "";
@@ -27,56 +126,33 @@ class Contextmenu<x, y> {
 		this.name = name;
 		this.buttons = [];
 	}
-	addbutton(
-		text: string | (() => string),
-		onclick: (this: x, arg: y, e: MouseEvent) => void,
-		img: null | string = null,
-		shown: (this: x, arg: y) => boolean = (_) => true,
-		enabled: (this: x, arg: y) => boolean = (_) => true,
+
+	addButton(
+		text: ContextButton<x, y>["text"],
+		onClick: ContextButton<x, y>["onClick"],
+		addProps: {
+			icon?: iconJson;
+			visable?: (this: x, arg: y) => boolean;
+			enabled?: (this: x, arg: y) => boolean;
+			color?: "red" | "blue";
+		} = {},
 	) {
-		this.buttons.push([text, onclick, img, shown, enabled, "button"]);
-		return {};
+		this.buttons.push(new ContextButton(text, onClick, addProps));
 	}
-	addsubmenu(
-		text: string | (() => string),
-		onclick: (this: x, arg: y, e: MouseEvent) => void,
-		img = null,
-		shown: (this: x, arg: y) => boolean = (_) => true,
-		enabled: (this: x, arg: y) => boolean = (_) => true,
-	) {
-		this.buttons.push([text, onclick, img, shown, enabled, "submenu"]);
-		return {};
+	addSeperator() {
+		this.buttons.push(new Seperator());
 	}
 	private makemenu(x: number, y: number, addinfo: x, other: y) {
 		const div = document.createElement("div");
 		div.classList.add("contextmenu", "flexttb");
 
-		let visibleButtons = 0;
-		for (const thing of this.buttons) {
-			if (!thing[3].call(addinfo, other)) continue;
-			visibleButtons++;
-
-			const intext = document.createElement("button");
-			intext.disabled = !thing[4].call(addinfo, other);
-			intext.classList.add("contextbutton");
-			if (thing[0] instanceof Function) {
-				intext.textContent = thing[0]();
-			} else {
-				intext.textContent = thing[0];
-			}
-			console.log(thing);
-			if (thing[5] === "button" || thing[5] === "submenu") {
-				intext.onclick = (e) => {
-					div.remove();
-					thing[1].call(addinfo, other, e);
-				};
-			}
-
-			div.appendChild(intext);
+		for (const button of this.buttons) {
+			button.makeContextHTML(addinfo, other, div);
 		}
-		if (visibleButtons == 0) return;
+		//NOTE I don't know if this'll ever actually happen in reality
+		if (div.childNodes.length === 0) return;
 
-		if (Contextmenu.currentmenu != "") {
+		if (Contextmenu.currentmenu !== "") {
 			Contextmenu.currentmenu.remove();
 		}
 		div.style.top = y + "px";
@@ -100,7 +176,8 @@ class Contextmenu<x, y> {
 			this.makemenu(event.clientX, event.clientY, addinfo, other);
 		};
 		obj.addEventListener("contextmenu", func);
-		if (iOS) {
+		//NOTE not sure if this code is correct, seems fine at least for now
+		if (mobile) {
 			let hold: NodeJS.Timeout | undefined;
 			let x!: number;
 			let y!: number;
