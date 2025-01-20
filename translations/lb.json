@@ -131,6 +131,7 @@
 		"online": "Online",
 		"offline": "Offline",
 		"block": "Benotzer spären",
+		"unblock": "Benotzer entspären",
 		"editServerProfile": "Serverprofil änneren"
 	},
 	"member": {
