@@ -156,7 +156,6 @@ class Localuser {
 		}
 
 		this.pingEndpoint();
-		this.userinfo.updateLocal();
 	}
 	inrelation = new Set<User>();
 	outoffocus(): void {
@@ -358,7 +357,6 @@ class Localuser {
 							this.info = newurls;
 							this.serverurls = newurls;
 							this.userinfo.json.serverurls = this.info;
-							this.userinfo.updateLocal();
 							break;
 						}
 						break;
@@ -369,7 +367,6 @@ class Localuser {
 							this.info = newurls;
 							this.serverurls = newurls;
 							this.userinfo.json.serverurls = this.info;
-							this.userinfo.updateLocal();
 							break;
 						}
 						break;
@@ -382,7 +379,6 @@ class Localuser {
 							this.info = newurls;
 							this.serverurls = newurls;
 							this.userinfo.json.serverurls = this.info;
-							this.userinfo.updateLocal();
 						}
 						break;
 					}
@@ -1764,7 +1760,6 @@ class Localuser {
 			this.botTokens.set(appId, updateJSON.token);
 			if (this.perminfo.applications[appId]) {
 				this.perminfo.applications[appId] = updateJSON.token;
-				this.userinfo.updateLocal();
 			}
 		});
 		const text = form.addText(
@@ -1776,7 +1771,6 @@ class Localuser {
 		const check = form.addOptions("", {noSubmit: true});
 		if (!this.perminfo.applications) {
 			this.perminfo.applications = {};
-			this.userinfo.updateLocal();
 		}
 		const checkbox = check.addCheckboxInput(I18n.getTranslation("localuser.saveToken"), () => {}, {
 			initState: !!this.perminfo.applications[appId],
@@ -1785,14 +1779,12 @@ class Localuser {
 			if (_) {
 				if (this.botTokens.has(appId)) {
 					this.perminfo.applications[appId] = this.botTokens.get(appId);
-					this.userinfo.updateLocal();
 				} else {
 					alert(I18n.getTranslation("localuser.noToken"));
 					checkbox.setState(false);
 				}
 			} else {
 				delete this.perminfo.applications[appId];
-				this.userinfo.updateLocal();
 			}
 		});
 		form.addButtonInput("", I18n.getTranslation("localuser.advancedBot"), () => {

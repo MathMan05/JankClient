@@ -107,8 +107,29 @@ export class Specialuser {
 		this.json.localuserStore = e;
 		this.updateLocal();
 	}
+	proxySave(e: Object) {
+		return new Proxy(e, {
+			set: (target, p, newValue, receiver) => {
+				const bool = Reflect.set(target, p, newValue, receiver);
+				this.updateLocal();
+				return bool;
+			},
+			get: (target, p, receiver) => {
+				const value = Reflect.get(target, p, receiver) as unknown;
+				if (value instanceof Object) {
+					return this.proxySave(value);
+				}
+				return value;
+			},
+		});
+	}
 	get localuserStore() {
-		return this.json.localuserStore;
+		type jsonParse = {
+			[key: string | number]: any;
+		};
+		return this.proxySave(this.json.localuserStore) as {
+			[key: string | number]: jsonParse;
+		};
 	}
 	set id(e) {
 		this.json.id = e;

@@ -569,12 +569,10 @@ class Channel extends SnowFlake {
 				if (childrendiv.style.height !== "0px") {
 					decoration.classList.add("hiddencat");
 					this.perminfo.collapsed = true;
-					this.localuser.userinfo.updateLocal();
 					childrendiv.style.height = "0px";
 				} else {
 					decoration.classList.remove("hiddencat");
 					this.perminfo.collapsed = false;
-					this.localuser.userinfo.updateLocal();
 					childrendiv.style.height = childrendiv.scrollHeight + "px";
 				}
 			};
@@ -907,7 +905,6 @@ class Channel extends SnowFlake {
 			const buttons = options.addOptions("", {ltr: true});
 			buttons.addButtonInput("", "Yes", () => {
 				this.perminfo.nsfwOk = true;
-				this.localuser.userinfo.updateLocal();
 				this.getHTML();
 			});
 			buttons.addButtonInput("", "No", () => {
@@ -946,7 +943,6 @@ class Channel extends SnowFlake {
 		}
 		this.guild.prevchannel = this;
 		this.guild.perminfo.prevchannel = this.id;
-		this.localuser.userinfo.updateLocal();
 		this.localuser.channelfocus = this;
 
 		if (
