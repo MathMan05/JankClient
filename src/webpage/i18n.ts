@@ -26,6 +26,7 @@ class I18n {
 		this.translations = translations;
 
 		res();
+		console.log(proxyClass.permissions.descriptions.CREATE_INSTANT_INVITE());
 	}
 	static getTranslation(msg: string, ...params: string[]): string {
 		let str: string | undefined;
@@ -114,5 +115,47 @@ if (storage) {
 	localStorage.setItem("lang", userLocale);
 }
 I18n.create(userLocale);
+function makeWeirdProxy(obj: [string, translation | void] = ["", undefined]) {
+	return new Proxy(obj, {
+		get: (target, input) => {
+			if (target[0] === "" && input in I18n) {
+				//@ts-ignore
+				return I18n[input];
+			} else if (typeof input === "string") {
+				let translations = obj[1];
 
-export {I18n, langmap};
+				if (!translations) {
+					//Really weird way to make sure I get english lol
+					translations = I18n.translations[I18n.translations.length - 1];
+					obj[1] = translations;
+				}
+
+				const value = translations[input];
+				if (value) {
+					let path = obj[0];
+					if (path !== "") {
+						path += ".";
+					}
+					path += input;
+					if (typeof value === "string") {
+						return (...args: string[]) => {
+							return I18n.getTranslation(path, ...args);
+						};
+					} else {
+						return makeWeirdProxy([path, value]);
+					}
+				}
+			}
+		},
+	});
+}
+import jsonType from "./../../translations/en.json";
+type beforeType = typeof jsonType;
+
+type DoTheThing<T> = {
+	[K in keyof T]: T[K] extends string ? (...args: string[]) => string : DoTheThing<T[K]>;
+};
+
+const proxyClass = makeWeirdProxy() as unknown as typeof I18n & DoTheThing<beforeType>;
+proxyClass.permissions.descriptions.ADD_REACTIONS();
+export {proxyClass as I18n, langmap};
