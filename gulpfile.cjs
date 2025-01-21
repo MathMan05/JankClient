@@ -1,40 +1,12 @@
 const gulp = require("gulp");
 const ts = require("gulp-typescript");
-const swc = require("gulp-swc");
 const tsProject = ts.createProject("tsconfig.json");
 const argv = require("yargs").argv;
 const rimraf = require("rimraf");
 const plumber = require("gulp-plumber");
 const sourcemaps = require("gulp-sourcemaps");
 const fs = require("fs");
-const swcOptions = {
-	jsc: {
-		parser: {
-			syntax: "typescript",
-			tsx: false,
-			decorators: true,
-			dynamicImport: true,
-		},
-		transform: {
-			react: {
-				runtime: "automatic",
-			},
-		},
-		target: "es2022",
-		loose: false,
-		externalHelpers: false,
-		keepClassNames: true,
-	},
-	module: {
-		type: "es6",
-		strict: true,
-		strictMode: true,
-		lazy: false,
-		noInterop: false,
-	},
-	sourceMaps: true,
-	minify: false,
-};
+const {swcDir} = require("@swc/cli");
 
 gulp.task(
 	"watch",
@@ -49,25 +21,34 @@ gulp.task(
 gulp.task("clean", (cb) => {
 	return rimraf.rimraf("dist").then(cb());
 });
-const exec = require("child_process").exec;
+
 // Task to compile TypeScript files using SWC
 gulp.task("scripts", async () => {
-	if (argv.swc) {
-		return gulp
-			.src("src/**/*.ts")
-			.pipe(sourcemaps.init())
-			.pipe(plumber()) // Prevent pipe breaking caused by errors
-			.pipe(swc(swcOptions))
-			.pipe(sourcemaps.write("."))
-			.pipe(gulp.dest("dist"));
-	} else if (argv.bunswc) {
+	if (argv.swc || argv.bunswc) {
 		return await new Promise((ret) => {
-			exec("bun swc --strip-leading-paths ./src -s -d ./dist/ -C jsc.target=es2022").on(
-				"exit",
-				function (code) {
-					ret();
+			swcDir({
+				cliOptions: {
+					outDir: "./dist",
+					watch: true,
+					filenames: ["./src"],
+					extensions: [".ts"],
+					stripLeadingPaths: true,
+					"no-swcrc": true,
 				},
-			);
+				callbacks: {
+					onSuccess: (e) => {
+						ret();
+						console.log(e);
+					},
+					onFail: (e) => {
+						for ([, reason] of e.reasons) {
+							console.log(reason);
+						}
+						ret();
+					},
+					onWatchReady: () => {},
+				},
+			});
 		});
 	} else {
 		console.warn("[WARN] Using TSC compiler, will be slower than SWC");
