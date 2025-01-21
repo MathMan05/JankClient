@@ -12,6 +12,9 @@ class Hover {
 		elm.addEventListener("mouseover", () => {
 			timeOut = setTimeout(async () => {
 				elm2 = await this.makeHover(elm);
+				elm2.addEventListener("mouseover", () => {
+					elm2.remove();
+				});
 			}, 300);
 		});
 		elm.addEventListener("mouseout", () => {
