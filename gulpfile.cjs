@@ -29,7 +29,7 @@ gulp.task("scripts", async () => {
 			swcDir({
 				cliOptions: {
 					outDir: "./dist",
-					watch: true,
+					watch: false,
 					filenames: ["./src"],
 					extensions: [".ts"],
 					stripLeadingPaths: true,
