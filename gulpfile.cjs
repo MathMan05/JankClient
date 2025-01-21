@@ -33,7 +33,6 @@ gulp.task("scripts", async () => {
 					filenames: ["./src"],
 					extensions: [".ts"],
 					stripLeadingPaths: true,
-					"no-swcrc": true,
 				},
 				callbacks: {
 					onSuccess: (e) => {
