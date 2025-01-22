@@ -129,6 +129,9 @@ function makeWeirdProxy(obj: [string, translation | void] = ["", undefined]) {
 					translations = I18n.translations[I18n.translations.length - 1];
 					obj[1] = translations;
 				}
+				if (!translations) {
+					return;
+				}
 
 				const value = translations[input];
 				if (value) {
@@ -157,5 +160,4 @@ type DoTheThing<T> = {
 };
 
 const proxyClass = makeWeirdProxy() as unknown as typeof I18n & DoTheThing<beforeType>;
-proxyClass.permissions.descriptions.ADD_REACTIONS();
 export {proxyClass as I18n, langmap};
