@@ -135,6 +135,7 @@ class User extends SnowFlake {
 				return;
 			}
 		}
+
 		await fetch(this.info.api + "/users/@me/channels", {
 			method: "POST",
 			body: JSON.stringify({recipients: [this.id]}),

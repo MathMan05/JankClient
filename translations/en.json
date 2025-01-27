@@ -259,6 +259,8 @@
 		"themesAndSounds": "Themes & Sounds",
 		"theme:": "Theme",
 		"notisound": "Notification sound:",
+		"customSound": "Custom Sound",
+		"soundTooLarge": "The sound you tried to upload was too large, try again",
 		"accentColor": "Accent color:",
 		"enableEVoice": "Enable experimental Voice support",
 		"VoiceWarning": "Are you sure you want to enable this? It's very experimental and is likely to cause issues. (this feature is for devs, please don't enable if you don't know what you're doing)",
