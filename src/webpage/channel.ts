@@ -1544,10 +1544,7 @@ class Channel extends SnowFlake {
 	}
 	notify(message: Message, deep = 0) {
 		if (this.localuser.play) {
-			const voice = this.localuser.play.audios.get(this.localuser.getNotificationSound());
-			if (voice) {
-				voice.play();
-			}
+			this.localuser.playSound();
 		}
 		if (!("Notification" in window)) {
 		} else if (Notification.permission === "granted") {

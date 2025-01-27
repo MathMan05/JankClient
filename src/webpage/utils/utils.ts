@@ -111,7 +111,12 @@ export class Specialuser {
 		return new Proxy(e, {
 			set: (target, p, newValue, receiver) => {
 				const bool = Reflect.set(target, p, newValue, receiver);
-				this.updateLocal();
+				try {
+					this.updateLocal();
+				} catch (_) {
+					Reflect.deleteProperty(target, p);
+					throw _;
+				}
 				return bool;
 			},
 			get: (target, p, receiver) => {

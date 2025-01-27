@@ -1278,24 +1278,56 @@ class Localuser {
 				);
 			}
 			{
-				const sounds = AVoice.sounds;
+				const initArea = (index: number) => {
+					console.log(index === sounds.length - 1);
+					if (index === sounds.length - 1) {
+						const input = document.createElement("input");
+						input.type = "file";
+						input.accept = "audio/*";
+						input.addEventListener("change", () => {
+							if (input.files?.length === 1) {
+								const file = input.files[0];
+
+								let reader = new FileReader();
+								reader.onload = () => {
+									let dataUrl = reader.result;
+									if (typeof dataUrl !== "string") return;
+									this.perminfo.sound = {};
+									try {
+										this.perminfo.sound.cSound = dataUrl;
+										console.log(this.perminfo.sound.cSound);
+										this.playSound("custom");
+									} catch (_) {
+										alert(I18n.localuser.soundTooLarge());
+									}
+								};
+								reader.readAsDataURL(file);
+							}
+						});
+						area.append(input);
+					} else {
+						area.innerHTML = "";
+					}
+				};
+				const sounds = [...AVoice.sounds, I18n.localuser.customSound()];
+				const initIndex = sounds.indexOf(this.getNotificationSound());
 				tas
 					.addSelect(
 						I18n.getTranslation("localuser.notisound"),
-						(_) => {
-							this.setNotificationSound(sounds[_]);
+						(index) => {
+							this.setNotificationSound(sounds[index]);
 						},
 						sounds,
-						{defaultIndex: sounds.indexOf(this.getNotificationSound())},
+						{defaultIndex: initIndex},
 					)
-					.watchForChange((_) => {
-						if (this.play) {
-							const voice = this.play.audios.get(sounds[_]);
-							if (voice) {
-								voice.play();
-							}
-						}
+					.watchForChange((index) => {
+						initArea(index);
+						this.playSound(sounds[index]);
 					});
+
+				const area = document.createElement("div");
+				initArea(initIndex);
+				tas.addHTMLArea(area);
 			}
 
 			{
@@ -2299,6 +2331,18 @@ class Localuser {
 		const userinfos = getBulkInfo();
 		userinfos.preferences.notisound = sound;
 		localStorage.setItem("userinfos", JSON.stringify(userinfos));
+	}
+	playSound(name = this.getNotificationSound()) {
+		if (this.play) {
+			const voice = this.play.audios.get(name);
+			if (voice) {
+				voice.play();
+			} else if (this.perminfo.sound && this.perminfo.sound.cSound) {
+				const audio = document.createElement("audio");
+				audio.src = this.perminfo.sound.cSound;
+				audio.play().catch();
+			}
+		}
 	}
 	getNotificationSound() {
 		const userinfos = getBulkInfo();
