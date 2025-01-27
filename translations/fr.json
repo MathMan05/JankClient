@@ -320,7 +320,8 @@
 		"delete": "Supprimer le message",
 		"edit": "Modifier le message",
 		"edited": "(modifié)",
-		"deleted": "Message supprimé"
+		"deleted": "Message supprimé",
+		"attached": "Pièce jointe envoyée"
 	},
 	"instanceStats": {
 		"name": "Statistiques de l'instance : $1",
