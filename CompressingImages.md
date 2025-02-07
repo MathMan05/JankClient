@@ -6,6 +6,13 @@ good at reducing the pallet, a first step for images that have a limited number 
 
 ## PNGs:
 good ratios, though not as good as other options, though better compatibility
+### oxipng
+Seems to be the best of all of the options, not sure if it's all you would need, but it did shrink pngs further than the other two tools afterwards.
+```bash
+oxipng -o max --strip all --alpha <filename here>
+```
+`all` may be replaced with `safe` if you want to be a bit safer
+
 ### pngcrush
 Good, but should be ran before optipng, but isn't as good as it, use in tandom
 ### optipng
