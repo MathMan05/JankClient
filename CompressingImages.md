@@ -16,7 +16,7 @@ oxipng -o max --strip all --alpha <filename here>
 ### pngcrush
 Good, but should be ran before optipng, but isn't as good as it, use in tandom
 ### optipng
-The best tool to really shrink pngs to be as small as they can be.
+The second best tool to really shrink pngs to be as small as they can be.
 
 ## WEBP
 it's better than png, though I have a feeling more could be done to compress these
