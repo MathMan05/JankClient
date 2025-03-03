@@ -1,0 +1,18 @@
+From node:18-bullseye as builder
+
+WORKDIR devel/
+RUN apt-get update ; apt-get upgrade -y ; apt-get install -y python-is-python3 build-essential git
+RUN git clone https://github.com/MathMan05/JankClient
+RUN cd JankClient ; npm i ; npm run build
+
+From node:18-alpine
+
+EXPOSE 8080
+WORKDIR exec
+RUN apk add --update git nodejs npm
+COPY --from=builder /devel/JankClient/ . 
+RUN adduser -D jankclient
+
+USER jankclient
+
+CMD ["npm", "start"]
