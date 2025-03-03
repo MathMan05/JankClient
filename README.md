@@ -1,8 +1,8 @@
 # Jank Client
 Jank Client is a [Spacebar](https://spacebar.chat) Client written in TS, HTML, and CSS.
 
-To run it, clone the repo and do `npm install`, then
-`node index.js`
+To build it, clone the repo and run `npm install`, then `npm run build`
+To run it, use `npm start`
 or do the equivalent with bun
 
 Both [Bun](https://bun.sh) and [Node.js](https://nodejs.org) are supported, and should function as expected.
