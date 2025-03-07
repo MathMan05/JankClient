@@ -2,7 +2,7 @@ services:
   jank:
     build:
       context: .
-      dockerfile: Dockerfile-jank
+      dockerfile: Dockerfile
     restart: unless-stopped
     ports: 
       - "8080:8080"
