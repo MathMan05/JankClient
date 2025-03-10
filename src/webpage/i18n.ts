@@ -26,7 +26,6 @@ class I18n {
 		this.translations = translations;
 
 		res();
-		console.log(proxyClass.permissions.descriptions.CREATE_INSTANT_INVITE());
 	}
 	static getTranslation(msg: string, ...params: string[]): string {
 		let str: string | undefined;
