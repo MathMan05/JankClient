@@ -9,28 +9,53 @@
 	"permissions": {
 		"readableNames": {
 			"ADMINISTRATOR": "Administrateur",
-			"STREAM": "Video"
+			"STREAM": "Video",
+			"ATTACH_FILES": "Fichieren uspéngelen",
+			"USE_EXTERNAL_EMOJIS": "Extern Emojie benotzen",
+			"CONNECT": "Verbannen",
+			"SPEAK": "Schwätzen",
+			"MUTE_MEMBERS": "Membere stommschalten",
+			"CHANGE_NICKNAME": "Spëtznumm änneren",
+			"MANAGE_NICKNAMES": "Spëtznimm geréieren",
+			"MANAGE_ROLES": "Rolle geréieren",
+			"MANAGE_GUILD_EXPRESSIONS": "Ausdréck geréieren",
+			"CREATE_EVENTS": "Evenementer uleeën",
+			"SEND_POLLS": "Ëmfroen uleeën",
+			"USE_EXTERNAL_APPS": "Extern Appe benotzen"
 		}
 	},
+	"deleteConfirm": "Sidd Dir sécher, datt Dir dat läsche wëllt?",
 	"yes": "Jo",
 	"no": "Neen",
 	"todayAt": "Haut um $1",
 	"yesterdayAt": "Gëschter um $1",
-	"botSettings": "Botastellungen",
+	"botSettings": "Bot-Astellungen",
 	"pronouns": "Pronomen:",
 	"profileColor": "Profilfaarf",
+	"confirmGuildLeave": "Sidd Dir sécher, datt Dir aus $1 erausgoe wëllt",
 	"typing": "$2 {{PLURAL:$1|ass|sinn}} am schreiwen",
+	"blankMessage": "Eidele Message",
 	"channel": {
+		"copyId": "Kanal-ID kopéieren",
 		"markRead": "Als gelies markéieren",
 		"settings": "Astellungen",
+		"delete": "Kanal läschen",
+		"makeInvite": "Invitatioun maachen",
 		"settingsFor": "Astellunge fir $1",
 		"text": "Text",
+		"announcement": "Ukënnegungen",
 		"name:": "Numm:",
 		"topic:": "Theema:",
+		"nsfw:": "NSFW:",
+		"selectType": "Kanaltyp auswielen",
+		"selectName": "Numm vum Kanal",
 		"selectCatName": "Numm vun der Kategorie",
+		"createChannel": "Kanal uleeën",
 		"createCatagory": "Kategorie uleeën"
 	},
+	"switchAccounts": "Konto wiesselen ⇌",
 	"htmlPages": {
+		"instanceField": "Instanz:",
 		"emailField": "E-Mail:",
 		"pwField": "Passwuert:",
 		"loginButton": "Aloggen",
@@ -59,6 +84,7 @@
 		"serverName": "Servernumm:",
 		"yesDelete": "Jo, ech si mer sécher",
 		"loadingDiscovery": "Lueden…",
+		"default": "Standard ($1)",
 		"description:": "Beschreiwung:"
 	},
 	"role": {
@@ -76,6 +102,9 @@
 		"SWOff": "Aus",
 		"SWOffline": "Nëmmen offline",
 		"SWOn": "Un",
+		"clearCache": "Cache eidelmaachen",
+		"CheckUpdate": "No Aktualiséierunge sichen",
+		"2faDisable": "2FA desaktivéieren",
 		"badCode": "Ongültege Code",
 		"2faEnable": "2FA aktivéieren",
 		"2faCode:": "Code:",
@@ -90,10 +119,15 @@
 		"newPassword:": "Neit Passwuert:",
 		"PasswordsNoMatch": "D'Passwierder sinn net d'selwecht",
 		"description": "Beschreiwung:",
+		"manageBot": "Bot geréieren",
+		"addBot": "Bot derbäisetzen",
 		"botUsername": "Botbenotzernumm:",
-		"language": "Sprooch:"
+		"advancedBot": "Erweidert Bot-Astellungen",
+		"language": "Sprooch:",
+		"connections": "Verbindungen"
 	},
 	"message": {
+		"reactionAdd": "Reaktioun derbäisetzen",
 		"delete": "Message läschen",
 		"edit": "Message änneren",
 		"edited": "(geännert)",
@@ -106,6 +140,7 @@
 		"members": "Memberen: $1"
 	},
 	"inviteOptions": {
+		"title": "Leit invitéieren",
 		"30m": "30 Minutten",
 		"1h": "1 Stonn",
 		"6h": "6 Stonnen",
@@ -113,13 +148,20 @@
 		"1d": "1 Dag",
 		"7d": "7 Deeg",
 		"30d": "30 Deeg",
-		"never": "Ni"
+		"never": "Ni",
+		"noLimit": "Keng Limitt"
 	},
 	"2faCode": "2FA-Code:",
 	"invite": {
-		"accept": "Akzeptéieren"
+		"invitedBy": "Dir gouft vum $1 invitéiert",
+		"alreadyJoined": "Scho bäigetrueden",
+		"accept": "Akzeptéieren",
+		"channel:": "Kanal:",
+		"createInvite": "Invitatioun maachen"
 	},
 	"friends": {
+		"blocked": "Gespaart",
+		"blockedusers": "Gespaarte Benotzer:",
 		"notfound": "Benotzer net fonnt",
 		"online": "Online",
 		"friends": "Frënn"
