@@ -1,41 +1,33 @@
 {
-  "compilerOptions": {
-    "allowSyntheticDefaultImports": true,
-    "alwaysStrict": true,
-    "declaration": true,
-    "declarationMap": true,
-    "esModuleInterop": true,
-    "importHelpers": false,
-    "incremental": true,
-    "lib": [
-      "esnext",
-      "DOM",
-      "webworker"
-    ],
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "newLine": "lf",
-    "noEmitHelpers": false,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "preserveConstEnums": true,
-    "pretty": true,
-    "removeComments": false,
-    "resolveJsonModule": true,
-    "sourceMap": true,
-    "strict": true,
-    "target": "ESNext",
-    "useDefineForClassFields": true,
-    "resolvePackageJsonImports": true,
-    "skipLibCheck": true,
-    "outDir": "./dist"
-  },
-  "include": [
-    "src/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ]
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"alwaysStrict": true,
+		"declaration": true,
+		"declarationMap": true,
+		"esModuleInterop": true,
+		"importHelpers": false,
+		"incremental": true,
+		"lib": ["esnext", "DOM", "webworker", "DOM.AsyncIterable"],
+		"module": "ESNext",
+		"moduleResolution": "Bundler",
+		"newLine": "lf",
+		"noEmitHelpers": false,
+		"noFallthroughCasesInSwitch": true,
+		"noImplicitReturns": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"preserveConstEnums": true,
+		"pretty": true,
+		"removeComments": false,
+		"resolveJsonModule": true,
+		"sourceMap": true,
+		"strict": true,
+		"target": "es2022",
+		"useDefineForClassFields": true,
+		"resolvePackageJsonImports": true,
+		"skipLibCheck": true,
+		"outDir": "./dist"
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["node_modules"]
 }

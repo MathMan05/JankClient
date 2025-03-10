@@ -155,6 +155,96 @@ export class Specialuser {
 		localStorage.setItem("userinfos", JSON.stringify(info));
 	}
 }
+class Directory {
+	static home = this.createHome();
+	handle: FileSystemDirectoryHandle;
+	writeWorker?: Worker;
+	private constructor(handle: FileSystemDirectoryHandle) {
+		this.handle = handle;
+	}
+	static async createHome(): Promise<Directory> {
+		navigator.storage.persist();
+		const home = new Directory(await navigator.storage.getDirectory());
+		return home;
+	}
+	async *getAllInDir() {
+		for await (const [name, handle] of this.handle.entries()) {
+			if (handle instanceof FileSystemDirectoryHandle) {
+				yield [name, new Directory(handle)] as [string, Directory];
+			} else if (handle instanceof FileSystemFileHandle) {
+				yield [name, await handle.getFile()] as [string, File];
+			} else {
+				console.log(handle, "oops :3");
+			}
+		}
+		console.log("done");
+	}
+	async getRawFileHandler(name: string) {
+		return await this.handle.getFileHandle(name);
+	}
+	async getRawFile(name: string) {
+		try {
+			return await (await this.handle.getFileHandle(name)).getFile();
+		} catch {
+			return undefined;
+		}
+	}
+	async getString(name: string): Promise<string | undefined> {
+		try {
+			return await (await this.getRawFile(name))!.text();
+		} catch {
+			return undefined;
+		}
+	}
+	initWorker() {
+		if (this.writeWorker) return this.writeWorker;
+		this.writeWorker = new Worker("/utils/dirrWorker.js");
+		this.writeWorker.onmessage = (event) => {
+			const res = this.wMap.get(event.data[0]);
+			this.wMap.delete(event.data[0]);
+			if (!res) throw new Error("Res is not defined here somehow");
+			res(event.data[1]);
+		};
+		return this.writeWorker;
+	}
+	wMap = new Map<number, (input: boolean) => void>();
+	async setStringWorker(name: FileSystemFileHandle, value: ArrayBuffer) {
+		const worker = this.initWorker();
+		const random = Math.random();
+		worker.postMessage([name, value, random]);
+		return new Promise<boolean>((res) => {
+			this.wMap.set(random, res);
+		});
+	}
+	async setString(name: string, value: string): Promise<boolean> {
+		const file = await this.handle.getFileHandle(name, {create: true});
+		const contents = new TextEncoder().encode(value);
+
+		if (file.createWritable as unknown) {
+			const stream = await file.createWritable({keepExistingData: false});
+			await stream.write(contents);
+			await stream.close();
+			return true;
+		} else {
+			//Curse you webkit!
+			return await this.setStringWorker(file, contents);
+		}
+	}
+	async getDir(name: string) {
+		return new Directory(await this.handle.getDirectoryHandle(name, {create: true}));
+	}
+}
+Directory.home.then(async (home) => {
+	const dir = await home.getDir("dir");
+	console.log(await dir.getString("test3"), dir);
+	await dir.setString("test3", "webkit sucks");
+	console.log(await dir.getString("test3"));
+	for await (const thing of home.getAllInDir()) {
+		console.log(thing);
+	}
+});
+export {Directory};
+
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 export {mobile, iOS};
