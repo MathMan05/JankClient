@@ -234,15 +234,7 @@ class Directory {
 		return new Directory(await this.handle.getDirectoryHandle(name, {create: true}));
 	}
 }
-Directory.home.then(async (home) => {
-	const dir = await home.getDir("dir");
-	console.log(await dir.getString("test3"), dir);
-	await dir.setString("test3", "webkit sucks");
-	console.log(await dir.getString("test3"));
-	for await (const thing of home.getAllInDir()) {
-		console.log(thing);
-	}
-});
+
 export {Directory};
 
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
