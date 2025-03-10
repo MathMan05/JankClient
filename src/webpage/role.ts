@@ -207,12 +207,22 @@ class RoleList extends Buttons {
 		option.addButtonInput("", I18n.getTranslation("role.displaySettings"), () => {
 			const role = this.guild.roleids.get(this.curid as string);
 			if (!role) return;
-			const form = option.addSubForm(I18n.getTranslation("role.displaySettings"), () => {}, {
-				fetchURL: this.info.api + "/guilds/" + this.guild.id + "/roles/" + this.curid,
-				method: "PATCH",
-				headers: this.headers,
-				traditionalSubmit: true,
-			});
+			const form = option.addSubForm(
+				I18n.getTranslation("role.displaySettings"),
+				(e) => {
+					if ("name" in e && typeof e.name === "string") {
+						option.name = e.name;
+					}
+					option.subOptions = undefined;
+					option.genTop();
+				},
+				{
+					fetchURL: this.info.api + "/guilds/" + this.guild.id + "/roles/" + this.curid,
+					method: "PATCH",
+					headers: this.headers,
+					traditionalSubmit: true,
+				},
+			);
 			form.addTextInput(I18n.getTranslation("role.name"), "name", {
 				initText: role.name,
 			});
@@ -223,11 +233,12 @@ class RoleList extends Buttons {
 				initState: role.mentionable,
 			});
 			const color = "#" + role.color.toString(16).padStart(6, "0");
-			form.addColorInput(I18n.getTranslation("role.color"), "color", {
+			const colorI = form.addColorInput(I18n.getTranslation("role.color"), "color", {
 				initColor: color,
 			});
 			form.addPreprocessor((obj: any) => {
-				obj.color = Number("0x" + obj.color.substring(1));
+				obj.color = Number("0x" + colorI.colorContent.substring(1));
+
 				console.log(obj.color);
 			});
 		});
@@ -423,9 +434,11 @@ class RoleList extends Buttons {
 				this.options.haschanged = false;
 			}
 		}
+		this.options.subOptions = undefined;
 		return this.options.generateHTML();
 	}
 	save() {
+		if (this.options.subOptions) return;
 		this.onchange(this.curid, this.permission);
 	}
 }
