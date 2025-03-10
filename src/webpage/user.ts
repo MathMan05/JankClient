@@ -44,16 +44,7 @@ class User extends SnowFlake {
 			console.error("missing localuser");
 		}
 		if (dontclone) {
-			for (const key of Object.keys(userjson)) {
-				if (key === "bio") {
-					this.bio = new MarkDown(userjson[key], this.localuser);
-					continue;
-				}
-				if (key === "id") {
-					continue;
-				}
-				(this as any)[key] = (userjson as any)[key];
-			}
+			this.userupdate(userjson);
 			this.hypotheticalpfp = false;
 		} else {
 			return User.checkuser(userjson, owner);
@@ -358,8 +349,12 @@ class User extends SnowFlake {
 	}
 
 	static checkuser(user: User | userjson, owner: Localuser): User {
-		if (owner.userMap.has(user.id)) {
-			return owner.userMap.get(user.id) as User;
+		const tempUser = owner.userMap.get(user.id);
+		if (tempUser) {
+			if (!(user instanceof User)) {
+				tempUser.userupdate(user);
+			}
+			return tempUser;
 		} else {
 			const tempuser = new User(user as userjson, owner, true);
 			owner.userMap.set(user.id, tempuser);
@@ -456,8 +451,15 @@ class User extends SnowFlake {
 	}
 
 	userupdate(json: userjson): void {
-		if (json.avatar !== this.avatar) {
-			this.changepfp(json.avatar);
+		for (const key of Object.keys(json)) {
+			if (key === "bio") {
+				this.bio = new MarkDown(json[key], this.localuser);
+				continue;
+			}
+			if (key === "id") {
+				continue;
+			}
+			(this as any)[key] = (json as any)[key];
 		}
 	}
 
