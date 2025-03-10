@@ -48,7 +48,7 @@ class Role extends SnowFlake {
 		if (this.color === 0) {
 			return null;
 		}
-		return `#${this.color.toString(16)}`;
+		return `#${this.color.toString(16).padStart(6, "0")}`;
 	}
 	canManage() {
 		if (this.guild.member.hasPermission("MANAGE_ROLES")) {
