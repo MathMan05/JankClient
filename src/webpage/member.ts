@@ -300,7 +300,7 @@ class Member extends SnowFlake {
 			colorPicker.watchForChange((_) => {
 				console.log();
 				color = _;
-				hypomember.accent_color = Number.parseInt("0x" + _.substr(1, 16));
+				hypomember.accent_color = Number.parseInt("0x" + _.substring(1));
 				changed = true;
 				regen();
 			});
