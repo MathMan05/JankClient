@@ -290,12 +290,8 @@ class Member extends SnowFlake {
 				hypomember.bio = _;
 				regen();
 			});
-			return; //Returns early to stop errors
-			if (this.accent_color) {
-				color = "#" + this.accent_color.toString(16);
-			} else {
-				color = "transparent";
-			}
+			color = (this.accent_color ? "#" + this.accent_color.toString(16) : "transparent") as string;
+
 			const colorPicker = settingsLeft.addColorInput(
 				I18n.getTranslation("profileColor"),
 				(_) => {},
@@ -304,7 +300,7 @@ class Member extends SnowFlake {
 			colorPicker.watchForChange((_) => {
 				console.log();
 				color = _;
-				hypomember.accent_color = Number.parseInt("0x" + _.substr(1), 16);
+				hypomember.accent_color = Number.parseInt("0x" + _.substr(1, 16));
 				changed = true;
 				regen();
 			});
