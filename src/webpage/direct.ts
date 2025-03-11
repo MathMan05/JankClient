@@ -466,6 +466,15 @@ class Group extends Channel {
 			this.idToPrev.set(messagez.id, this.lastmessageid);
 		}
 		this.lastmessageid = messagez.id;
+
+		if (messagez.author === this.localuser.user) {
+			const next = this.messages.get(this.idToNext.get(this.lastreadmessageid as string) as string);
+			this.lastreadmessageid = messagez.id;
+			if (next) {
+				next.generateMessage();
+			}
+		}
+
 		if (messagez.author === this.localuser.user) {
 			this.lastreadmessageid = messagez.id;
 			if (this.myhtml) {
