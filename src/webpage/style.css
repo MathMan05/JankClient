@@ -667,9 +667,8 @@ span.instanceStatus {
 .home {
 	background: var(--blank-bg);
 }
-.servernoti,
-.home {
-	/* position: relative; */
+.servernoti {
+	position: relative;
 }
 .unread {
 	position: absolute;
