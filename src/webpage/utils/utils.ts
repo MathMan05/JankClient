@@ -92,6 +92,17 @@ export class Specialuser {
 	remove() {
 		const info = getBulkInfo();
 		delete info.users[this.uid];
+		if (info.currentuser === this.uid) {
+			const user = info.users[0];
+			if (user) {
+				info.currentuser = new Specialuser(user).uid;
+			} else {
+				info.currentuser = null;
+			}
+		}
+		if (sessionStorage.getItem("currentuser") === this.uid) {
+			sessionStorage.delete("currentuser");
+		}
 		localStorage.setItem("userinfos", JSON.stringify(info));
 	}
 	set pfpsrc(e) {
