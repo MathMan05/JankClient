@@ -101,7 +101,7 @@ export class Specialuser {
 			}
 		}
 		if (sessionStorage.getItem("currentuser") === this.uid) {
-			sessionStorage.delete("currentuser");
+			sessionStorage.removeItem("currentuser");
 		}
 		localStorage.setItem("userinfos", JSON.stringify(info));
 	}

@@ -1703,7 +1703,6 @@ class Localuser {
 			const deleteAccount = settings.addButton(I18n.localuser.deleteAccount()).addForm(
 				"",
 				(e) => {
-					console.log(e);
 					if ("message" in e) {
 						if (typeof e.message === "string") {
 							throw new FormError(password, e.message);
