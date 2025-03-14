@@ -27,34 +27,7 @@ class Member extends SnowFlake {
 		if (this.localuser.userMap.has(this?.id)) {
 			this.user = this.localuser.userMap.get(this?.id) as User;
 		}
-		for (const key of Object.keys(memberjson)) {
-			if (key === "guild" || key === "owner" || key === "user") {
-				continue;
-			}
-
-			if (key === "roles") {
-				for (const strrole of memberjson.roles) {
-					const role = this.guild.roleids.get(strrole);
-					if (!role) continue;
-					this.roles.push(role);
-				}
-				continue;
-			}
-			if (key === "presence") {
-				this.getPresence(memberjson.presence);
-				continue;
-			}
-			(this as any)[key] = (memberjson as any)[key];
-		}
-
-		const everyone = this.guild.roleids.get(this.guild.id);
-		if (everyone && this.roles.indexOf(everyone) === -1) {
-			this.roles.push(everyone);
-		}
-
-		this.roles.sort((a, b) => {
-			return this.guild.roles.indexOf(a) - this.guild.roles.indexOf(b);
-		});
+		this.update(memberjson);
 	}
 	remove() {
 		this.user.members.delete(this.guild);
@@ -334,6 +307,11 @@ class Member extends SnowFlake {
 				continue;
 			}
 			(this as any)[key] = (memberjson as any)[key];
+		}
+
+		const everyone = this.guild.roleids.get(this.guild.id);
+		if (everyone && this.roles.indexOf(everyone) === -1) {
+			this.roles.push(everyone);
 		}
 
 		this.roles.sort((a, b) => {
