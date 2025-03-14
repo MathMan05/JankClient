@@ -13,6 +13,7 @@ import {
 	invitejson,
 	rolesjson,
 	emojipjson,
+	extendedProperties,
 } from "./jsontypes.js";
 import {User} from "./user.js";
 import {I18n} from "./i18n.js";
@@ -433,6 +434,17 @@ class Guild extends SnowFlake {
 		this.roleUpdate(role, -1);
 	}
 	onEmojiUpdate = (_: emojipjson[]) => {};
+	update(json: extendedProperties) {
+		this.large = json.large;
+		this.member_count = json.member_count;
+		this.emojis = json.emojis;
+		this.headers = this.owner.headers;
+		this.channels = [];
+
+		this.roles = [];
+		this.roleids = new Map();
+		this.banner = json.banner;
+	}
 	constructor(json: guildjson | -1, owner: Localuser, member: memberjson | User | null) {
 		if (json === -1 || member === null) {
 			super("@me");
@@ -442,22 +454,28 @@ class Guild extends SnowFlake {
 			console.log(json.stickers, ":3");
 		}
 		super(json.id);
+		this.owner = owner;
 		this.large = json.large;
 		this.member_count = json.member_count;
 		this.emojis = json.emojis;
-		this.owner = owner;
 		this.headers = this.owner.headers;
 		this.channels = [];
-		this.properties = json.properties;
+		if (json.properties) {
+			this.properties = json.properties;
+		}
 		this.roles = [];
 		this.roleids = new Map();
+		this.banner = json.properties.banner;
+		if (json.roles) {
+			for (const roley of json.roles) {
+				const roleh = new Role(roley, this);
+				this.roles.push(roleh);
+				this.roleids.set(roleh.id, roleh);
+			}
+		}
 
 		this.message_notifications = 0;
-		for (const roley of json.roles) {
-			const roleh = new Role(roley, this);
-			this.roles.push(roleh);
-			this.roleids.set(roleh.id, roleh);
-		}
+
 		this.sortRoles();
 		if (member instanceof User) {
 			console.warn(member);

@@ -153,7 +153,7 @@ class Contextmenu<x, y> {
 	addSeperator(visable?: (obj1: x, obj2: y) => boolean) {
 		this.buttons.push(new Seperator(visable));
 	}
-	private makemenu(x: number, y: number, addinfo: x, other: y) {
+	makemenu(x: number, y: number, addinfo: x, other: y) {
 		const div = document.createElement("div");
 		div.classList.add("contextmenu", "flexttb");
 
