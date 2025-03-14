@@ -89,6 +89,11 @@ export class Specialuser {
 			console.error("There are fundamentally missing pieces of info missing from this user");
 		}
 	}
+	remove() {
+		const info = getBulkInfo();
+		delete info.users[this.uid];
+		localStorage.setItem("userinfos", JSON.stringify(info));
+	}
 	set pfpsrc(e) {
 		this.json.pfpsrc = e;
 		this.updateLocal();

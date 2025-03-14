@@ -316,7 +316,12 @@
 		"advancedBot": "Advanced Bot Settings",
 		"botInviteCreate": "Bot Invite Creator",
 		"language": "Language:",
-		"connections": "Connections"
+		"connections": "Connections",
+		"deleteAccount": "Account Deletion",
+		"areYouSureDelete": "Are you sure you want to delete your account? If so enter the phrase $1",
+		"sillyDeleteConfirmPhrase": "Shrek is love, Shrek is life",
+		"deleteAccountButton": "Delete account",
+		"mustTypePhrase": "To delete your account you must type the phrase"
 	},
 	"message": {
 		"reactionAdd": "Add reaction",
