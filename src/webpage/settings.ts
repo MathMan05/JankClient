@@ -790,7 +790,7 @@ class Options implements OptionsElement<void> {
 		onSubmit: (arg1: object, sent: object) => void,
 		{
 			ltr = false,
-			submitText = "Submit",
+			submitText = I18n.getTranslation("submit"),
 			fetchURL = "",
 			headers = {},
 			method = "POST",

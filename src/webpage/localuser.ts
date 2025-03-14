@@ -1699,6 +1699,37 @@ class Localuser {
 				devPortal.addHTMLArea(appListContainer);
 			});
 		}
+		{
+			const deleteAccount = settings.addButton(I18n.localuser.deleteAccount()).addForm(
+				"",
+				() => {
+					this.userinfo.remove();
+					window.location.href = "/";
+				},
+				{
+					headers: this.headers,
+					method: "POST",
+					fetchURL: this.info.api + "/users/@me/delete/",
+					traditionalSubmit: false,
+					submitText: I18n.localuser.deleteAccountButton(),
+				},
+			);
+			const shrek = deleteAccount.addTextInput(
+				I18n.localuser.areYouSureDelete(I18n.localuser.sillyDeleteConfirmPhrase()),
+				"shrek",
+			);
+			deleteAccount.addTextInput(I18n.localuser["password:"](), "password");
+			deleteAccount.addPreprocessor((obj) => {
+				if ("shrek" in obj) {
+					if (obj.shrek !== I18n.localuser.sillyDeleteConfirmPhrase()) {
+						throw new FormError(shrek, I18n.localuser.mustTypePhrase());
+					}
+					delete obj.shrek;
+				} else {
+					throw new FormError(shrek, I18n.localuser.mustTypePhrase());
+				}
+			});
+		}
 		settings.show();
 	}
 	readonly botTokens: Map<string, string> = new Map();
