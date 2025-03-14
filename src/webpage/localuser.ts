@@ -1702,9 +1702,16 @@ class Localuser {
 		{
 			const deleteAccount = settings.addButton(I18n.localuser.deleteAccount()).addForm(
 				"",
-				() => {
-					this.userinfo.remove();
-					window.location.href = "/";
+				(e) => {
+					console.log(e);
+					if ("message" in e) {
+						if (typeof e.message === "string") {
+							throw new FormError(password, e.message);
+						}
+					} else {
+						this.userinfo.remove();
+						window.location.href = "/";
+					}
 				},
 				{
 					headers: this.headers,
@@ -1718,7 +1725,7 @@ class Localuser {
 				I18n.localuser.areYouSureDelete(I18n.localuser.sillyDeleteConfirmPhrase()),
 				"shrek",
 			);
-			deleteAccount.addTextInput(I18n.localuser["password:"](), "password");
+			const password = deleteAccount.addTextInput(I18n.localuser["password:"](), "password");
 			deleteAccount.addPreprocessor((obj) => {
 				if ("shrek" in obj) {
 					if (obj.shrek !== I18n.localuser.sillyDeleteConfirmPhrase()) {

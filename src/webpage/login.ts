@@ -223,7 +223,7 @@ if (document.getElementById("form")) {
 }
 //this currently does not work, and need to be implemented better at some time.
 if (!localStorage.getItem("SWMode")) {
-	localStorage.setItem("SWMode", "true");
+	localStorage.setItem("SWMode", "SWOn");
 }
 
 trimswitcher();

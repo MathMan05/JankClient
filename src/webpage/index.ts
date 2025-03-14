@@ -110,6 +110,9 @@ import {I18n} from "./i18n.js";
 	try {
 		const current = sessionStorage.getItem("currentuser") || users.currentuser;
 		console.log(users.users, current);
+		if (!users.users[current]) {
+			window.location.href = "/login";
+		}
 		thisUser = new Localuser(users.users[current]);
 		thisUser.initwebsocket().then(() => {
 			thisUser.loaduser();
