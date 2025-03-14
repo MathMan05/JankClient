@@ -725,6 +725,7 @@ span.instanceStatus {
 	background: var(--channels-bg);
 	user-select: none;
 }
+
 .header {
 	flex: none;
 	height: 48px;
@@ -734,8 +735,14 @@ span.instanceStatus {
 	align-items: center;
 	user-select: none;
 }
+.Banner {
+	height: 100px;
+	align-items: start;
+	padding-top: 10px;
+	background-size: cover;
+}
 #serverName {
-	font-size: 1.15rem;
+	font-size: 1rem;
 }
 #channels {
 	flex: 1;

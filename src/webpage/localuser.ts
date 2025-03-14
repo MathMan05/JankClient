@@ -478,6 +478,13 @@ class Localuser {
 					}
 					break;
 				}
+				case "GUILD_UPDATE": {
+					const guildy = this.guildids.get(temp.d.id);
+					if (guildy) {
+						guildy.update(temp.d);
+					}
+					break;
+				}
 				case "GUILD_CREATE":
 					(async () => {
 						const guildy = new Guild(temp.d, this, this.user);
@@ -887,6 +894,34 @@ class Localuser {
 		}
 		this.lookingguild = guild;
 		(document.getElementById("serverName") as HTMLElement).textContent = guild.properties.name;
+		const banner = document.getElementById("servertd");
+		console.log(guild.banner, banner);
+		if (banner) {
+			if (guild.banner) {
+				//https://cdn.discordapp.com/banners/677271830838640680/fab8570de5bb51365ba8f36d7d3627ae.webp?size=240
+				banner.style.setProperty(
+					"background-image",
+					`linear-gradient(rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 40%), url(${this.info.cdn}/banners/${guild.id}/${guild.banner})`,
+				);
+				banner.classList.add("Banner");
+				//background-image:
+			} else {
+				banner.style.removeProperty("background-image");
+				banner.classList.remove("Banner");
+			}
+			if (guild.id !== "@me") {
+				banner.style.setProperty("cursor", `pointer`);
+				banner.onclick = (e) => {
+					e.preventDefault();
+					e.stopImmediatePropagation();
+					const box = banner.getBoundingClientRect();
+					Guild.contextmenu.makemenu(box.left + 16, box.bottom + 5, guild, undefined);
+				};
+			} else {
+				banner.style.removeProperty("cursor");
+				banner.onclick = () => {};
+			}
+		}
 		//console.log(this.guildids,id)
 		const channels = document.getElementById("channels") as HTMLDivElement;
 		channels.innerHTML = "";

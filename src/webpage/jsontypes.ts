@@ -241,6 +241,10 @@ type guildjson = {
 	guild_hashes: {};
 	joined_at: string;
 };
+type extendedProperties = guildjson["properties"] & {
+	emojis: emojipjson[];
+	large: boolean;
+};
 type startTypingjson = {
 	d: {
 		channel_id: string;
@@ -579,6 +583,12 @@ type wsjson =
 				emojis: emojipjson[];
 			};
 			s: number;
+	  }
+	| {
+			op: 0;
+			t: "GUILD_UPDATE";
+			d: extendedProperties;
+			s: number;
 	  };
 
 type memberChunk = {
@@ -749,4 +759,5 @@ export {
 	sdpback,
 	opRTC12,
 	emojipjson,
+	extendedProperties,
 };
