@@ -1725,7 +1725,9 @@ class Localuser {
 				I18n.localuser.areYouSureDelete(I18n.localuser.sillyDeleteConfirmPhrase()),
 				"shrek",
 			);
-			const password = deleteAccount.addTextInput(I18n.localuser["password:"](), "password");
+			const password = deleteAccount.addTextInput(I18n.localuser["password:"](), "password", {
+				password: true,
+			});
 			deleteAccount.addPreprocessor((obj) => {
 				if ("shrek" in obj) {
 					if (obj.shrek !== I18n.localuser.sillyDeleteConfirmPhrase()) {
