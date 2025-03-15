@@ -490,8 +490,10 @@ class Localuser {
 						const guildy = new Guild(temp.d, this, this.user);
 						this.guilds.push(guildy);
 						this.guildids.set(guildy.id, guildy);
+						const divy = guildy.generateGuildIcon();
+						guildy.HTMLicon = divy;
 						(document.getElementById("servers") as HTMLDivElement).insertBefore(
-							guildy.generateGuildIcon(),
+							divy,
 							document.getElementById("bottomseparator"),
 						);
 					})();
@@ -966,6 +968,7 @@ class Localuser {
 				continue;
 			}
 			const divy = thing.generateGuildIcon();
+			thing.HTMLicon = divy;
 			serverlist.append(divy);
 		}
 		{
