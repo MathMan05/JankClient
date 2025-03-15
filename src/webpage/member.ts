@@ -387,7 +387,7 @@ class Member extends SnowFlake {
 	}
 	static async resolveMember(user: User, guild: Guild): Promise<Member | undefined> {
 		const maybe = user.members.get(guild);
-		if (!maybe) {
+		if (!user.members.has(guild)) {
 			const membpromise = guild.localuser.resolvemember(user.id, guild.id);
 			const promise = new Promise<Member | undefined>(async (res) => {
 				const membjson = await membpromise;
