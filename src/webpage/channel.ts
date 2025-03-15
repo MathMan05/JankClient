@@ -22,6 +22,7 @@ import {Member} from "./member.js";
 import {Voice} from "./voice.js";
 import {User} from "./user.js";
 import {I18n} from "./i18n.js";
+import {mobile} from "./utils/utils.js";
 
 declare global {
 	interface NotificationOptions {
@@ -968,7 +969,9 @@ class Channel extends SnowFlake {
 			? "visible"
 			: "hidden";
 		(document.getElementById("typediv") as HTMLElement).style.visibility = "visible";
-		(document.getElementById("typebox") as HTMLDivElement).focus();
+		if (!mobile) {
+			(document.getElementById("typebox") as HTMLDivElement).focus();
+		}
 		await this.putmessages();
 		await prom;
 		if (id !== Channel.genid) {
