@@ -423,7 +423,7 @@ class MarkDown {
 			) {
 				let build = "http";
 				let j = i + 4;
-				const endchars = new Set(["\\", "<", ">", "|", "]", " ", "\n"]);
+				const endchars = new Set("\\<>|[] \n(){}");
 				for (; txt[j] !== undefined; j++) {
 					const char = txt[j];
 					if (endchars.has(char)) {
