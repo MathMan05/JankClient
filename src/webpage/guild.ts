@@ -440,8 +440,14 @@ class Guild extends SnowFlake {
 		this.emojis = json.emojis;
 		this.headers = this.owner.headers;
 		this.channels = [];
-
-		this.roles = [];
+		if (this.properties.icon !== json.icon) {
+			this.properties.icon = json.icon;
+			if (this.HTMLicon) {
+				const divy = this.generateGuildIcon();
+				this.HTMLicon.replaceWith(divy);
+				this.HTMLicon = divy;
+			}
+		}
 		this.roleids = new Map();
 		this.banner = json.banner;
 	}
@@ -666,6 +672,7 @@ class Guild extends SnowFlake {
 			return a.position - b.position;
 		});
 	}
+	HTMLicon?: HTMLElement;
 	static generateGuildIcon(guild: Guild | (invitejson["guild"] & {info: {cdn: string}})) {
 		const divy = document.createElement("div");
 		divy.classList.add("servernoti");
