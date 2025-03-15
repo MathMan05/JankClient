@@ -739,12 +739,16 @@ class MarkDown {
 		} else {
 			//console.time();
 			const html = this.makeHTML({keep: true});
+			const condition =
+				html.childNodes.length == 1 &&
+				html.childNodes[0].childNodes.length === 1 &&
+				html.childNodes[0].childNodes[0];
+			console.log(box.cloneNode(true), html.cloneNode(true));
 			//TODO this may be slow, may want to check in on this in the future if it is
 			if (!box.hasChildNodes() || html.isEqualNode(Array.from(box.childNodes)[0])) {
 				//console.log("no replace needed");
 			} else {
-				const childChild = Array.from(box.childNodes)[0];
-				if (!childChild || html.isEqualNode(Array.from(childChild.childNodes)[0])) {
+				if (!(box.childNodes.length === 1 && box.childNodes[0] instanceof Text && condition)) {
 					box.innerHTML = "";
 					box.append(html);
 				} else {
