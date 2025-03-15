@@ -743,7 +743,7 @@ class MarkDown {
 				html.childNodes.length == 1 &&
 				html.childNodes[0].childNodes.length === 1 &&
 				html.childNodes[0].childNodes[0];
-			console.log(box.cloneNode(true), html.cloneNode(true));
+			//console.log(box.cloneNode(true), html.cloneNode(true));
 			//TODO this may be slow, may want to check in on this in the future if it is
 			if (!box.hasChildNodes() || html.isEqualNode(Array.from(box.childNodes)[0])) {
 				//console.log("no replace needed");
