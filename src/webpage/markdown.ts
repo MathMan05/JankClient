@@ -743,8 +743,13 @@ class MarkDown {
 			if (!box.hasChildNodes() || html.isEqualNode(Array.from(box.childNodes)[0])) {
 				//console.log("no replace needed");
 			} else {
-				box.innerHTML = "";
-				box.append(html);
+				const childChild = Array.from(box.childNodes)[0];
+				if (!childChild || html.isEqualNode(Array.from(childChild.childNodes)[0])) {
+					box.innerHTML = "";
+					box.append(html);
+				} else {
+					//console.log("empty replace not happened");
+				}
 			}
 			//console.timeEnd();
 		}
