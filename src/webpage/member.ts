@@ -407,6 +407,7 @@ class Member extends SnowFlake {
 			if (member) {
 				guild.members.add(member);
 			}
+			user.members.set(guild, member);
 			return member;
 		}
 		if (maybe instanceof Promise) {
