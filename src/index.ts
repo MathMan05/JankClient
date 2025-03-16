@@ -118,7 +118,7 @@ async function updateInstances(): Promise<void> {
 				const existingInstance = instanceNames.get(instance.name);
 				if (existingInstance) {
 					for (const key of Object.keys(instance)) {
-						if (!existingInstance[key]) {
+						if (!(key in existingInstance)) {
 							existingInstance[key] = instance[key];
 						}
 					}
