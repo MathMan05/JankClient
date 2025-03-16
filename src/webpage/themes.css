@@ -10,25 +10,20 @@
 /* Themes. See themes.txt */
 .Dark-theme {
 	color-scheme: dark;
-
 	--primary-bg: #303339;
 	--primary-hover: #272b31;
 	--primary-text: #dfdfdf;
 	--primary-text-soft: #adb8b9;
-
 	--secondary-bg: #16191b;
 	--secondary-hover: #252b2c;
-
-	--servers-bg: #141718;
-	--channels-bg: #25282b;
+	--servers-bg: #191c1d;
+	--channels-bg: #2a2d33;
 	--channel-selected: #3c4046;
 	--typebox-bg: #3a3e45;
-
 	--button-bg: #4e5457;
 	--button-hover: #6b7174;
 	--spoiler-bg: #000000;
 	--link: #5ca9ed;
-
 	--primary-text-prominent: #efefef;
 	--dock-bg: #1b1e20;
 	--card-bg: #000000;

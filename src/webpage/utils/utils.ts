@@ -501,6 +501,7 @@ export async function getapiurls(str: string): Promise<
 					const temp = new URL(str);
 					temp.port = "";
 					const newOrgin = temp.host;
+					const protical = temp.protocol;
 					const tempurls = {
 						api: new URL(urls.api),
 						cdn: new URL(urls.cdn),
@@ -509,10 +510,20 @@ export async function getapiurls(str: string): Promise<
 						login: new URL(urls.login),
 					};
 					tempurls.api.host = newOrgin;
+					tempurls.api.protocol = protical;
+
 					tempurls.cdn.host = newOrgin;
+					tempurls.api.protocol = protical;
+
 					tempurls.gateway.host = newOrgin;
+					tempurls.gateway.protocol = newOrgin === "http:" ? "ws:" : "wss:";
+
 					tempurls.wellknown.host = newOrgin;
+					tempurls.wellknown.protocol = protical;
+
 					tempurls.login.host = newOrgin;
+					tempurls.login.protocol = protical;
+
 					try {
 						if (!(await fetch(tempurls.api + "/ping")).ok) {
 							res(false);
