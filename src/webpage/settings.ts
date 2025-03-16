@@ -8,7 +8,7 @@ interface OptionsElement<x> {
 	value: x;
 }
 //future me stuff
-class Buttons implements OptionsElement<unknown> {
+export class Buttons implements OptionsElement<unknown> {
 	readonly name: string;
 	readonly buttons: [string, Options | string][];
 	buttonList!: HTMLDivElement;
@@ -135,6 +135,36 @@ class TextInput implements OptionsElement<string> {
 	submit() {
 		this.onSubmit(this.value);
 	}
+}
+const mdProm = import("./markdown.js");
+class SettingsMDText implements OptionsElement<void> {
+	readonly onSubmit!: (str: string) => void;
+	value!: void;
+	text: string;
+	elm!: WeakRef<HTMLSpanElement>;
+	constructor(text: string) {
+		this.text = text;
+	}
+	generateHTML(): HTMLSpanElement {
+		const span = document.createElement("span");
+		this.elm = new WeakRef(span);
+		this.setText(this.text);
+		return span;
+	}
+	setText(text: string) {
+		this.text = text;
+		if (this.elm) {
+			const span = this.elm.deref();
+			if (span) {
+				span.innerHTML = "";
+				mdProm.then((e) => {
+					span.append(new e.MarkDown(text, undefined).makeHTML());
+				});
+			}
+		}
+	}
+	watchForChange() {}
+	submit() {}
 }
 
 class SettingsText implements OptionsElement<void> {
@@ -773,6 +803,12 @@ class Options implements OptionsElement<void> {
 		this.generate(text);
 		return text;
 	}
+	addMDText(str: string) {
+		const text = new SettingsMDText(str);
+		this.options.push(text);
+		this.generate(text);
+		return text;
+	}
 	addHR() {
 		const rule = new HorrizonalRule();
 		this.options.push(rule);
@@ -1406,4 +1442,4 @@ class Settings extends Buttons {
 	}
 }
 
-export {Settings, OptionsElement, Buttons, Options, Form, Float};
+export {Settings, OptionsElement, Options, Form, Float};

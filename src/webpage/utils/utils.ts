@@ -1,4 +1,5 @@
 import {I18n} from "../i18n.js";
+import {Dialog} from "../settings.js";
 setTheme();
 export function setTheme() {
 	let name = localStorage.getItem("theme");
@@ -304,7 +305,11 @@ const instancefetch = fetch("/instances.json")
 			if (datalist) {
 				console.warn(json);
 				const instancein = document.getElementById("instancein") as HTMLInputElement;
-				if (instancein && instancein.value === "") {
+				if (
+					instancein &&
+					instancein.value === "" &&
+					!new URLSearchParams(window.location.search).get("instance")
+				) {
 					instancein.value = json[0].name;
 				}
 				for (const instance of json) {
@@ -423,12 +428,24 @@ export async function getapiurls(str: string): Promise<
 		return false;
 	}
 	const url = new URL(api);
+	function isloopback(str: string) {
+		return str.includes("localhost") || str.includes("127.0.0.1");
+	}
+	let urls:
+		| undefined
+		| {
+				api: string;
+				cdn: string;
+				gateway: string;
+				wellknown: string;
+				login: string;
+		  };
 	try {
 		const info = await fetch(
 			`${api}${url.pathname.includes("api") ? "" : "api"}/policies/instance/domains`,
 		).then((x) => x.json());
 		const apiurl = new URL(info.apiEndpoint);
-		return {
+		urls = {
 			api: info.apiEndpoint + appendApi(apiurl.pathname),
 			gateway: info.gateway,
 			cdn: info.cdn,
@@ -441,7 +458,7 @@ export async function getapiurls(str: string): Promise<
 			const responce = await fetch(val.api + (val.api.endsWith("/") ? "" : "/") + "ping");
 			if (responce.ok) {
 				if (val.login) {
-					return val as {
+					urls = val as {
 						wellknown: string;
 						api: string;
 						cdn: string;
@@ -450,7 +467,7 @@ export async function getapiurls(str: string): Promise<
 					};
 				} else {
 					val.login = val.api;
-					return val as {
+					urls = val as {
 						wellknown: string;
 						api: string;
 						cdn: string;
@@ -460,8 +477,100 @@ export async function getapiurls(str: string): Promise<
 				}
 			}
 		}
-		return false;
 	}
+	if (urls) {
+		if (isloopback(urls.api) !== isloopback(str)) {
+			return new Promise<
+				| {
+						api: string;
+						cdn: string;
+						gateway: string;
+						wellknown: string;
+						login: string;
+				  }
+				| false
+			>((res) => {
+				const menu = new Dialog("");
+				const options = menu.float.options;
+				options.addMDText(I18n.incorrectURLS());
+				const opt = options.addOptions("", {ltr: true});
+				let clicked = false;
+				opt.addButtonInput("", I18n.yes(), async () => {
+					if (clicked) return;
+					clicked = true;
+					const temp = new URL(str);
+					temp.port = "";
+					const newOrgin = temp.host;
+					const tempurls = {
+						api: new URL(urls.api),
+						cdn: new URL(urls.cdn),
+						gateway: new URL(urls.gateway),
+						wellknown: new URL(urls.wellknown),
+						login: new URL(urls.login),
+					};
+					tempurls.api.host = newOrgin;
+					tempurls.cdn.host = newOrgin;
+					tempurls.gateway.host = newOrgin;
+					tempurls.wellknown.host = newOrgin;
+					tempurls.login.host = newOrgin;
+					try {
+						if (!(await fetch(tempurls.api + "/ping")).ok) {
+							res(false);
+							menu.hide();
+							return;
+						}
+					} catch {
+						res(false);
+						menu.hide();
+						return;
+					}
+					res({
+						api: tempurls.api.toString(),
+						cdn: tempurls.cdn.toString(),
+						gateway: tempurls.gateway.toString(),
+						wellknown: tempurls.wellknown.toString(),
+						login: tempurls.login.toString(),
+					});
+					menu.hide();
+				});
+				const no = opt.addButtonInput("", I18n.no(), async () => {
+					if (clicked) return;
+					clicked = true;
+					try {
+						if (!(await fetch(urls.api + "/ping")).ok) {
+							res(false);
+							menu.hide();
+							return;
+						}
+					} catch {
+						res(false);
+						return;
+					}
+					res(urls);
+					menu.hide();
+				});
+				const span = document.createElement("span");
+				options.addHTMLArea(span);
+				const t = setInterval(() => {
+					if (!document.contains(span)) {
+						clearInterval(t);
+						no.onClick();
+					}
+				}, 100);
+				menu.show();
+			});
+		}
+		//*/
+		try {
+			if (!(await fetch(urls.api + "/ping")).ok) {
+				return false;
+			}
+		} catch {
+			return false;
+		}
+		return urls;
+	}
+	return false;
 }
 /**
  *
