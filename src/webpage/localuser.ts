@@ -29,6 +29,7 @@ import {Emoji} from "./emoji.js";
 import {Play} from "./audio/play.js";
 import {Message} from "./message.js";
 import {badgeArr} from "./Dbadges.js";
+import {Rights} from "./rights.js";
 
 const wsCodesRetry = new Set([4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009]);
 
@@ -79,11 +80,13 @@ class Localuser {
 			this.play = _;
 		});
 		if (userinfo === -1) {
+			this.rights = new Rights("");
 			return;
 		}
 		this.token = userinfo.token;
 		this.userinfo = userinfo;
 		this.perminfo.guilds ??= {};
+		this.perminfo.user ??= {};
 		this.serverurls = this.userinfo.serverurls;
 		this.initialized = false;
 		this.info = this.serverurls;
@@ -91,6 +94,8 @@ class Localuser {
 			"Content-type": "application/json; charset=UTF-8",
 			Authorization: this.userinfo.token,
 		};
+		const rights = this.perminfo.user.rights || "875069521787904";
+		this.rights = new Rights(rights);
 	}
 	async gottenReady(ready: readyjson): Promise<void> {
 		await I18n.done;
@@ -406,6 +411,11 @@ class Localuser {
 		await promise;
 	}
 	relationshipsUpdate = () => {};
+	rights: Rights;
+	updateRights(rights: string | number) {
+		this.rights.update(rights);
+		this.perminfo.user.rights = rights;
+	}
 	async handleEvent(temp: wsjson) {
 		console.debug(temp);
 		if (temp.s) this.lastSequence = temp.s;
@@ -1775,6 +1785,135 @@ class Localuser {
 					throw new FormError(shrek, I18n.localuser.mustTypePhrase());
 				}
 			});
+		}
+		if (
+			this.rights.hasPermission("OPERATOR") ||
+			this.rights.hasPermission("CREATE_REGISTRATION_TOKENS")
+		) {
+			const manageInstance = settings.addButton(I18n.localuser.manageInstance());
+			if (this.rights.hasPermission("OPERATOR")) {
+				manageInstance.addButtonInput("", I18n.manageInstance.stop(), () => {
+					const menu = new Dialog("");
+					const options = menu.float.options;
+					options.addTitle(I18n.manageInstance.AreYouSureStop());
+					const yesno = options.addOptions("", {ltr: true});
+					yesno.addButtonInput("", I18n.yes(), () => {
+						fetch(this.info.api + "/stop", {headers: this.headers, method: "POST"});
+						menu.hide();
+					});
+					yesno.addButtonInput("", I18n.no(), () => {
+						menu.hide();
+					});
+					menu.show();
+				});
+			}
+			if (this.rights.hasPermission("CREATE_REGISTRATION_TOKENS")) {
+				manageInstance.addButtonInput("", I18n.manageInstance.createTokens(), () => {
+					const tokens = manageInstance.addSubOptions(I18n.manageInstance.createTokens(), {
+						noSubmit: true,
+					});
+					const count = tokens.addTextInput(I18n.manageInstance.count(), () => {}, {
+						initText: "1",
+					});
+					const length = tokens.addTextInput(I18n.manageInstance.length(), () => {}, {
+						initText: "32",
+					});
+					const format = tokens.addSelect(
+						I18n.manageInstance.format(),
+						() => {},
+						[
+							I18n.manageInstance.TokenFormats.JSON(),
+							I18n.manageInstance.TokenFormats.plain(),
+							I18n.manageInstance.TokenFormats.URLs(),
+						],
+						{
+							defaultIndex: 2,
+						},
+					);
+					format.watchForChange((e) => {
+						if (e !== 2) {
+							urlOption.removeAll();
+						} else {
+							makeURLMenu();
+						}
+					});
+					const urlOption = tokens.addOptions("");
+					const urlOptionsJSON = {
+						url: window.location.origin,
+						type: "Jank",
+					};
+					function makeURLMenu() {
+						urlOption
+							.addTextInput(I18n.manageInstance.clientURL(), () => {}, {
+								initText: urlOptionsJSON.url,
+							})
+							.watchForChange((str) => {
+								urlOptionsJSON.url = str;
+							});
+						urlOption
+							.addSelect(
+								I18n.manageInstance.regType(),
+								() => {},
+								["Jank", I18n.manageInstance.genericType()],
+								{
+									defaultIndex: ["Jank", "generic"].indexOf(urlOptionsJSON.type),
+								},
+							)
+							.watchForChange((i) => {
+								urlOptionsJSON.type = ["Jank", "generic"][i];
+							});
+					}
+					makeURLMenu();
+					tokens.addButtonInput("", I18n.manageInstance.create(), async () => {
+						const params = new URLSearchParams();
+						params.set("count", count.value);
+						params.set("length", length.value);
+						const json = (await (
+							await fetch(
+								this.info.api + "/auth/generate-registration-tokens?" + params.toString(),
+								{
+									headers: this.headers,
+								},
+							)
+						).json()) as {tokens: string[]};
+						if (format.index === 0) {
+							pre.textContent = JSON.stringify(json.tokens);
+						} else if (format.index === 1) {
+							pre.textContent = json.tokens.join("\n");
+						} else if (format.index === 2) {
+							if (urlOptionsJSON.type === "Jank") {
+								const options = new URLSearchParams();
+								options.set("instance", this.info.wellknown);
+								pre.textContent = json.tokens
+									.map((token) => {
+										options.set("token", token);
+										return `${urlOptionsJSON.url}/register?` + options.toString();
+									})
+									.join("\n");
+							} else {
+								const options = new URLSearchParams();
+								pre.textContent = json.tokens
+									.map((token) => {
+										options.set("token", token);
+										return `${urlOptionsJSON.url}/register?` + options.toString();
+									})
+									.join("\n");
+							}
+						}
+					});
+					tokens.addButtonInput("", I18n.manageInstance.copy(), async () => {
+						try {
+							if (pre.textContent) {
+								await navigator.clipboard.writeText(pre.textContent);
+							}
+						} catch (err) {
+							console.error(err);
+						}
+					});
+					const pre = document.createElement("pre");
+					tokens.addHTMLArea(pre);
+				});
+			}
 		}
 		settings.show();
 	}

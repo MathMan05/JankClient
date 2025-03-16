@@ -4,6 +4,11 @@ import {Guild} from "./guild.js";
 import {SnowFlake} from "./snowflake.js";
 import {rolesjson} from "./jsontypes.js";
 import {Search} from "./search.js";
+import {OptionsElement, Buttons} from "./settings.js";
+import {Contextmenu} from "./contextmenu.js";
+import {Channel} from "./channel.js";
+import {I18n} from "./i18n.js";
+
 class Role extends SnowFlake {
 	permissions: Permissions;
 	owner: Guild;
@@ -135,10 +140,7 @@ class PermissionToggle implements OptionsElement<number> {
 	}
 	submit() {}
 }
-import {OptionsElement, Buttons} from "./settings.js";
-import {Contextmenu} from "./contextmenu.js";
-import {Channel} from "./channel.js";
-import {I18n} from "./i18n.js";
+
 class RoleList extends Buttons {
 	permissions: [Role, Permissions][];
 	permission: Permissions;

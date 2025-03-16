@@ -10,6 +10,7 @@ import {Search} from "./search.js";
 import {I18n} from "./i18n.js";
 import {Direct} from "./direct.js";
 import {Hover} from "./hover.js";
+import {Dialog} from "./settings.js";
 
 class User extends SnowFlake {
 	owner: Localuser;
@@ -69,6 +70,10 @@ class User extends SnowFlake {
 			"totp_secret",
 			"webauthn_enabled",
 		]);
+		if (!this.localuser.rights.getPermission("OPERATOR")) {
+			//Unless the user is an operator, we really shouldn't ever see this
+			bad.add("rights");
+		}
 		for (const thing of bad) {
 			if (json.hasOwnProperty(thing)) {
 				console.error(thing + " should not be exposed to the client");
@@ -346,6 +351,36 @@ class User extends SnowFlake {
 				navigator.clipboard.writeText(this.id);
 			},
 		);
+
+		this.contextmenu.addSeperator();
+
+		this.contextmenu.addButton(
+			() => I18n.user.instanceBan(),
+			function (this: User) {
+				const menu = new Dialog("");
+				const options = menu.float.options;
+				options.addTitle(I18n.user.confirmInstBan(this.name));
+				const opt = options.addOptions("", {ltr: true});
+				opt.addButtonInput("", I18n.yes(), () => {
+					fetch(this.info.api + "/users/" + this.id, {
+						headers: this.localuser.headers,
+						method: "POST",
+					});
+					menu.hide();
+				});
+				opt.addButtonInput("", I18n.no(), () => {
+					menu.hide();
+				});
+				menu.show();
+			},
+			{
+				visable: function () {
+					return this.localuser.rights.hasPermission("MANAGE_USERS");
+				},
+				color: "red",
+			},
+		);
+		console.warn("this ran");
 	}
 
 	static checkuser(user: User | userjson, owner: Localuser): User {
@@ -460,6 +495,14 @@ class User extends SnowFlake {
 				continue;
 			}
 			(this as any)[key] = (json as any)[key];
+		}
+		if ("rights" in this) {
+			if (
+				this === this.localuser.user &&
+				(typeof this.rights == "string" || typeof this.rights == "number")
+			) {
+				this.localuser.updateRights(this.rights);
+			}
 		}
 	}
 
