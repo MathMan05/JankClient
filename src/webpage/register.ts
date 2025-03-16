@@ -42,9 +42,13 @@ async function registertry(e: Event) {
 
 	const instanceInfo = JSON.parse(localStorage.getItem("instanceinfo") ?? "{}");
 	const apiurl = new URL(instanceInfo.api);
-
+	let add = "";
+	const token = new URLSearchParams(window.location.search).get("token");
+	if (token) {
+		add = "?" + new URLSearchParams([["token", token]]).toString();
+	}
 	try {
-		const response = await fetch(apiurl + "/auth/register", {
+		const response = await fetch(apiurl + "/auth/register" + add, {
 			body: JSON.stringify({
 				date_of_birth: dateofbirth,
 				email,

@@ -88,7 +88,10 @@ if (instancein) {
 		}
 		timeout = setTimeout(() => checkInstance((instancein as HTMLInputElement).value), 1000);
 	});
-	if (localStorage.getItem("instanceinfo")) {
+	if (
+		localStorage.getItem("instanceinfo") &&
+		!new URLSearchParams(window.location.search).get("instance")
+	) {
 		const json = JSON.parse(localStorage.getItem("instanceinfo")!);
 		if (json.value) {
 			(instancein as HTMLInputElement).value = json.value;
