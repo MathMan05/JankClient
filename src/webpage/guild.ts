@@ -205,9 +205,11 @@ class Guild extends SnowFlake {
 				bits += (1 - e.s4) * 8;
 				delete e.s4;
 				e.system_channel_flags = bits;
-				const temp = this.properties.features;
+				let temp = this.properties.features;
+				console.log([...temp]);
 				//@ts-ignore
-				temp.filter((_) => !options.includes(_));
+				temp = temp.filter((_) => !options.includes(_));
+				console.log(temp, options);
 				temp.push(e.features);
 				e.features = temp;
 			});
@@ -460,6 +462,7 @@ class Guild extends SnowFlake {
 		this.member_count = json.member_count;
 		this.emojis = json.emojis;
 		this.headers = this.owner.headers;
+		this.properties.features = json.features;
 		if (this.properties.icon !== json.icon) {
 			this.properties.icon = json.icon;
 			if (this.HTMLicon) {
