@@ -6,7 +6,7 @@
       "sizes": "512x512"
     }
   ],
-  "start_url": "https://chat.nomchy-verse.com/",
+  "start_url": "/channels/@me",
   "display": "standalone",
   "scope": "/",
   "theme_color": "#05050a",
