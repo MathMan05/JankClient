@@ -81,11 +81,18 @@ h2:empty {
 	font-size: 1.5rem;
 	font-weight: bold;
 }
+.cunread {
+	.ellipsis {
+		font-weight: bold;
+		color: var(--primary-text);
+	}
+}
 .ellipsis {
 	display: -webkit-box;
 	word-break: break-all;
 	overflow: hidden;
 	-webkit-box-orient: vertical;
+	line-clamp: 1;
 	-webkit-line-clamp: 1;
 }
 a,
@@ -635,7 +642,7 @@ span.instanceStatus {
 #sentdms .pfp {
 	height: 48px;
 	width: 48px;
-	margin-bottom: 6px;
+	margin-bottom: 8px;
 	border-radius: 50%;
 	overflow: hidden;
 	display: flex;
@@ -761,6 +768,7 @@ span.instanceStatus {
 	margin: 0 6px;
 	display: flex;
 	flex-direction: column;
+	margin-bottom: 2px;
 }
 .channelbutton {
 	height: 2em;
@@ -791,10 +799,10 @@ span.instanceStatus {
 .cunread:after {
 	content: "";
 	position: absolute;
-	top: calc(50% - 4px);
+	top: calc(50% - 8px);
 	left: -10px;
-	height: 8px;
-	width: 8px;
+	height: 16px;
+	width: 7px;
 	background: var(--primary-text);
 	border-radius: 50%;
 }
@@ -859,6 +867,13 @@ span.instanceStatus {
 	gap: 8px;
 	cursor: pointer;
 	flex-shrink: 0;
+	margin-bottom: 4px;
+}
+.memberListStyle {
+	span {
+		font-size: 0.9rem;
+		margin-left: 4px;
+	}
 }
 .liststyle .statusDiv {
 	right: -1px;
@@ -1522,7 +1537,7 @@ img.bigembedimg {
 }
 .memberList h3 {
 	margin: 0 8px 4px 8px;
-	font-size: 1rem;
+	font-size: 0.9rem;
 }
 .memberList .liststyle:hover {
 	background: var(--sidebar-hover);
