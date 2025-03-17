@@ -99,6 +99,10 @@ const instances = JSON.parse(
 	readFileSync(process.env.JANK_INSTANCES_PATH || __dirname + "/webpage/instances.json").toString(),
 ) as instace[];
 
+const manifest = JSON.parse(
+	readFileSync(process.env.JANK_INSTANCES_PATH || __dirname + "/webpage/manifest.json").toString(),
+) as object;
+
 const instanceNames = new Map<string, Instance>();
 
 for (const instance of instances) {
@@ -118,7 +122,7 @@ async function updateInstances(): Promise<void> {
 				const existingInstance = instanceNames.get(instance.name);
 				if (existingInstance) {
 					for (const key of Object.keys(instance)) {
-						if (!existingInstance[key]) {
+						if (!(key in existingInstance)) {
 							existingInstance[key] = instance[key];
 						}
 					}
@@ -183,6 +187,11 @@ app.use("/", async (req: Request, res: Response) => {
 		return;
 	}
 
+	if (req.path.startsWith("/manifest.json")) {
+		res.json(manifest);
+		return;
+	}
+
 	if (req.path.startsWith("/invite/")) {
 		res.sendFile(path.join(__dirname, "webpage", "invite.html"));
 		return;
@@ -193,7 +202,7 @@ app.use("/", async (req: Request, res: Response) => {
 
 app.set("trust proxy", (ip: string) => ip.startsWith("127."));
 
-const PORT = process.env.PORT || Number(process.argv[2]) || 8080;
+const PORT = process.env.PORT || Number(process.argv[2]) || 8333;
 app.listen(PORT, () => {
 	console.log(`Server running on port ${PORT}`);
 });

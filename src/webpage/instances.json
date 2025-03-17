@@ -1,5 +1,19 @@
 [
     {
+        "name": "NomBar",
+        "description": "The Tastiest Chat around, get your fill today",
+        "image": "https://munchy.impassivedev.com/images/icon.png",
+        "url": "https://spacebar.nomchy-verse.com",
+        "language": "en",
+        "country": "US",
+        "display": true,
+        "contactInfo": {
+            "dicord": "munchy420",
+            "github": "https://tea.nomchy-verse.com/munchy",
+            "email": "thedudedies22@gmail.com"
+        }
+    },
+    {
         "name": "Spacebar",
         "description": "The official Spacebar instance.",
         "image": "https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/branding/png/Spacebar__Icon-Discord.png",
@@ -30,5 +44,9 @@
             "github": "https://github.com/greysilly7",
             "email": "greysilly7@gmail.com"
         }
+    },
+    {
+        "name": "Vanilla Minigames",
+        "display": false
     }
 ]
