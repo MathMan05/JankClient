@@ -237,7 +237,11 @@
 		"stickWelcomeReact?": "Prompt members of your guild to react with a sticker when someone joins!",
 		"boostMessage?": "Send a message when someone boosts your guild!",
 		"helpTips?": "Send helpful tips for your guild!",
-		"defaultNoti": "Set the default notification settings of your guild!"
+		"defaultNoti": "Set the default notification settings of your guild!",
+		"howJoin": "How can people join your guild?",
+		"COMMUNITY": "Apply to join",
+		"INVITES_DISABLED": "Invite only",
+		"DISCOVERABLE": "Discovery"
 	},
 	"role": {
 		"displaySettings": "Display settings",
