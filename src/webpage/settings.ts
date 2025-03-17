@@ -1431,6 +1431,12 @@ class Settings extends Buttons {
 		exit.onclick = (_) => {
 			this.hide();
 		};
+		onkeyup = (event) => {
+			if (event.key === "Escape") {
+				// Cancel the default action, if needed
+				this.hide()
+			  }
+		}
 		document.body.append(background);
 		this.html = background;
 	}
