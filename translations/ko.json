@@ -181,7 +181,23 @@
 		"tokenDisplay": "토큰: $1",
 		"advancedBot": "고급 봇 설정",
 		"language": "언어:",
-		"connections": "연결"
+		"connections": "연결",
+		"deleteAccount": "계정 삭제",
+		"deleteAccountButton": "계정 삭제",
+		"manageInstance": "인스턴스 관리"
+	},
+	"manageInstance": {
+		"stop": "인스턴스 중지",
+		"AreYouSureStop": "이 인스턴스를 중지하시겠습니까?",
+		"length": "길이:",
+		"format": "포맷:",
+		"TokenFormats": {
+			"URLs": "초대 URL"
+		},
+		"create": "만들기",
+		"clientURL": "클라이언트 URL:",
+		"regType": "토큰 URL 유형 등록",
+		"copy": "복사"
 	},
 	"message": {
 		"reactionAdd": "반응 추가",

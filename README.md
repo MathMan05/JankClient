@@ -15,7 +15,7 @@ Please see [this](https://github.com/MathMan05/JankClient/blob/main/InstanceInfo
 ## RoadMap
 You can view the current roadmap on https://github.com/users/MathMan05/projects/1.
 ## AI Code
-AI code due to not being GPLv3 compatable is not allowed in this repo. I thought this didn't need to be said, but it doesn't.
+AI code due to not being GPLv3 compatable is not allowed in this repo. I thought this didn't need to be said, but it does.
 ## Link
 The official SpaceBar server for Jank Client https://jankclient.greysilly7.xyz/invite/USgYJo?instance=https%3A%2F%2Fspacebar.chat
 
