@@ -165,6 +165,22 @@ class Guild extends SnowFlake {
 				{defaultIndex: sysmap.indexOf(this.properties.system_channel_id)},
 				sysmap,
 			);
+			console.log(textChannels, this.channels);
+			const options: ["DISCOVERABLE", "COMMUNITY", "INVITES_DISABLED"] = [
+				"DISCOVERABLE",
+				"COMMUNITY",
+				"INVITES_DISABLED",
+			];
+			const defaultIndex = options.findIndex((_) => this.properties.features.includes(_));
+			form.addSelect(
+				I18n.guild.howJoin(),
+				"features",
+				options.map((_) => I18n.guild[_]()),
+				{
+					defaultIndex: defaultIndex == -1 ? 1 : defaultIndex,
+				},
+				options,
+			);
 
 			form.addCheckboxInput(I18n.getTranslation("guild.sendrandomwelcome?"), "s1", {
 				initState: !(this.properties.system_channel_flags & 1),
@@ -189,6 +205,11 @@ class Guild extends SnowFlake {
 				bits += (1 - e.s4) * 8;
 				delete e.s4;
 				e.system_channel_flags = bits;
+				const temp = this.properties.features;
+				//@ts-ignore
+				temp.filter((_) => !options.includes(_));
+				temp.push(e.features);
+				e.features = temp;
 			});
 
 			form.addHR();
@@ -439,7 +460,6 @@ class Guild extends SnowFlake {
 		this.member_count = json.member_count;
 		this.emojis = json.emojis;
 		this.headers = this.owner.headers;
-		this.channels = [];
 		if (this.properties.icon !== json.icon) {
 			this.properties.icon = json.icon;
 			if (this.HTMLicon) {
