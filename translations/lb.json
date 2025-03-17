@@ -124,7 +124,13 @@
 		"botUsername": "Botbenotzernumm:",
 		"advancedBot": "Erweidert Bot-Astellungen",
 		"language": "Sprooch:",
-		"connections": "Verbindungen"
+		"connections": "Verbindungen",
+		"deleteAccountButton": "Kont läschen"
+	},
+	"manageInstance": {
+		"length": "Längt:",
+		"genericType": "Geneeresch",
+		"copy": "Kopéieren"
 	},
 	"message": {
 		"reactionAdd": "Reaktioun derbäisetzen",

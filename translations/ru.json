@@ -324,7 +324,12 @@
 		"advancedBot": "Расширенные настройки бота",
 		"botInviteCreate": "Создатель приглашения бота",
 		"language": "Язык:",
-		"connections": "Подключения"
+		"connections": "Подключения",
+		"deleteAccount": "Удаление учётной записи",
+		"areYouSureDelete": "Вы уверены, что хотите удалить свою учётную запись? Если да, введите фразу $1",
+		"sillyDeleteConfirmPhrase": "Шрек - это любовь, Шрек - это жизнь",
+		"deleteAccountButton": "Удалить учётную запись",
+		"mustTypePhrase": "Чтобы удалить свою учётную запись, вам необходимо ввести фразу"
 	},
 	"message": {
 		"reactionAdd": "Добавить реакцию",
