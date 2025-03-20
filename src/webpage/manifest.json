@@ -8,6 +8,9 @@
   ],
   "start_url": "/channels/@me",
   "display": "standalone",
+  "scope": "/",
   "theme_color": "#05050a",
+  "description": "Welcome to the Jank Client, a spacebar FOSS client implementation",
+  "background_color": "#05050a",
   "offline_enabled": true
 }

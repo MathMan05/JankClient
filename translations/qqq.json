@@ -3,7 +3,11 @@
 		"last-updated": "2024/11/4",
 		"locale": "en",
 		"comment": "Don't know how often I'll update this top part lol",
-		"authors": ["MathMan05", "McDutchie", "Vl1"]
+		"authors": [
+			"MathMan05",
+			"McDutchie",
+			"Vl1"
+		]
 	},
 	"readableName": "{{doc-important|This should be the name of the language you are translating into, in that language. Please DO NOT translate this into your language’s word for “English”!}}",
 	"typing": "$1 is the number of people typing and $2 is the names of the people typing separated by commas",
