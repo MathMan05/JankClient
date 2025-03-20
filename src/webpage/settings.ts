@@ -1431,13 +1431,18 @@ class Settings extends Buttons {
 		exit.onclick = (_) => {
 			this.hide();
 		};
-		onkeyup = (event) => {
+		background.addEventListener("keyup", (event) => {
 			if (event.key === "Escape") {
+				event.preventDefault();
+				event.stopImmediatePropagation();
 				// Cancel the default action, if needed
-				this.hide()
-			  }
-		}
+				this.hide();
+			}
+		});
 		document.body.append(background);
+		background.setAttribute("tabindex", "0");
+		background.focus();
+
 		this.html = background;
 	}
 	hide() {
