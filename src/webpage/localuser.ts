@@ -756,13 +756,13 @@ class Localuser {
 		for (const [role, list] of elms) {
 			members.forEach((member) => {
 				if (role === "offline") {
-					if (member.user.status === "offline") {
+					if (member.user.getStatus() === "offline") {
 						list.push(member);
 						members.delete(member);
 					}
 					return;
 				}
-				if (member.user.status === "offline") {
+				if (member.user.getStatus() === "offline") {
 					return;
 				}
 				if (role !== "online" && member.hasRole(role.id)) {
