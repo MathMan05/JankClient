@@ -59,6 +59,7 @@ async function registertry(e: Event) {
 			}),
 			headers: {
 				"content-type": "application/json",
+				Referrer: window.location.href,
 			},
 			method: "POST",
 		});
