@@ -16,6 +16,7 @@ import {
 	messagejson,
 	readyjson,
 	startTypingjson,
+	webhookType,
 } from "./jsontypes.js";
 import {MarkDown} from "./markdown.js";
 import {Member} from "./member.js";
@@ -222,7 +223,7 @@ class Channel extends SnowFlake {
 		this.sortPerms();
 		const settings = new Settings(I18n.getTranslation("channel.settingsFor", this.name));
 		{
-			const gensettings = settings.addButton("Settings");
+			const gensettings = settings.addButton(I18n.channel.settings());
 			const form = gensettings.addForm("", () => {}, {
 				fetchURL: this.info.api + "/channels/" + this.id,
 				method: "PATCH",
@@ -256,7 +257,7 @@ class Channel extends SnowFlake {
 				});
 			}
 		}
-		const s1 = settings.addButton("Permissions");
+		const s1 = settings.addButton(I18n.channel.permissions());
 		s1.options.push(
 			new RoleList(
 				this.permission_overwritesar,
@@ -265,6 +266,131 @@ class Channel extends SnowFlake {
 				this,
 			),
 		);
+
+		const webhooks = settings.addButton(I18n.webhooks.base());
+		(async () => {
+			const hooks = (await (
+				await fetch(this.info.api + `/channels/${this.id}/webhooks`, {headers: this.headers})
+			).json()) as webhookType[];
+			webhooks.addButtonInput("", I18n.webhooks.newWebHook(), () => {
+				const nameBox = new Dialog(I18n.webhooks.EnterWebhookName());
+				const options = nameBox.float.options;
+				options.addTextInput(I18n.webhooks.name(), async (name) => {
+					const json = await (
+						await fetch(`${this.info.api}/channels/${this.id}/webhooks/`, {
+							method: "POST",
+							headers: this.headers,
+							body: JSON.stringify({name}),
+						})
+					).json();
+					makeHook(json);
+				});
+				options.addButtonInput("", I18n.submit(), () => {
+					options.submit();
+					nameBox.hide();
+				});
+				nameBox.show();
+			});
+
+			const makeHook = (hook: webhookType) => {
+				const div = document.createElement("div");
+				div.classList.add("flexltr", "webhookArea");
+				const pfp = document.createElement("img");
+				if (hook.avatar) {
+					pfp.src = `${this.info.cdn}/avatars/${hook.id}/${hook.avatar}`;
+				} else {
+					const int = Number((BigInt(hook.id) >> 22n) % 6n);
+					pfp.src = `${this.info.cdn}/embed/avatars/${int}.png`;
+				}
+				pfp.classList.add("webhookpfppreview");
+
+				const namePlate = document.createElement("div");
+				namePlate.classList.add("flexttb");
+
+				const name = document.createElement("b");
+				name.textContent = hook.name;
+
+				const createdAt = document.createElement("span");
+				createdAt.textContent = I18n.webhooks.createdAt(
+					new Intl.DateTimeFormat(I18n.lang).format(SnowFlake.stringToUnixTime(hook.id)),
+				);
+
+				namePlate.append(name, createdAt);
+
+				const icon = document.createElement("span");
+				icon.classList.add("svg-intoMenu", "svgicon");
+
+				div.append(pfp, namePlate, icon);
+
+				div.onclick = () => {
+					const form = webhooks.addSubForm(
+						hook.name,
+						(e) => {
+							console.log(e);
+						},
+						{traditionalSubmit: true},
+					);
+					form.addTextInput(I18n.webhooks.name(), "name", {initText: hook.name});
+					form.addFileInput(I18n.webhooks.avatar(), "avatar", {clear: true});
+
+					const moveChannels = this.guild.channels.filter(
+						(_) => _.hasPermission("MANAGE_WEBHOOKS") && _.type !== 4,
+					);
+					form.addSelect(
+						I18n.webhooks.channel(),
+						"channel_id",
+						moveChannels.map((_) => _.name),
+						{
+							defaultIndex: moveChannels.findIndex((_) => _.id === this.id),
+						},
+						moveChannels.map((_) => _.id),
+					);
+
+					form.addMDText(I18n.webhooks.token(hook.token));
+					form.addMDText(I18n.webhooks.url(hook.url));
+					form.addButtonInput("", I18n.webhooks.copyURL(), () => {
+						navigator.clipboard.writeText(hook.url);
+					});
+
+					form.addText(I18n.webhooks.createdBy());
+
+					try {
+						const div = document.createElement("div");
+						div.classList.add("flexltr", "createdWebhook");
+						//TODO make sure this is something I can actually do here
+						const user = new User(hook.user, this.localuser);
+						const name = document.createElement("b");
+						name.textContent = user.name;
+						const nameBox = document.createElement("div");
+						nameBox.classList.add("flexttb");
+						nameBox.append(name);
+						const pfp = user.buildpfp();
+						div.append(pfp, nameBox);
+						form.addHTMLArea(div);
+
+						Member.resolveMember(user, this.guild).then((_) => {
+							if (_) {
+								name.textContent = _.name;
+								pfp.src = _.getpfpsrc();
+							} else {
+								const notFound = document.createElement("span");
+								notFound.textContent = I18n.webhooks.notFound();
+								nameBox.append(notFound);
+							}
+						});
+						user.bind(div, this.guild);
+					} catch {}
+				};
+
+				console.log(hook);
+
+				webhooks.addHTMLArea(div);
+			};
+			for (const hook of hooks) {
+				makeHook(hook);
+			}
+		})();
+
 		settings.show();
 	}
 	sortPerms() {
@@ -799,7 +925,9 @@ class Channel extends SnowFlake {
 				parent_id: this.id,
 				permission_overwrites: [],
 			}),
-		});
+		})
+			.then((_) => _.json())
+			.then((_) => this.guild.goToChannelDelay(_.id));
 	}
 	deleteChannel() {
 		fetch(this.info.api + "/channels/" + this.id, {

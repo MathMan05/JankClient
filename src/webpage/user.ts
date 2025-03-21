@@ -4,7 +4,7 @@ import {Contextmenu} from "./contextmenu.js";
 import {Localuser} from "./localuser.js";
 import {Guild} from "./guild.js";
 import {SnowFlake} from "./snowflake.js";
-import {presencejson, userjson} from "./jsontypes.js";
+import {presencejson, userjson, webhookInfo} from "./jsontypes.js";
 import {Role} from "./role.js";
 import {Search} from "./search.js";
 import {I18n} from "./i18n.js";
@@ -16,6 +16,7 @@ class User extends SnowFlake {
 	owner: Localuser;
 	hypotheticalpfp!: boolean;
 	avatar!: string | null;
+	uid: string;
 	username!: string;
 	nickname: string | null = null;
 	relationshipType: 0 | 1 | 2 | 3 | 4 | 5 | 6 = 0;
@@ -24,6 +25,7 @@ class User extends SnowFlake {
 	pronouns?: string;
 	bot!: boolean;
 	public_flags!: number;
+	webhook?: webhookInfo;
 	accent_color!: number;
 	banner: string | undefined;
 	hypotheticalbanner!: boolean;
@@ -35,7 +37,7 @@ class User extends SnowFlake {
 	status!: string;
 	resolving: false | Promise<any> = false;
 
-	constructor(userjson: userjson, owner: Localuser, dontclone = false) {
+	constructor(userjson: userjson, owner: Localuser, dontclone: boolean = false) {
 		super(userjson.id);
 		this.owner = owner;
 		if (localStorage.getItem("logbad") && owner.user && owner.user.id !== userjson.id) {
@@ -44,6 +46,12 @@ class User extends SnowFlake {
 		if (!owner) {
 			console.error("missing localuser");
 		}
+		this.uid = userjson.id;
+		if (userjson.webhook) {
+			this.uid += ":::" + userjson.username;
+			console.log(this.uid);
+		}
+		userjson.uid = this.uid;
 		if (dontclone) {
 			this.userupdate(userjson);
 			this.hypotheticalpfp = false;
@@ -384,7 +392,7 @@ class User extends SnowFlake {
 	}
 
 	static checkuser(user: User | userjson, owner: Localuser): User {
-		const tempUser = owner.userMap.get(user.id);
+		const tempUser = owner.userMap.get(user.uid || user.id);
 		if (tempUser) {
 			if (!(user instanceof User)) {
 				tempUser.userupdate(user);
@@ -392,7 +400,7 @@ class User extends SnowFlake {
 			return tempUser;
 		} else {
 			const tempuser = new User(user as userjson, owner, true);
-			owner.userMap.set(user.id, tempuser);
+			owner.userMap.set(user.uid || user.id, tempuser);
 			return tempuser;
 		}
 	}
@@ -512,6 +520,7 @@ class User extends SnowFlake {
 				.then((member) => {
 					User.contextmenu.bindContextmenu(html, this, member);
 					if (member === undefined && error) {
+						if (this.webhook) return;
 						const errorSpan = document.createElement("span");
 						errorSpan.textContent = "!";
 						errorSpan.classList.add("membererror");

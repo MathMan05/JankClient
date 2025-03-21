@@ -12,6 +12,22 @@ body {
 	height: 100svh;
 	background: var(--primary-bg);
 }
+.createdWebhook {
+	display: flex;
+	align-items: center;
+	width: fit-content;
+	padding: 0.1in;
+	border-radius: 0.1in;
+	background: var(--secondary-bg);
+	user-select: none;
+	cursor: pointer;
+
+	.pfp {
+		width: 0.5in;
+		height: 0.5in;
+		margin-right: 0.15in;
+	}
+}
 .flexltr {
 	min-height: 0;
 	display: flex;
@@ -267,6 +283,9 @@ textarea {
 }
 .svg-category {
 	mask: url(/icons/category.svg);
+}
+.svg-intoMenu {
+	mask: url(/icons/intoMenu.svg);
 }
 .svg-channel {
 	mask: url(/icons/channel.svg);
@@ -2032,6 +2051,29 @@ fieldset input[type="radio"] {
 }
 .FormSettings {
 	padding-bottom: 32px;
+}
+.webhookArea {
+	background: var(--secondary-bg);
+	padding: 0.2in;
+	display: flex;
+	align-items: center;
+	border-radius: 0.1in;
+	user-select: none;
+	cursor: pointer;
+	span {
+		color: var(--secondary-text-soft);
+	}
+	.svgicon {
+		width: 0.4in;
+		height: 0.4in;
+		margin-left: auto;
+	}
+}
+.webhookpfppreview {
+	width: 0.8in;
+	height: 0.8in;
+	border-radius: 1in;
+	margin-right: 0.2in;
 }
 .optionElement,
 .FormSettings > button {

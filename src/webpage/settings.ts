@@ -1043,6 +1043,9 @@ class Form implements OptionsElement<object> {
 		}
 		return this.options.addSubOptions(name, {ltr, noSubmit});
 	}
+	addHTMLArea(html: (() => HTMLElement) | HTMLElement, onSubmit = () => {}) {
+		return this.options.addHTMLArea(html, onSubmit);
+	}
 	addSubForm(
 		name: string,
 		onSubmit: (arg1: object, sent: object) => void,
@@ -1168,6 +1171,9 @@ class Form implements OptionsElement<object> {
 	addText(str: string) {
 		return this.options.addText(str);
 	}
+	addMDText(str: string) {
+		return this.options.addMDText(str);
+	}
 	addHR() {
 		return this.options.addHR();
 	}
@@ -1263,6 +1269,9 @@ class Form implements OptionsElement<object> {
 							};
 						});
 						promises.push(promise);
+						continue;
+					} else if (input.value === undefined) {
+						continue;
 					}
 				} else {
 					console.error(options.files + " is not currently implemented");
