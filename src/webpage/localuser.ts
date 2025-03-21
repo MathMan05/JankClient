@@ -892,7 +892,7 @@ class Localuser {
 		if (!forceReload && this.lookingguild === guild) {
 			return guild;
 		}
-		if (this.channelfocus) {
+		if (this.channelfocus && this.lookingguild !== guild) {
 			this.channelfocus.infinite.delete();
 			this.channelfocus = undefined;
 		}
@@ -1070,7 +1070,11 @@ class Localuser {
 			headers: this.headers,
 		});
 		const json = await res.json();
-
+		console.log([...json.guilds], json.guilds);
+		//@ts-ignore
+		json.guilds = json.guilds.sort((a, b) => {
+			return b.member_count - a.member_count;
+		});
 		content.innerHTML = "";
 		const title = document.createElement("h2");
 		title.textContent = I18n.getTranslation("guild.disoveryTitle", json.guilds.length + "");

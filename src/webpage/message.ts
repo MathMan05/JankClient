@@ -207,8 +207,11 @@ class Message extends SnowFlake {
 		if (messagejson.reactions?.length) {
 			console.log(messagejson.reactions, ":3");
 		}
-
-		this.author = new User(messagejson.author, this.localuser);
+		console.log(messagejson.webhook);
+		if (messagejson.webhook) {
+			messagejson.author.webhook = messagejson.webhook;
+		}
+		this.author = new User(messagejson.author, this.localuser, false);
 		for (const thing in messagejson.mentions) {
 			this.mentions[thing] = new User(messagejson.mentions[thing], this.localuser);
 		}
@@ -592,7 +595,7 @@ class Message extends SnowFlake {
 				if (this.author.bot) {
 					const username = document.createElement("span");
 					username.classList.add("bot");
-					username.textContent = "BOT";
+					username.textContent = this.author.webhook ? I18n.webhook() : I18n.bot();
 					userwrap.appendChild(username);
 				}
 				const time = document.createElement("span");

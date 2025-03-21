@@ -148,6 +148,8 @@ type userjson = {
 	theme_colors: string;
 	pronouns?: string;
 	badge_ids: string[];
+	webhook?: webhookInfo;
+	uid?: string;
 };
 type memberjson = {
 	index?: number;
@@ -300,6 +302,30 @@ type dirrectjson = {
 	recipients: userjson[];
 	is_spam: boolean;
 };
+type webhookType = {
+	application_id: null | string;
+	avatar: null | string;
+	channel_id: string;
+	guild_id: string;
+	id: string;
+	name: string;
+	type: 1;
+	user: userjson;
+	token: string;
+	url: string;
+};
+type webhookInfo = {
+	id: string;
+	type: 1;
+	name: string;
+	avatar: null | string;
+	guild_id: string;
+	channel_id: string;
+	application_id: null | string;
+	user_id: string;
+	source_guild_id: string;
+	source_channel_id: string;
+};
 type messagejson = {
 	id: string;
 	channel_id: string;
@@ -323,6 +349,7 @@ type messagejson = {
 	nonce: string;
 	pinned: boolean;
 	type: number;
+	webhook: webhookInfo;
 };
 type filejson = {
 	id: string;
@@ -760,4 +787,6 @@ export {
 	opRTC12,
 	emojipjson,
 	extendedProperties,
+	webhookInfo,
+	webhookType,
 };

@@ -152,7 +152,22 @@
 		"selectName": "Name of channel",
 		"selectCatName": "Name of category",
 		"createChannel": "Create channel",
-		"createCatagory": "Create category"
+		"createCatagory": "Create category",
+		"permissions": "Permissions"
+	},
+	"webhooks": {
+		"createdAt": "Created at $1",
+		"name": "Name:",
+		"token": "Webhook token: `$1`",
+		"url": "Webhook url: `$1`",
+		"avatar": "Avatar",
+		"createdBy": "Created by:",
+		"notFound": "User no longer is in the guild",
+		"channel": "Channel",
+		"copyURL": "Copy Webhook URL",
+		"newWebHook": "New Webhook",
+		"EnterWebhookName": "Enter Webhook name",
+		"base": "Webhooks"
 	},
 	"switchAccounts": "Switch accounts ⇌",
 	"accountNotStart": "Account unable to start",
@@ -483,5 +498,7 @@
 	"uploadFilesText": "Upload your files here!",
 	"errorReconnect": "Unable to connect to the server, retrying in **$1** seconds...",
 	"retrying": "Retrying...",
-	"unableToConnect": "Unable to connect to the Spacebar server. Please try logging out and back in."
+	"unableToConnect": "Unable to connect to the Spacebar server. Please try logging out and back in.",
+	"bot": "BOT",
+	"webhook": "WEBHOOK"
 }

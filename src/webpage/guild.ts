@@ -14,6 +14,7 @@ import {
 	rolesjson,
 	emojipjson,
 	extendedProperties,
+	webhookType,
 } from "./jsontypes.js";
 import {User} from "./user.js";
 import {I18n} from "./i18n.js";
@@ -316,6 +317,137 @@ class Guild extends SnowFlake {
 			genDiv();
 			emoji.addHTMLArea(containdiv);
 		}
+		const webhooks = settings.addButton(I18n.webhooks.base());
+		(async () => {
+			const moveChannels = this.channels.filter(
+				(_) => _.hasPermission("MANAGE_WEBHOOKS") && _.type !== 4,
+			);
+			const hooks = (await (
+				await fetch(this.info.api + `/guilds/${this.id}/webhooks`, {headers: this.headers})
+			).json()) as webhookType[];
+			webhooks.addButtonInput("", I18n.webhooks.newWebHook(), () => {
+				const nameBox = new Dialog(I18n.webhooks.EnterWebhookName());
+				const options = nameBox.float.options;
+				options.addTextInput(I18n.webhooks.name(), async (name) => {
+					const json = await (
+						await fetch(`${this.info.api}/channels/${moveChannels[select.index].id}/webhooks/`, {
+							method: "POST",
+							headers: this.headers,
+							body: JSON.stringify({name}),
+						})
+					).json();
+					makeHook(json);
+				});
+				const select = options.addSelect(
+					I18n.webhooks.channel(),
+					() => {},
+					moveChannels.map((_) => _.name),
+					{
+						defaultIndex: 0,
+					},
+				);
+				options.addButtonInput("", I18n.submit(), () => {
+					options.submit();
+					nameBox.hide();
+				});
+				nameBox.show();
+			});
+
+			const makeHook = (hook: webhookType) => {
+				const div = document.createElement("div");
+				div.classList.add("flexltr", "webhookArea");
+				const pfp = document.createElement("img");
+				if (hook.avatar) {
+					pfp.src = `${this.info.cdn}/avatars/${hook.id}/${hook.avatar}`;
+				} else {
+					const int = Number((BigInt(hook.id) >> 22n) % 6n);
+					pfp.src = `${this.info.cdn}/embed/avatars/${int}.png`;
+				}
+				pfp.classList.add("webhookpfppreview");
+
+				const namePlate = document.createElement("div");
+				namePlate.classList.add("flexttb");
+
+				const name = document.createElement("b");
+				name.textContent = hook.name;
+
+				const createdAt = document.createElement("span");
+				createdAt.textContent = I18n.webhooks.createdAt(
+					new Intl.DateTimeFormat(I18n.lang).format(SnowFlake.stringToUnixTime(hook.id)),
+				);
+
+				namePlate.append(name, createdAt);
+
+				const icon = document.createElement("span");
+				icon.classList.add("svg-intoMenu", "svgicon");
+
+				div.append(pfp, namePlate, icon);
+
+				div.onclick = () => {
+					const form = webhooks.addSubForm(
+						hook.name,
+						(e) => {
+							console.log(e);
+						},
+						{traditionalSubmit: true},
+					);
+					form.addTextInput(I18n.webhooks.name(), "name", {initText: hook.name});
+					form.addFileInput(I18n.webhooks.avatar(), "avatar", {clear: true});
+
+					form.addSelect(
+						I18n.webhooks.channel(),
+						"channel_id",
+						moveChannels.map((_) => _.name),
+						{
+							defaultIndex: moveChannels.findIndex((_) => _.id === hook.channel_id),
+						},
+						moveChannels.map((_) => _.id),
+					);
+
+					form.addMDText(I18n.webhooks.token(hook.token));
+					form.addMDText(I18n.webhooks.url(hook.url));
+					form.addButtonInput("", I18n.webhooks.copyURL(), () => {
+						navigator.clipboard.writeText(hook.url);
+					});
+
+					form.addText(I18n.webhooks.createdBy());
+
+					try {
+						const div = document.createElement("div");
+						div.classList.add("flexltr", "createdWebhook");
+						//TODO make sure this is something I can actually do here
+						const user = new User(hook.user, this.localuser);
+						const name = document.createElement("b");
+						name.textContent = user.name;
+						const nameBox = document.createElement("div");
+						nameBox.classList.add("flexttb");
+						nameBox.append(name);
+						const pfp = user.buildpfp();
+						div.append(pfp, nameBox);
+						form.addHTMLArea(div);
+
+						Member.resolveMember(user, this).then((_) => {
+							if (_) {
+								name.textContent = _.name;
+								pfp.src = _.getpfpsrc();
+							} else {
+								const notFound = document.createElement("span");
+								notFound.textContent = I18n.webhooks.notFound();
+								nameBox.append(notFound);
+							}
+						});
+						user.bind(div, this);
+					} catch {}
+				};
+
+				console.log(hook);
+
+				webhooks.addHTMLArea(div);
+			};
+			for (const hook of hooks) {
+				makeHook(hook);
+			}
+		})();
 		settings.show();
 	}
 	makeInviteMenu(options: Options, valid: void | Channel[]) {
@@ -970,6 +1102,14 @@ class Guild extends SnowFlake {
 		this.printServers();
 		return thischannel;
 	}
+	goToChannelDelay(id: string) {
+		const channel = this.channels.find((_) => _.id == id);
+		if (channel) {
+			this.loadChannel(channel.id);
+		} else {
+			this.localuser.gotoid = id;
+		}
+	}
 	createchannels(func = this.createChannel.bind(this)) {
 		const options = ["text", "announcement", "voice"].map((e) =>
 			I18n.getTranslation("channel." + e),
@@ -1036,7 +1176,9 @@ class Guild extends SnowFlake {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({name, type}),
-		});
+		})
+			.then((_) => _.json())
+			.then((_) => this.goToChannelDelay(_.id));
 	}
 	async createRole(name: string) {
 		const fetched = await fetch(this.info.api + "/guilds/" + this.id + "roles", {
