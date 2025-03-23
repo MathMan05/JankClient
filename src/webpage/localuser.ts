@@ -321,7 +321,7 @@ class Localuser {
 			this.ws = undefined;
 			console.log("WebSocket closed with code " + event.code);
 			if (
-				(event.code > 1000 && event.code < 1016) ||
+				(event.code > 1000 && event.code < 1016 && this.errorBackoff === 0) ||
 				(wsCodesRetry.has(event.code) && this.errorBackoff === 0)
 			) {
 				this.errorBackoff++;
