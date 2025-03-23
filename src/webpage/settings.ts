@@ -664,6 +664,7 @@ class Options implements OptionsElement<void> {
 		this.noSubmit = noSubmit;
 	}
 	removeAll() {
+		this.returnFromSub();
 		while (this.options.length) {
 			this.options.pop();
 		}

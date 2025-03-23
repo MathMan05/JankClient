@@ -167,7 +167,14 @@
 		"copyURL": "Copy Webhook URL",
 		"newWebHook": "New Webhook",
 		"EnterWebhookName": "Enter Webhook name",
-		"base": "Webhooks"
+		"base": "Webhooks",
+		"sillyDefaults": "",
+		"type1": "Incoming",
+		"type2": "Channel Follower",
+		"type3": "Application",
+		"type": "Type: $1",
+		"deleteWebhook": "Delete Webhook",
+		"areYouSureDelete": "Are you sure you want to delete $1?"
 	},
 	"switchAccounts": "Switch accounts ⇌",
 	"accountNotStart": "Account unable to start",
