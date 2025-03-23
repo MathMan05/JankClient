@@ -309,7 +309,7 @@ type webhookType = {
 	guild_id: string;
 	id: string;
 	name: string;
-	type: 1;
+	type: 1 | 2 | 3;
 	user: userjson;
 	token: string;
 	url: string;

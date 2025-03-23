@@ -1,0 +1,194 @@
+import {Guild} from "./guild.js";
+import {I18n} from "./i18n.js";
+import {webhookType} from "./jsontypes.js";
+import {Member} from "./member.js";
+import {Dialog, Options} from "./settings.js";
+import {SnowFlake} from "./snowflake.js";
+import {User} from "./user.js";
+
+async function webhookMenu(
+	guild: Guild,
+	hookURL: string,
+	webhooks: Options,
+	channelId: false | string = false,
+) {
+	const moveChannels = guild.channels.filter(
+		(_) => _.hasPermission("MANAGE_WEBHOOKS") && _.type !== 4,
+	);
+	async function regenArea() {
+		webhooks.removeAll();
+
+		webhooks.addButtonInput("", I18n.webhooks.newWebHook(), () => {
+			const nameBox = new Dialog(I18n.webhooks.EnterWebhookName());
+			const options = nameBox.float.options;
+			let channel = channelId || moveChannels[0].id;
+			options.addTextInput(I18n.webhooks.name(), async (name) => {
+				const json = await (
+					await fetch(`${guild.info.api}/channels/${channel}/webhooks/`, {
+						method: "POST",
+						headers: guild.headers,
+						body: JSON.stringify({name}),
+					})
+				).json();
+				makeHook(json);
+			});
+			if (!channelId) {
+				const select = options.addSelect(
+					I18n.webhooks.channel(),
+					() => {},
+					moveChannels.map((_) => _.name),
+					{
+						defaultIndex: 0,
+					},
+				);
+				select.watchForChange((i: number) => {
+					channel = moveChannels[i].id;
+				});
+			}
+			options.addButtonInput("", I18n.submit(), () => {
+				options.submit();
+				nameBox.hide();
+			});
+			nameBox.show();
+		});
+		const hooks = (await (await fetch(hookURL, {headers: guild.headers})).json()) as webhookType[];
+		for (const hook of hooks) {
+			makeHook(hook);
+		}
+	}
+
+	const makeHook = (hook: webhookType) => {
+		const div = document.createElement("div");
+		div.classList.add("flexltr", "webhookArea");
+		const pfp = document.createElement("img");
+		if (hook.avatar) {
+			pfp.src = `${guild.info.cdn}/avatars/${hook.id}/${hook.avatar}`;
+		} else {
+			const int = Number((BigInt(hook.id) >> 22n) % 6n);
+			pfp.src = `${guild.info.cdn}/embed/avatars/${int}.png`;
+		}
+		pfp.classList.add("webhookpfppreview");
+
+		const namePlate = document.createElement("div");
+		namePlate.classList.add("flexttb");
+
+		const name = document.createElement("b");
+		name.textContent = hook.name;
+
+		const createdAt = document.createElement("span");
+		createdAt.textContent = I18n.webhooks.createdAt(
+			new Intl.DateTimeFormat(I18n.lang).format(SnowFlake.stringToUnixTime(hook.id)),
+		);
+
+		const wtype = document.createElement("span");
+		let typeText: string;
+		switch (hook.type) {
+			case 1:
+				typeText = I18n.webhooks.type1();
+				break;
+			case 2:
+				typeText = I18n.webhooks.type2();
+				break;
+			case 3:
+				typeText = I18n.webhooks.type3();
+				break;
+		}
+		wtype.textContent = I18n.webhooks.type(typeText);
+
+		namePlate.append(name, createdAt, wtype);
+
+		const icon = document.createElement("span");
+		icon.classList.add("svg-intoMenu", "svgicon");
+
+		div.append(pfp, namePlate, icon);
+
+		div.onclick = () => {
+			const form = webhooks.addSubForm(
+				hook.name,
+				(e) => {
+					regenArea();
+					console.log(e);
+				},
+				{
+					traditionalSubmit: true,
+					method: "PATCH",
+					fetchURL: guild.info.api + "/webhooks/" + hook.id,
+					headers: guild.headers,
+				},
+			);
+			form.addTextInput(I18n.webhooks.name(), "name", {initText: hook.name});
+			form.addFileInput(I18n.webhooks.avatar(), "avatar", {clear: true});
+
+			form.addSelect(
+				I18n.webhooks.channel(),
+				"channel_id",
+				moveChannels.map((_) => _.name),
+				{
+					defaultIndex: moveChannels.findIndex((_) => _.id === hook.channel_id),
+				},
+				moveChannels.map((_) => _.id),
+			);
+
+			form.addMDText(I18n.webhooks.token(hook.token));
+			form.addMDText(I18n.webhooks.url(hook.url));
+			form.addText(I18n.webhooks.type(typeText));
+			form.addButtonInput("", I18n.webhooks.copyURL(), () => {
+				navigator.clipboard.writeText(hook.url);
+			});
+
+			form.addText(I18n.webhooks.createdBy());
+
+			try {
+				const div = document.createElement("div");
+				div.classList.add("flexltr", "createdWebhook");
+				//TODO make sure this is something I can actually do here
+				const user = new User(hook.user, guild.localuser);
+				const name = document.createElement("b");
+				name.textContent = user.name;
+				const nameBox = document.createElement("div");
+				nameBox.classList.add("flexttb");
+				nameBox.append(name);
+				const pfp = user.buildpfp();
+				div.append(pfp, nameBox);
+				form.addHTMLArea(div);
+
+				Member.resolveMember(user, guild).then((_) => {
+					if (_) {
+						name.textContent = _.name;
+						pfp.src = _.getpfpsrc();
+					} else {
+						const notFound = document.createElement("span");
+						notFound.textContent = I18n.webhooks.notFound();
+						nameBox.append(notFound);
+					}
+				});
+				user.bind(div, guild);
+			} catch {}
+			form.addButtonInput("", I18n.webhooks.deleteWebhook(), () => {
+				const d = new Dialog("areYouSureDelete");
+				const opt = d.options;
+				opt.addTitle(I18n.webhooks.areYouSureDelete(hook.name));
+				const opt2 = opt.addOptions("", {ltr: true});
+				opt2.addButtonInput("", I18n.yes(), () => {
+					fetch(guild.info.api + "/webhooks/" + hook.id, {
+						method: "DELETE",
+						headers: guild.headers,
+					}).then(() => {
+						d.hide();
+						regenArea();
+					});
+				});
+				opt2.addButtonInput("", I18n.no(), () => {
+					d.hide();
+				});
+				d.show();
+			});
+		};
+
+		console.log(hook);
+
+		webhooks.addHTMLArea(div);
+	};
+	regenArea();
+}
+export {webhookMenu};
