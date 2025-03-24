@@ -21,17 +21,24 @@ async function webhookMenu(
 		webhooks.addButtonInput("", I18n.webhooks.newWebHook(), () => {
 			const nameBox = new Dialog(I18n.webhooks.EnterWebhookName());
 			const options = nameBox.float.options;
+			const defualts = I18n.webhooks.sillyDefaults().split("\n");
 			let channel = channelId || moveChannels[0].id;
-			options.addTextInput(I18n.webhooks.name(), async (name) => {
-				const json = await (
-					await fetch(`${guild.info.api}/channels/${channel}/webhooks/`, {
-						method: "POST",
-						headers: guild.headers,
-						body: JSON.stringify({name}),
-					})
-				).json();
-				makeHook(json);
-			});
+			options.addTextInput(
+				I18n.webhooks.name(),
+				async (name) => {
+					const json = await (
+						await fetch(`${guild.info.api}/channels/${channel}/webhooks/`, {
+							method: "POST",
+							headers: guild.headers,
+							body: JSON.stringify({name}),
+						})
+					).json();
+					makeHook(json);
+				},
+				{
+					initText: defualts[Math.floor(Math.random() * defualts.length)],
+				},
+			);
 			if (!channelId) {
 				const select = options.addSelect(
 					I18n.webhooks.channel(),
