@@ -16,7 +16,6 @@ import {
 	messagejson,
 	readyjson,
 	startTypingjson,
-	webhookType,
 } from "./jsontypes.js";
 import {MarkDown} from "./markdown.js";
 import {Member} from "./member.js";
