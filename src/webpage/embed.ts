@@ -268,12 +268,7 @@ class Embed {
 			if (json.guild.banner) {
 				const banner = document.createElement("img");
 				banner.src =
-					this.localuser.info.cdn +
-					"/icons/" +
-					json.guild.id +
-					"/" +
-					json.guild.banner +
-					".png?size=256";
+					info.cdn + "/icons/" + json.guild.id + "/" + json.guild.banner + ".png?size=256";
 				banner.classList.add("banner");
 				div.append(banner);
 			}
