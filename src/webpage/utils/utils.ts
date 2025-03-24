@@ -244,7 +244,7 @@ class Directory {
 			return true;
 		} else {
 			//Curse you webkit!
-			return await this.setStringWorker(file, contents);
+			return await this.setStringWorker(file, contents.buffer as ArrayBuffer);
 		}
 	}
 	async getDir(name: string) {
