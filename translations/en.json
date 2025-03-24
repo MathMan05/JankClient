@@ -168,7 +168,7 @@
 		"newWebHook": "New Webhook",
 		"EnterWebhookName": "Enter Webhook name",
 		"base": "Webhooks",
-		"sillyDefaults": "",
+		"sillyDefaults": "Captain Hook\nBillie Hooks\nSpidey bot",
 		"type1": "Incoming",
 		"type2": "Channel Follower",
 		"type3": "Application",
