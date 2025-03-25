@@ -5,6 +5,7 @@ import {getapiurls, getInstances} from "./utils/utils.js";
 import {Guild} from "./guild.js";
 import {I18n} from "./i18n.js";
 import {ImagesDisplay} from "./disimg.js";
+import {File} from "./file.js";
 
 class Embed {
 	type: string;
@@ -169,7 +170,9 @@ class Embed {
 		const img = document.createElement("img");
 		img.classList.add("messageimg");
 		img.onclick = function () {
-			const full = new ImagesDisplay([img.src]);
+			const full = new ImagesDisplay([
+				new File({id: "", filename: "", url: img.src, size: -1, content_type: "image"}, null),
+			]);
 			full.show();
 		};
 		img.src = this.json.thumbnail.proxy_url;
@@ -205,7 +208,9 @@ class Embed {
 			if (this.json.thumbnail) {
 				img.classList.add("embedimg");
 				img.onclick = function () {
-					const full = new ImagesDisplay([img.src]);
+					const full = new ImagesDisplay([
+						new File({id: "", filename: "", url: img.src, size: -1, content_type: "image"}, null),
+					]);
 					full.show();
 				};
 				img.src = this.json.thumbnail.proxy_url;
@@ -381,7 +386,9 @@ class Embed {
 				};
 			} else {
 				img.onclick = async () => {
-					const full = new ImagesDisplay([img.src]);
+					const full = new ImagesDisplay([
+						new File({id: "", filename: "", url: img.src, size: -1, content_type: "image"}, null),
+					]);
 					full.show();
 				};
 			}

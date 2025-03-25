@@ -1,7 +1,7 @@
 import {Message} from "./message.js";
 import {filejson} from "./jsontypes.js";
 import {ImagesDisplay} from "./disimg.js";
-
+import {makePlayBox, MediaPlayer} from "./media.js";
 class File {
 	owner: Message | null;
 	id: string;
@@ -24,7 +24,7 @@ class File {
 		this.content_type = fileJSON.content_type;
 		this.size = fileJSON.size;
 	}
-	getHTML(temp: boolean = false): HTMLElement {
+	getHTML(temp: boolean = false, fullScreen = false): HTMLElement {
 		const src = this.proxy_url || this.url;
 		if (this.width && this.height) {
 			let scale = 1;
@@ -37,19 +37,33 @@ class File {
 		if (this.content_type.startsWith("image/")) {
 			const div = document.createElement("div");
 			const img = document.createElement("img");
-			img.classList.add("messageimg");
-			div.classList.add("messageimgdiv");
-			img.onclick = function () {
-				const full = new ImagesDisplay([img.src]);
-				full.show();
+			if (!fullScreen) {
+				img.classList.add("messageimg");
+				div.classList.add("messageimgdiv");
+			}
+			img.onclick = () => {
+				if (this.owner) {
+					const full = new ImagesDisplay(
+						this.owner.attachments,
+						this.owner.attachments.indexOf(this),
+					);
+					full.show();
+				} else {
+					const full = new ImagesDisplay([this]);
+					full.show();
+				}
 			};
 			img.src = src;
 			div.append(img);
-			if (this.width) {
+			if (this.width && !fullScreen) {
 				div.style.width = this.width + "px";
 				div.style.height = this.height + "px";
 			}
-			return div;
+			if (!fullScreen) {
+				return div;
+			} else {
+				return img;
+			}
 		} else if (this.content_type.startsWith("video/")) {
 			const video = document.createElement("video");
 			const source = document.createElement("source");
@@ -63,16 +77,14 @@ class File {
 			}
 			return video;
 		} else if (this.content_type.startsWith("audio/")) {
-			const audio = document.createElement("audio");
-			const source = document.createElement("source");
-			source.src = src;
-			audio.append(source);
-			source.type = this.content_type;
-			audio.controls = !temp;
-			return audio;
+			return this.getAudioHTML();
 		} else {
 			return this.createunknown();
 		}
+	}
+	private getAudioHTML() {
+		const src = this.proxy_url || this.url;
+		return makePlayBox(src, player);
 	}
 	upHTML(files: Blob[], file: globalThis.File): HTMLElement {
 		const div = document.createElement("div");
@@ -149,4 +161,6 @@ class File {
 		);
 	}
 }
+
+const player = new MediaPlayer();
 export {File};

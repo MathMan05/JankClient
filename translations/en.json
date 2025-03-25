@@ -10,6 +10,10 @@
 	"reply": "Reply",
 	"copyrawtext": "Copy raw text",
 	"copymessageid": "Copy message id",
+	"media": {
+		"notFound": "Media could not be found",
+		"loading": "Loading"
+	},
 	"permissions": {
 		"descriptions": {
 			"CREATE_INSTANT_INVITE": "Allows the user to create invites for the guild",
