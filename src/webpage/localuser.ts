@@ -2326,9 +2326,10 @@ class Localuser {
 					})
 					.filter((_) => _ !== undefined);
 				const sideDiv = document.getElementById("sideDiv");
-				if (!sideDiv) return;
+				const sideContainDiv = document.getElementById("sideContainDiv");
+				if (!sideDiv || !sideContainDiv) return;
 				sideDiv.innerHTML = "";
-				sideDiv.classList.add("searchDiv");
+				sideContainDiv.classList.add("searchDiv");
 				let channel: Channel | undefined = undefined;
 				for (const message of messages) {
 					if (channel !== message.channel) {

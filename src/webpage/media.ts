@@ -1,0 +1,507 @@
+import {I18n} from "./i18n.js";
+
+type mediaEvents =
+	| {
+			type: "play";
+	  }
+	| {
+			type: "pause";
+	  }
+	| {
+			type: "playing";
+			time: number;
+	  }
+	| {
+			type: "done";
+	  }
+	| {
+			type: "audio";
+			t: "start" | "stop";
+	  }
+	| {
+			type: "audio";
+			t: "skip";
+			time: number;
+	  }
+	| {
+			type: "end";
+	  };
+
+function makePlayBox(mor: string | media, player: MediaPlayer) {
+	const div = document.createElement("div");
+	div.classList.add("flexltr", "Mplayer");
+
+	const button = document.createElement("img");
+	button.classList.add("svg-mediaButton", "svg-play");
+
+	const vDiv = document.createElement("div");
+	vDiv.classList.add("flexttb");
+
+	const title = document.createElement("span");
+	title.textContent = I18n.media.loading();
+
+	const barDiv = document.createElement("div");
+	barDiv.classList.add("flexltr");
+
+	const bar = document.createElement("input");
+	bar.type = "range";
+	bar.disabled = true;
+	bar.value = "0";
+	bar.min = "0";
+
+	const time = document.createElement("span");
+	time.textContent = "0:00/..:..";
+
+	barDiv.append(bar, time);
+	vDiv.append(title, barDiv);
+	div.append(button, vDiv);
+	MediaPlayer.IdentifyFile(mor).then((thing) => {
+		let audio: HTMLAudioElement | undefined = undefined;
+
+		if (!thing) {
+			const span = document.createElement("span");
+			span.textContent = I18n.media.notFound();
+			return;
+		}
+		player.addListener(thing.src, followUpdates, div);
+		let int = setInterval((_) => {}, 1000);
+		if (mor instanceof Object) {
+			const audioo = new Audio(mor.src);
+			audioo.load();
+			audioo.autoplay = true;
+			int = setInterval(() => {
+				if (button.classList.contains("svg-pause")) {
+					player.addUpdate(mor.src, {type: "playing", time: audioo.currentTime * 1000});
+				}
+			}, 100) as unknown as number;
+			audioo.onplay = () => {
+				player.addUpdate(mor.src, {type: "play"});
+			};
+			audioo.onpause = () => {
+				player.addUpdate(thing.src, {type: "pause"});
+			};
+			audioo.onloadeddata = () => {
+				audio = audioo;
+			};
+			audioo.onended = () => {
+				player.addUpdate(mor.src, {type: "end"});
+			};
+		}
+		button.onclick = () => {
+			if (!player.isPlaying(thing.src)) {
+				player.setToTopList(thing);
+			} else {
+				player.addUpdate(thing.src, {
+					type: "audio",
+					t: button.classList.contains("svg-play") ? "start" : "stop",
+				});
+			}
+		};
+		function followUpdates(cur: mediaEvents) {
+			if (audio && cur.type !== "playing") {
+				console.log(cur);
+			}
+			if (cur.type == "audio" && audio) {
+				if (cur.t == "start") {
+					audio.play();
+				} else if (cur.t == "stop") {
+					audio.pause();
+				} else if (cur.t == "skip" && audio) {
+					audio.currentTime = cur.time / 1000;
+				}
+			}
+			if (cur.type == "playing") {
+				regenTime(cur.time);
+				bar.value = "" + cur.time / 1000;
+				button.classList.add("svg-pause");
+				button.classList.remove("svg-play");
+			} else if (cur.type === "play") {
+				button.classList.add("svg-pause");
+				button.classList.remove("svg-play");
+			} else if (cur.type === "pause") {
+				button.classList.add("svg-play");
+				button.classList.remove("svg-pause");
+			} else if (cur.type === "end") {
+				clearInterval(int);
+				if (audio) {
+					audio.pause();
+					audio.src = "";
+					player.end();
+				}
+				button.classList.add("svg-play");
+				button.classList.remove("svg-pause");
+				regenTime();
+			}
+		}
+
+		const med = thing;
+		if (med.img) {
+			let img: HTMLImageElement;
+			if (mor instanceof Object) {
+				img = button;
+			} else {
+				img = document.createElement("img");
+				div.append(img);
+			}
+			img.classList.add("media-small");
+			img.src = med.img.url;
+		}
+		function timeToString(time: number) {
+			const minutes = Math.floor(time / 1000 / 60);
+			const seconds = Math.round(time / 1000 - minutes * 60) + "";
+			return `${minutes}:${seconds.padStart(2, "0")}`;
+		}
+		bar.oninput = () => {
+			player.addUpdate(thing.src, {
+				type: "audio",
+				t: "skip",
+				time: +bar.value * 1000,
+			});
+			regenTime(+bar.value * 1000);
+		};
+		async function regenTime(curTime: number = 0) {
+			console.log(med.length);
+			const len = await med.length;
+			bar.disabled = false;
+			bar.max = "" + len / 1000;
+
+			time.textContent = `${timeToString(curTime)}/${timeToString(len)}`;
+		}
+		regenTime();
+		title.textContent = thing.title;
+		console.log(thing);
+	});
+	return div;
+}
+
+interface media {
+	src: string;
+	img?: {
+		url: string;
+		description?: string;
+	};
+	title: string;
+	artist?: string;
+	composer?: string;
+	sourcy?: string;
+	year?: number;
+	copyright?: string;
+	length: number | Promise<number>;
+}
+class MediaPlayer {
+	lists: media[] = [];
+	curAudio?: HTMLElement;
+	private listeners: [(e: mediaEvents) => void, string][] = [];
+	elm: HTMLDivElement;
+	cur = 0;
+	constructor() {
+		this.elm = document.getElementById("player") as HTMLDivElement;
+	}
+	addElmToList(audio: media) {
+		this.lists.unshift(audio);
+	}
+	addUpdate(e: string, update: mediaEvents) {
+		for (const thing of this.listeners) {
+			if (thing[1] === e) {
+				thing[0](update);
+			}
+		}
+	}
+	addListener(audio: string, updates: (e: mediaEvents) => void, elm: HTMLElement) {
+		this.listeners.push([updates, audio]);
+		const int = setInterval(() => {
+			if (!document.contains(elm)) {
+				clearInterval(int);
+				this.listeners = this.listeners.filter((_) => _[0] !== updates);
+				console.log("cleared data");
+			}
+		}, 1000);
+	}
+	isPlaying(str: string) {
+		const med = this.lists[this.cur];
+		if (!med) return false;
+		return med.src === str;
+	}
+	setToTopList(audio: media) {
+		const med = this.lists[this.cur];
+		if (med) {
+			this.addUpdate(med.src, {type: "end"});
+		}
+		this.lists.splice(this.cur, 0, audio);
+		this.regenPlayer();
+	}
+	end() {
+		if (this.curAudio) {
+			this.curAudio.remove();
+			this.cur++;
+			this.regenPlayer();
+		}
+	}
+	regenPlayer() {
+		this.elm.innerHTML = "";
+		if (this.lists.length > this.cur) {
+			const audio = this.lists[this.cur];
+			this.elm.append((this.curAudio = makePlayBox(audio, this)));
+		}
+	}
+	static cache = new Map<string, media | Promise<media>>();
+	static async IdentifyFile(url: string | media): Promise<media | null> {
+		if (url instanceof Object) {
+			return url;
+		}
+		const cValue = this.cache.get(url);
+		if (cValue) {
+			return cValue;
+		}
+		let resMedio = (_: media) => {};
+		this.cache.set(url, new Promise<media>((res) => (resMedio = res)));
+		const controller = new AbortController();
+
+		const f = await fetch(url, {
+			method: "get",
+			signal: controller.signal,
+		});
+		if (!f.ok || !f.body) {
+			return null;
+		}
+
+		let index = 0;
+		const read = f.body.getReader();
+		let cbuff = (await read.read()).value;
+		const output: Partial<media> = {
+			src: url,
+		};
+		try {
+			let sizeLeft = 0;
+			async function next() {
+				return (await get8BitArray(1))[0];
+			}
+			async function get8BitArray(size: number) {
+				sizeLeft -= size;
+				const arr = new Uint8Array(size);
+				let arri = 0;
+				while (size > 0) {
+					if (!cbuff) throw Error("ran out of file to read");
+					let itter = Math.min(size, cbuff.length - index);
+					size -= itter;
+					for (let i = 0; i < itter; i++, arri++, index++) {
+						arr[arri] = cbuff[index];
+					}
+
+					if (size !== 0) {
+						cbuff = (await read.read()).value;
+						index = 0;
+						console.log("got more buffer", index, arri, size);
+					}
+				}
+				return arr;
+			}
+			const head = String.fromCharCode(await next(), await next(), await next());
+			if (head === "ID3") {
+				const version = (await next()) + (await next()) * 256;
+
+				if (version === 2) {
+					//TODO I'm like 90% I can ignore *all* of the flags, but I need to check more sometime
+					await next();
+					//debugger;
+					const sizes = await get8BitArray(4);
+					sizeLeft = (sizes[0] << 21) + (sizes[1] << 14) + (sizes[2] << 7) + sizes[3];
+					const mappy = new Map<string, Uint8Array>();
+					while (sizeLeft > 0) {
+						const Identify = String.fromCharCode(await next(), await next(), await next());
+						const sizeArr = await get8BitArray(3);
+						const size = (sizeArr[0] << 16) + (sizeArr[1] << 8) + sizeArr[2];
+						console.log(sizeLeft, size, index);
+						if (Identify === String.fromCharCode(0, 0, 0)) {
+							break;
+						}
+						if (!size) {
+							throw Error("weirdness");
+						}
+						if (!Identify.match(/[A-Z0-9]/gm)) {
+							console.error(`tried to get ${Identify} which doesn't exist`);
+							break;
+						}
+						if (mappy.has(Identify)) {
+							await get8BitArray(size);
+							//console.warn("Got dupe", Identify);
+						} else {
+							mappy.set(Identify, await get8BitArray(size));
+						}
+						console.warn(sizeLeft);
+					}
+					const pic = mappy.get("PIC");
+					if (pic) {
+						let i = 5; //skipping info I don't need right now
+						const desc: number[] = [];
+						for (; pic[i]; i++) {
+							desc.push(pic[i]);
+						}
+						const description = new TextDecoder().decode(new Uint8Array(desc));
+						i++;
+						console.warn(pic, i);
+						const blob = new Blob([pic.slice(i, pic.length).buffer], {type: "image/jpeg"});
+						const urlmaker = window.URL || window.webkitURL;
+						const url = urlmaker.createObjectURL(blob);
+						output.img = {url, description};
+					}
+					function decodeText(buf: ArrayBuffer) {
+						let str = new TextDecoder().decode(buf);
+						if (str.startsWith("\u0000")) {
+							str = str.slice(1, str.length);
+						}
+						if (str.endsWith("\u0000")) {
+							str = str.slice(0, str.length - 1);
+						}
+						return str;
+					}
+					const mapmap = {
+						TT2: "title",
+						TP1: "artist",
+						TCM: "composer",
+						TAL: "sourcy",
+						TCO: "type",
+						TEN: "copyright",
+					} as const;
+					for (const [key, ind] of Object.entries(mapmap)) {
+						const temp = mappy.get(key);
+						if (temp) {
+							//@ts-ignore TS is being weird about this idk why
+							output[ind] = decodeText(temp);
+						}
+					}
+					const tye = mappy.get("TYE");
+					if (tye) {
+						output.year = +decodeText(tye);
+					}
+					//TODO more thoroughly check if these two are the same format
+				} else if (version === 3 || version === 4) {
+					const flags = await next();
+					if (flags & 0b01000000) {
+						//TODO deal with the extended header
+					}
+					//debugger;
+					const sizes = await get8BitArray(4);
+					sizeLeft = (sizes[0] << 21) + (sizes[1] << 14) + (sizes[2] << 7) + sizes[3];
+					const mappy = new Map<string, Uint8Array>();
+					while (sizeLeft > 0) {
+						const Identify = String.fromCharCode(
+							await next(),
+							await next(),
+							await next(),
+							await next(),
+						);
+						const sizeArr = await get8BitArray(4);
+						const size = (sizeArr[0] << 24) + (sizeArr[1] << 16) + (sizeArr[2] << 8) + sizeArr[3];
+
+						const flags = await get8BitArray(2);
+						const compression = !!(flags[1] & 0b10000000);
+						if (compression) {
+							//TODO Honestly, I don't know if I can do this with normal JS
+							continue;
+						}
+						const encyption = !!(flags[1] & 0b01000000);
+						if (encyption) {
+							//TODO not sure what this would even do
+							continue;
+						}
+
+						console.log(sizeLeft, size, index);
+						if (Identify === String.fromCharCode(0, 0, 0, 0)) {
+							break;
+						}
+						if (!size) {
+							//throw Error("weirdness");
+						}
+						if (!Identify.match(/[A-Z0-9]/gm)) {
+							console.error(`tried to get ${Identify} which doesn't exist`);
+							break;
+						}
+						if (mappy.has(Identify)) {
+							await get8BitArray(size);
+							//console.warn("Got dupe", Identify);
+						} else {
+							mappy.set(Identify, await get8BitArray(size));
+						}
+						console.warn(sizeLeft);
+					}
+					const pic = mappy.get("APIC");
+					if (pic) {
+						const encoding = pic[0];
+						let i = 1; //skipping info I don't need right now
+						for (; pic[i]; i++) {}
+						i += 2;
+						let desc: number[] = [];
+						for (; pic[i]; i++) {
+							desc.push(pic[i]);
+						}
+						const description = new TextDecoder().decode(new Uint8Array(desc));
+						i++;
+						const blob = new Blob([pic.slice(i, pic.length).buffer], {type: "image/jpeg"});
+						const urlmaker = window.URL || window.webkitURL;
+						const url = urlmaker.createObjectURL(blob);
+						output.img = {url, description};
+					}
+					function decodeText(buf: ArrayBuffer) {
+						let str = new TextDecoder().decode(buf);
+						if (str.startsWith("\u0000")) {
+							str = str.slice(1, str.length);
+						}
+						if (str.endsWith("\u0000")) {
+							str = str.slice(0, str.length - 1);
+						}
+						return str;
+					}
+					const mapmap = {
+						TIT2: "title",
+						TPE1: "artist",
+						TCOM: "composer",
+						TALB: "sourcy",
+						TMED: "type",
+						TENC: "copyright",
+					} as const;
+					for (const [key, ind] of Object.entries(mapmap)) {
+						const temp = mappy.get(key);
+						if (temp) {
+							//@ts-ignore TS is being weird about this idk why
+							output[ind] = decodeText(temp);
+						}
+					}
+					const TYER = mappy.get("TYER");
+					if (TYER) {
+						console.log(decodeText(TYER));
+						output.year = +decodeText(TYER);
+					}
+					const TLEN = mappy.get("TLEN");
+					if (TLEN) {
+						output.length = +decodeText(TLEN);
+					}
+					console.log(mappy);
+				}
+			} //TODO implement more metadata types
+		} catch (e) {
+			console.error(e);
+		} finally {
+			controller.abort();
+			if (!output.length) {
+				output.length = new Promise<number>(async (res) => {
+					const audio = document.createElement("audio");
+					audio.src = url;
+					audio.onloadeddata = (_) => {
+						console.log("Loaded!", audio.duration * 1000);
+						output.length = audio.duration * 1000;
+						res(audio.duration * 1000);
+					};
+					audio.load();
+					console.log(audio);
+				});
+			}
+			if (!output.title) {
+				output.title = url.split("/").at(-1);
+			}
+		}
+		resMedio(output as media);
+		return output as media;
+	}
+}
+export {MediaPlayer, media, makePlayBox};

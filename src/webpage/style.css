@@ -28,6 +28,19 @@ body {
 		margin-right: 0.15in;
 	}
 }
+.Mplayer {
+	padding: 4px;
+	border-radius: 3px;
+	background: var(--secondary-bg);
+	align-items: center;
+	*{
+		margin:2px;
+	}
+	.flexttb {
+		display: flex;
+		align-items: center;
+	}
+}
 .flexltr {
 	min-height: 0;
 	display: flex;
@@ -69,6 +82,12 @@ body {
 .searchOptions:empty {
 	padding: 0;
 	border: 0;
+}
+#player {
+	height: 128px;
+}
+#player:empty {
+	height: 0px;
 }
 .messageEditContainer {
 	position: relative;
@@ -266,6 +285,42 @@ textarea {
 	cursor: pointer;
 	user-select: none;
 }
+.leftArrow {
+	z-index: 1;
+	width: 42px;
+	height: 42px;
+	display: block;
+	background: var(--primary-text-soft);
+	position: absolute;
+	top: calc(50vh - 42px);
+	left: 4px;
+	cursor: pointer;
+}
+.rightArrow {
+	z-index: 1;
+	width: 42px;
+	height: 42px;
+	display: block;
+	background: var(--primary-text-soft);
+	position: absolute;
+	top: calc(50vh - 42px);
+	right: 4px;
+	cursor: pointer;
+}
+.svg-mediaButton {
+	width: 30px;
+	height: 30px;
+	background: var(--primary-text);
+	cursor: pointer;
+	display: block;
+	mask-size: cover !important;
+}
+.svg-play {
+	mask: url(/icons/play.svg);
+}
+.svg-pause {
+	mask: url(/icons/pause.svg);
+}
 .svg-announce {
 	mask: url(/icons/announce.svg);
 }
@@ -286,6 +341,9 @@ textarea {
 }
 .svg-intoMenu {
 	mask: url(/icons/intoMenu.svg);
+}
+.svg-leftArrow {
+	mask: url(/icons/leftArrow.svg);
 }
 .svg-channel {
 	mask: url(/icons/channel.svg);
@@ -427,14 +485,17 @@ textarea {
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--primary-text-soft);
 }
-#sideDiv:empty {
+#sideContainDiv:empty {
 	width: 0px;
 	padding: 0;
 }
 #servers::-webkit-scrollbar,
 #channels::-webkit-scrollbar,
-#sideDiv::-webkit-scrollbar {
+#sideContainDiv::-webkit-scrollbar {
 	display: none;
+}
+#sideContainDiv {
+	width: 0;
 }
 #servers,
 #channels,
@@ -1255,6 +1316,11 @@ span.instanceStatus {
 	margin-top: 4px;
 	border-radius: 4px;
 }
+.media-small {
+	max-width: 0.6in !important;
+	max-height: 0.4in;
+	object-fit: contain;
+}
 .message img {
 	max-width: 100%;
 }
@@ -1525,7 +1591,7 @@ img.bigembedimg {
 .acceptinvbutton:disabled {
 	background: color-mix(in hsl, var(--green) 80%, var(--black));
 }
-#sideDiv.searchDiv {
+#sideContainDiv.searchDiv {
 	width: 30vw;
 	.topMessage {
 		margin-top: 2px;
@@ -1541,13 +1607,13 @@ img.bigembedimg {
 }
 /* Sidebar */
 #sideDiv {
-	display: none;
 	flex: none;
-	width: 240px;
 	padding: 16px 8px;
 	background: var(--sidebar-bg);
 	overflow-y: auto;
 	box-sizing: border-box;
+	flex-grow: 1;
+	flex-shrink: 1;
 }
 
 .memberList {
@@ -1578,8 +1644,9 @@ img.bigembedimg {
 	height: 16px;
 	width: 16px;
 }
-#page:has(#memberlisttoggle:checked) #sideDiv {
-	display: block;
+#page:has(#memberlisttoggle:checked) #sideContainDiv {
+	width: 240px;
+	flex-shrink: 0;
 }
 #page:has(#memberlisttoggle:checked) #memberlisttoggleicon span {
 	background: var(--primary-text-prominent);
@@ -2201,7 +2268,7 @@ fieldset input[type="radio"] {
 }
 
 @media screen and (max-width: 1000px) {
-	#sideDiv {
+	#sideContainDiv {
 		position: absolute;
 		right: 0;
 		height: calc(100svh - 50px);
@@ -2240,7 +2307,7 @@ fieldset input[type="radio"] {
 		background: var(--primary-bg);
 		transition: left 0.3s;
 	}
-	#sideDiv {
+	#sideContainDiv {
 		display: block;
 		right: -100svw;
 		width: 100svw;
@@ -2269,7 +2336,7 @@ fieldset input[type="radio"] {
 	#page:has(#maintoggle:checked) #mainarea {
 		left: 0;
 	}
-	#page:has(#memberlisttoggle:checked) #sideDiv {
+	#page:has(#memberlisttoggle:checked) #sideContainDiv {
 		right: 0;
 	}
 	#page:has(#maintoggle:checked) #maintoggleicon {
@@ -2476,3 +2543,4 @@ fieldset input[type="radio"] {
 	right: 0.2in;
 	cursor: pointer;
 }
+

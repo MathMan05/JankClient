@@ -357,7 +357,7 @@ type filejson = {
 	content_type: string;
 	width?: number;
 	height?: number;
-	proxy_url: string | undefined;
+	proxy_url?: string;
 	url: string;
 	size: number;
 };
