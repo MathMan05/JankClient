@@ -1270,15 +1270,6 @@ class Channel extends SnowFlake {
 				}
 			});
 	}
-	/**
-	 * Please dont use this, its not implemented.
-	 * @deprecated
-	 * @todo
-	 **/
-	async grabArround(/* id: string */) {
-		//currently unused and no plans to use it yet
-		throw new Error("please don't call this, no one has implemented it :P");
-	}
 	async buildmessages() {
 		this.infinitefocus = false;
 		await this.tryfocusinfinate();

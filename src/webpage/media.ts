@@ -27,7 +27,7 @@ type mediaEvents =
 			type: "end";
 	  };
 
-function makePlayBox(mor: string | media, player: MediaPlayer) {
+function makePlayBox(mor: string | media, player: MediaPlayer, ctime = 0) {
 	const div = document.createElement("div");
 	div.classList.add("flexltr", "Mplayer");
 
@@ -46,15 +46,18 @@ function makePlayBox(mor: string | media, player: MediaPlayer) {
 	const bar = document.createElement("input");
 	bar.type = "range";
 	bar.disabled = true;
-	bar.value = "0";
+	bar.value = "" + ctime;
 	bar.min = "0";
 
 	const time = document.createElement("span");
 	time.textContent = "0:00/..:..";
 
+	const more = document.createElement("span");
+	more.classList.add("svg-soundMore", "svg-mediaSettings");
+
 	barDiv.append(bar, time);
 	vDiv.append(title, barDiv);
-	div.append(button, vDiv);
+	div.append(button, vDiv, more);
 	MediaPlayer.IdentifyFile(mor).then((thing) => {
 		let audio: HTMLAudioElement | undefined = undefined;
 
@@ -69,6 +72,7 @@ function makePlayBox(mor: string | media, player: MediaPlayer) {
 			const audioo = new Audio(mor.src);
 			audioo.load();
 			audioo.autoplay = true;
+			audioo.currentTime = ctime / 1000;
 			int = setInterval(() => {
 				if (button.classList.contains("svg-pause")) {
 					player.addUpdate(mor.src, {type: "playing", time: audioo.currentTime * 1000});
@@ -89,7 +93,7 @@ function makePlayBox(mor: string | media, player: MediaPlayer) {
 		}
 		button.onclick = () => {
 			if (!player.isPlaying(thing.src)) {
-				player.setToTopList(thing);
+				player.setToTopList(thing, +bar.value * 1000);
 			} else {
 				player.addUpdate(thing.src, {
 					type: "audio",
@@ -109,6 +113,9 @@ function makePlayBox(mor: string | media, player: MediaPlayer) {
 				} else if (cur.t == "skip" && audio) {
 					audio.currentTime = cur.time / 1000;
 				}
+			}
+			if (cur.type == "audio" && cur.t == "skip") {
+				bar.value = "" + cur.time / 1000;
 			}
 			if (cur.type == "playing") {
 				regenTime(cur.time);
@@ -222,26 +229,26 @@ class MediaPlayer {
 		if (!med) return false;
 		return med.src === str;
 	}
-	setToTopList(audio: media) {
+	setToTopList(audio: media, time: number) {
 		const med = this.lists[this.cur];
 		if (med) {
 			this.addUpdate(med.src, {type: "end"});
 		}
 		this.lists.splice(this.cur, 0, audio);
-		this.regenPlayer();
+		this.regenPlayer(time);
 	}
 	end() {
 		if (this.curAudio) {
 			this.curAudio.remove();
 			this.cur++;
-			this.regenPlayer();
+			this.regenPlayer(0);
 		}
 	}
-	regenPlayer() {
+	regenPlayer(time: number) {
 		this.elm.innerHTML = "";
 		if (this.lists.length > this.cur) {
 			const audio = this.lists[this.cur];
-			this.elm.append((this.curAudio = makePlayBox(audio, this)));
+			this.elm.append((this.curAudio = makePlayBox(audio, this, time)));
 		}
 	}
 	static cache = new Map<string, media | Promise<media>>();

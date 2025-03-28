@@ -33,8 +33,14 @@ body {
 	border-radius: 3px;
 	background: var(--secondary-bg);
 	align-items: center;
-	*{
-		margin:2px;
+	flex-grow: 0;
+	flex-shrink: 0;
+	height: 52px;
+
+	* {
+		margin: 2px;
+		accent-color: var(--primary-text-soft);
+		flex-shrink: 1;
 	}
 	.flexttb {
 		display: flex;
@@ -84,7 +90,11 @@ body {
 	border: 0;
 }
 #player {
-	height: 128px;
+	flex-grow: 0;
+
+	input {
+		width: 100px;
+	}
 }
 #player:empty {
 	height: 0px;
@@ -307,6 +317,14 @@ textarea {
 	right: 4px;
 	cursor: pointer;
 }
+.svg-mediaSettings {
+	width: 15px;
+	height: 30px;
+	background: var(--primary-text);
+	cursor: pointer;
+	display: block;
+	mask-size: contain !important;
+}
 .svg-mediaButton {
 	width: 30px;
 	height: 30px;
@@ -314,6 +332,9 @@ textarea {
 	cursor: pointer;
 	display: block;
 	mask-size: cover !important;
+}
+.svg-soundMore {
+	mask: url(/icons/soundMore.svg);
 }
 .svg-play {
 	mask: url(/icons/play.svg);
@@ -2543,4 +2564,3 @@ fieldset input[type="radio"] {
 	right: 0.2in;
 	cursor: pointer;
 }
-
