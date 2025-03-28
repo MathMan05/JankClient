@@ -1,7 +1,7 @@
 import {Message} from "./message.js";
 import {MarkDown} from "./markdown.js";
 import {embedjson, invitejson} from "./jsontypes.js";
-import {getapiurls, getInstances} from "./utils/utils.js";
+import {getapiurls, getBulkUsers, getInstances, Specialuser} from "./utils/utils.js";
 import {Guild} from "./guild.js";
 import {I18n} from "./i18n.js";
 import {ImagesDisplay} from "./disimg.js";
@@ -17,12 +17,16 @@ class Embed {
 		this.json = json;
 	}
 	getType(json: embedjson) {
-		const instances = getInstances();
+		const users = Object.values(getBulkUsers().users) as Specialuser[];
+		const instances = getInstances()
+			?.map((_) => _.url)
+			.filter((_) => undefined !== _)
+			.concat(users.map((_) => _.serverurls.wellknown));
 		if (instances && json.type === "link" && json.url && URL.canParse(json.url)) {
 			const Url = new URL(json.url);
 			for (const instance of instances) {
-				if (instance.url && URL.canParse(instance.url)) {
-					const IUrl = new URL(instance.url);
+				if (instance && URL.canParse(instance)) {
+					const IUrl = new URL(instance);
 					const params = new URLSearchParams(Url.search);
 					let host: string;
 					if (params.has("instance")) {
@@ -38,7 +42,7 @@ class Embed {
 					if (IUrl.host === host) {
 						const code = Url.pathname.split("/")[Url.pathname.split("/").length - 1];
 						json.invite = {
-							url: instance.url,
+							url: instance,
 							code,
 						};
 						return "invite";
