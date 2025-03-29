@@ -53,6 +53,12 @@
 		"createChannel": "Kanal uleeën",
 		"createCatagory": "Kategorie uleeën"
 	},
+	"webhooks": {
+		"name": "Numm:",
+		"channel": "Kanal",
+		"type": "Typ: $1",
+		"areYouSureDelete": "Sidd Dir sécher, datt Dir $1 läsche wëllt?"
+	},
 	"switchAccounts": "Konto wiesselen ⇌",
 	"htmlPages": {
 		"instanceField": "Instanz:",

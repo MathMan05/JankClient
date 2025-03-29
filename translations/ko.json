@@ -124,7 +124,8 @@
 		"loadingDiscovery": "불러오는 중...",
 		"default": "기본값 ($1)",
 		"description:": "설명:",
-		"systemSelect:": "시스템 메시지 채널:"
+		"systemSelect:": "시스템 메시지 채널:",
+		"INVITES_DISABLED": "초대 전용"
 	},
 	"role": {
 		"displaySettings": "표시 설정",
