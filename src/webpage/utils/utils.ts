@@ -516,7 +516,7 @@ export async function getapiurls(str: string): Promise<
 					tempurls.api.protocol = protical;
 
 					tempurls.gateway.host = newOrgin;
-					tempurls.gateway.protocol = newOrgin === "http:" ? "ws:" : "wss:";
+					tempurls.gateway.protocol = temp.protocol === "http:" ? "ws:" : "wss:";
 
 					tempurls.wellknown.host = newOrgin;
 					tempurls.wellknown.protocol = protical;
