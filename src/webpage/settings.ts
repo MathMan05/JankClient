@@ -876,6 +876,7 @@ class Options implements OptionsElement<void> {
 		container.classList.add(this.ltr ? "flexltr" : "flexttb", "flexspace");
 		this.generateContainter();
 		div.append(container);
+		console.log(div);
 		return div;
 	}
 	generateName(): (HTMLElement | string)[] {
@@ -908,7 +909,8 @@ class Options implements OptionsElement<void> {
 			(this.owner instanceof Options && this.owner.subOptions !== this) ||
 			(this.owner instanceof Form && this.owner.owner.subOptions !== this.owner) ||
 			this.owner instanceof Settings ||
-			this.owner instanceof Buttons
+			this.owner instanceof Buttons ||
+			this.owner instanceof Float
 		);
 	}
 	generateContainter() {

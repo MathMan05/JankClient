@@ -1337,6 +1337,11 @@ span.instanceStatus {
 	margin-top: 4px;
 	border-radius: 4px;
 }
+.media-medium {
+	max-width: 1.2in !important;
+	max-height: 1in;
+	object-fit: contain;
+}
 .media-small {
 	max-width: 0.6in !important;
 	max-height: 0.4in;
