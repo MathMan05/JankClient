@@ -183,13 +183,18 @@ class Contextmenu<x, y> {
 		other: y,
 		touchDrag: (x: number, y: number) => unknown = () => {},
 		touchEnd: (x: number, y: number) => unknown = () => {},
+		click: "right" | "left" = "right",
 	) {
 		const func = (event: MouseEvent) => {
 			event.preventDefault();
 			event.stopImmediatePropagation();
 			this.makemenu(event.clientX, event.clientY, addinfo, other);
 		};
-		obj.addEventListener("contextmenu", func);
+		if (click === "right") {
+			obj.addEventListener("contextmenu", func);
+		} else {
+			obj.addEventListener("click", func);
+		}
 		//NOTE not sure if this code is correct, seems fine at least for now
 		if (mobile) {
 			let hold: NodeJS.Timeout | undefined;

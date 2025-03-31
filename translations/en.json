@@ -12,7 +12,12 @@
 	"copymessageid": "Copy message id",
 	"media": {
 		"notFound": "Media could not be found",
-		"loading": "Loading"
+		"loading": "Loading",
+		"download": "Download media",
+		"moreInfo": "More info",
+		"artist": "Artist: $1",
+		"composer": "Composer: $1",
+		"length": "Length: $1 minutes and $2 seconds"
 	},
 	"permissions": {
 		"descriptions": {

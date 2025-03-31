@@ -1,5 +1,50 @@
+import {Contextmenu} from "./contextmenu.js";
 import {I18n} from "./i18n.js";
+import {Dialog} from "./settings.js";
+const menu = new Contextmenu<media, undefined>("media");
+menu.addButton(
+	() => I18n.media.download(),
+	function () {
+		const a = document.createElement("a");
+		a.href = this.src;
+		a.download = this.filename;
+		a.click();
+	},
+);
+menu.addButton(
+	() => I18n.media.moreInfo(),
+	async function () {
+		const di = new Dialog(this.title);
+		const options = di.float.options;
+		if (this.img) {
+			const img = document.createElement("img");
+			img.classList.add("media-medium");
+			img.src = this.img.url;
+			if (this.img.description) img.alt = this.img.description;
+			options.addHTMLArea(img);
+		}
+		if (this.artist) {
+			options.addText(I18n.media.artist(this.artist));
+		}
+		if (this.composer) {
+			options.addText(I18n.media.composer(this.composer));
+		}
+		{
+			const mins = Math.floor((await this.length) / 60000);
+			const seconds = Math.round(((await this.length) - mins * 60000) / 1000);
+			options.addText(I18n.media.length(mins + "", seconds + ""));
+		}
 
+		di.show();
+		if (this.copyright) {
+			const text = options.addText(this.copyright);
+			const txt = text.elm.deref();
+			if (txt) {
+				txt.classList.add("timestamp");
+			}
+		}
+	},
+);
 type mediaEvents =
 	| {
 			type: "play";
@@ -66,6 +111,14 @@ function makePlayBox(mor: string | media, player: MediaPlayer, ctime = 0) {
 			span.textContent = I18n.media.notFound();
 			return;
 		}
+		menu.bindContextmenu(
+			more,
+			thing,
+			undefined,
+			() => {},
+			() => {},
+			"left",
+		);
 		player.addListener(thing.src, followUpdates, div);
 		let int = setInterval((_) => {}, 1000);
 		if (mor instanceof Object) {
@@ -183,6 +236,7 @@ function makePlayBox(mor: string | media, player: MediaPlayer, ctime = 0) {
 
 interface media {
 	src: string;
+	filename: string;
 	img?: {
 		url: string;
 		description?: string;
@@ -489,6 +543,7 @@ class MediaPlayer {
 		} catch (e) {
 			console.error(e);
 		} finally {
+			output.filename = url.split("/").at(-1);
 			controller.abort();
 			if (!output.length) {
 				output.length = new Promise<number>(async (res) => {
@@ -504,7 +559,7 @@ class MediaPlayer {
 				});
 			}
 			if (!output.title) {
-				output.title = url.split("/").at(-1);
+				output.title = output.filename;
 			}
 		}
 		resMedio(output as media);
