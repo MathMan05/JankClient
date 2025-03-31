@@ -1919,6 +1919,17 @@ class Localuser {
 				});
 			}
 		}
+		{
+			const jankInfo = settings.addButton(I18n.jankInfo());
+			const img = document.createElement("img");
+			img.src = "/logo.svg";
+			jankInfo.addHTMLArea(img);
+			img.width = 128;
+			img.height = 128;
+			jankInfo.addMDText(
+				I18n.clientDesc("Jank-Rolling", window.location.origin, this.rights.allow + ""),
+			);
+		}
 		settings.show();
 	}
 	readonly botTokens: Map<string, string> = new Map();
