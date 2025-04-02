@@ -317,6 +317,34 @@ class Guild extends SnowFlake {
 			genDiv();
 			emoji.addHTMLArea(containdiv);
 		}
+		(async () => {
+			const widgetMenu = settings.addButton(I18n.widget());
+			const cur = (await (
+				await fetch(this.info.api + "/guilds/" + this.id + "/widget", {
+					headers: this.headers,
+				})
+			).json()) as {
+				enabled: boolean;
+				channel_id?: null | string;
+			};
+			const form = widgetMenu.addForm("", () => {}, {
+				traditionalSubmit: true,
+				fetchURL: this.info.api + "/guilds/" + this.id + "/widget",
+				headers: this.headers,
+				method: "PATCH",
+			});
+			form.addCheckboxInput(I18n.widgetEnabled(), "enabled", {initState: cur.enabled});
+			const channels = this.channels.filter((_) => _.type !== 4);
+			form.addSelect(
+				I18n.channel.name(),
+				"channel_id",
+				channels.map((_) => _.name),
+				{
+					defaultIndex: channels.findIndex((_) => _.id == cur.channel_id),
+				},
+				channels.map((_) => _.id),
+			);
+		})();
 		const webhooks = settings.addButton(I18n.webhooks.base());
 		webhookMenu(this, this.info.api + `/guilds/${this.id}/webhooks`, webhooks);
 		settings.show();

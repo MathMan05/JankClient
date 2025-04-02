@@ -36,6 +36,7 @@ body {
 	flex-grow: 0;
 	flex-shrink: 0;
 	height: 52px;
+	position: relative;
 
 	* {
 		margin: 2px;
@@ -332,6 +333,12 @@ textarea {
 	cursor: pointer;
 	display: block;
 	mask-size: cover !important;
+}
+.svg-spoiler {
+	mask: url(/icons/spoiler.svg);
+}
+.svg-unspoiler {
+	mask: url(/icons/unspoiler.svg);
 }
 .svg-soundMore {
 	mask: url(/icons/soundMore.svg);
@@ -1094,6 +1101,7 @@ span.instanceStatus {
 }
 .messageimgdiv {
 	height: 100%;
+	position: relative;
 }
 .messageimg {
 	height: 100%;
@@ -1223,6 +1231,29 @@ span.instanceStatus {
 .messagediv:hover {
 	background: var(--primary-hover);
 }
+.fSpoil {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	backdrop-filter: blur(20px);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	transition: backdrop-filter 0.4s;
+	span {
+		background: var(--spoiler-bg);
+		padding: 3px 6px;
+		border-radius: 6px;
+	}
+}
+.fSpoil:hover {
+	backdrop-filter: blur(15px);
+	span {
+		background: var(--spoiler-hover);
+	}
+}
 .messageButtons,
 .controls {
 	position: absolute;
@@ -1262,6 +1293,7 @@ span.instanceStatus {
 	top: 6px;
 	right: 6px;
 	box-shadow: 0 0 1.5px var(--primary-text-soft);
+	z-index: 1;
 }
 .message {
 	padding-right: 28px;
@@ -1603,6 +1635,7 @@ img.bigembedimg {
 	padding: 4px;
 	background: var(--secondary-bg);
 	border-radius: 4px;
+	position: relative;
 }
 .acceptinvbutton {
 	width: calc(100% - 24px);
