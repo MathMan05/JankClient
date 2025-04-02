@@ -145,6 +145,10 @@
 	"noMessages": "No messages appear to be here, be the first to say something!",
 	"blankMessage": "Blank Message",
 	"spoiler": "Spoiler",
+	"accessibility": {
+		"name": "Accessibility",
+		"roleColors": "Disable role colors"
+	},
 	"channel": {
 		"name": "Channel",
 		"copyId": "Copy channel id",
