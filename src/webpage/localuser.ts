@@ -1631,6 +1631,18 @@ class Localuser {
 			genSecurity();
 		}
 		{
+			const accessibility = settings.addButton(I18n.accessibility.name());
+			accessibility.addCheckboxInput(
+				I18n.accessibility.roleColors(),
+				(t) => {
+					this.perminfo.user.disableColors = !t;
+				},
+				{
+					initState: !this.perminfo.user.disableColors,
+				},
+			);
+		}
+		{
 			const connections = settings.addButton(I18n.getTranslation("localuser.connections"));
 			const connectionContainer = document.createElement("div");
 			connectionContainer.id = "connection-container";

@@ -442,6 +442,9 @@ class Member extends SnowFlake {
 		return false;
 	}
 	getColor() {
+		if (!this.localuser.perminfo.user.disableColors) {
+			return "";
+		}
 		for (const thing of this.roles) {
 			const color = thing.getColor();
 			if (color) {
