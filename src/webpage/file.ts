@@ -2,6 +2,7 @@ import {Message} from "./message.js";
 import {filejson} from "./jsontypes.js";
 import {ImagesDisplay} from "./disimg.js";
 import {makePlayBox, MediaPlayer} from "./media.js";
+import {I18n} from "./i18n.js";
 class File {
 	owner: Message | null;
 	id: string;
@@ -24,7 +25,17 @@ class File {
 		this.content_type = fileJSON.content_type;
 		this.size = fileJSON.size;
 	}
-	getHTML(temp: boolean = false, fullScreen = false): HTMLElement {
+	getHTML(temp: boolean = false, fullScreen = false, OSpoiler = false): HTMLElement {
+		function makeSpoilerHTML(): HTMLElement {
+			const spoil = document.createElement("div");
+			spoil.classList.add("fSpoil");
+			const stext = document.createElement("span");
+			stext.textContent = I18n.spoiler();
+			spoil.append(stext);
+			spoil.onclick = () => spoil.remove();
+			return spoil;
+		}
+		OSpoiler ||= this.filename.startsWith("SPOILER_");
 		const src = this.proxy_url || this.url;
 		if (this.width && this.height) {
 			let scale = 1;
@@ -60,6 +71,9 @@ class File {
 				div.style.height = this.height + "px";
 			}
 			if (!fullScreen) {
+				if (OSpoiler) {
+					div.append(makeSpoilerHTML());
+				}
 				return div;
 			} else {
 				return img;
@@ -75,11 +89,25 @@ class File {
 				video.width = this.width;
 				video.height = this.height;
 			}
+			if (OSpoiler) {
+				const div = document.createElement("div");
+				div.style.setProperty("position", "relative");
+				div.append(video, makeSpoilerHTML());
+				return div;
+			}
 			return video;
 		} else if (this.content_type.startsWith("audio/")) {
-			return this.getAudioHTML();
+			const a = this.getAudioHTML();
+			if (OSpoiler) {
+				a.append(makeSpoilerHTML());
+			}
+			return a;
 		} else {
-			return this.createunknown();
+			const uk = this.createunknown();
+			if (OSpoiler) {
+				uk.append(makeSpoilerHTML());
+			}
+			return uk;
 		}
 	}
 	private getAudioHTML() {
@@ -88,10 +116,12 @@ class File {
 	}
 	upHTML(files: Blob[], file: globalThis.File): HTMLElement {
 		const div = document.createElement("div");
-		const contained = this.getHTML(true);
+		let contained = this.getHTML(true, false, file.name.startsWith("SPOILER_"));
 		div.classList.add("containedFile");
 		div.append(contained);
 		const controls = document.createElement("div");
+		controls.classList.add("controls");
+
 		const garbage = document.createElement("button");
 		const icon = document.createElement("span");
 		icon.classList.add("svgicon", "svg-delete");
@@ -100,9 +130,37 @@ class File {
 			div.remove();
 			files.splice(files.indexOf(file), 1);
 		};
-		controls.classList.add("controls");
+
+		const spoiler = document.createElement("button");
+		const sicon = document.createElement("span");
+		sicon.classList.add(
+			"svgicon",
+			file.name.startsWith("SPOILER_") ? "svg-unspoiler" : "svg-spoiler",
+		);
+		spoiler.append(sicon);
+		spoiler.onclick = (_) => {
+			if (file.name.startsWith("SPOILER_")) {
+				const name = file.name.split("SPOILER_");
+				name.shift();
+				file = files[files.indexOf(file)] = new globalThis.File([file], name.join("SPOILER_"), {
+					type: file.type,
+				});
+				sicon.classList.add("svg-spoiler");
+				sicon.classList.remove("svg-unspoiler");
+			} else {
+				file = files[files.indexOf(file)] = new globalThis.File([file], "SPOILER_" + file.name, {
+					type: file.type,
+				});
+				sicon.classList.add("svg-unspoiler");
+				sicon.classList.remove("svg-spoiler");
+			}
+			contained.remove();
+			contained = this.getHTML(true, false, file.name.startsWith("SPOILER_"));
+			div.append(contained);
+		};
+
 		div.append(controls);
-		controls.append(garbage);
+		controls.append(spoiler, garbage);
 		return div;
 	}
 	static initFromBlob(file: globalThis.File) {
