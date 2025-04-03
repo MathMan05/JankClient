@@ -483,7 +483,7 @@
 		"pasteInfo": "Paste the recovery URL here:",
 		"newPassword": "New password:",
 		"enterPAgain": "Enter new password again:",
-		"recovery": "Forgotten password"
+		"recovery": "Forgotten Password"
 	},
 	"member": {
 		"kick": "Kick $1 from $2",
