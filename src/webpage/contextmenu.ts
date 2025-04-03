@@ -169,7 +169,11 @@ class Contextmenu<x, y> {
 		if (Contextmenu.currentmenu !== "") {
 			Contextmenu.currentmenu.remove();
 		}
-		div.style.top = y + "px";
+		if (y > 0) {
+			div.style.top = y + "px";
+		} else {
+			div.style.bottom = y * -1 + "px";
+		}
 		div.style.left = x + "px";
 		document.body.appendChild(div);
 		Contextmenu.keepOnScreen(div);

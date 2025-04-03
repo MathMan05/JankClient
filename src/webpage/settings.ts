@@ -351,7 +351,7 @@ class SelectInput implements OptionsElement<number> {
 	readonly label: string;
 	readonly owner: Options;
 	readonly onSubmit: (str: number) => void;
-	options: string[];
+	options: readonly string[];
 	index: number;
 	select!: WeakRef<HTMLSelectElement>;
 	radio: boolean;
@@ -361,7 +361,7 @@ class SelectInput implements OptionsElement<number> {
 	constructor(
 		label: string,
 		onSubmit: (str: number) => void,
-		options: string[],
+		options: readonly string[],
 		owner: Options,
 		{defaultIndex = 0, radio = false} = {},
 	) {
@@ -619,7 +619,7 @@ class Dialog {
 	constructor(name: string, {ltr = false, noSubmit = true} = {}) {
 		this.float = new Float(name, {ltr, noSubmit});
 	}
-	show() {
+	show(hideOnClick = true) {
 		const background = document.createElement("div");
 		background.classList.add("background");
 		const center = this.float.generateHTML();
@@ -632,7 +632,9 @@ class Dialog {
 		document.body.append(background);
 		this.background = new WeakRef(background);
 		background.onclick = (_) => {
-			background.remove();
+			if (hideOnClick) {
+				background.remove();
+			}
 		};
 	}
 	hide() {
@@ -738,7 +740,7 @@ class Options implements OptionsElement<void> {
 	addSelect(
 		label: string,
 		onSubmit: (str: number) => void,
-		selections: string[],
+		selections: readonly string[],
 		{defaultIndex = 0, radio = false} = {},
 	) {
 		const select = new SelectInput(label, onSubmit, selections, this, {

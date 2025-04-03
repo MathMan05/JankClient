@@ -3,7 +3,7 @@ import {Channel} from "./channel.js";
 import {Direct} from "./direct.js";
 import {AVoice} from "./audio/voice.js";
 import {User} from "./user.js";
-import {getapiurls, SW} from "./utils/utils.js";
+import {getapiurls, getBulkUsers, SW} from "./utils/utils.js";
 import {getBulkInfo, setTheme, Specialuser} from "./utils/utils.js";
 import {
 	channeljson,
@@ -30,6 +30,7 @@ import {Play} from "./audio/play.js";
 import {Message} from "./message.js";
 import {badgeArr} from "./Dbadges.js";
 import {Rights} from "./rights.js";
+import {Contextmenu} from "./contextmenu.js";
 
 const wsCodesRetry = new Set([4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009]);
 
@@ -75,6 +76,146 @@ class Localuser {
 	set perminfo(e) {
 		this.userinfo.localuserStore = e;
 	}
+	static users = getBulkUsers();
+	static showAccountSwitcher(thisUser: Localuser): void {
+		const table = document.createElement("div");
+		table.classList.add("flexttb", "accountSwitcher");
+
+		for (const user of Object.values(this.users.users)) {
+			const specialUser = user as Specialuser;
+			const userInfo = document.createElement("div");
+			userInfo.classList.add("flexltr", "switchtable");
+
+			const pfp = document.createElement("img");
+			pfp.src = specialUser.pfpsrc;
+			pfp.classList.add("pfp");
+			userInfo.append(pfp);
+
+			const userDiv = document.createElement("div");
+			userDiv.classList.add("userinfo");
+			userDiv.textContent = specialUser.username;
+			userDiv.append(document.createElement("br"));
+
+			const span = document.createElement("span");
+			span.textContent = specialUser.serverurls.wellknown
+				.replace("https://", "")
+				.replace("http://", "");
+			span.classList.add("serverURL");
+			userDiv.append(span);
+
+			userInfo.append(userDiv);
+			table.append(userInfo);
+
+			userInfo.addEventListener("click", () => {
+				thisUser.unload();
+				thisUser.swapped = true;
+				const loading = document.getElementById("loading") as HTMLDivElement;
+				loading.classList.remove("doneloading");
+				loading.classList.add("loading");
+
+				thisUser = new Localuser(specialUser);
+				Localuser.users.currentuser = specialUser.uid;
+				sessionStorage.setItem("currentuser", specialUser.uid);
+				localStorage.setItem("userinfos", JSON.stringify(Localuser.users));
+
+				thisUser.initwebsocket().then(() => {
+					thisUser.loaduser();
+					thisUser.init();
+					loading.classList.add("doneloading");
+					loading.classList.remove("loading");
+					console.log("done loading");
+				});
+
+				userInfo.remove();
+			});
+		}
+
+		const switchAccountDiv = document.createElement("div");
+		switchAccountDiv.classList.add("switchtable");
+		switchAccountDiv.textContent = I18n.getTranslation("switchAccounts");
+		switchAccountDiv.addEventListener("click", () => {
+			window.location.href = "/login.html";
+		});
+		table.append(switchAccountDiv);
+
+		if (Contextmenu.currentmenu) {
+			Contextmenu.currentmenu.remove();
+		}
+		Contextmenu.currentmenu = table;
+		document.body.append(table);
+	}
+	static userMenu = this.generateUserMenu();
+	static generateUserMenu() {
+		const menu = new Contextmenu<Localuser, void>("");
+		menu.addButton(
+			() => I18n.localuser.addStatus(),
+			function () {
+				const d = new Dialog(I18n.localuser.status());
+				const opt = d.float.options.addForm(
+					"",
+					() => {
+						const status = cust.value;
+						sessionStorage.setItem("cstatus", JSON.stringify({text: status}));
+						//this.user.setstatus(status);
+						d.hide();
+					},
+					{
+						fetchURL: this.info.api + "/users/@me/settings",
+						method: "PATCH",
+						headers: this.headers,
+					},
+				);
+				opt.addText(I18n.localuser.customStatusWarn());
+				opt.addPreprocessor((obj) => {
+					if ("custom_status" in obj) {
+						obj.custom_status = {text: obj.custom_status};
+					}
+				});
+				const cust = opt.addTextInput(I18n.localuser.status(), "custom_status", {});
+				d.show();
+			},
+		);
+		menu.addButton(
+			() => I18n.localuser.status(),
+			function () {
+				const d = new Dialog(I18n.localuser.status());
+				const opt = d.float.options;
+				const selection = ["online", "invisible", "dnd", "idle"] as const;
+				opt.addText(I18n.localuser.statusWarn());
+				const smap = selection.map((_) => I18n.user[_]());
+				let index = selection.indexOf(
+					sessionStorage.getItem("status") as "online" | "invisible" | "dnd" | "idle",
+				);
+				if (index === -1) {
+					index = 0;
+				}
+				opt
+					.addSelect("", () => {}, smap, {
+						defaultIndex: index,
+					})
+					.watchForChange(async (i) => {
+						const status = selection[i];
+						await fetch(this.info.api + "/users/@me/settings", {
+							body: JSON.stringify({
+								status,
+							}),
+							headers: this.headers,
+							method: "PATCH",
+						});
+						sessionStorage.setItem("status", status);
+						this.user.setstatus(status);
+					});
+				d.show();
+			},
+		);
+		menu.addButton(
+			() => I18n.switchAccounts(),
+			function () {
+				Localuser.showAccountSwitcher(this);
+			},
+		);
+		return menu;
+	}
 	constructor(userinfo: Specialuser | -1) {
 		Play.playURL("/audio/sounds.jasf").then((_) => {
 			this.play = _;
@@ -104,7 +245,7 @@ class Localuser {
 		this.guilds = [];
 		this.guildids = new Map();
 		this.user = new User(ready.d.user, this);
-		this.user.setstatus("online");
+		this.user.setstatus(sessionStorage.getItem("status") || "online");
 		this.resume_gateway_url = ready.d.resume_gateway_url;
 		this.session_id = ready.d.session_id;
 
@@ -240,7 +381,7 @@ class Localuser {
 								},
 								compress: Boolean(DecompressionStream),
 								presence: {
-									status: "online",
+									status: sessionStorage.getItem("status") || "online",
 									since: null, //new Date().getTime()
 									activities: [],
 									afk: false,
@@ -756,13 +897,13 @@ class Localuser {
 		for (const [role, list] of elms) {
 			members.forEach((member) => {
 				if (role === "offline") {
-					if (member.user.getStatus() === "offline") {
+					if (member.user.getStatus() === "offline" || member.user.getStatus() === "invisible") {
 						list.push(member);
 						members.delete(member);
 					}
 					return;
 				}
-				if (member.user.getStatus() === "offline") {
+				if (member.user.getStatus() === "offline" || member.user.getStatus() === "invisible") {
 					return;
 				}
 				if (role !== "online" && member.hasRole(role.id)) {

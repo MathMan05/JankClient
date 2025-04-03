@@ -295,6 +295,10 @@
 		"save": "Save changes"
 	},
 	"localuser": {
+		"addStatus": "Add status",
+		"status": "Status",
+		"statusWarn": "Spacebar has bugs with this feature and will only update after a refresh, and will often not respect it",
+		"customStatusWarn": "Spacebar does not support custom status being displayed at this time so while it'll accept the status, it will not do anything with it",
 		"settings": "Settings",
 		"userSettings": "User Settings",
 		"themesAndSounds": "Themes & Sounds",
@@ -331,7 +335,7 @@
 		"changePassword": "Change password",
 		"oldPassword:": "Old password:",
 		"newPassword:": "New password:",
-		"PasswordsNoMatch": "Password don't match",
+		"PasswordsNoMatch": "Passwords don't match",
 		"disableConnection": "This connection has been disabled server-side",
 		"devPortal": "Developer Portal",
 		"createApp": "Create application",
@@ -455,6 +459,9 @@
 		"copyId": "Copy user ID",
 		"online": "Online",
 		"offline": "Offline",
+		"invisible": "Invisible",
+		"dnd": "Do Not Disturb",
+		"idle": "Idle",
 		"message": "Message user",
 		"block": "Block user",
 		"unblock": "Unblock user",
@@ -471,7 +478,12 @@
 		"checking": "Checking Instance",
 		"allGood": "All good",
 		"invalid": "Invalid Instance, try again",
-		"waiting": "Waiting to check Instance"
+		"waiting": "Waiting to check Instance",
+		"recover": "Forgot password?",
+		"pasteInfo": "Paste the recovery URL here:",
+		"newPassword": "New password:",
+		"enterPAgain": "Enter new password again:",
+		"recovery": "Forgotten password"
 	},
 	"member": {
 		"kick": "Kick $1 from $2",
