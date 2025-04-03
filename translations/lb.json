@@ -6,6 +6,13 @@
 	},
 	"readableName": "Lëtzebuergesch",
 	"reply": "Äntweren",
+	"media": {
+		"loading": "Lueden",
+		"moreInfo": "Méi Informatiounen",
+		"artist": "Kënschtler: $1",
+		"composer": "Komponist: $1",
+		"length": "Längt: $1 Minutten a(n) $2 Sekonnen"
+	},
 	"permissions": {
 		"readableNames": {
 			"ADMINISTRATOR": "Administrateur",
