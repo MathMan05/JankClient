@@ -2,9 +2,35 @@ import {getBulkInfo, Specialuser} from "./utils/utils.js";
 import {I18n} from "./i18n.js";
 import {Dialog, FormError} from "./settings.js";
 import {checkInstance} from "./utils/utils.js";
-
+function generateRecArea() {
+	const recover = document.getElementById("recover");
+	if (!recover) return;
+	const can = localStorage.getItem("canRecover");
+	if (can) {
+		const a = document.createElement("a");
+		a.textContent = I18n.login.recover();
+		a.href = "/reset";
+		recover.append(a);
+	}
+}
+checkInstance.alt = async (e) => {
+	const recover = document.getElementById("recover");
+	if (!recover) return;
+	recover.innerHTML = "";
+	try {
+		const json = (await (await fetch(e.api + "/policies/instance/config")).json()) as {
+			can_recover_account: boolean;
+		};
+		if (!json || !json.can_recover_account) throw Error("can't recover account");
+		localStorage.setItem("canRecover", "true");
+		generateRecArea();
+	} catch {
+		localStorage.removeItem("canRecover");
+		generateRecArea();
+	}
+};
 await I18n.done;
-
+generateRecArea();
 (async () => {
 	await I18n.done;
 	const instanceField = document.getElementById("instanceField");

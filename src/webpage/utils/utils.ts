@@ -614,7 +614,7 @@ const checkInstance = Object.assign(
 				verify!.textContent = I18n.getTranslation("login.allGood");
 				loginButton.disabled = false;
 				if (checkInstance.alt) {
-					checkInstance.alt();
+					checkInstance.alt(instanceinfo);
 				}
 				setTimeout((_: any) => {
 					console.log(verify!.textContent);
@@ -630,7 +630,16 @@ const checkInstance = Object.assign(
 			loginButton.disabled = true;
 		}
 	},
-	{} as {alt?: Function},
+	{} as {
+		alt?: (e: {
+			wellknown: string;
+			api: string;
+			cdn: string;
+			gateway: string;
+			login: string;
+			value: string;
+		}) => void;
+	},
 );
 export {checkInstance};
 export function getInstances() {

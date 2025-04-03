@@ -124,6 +124,9 @@ class User extends SnowFlake {
 		return this.status && this.status != "offline";
 	}
 	setstatus(status: string): void {
+		if (this.id === this.localuser.user.id) {
+			console.warn(status);
+		}
 		this.status = status;
 	}
 
@@ -482,6 +485,7 @@ class User extends SnowFlake {
 		status.classList.add("statusDiv");
 		switch (await this.getStatus()) {
 			case "offline":
+			case "invisible":
 				status.classList.add("offlinestatus");
 				break;
 			case "online":

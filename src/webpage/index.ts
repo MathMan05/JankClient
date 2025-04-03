@@ -8,8 +8,8 @@ import {File} from "./file.js";
 import {I18n} from "./i18n.js";
 (async () => {
 	await I18n.done;
-	const users = getBulkUsers();
-	if (!users.currentuser) {
+
+	if (!Localuser.users.currentuser) {
 		window.location.href = "/login.html";
 		return;
 	}
@@ -26,94 +26,27 @@ import {I18n} from "./i18n.js";
 		}
 	}
 	I18n;
-	function showAccountSwitcher(): void {
-		const table = document.createElement("div");
-		table.classList.add("flexttb", "accountSwitcher");
-
-		for (const user of Object.values(users.users)) {
-			const specialUser = user as Specialuser;
-			const userInfo = document.createElement("div");
-			userInfo.classList.add("flexltr", "switchtable");
-
-			const pfp = document.createElement("img");
-			pfp.src = specialUser.pfpsrc;
-			pfp.classList.add("pfp");
-			userInfo.append(pfp);
-
-			const userDiv = document.createElement("div");
-			userDiv.classList.add("userinfo");
-			userDiv.textContent = specialUser.username;
-			userDiv.append(document.createElement("br"));
-
-			const span = document.createElement("span");
-			span.textContent = specialUser.serverurls.wellknown
-				.replace("https://", "")
-				.replace("http://", "");
-			span.classList.add("serverURL");
-			userDiv.append(span);
-
-			userInfo.append(userDiv);
-			table.append(userInfo);
-
-			userInfo.addEventListener("click", () => {
-				thisUser.unload();
-				thisUser.swapped = true;
-				const loading = document.getElementById("loading") as HTMLDivElement;
-				loading.classList.remove("doneloading");
-				loading.classList.add("loading");
-
-				thisUser = new Localuser(specialUser);
-				users.currentuser = specialUser.uid;
-				sessionStorage.setItem("currentuser", specialUser.uid);
-				localStorage.setItem("userinfos", JSON.stringify(users));
-
-				thisUser.initwebsocket().then(() => {
-					thisUser.loaduser();
-					thisUser.init();
-					loading.classList.add("doneloading");
-					loading.classList.remove("loading");
-					console.log("done loading");
-				});
-
-				userInfo.remove();
-			});
-		}
-
-		const switchAccountDiv = document.createElement("div");
-		switchAccountDiv.classList.add("switchtable");
-		switchAccountDiv.textContent = I18n.getTranslation("switchAccounts");
-		switchAccountDiv.addEventListener("click", () => {
-			window.location.href = "/login.html";
-		});
-		table.append(switchAccountDiv);
-
-		if (Contextmenu.currentmenu) {
-			Contextmenu.currentmenu.remove();
-		}
-		Contextmenu.currentmenu = table;
-		document.body.append(table);
-	}
 
 	const userInfoElement = document.getElementById("userinfo") as HTMLDivElement;
 	userInfoElement.addEventListener("click", (event) => {
 		event.stopImmediatePropagation();
-		showAccountSwitcher();
+		const rect = userInfoElement.getBoundingClientRect();
+		Localuser.userMenu.makemenu(rect.x, rect.top - 10 - window.innerHeight, thisUser);
 	});
 
 	const switchAccountsElement = document.getElementById("switchaccounts") as HTMLDivElement;
 	switchAccountsElement.addEventListener("click", (event) => {
 		event.stopImmediatePropagation();
-		showAccountSwitcher();
+		Localuser.showAccountSwitcher(thisUser);
 	});
 
 	let thisUser: Localuser;
 	try {
-		const current = sessionStorage.getItem("currentuser") || users.currentuser;
-		console.log(users.users, current);
-		if (!users.users[current]) {
+		const current = sessionStorage.getItem("currentuser") || Localuser.users.currentuser;
+		if (!Localuser.users.users[current]) {
 			window.location.href = "/login";
 		}
-		thisUser = new Localuser(users.users[current]);
+		thisUser = new Localuser(Localuser.users.users[current]);
 		thisUser.initwebsocket().then(() => {
 			thisUser.loaduser();
 			thisUser.init();
