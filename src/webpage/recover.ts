@@ -35,6 +35,7 @@ function makeMenu2(email: string | void) {
 					email: username,
 					token: obj.token,
 				}).username = username;
+				window.location.href = "/login" + window.location.search;
 			}
 		},
 		{

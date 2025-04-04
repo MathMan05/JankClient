@@ -9,7 +9,7 @@ function generateRecArea() {
 	if (can) {
 		const a = document.createElement("a");
 		a.textContent = I18n.login.recover();
-		a.href = "/reset";
+		a.href = "/reset" + window.location.search;
 		recover.append(a);
 	}
 }
