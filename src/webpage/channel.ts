@@ -1499,7 +1499,13 @@ class Channel extends SnowFlake {
 
 		const dont = document.createElement("button");
 		dont.textContent = I18n.message.delete();
-		dont.onclick = (_) => html.remove();
+		dont.onclick = (_) => {
+			this.fakeMessages = this.fakeMessages.filter((_) => _[0] !== m);
+			html.remove();
+			for (const {url} of m.attachments) {
+				URL.revokeObjectURL(url);
+			}
+		};
 		dont.style.marginLeft = "4px";
 		buttons.append(retryB, dont);
 		return {
