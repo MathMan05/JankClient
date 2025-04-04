@@ -12,6 +12,7 @@ import {SnowFlake} from "./snowflake.js";
 import {
 	channeljson,
 	embedjson,
+	filejson,
 	messageCreateJson,
 	messagejson,
 	readyjson,
@@ -24,6 +25,7 @@ import {User} from "./user.js";
 import {I18n} from "./i18n.js";
 import {mobile} from "./utils/utils.js";
 import {webhookMenu} from "./webhooks.js";
+import {File} from "./file.js";
 
 declare global {
 	interface NotificationOptions {
@@ -926,6 +928,11 @@ class Channel extends SnowFlake {
 		messages.append(html);
 	}
 	async getHTML(addstate = true) {
+		const ghostMessages = document.getElementById("ghostMessages") as HTMLElement;
+		ghostMessages.innerHTML = "";
+		for (const thing of this.fakeMessages) {
+			ghostMessages.append(thing[1]);
+		}
 		if (addstate) {
 			history.pushState([this.guild_id, this.id], "", "/channels/" + this.guild_id + "/" + this.id);
 		}
@@ -1438,6 +1445,91 @@ class Channel extends SnowFlake {
 				return "default";
 		}
 	}
+	fakeMessages: [Message, HTMLElement][] = [];
+	fakeMessageMap = new Map<string, [Message, HTMLElement]>();
+	destroyFakeMessage(id: string) {
+		const message = this.fakeMessageMap.get(id);
+		if (!message) return;
+		this.fakeMessages = this.fakeMessages.filter((_) => _[0] !== message[0]);
+		message[1].remove();
+		for (const {url} of message[0].attachments) {
+			URL.revokeObjectURL(url);
+		}
+		this.fakeMessageMap.delete(id);
+	}
+
+	makeFakeMessage(content: string, files: filejson[] = []) {
+		const m = new Message(
+			{
+				author: this.localuser.user.tojson(),
+				channel_id: this.id,
+				guild_id: this.guild.id,
+				id: "fake" + Math.random(),
+				content,
+				timestamp: new Date() + "",
+				edited_timestamp: null,
+				mentions: [],
+				mention_roles: [],
+				mention_everyone: false,
+				attachments: files,
+				tts: false,
+				embeds: [],
+				reactions: [],
+				nonce: Math.random() + "",
+				type: 0,
+				pinned: false,
+			},
+			this,
+			true,
+		);
+		const ghostMessages = document.getElementById("ghostMessages");
+		if (!ghostMessages) throw Error("oops");
+		const html = m.buildhtml(this.lastmessage, true);
+		html.classList.add("messagediv", "loadingMessage");
+		console.log(html);
+		ghostMessages.append(html);
+		this.fakeMessages.push([m, html]);
+		let loadingP = document.createElement("span");
+
+		const buttons = document.createElement("div");
+		buttons.classList.add("flexltr");
+
+		const retryB = document.createElement("button");
+		retryB.textContent = I18n.message.retry();
+
+		const dont = document.createElement("button");
+		dont.textContent = I18n.message.delete();
+		dont.onclick = (_) => html.remove();
+		dont.style.marginLeft = "4px";
+		buttons.append(retryB, dont);
+		return {
+			gotid: (id: string) => {
+				this.fakeMessageMap.set(id, [m, html]);
+				const m2 = this.messages.get(id);
+				if (m2 && m2.div) {
+					this.destroyFakeMessage(id);
+				}
+			},
+			progress: (total: number, sofar: number) => {
+				if (total < 20000 || sofar === total) {
+					loadingP.remove();
+					return;
+				}
+				html.append(loadingP);
+				loadingP.textContent = File.filesizehuman(sofar) + " / " + File.filesizehuman(total);
+			},
+			failed: (retry: () => void) => {
+				loadingP.remove();
+				html.append(buttons);
+				retryB.onclick = () => {
+					retry();
+					html.classList.remove("erroredMessage");
+					buttons.remove();
+				};
+				html.classList.add("erroredMessage");
+			},
+		};
+	}
 	async sendMessage(
 		content: string,
 		{
@@ -1453,6 +1545,36 @@ class Channel extends SnowFlake {
 				message_id: replyingto.id,
 			};
 		}
+
+		let prom: Promise<void>;
+		let res: XMLHttpRequest;
+		let funcs: {
+			gotid: (id: string) => void;
+			progress: (total: number, sofar: number) => void;
+			failed: (restart: () => void) => void;
+		};
+		const progress = (e: ProgressEvent<EventTarget>) => {
+			funcs.progress(e.total, e.loaded);
+		};
+		const promiseHandler = (resolve: () => void) => {
+			res.onload = () => {
+				resolve();
+				console.log(res.response);
+				funcs.gotid(res.response.id);
+			};
+		};
+		const fail = () => {
+			funcs.failed(() => {
+				res.open("POST", this.info.api + "/channels/" + this.id + "/messages");
+				res.setRequestHeader("Authorization", this.headers.Authorization);
+				if (ctype) {
+					res.setRequestHeader("Content-type", ctype);
+				}
+				res.send(rbody);
+			});
+		};
+		let rbody: string | FormData;
+		let ctype: string | undefined;
 		if (attachments.length === 0) {
 			const body = {
 				content,
@@ -1462,11 +1584,23 @@ class Channel extends SnowFlake {
 			if (replyjson) {
 				body.message_reference = replyjson;
 			}
-			return await fetch(this.info.api + "/channels/" + this.id + "/messages", {
+			res = new XMLHttpRequest();
+			res.responseType = "json";
+			res.upload.onprogress = progress;
+			res.onerror = fail;
+			prom = new Promise<void>(promiseHandler);
+			res.open("POST", this.info.api + "/channels/" + this.id + "/messages");
+			res.setRequestHeader("Content-type", (ctype = this.headers["Content-type"]));
+			res.setRequestHeader("Authorization", this.headers.Authorization);
+			funcs = this.makeFakeMessage(content);
+			res.send((rbody = JSON.stringify(body)));
+			/*
+			res = fetch(this.info.api + "/channels/" + this.id + "/messages", {
 				method: "POST",
 				headers: this.headers,
 				body: JSON.stringify(body),
 			});
+			*/
 		} else {
 			const formData = new FormData();
 			const body = {
@@ -1481,12 +1615,36 @@ class Channel extends SnowFlake {
 			for (const i in attachments) {
 				formData.append("files[" + i + "]", attachments[i]);
 			}
-			return await fetch(this.info.api + "/channels/" + this.id + "/messages", {
+
+			res = new XMLHttpRequest();
+			res.responseType = "json";
+			res.upload.onprogress = progress;
+			res.onerror = fail;
+			prom = new Promise<void>(promiseHandler);
+			res.open("POST", this.info.api + "/channels/" + this.id + "/messages", true);
+
+			res.setRequestHeader("Authorization", this.headers.Authorization);
+			funcs = this.makeFakeMessage(
+				content,
+				attachments.map((_) => ({
+					id: "string",
+					filename: "",
+					content_type: _.type,
+					size: _.size,
+					url: URL.createObjectURL(_),
+				})),
+			);
+			res.send((rbody = formData));
+			/*
+			res = fetch(this.info.api + "/channels/" + this.id + "/messages", {
 				method: "POST",
 				body: formData,
 				headers: {Authorization: this.headers.Authorization},
 			});
+			*/
 		}
+
+		return prom;
 	}
 	unreads() {
 		if (!this.hasunreads) {
@@ -1502,7 +1660,12 @@ class Channel extends SnowFlake {
 			}
 		}
 	}
-	messageCreate(messagep: messageCreateJson): void {
+	async messageCreate(messagep: messageCreateJson): Promise<void> {
+		if (this.localuser.channelfocus !== this) {
+			if (this.fakeMessageMap.has(this.id)) {
+				this.destroyFakeMessage(this.id);
+			}
+		}
 		if (!this.hasPermission("VIEW_CHANNEL")) {
 			return;
 		}
@@ -1528,9 +1691,9 @@ class Channel extends SnowFlake {
 		this.guild.unreads();
 		if (this === this.localuser.channelfocus) {
 			if (!this.infinitefocus) {
-				this.tryfocusinfinate();
+				await this.tryfocusinfinate();
 			}
-			this.infinite.addedBottom();
+			await this.infinite.addedBottom();
 		}
 		if (messagez.author === this.localuser.user) {
 			return;

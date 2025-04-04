@@ -130,7 +130,13 @@ class InfiniteScroller {
 	async addedBottom(): Promise<void> {
 		await this.updatestuff();
 		const func = this.snapBottom();
-		await this.watchForChange();
+		if (this.changePromise) {
+			while (this.changePromise) {
+				await new Promise((res) => setTimeout(res, 30));
+			}
+		} else {
+			await this.watchForChange();
+		}
 		func();
 	}
 
@@ -245,6 +251,7 @@ class InfiniteScroller {
 		}
 
 		this.changePromise = new Promise<boolean>(async (res) => {
+			//debugger;
 			try {
 				if (!this.div) {
 					res(false);

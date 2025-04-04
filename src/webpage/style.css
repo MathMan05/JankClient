@@ -1087,6 +1087,9 @@ span.instanceStatus {
 	overflow-y: auto;
 	flex-wrap: wrap;
 }
+#ghostMessages {
+	transform: translate(0px, -22px);
+}
 #pasteimage:empty {
 	height: 0;
 	padding: 0;
@@ -1218,7 +1221,17 @@ span.instanceStatus {
 .dot:nth-child(3) {
 	animation-delay: 0.66s;
 }
-
+.loadingMessage {
+	span {
+		opacity: 0.5;
+	}
+}
+.erroredMessage {
+	span {
+		opacity: 1;
+		color: var(--red);
+	}
+}
 /* Message */
 .messagediv,
 .titlespace {

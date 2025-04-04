@@ -334,7 +334,7 @@ type messagejson = {
 	member?: memberjson;
 	content: string;
 	timestamp: string;
-	edited_timestamp: string;
+	edited_timestamp: string | null;
 	tts: boolean;
 	mention_everyone: boolean;
 	mentions: []; //need examples to fix
@@ -349,7 +349,7 @@ type messagejson = {
 	nonce: string;
 	pinned: boolean;
 	type: number;
-	webhook: webhookInfo;
+	webhook?: webhookInfo;
 };
 type filejson = {
 	id: string;

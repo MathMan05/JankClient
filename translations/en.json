@@ -393,7 +393,8 @@
 		"edit": "Edit message",
 		"edited": "(edited)",
 		"deleted": "Deleted message",
-		"attached": "Sent an attachment"
+		"attached": "Sent an attachment",
+		"retry": "Resend errored message"
 	},
 	"instanceStats": {
 		"name": "Instance stats: $1",
