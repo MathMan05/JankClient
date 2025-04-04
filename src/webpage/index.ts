@@ -188,11 +188,11 @@ import {I18n} from "./i18n.js";
 	(document.getElementById("settings") as HTMLImageElement).onclick = userSettings;
 	const memberListToggle = document.getElementById("memberlisttoggle") as HTMLInputElement;
 	memberListToggle.checked = !localStorage.getItem("memberNotChecked");
-	memberListToggle.onclick = () => {
+	memberListToggle.onchange = () => {
 		if (!memberListToggle.checked) {
 			localStorage.setItem("memberNotChecked", "true");
 		} else {
-			localStorage.delete("memberNotChecked");
+			localStorage.removeItem("memberNotChecked");
 		}
 	};
 	if (mobile) {

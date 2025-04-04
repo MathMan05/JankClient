@@ -123,6 +123,9 @@ async function getfile(event: FetchEvent): Promise<Response> {
 
 self.addEventListener("fetch", (e) => {
 	const event = e as FetchEvent;
+	if (event.request.method === "POST") {
+		return;
+	}
 	try {
 		event.respondWith(getfile(event));
 	} catch (e) {

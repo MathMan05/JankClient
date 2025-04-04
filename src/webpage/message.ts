@@ -310,6 +310,9 @@ class Message extends SnowFlake {
 		}
 		return build;
 	}
+	getUnixTime(): number {
+		return new Date(this.timestamp).getTime();
+	}
 	async edit(content: string) {
 		return await fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
 			method: "PATCH",
@@ -920,6 +923,9 @@ class Message extends SnowFlake {
 		}
 	}
 	buildhtml(premessage?: Message | undefined, dupe = false): HTMLElement {
+		if (this.channel.fakeMessageMap.has(this.id)) {
+			this.channel.destroyFakeMessage(this.id);
+		}
 		if (dupe) {
 			return this.generateMessage(premessage, false, document.createElement("div")) as HTMLElement;
 		}

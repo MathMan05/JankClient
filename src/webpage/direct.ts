@@ -429,6 +429,11 @@ class Group extends Channel {
 		return div;
 	}
 	async getHTML(addstate = true) {
+		const ghostMessages = document.getElementById("ghostMessages") as HTMLElement;
+		ghostMessages.innerHTML = "";
+		for (const thing of this.fakeMessages) {
+			ghostMessages.append(thing[1]);
+		}
 		const id = ++Channel.genid;
 		if (this.localuser.channelfocus) {
 			this.localuser.channelfocus.infinite.delete();
@@ -462,7 +467,15 @@ class Group extends Channel {
 		}
 		this.buildmessages();
 	}
-	messageCreate(messagep: {d: messagejson}) {
+	async messageCreate(messagep: {d: messagejson}) {
+		if (this.localuser.channelfocus !== this) {
+			if (this.fakeMessageMap.has(this.id)) {
+				this.destroyFakeMessage(this.id);
+			}
+		}
+		if (this.fakeMessageMap.has(messagep.d.id)) {
+			this.destroyFakeMessage(messagep.d.id);
+		}
 		this.mentions++;
 		const messagez = new Message(messagep.d, this);
 
@@ -501,9 +514,9 @@ class Group extends Channel {
 		}
 		if (this === this.localuser.channelfocus) {
 			if (!this.infinitefocus) {
-				this.tryfocusinfinate();
+				await this.tryfocusinfinate();
 			}
-			this.infinite.addedBottom();
+			await this.infinite.addedBottom();
 		}
 		this.unreads();
 		if (messagez.author === this.localuser.user) {

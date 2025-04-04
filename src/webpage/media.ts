@@ -156,7 +156,6 @@ function makePlayBox(mor: string | media, player: MediaPlayer, ctime = 0) {
 		};
 		function followUpdates(cur: mediaEvents) {
 			if (audio && cur.type !== "playing") {
-				console.log(cur);
 			}
 			if (cur.type == "audio" && audio) {
 				if (cur.t == "start") {
@@ -220,7 +219,6 @@ function makePlayBox(mor: string | media, player: MediaPlayer, ctime = 0) {
 			regenTime(+bar.value * 1000);
 		};
 		async function regenTime(curTime: number = 0) {
-			console.log(med.length);
 			const len = await med.length;
 			bar.disabled = false;
 			bar.max = "" + len / 1000;
@@ -229,7 +227,6 @@ function makePlayBox(mor: string | media, player: MediaPlayer, ctime = 0) {
 		}
 		regenTime();
 		title.textContent = thing.title;
-		console.log(thing);
 	});
 	return div;
 }
@@ -274,7 +271,6 @@ class MediaPlayer {
 			if (!document.contains(elm)) {
 				clearInterval(int);
 				this.listeners = this.listeners.filter((_) => _[0] !== updates);
-				console.log("cleared data");
 			}
 		}, 1000);
 	}
@@ -352,7 +348,6 @@ class MediaPlayer {
 					if (size !== 0) {
 						cbuff = (await read.read()).value;
 						index = 0;
-						console.log("got more buffer", index, arri, size);
 					}
 				}
 				return arr;
@@ -372,7 +367,6 @@ class MediaPlayer {
 						const Identify = String.fromCharCode(await next(), await next(), await next());
 						const sizeArr = await get8BitArray(3);
 						const size = (sizeArr[0] << 16) + (sizeArr[1] << 8) + sizeArr[2];
-						console.log(sizeLeft, size, index);
 						if (Identify === String.fromCharCode(0, 0, 0)) {
 							break;
 						}
@@ -389,7 +383,6 @@ class MediaPlayer {
 						} else {
 							mappy.set(Identify, await get8BitArray(size));
 						}
-						console.warn(sizeLeft);
 					}
 					const pic = mappy.get("PIC");
 					if (pic) {
@@ -400,7 +393,6 @@ class MediaPlayer {
 						}
 						const description = new TextDecoder().decode(new Uint8Array(desc));
 						i++;
-						console.warn(pic, i);
 						const blob = new Blob([pic.slice(i, pic.length).buffer], {type: "image/jpeg"});
 						const urlmaker = window.URL || window.webkitURL;
 						const url = urlmaker.createObjectURL(blob);
@@ -467,7 +459,6 @@ class MediaPlayer {
 							continue;
 						}
 
-						console.log(sizeLeft, size, index);
 						if (Identify === String.fromCharCode(0, 0, 0, 0)) {
 							break;
 						}
@@ -484,7 +475,6 @@ class MediaPlayer {
 						} else {
 							mappy.set(Identify, await get8BitArray(size));
 						}
-						console.warn(sizeLeft);
 					}
 					const pic = mappy.get("APIC");
 					if (pic) {
@@ -530,14 +520,12 @@ class MediaPlayer {
 					}
 					const TYER = mappy.get("TYER");
 					if (TYER) {
-						console.log(decodeText(TYER));
 						output.year = +decodeText(TYER);
 					}
 					const TLEN = mappy.get("TLEN");
 					if (TLEN) {
 						output.length = +decodeText(TLEN);
 					}
-					console.log(mappy);
 				}
 			} //TODO implement more metadata types
 		} catch (e) {
@@ -550,12 +538,10 @@ class MediaPlayer {
 					const audio = document.createElement("audio");
 					audio.src = url;
 					audio.onloadeddata = (_) => {
-						console.log("Loaded!", audio.duration * 1000);
 						output.length = audio.duration * 1000;
 						res(audio.duration * 1000);
 					};
 					audio.load();
-					console.log(audio);
 				});
 			}
 			if (!output.title) {
