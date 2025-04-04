@@ -407,6 +407,9 @@ class MarkDown {
 						j.classList.add("spoiler");
 						j.onclick = MarkDown.unspoil;
 						if (keep) {
+							j.click();
+						}
+						if (keep) {
 							j.append(pipes);
 						}
 						span.appendChild(j);
