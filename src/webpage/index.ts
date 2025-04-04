@@ -186,14 +186,21 @@ import {I18n} from "./i18n.js";
 	}
 
 	(document.getElementById("settings") as HTMLImageElement).onclick = userSettings;
-
+	const memberListToggle = document.getElementById("memberlisttoggle") as HTMLInputElement;
+	memberListToggle.checked = !localStorage.getItem("memberNotChecked");
+	memberListToggle.onclick = () => {
+		if (!memberListToggle.checked) {
+			localStorage.setItem("memberNotChecked", "true");
+		} else {
+			localStorage.delete("memberNotChecked");
+		}
+	};
 	if (mobile) {
 		const channelWrapper = document.getElementById("channelw") as HTMLDivElement;
 		channelWrapper.onclick = () => {
 			const toggle = document.getElementById("maintoggle") as HTMLInputElement;
 			toggle.checked = true;
 		};
-		const memberListToggle = document.getElementById("memberlisttoggle") as HTMLInputElement;
 		memberListToggle.checked = false;
 	}
 	let dragendtimeout = setTimeout(() => {});
