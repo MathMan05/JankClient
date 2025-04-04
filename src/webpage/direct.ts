@@ -392,7 +392,11 @@ class Group extends Channel {
 		this.children = [];
 		this.guild_id = "@me";
 		this.permission_overwrites = new Map();
-		this.lastmessageid = json.last_message_id;
+		if (json.last_message_id) {
+			this.lastmessageid = json.last_message_id;
+		} else {
+			this.lastmessageid = undefined;
+		}
 		this.mentions = 0;
 		this.setUpInfiniteScroller();
 		this.updatePosition();
@@ -461,10 +465,12 @@ class Group extends Channel {
 	messageCreate(messagep: {d: messagejson}) {
 		this.mentions++;
 		const messagez = new Message(messagep.d, this);
+
 		if (this.lastmessageid) {
 			this.idToNext.set(this.lastmessageid, messagez.id);
 			this.idToPrev.set(messagez.id, this.lastmessageid);
 		}
+		this.idToNext.set(messagez.id, undefined);
 		this.lastmessageid = messagez.id;
 
 		if (messagez.author === this.localuser.user) {
