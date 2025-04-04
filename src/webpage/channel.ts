@@ -56,8 +56,8 @@ class Channel extends SnowFlake {
 	static contextmenu = new Contextmenu<Channel, undefined>("channel menu");
 	replyingto!: Message | null;
 	infinite!: InfiniteScroller;
-	idToPrev: Map<string, string> = new Map();
-	idToNext: Map<string, string> = new Map();
+	idToPrev: Map<string, string | undefined> = new Map();
+	idToNext: Map<string, string | undefined> = new Map();
 	messages: Map<string, Message> = new Map();
 	voice?: Voice;
 	bitrate: number = 128000;
@@ -1206,6 +1206,9 @@ class Channel extends SnowFlake {
 				return j.json();
 			})
 			.then((response) => {
+				if (response.length === 0) {
+					this.idToNext.set(id, undefined);
+				}
 				let previd: string = id;
 				for (const i in response) {
 					let messager: Message;
@@ -1243,6 +1246,7 @@ class Channel extends SnowFlake {
 					this.allthewayup = true;
 					if (response.length === 0) {
 						this.topid = id;
+						this.idToPrev.set(id, undefined);
 					}
 				}
 				let previd = id;
