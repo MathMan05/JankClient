@@ -12,29 +12,7 @@ function makeMenu2(email: string | void) {
 	const opt = d2.float.options.addForm(
 		"",
 		async (obj) => {
-			const serverurls = JSON.parse(localStorage.getItem("instanceinfo") as string);
-
 			if ("token" in obj && typeof obj.token === "string") {
-				if (email === undefined) {
-					const user = await (
-						await fetch(serverurls.api + "/users/@me", {
-							headers: {
-								Authorization: obj.token,
-							},
-						})
-					).json();
-					if ("email" in user && typeof user.email === "string") {
-						email = user.email;
-					} else {
-						throw new Error("stupid");
-					}
-				}
-				const username = email;
-				adduser({
-					serverurls,
-					email: username,
-					token: obj.token,
-				}).username = username;
 				window.location.href = "/login" + window.location.search;
 			}
 		},
