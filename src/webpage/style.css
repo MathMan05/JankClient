@@ -1666,17 +1666,19 @@ img.bigembedimg {
 	flex: none;
 	width: 240px;
 	background: var(--sidebar-bg);
-	overflow-y: auto;
+	flex-direction: column;
+	justify-content: space-between;
 }
 #sideDiv {
 	padding: 16px 8px;
+	overflow-y: auto;
 	box-sizing: border-box;
 }
 #page:has(#memberlisttoggle:checked) #sideContainDiv {
-	display: block;
+	display: flex;
 }
 #sideContainDiv.searchDiv {
-	display: block;
+	display: flex;
 	width: 30vw;
 	.topMessage {
 		margin-top: 2px;
