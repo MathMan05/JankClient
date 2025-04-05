@@ -1070,6 +1070,8 @@ span.instanceStatus {
 }
 #channelw {
 	flex: 1;
+	max-height: fit-content;
+	flex-basis: auto;
 }
 .scroller {
 	flex: 1;
@@ -1089,6 +1091,7 @@ span.instanceStatus {
 }
 #ghostMessages {
 	transform: translate(0px, -22px);
+	flex-grow: 1;
 }
 #pasteimage:empty {
 	height: 0;
