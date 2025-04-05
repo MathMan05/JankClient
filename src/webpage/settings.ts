@@ -1219,6 +1219,7 @@ class Form implements OptionsElement<object> {
 	addPreprocessor(func: (obj: Object) => void) {
 		this.preprocessor = func;
 	}
+	onFormError = (f: FormError) => {};
 	async submit() {
 		if (this.options.subOptions) {
 			this.options.subOptions.submit();
@@ -1233,6 +1234,7 @@ class Form implements OptionsElement<object> {
 					(build as any)[key] = thing();
 				} catch (e: any) {
 					if (e instanceof FormError) {
+						this.onFormError(e);
 						const elm = this.options.html.get(e.elem);
 						if (elm) {
 							const html = elm.deref();
@@ -1290,6 +1292,7 @@ class Form implements OptionsElement<object> {
 			this.preprocessor(build);
 		} catch (e) {
 			if (e instanceof FormError) {
+				this.onFormError(e);
 				const elm = this.options.html.get(e.elem);
 				if (elm) {
 					const html = elm.deref();
@@ -1324,6 +1327,7 @@ class Form implements OptionsElement<object> {
 					} catch (e) {
 						console.error(e);
 						if (e instanceof FormError) {
+							this.onFormError(e);
 							const elm = this.options.html.get(e.elem);
 							if (elm) {
 								const html = elm.deref();
@@ -1340,6 +1344,7 @@ class Form implements OptionsElement<object> {
 				await this.onSubmit(build, build);
 			} catch (e) {
 				if (e instanceof FormError) {
+					this.onFormError(e);
 					const elm = this.options.html.get(e.elem);
 					if (elm) {
 						const html = elm.deref();
