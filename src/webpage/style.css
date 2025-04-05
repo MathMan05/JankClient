@@ -513,17 +513,10 @@ textarea {
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--primary-text-soft);
 }
-#sideContainDiv:empty {
-	width: 0px;
-	padding: 0;
-}
 #servers::-webkit-scrollbar,
 #channels::-webkit-scrollbar,
 #sideContainDiv::-webkit-scrollbar {
 	display: none;
-}
-#sideContainDiv {
-	width: 0;
 }
 #servers,
 #channels,
@@ -1666,7 +1659,26 @@ img.bigembedimg {
 .acceptinvbutton:disabled {
 	background: color-mix(in hsl, var(--green) 80%, var(--black));
 }
+
+/* Sidebar */
+#sideContainDiv {
+	display: none;
+	flex: none;
+	width: 240px;
+	background: var(--sidebar-bg);
+	flex-direction: column;
+	justify-content: space-between;
+}
+#sideDiv {
+	padding: 16px 8px;
+	overflow-y: auto;
+	box-sizing: border-box;
+}
+#page:has(#memberlisttoggle:checked) #sideContainDiv {
+	display: flex;
+}
 #sideContainDiv.searchDiv {
+	display: flex;
 	width: 30vw;
 	.topMessage {
 		margin-top: 2px;
@@ -1679,16 +1691,6 @@ img.bigembedimg {
 	.topMessage:hover {
 		background: #00000050;
 	}
-}
-/* Sidebar */
-#sideDiv {
-	flex: none;
-	padding: 16px 8px;
-	background: var(--sidebar-bg);
-	overflow-y: auto;
-	box-sizing: border-box;
-	flex-grow: 1;
-	flex-shrink: 1;
 }
 
 .memberList {
@@ -1718,10 +1720,6 @@ img.bigembedimg {
 #memberlisttoggleicon span {
 	height: 16px;
 	width: 16px;
-}
-#page:has(#memberlisttoggle:checked) #sideContainDiv {
-	width: 240px;
-	flex-shrink: 0;
 }
 #page:has(#memberlisttoggle:checked) #memberlisttoggleicon span {
 	background: var(--primary-text-prominent);
@@ -2382,7 +2380,7 @@ fieldset input[type="radio"] {
 		background: var(--primary-bg);
 		transition: left 0.3s;
 	}
-	#sideContainDiv {
+	#sideContainDiv, #sideContainDiv.searchDiv {
 		display: block;
 		right: -100svw;
 		width: 100svw;
@@ -2411,7 +2409,7 @@ fieldset input[type="radio"] {
 	#page:has(#maintoggle:checked) #mainarea {
 		left: 0;
 	}
-	#page:has(#memberlisttoggle:checked) #sideContainDiv {
+	#page:has(#memberlisttoggle:checked) #sideContainDiv, #sideContainDiv.searchDiv {
 		right: 0;
 	}
 	#page:has(#maintoggle:checked) #maintoggleicon {
