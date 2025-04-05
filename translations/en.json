@@ -150,6 +150,7 @@
 		"roleColors": "Disable role colors"
 	},
 	"channel": {
+		"creating": "Creating channel",
 		"name": "Channel",
 		"copyId": "Copy channel id",
 		"markRead": "Mark as read",
@@ -236,6 +237,7 @@
 	"nevermind": "Nevermind",
 	"submit": "submit",
 	"guild": {
+		"creating": "Creating guild",
 		"copyId": "Copy guild id",
 		"markRead": "Mark as read",
 		"notifications": "Notifications",

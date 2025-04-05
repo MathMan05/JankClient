@@ -1181,12 +1181,23 @@ class Localuser {
 					if (_.message) {
 						alert(_.errors.name._errors[0].message);
 					} else {
+						loading.hide();
 						full.hide();
 					}
 				});
 			});
 			form.addFileInput(I18n.getTranslation("guild.icon:"), "icon", {files: "one"});
 			form.addTextInput(I18n.getTranslation("guild.name:"), "name", {required: true});
+			const loading = new Dialog("");
+			loading.float.options.addTitle(I18n.guild.creating());
+			form.onFormError = () => {
+				loading.hide();
+				full.show();
+			};
+			form.addPreprocessor(() => {
+				loading.show();
+				full.hide();
+			});
 		}
 		full.show();
 	}
