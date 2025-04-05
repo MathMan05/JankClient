@@ -1179,6 +1179,8 @@ class Localuser {
 			const form = guildcreate.addForm("", (fields: any) => {
 				this.makeGuild(fields).then((_) => {
 					if (_.message) {
+						loading.hide();
+						full.show();
 						alert(_.errors.name._errors[0].message);
 					} else {
 						loading.hide();
