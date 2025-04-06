@@ -2260,7 +2260,6 @@ class Localuser {
 			md,
 			null,
 		);
-		//*/
 	}
 	MDReplace(
 		replacewith: string,
@@ -2276,14 +2275,10 @@ class Localuser {
 			raw = "";
 		}
 		raw = (start ? original.replace(start, "") : original) + replacewith + raw;
-		console.log(raw);
-		console.log(replacewith);
-		console.log(original);
+
 		typebox.txt = raw.split("");
-		console.log(typebox.rawString);
 		const match = start ? original.match(start) : true;
 		if (match) {
-			console.log(match);
 			typebox.boxupdate(
 				replacewith.length - (match === true ? 0 : match[0].length),
 				false,
@@ -2319,8 +2314,6 @@ class Localuser {
 					const box = typebox.box.deref();
 					if (!box) return;
 					if (selection) {
-						console.warn(original);
-
 						const pos = getTextNodeAtPosition(
 							box,
 							original.length -
