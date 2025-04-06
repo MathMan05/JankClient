@@ -1465,7 +1465,7 @@ class Channel extends SnowFlake {
 				channel_id: this.id,
 				guild_id: this.guild.id,
 				id: "fake" + Math.random(),
-				content,
+				content: content.trim(),
 				timestamp: new Date() + "",
 				edited_timestamp: null,
 				mentions: [],
@@ -1541,8 +1541,12 @@ class Channel extends SnowFlake {
 		{
 			attachments = [],
 			replyingto = null,
+			embeds = [],
 		}: {attachments: Blob[]; embeds: embedjson[]; replyingto: Message | null},
 	) {
+		if (content.trim() === "" && attachments.length === 0 && embeds.length == 0) {
+			return;
+		}
 		let replyjson: any;
 		if (replyingto) {
 			replyjson = {
