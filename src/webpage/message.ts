@@ -46,7 +46,7 @@ class Message extends SnowFlake {
 			get div(){
 			return this.weakdiv?.deref();
 			}
-			//*/
+			*/
 	div: HTMLDivElement | undefined;
 	member: Member | undefined;
 	reactions!: messagejson["reactions"];

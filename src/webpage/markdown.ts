@@ -733,7 +733,6 @@ class MarkDown {
 		};
 		box.onpaste = (_) => {
 			if (!_.clipboardData) return;
-			console.log(_.clipboardData.types);
 			const data = _.clipboardData.getData("text");
 
 			document.execCommand("insertHTML", false, data);
@@ -912,7 +911,6 @@ function saveCaretPosition(
 			}
 			i++;
 		}
-		console.log(base);
 		const prev = base.previousSibling;
 		let len = 0;
 		if ((!prev || prev instanceof HTMLBRElement) && base instanceof HTMLBRElement) {
@@ -984,9 +982,7 @@ function saveCaretPosition(
 			len = computedLength;
 		}
 		len = Math.min(len, txtLengthFunc(context).length);
-		console.log(len, base);
 		len += offset;
-		console.log(len);
 		return function restore() {
 			if (!selection) return;
 			const pos = getTextNodeAtPosition(context, len, txtLengthFunc);
