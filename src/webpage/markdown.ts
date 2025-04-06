@@ -46,6 +46,9 @@ class MarkDown {
 	get textContent() {
 		return this.makeHTML().textContent;
 	}
+	static getText() {
+		return text;
+	}
 	makeHTML({keep = this.keep, stdsize = this.stdsize} = {}) {
 		return this.markdown(this.txt, {keep, stdsize});
 	}
@@ -66,6 +69,9 @@ class MarkDown {
 				span.append(current);
 				current = document.createElement("span");
 			}
+		}
+		function getCurLast(): Element | undefined {
+			return span.children[span.children.length - 1];
 		}
 		for (let i = 0; i < txt.length; i++) {
 			if (txt[i] === "\n" || i === 0) {
@@ -143,6 +149,10 @@ class MarkDown {
 			}
 			if (txt[i] === "\n") {
 				if (!stdsize) {
+					const last = getCurLast();
+					if (last instanceof HTMLElement && last.contentEditable === "false") {
+						span.append(document.createElement("span"));
+					}
 					appendcurrent();
 					span.append(document.createElement("br"));
 				}
@@ -460,6 +470,13 @@ class MarkDown {
 
 				if (txt[j] === ">") {
 					appendcurrent();
+					const last = getCurLast();
+					if (
+						last instanceof HTMLBRElement ||
+						(last instanceof HTMLElement && last.contentEditable === "false")
+					) {
+						span.append(document.createElement("span"));
+					}
 					const mention = document.createElement("span");
 					mention.classList.add("mentionMD");
 					mention.contentEditable = "false";
@@ -680,6 +697,15 @@ class MarkDown {
 			current.textContent += txt[i];
 		}
 		appendcurrent();
+		const last = getCurLast();
+		if (
+			last &&
+			last instanceof HTMLElement &&
+			last.contentEditable &&
+			!(last instanceof HTMLBRElement)
+		) {
+			span.append(current);
+		}
 		return span;
 	}
 	static unspoil(e: any): void {
@@ -696,7 +722,8 @@ class MarkDown {
 		};
 		let prevcontent = "";
 		box.onkeyup = (_) => {
-			const content = MarkDown.gatherBoxText(box);
+			let content = MarkDown.gatherBoxText(box);
+			if (content === "\n") content = "";
 			if (content !== prevcontent) {
 				prevcontent = content;
 				this.txt = content.split("");
@@ -725,14 +752,19 @@ class MarkDown {
 	) {
 		this.customBox = [stringToHTML, HTMLToString];
 	}
-	boxupdate(offset = 0) {
+	boxupdate(offset = 0, allowLazy = true, computedLength: void | number = undefined) {
 		const box = this.box.deref();
 		if (!box) return;
 		let restore: undefined | (() => void);
 		if (this.customBox) {
-			restore = saveCaretPosition(box, offset, this.customBox[1]);
+			restore = saveCaretPosition(box, offset, this.customBox[1], computedLength);
 		} else {
-			restore = saveCaretPosition(box, offset);
+			restore = saveCaretPosition(
+				box,
+				offset,
+				MarkDown.gatherBoxText.bind(MarkDown),
+				computedLength,
+			);
 		}
 
 		if (this.customBox) {
@@ -748,10 +780,13 @@ class MarkDown {
 				html.childNodes[0].childNodes[0];
 			//console.log(box.cloneNode(true), html.cloneNode(true));
 			//TODO this may be slow, may want to check in on this in the future if it is
-			if (!box.hasChildNodes() || html.isEqualNode(Array.from(box.childNodes)[0])) {
+			if ((!box.hasChildNodes() || html.isEqualNode(Array.from(box.childNodes)[0])) && allowLazy) {
 				//console.log("no replace needed");
 			} else {
-				if (!(box.childNodes.length === 1 && box.childNodes[0] instanceof Text && condition)) {
+				if (
+					!(box.childNodes.length === 1 && box.childNodes[0] instanceof Text && condition) ||
+					!allowLazy
+				) {
 					box.innerHTML = "";
 					box.append(html);
 				} else {
@@ -762,13 +797,6 @@ class MarkDown {
 		}
 		if (restore) {
 			restore();
-			if (this.customBox) {
-				const test = saveCaretPosition(box, 0, this.customBox[1]);
-				if (test) test();
-			} else {
-				const test = saveCaretPosition(box);
-				if (test) test();
-			}
 		}
 		this.onUpdate(text, formatted);
 	}
@@ -864,6 +892,7 @@ function saveCaretPosition(
 	context: HTMLElement,
 	offset = 0,
 	txtLengthFunc = MarkDown.gatherBoxText.bind(MarkDown),
+	computedLength: void | number = undefined,
 ) {
 	const selection = window.getSelection() as Selection;
 	if (!selection) return;
@@ -873,26 +902,39 @@ function saveCaretPosition(
 		let base = selection.anchorNode as Node;
 		range.setStart(base, 0);
 		let baseString: string;
-		if (!(base instanceof Text)) {
-			let i = 0;
-			const index = selection.focusOffset;
-			//@ts-ignore
-			for (const thing of base.childNodes) {
-				if (i === index) {
-					base = thing;
-					break;
-				}
-				i++;
+		let i = 0;
+		const index = selection.focusOffset;
+
+		for (const thing of Array.from(base.childNodes)) {
+			if (i === index) {
+				base = thing;
+				break;
 			}
+			i++;
+		}
+		console.log(base);
+		const prev = base.previousSibling;
+		let len = 0;
+		if ((!prev || prev instanceof HTMLBRElement) && base instanceof HTMLBRElement) {
+			len--;
+		}
+		if (
+			!(base instanceof Text) &&
+			!(
+				base instanceof HTMLSpanElement &&
+				base.className === "" &&
+				base.children.length == 0 &&
+				!(base instanceof HTMLBRElement)
+			)
+		) {
 			if (base instanceof HTMLElement) {
 				baseString = txtLengthFunc(base);
 			} else {
-				baseString = base.textContent as string;
+				baseString = base.textContent || "";
 			}
 		} else {
 			baseString = selection.toString();
 		}
-
 		range.setStart(context, 0);
 
 		let build = "";
@@ -937,8 +979,14 @@ function saveCaretPosition(
 			build += baseString;
 		}
 		text = build;
-		let len = build.length + offset;
+		len += build.length;
+		if (computedLength !== undefined) {
+			len = computedLength;
+		}
 		len = Math.min(len, txtLengthFunc(context).length);
+		console.log(len, base);
+		len += offset;
+		console.log(len);
 		return function restore() {
 			if (!selection) return;
 			const pos = getTextNodeAtPosition(context, len, txtLengthFunc);
@@ -960,6 +1008,12 @@ function getTextNodeAtPosition(
 	node: Node;
 	position: number;
 } {
+	if (index === 0) {
+		return {
+			node: root,
+			position: 0,
+		};
+	}
 	if (root instanceof Text) {
 		return {
 			node: root,
@@ -976,6 +1030,7 @@ function getTextNodeAtPosition(
 			position: -1,
 		};
 	}
+
 	let lastElm: Node = root;
 	for (const node of root.childNodes as unknown as Node[]) {
 		lastElm = node;
@@ -983,10 +1038,31 @@ function getTextNodeAtPosition(
 		if (node instanceof HTMLElement) {
 			len = txtLengthFunc(node).length;
 		} else {
-			len = (node.textContent as string).length;
+			len = (node.textContent || "").length;
 		}
 		if (len <= index && (len < index || len !== 0)) {
 			index -= len;
+			if (index === 0) {
+				let nodey = node;
+				let bad = false;
+				while (nodey.childNodes.length) {
+					nodey = Array.from(nodey.childNodes).at(-1) as ChildNode;
+					if (nodey instanceof HTMLElement && nodey.contentEditable === "false") {
+						bad = true;
+						break;
+					}
+				}
+				if (
+					!(nodey instanceof HTMLBRElement) &&
+					(!(nodey instanceof HTMLElement) || nodey.contentEditable === "false") &&
+					!bad
+				) {
+					return {
+						node: nodey,
+						position: (nodey.textContent || "").length,
+					};
+				}
+			}
 		} else {
 			const returny = getTextNodeAtPosition(node, index);
 			if (returny.position === -1) {

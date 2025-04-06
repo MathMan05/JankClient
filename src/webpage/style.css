@@ -432,6 +432,11 @@ textarea {
 	mask-repeat: no-repeat;
 	aspect-ratio: 1/1;
 }
+#emojiTB{
+	width:.2in;
+	height:.2in;
+	cursor: pointer;
+}
 .selectarrow {
 	position: absolute;
 	top: 10px;
@@ -1143,6 +1148,7 @@ span.instanceStatus {
 	flex-grow: 1;
 	width: 100%;
 	margin-left: 0.06in;
+	white-space: pre;
 }
 .outerTypeBox {
 	max-height: 50svh;
@@ -1499,7 +1505,7 @@ span .quote:last-of-type .quoteline {
 	cursor: pointer;
 }
 .mentionMD::after {
-	content: "​";
+	/* content: "​"; */
 }
 .mentionMD:hover {
 	background: var(--mention);

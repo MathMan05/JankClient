@@ -134,8 +134,16 @@ class Emoji {
 		});
 		const menu = document.createElement("div");
 		menu.classList.add("flexttb", "emojiPicker");
-		menu.style.top = y + "px";
-		menu.style.left = x + "px";
+		if (y > 0) {
+			menu.style.top = y + "px";
+		} else {
+			menu.style.bottom = y * -1 + "px";
+		}
+		if (x > 0) {
+			menu.style.left = x + "px";
+		} else {
+			menu.style.right = x * -1 + "px";
+		}
 
 		const topBar = document.createElement("div");
 		topBar.classList.add("flexltr", "emojiHeading");

@@ -20,7 +20,7 @@ import {
 } from "./jsontypes.js";
 import {Member} from "./member.js";
 import {Dialog, Form, FormError, Options, Settings} from "./settings.js";
-import {getTextNodeAtPosition, MarkDown} from "./markdown.js";
+import {getTextNodeAtPosition, MarkDown, saveCaretPosition} from "./markdown.js";
 import {Bot} from "./bot.js";
 import {Role} from "./role.js";
 import {VoiceFactory} from "./voice.js";
@@ -33,7 +33,9 @@ import {Rights} from "./rights.js";
 import {Contextmenu} from "./contextmenu.js";
 
 const wsCodesRetry = new Set([4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009]);
-
+interface CustomHTMLDivElement extends HTMLDivElement {
+	markdown: MarkDown;
+}
 class Localuser {
 	badges = new Map<
 		string,
@@ -2229,10 +2231,6 @@ class Localuser {
 	}
 	readonly autofillregex = Object.freeze(/[@#:]([a-z0-9 ]*)$/i);
 	mdBox() {
-		interface CustomHTMLDivElement extends HTMLDivElement {
-			markdown: MarkDown;
-		}
-
 		const typebox = document.getElementById("typebox") as CustomHTMLDivElement;
 		const typeMd = typebox.markdown;
 		typeMd.owner = this;
@@ -2240,18 +2238,57 @@ class Localuser {
 			this.search(document.getElementById("searchOptions") as HTMLDivElement, typeMd, str, pre);
 		};
 	}
-	MDReplace(replacewith: string, original: string, typebox: MarkDown) {
+	async TBEmojiMenu(rect: DOMRect) {
+		const typebox = document.getElementById("typebox") as CustomHTMLDivElement;
+		const p = saveCaretPosition(typebox);
+		if (!p) return;
+		const original = MarkDown.getText();
+		console.log(original);
+
+		const emoji = await Emoji.emojiPicker(
+			-10 + rect.left - window.screen.width,
+			-5 + rect.top - window.screen.height,
+			this,
+		);
+		p();
+		const md = typebox.markdown;
+		this.MDReplace(
+			emoji.id
+				? `<${emoji.animated ? "a" : ""}:${emoji.name}:${emoji.id}>`
+				: (emoji.emoji as string),
+			original,
+			md,
+			null,
+		);
+		//*/
+	}
+	MDReplace(
+		replacewith: string,
+		original: string,
+		typebox: MarkDown,
+		start: RegExp | null = this.autofillregex,
+	) {
 		let raw = typebox.rawString;
-		raw = raw.split(original)[1];
-		if (raw === undefined) return;
-		raw = original.replace(this.autofillregex, "") + replacewith + raw;
+		let empty = raw.length === 0;
+		raw = original !== "" ? raw.split(original)[1] : raw;
+		if (raw === undefined && !empty) return;
+		if (empty) {
+			raw = "";
+		}
+		raw = (start ? original.replace(start, "") : original) + replacewith + raw;
 		console.log(raw);
 		console.log(replacewith);
 		console.log(original);
 		typebox.txt = raw.split("");
-		const match = original.match(this.autofillregex);
+		console.log(typebox.rawString);
+		const match = start ? original.match(start) : true;
 		if (match) {
-			typebox.boxupdate(replacewith.length - match[0].length);
+			console.log(match);
+			typebox.boxupdate(
+				replacewith.length - (match === true ? 0 : match[0].length),
+				false,
+				original.length,
+			);
 		}
 	}
 	MDSearchOptions(
@@ -2339,8 +2376,7 @@ class Localuser {
 							break;
 						case "Enter":
 						case "Tab":
-							//@ts-ignore
-							cur.onclick();
+							cur.click();
 							break;
 					}
 					return true;
@@ -2437,6 +2473,7 @@ class Localuser {
 							await Member.new(thing, this.lookingguild as Guild);
 						}
 					}
+					if (!typebox.rawString.startsWith(original)) return;
 					this.MDFineMentionGen(name, original, box, typebox);
 				}
 			});
@@ -2475,6 +2512,8 @@ class Localuser {
 							this.MDSearchOptions([], "", box, md);
 						}
 						break;
+					default:
+						return;
 				}
 				return;
 			}

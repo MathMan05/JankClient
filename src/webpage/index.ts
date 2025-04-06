@@ -267,4 +267,11 @@ import {I18n} from "./i18n.js";
 			}
 		};
 	};
+	const emojiTB = document.getElementById("emojiTB") as HTMLElement;
+	emojiTB.onmousedown = (e) => {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		thisUser.TBEmojiMenu(emojiTB.getBoundingClientRect());
+	};
+	emojiTB.onclick = (e) => e.stopImmediatePropagation();
 })();
