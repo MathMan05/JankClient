@@ -1133,6 +1133,7 @@ span.instanceStatus {
 	align-items: center;
 	justify-content: space-between;
 	transition: height 0.2s;
+	flex-shrink: 0;
 }
 .cancelReply {
 	height: 16px;
