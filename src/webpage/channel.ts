@@ -1453,7 +1453,9 @@ class Channel extends SnowFlake {
 		this.fakeMessages = this.fakeMessages.filter((_) => _[0] !== message[0]);
 		message[1].remove();
 		for (const {url} of message[0].attachments) {
-			URL.revokeObjectURL(url);
+			try {
+				URL.revokeObjectURL(url);
+			} catch {}
 		}
 		this.fakeMessageMap.delete(id);
 	}

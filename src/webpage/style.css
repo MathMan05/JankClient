@@ -1106,6 +1106,7 @@ span.instanceStatus {
 	background: var(--blank-bg);
 	border-radius: 8px;
 	overflow: hidden;
+	height: 192px;
 }
 .messageimgdiv {
 	height: 100%;

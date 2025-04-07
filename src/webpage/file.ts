@@ -37,6 +37,8 @@ class File {
 		}
 		OSpoiler ||= this.filename.startsWith("SPOILER_");
 		const src = this.proxy_url || this.url;
+		this.width ||= 1000;
+		this.height ||= 1000;
 		if (this.width && this.height) {
 			let scale = 1;
 			const max = 96 * 3;
@@ -67,8 +69,8 @@ class File {
 			img.src = src;
 			div.append(img);
 			if (this.width && !fullScreen) {
-				div.style.width = this.width + "px";
-				div.style.height = this.height + "px";
+				div.style.maxWidth = this.width + "px";
+				div.style.maxHeight = this.height + "px";
 			}
 			if (!fullScreen) {
 				if (OSpoiler) {
