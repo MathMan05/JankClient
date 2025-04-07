@@ -43,6 +43,8 @@
 	"typing": "$2 {{PLURAL:$1|ass|sinn}} am schreiwen",
 	"blankMessage": "Eidele Message",
 	"channel": {
+		"creating": "Kanal uleeën",
+		"name": "Kanal",
 		"copyId": "Kanal-ID kopéieren",
 		"markRead": "Als gelies markéieren",
 		"settings": "Astellungen",
@@ -108,6 +110,7 @@
 		"save": "Ännerunge späicheren"
 	},
 	"localuser": {
+		"status": "Status",
 		"settings": "Astellungen",
 		"userSettings": "Benotzerastellungen",
 		"notisound": "Notifikatiounstoun:",
@@ -191,9 +194,14 @@
 	"user": {
 		"online": "Online",
 		"offline": "Offline",
+		"invisible": "Onsiichtbar",
 		"block": "Benotzer spären",
 		"unblock": "Benotzer entspären",
 		"editServerProfile": "Serverprofil änneren"
+	},
+	"login": {
+		"recover": "Passwuert vergiess?",
+		"newPassword": "Neit Passwuert:"
 	},
 	"member": {
 		"reason:": "Grond:",
@@ -209,5 +217,6 @@
 		"name:": "Numm:",
 		"confirmDel": "Sidd Dir sécher, datt Dir dësen Emoji läsche wëllt?"
 	},
-	"uploadFilesText": "Lued Är Fichieren hei erop!"
+	"uploadFilesText": "Lued Är Fichieren hei erop!",
+	"bot": "BOT"
 }
