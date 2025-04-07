@@ -1458,7 +1458,7 @@ class Channel extends SnowFlake {
 		this.fakeMessageMap.delete(id);
 	}
 
-	makeFakeMessage(content: string, files: filejson[] = []) {
+	makeFakeMessage(content: string, files: filejson[] = [], reply = undefined) {
 		const m = new Message(
 			{
 				author: this.localuser.user.tojson(),
@@ -1478,6 +1478,7 @@ class Channel extends SnowFlake {
 				nonce: Math.random() + "",
 				type: 0,
 				pinned: false,
+				message_reference: reply,
 			},
 			this,
 			true,
@@ -1602,7 +1603,7 @@ class Channel extends SnowFlake {
 			res.open("POST", this.info.api + "/channels/" + this.id + "/messages");
 			res.setRequestHeader("Content-type", (ctype = this.headers["Content-type"]));
 			res.setRequestHeader("Authorization", this.headers.Authorization);
-			funcs = this.makeFakeMessage(content);
+			funcs = this.makeFakeMessage(content, [], body.message_reference);
 			res.send((rbody = JSON.stringify(body)));
 			/*
 			res = fetch(this.info.api + "/channels/" + this.id + "/messages", {
@@ -1643,6 +1644,7 @@ class Channel extends SnowFlake {
 					size: _.size,
 					url: URL.createObjectURL(_),
 				})),
+				body.message_reference,
 			);
 			res.send((rbody = formData));
 			/*

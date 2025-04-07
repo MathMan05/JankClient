@@ -350,6 +350,7 @@ type messagejson = {
 	pinned: boolean;
 	type: number;
 	webhook?: webhookInfo;
+	message_reference?: string;
 };
 type filejson = {
 	id: string;
