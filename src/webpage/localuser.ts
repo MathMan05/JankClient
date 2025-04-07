@@ -2246,8 +2246,8 @@ class Localuser {
 		console.log(original);
 
 		const emoji = await Emoji.emojiPicker(
-			-10 + rect.left - window.screen.width,
-			-5 + rect.top - window.screen.height,
+			-0 + rect.right - window.innerWidth,
+			-20 + rect.top - window.innerHeight,
 			this,
 		);
 		p();
