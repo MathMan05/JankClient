@@ -31,7 +31,6 @@ import {Message} from "./message.js";
 import {badgeArr} from "./Dbadges.js";
 import {Rights} from "./rights.js";
 import {Contextmenu} from "./contextmenu.js";
-import {Search} from "./search.js";
 
 const wsCodesRetry = new Set([4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009]);
 interface CustomHTMLDivElement extends HTMLDivElement {
