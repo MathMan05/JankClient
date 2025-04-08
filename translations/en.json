@@ -149,6 +149,7 @@
 		"name": "Accessibility",
 		"roleColors": "Disable role colors"
 	},
+	"searchGifs": "Search Tenor",
 	"channel": {
 		"creating": "Creating channel",
 		"name": "Channel",

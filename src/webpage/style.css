@@ -355,6 +355,9 @@ textarea {
 .svg-emoji {
 	mask: url(/icons/emoji.svg);
 }
+.svg-gif {
+	mask: url(/icons/gif.svg);
+}
 .svg-edit {
 	mask: url(/icons/edit.svg);
 }
@@ -433,11 +436,19 @@ textarea {
 	aspect-ratio: 1/1;
 	flex-shrink: 0;
 }
-#emojiTB{
-	width:.2in;
-	height:.2in;
+#emojiTB {
+	width: 0.2in;
+	height: 0.2in;
 	cursor: pointer;
 	flex-shrink: 0;
+	margin-left: 6px;
+}
+#gifTB {
+	width: 0.2in;
+	height: 0.2in;
+	cursor: pointer;
+	flex-shrink: 0;
+	mask-size: 0.2in 0.2in;
 }
 .selectarrow {
 	position: absolute;
@@ -1158,7 +1169,7 @@ span.instanceStatus {
 	flex-shrink: 1;
 	text-wrap: auto;
 	overflow-y: auto;
-	margin-right: .03in;
+	margin-right: 0.03in;
 }
 .outerTypeBox {
 	max-height: 50svh;
@@ -2395,7 +2406,8 @@ fieldset input[type="radio"] {
 		background: var(--primary-bg);
 		transition: left 0.3s;
 	}
-	#sideContainDiv, #sideContainDiv.searchDiv {
+	#sideContainDiv,
+	#sideContainDiv.searchDiv {
 		display: block;
 		right: -100svw;
 		width: 100svw;
@@ -2424,7 +2436,8 @@ fieldset input[type="radio"] {
 	#page:has(#maintoggle:checked) #mainarea {
 		left: 0;
 	}
-	#page:has(#memberlisttoggle:checked) #sideContainDiv, #sideContainDiv.searchDiv {
+	#page:has(#memberlisttoggle:checked) #sideContainDiv,
+	#sideContainDiv.searchDiv {
 		right: 0;
 	}
 	#page:has(#maintoggle:checked) #maintoggleicon {
@@ -2630,4 +2643,64 @@ fieldset input[type="radio"] {
 	position: absolute;
 	right: 0.2in;
 	cursor: pointer;
+}
+
+.gifmenu {
+	position: absolute;
+	width: 4.5in;
+	height: 5in;
+	background: var(--secondary-bg);
+	border-radius: 8px;
+}
+.gifPreviewBox {
+	position: relative;
+	width: 2in;
+	margin-bottom: 10px;
+	border-radius: 7px;
+	overflow: hidden;
+	cursor: pointer;
+
+	img {
+		width: 2in;
+		height: 1in;
+		object-fit: cover;
+	}
+	span {
+		top: 0px;
+		left: 0px;
+		position: absolute;
+		width: 100%;
+		height: 100%;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		background: #00000099;
+		font-weight: bold;
+	}
+}
+.gifbox {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: space-around;
+	overflow-y: auto;
+	margin: 0.1in;
+	align-items: center;
+}
+.searchGifBar {
+	height: 0.3in;
+	margin: 0.15in 0.15in 0 0.15in;
+	flex-shrink: 0;
+	background: var(--black);
+	border: none;
+	border-radius: 4px;
+	font-size: 0.2in;
+	padding: 0 0.1in;
+}
+.gifBox {
+	img {
+		max-width: 196px;
+	}
+	cursor: pointer;
+	cursor: p;
 }
