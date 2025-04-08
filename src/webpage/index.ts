@@ -275,4 +275,12 @@ import {I18n} from "./i18n.js";
 		thisUser.TBEmojiMenu(emojiTB.getBoundingClientRect());
 	};
 	emojiTB.onclick = (e) => e.stopImmediatePropagation();
+
+	const gifTB = document.getElementById("gifTB") as HTMLElement;
+	gifTB.onmousedown = (e) => {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		thisUser.makeGifBox(gifTB.getBoundingClientRect());
+	};
+	gifTB.onclick = (e) => e.stopImmediatePropagation();
 })();

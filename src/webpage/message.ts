@@ -663,8 +663,10 @@ class Message extends SnowFlake {
 			} else {
 				this.content.onUpdate = () => {};
 				const messaged = this.content.makeHTML();
-				messagedwrap.classList.add("flexttb");
-				messagedwrap.appendChild(messaged);
+				if (!this.embeds.find((_) => _.json.url === messaged.textContent)) {
+					messagedwrap.classList.add("flexttb");
+					messagedwrap.appendChild(messaged);
+				}
 			}
 			text.appendChild(messagedwrap);
 			build.appendChild(text);

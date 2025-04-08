@@ -31,6 +31,7 @@ import {Message} from "./message.js";
 import {badgeArr} from "./Dbadges.js";
 import {Rights} from "./rights.js";
 import {Contextmenu} from "./contextmenu.js";
+import {Search} from "./search.js";
 
 const wsCodesRetry = new Set([4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009]);
 interface CustomHTMLDivElement extends HTMLDivElement {
@@ -2238,12 +2239,122 @@ class Localuser {
 			this.search(document.getElementById("searchOptions") as HTMLDivElement, typeMd, str, pre);
 		};
 	}
+	async makeGifBox(rect: DOMRect) {
+		interface fullgif {
+			id: string;
+			title: string;
+			url: string;
+			src: string;
+			gif_src: string;
+			width: number;
+			height: number;
+			preview: string;
+		}
+		const menu = document.createElement("div");
+		menu.classList.add("flexttb", "gifmenu");
+		menu.style.bottom = window.innerHeight - rect.top + 15 + "px";
+		menu.style.right = window.innerWidth - rect.right + "px";
+		document.body.append(menu);
+		Contextmenu.keepOnScreen(menu);
+		if (Contextmenu.currentmenu !== "") {
+			Contextmenu.currentmenu.remove();
+		}
+		Contextmenu.currentmenu = menu;
+		const trending = (await (
+			await fetch(
+				this.info.api + "/gifs/trending?" + new URLSearchParams([["locale", I18n.lang]]),
+				{headers: this.headers},
+			)
+		).json()) as {
+			categories: {
+				name: string;
+				src: string;
+			}[];
+			gifs: [fullgif];
+		};
+		const gifbox = document.createElement("div");
+		gifbox.classList.add("gifbox");
+		const search = document.createElement("input");
+		let gifs = gifbox;
+		const searchBox = async () => {
+			gifs.remove();
+			if (search.value === "") {
+				menu.append(gifbox);
+				gifs = gifbox;
+				return;
+			}
+			gifs = document.createElement("div");
+			gifs.classList.add("gifbox");
+			menu.append(gifs);
+			const sValue = search.value;
+			const gifReturns = (await (
+				await fetch(
+					this.info.api +
+						"/gifs/search?" +
+						new URLSearchParams([
+							["locale", I18n.lang],
+							["q", sValue],
+							["limit", "500"],
+						]),
+					{headers: this.headers},
+				)
+			).json()) as fullgif[];
+			if (sValue !== search.value) {
+				return;
+			}
+			for (const gif of gifReturns) {
+				const div = document.createElement("div");
+				div.classList.add("gifBox");
+				const img = document.createElement("img");
+				img.src = gif.gif_src;
+				img.alt = gif.title;
+				const scale = gif.width / 196;
+
+				img.width = gif.width / scale;
+				img.height = gif.height / scale;
+				div.append(img);
+				gifs.append(div);
+				div.onclick = () => {
+					if (this.channelfocus) {
+						this.channelfocus.sendMessage(gif.url, {embeds: [], attachments: [], replyingto: null});
+						menu.remove();
+					}
+				};
+			}
+		};
+		let last = "";
+		search.onkeyup = () => {
+			if (last === search.value) {
+				return;
+			}
+			last = search.value;
+			searchBox();
+		};
+		search.classList.add("searchGifBar");
+		search.placeholder = I18n.searchGifs();
+		for (const category of trending.categories) {
+			const div = document.createElement("div");
+			div.classList.add("gifPreviewBox");
+			const img = document.createElement("img");
+			img.src = category.src;
+			const title = document.createElement("span");
+			title.textContent = category.name;
+			div.append(img, title);
+			gifbox.append(div);
+			div.onclick = (e) => {
+				e.stopImmediatePropagation();
+				search.value = category.name;
+				searchBox();
+			};
+		}
+		menu.append(search, gifbox);
+		search.focus();
+	}
 	async TBEmojiMenu(rect: DOMRect) {
 		const typebox = document.getElementById("typebox") as CustomHTMLDivElement;
 		const p = saveCaretPosition(typebox);
 		if (!p) return;
 		const original = MarkDown.getText();
-		console.log(original);
 
 		const emoji = await Emoji.emojiPicker(
 			-0 + rect.right - window.innerWidth,
