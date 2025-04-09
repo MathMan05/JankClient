@@ -173,9 +173,18 @@ class Embed {
 	generateImage() {
 		const img = createImg(this.json.thumbnail.proxy_url);
 		img.classList.add("messageimg");
-		img.onclick = function () {
+		img.onclick = () => {
 			const full = new ImagesDisplay([
-				new File({id: "", filename: "", url: img.src, size: -1, content_type: "image"}, null),
+				new File(
+					{
+						id: "",
+						filename: "",
+						url: this.json.thumbnail.proxy_url,
+						size: -1,
+						content_type: "image/",
+					},
+					null,
+				),
 			]);
 			full.show();
 		};
@@ -212,7 +221,7 @@ class Embed {
 				img.classList.add("embedimg");
 				img.onclick = function () {
 					const full = new ImagesDisplay([
-						new File({id: "", filename: "", url: img.src, size: -1, content_type: "image"}, null),
+						new File({id: "", filename: "", url: img.src, size: -1, content_type: "image/"}, null),
 					]);
 					full.show();
 				};
@@ -390,7 +399,7 @@ class Embed {
 			} else {
 				img.onclick = async () => {
 					const full = new ImagesDisplay([
-						new File({id: "", filename: "", url: img.src, size: -1, content_type: "image"}, null),
+						new File({id: "", filename: "", url: img.src, size: -1, content_type: "image/"}, null),
 					]);
 					full.show();
 				};
