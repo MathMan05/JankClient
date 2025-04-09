@@ -2690,6 +2690,8 @@ fieldset input[type="radio"] {
 	overflow-y: auto;
 	margin: 0.1in;
 	align-items: center;
+	position: relative;
+	overflow-x: clip;
 }
 .searchGifBar {
 	height: 0.3in;
@@ -2704,7 +2706,16 @@ fieldset input[type="radio"] {
 .gifBox {
 	img {
 		max-width: 196px;
+		border-radius: 4px;
 	}
+
+	
+	
+	
 	cursor: pointer;
-	cursor: p;
+	position: absolute;
+	overflow: hidden;
+	
+	
+	
 }

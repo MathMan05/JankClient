@@ -2315,6 +2315,8 @@ class Localuser {
 			if (sValue !== search.value) {
 				return;
 			}
+			let left = 0,
+				right = 0;
 			for (const gif of gifReturns) {
 				const div = document.createElement("div");
 				div.classList.add("gifBox");
@@ -2326,7 +2328,19 @@ class Localuser {
 				img.width = gif.width / scale;
 				img.height = gif.height / scale;
 				div.append(img);
+
+				if (left <= right) {
+					div.style.top = left + "px";
+					left += Math.ceil(img.height) + 10;
+					div.style.left = "5px";
+				} else {
+					div.style.top = right + "px";
+					right += Math.ceil(img.height) + 10;
+					div.style.left = "210px";
+				}
+
 				gifs.append(div);
+
 				div.onclick = () => {
 					if (this.channelfocus) {
 						this.channelfocus.sendMessage(gif.url, {embeds: [], attachments: [], replyingto: null});
@@ -2334,6 +2348,7 @@ class Localuser {
 					}
 				};
 			}
+			gifs.style.height = Math.max(left, right) + "px";
 		};
 		let last = "";
 		search.onkeyup = () => {
