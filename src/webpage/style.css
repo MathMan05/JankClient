@@ -1914,18 +1914,22 @@ img.bigembedimg {
 	width: 360px;
 	max-height: 100svh;
 	padding: 12px;
-	background: var(--card-bg);
 	border-radius: 8px;
 	box-shadow: 0 0 8px var(--shadow);
 	gap: 8px;
 	box-sizing: border-box;
 	user-select: none;
+	background: var(--secondary-bg);
+	
+	
+	
 	input {
 		width: 1in;
 		position: absolute;
 		right: 8px;
 		top: 2px;
 		transition: width 0.2s;
+		background: var(--card-bg);
 	}
 }
 .emojiHeading {
@@ -1965,7 +1969,7 @@ img.bigembedimg {
 .emojiBody {
 	flex: 1;
 	padding: 6px;
-	background: var(--secondary-bg);
+	background: var(--card-bg);
 	border-radius: 8px;
 	display: grid;
 	grid-template-columns: repeat(auto-fill, minmax(40px, 1fr));
