@@ -3,7 +3,7 @@ import {Channel} from "./channel.js";
 import {Direct} from "./direct.js";
 import {AVoice} from "./audio/voice.js";
 import {User} from "./user.js";
-import {getapiurls, getBulkUsers, SW} from "./utils/utils.js";
+import {createImg, getapiurls, getBulkUsers, SW} from "./utils/utils.js";
 import {getBulkInfo, setTheme, Specialuser} from "./utils/utils.js";
 import {
 	channeljson,
@@ -88,8 +88,7 @@ class Localuser {
 			const userInfo = document.createElement("div");
 			userInfo.classList.add("flexltr", "switchtable");
 
-			const pfp = document.createElement("img");
-			pfp.src = specialUser.pfpsrc;
+			const pfp = createImg(specialUser.pfpsrc);
 			pfp.classList.add("pfp");
 			userInfo.append(pfp);
 
@@ -1244,24 +1243,26 @@ class Localuser {
 			content.classList.add("discovery-guild");
 
 			if (guild.banner) {
-				const banner = document.createElement("img");
+				const banner = createImg(
+					this.info.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256",
+				);
 				banner.classList.add("banner");
 				banner.crossOrigin = "anonymous";
-				banner.src = this.info.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256";
 				banner.alt = "";
 				content.appendChild(banner);
 			}
 
 			const nameContainer = document.createElement("div");
 			nameContainer.classList.add("flex");
-			const img = document.createElement("img");
+			const img = createImg(
+				this.info.cdn +
+					(guild.icon
+						? "/icons/" + guild.id + "/" + guild.icon + ".png?size=48"
+						: "/embed/avatars/3.png"),
+			);
 			img.classList.add("icon");
 			img.crossOrigin = "anonymous";
-			img.src =
-				this.info.cdn +
-				(guild.icon
-					? "/icons/" + guild.id + "/" + guild.icon + ".png?size=48"
-					: "/embed/avatars/3.png");
+
 			img.alt = "";
 			nameContainer.appendChild(img);
 
@@ -1797,6 +1798,20 @@ class Localuser {
 					initState: !this.perminfo.user.disableColors,
 				},
 			);
+			const gifSettings = ["hover", "always", "never"] as const;
+			accessibility.addSelect(
+				I18n.accessibility.playGif(),
+				(i) => {
+					localStorage.setItem("gifSetting", gifSettings[i]);
+				},
+				gifSettings.map((_) => I18n.accessibility.gifSettings[_]()),
+				{
+					defaultIndex:
+						((gifSettings as readonly string[]).indexOf(
+							localStorage.getItem("gifSetting") as string,
+						) + 1 || 1) - 1,
+				},
+			);
 		}
 		{
 			const connections = settings.addButton(I18n.getTranslation("localuser.connections"));
@@ -1891,15 +1906,14 @@ class Localuser {
 								const container = document.createElement("div");
 
 								if (application.cover_image || application.icon) {
-									const cover = document.createElement("img");
-									cover.crossOrigin = "anonymous";
-									cover.src =
+									const cover = createImg(
 										this.info.cdn +
-										"/app-icons/" +
-										application.id +
-										"/" +
-										(application.cover_image || application.icon) +
-										".png?size=256";
+											"/app-icons/" +
+											application.id +
+											"/" +
+											(application.cover_image || application.icon) +
+											".png?size=256",
+									);
 									cover.alt = "";
 									cover.loading = "lazy";
 									container.appendChild(cover);

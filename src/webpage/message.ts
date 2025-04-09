@@ -574,7 +574,7 @@ class Message extends SnowFlake {
 				this.message_reference ||
 				!messageTypes.has(premessage.type);
 			if (combine) {
-				const pfp = this.author.buildpfp();
+				const pfp = this.author.buildpfp(undefined, div);
 				this.author.bind(pfp, this.guild, false);
 				pfpRow.appendChild(pfp);
 			}

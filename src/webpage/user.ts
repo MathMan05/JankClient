@@ -11,6 +11,7 @@ import {I18n} from "./i18n.js";
 import {Direct} from "./direct.js";
 import {Hover} from "./hover.js";
 import {Dialog} from "./settings.js";
+import {createImg} from "./utils/utils.js";
 
 class User extends SnowFlake {
 	owner: Localuser;
@@ -456,10 +457,9 @@ class User extends SnowFlake {
 		}
 	}
 
-	buildpfp(guild: Guild | void | Member | null): HTMLImageElement {
-		const pfp = document.createElement("img");
+	buildpfp(guild: Guild | void | Member | null, hoverElm: void | HTMLElement): HTMLImageElement {
+		const pfp = createImg(this.getpfpsrc(), undefined, hoverElm);
 		pfp.loading = "lazy";
-		pfp.src = this.getpfpsrc();
 		pfp.classList.add("pfp");
 		pfp.classList.add("userid:" + this.id);
 		if (guild) {
@@ -467,9 +467,9 @@ class User extends SnowFlake {
 				if (guild instanceof Guild) {
 					const memb = await Member.resolveMember(this, guild);
 					if (!memb) return;
-					pfp.src = memb.getpfpsrc();
+					pfp.setSrcs(memb.getpfpsrc());
 				} else {
-					pfp.src = guild.getpfpsrc();
+					pfp.setSrcs(guild.getpfpsrc());
 				}
 			})();
 		}
@@ -479,7 +479,7 @@ class User extends SnowFlake {
 	async buildstatuspfp(guild: Guild | void | Member | null): Promise<HTMLDivElement> {
 		const div = document.createElement("div");
 		div.classList.add("pfpDiv");
-		const pfp = this.buildpfp(guild);
+		const pfp = this.buildpfp(guild, div);
 		div.append(pfp);
 		const status = document.createElement("div");
 		status.classList.add("statusDiv");
@@ -560,9 +560,10 @@ class User extends SnowFlake {
 	changepfp(update: string | null): void {
 		this.avatar = update;
 		this.hypotheticalpfp = false;
-		const src = this.getpfpsrc();
-		Array.from(document.getElementsByClassName("userid:" + this.id)).forEach((element) => {
-			(element as HTMLImageElement).src = src;
+		//const src = this.getpfpsrc();
+		Array.from(document.getElementsByClassName("userid:" + this.id)).forEach((_element) => {
+			//(element as HTMLImageElement).src = src;
+			//FIXME
 		});
 	}
 
@@ -719,12 +720,14 @@ class User extends SnowFlake {
 			for (const badgejson of badges) {
 				const badge = document.createElement(badgejson.link ? "a" : "div");
 				badge.classList.add("badge");
-				const img = document.createElement("img");
+				let src: string;
 				if (URL.canParse(badgejson.icon)) {
-					img.src = badgejson.icon;
+					src = badgejson.icon;
 				} else {
-					img.src = this.info.cdn + "/badge-icons/" + badgejson.icon + ".png";
+					src = this.info.cdn + "/badge-icons/" + badgejson.icon + ".png";
 				}
+				const img = createImg(src, undefined, badgediv);
+
 				badge.append(img);
 				let hovertxt: string;
 				if (badgejson.translate) {
@@ -810,11 +813,11 @@ class User extends SnowFlake {
 		return div;
 	}
 	getBanner(guild: Guild | null | Member): HTMLImageElement {
-		const banner = document.createElement("img");
+		const banner = createImg(undefined);
 
 		const bsrc = this.getBannerUrl();
 		if (bsrc) {
-			banner.src = bsrc;
+			banner.setSrcs(bsrc);
 			banner.classList.add("banner");
 		}
 
@@ -822,7 +825,7 @@ class User extends SnowFlake {
 			if (guild instanceof Member) {
 				const bsrc = guild.getBannerUrl();
 				if (bsrc) {
-					banner.src = bsrc;
+					banner.setSrcs(bsrc);
 					banner.classList.add("banner");
 				}
 			} else {
@@ -830,7 +833,7 @@ class User extends SnowFlake {
 					if (!memb) return;
 					const bsrc = memb.getBannerUrl();
 					if (bsrc) {
-						banner.src = bsrc;
+						banner.setSrcs(bsrc);
 						banner.classList.add("banner");
 					}
 				});

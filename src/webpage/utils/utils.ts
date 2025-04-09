@@ -583,6 +583,63 @@ export async function getapiurls(str: string): Promise<
 	}
 	return false;
 }
+function isAnimated(src: string) {
+	return src.endsWith(".apng") || src.endsWith(".gif");
+}
+const staticImgMap = new Map<string, string | Promise<string>>();
+export function createImg(
+	src: string | undefined,
+	staticsrc: string | void,
+	elm: HTMLElement | void,
+) {
+	const settings =
+		localStorage.getItem("gifSetting") || ("hover" as "hover") || "always" || "never";
+	const img = document.createElement("img");
+	elm ||= img;
+	img.crossOrigin = "anonymous";
+	img.onload = async () => {
+		if (settings === "always") return;
+		if (!src) return;
+		if (isAnimated(src) && !staticsrc) {
+			let s = staticImgMap.get(src);
+			if (s) {
+				staticsrc = await s;
+			} else {
+				staticImgMap.set(
+					src,
+					new Promise(async (res) => {
+						const c = new OffscreenCanvas(img.naturalWidth, img.naturalHeight);
+						const ctx = c.getContext("2d");
+						if (!ctx) return;
+						ctx.drawImage(img, 0, 0);
+						const blob = await c.convertToBlob();
+						res(URL.createObjectURL(blob));
+					}),
+				);
+				staticsrc = (await staticImgMap.get(src)) as string;
+			}
+			img.src = staticsrc;
+		}
+	};
+	elm.onmouseover = () => {
+		if (settings === "never") return;
+		if (img.src !== src && src) {
+			img.src = src;
+		}
+	};
+	elm.onmouseleave = () => {
+		if (staticsrc && settings !== "always") {
+			img.src = staticsrc;
+		}
+	};
+	img.src = settings !== "always" ? staticsrc || src || "" : src || "";
+	return Object.assign(img, {
+		setSrcs: (nsrc: string, nstaticsrc: string | void) => {
+			src = nsrc;
+			staticsrc = nstaticsrc;
+		},
+	});
+}
 /**
  *
  * This function takes in a string and checks if the string is a valid instance

@@ -102,7 +102,7 @@ class Direct extends Guild {
 			const div = document.createElement("div");
 			div.classList.add("flexltr", "liststyle");
 			user.bind(div);
-			div.append(user.buildpfp());
+			div.append(user.buildpfp(undefined, div));
 
 			const userinfos = document.createElement("div");
 			userinfos.classList.add("flexttb");
@@ -417,7 +417,7 @@ class Group extends Channel {
 		const myhtml = document.createElement("span");
 		myhtml.classList.add("ellipsis");
 		myhtml.textContent = this.name;
-		div.appendChild(this.user.buildpfp());
+		div.appendChild(this.user.buildpfp(undefined, div));
 		div.appendChild(myhtml);
 		(div as any).myinfo = this;
 		div.onclick = (_) => {

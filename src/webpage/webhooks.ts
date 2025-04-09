@@ -155,7 +155,7 @@ async function webhookMenu(
 				const nameBox = document.createElement("div");
 				nameBox.classList.add("flexttb");
 				nameBox.append(name);
-				const pfp = user.buildpfp();
+				const pfp = user.buildpfp(undefined, div);
 				div.append(pfp, nameBox);
 				form.addHTMLArea(div);
 
