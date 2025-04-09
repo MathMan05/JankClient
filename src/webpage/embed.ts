@@ -1,7 +1,7 @@
 import {Message} from "./message.js";
 import {MarkDown} from "./markdown.js";
 import {embedjson, invitejson} from "./jsontypes.js";
-import {getapiurls, getBulkUsers, getInstances, Specialuser} from "./utils/utils.js";
+import {createImg, getapiurls, getBulkUsers, getInstances, Specialuser} from "./utils/utils.js";
 import {Guild} from "./guild.js";
 import {I18n} from "./i18n.js";
 import {ImagesDisplay} from "./disimg.js";
@@ -171,7 +171,7 @@ class Embed {
 		return div;
 	}
 	generateImage() {
-		const img = document.createElement("img");
+		const img = createImg(this.json.thumbnail.proxy_url);
 		img.classList.add("messageimg");
 		img.onclick = function () {
 			const full = new ImagesDisplay([
@@ -179,7 +179,6 @@ class Embed {
 			]);
 			full.show();
 		};
-		img.src = this.json.thumbnail.proxy_url;
 		if (this.json.thumbnail.width) {
 			let scale = 1;
 			const max = 96 * 3;

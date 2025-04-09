@@ -3,6 +3,7 @@ import {filejson} from "./jsontypes.js";
 import {ImagesDisplay} from "./disimg.js";
 import {makePlayBox, MediaPlayer} from "./media.js";
 import {I18n} from "./i18n.js";
+import {createImg} from "./utils/utils.js";
 class File {
 	owner: Message | null;
 	id: string;
@@ -47,9 +48,10 @@ class File {
 			this.width /= scale;
 			this.height /= scale;
 		}
+
 		if (this.content_type.startsWith("image/")) {
 			const div = document.createElement("div");
-			const img = document.createElement("img");
+			const img = createImg(src);
 			if (!fullScreen) {
 				img.classList.add("messageimg");
 				div.classList.add("messageimgdiv");
@@ -66,7 +68,6 @@ class File {
 					full.show();
 				}
 			};
-			img.src = src;
 			div.append(img);
 			if (this.width && !fullScreen) {
 				div.style.maxWidth = this.width + "px";

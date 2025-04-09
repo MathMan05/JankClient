@@ -19,6 +19,7 @@ import {User} from "./user.js";
 import {I18n} from "./i18n.js";
 import {Emoji} from "./emoji.js";
 import {webhookMenu} from "./webhooks.js";
+import {createImg} from "./utils/utils.js";
 
 class Guild extends SnowFlake {
 	owner!: Localuser;
@@ -745,9 +746,8 @@ class Guild extends SnowFlake {
 			icon = guild.icon;
 		}
 		if (icon !== null) {
-			const img = document.createElement("img");
+			const img = createImg(guild.info.cdn + "/icons/" + guild.id + "/" + icon + ".png");
 			img.classList.add("pfp", "servericon");
-			img.src = guild.info.cdn + "/icons/" + guild.id + "/" + icon + ".png";
 			divy.appendChild(img);
 			if (guild instanceof Guild) {
 				img.onclick = () => {

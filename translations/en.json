@@ -147,7 +147,13 @@
 	"spoiler": "Spoiler",
 	"accessibility": {
 		"name": "Accessibility",
-		"roleColors": "Disable role colors"
+		"roleColors": "Disable role colors",
+		"playGif": "Play gifs:",
+		"gifSettings": {
+			"hover": "Hover",
+			"always": "Always",
+			"never": "Never"
+		}
 	},
 	"searchGifs": "Search Tenor",
 	"channel": {
