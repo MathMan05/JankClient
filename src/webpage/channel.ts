@@ -942,6 +942,11 @@ class Channel extends SnowFlake {
 			channelTopic.innerHTML = "";
 			channelTopic.append(new MarkDown(this.topic, this).makeHTML());
 			channelTopic.removeAttribute("hidden");
+			channelTopic.onclick = () => {
+				const d = new Dialog(this.name);
+				d.options.addHTMLArea(new MarkDown(this.topic, this).makeHTML());
+				d.show();
+			};
 		} else channelTopic.setAttribute("hidden", "");
 		if (this.guild !== this.localuser.lookingguild) {
 			this.guild.loadGuild();
