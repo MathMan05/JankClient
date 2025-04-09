@@ -255,6 +255,7 @@ import {I18n} from "./i18n.js";
 		const input = document.createElement("input");
 		input.type = "file";
 		input.click();
+		input.multiple = true;
 		console.log("clicked");
 		input.onchange = () => {
 			if (input.files) {
