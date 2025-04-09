@@ -408,7 +408,7 @@
 		"deleted": "Deleted message",
 		"attached": "Sent an attachment",
 		"retry": "Resend errored message",
-		"pin": "$1 has pined a message"
+		"pin": "$1 has pinned a message"
 	},
 	"instanceStats": {
 		"name": "Instance stats: $1",
