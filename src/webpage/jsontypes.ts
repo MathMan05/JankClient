@@ -617,6 +617,15 @@ type wsjson =
 			t: "GUILD_UPDATE";
 			d: extendedProperties;
 			s: number;
+	  }
+	| {
+			op: 0;
+			t: "CHANNEL_PINS_UPDATE";
+			d: {
+				channel_id: string;
+				guild_id: string;
+			};
+			s: number;
 	  };
 
 type memberChunk = {

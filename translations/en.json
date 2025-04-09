@@ -6,7 +6,8 @@
 		"comment": "Don't know how often I'll update this top part lol"
 	},
 	"readableName": "English",
-
+	"pinMessage": "Pin Message",
+	"unableToPin": "Unable to pin message",
 	"reply": "Reply",
 	"copyrawtext": "Copy raw text",
 	"copymessageid": "Copy message id",
@@ -289,6 +290,7 @@
 		"INVITES_DISABLED": "Invite only",
 		"DISCOVERABLE": "Discovery"
 	},
+	"welcomeMessages": "Welcome $1! Nice to see ya!\nHello, nice to meat you $1!\nWelcome, hope you brought pizza $1!",
 	"role": {
 		"displaySettings": "Display settings",
 		"name": "Role name:",
@@ -396,6 +398,8 @@
 		"genericType": "Generic",
 		"copy": "Copy"
 	},
+	"unpinMessage": "Unpin Message",
+	"noPins": "There seems to be nothing here... yet",
 	"message": {
 		"reactionAdd": "Add reaction",
 		"delete": "Delete message",
@@ -403,7 +407,8 @@
 		"edited": "(edited)",
 		"deleted": "Deleted message",
 		"attached": "Sent an attachment",
-		"retry": "Resend errored message"
+		"retry": "Resend errored message",
+		"pin": "$1 has pined a message"
 	},
 	"instanceStats": {
 		"name": "Instance stats: $1",

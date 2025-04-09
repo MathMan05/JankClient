@@ -57,6 +57,24 @@ body {
 	display: flex;
 	flex-direction: column;
 }
+.pinnedMessages {
+	position: absolute;
+	background: var(--secondary-bg);
+	width: 3.5in;
+	padding: 8px;
+	border-radius: 6px;
+	box-shadow: 1px 1px 10px black;
+	max-height: 60vh;
+	overflow-y: auto;
+	min-height: 1in;
+	b {
+		width: 100%;
+		height: 1in;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+}
 .searchOptions {
 	padding: 0.05in 0.15in;
 	border-radius: 0.1in;
@@ -337,6 +355,10 @@ textarea {
 .svg-spoiler {
 	mask: url(/icons/spoiler.svg);
 }
+.svg-pin {
+	mask: url(/icons/pin.svg);
+	mask-size: cover;
+}
 .svg-unspoiler {
 	mask: url(/icons/unspoiler.svg);
 }
@@ -435,6 +457,24 @@ textarea {
 	mask-repeat: no-repeat;
 	aspect-ratio: 1/1;
 	flex-shrink: 0;
+}
+#pinnedM {
+	width: 0.25in;
+	height: 0.25in;
+	cursor: pointer;
+}
+.unreadPin {
+	position: relative;
+}
+.unreadPin::after {
+	width: 0.1in;
+	height: 0.1in;
+	content: "";
+	background: var(--red);
+	position: absolute;
+	right: 0px;
+	bottom: -5px;
+	border-radius: 1in;
 }
 #emojiTB {
 	width: 0.2in;
@@ -1197,9 +1237,12 @@ span.instanceStatus {
 	width: 3in;
 	margin: 0 0.1in;
 	overflow: hidden;
-	margin-left: auto;
+
 	flex-shrink: 0;
 	transition: width 0.2s;
+}
+.spaceElm {
+	margin: auto;
 }
 .outerTypeBox > span::before {
 	content: "\feff";
@@ -1372,6 +1415,12 @@ span.instanceStatus {
 	font-weight: bold;
 	word-break: break-all;
 	cursor: pointer;
+}
+.pinText {
+	cursor: pointer;
+}
+.pinText:hover {
+	text-decoration: underline;
 }
 .username:hover {
 	text-decoration: underline;
@@ -2709,13 +2758,7 @@ fieldset input[type="radio"] {
 		border-radius: 4px;
 	}
 
-	
-	
-	
 	cursor: pointer;
 	position: absolute;
 	overflow: hidden;
-	
-	
-	
 }

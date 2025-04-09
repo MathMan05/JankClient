@@ -251,6 +251,12 @@ import {I18n} from "./i18n.js";
 			}
 		}
 	});
+	const pinnedM = document.getElementById("pinnedM") as HTMLElement;
+	pinnedM.onclick = (e) => {
+		thisUser.pinnedClick(pinnedM.getBoundingClientRect());
+		e.preventDefault();
+		e.stopImmediatePropagation();
+	};
 	(document.getElementById("upload") as HTMLElement).onclick = () => {
 		const input = document.createElement("input");
 		input.type = "file";

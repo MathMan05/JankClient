@@ -16,7 +16,7 @@ import {Hover} from "./hover.js";
 import {Dialog} from "./settings.js";
 
 class Message extends SnowFlake {
-	static contextmenu = new Contextmenu<Message, undefined>("message menu");
+	static contextmenu = new Contextmenu<Message, void>("message menu");
 	owner: Channel;
 	headers: Localuser["headers"];
 	embeds!: Embed[];
@@ -50,6 +50,7 @@ class Message extends SnowFlake {
 	div: HTMLDivElement | undefined;
 	member: Member | undefined;
 	reactions!: messagejson["reactions"];
+	pinned!: boolean;
 	static setup() {
 		this.del = new Promise((_) => {
 			this.resolve = _;
@@ -96,6 +97,9 @@ class Message extends SnowFlake {
 				icon: {
 					css: "svg-emoji",
 				},
+				visable: function () {
+					return this.channel.hasPermission("ADD_REACTIONS");
+				},
 			},
 		);
 
@@ -111,6 +115,48 @@ class Message extends SnowFlake {
 				},
 			},
 		);
+		Message.contextmenu.addButton(
+			() => I18n.pinMessage(),
+			async function (this: Message) {
+				const f = await fetch(`${this.info.api}/channels/${this.channel.id}/pins/${this.id}`, {
+					method: "PUT",
+					headers: this.headers,
+				});
+				if (!f.ok) alert(I18n.unableToPin());
+			},
+			{
+				icon: {
+					css: "svg-pin",
+				},
+				visable: function () {
+					if (this.pinned) return false;
+					if (this.channel.guild.id === "@me") return true;
+					return this.channel.hasPermission("MANAGE_MESSAGES");
+				},
+			},
+		);
+
+		Message.contextmenu.addButton(
+			() => I18n.unpinMessage(),
+			async function (this: Message) {
+				const f = await fetch(`${this.info.api}/channels/${this.channel.id}/pins/${this.id}`, {
+					method: "DELETE",
+					headers: this.headers,
+				});
+				if (!f.ok) alert(I18n.unableToPin());
+			},
+			{
+				icon: {
+					css: "svg-pin",
+				},
+				visable: function () {
+					if (!this.pinned) return false;
+					if (this.channel.guild.id === "@me") return true;
+					return this.channel.hasPermission("MANAGE_MESSAGES");
+				},
+			},
+		);
+
 		Message.contextmenu.addButton(
 			() => I18n.getTranslation("copymessageid"),
 			function (this: Message) {
@@ -201,17 +247,20 @@ class Message extends SnowFlake {
 					this.embeds[thing] = new Embed(messagejson.embeds[thing], this);
 				}
 				continue;
+			} else if (thing === "author") {
+				continue;
 			}
 			(this as any)[thing] = (messagejson as any)[thing];
 		}
 		if (messagejson.reactions?.length) {
 			console.log(messagejson.reactions, ":3");
 		}
-		console.log(messagejson.webhook);
 		if (messagejson.webhook) {
 			messagejson.author.webhook = messagejson.webhook;
 		}
-		this.author = new User(messagejson.author, this.localuser, false);
+		if (messagejson.author.id) {
+			this.author = new User(messagejson.author, this.localuser, false);
+		}
 		for (const thing in messagejson.mentions) {
 			this.mentions[thing] = new User(messagejson.mentions[thing], this.localuser);
 		}
@@ -504,7 +553,7 @@ class Message extends SnowFlake {
 				}
 			}
 		}
-		if (this.message_reference) {
+		if (this.message_reference && this.type !== 6) {
 			const replyline = document.createElement("div");
 
 			const minipfp = document.createElement("img");
@@ -688,11 +737,15 @@ class Message extends SnowFlake {
 			}
 			//
 		} else if (this.type === 7) {
+			const messages = I18n.welcomeMessages("|||").split("\n");
+			const message = messages[Number(BigInt(this.id) % BigInt(messages.length))];
+			const [first, second] = message.split("|||");
 			const text = document.createElement("div");
 			build.appendChild(text);
-			const messaged = document.createElement("span");
-			messaged.textContent = "welcome: ";
-			text.appendChild(messaged);
+
+			const firstspan = document.createElement("span");
+			firstspan.textContent = first;
+			text.appendChild(firstspan);
 
 			const username = document.createElement("span");
 			username.textContent = this.author.username;
@@ -700,6 +753,37 @@ class Message extends SnowFlake {
 			this.author.bind(username, this.guild);
 			text.appendChild(username);
 			username.classList.add("username");
+
+			const secondspan = document.createElement("span");
+			secondspan.textContent = second;
+			text.appendChild(secondspan);
+
+			const time = document.createElement("span");
+			time.textContent = "  " + formatTime(new Date(this.timestamp));
+			time.classList.add("timestamp");
+			text.append(time);
+			div.classList.add("topMessage");
+		} else if (this.type === 6) {
+			const text = document.createElement("div");
+			build.appendChild(text);
+
+			const m = I18n.message.pin("||").split("||");
+			if (m.length === 2) text.append(m.shift() as string);
+
+			const username = document.createElement("span");
+			username.textContent = this.author.username;
+			//this.author.profileclick(username);
+			this.author.bind(username, this.guild);
+			text.appendChild(username);
+			username.classList.add("username");
+
+			const afterText = document.createElement("span");
+			afterText.textContent = m[0];
+			afterText.onclick = (_) => {
+				this.channel.infinite.focus(this.message_reference.message_id);
+			};
+			afterText.classList.add("pinText");
+			text.append(afterText);
 
 			const time = document.createElement("span");
 			time.textContent = "  " + formatTime(new Date(this.timestamp));

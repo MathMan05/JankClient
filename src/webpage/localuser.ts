@@ -606,6 +606,17 @@ class Localuser {
 						}
 					}
 					break;
+				case "CHANNEL_PINS_UPDATE":
+					temp.d.guild_id ??= "@me";
+					const channel = this.channelids.get(temp.d.channel_id);
+					if (!channel) break;
+					delete channel.pinnedMessages;
+					channel.lastpin = new Date() + "";
+					const pinnedM = document.getElementById("pinnedMDiv");
+					if (pinnedM) {
+						pinnedM.classList.add("unreadPin");
+					}
+					break;
 				case "CHANNEL_UPDATE":
 					if (this.initialized) {
 						this.updateChannel(temp.d);
@@ -2251,6 +2262,10 @@ class Localuser {
 		typeMd.onUpdate = (str, pre) => {
 			this.search(document.getElementById("searchOptions") as HTMLDivElement, typeMd, str, pre);
 		};
+	}
+	async pinnedClick(rect: DOMRect) {
+		if (!this.channelfocus) return;
+		await this.channelfocus.pinnedClick(rect);
 	}
 	async makeGifBox(rect: DOMRect) {
 		interface fullgif {
