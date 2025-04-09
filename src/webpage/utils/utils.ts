@@ -596,7 +596,9 @@ export function createImg(
 		localStorage.getItem("gifSetting") || ("hover" as "hover") || "always" || "never";
 	const img = document.createElement("img");
 	elm ||= img;
-	img.crossOrigin = "anonymous";
+	if (src && isAnimated(src)) {
+		img.crossOrigin = "anonymous";
+	}
 	img.onload = async () => {
 		if (settings === "always") return;
 		if (!src) return;
@@ -637,6 +639,9 @@ export function createImg(
 		setSrcs: (nsrc: string, nstaticsrc: string | void) => {
 			src = nsrc;
 			staticsrc = nstaticsrc;
+			if (src && isAnimated(src)) {
+				img.crossOrigin = "anonymous";
+			}
 			img.src = settings !== "always" ? staticsrc || src || "" : src || "";
 		},
 	});
