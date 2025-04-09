@@ -429,6 +429,14 @@ class Group extends Channel {
 		return div;
 	}
 	async getHTML(addstate = true) {
+		const pinnedM = document.getElementById("pinnedMDiv");
+		if (pinnedM) {
+			if (this.unreadPins()) {
+				pinnedM.classList.add("unreadPin");
+			} else {
+				pinnedM.classList.remove("unreadPin");
+			}
+		}
 		const ghostMessages = document.getElementById("ghostMessages") as HTMLElement;
 		ghostMessages.innerHTML = "";
 		for (const thing of this.fakeMessages) {

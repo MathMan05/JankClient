@@ -330,6 +330,7 @@ class Channel extends SnowFlake {
 			this.readbottom.bind(this),
 		);
 	}
+	last_pin_timestamp?: string;
 	constructor(json: channeljson | -1, owner: Guild, id: string = json === -1 ? "" : json.id) {
 		super(id);
 		if (json === -1) {
@@ -400,6 +401,61 @@ class Channel extends SnowFlake {
 	}
 	get info() {
 		return this.owner.info;
+	}
+	pinnedMessages?: Message[];
+	async pinnedClick(rect: DOMRect) {
+		const div = document.createElement("div");
+		div.classList.add("flexttb", "pinnedMessages");
+		div.style.top = rect.bottom + 20 + "px";
+		div.style.right = window.innerWidth - rect.right + "px";
+		document.body.append(div);
+		Contextmenu.keepOnScreen(div);
+		if (Contextmenu.currentmenu !== "") {
+			Contextmenu.currentmenu.remove();
+		}
+		this.last_pin_timestamp = this.lastpin;
+		const l = (e: MouseEvent) => {
+			if (e.target instanceof HTMLElement && div.contains(e.target)) {
+				return;
+			}
+			div.remove();
+			document.removeEventListener("click", l);
+		};
+		document.addEventListener("mouseup", l);
+		if (!this.pinnedMessages) {
+			const pinnedM = (await (
+				await fetch(`${this.info.api}/channels/${this.id}/pins`, {headers: this.headers})
+			).json()) as messagejson[];
+			this.pinnedMessages = pinnedM.map((_) => {
+				if (this.messages.has(_.id)) {
+					return this.messages.get(_.id) as Message;
+				} else {
+					return new Message(_, this);
+				}
+			});
+		}
+		const pinnedM = document.getElementById("pinnedMDiv");
+		if (pinnedM) {
+			pinnedM.classList.remove("unreadPin");
+		}
+		if (this.pinnedMessages.length === 0) {
+			const b = document.createElement("b");
+			b.textContent = I18n.noPins();
+			div.append(b);
+			return;
+		}
+		div.append(
+			...this.pinnedMessages.map((_) => {
+				const html = _.buildhtml(undefined, true);
+				html.style.cursor = "pointer";
+				html.onclick = async () => {
+					div.remove();
+					await this.focus(_.id);
+				};
+				Message.contextmenu.bindContextmenu(html, _);
+				return html;
+			}),
+		);
 	}
 	readStateInfo(json: readyjson["d"]["read_state"]["entries"][0]) {
 		const next = this.messages.get(this.idToNext.get(this.lastreadmessageid as string) as string);
@@ -927,7 +983,19 @@ class Channel extends SnowFlake {
 		html.classList.add("messagecontainer");
 		messages.append(html);
 	}
+	unreadPins() {
+		if (!this.last_pin_timestamp && !this.lastpin) return false;
+		return this.last_pin_timestamp !== this.lastpin;
+	}
 	async getHTML(addstate = true) {
+		const pinnedM = document.getElementById("pinnedMDiv");
+		if (pinnedM) {
+			if (this.unreadPins()) {
+				pinnedM.classList.add("unreadPin");
+			} else {
+				pinnedM.classList.remove("unreadPin");
+			}
+		}
 		const ghostMessages = document.getElementById("ghostMessages") as HTMLElement;
 		ghostMessages.innerHTML = "";
 		for (const thing of this.fakeMessages) {
