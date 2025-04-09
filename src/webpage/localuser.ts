@@ -1805,10 +1805,11 @@ class Localuser {
 			accessibility.addCheckboxInput(
 				I18n.accessibility.roleColors(),
 				(t) => {
+					console.log(t);
 					this.perminfo.user.disableColors = !t;
 				},
 				{
-					initState: !!this.perminfo.user.disableColors,
+					initState: !this.perminfo.user.disableColors,
 				},
 			);
 			const gifSettings = ["hover", "always", "never"] as const;
