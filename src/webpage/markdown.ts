@@ -701,10 +701,10 @@ class MarkDown {
 		if (
 			last &&
 			last instanceof HTMLElement &&
-			last.contentEditable &&
-			!(last instanceof HTMLBRElement)
+			(last.contentEditable === "false" || last instanceof HTMLBRElement)
 		) {
 			span.append(current);
+			console.log(current);
 		}
 		return span;
 	}
