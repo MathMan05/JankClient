@@ -238,6 +238,8 @@ class Localuser {
 		};
 		const rights = this.perminfo.user.rights || "875069521787904";
 		this.rights = new Rights(rights);
+
+		if (this.perminfo.user.disableColors === undefined) this.perminfo.user.disableColors = true;
 	}
 	async gottenReady(ready: readyjson): Promise<void> {
 		await I18n.done;
@@ -1806,7 +1808,7 @@ class Localuser {
 					this.perminfo.user.disableColors = !t;
 				},
 				{
-					initState: !this.perminfo.user.disableColors,
+					initState: !!this.perminfo.user.disableColors,
 				},
 			);
 			const gifSettings = ["hover", "always", "never"] as const;
