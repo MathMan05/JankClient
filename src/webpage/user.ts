@@ -374,7 +374,7 @@ class User extends SnowFlake {
 				options.addTitle(I18n.user.confirmInstBan(this.name));
 				const opt = options.addOptions("", {ltr: true});
 				opt.addButtonInput("", I18n.yes(), () => {
-					fetch(this.info.api + "/users/" + this.id, {
+					fetch(this.info.api + "/users/" + this.id + "/delete", {
 						headers: this.localuser.headers,
 						method: "POST",
 					});
