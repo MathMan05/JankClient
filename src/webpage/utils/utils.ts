@@ -637,6 +637,7 @@ export function createImg(
 		setSrcs: (nsrc: string, nstaticsrc: string | void) => {
 			src = nsrc;
 			staticsrc = nstaticsrc;
+			img.src = settings !== "always" ? staticsrc || src || "" : src || "";
 		},
 	});
 }
