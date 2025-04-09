@@ -2542,7 +2542,7 @@ fieldset input[type="radio"] {
 	display: flex;
 	width: 100%;
 	padding: 0.2in;
-	overflow: scroll;
+	overflow-y: auto;
 	height: 100%;
 
 	> div {
