@@ -1072,6 +1072,8 @@ span.instanceStatus {
 	margin: auto 0 0 8px;
 	font-size: 0.9em;
 	color: var(--primary-text-soft);
+	cursor: pointer;
+
 	button {
 		margin-right: 0.05in;
 	}
@@ -1920,9 +1922,7 @@ img.bigembedimg {
 	box-sizing: border-box;
 	user-select: none;
 	background: var(--secondary-bg);
-	
-	
-	
+
 	input {
 		width: 1in;
 		position: absolute;
