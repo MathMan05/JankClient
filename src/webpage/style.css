@@ -510,8 +510,8 @@ textarea {
 	right: 13px;
 	top: 6px;
 }
-#searchX.svg-plainx{
-	cursor:pointer;
+#searchX.svg-plainx {
+	cursor: pointer;
 }
 #pinnedM {
 	width: 0.25in;
@@ -2490,9 +2490,9 @@ fieldset input[type="radio"] {
 
 @media screen and (max-width: 1000px) {
 	#sideContainDiv {
-		position: absolute;
-		right: 0;
-		height: calc(100svh - 50px);
+		position: relative;
+		margin-left: -256px;
+		flex-grow: 1;
 	}
 	.flexspace:has(.hypoprofile) {
 		flex-direction: column;
