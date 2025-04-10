@@ -656,7 +656,15 @@ class Channel extends SnowFlake {
 			if (this.type === 0) {
 				const decoration = document.createElement("span");
 				button.appendChild(decoration);
-				decoration.classList.add("space", "svgicon", this.nsfw ? "svg-channelnsfw" : "svg-channel");
+				if (this.guild.properties.rules_channel_id === this.id) {
+					decoration.classList.add("space", "svgicon", "svg-rules");
+				} else {
+					decoration.classList.add(
+						"space",
+						"svgicon",
+						this.nsfw ? "svg-channelnsfw" : "svg-channel",
+					);
+				}
 			} else if (this.type === 2) {
 				//
 				const decoration = document.createElement("span");
@@ -1038,7 +1046,10 @@ class Channel extends SnowFlake {
 				d.options.addHTMLArea(new MarkDown(this.topic, this).makeHTML());
 				d.show();
 			};
-		} else channelTopic.setAttribute("hidden", "");
+		} else {
+			channelTopic.setAttribute("hidden", "");
+			channelTopic.onclick = () => {};
+		}
 		if (this.guild !== this.localuser.lookingguild) {
 			this.guild.loadGuild();
 		}

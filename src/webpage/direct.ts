@@ -85,6 +85,7 @@ class Direct extends Guild {
 		const channelTopic = document.getElementById("channelTopic") as HTMLSpanElement;
 		channelTopic.removeAttribute("hidden");
 		channelTopic.textContent = "";
+		channelTopic.onclick = () => {};
 
 		const loading = document.getElementById("loadingdiv") as HTMLDivElement;
 		loading.classList.remove("loading");

@@ -24,9 +24,15 @@ export class Buttons implements OptionsElement<unknown> {
 		if (!thing) {
 			thing = new Options(name, this);
 		}
-		this.buttons.push([name, thing]);
+		const button = [name, thing] as [string, string | Options];
+		this.buttons.push(button);
+		const htmlarea = this.htmlarea.deref();
+		const buttonTable = this.buttonTable.deref();
+		if (buttonTable && htmlarea) buttonTable.append(this.makeButtonHTML(button, htmlarea));
 		return thing;
 	}
+	htmlarea = new WeakRef(document.createElement("div"));
+	buttonTable = new WeakRef(document.createElement("div"));
 	generateHTML() {
 		const buttonList = document.createElement("div");
 		buttonList.classList.add("Buttons");
@@ -40,7 +46,21 @@ export class Buttons implements OptionsElement<unknown> {
 		}
 		buttonList.append(buttonTable);
 		buttonList.append(htmlarea);
+		this.htmlarea = new WeakRef(htmlarea);
+		this.buttonTable = new WeakRef(buttonTable);
 		return buttonList;
+	}
+	makeButtonHTML(buttond: [string, string | Options], optionsArea: HTMLElement) {
+		const button = document.createElement("button");
+		button.classList.add("SettingsButton");
+		button.textContent = buttond[0];
+		button.onclick = (_) => {
+			this.generateHTMLArea(buttond[1], optionsArea);
+			if (this.warndiv) {
+				this.warndiv.remove();
+			}
+		};
+		return button;
 	}
 	generateButtons(optionsArea: HTMLElement) {
 		const buttonTable = document.createElement("div");
@@ -49,16 +69,7 @@ export class Buttons implements OptionsElement<unknown> {
 			buttonTable.classList.add("flexltr");
 		}
 		for (const thing of this.buttons) {
-			const button = document.createElement("button");
-			button.classList.add("SettingsButton");
-			button.textContent = thing[0];
-			button.onclick = (_) => {
-				this.generateHTMLArea(thing[1], optionsArea);
-				if (this.warndiv) {
-					this.warndiv.remove();
-				}
-			};
-			buttonTable.append(button);
+			buttonTable.append(this.makeButtonHTML(thing, optionsArea));
 		}
 		return buttonTable;
 	}
@@ -1082,13 +1093,13 @@ class Form implements OptionsElement<object> {
 			(this.button.deref() as HTMLElement).hidden = false;
 		}
 	}
-	selectMap = new WeakMap<SelectInput, (number | string | null)[]>();
+	selectMap = new WeakMap<SelectInput, readonly (number | string | null | undefined)[]>();
 	addSelect(
 		label: string,
 		formName: string,
 		selections: string[],
 		{defaultIndex = 0, required = false, radio = false} = {},
-		correct: (string | number | null)[] = selections,
+		correct: readonly (string | number | null | undefined)[] = selections,
 	) {
 		const select = this.options.addSelect(label, (_) => {}, selections, {
 			defaultIndex,
@@ -1219,7 +1230,7 @@ class Form implements OptionsElement<object> {
 	addPreprocessor(func: (obj: Object) => void) {
 		this.preprocessor = func;
 	}
-	onFormError = (f: FormError) => {};
+	onFormError = (_: FormError) => {};
 	async submit() {
 		if (this.options.subOptions) {
 			this.options.subOptions.submit();
