@@ -209,8 +209,14 @@ class Emoji {
 		body.classList.add("emojiBody");
 
 		let isFirst = true;
-		localuser.guilds
-			.filter((guild) => guild.id != "@me" && guild.emojis.length > 0)
+
+		[
+			localuser.lookingguild,
+			...localuser.guilds
+				.filter((guild) => guild.id != "@me" && guild.emojis.length > 0)
+				.filter((guild) => guild !== localuser.lookingguild),
+		]
+			.filter((guild) => guild !== undefined)
 			.forEach((guild) => {
 				const select = document.createElement("div");
 				select.classList.add("emojiSelect");
