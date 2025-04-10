@@ -1044,12 +1044,7 @@ function formatTime(date: Date) {
 	} else if (datestring === yesterdayStr) {
 		return I18n.getTranslation("yesterdayAt", formatTime(date));
 	} else {
-		return I18n.getTranslation(
-			"otherAt",
-			formatTime(date),
-			date.toLocaleDateString(),
-			formatTime(date),
-		);
+		return I18n.getTranslation("otherAt", date.toLocaleDateString(), formatTime(date));
 	}
 }
 let tomorrow = 0;
