@@ -928,12 +928,35 @@ class Channel extends SnowFlake {
 		}
 	}
 	async focus(id: string) {
-		console.time();
+		const m = this.messages.get(id);
+		if (m && m.div) {
+			if (document.contains(m.div)) {
+				m.div.scrollIntoView({
+					behavior: "smooth",
+					block: "center",
+				});
+				await new Promise((resolve) => {
+					setTimeout(resolve, 1000);
+				});
+				m.div.classList.remove("jumped");
+				await new Promise((resolve) => {
+					setTimeout(resolve, 100);
+				});
+				m.div.classList.add("jumped");
+				return;
+			}
+		}
 		console.log(await this.getmessage(id));
-		await this.getHTML();
-		console.timeEnd();
+
+		if (this.localuser.channelfocus === this) {
+			this.localuser.channelfocus?.infinite.delete();
+			this.localuser.channelfocus = undefined;
+		}
+		await this.getHTML(true, false);
 		console.warn(id);
-		this.infinite.focus(id);
+		await this.buildmessages(id);
+		//debugger;
+		this.infinite.focus(id, true, true);
 	}
 	editLast() {
 		let message: Message | undefined = this.lastmessage;
@@ -987,7 +1010,7 @@ class Channel extends SnowFlake {
 		if (!this.last_pin_timestamp && !this.lastpin) return false;
 		return this.last_pin_timestamp !== this.lastpin;
 	}
-	async getHTML(addstate = true) {
+	async getHTML(addstate = true, getMessages = true) {
 		const pinnedM = document.getElementById("pinnedMDiv");
 		if (pinnedM) {
 			if (this.unreadPins()) {
@@ -1059,14 +1082,14 @@ class Channel extends SnowFlake {
 		if (!mobile) {
 			(document.getElementById("typebox") as HTMLDivElement).focus();
 		}
-		await this.putmessages();
+		if (getMessages) await this.putmessages();
 		await prom;
 		if (id !== Channel.genid) {
 			return;
 		}
 		this.makereplybox();
 
-		await this.buildmessages();
+		if (getMessages) await this.buildmessages();
 		//loading.classList.remove("loading");
 	}
 	typingmap: Map<Member, number> = new Map();
@@ -1354,12 +1377,12 @@ class Channel extends SnowFlake {
 				}
 			});
 	}
-	async buildmessages() {
+	async buildmessages(id: string | void) {
 		this.infinitefocus = false;
-		await this.tryfocusinfinate();
+		await this.tryfocusinfinate(id);
 	}
 	infinitefocus = false;
-	async tryfocusinfinate() {
+	async tryfocusinfinate(id: string | void) {
 		if (this.infinitefocus) return;
 		this.infinitefocus = true;
 		const messages = document.getElementById("channelw") as HTMLDivElement;
@@ -1370,12 +1393,13 @@ class Channel extends SnowFlake {
 		const loading = document.getElementById("loadingdiv") as HTMLDivElement;
 		const removetitle = document.getElementById("removetitle");
 		//messages.innerHTML="";
-		let id: string | undefined;
-		if (this.lastreadmessageid && this.messages.has(this.lastreadmessageid)) {
-			id = this.lastreadmessageid;
-		} else if (this.lastreadmessageid && (id = this.findClosest(this.lastreadmessageid))) {
-		} else if (this.lastmessageid && this.messages.has(this.lastmessageid)) {
-			id = this.goBackIds(this.lastmessageid, 50);
+		if (!id) {
+			if (this.lastreadmessageid && this.messages.has(this.lastreadmessageid)) {
+				id = this.lastreadmessageid;
+			} else if (this.lastreadmessageid && (id = this.findClosest(this.lastreadmessageid))) {
+			} else if (this.lastmessageid && this.messages.has(this.lastmessageid)) {
+				id = this.goBackIds(this.lastmessageid, 50);
+			}
 		}
 		if (!id) {
 			if (!removetitle) {
@@ -1400,8 +1424,9 @@ class Channel extends SnowFlake {
 			console.warn("rouge element detected and removed");
 		}
 		messages.append(await this.infinite.getDiv(id));
+
 		this.infinite.updatestuff();
-		this.infinite.watchForChange().then(async (_) => {
+		await this.infinite.watchForChange().then(async (_) => {
 			//await new Promise(resolve => setTimeout(resolve, 0));
 			this.infinite.focus(id, false); //if someone could figure out how to make this work correctly without this, that's be great :P
 			loading.classList.remove("loading");

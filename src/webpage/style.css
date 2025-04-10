@@ -57,16 +57,52 @@ body {
 	display: flex;
 	flex-direction: column;
 }
+.searchNavButtons {
+	height: 0.3in;
+	flex-shrink: 0;
+	background: var(--secondary-bg);
+	top: 0px;
+	padding: 0.1in;
+	display: flex;
+	align-items: center;
+	margin-top: auto;
+
+	button {
+		flex-shrink: 0;
+		margin-left: 0.1in;
+	}
+}
+.sortBar {
+	height: 0.3in;
+	flex-shrink: 0;
+	background: var(--secondary-bg);
+	position: sticky;
+	top: 0px;
+	padding: 0.1in;
+	display: flex;
+	align-items: center;
+	z-index: 1;
+
+	button {
+		flex-shrink: 0;
+		margin-left: 0.1in;
+	}
+}
+.selectedB {
+	background: color-mix(in srgb, black, var(--button-bg) 60%);
+}
 .pinnedMessages {
 	position: absolute;
 	background: var(--secondary-bg);
 	width: 3.5in;
 	padding: 8px;
 	border-radius: 6px;
-	box-shadow: 1px 1px 10px black;
+	box-shadow: 1px 3px 10px var(--shadow);
 	max-height: 60vh;
 	overflow-y: auto;
 	min-height: 1in;
+	z-index: 2;
+
 	b {
 		width: 100%;
 		height: 1in;
@@ -129,6 +165,7 @@ body {
 .channelSTitle {
 	margin-top: 0.2in;
 	margin-bottom: 0;
+	margin-left: 10px;
 }
 p,
 h1,
@@ -352,6 +389,14 @@ textarea {
 	display: block;
 	mask-size: cover !important;
 }
+.svg-plainx {
+	mask: url(/icons/plainx.svg);
+	mask-size: contain !important;
+}
+.svg-search {
+	mask: url(/icons/search.svg);
+	mask-size: contain !important;
+}
 .svg-spoiler {
 	mask: url(/icons/spoiler.svg);
 }
@@ -457,6 +502,16 @@ textarea {
 	mask-repeat: no-repeat;
 	aspect-ratio: 1/1;
 	flex-shrink: 0;
+}
+#searchX {
+	width: 0.16in;
+	height: 0.16in;
+	position: absolute;
+	right: 13px;
+	top: 6px;
+}
+#searchX.svg-plainx{
+	cursor:pointer;
 }
 #pinnedM {
 	width: 0.25in;
@@ -891,7 +946,10 @@ span.instanceStatus {
 	background: var(--channels-bg);
 	user-select: none;
 }
-
+.searchMeta {
+	position: relative;
+	display: flex;
+}
 .header {
 	flex: none;
 	height: 48px;
@@ -1224,6 +1282,10 @@ span.instanceStatus {
 
 .searchBox:empty {
 	width: 2in;
+}
+.searchBox:empty::after {
+	content: var(--hint-text);
+	color: var(--primary-text-soft);
 }
 .searchBox {
 	white-space: nowrap;
@@ -1739,6 +1801,7 @@ img.bigembedimg {
 
 /* Sidebar */
 #sideContainDiv {
+	padding: 16px 8px;
 	display: none;
 	flex: none;
 	width: 240px;
@@ -1747,17 +1810,22 @@ img.bigembedimg {
 	justify-content: space-between;
 }
 #sideDiv {
-	padding: 16px 8px;
 	overflow-y: auto;
 	box-sizing: border-box;
+	position: relative;
+	overflow: auto;
+	flex-grow: 1;
 }
 #page:has(#memberlisttoggle:checked) #sideContainDiv {
 	display: flex;
 }
 #sideContainDiv.searchDiv {
+	padding: 0px;
 	display: flex;
 	width: 30vw;
+
 	.topMessage {
+		margin: 0px 10px;
 		margin-top: 2px;
 		margin-bottom: 10px;
 		cursor: pointer;
@@ -2033,6 +2101,7 @@ img.bigembedimg {
 	height: 100%;
 	width: 100%;
 	background: color-mix(in srgb, var(--black) 75%, transparent);
+	z-index: 2;
 }
 .imgfit {
 	max-height: 85svh;

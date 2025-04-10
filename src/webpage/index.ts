@@ -149,13 +149,32 @@ import {I18n} from "./i18n.js";
 		const searchBox = document.getElementById("searchBox") as CustomHTMLDivElement;
 		const markdown = new MarkDown("", thisUser);
 		searchBox.markdown = markdown;
-
+		const searchX = document.getElementById("searchX") as HTMLElement;
 		searchBox.addEventListener("keydown", (event) => {
 			if (event.key === "Enter") {
 				event.preventDefault();
 				thisUser.mSearch(markdown.rawString);
 			}
 		});
+		searchBox.addEventListener("keyup", () => {
+			if (searchBox.textContent === "") {
+				setTimeout(() => (searchBox.innerHTML = ""), 0);
+				searchX.classList.add("svg-search");
+				searchX.classList.remove("svg-plainx");
+			} else {
+				searchX.classList.remove("svg-search");
+				searchX.classList.add("svg-plainx");
+			}
+		});
+		searchX.onclick = () => {
+			if (searchX.classList.contains("svg-plainx")) {
+				markdown.txt = [];
+				searchBox.innerHTML = "";
+				searchX.classList.add("svg-search");
+				searchX.classList.remove("svg-plainx");
+				thisUser.mSearch("");
+			}
+		};
 
 		markdown.giveBox(searchBox);
 		markdown.setCustomBox((e) => {

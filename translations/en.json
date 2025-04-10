@@ -380,6 +380,15 @@
 		"mustTypePhrase": "To delete your account you must type the phrase",
 		"manageInstance": "Manage Instance"
 	},
+	"search": {
+		"back": "Back",
+		"next": "Next",
+		"page": "Page $1",
+		"new": "New",
+		"old": "Old",
+		"search": "Search",
+		"nofind": "There seems to be no messages that match your search, maybe trying broadening your search to try and find what you want"
+	},
 	"manageInstance": {
 		"stop": "Stop instance",
 		"AreYouSureStop": "Are you sure you want to stop this instance?",

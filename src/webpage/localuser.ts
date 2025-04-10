@@ -240,6 +240,7 @@ class Localuser {
 		this.rights = new Rights(rights);
 
 		if (this.perminfo.user.disableColors === undefined) this.perminfo.user.disableColors = true;
+		this.updateTranslations();
 	}
 	async gottenReady(ready: readyjson): Promise<void> {
 		await I18n.done;
@@ -1751,6 +1752,7 @@ class Localuser {
 					I18n.getTranslation("localuser.language"),
 					(e) => {
 						I18n.setLanguage(I18n.options()[e]);
+						this.updateTranslations();
 					},
 					[...langmap.values()],
 					{
@@ -2671,51 +2673,140 @@ class Localuser {
 		box.innerHTML = "";
 	}
 	searching = false;
+	updateTranslations() {
+		const searchBox = document.getElementById("searchBox") as HTMLDivElement;
+		searchBox.style.setProperty("--hint-text", JSON.stringify(I18n.search.search()));
+	}
+	curSearch?: Symbol;
 	mSearch(query: string) {
+		const searchy = Symbol("search");
+		this.curSearch = searchy;
 		const p = new URLSearchParams("?");
 		this.searching = true;
 		p.set("content", query.trim());
-		fetch(this.info.api + `/guilds/${this.lookingguild?.id}/messages/search/?` + p.toString(), {
-			headers: this.headers,
-		})
-			.then((_) => _.json())
-			.then((json: {messages: [messagejson][]; total_results: number}) => {
-				//FIXME total_results shall be ignored as it's known to be bad, spacebar bug.
-				const messages = json.messages
-					.map(([m]) => {
-						const c = this.channelids.get(m.channel_id);
-						if (!c) return;
-						if (c.messages.get(m.id)) {
-							return c.messages.get(m.id);
-						}
-						return new Message(m, c, true);
-					})
-					.filter((_) => _ !== undefined);
-				const sideDiv = document.getElementById("sideDiv");
-				const sideContainDiv = document.getElementById("sideContainDiv");
-				if (!sideDiv || !sideContainDiv) return;
-				sideDiv.innerHTML = "";
-				sideContainDiv.classList.add("searchDiv");
-				let channel: Channel | undefined = undefined;
-				for (const message of messages) {
-					if (channel !== message.channel) {
-						channel = message.channel;
-						const h3 = document.createElement("h3");
-						h3.textContent = channel.name;
-						h3.classList.add("channelSTitle");
-						sideDiv.append(h3);
+		p.set("sort_by", "timestamp");
+		p.set("sort_order", "desc");
+		let maxpage: undefined | number = undefined;
+		const sideDiv = document.getElementById("sideDiv");
+		const sideContainDiv = document.getElementById("sideContainDiv");
+		if (!sideDiv || !sideContainDiv) return;
+		const genPage = (page: number) => {
+			p.set("offset", page * 50 + "");
+			fetch(this.info.api + `/guilds/${this.lookingguild?.id}/messages/search/?` + p.toString(), {
+				headers: this.headers,
+			})
+				.then((_) => _.json())
+				.then((json: {messages: [messagejson][]; total_results: number}) => {
+					if (this.curSearch !== searchy) {
+						return;
 					}
-					const html = message.buildhtml(undefined, true);
-					html.addEventListener("click", async () => {
-						try {
-							await message.channel.focus(message.id);
-						} catch (e) {
-							console.error(e);
+					//FIXME total_results shall be ignored as it's known to be bad, spacebar bug.
+					const messages = json.messages
+						.map(([m]) => {
+							const c = this.channelids.get(m.channel_id);
+							if (!c) return;
+							if (c.messages.get(m.id)) {
+								return c.messages.get(m.id);
+							}
+							return new Message(m, c, true);
+						})
+						.filter((_) => _ !== undefined);
+					sideDiv.innerHTML = "";
+					if (messages.length == 0 && page !== 0) {
+						maxpage = page - 1;
+						genPage(page - 1);
+						return;
+					} else if (messages.length !== 50) {
+						maxpage = page;
+					}
+					const sortBar = document.createElement("div");
+					sortBar.classList.add("flexltr", "sortBar");
+
+					const newB = document.createElement("button");
+					const old = document.createElement("button");
+					[newB.textContent, old.textContent] = [I18n.search.new(), I18n.search.old()];
+					old.onclick = () => {
+						p.set("sort_order", "asc");
+						deleteMessages();
+						genPage(0);
+					};
+					newB.onclick = () => {
+						p.set("sort_order", "desc");
+						deleteMessages();
+						genPage(0);
+					};
+					if (p.get("sort_order") === "asc") {
+						old.classList.add("selectedB");
+					} else {
+						newB.classList.add("selectedB");
+					}
+
+					const spaceElm = document.createElement("div");
+					spaceElm.classList.add("spaceElm");
+
+					sortBar.append(I18n.search.page(page + 1 + ""), spaceElm, newB, old);
+
+					sideDiv.append(sortBar);
+
+					sideContainDiv.classList.add("searchDiv");
+					let channel: Channel | undefined = undefined;
+					function deleteMessages() {
+						for (const elm of htmls) elm.remove();
+					}
+					const htmls: HTMLElement[] = [];
+					for (const message of messages) {
+						if (channel !== message.channel) {
+							channel = message.channel;
+							const h3 = document.createElement("h3");
+							h3.textContent = channel.name;
+							h3.classList.add("channelSTitle");
+							sideDiv.append(h3);
+							htmls.push(h3);
 						}
-					});
-					sideDiv.append(html);
-				}
-			});
+						const html = message.buildhtml(undefined, true);
+						html.addEventListener("click", async () => {
+							try {
+								await message.channel.focus(message.id);
+							} catch (e) {
+								console.error(e);
+							}
+						});
+						sideDiv.append(html);
+						htmls.push(html);
+					}
+					if (messages.length === 0) {
+						const noMs = document.createElement("h3");
+						noMs.textContent = I18n.search.nofind();
+						sideDiv.append(noMs);
+					}
+					const bottombuttons = document.createElement("div");
+					bottombuttons.classList.add("flexltr", "searchNavButtons");
+					const next = document.createElement("button");
+					if (page == maxpage) next.disabled = true;
+					next.onclick = () => {
+						deleteMessages();
+						genPage(page + 1);
+					};
+					const prev = document.createElement("button");
+					prev.onclick = () => {
+						deleteMessages();
+						genPage(page - 1);
+					};
+					if (page == 0) prev.disabled = true;
+					[next.textContent, prev.textContent] = [I18n.search.next(), I18n.search.back()];
+					bottombuttons.append(prev, next);
+					sideDiv.append(bottombuttons);
+					sideDiv.scrollTo({top: 0, behavior: "instant"});
+				});
+		};
+		if (query === "") {
+			sideContainDiv.classList.remove("searchDiv");
+			sideDiv.innerHTML = "";
+			this.searching = false;
+			this.getSidePannel();
+			return;
+		}
+		genPage(0);
 	}
 
 	keydown: (event: KeyboardEvent) => unknown = () => {};
