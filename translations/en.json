@@ -245,6 +245,8 @@
 	"nevermind": "Nevermind",
 	"submit": "submit",
 	"guild": {
+		"ruleId": "Rules Channel:",
+		"community": "Community",
 		"creating": "Creating guild",
 		"copyId": "Copy guild id",
 		"markRead": "Mark as read",

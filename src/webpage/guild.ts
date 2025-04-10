@@ -150,36 +150,21 @@ class Guild extends SnowFlake {
 			form.addTextInput(I18n.getTranslation("guild.name:"), "name", {
 				initText: this.properties.name,
 			});
-			form.addMDInput(I18n.getTranslation("guild.description:"), "description", {
-				initText: this.properties.description,
-			});
 
 			form.addFileInput(I18n.getTranslation("guild.banner:"), "banner", {clear: true});
 			form.addFileInput(I18n.getTranslation("guild.icon:"), "icon", {clear: true});
 
 			form.addHR();
 
-			const sysmap = [null, ...textChannels.map((e) => e.id)];
-			form.addSelect(
-				I18n.getTranslation("guild.systemSelect:"),
-				"system_channel_id",
-				["No system messages", ...textChannels.map((e) => e.name)],
-				{defaultIndex: sysmap.indexOf(this.properties.system_channel_id)},
-				sysmap,
-			);
 			console.log(textChannels, this.channels);
-			const options: ["DISCOVERABLE", "COMMUNITY", "INVITES_DISABLED"] = [
-				"DISCOVERABLE",
-				"COMMUNITY",
-				"INVITES_DISABLED",
-			];
+			const options = ["DISCOVERABLE", "COMMUNITY", "INVITES_DISABLED"] as const;
 			const defaultIndex = options.findIndex((_) => this.properties.features.includes(_));
 			form.addSelect(
 				I18n.guild.howJoin(),
 				"features",
 				options.map((_) => I18n.guild[_]()),
 				{
-					defaultIndex: defaultIndex == -1 ? 1 : defaultIndex,
+					defaultIndex: defaultIndex == -1 ? 2 : defaultIndex,
 				},
 				options,
 			);
@@ -211,8 +196,16 @@ class Guild extends SnowFlake {
 				console.log([...temp]);
 				//@ts-ignore
 				temp = temp.filter((_) => !options.includes(_));
-				console.log(temp, options);
 				temp.push(e.features);
+				if (e.features === "DISCOVERABLE") {
+					temp.push("COMMUNITY");
+				}
+				if (temp.includes("COMMUNITY")) {
+					if (!com) {
+						this.addCommunity(settings, textChannels);
+						com = true;
+					}
+				}
 				e.features = temp;
 			});
 
@@ -348,7 +341,51 @@ class Guild extends SnowFlake {
 		})();
 		const webhooks = settings.addButton(I18n.webhooks.base());
 		webhookMenu(this, this.info.api + `/guilds/${this.id}/webhooks`, webhooks);
+		console.log(this.properties.features, this.properties.features.includes("COMMUNITY"));
+		let com = false;
+		if (this.properties.features.includes("COMMUNITY")) {
+			this.addCommunity(settings, textChannels);
+			com = true;
+		}
 		settings.show();
+	}
+	addCommunity(settings: Settings, textChannels: Channel[]) {
+		const com = settings.addButton(I18n.guild.community()).addForm("", () => {}, {
+			fetchURL: this.info.api + "/guilds/" + this.id,
+			method: "PATCH",
+			headers: this.headers,
+			traditionalSubmit: true,
+		});
+		{
+			com.addMDInput(I18n.getTranslation("guild.description:"), "description", {
+				initText: this.properties.description,
+			});
+		}
+		{
+			let defaultIndex = textChannels.findIndex((_) => this.properties.rules_channel_id == _.id);
+			if (defaultIndex === -1) {
+				defaultIndex = textChannels.length;
+			}
+			com.addSelect(
+				I18n.guild.ruleId(),
+				"rules_channel_id",
+				[...textChannels.map((_) => _.name), "none"],
+				{
+					defaultIndex,
+				},
+				[...textChannels.map((_) => _.id), undefined],
+			);
+		}
+		{
+			const sysmap = [null, ...textChannels.map((e) => e.id)];
+			com.addSelect(
+				I18n.getTranslation("guild.systemSelect:"),
+				"system_channel_id",
+				["No system messages", ...textChannels.map((e) => e.name)],
+				{defaultIndex: sysmap.indexOf(this.properties.system_channel_id)},
+				sysmap,
+			);
+		}
 	}
 	makeInviteMenu(options: Options, valid: void | Channel[]) {
 		if (!valid) {
