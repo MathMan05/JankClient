@@ -2363,8 +2363,13 @@ class Localuser {
 
 				div.onclick = () => {
 					if (this.channelfocus) {
-						this.channelfocus.sendMessage(gif.url, {embeds: [], attachments: [], replyingto: null});
+						this.channelfocus.sendMessage(gif.url, {
+							embeds: [],
+							attachments: [],
+							replyingto: this.channelfocus.replyingto,
+						});
 						menu.remove();
+						this.channelfocus.replyingto = null;
 					}
 				};
 			}
