@@ -242,7 +242,18 @@ class InfiniteScroller {
 		}
 	}
 
-	async watchForChange(): Promise<boolean> {
+	async watchForChange(stop = false): Promise<boolean> {
+		if (stop == true) {
+			let prom = this.changePromise;
+			while (this.changePromise) {
+				prom = this.changePromise;
+				await this.changePromise;
+				if (prom === this.changePromise) {
+					this.changePromise = undefined;
+					break;
+				}
+			}
+		}
 		if (this.changePromise) {
 			this.watchtime = true;
 			return await this.changePromise;
@@ -268,6 +279,10 @@ class InfiniteScroller {
 				console.error(e);
 				res(false);
 			} finally {
+				if (stop === true) {
+					this.changePromise = undefined;
+					return;
+				}
 				setTimeout(() => {
 					this.changePromise = undefined;
 					if (this.watchtime) {
@@ -279,17 +294,18 @@ class InfiniteScroller {
 
 		return await this.changePromise;
 	}
-	async focus(id: string, flash = true): Promise<void> {
+	async focus(id: string, flash = true, sec = false): Promise<void> {
 		let element: HTMLElement | undefined;
 		for (const thing of this.HTMLElements) {
 			if (thing[1] === id) {
 				element = thing[0];
 			}
 		}
-		if (element) {
+		if (sec && element) {
 			if (flash) {
 				element.scrollIntoView({
 					behavior: "smooth",
+					inline: "center",
 					block: "center",
 				});
 				await new Promise((resolve) => {
@@ -301,9 +317,11 @@ class InfiniteScroller {
 				});
 				element.classList.add("jumped");
 			} else {
-				element.scrollIntoView();
+				element.scrollIntoView({
+					block: "center",
+				});
 			}
-		} else {
+		} else if (!sec) {
 			this.resetVars();
 			//TODO may be a redundant loop, not 100% sure :P
 			for (const thing of this.HTMLElements) {
@@ -312,11 +330,16 @@ class InfiniteScroller {
 			this.HTMLElements = [];
 			await this.firstElement(id);
 			this.updatestuff();
-			await this.watchForChange();
-			await new Promise((resolve) => {
-				setTimeout(resolve, 100);
+			await this.watchForChange(true);
+			this.changePromise = new Promise<boolean>((resolve) => {
+				setTimeout(() => {
+					this.changePromise = undefined;
+					resolve(true);
+				}, 1000);
 			});
-			await this.focus(id, true);
+			await this.focus(id, !element, true);
+		} else {
+			console.warn("elm not exist");
 		}
 	}
 

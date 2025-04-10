@@ -855,6 +855,11 @@ class Guild extends SnowFlake {
 		}
 	}
 	getHTML() {
+		const sideContainDiv = document.getElementById("sideContainDiv");
+		if (sideContainDiv) sideContainDiv.classList.remove("searchDiv");
+		const searchBox = document.getElementById("searchBox");
+		if (searchBox) searchBox.textContent = "";
+
 		//this.printServers();
 		this.sortchannels();
 		this.printServers();
