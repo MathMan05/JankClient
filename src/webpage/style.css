@@ -1187,6 +1187,7 @@ span.instanceStatus {
 	flex: 1;
 	max-height: fit-content;
 	flex-basis: auto;
+	flex-grow: 0;
 }
 .scroller {
 	flex: 1;

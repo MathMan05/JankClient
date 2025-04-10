@@ -78,6 +78,8 @@ class Direct extends Guild {
 		return ddiv;
 	}
 	noChannel(addstate: boolean) {
+		const ghostMessages = document.getElementById("ghostMessages");
+		if (ghostMessages) ghostMessages.innerHTML = "";
 		if (addstate) {
 			history.pushState([this.id, undefined], "", "/channels/" + this.id);
 		}
