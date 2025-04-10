@@ -1266,6 +1266,7 @@ span.instanceStatus {
 	padding: 0 16px 28px 16px;
 }
 #typebox {
+	margin: -10px 0px;
 	flex-grow: 1;
 	width: 1px;
 	margin-left: 0.06in;
@@ -1274,6 +1275,7 @@ span.instanceStatus {
 	text-wrap: auto;
 	overflow-y: auto;
 	margin-right: 0.03in;
+	padding: 10px 0;
 }
 .outerTypeBox {
 	max-height: 50svh;
