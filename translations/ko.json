@@ -9,6 +9,11 @@
 	"readableName": "한국어",
 	"reply": "답변",
 	"copymessageid": "메시지 ID 복사",
+	"media": {
+		"loading": "불러오는 중",
+		"download": "미디어 다운로드",
+		"moreInfo": "자세한 정보"
+	},
 	"permissions": {
 		"descriptions": {
 			"SEND_MESSAGES": "사용자가 메시지를 보낼 수 있도록 허용합니다",
@@ -59,7 +64,11 @@
 	"UrlGen": "URL 생성기",
 	"typing": "$2님이 타이핑 중{{PLURAL:$1|입니다}}",
 	"blankMessage": "빈 메시지",
+	"accessibility": {
+		"name": "접근성"
+	},
 	"channel": {
+		"name": "채널",
 		"copyId": "채널 ID 복사",
 		"markRead": "읽은 것으로 표시",
 		"settings": "설정",
@@ -76,7 +85,22 @@
 		"selectName": "채널 이름",
 		"selectCatName": "분류 이름",
 		"createChannel": "채널 만들기",
-		"createCatagory": "분류 만들기"
+		"createCatagory": "분류 만들기",
+		"permissions": "권한"
+	},
+	"webhooks": {
+		"createdAt": "만든 날짜: $1",
+		"name": "이름:",
+		"token": "웹혹 토큰: `$1`",
+		"avatar": "아바타",
+		"createdBy": "만든이:",
+		"channel": "채널",
+		"copyURL": "웹훅 URL 복사",
+		"newWebHook": "새 웹훅",
+		"EnterWebhookName": "웹훅 이름 입력",
+		"base": "웹훅",
+		"type2": "채널 팔로워",
+		"areYouSureDelete": "$1 항목을 삭제하시겠습니까?"
 	},
 	"switchAccounts": "계정 전환 ⇌",
 	"htmlPages": {
@@ -139,6 +163,8 @@
 		"save": "변경사항 저장"
 	},
 	"localuser": {
+		"addStatus": "상태 추가",
+		"status": "상태",
 		"settings": "설정",
 		"userSettings": "사용자 설정",
 		"themesAndSounds": "테마 및 사운드",
@@ -271,7 +297,11 @@
 	},
 	"login": {
 		"checking": "인스턴스 확인 중",
-		"invalid": "유효하지 않은 인스턴스입니다. 다시 시도하세요"
+		"invalid": "유효하지 않은 인스턴스입니다. 다시 시도하세요",
+		"recover": "비밀번호를 잊으셨나요?",
+		"newPassword": "새 비밀번호:",
+		"enterPAgain": "새 비밀번호를 다시 입력하세요:",
+		"recovery": "비밀번호를 잊으셨나요?"
 	},
 	"member": {
 		"reason:": "이유:",
@@ -284,6 +314,9 @@
 		"name:": "이름:",
 		"confirmDel": "이 이모티콘을 삭제하시겠습니까?"
 	},
+	"widget": "길드 위젯",
 	"uploadFilesText": "여기에 파일을 올리세요!",
-	"retrying": "다시 시도하는 중..."
+	"retrying": "다시 시도하는 중...",
+	"bot": "봇",
+	"webhook": "웹훅"
 }
