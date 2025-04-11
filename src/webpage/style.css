@@ -2046,6 +2046,7 @@ img.bigembedimg {
 	box-sizing: border-box;
 	user-select: none;
 	background: var(--secondary-bg);
+	z-index: 4;
 
 	input {
 		width: 1in;
@@ -2364,11 +2365,24 @@ fieldset input[type="radio"] {
 		margin-left: auto;
 	}
 }
+.stickersDiv {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
 .webhookpfppreview {
 	width: 0.8in;
 	height: 0.8in;
 	border-radius: 1in;
 	margin-right: 0.2in;
+}
+.stickerView {
+	max-width: 2.5in;
+	max-height: 2.5in;
+}
+.sticker {
+	max-width: 2.5in;
+	max-height: 2.5in;
 }
 .optionElement,
 .FormSettings > button {
@@ -2749,6 +2763,21 @@ fieldset input[type="radio"] {
 .friendlyButton:hover {
 	background: black;
 }
+.stickerOption {
+	border: solid 1px var(--black);
+	display: flex;
+	align-items: center;
+	padding: 0.075in;
+	margin-bottom: 0.2in;
+	border-radius: 0.1in;
+	background: var(--primary-hover);
+	position: relative;
+	margin-right: 15px;
+	cursor: pointer;
+	img {
+		height: 2in;
+	}
+}
 .emojiOption {
 	border: solid 1px var(--black);
 	display: flex;
@@ -2833,8 +2862,29 @@ fieldset input[type="radio"] {
 		max-width: 196px;
 		border-radius: 4px;
 	}
-
 	cursor: pointer;
 	position: absolute;
 	overflow: hidden;
+}
+.emojiForm {
+	display: flex;
+	background: var(--secondary-bg);
+	padding: 6px;
+	width: fit-content;
+	border-radius: 4px;
+	align-items: center;
+	cursor: pointer;
+	:last-child {
+		margin-left: 6px;
+		max-width: 32px !important;
+		max-height: 32px !important;
+		flex-shrink: 0;
+		font-size: 28px;
+	}
+}
+.emptyEmoji {
+	background: var(--primary-bg);
+	width: 32px;
+	height: 32px;
+	border-radius: 2in;
 }

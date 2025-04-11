@@ -1,4 +1,6 @@
+import {Emoji} from "./emoji.js";
 import {I18n} from "./i18n.js";
+import {Localuser} from "./localuser.js";
 
 interface OptionsElement<x> {
 	//
@@ -521,6 +523,66 @@ class MDInput implements OptionsElement<string> {
 		this.onSubmit(this.value);
 	}
 }
+class EmojiInput implements OptionsElement<Emoji | undefined> {
+	readonly label: string;
+	readonly owner: Options;
+	readonly onSubmit: (str: Emoji | undefined) => void;
+	input!: WeakRef<HTMLInputElement>;
+	value!: Emoji | undefined;
+	localuser: Localuser;
+	constructor(
+		label: string,
+		onSubmit: (str: Emoji | undefined) => void,
+		owner: Options,
+		localuser: Localuser,
+		{initEmoji = undefined}: {initEmoji: undefined | Emoji},
+	) {
+		this.label = label;
+		this.owner = owner;
+		this.onSubmit = onSubmit;
+		this.value = initEmoji;
+		this.localuser = localuser;
+	}
+	generateHTML(): HTMLElement {
+		const div = document.createElement("div");
+		div.classList.add("flexltr", "emojiForm");
+		const label = document.createElement("span");
+		label.textContent = this.label;
+
+		let emoji: HTMLElement;
+		if (this.value) {
+			emoji = this.value.getHTML();
+		} else {
+			emoji = document.createElement("span");
+			emoji.classList.add("emptyEmoji");
+		}
+		div.onclick = (e) => {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			(async () => {
+				const Emoji = (await import("./emoji.js")).Emoji;
+				const emj = await Emoji.emojiPicker(e.x, e.y, this.localuser);
+				if (emj) {
+					this.value = emj;
+					emoji.remove();
+					emoji = emj.getHTML();
+					div.append(emoji);
+					this.onchange(emj);
+					this.owner.changed();
+				}
+			})();
+		};
+		div.append(label, emoji);
+		return div;
+	}
+	onchange = (_: Emoji | undefined) => {};
+	watchForChange(func: (arg1: Emoji | undefined) => void) {
+		this.onchange = func;
+	}
+	submit() {
+		this.onSubmit(this.value);
+	}
+}
 class FileInput implements OptionsElement<FileList | null> {
 	readonly label: string;
 	readonly owner: Options;
@@ -654,6 +716,7 @@ class Dialog {
 		background.remove();
 	}
 }
+
 export {Dialog};
 class Options implements OptionsElement<void> {
 	name: string;
@@ -743,6 +806,19 @@ class Options implements OptionsElement<void> {
 		this.subOptions = options;
 		this.genTop();
 		return options;
+	}
+	addEmojiInput(
+		label: string,
+		onSubmit: (str: Emoji | undefined) => void,
+		localuser: Localuser,
+		{initEmoji = undefined} = {} as {initEmoji?: Emoji},
+	) {
+		const emoji = new EmojiInput(label, onSubmit, this, localuser, {
+			initEmoji: initEmoji,
+		});
+		this.options.push(emoji);
+		this.generate(emoji);
+		return emoji;
 	}
 	returnFromSub() {
 		this.subOptions = undefined;
@@ -1127,6 +1203,21 @@ class Form implements OptionsElement<object> {
 		}
 		return FI;
 	}
+	addEmojiInput(
+		label: string,
+		formName: string,
+		localuser: Localuser,
+		{initEmoji = undefined, required = false} = {} as {initEmoji?: Emoji; required: boolean},
+	) {
+		const emoji = this.options.addEmojiInput(label, () => {}, localuser, {
+			initEmoji: initEmoji,
+		});
+		if (required) {
+			this.required.add(emoji);
+		}
+		this.names.set(formName, emoji);
+		return emoji;
+	}
 
 	addTextInput(
 		label: string,
@@ -1294,6 +1385,15 @@ class Form implements OptionsElement<object> {
 				} else {
 					console.error(options.files + " is not currently implemented");
 				}
+			} else if (input instanceof EmojiInput) {
+				if (!input.value) {
+					(build as any)[thing] = undefined;
+				} else if (input.value.id) {
+					(build as any)[thing] = input.value.id;
+				} else if (input.value.emoji) {
+					(build as any)[thing] = input.value.emoji;
+				}
+				continue;
 			}
 			(build as any)[thing] = input.value;
 		}

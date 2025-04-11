@@ -3,7 +3,7 @@ import {Localuser} from "./localuser.js";
 import {Contextmenu} from "./contextmenu.js";
 import {Role, RoleList} from "./role.js";
 import {Member} from "./member.js";
-import {Dialog, Options, Settings} from "./settings.js";
+import {Dialog, FormError, Options, Settings} from "./settings.js";
 import {Permissions} from "./permissions.js";
 import {SnowFlake} from "./snowflake.js";
 import {
@@ -20,6 +20,7 @@ import {I18n} from "./i18n.js";
 import {Emoji} from "./emoji.js";
 import {webhookMenu} from "./webhooks.js";
 import {createImg} from "./utils/utils.js";
+import {Sticker} from "./sticker.js";
 
 class Guild extends SnowFlake {
 	owner!: Localuser;
@@ -39,6 +40,7 @@ class Guild extends SnowFlake {
 	html!: HTMLElement;
 	emojis!: emojipjson[];
 	large!: boolean;
+	stickers!: Sticker[];
 	members = new Set<Member>();
 	static contextmenu = new Contextmenu<Guild, undefined>("guild menu");
 	static setupcontextmenu() {
@@ -311,6 +313,117 @@ class Guild extends SnowFlake {
 			genDiv();
 			emoji.addHTMLArea(containdiv);
 		}
+		{
+			const emoji = settings.addButton(I18n.sticker.title());
+			emoji.addButtonInput("", I18n.sticker.upload(), () => {
+				const popup = new Dialog(I18n.sticker.upload());
+				const form = popup.options.addForm("", async () => {
+					const body = new FormData();
+					body.set("name", name.value);
+					if (!filei.value) throw new FormError(filei, I18n.sticker.errFileMust());
+					const file = filei.value.item(0);
+					if (!file) throw new FormError(filei, I18n.sticker.errFileMust());
+					body.set("file", file);
+					if (!tags.value) throw new FormError(tags, I18n.sticker.errEmjMust());
+					if (tags.value.id) {
+						body.set("tags", tags.value.id);
+					} else if (tags.value.emoji) {
+						body.set("tags", tags.value.emoji);
+					} else {
+						throw new FormError(tags, I18n.sticker.errEmjMust());
+					}
+					const res = await fetch(this.info.api + "/guilds/" + this.id + "/stickers", {
+						method: "POST",
+						headers: {
+							Authorization: this.headers.Authorization,
+						},
+						body,
+					});
+					if (res.ok) {
+						popup.hide();
+					} else {
+						const json = await res.json();
+						if ("message" in json && typeof json.message === "string") {
+							throw new FormError(filei, json.message);
+						}
+					}
+				});
+				const filei = form.addFileInput(I18n.sticker.image(), "file", {required: true});
+				const name = form.addTextInput(I18n.sticker.name(), "name", {required: true});
+				const tags = form.addEmojiInput(I18n.sticker.tags(), "tags", this.localuser, {
+					required: true,
+				});
+				popup.show();
+			});
+			const containdiv = document.createElement("div");
+			containdiv.classList.add("stickersDiv");
+			const genDiv = () => {
+				containdiv.innerHTML = "";
+				for (const sticker of this.stickers) {
+					const div = document.createElement("div");
+					div.classList.add("flexttb", "stickerOption");
+
+					const text = document.createElement("span");
+					text.textContent = sticker.name;
+
+					div.onclick = () => {
+						const form = emoji.addSubForm(emoji.name, () => {}, {
+							fetchURL: this.info.api + "/guilds/" + this.id + "/stickers/" + sticker.id,
+							method: "PATCH",
+							headers: this.headers,
+							traditionalSubmit: true,
+						});
+
+						form.addHTMLArea(sticker.getHTML());
+						form.addTextInput(I18n.sticker.name(), "name", {
+							initText: sticker.name,
+						});
+
+						form.addMDInput(I18n.sticker.desc(), "description", {
+							initText: sticker.description,
+						});
+
+						let initEmoji = Emoji.getEmojiFromIDOrString(sticker.tags, this.localuser);
+						form.addEmojiInput(I18n.sticker.tags(), "tags", this.localuser, {
+							initEmoji,
+							required: false,
+						});
+
+						form.addButtonInput("", I18n.sticker.del(), () => {
+							const diaolog = new Dialog("");
+							diaolog.options.addTitle(I18n.sticker.confirmDel());
+							const options = diaolog.options.addOptions("", {ltr: true});
+							options.addButtonInput("", I18n.yes(), () => {
+								fetch(`${this.info.api}/guilds/${this.id}/stickers/${sticker.id}`, {
+									method: "DELETE",
+									headers: this.headers,
+								});
+								diaolog.hide();
+							});
+							options.addButtonInput("", I18n.no(), () => {
+								diaolog.hide();
+							});
+							diaolog.show();
+						});
+					};
+
+					div.append(sticker.getHTML(), text);
+
+					containdiv.append(div);
+				}
+			};
+			this.onStickerUpdate = () => {
+				emoji.returnFromSub();
+				if (!document.body.contains(containdiv)) {
+					this.onStickerUpdate = () => {};
+					return;
+				}
+				genDiv();
+			};
+			genDiv();
+			emoji.addHTMLArea(containdiv);
+		}
+
 		(async () => {
 			const widgetMenu = settings.addButton(I18n.widget());
 			const cur = (await (
@@ -349,6 +462,7 @@ class Guild extends SnowFlake {
 		}
 		settings.show();
 	}
+	onStickerUpdate = (_stickers: Sticker[]) => {};
 	addCommunity(settings: Settings, textChannels: Channel[]) {
 		const com = settings.addButton(I18n.guild.community()).addForm("", () => {}, {
 			fetchURL: this.info.api + "/guilds/" + this.id,
@@ -606,6 +720,7 @@ class Guild extends SnowFlake {
 			}
 		}
 		this.prevchannel = this.localuser.channelids.get(this.perminfo.prevchannel);
+		this.stickers = json.stickers.map((_) => new Sticker(_, this));
 	}
 	get perminfo() {
 		return this.localuser.perminfo.guilds[this.id];
