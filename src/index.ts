@@ -135,16 +135,6 @@ async function updateInstances(): Promise<void> {
 
 updateInstances();
 
-app.use("/getupdates", async (_req: Request, res: Response) => {
-	try {
-		const stats = await fs.stat(path.join(__dirname, "webpage"));
-		res.send(stats.mtimeMs.toString());
-	} catch (error) {
-		console.error("Error getting updates:", error);
-		res.status(500).send("Error getting updates");
-	}
-});
-
 app.use("/services/oembed", (req: Request, res: Response) => {
 	inviteResponse(req, res, instances);
 });

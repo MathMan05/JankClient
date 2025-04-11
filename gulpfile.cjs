@@ -60,7 +60,11 @@ gulp.task("scripts", async () => {
 			.pipe(gulp.dest("dist"));
 	}
 });
-
+gulp.task("commit", () => {
+	revision = require("child_process").execSync("git rev-parse HEAD").toString().trim();
+	fs.writeFileSync("dist/webpage/getupdates", revision);
+	return new Promise((_) => _());
+});
 // Task to copy HTML files
 gulp.task("copy-html", () => {
 	return gulp
@@ -114,5 +118,9 @@ gulp.task("copy-assets", () => {
 // Default task to run all tasks
 gulp.task(
 	"default",
-	gulp.series("clean", gulp.parallel("scripts", "copy-html", "copy-assets"), "copy-translations"),
+	gulp.series(
+		"clean",
+		gulp.parallel("scripts", "copy-html", "copy-assets"),
+		gulp.parallel("copy-translations", "commit"),
+	),
 );
