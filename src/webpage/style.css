@@ -393,6 +393,10 @@ textarea {
 	mask: url(/icons/plainx.svg);
 	mask-size: contain !important;
 }
+.svg-sticker {
+	mask: url(/icons/sticker.svg);
+	mask-size: contain !important;
+}
 .svg-search {
 	mask: url(/icons/search.svg);
 	mask-size: contain !important;
@@ -535,6 +539,13 @@ textarea {
 	bottom: -5px;
 	border-radius: 1in;
 }
+#stickerTB {
+	width: 0.2in;
+	height: 0.2in;
+	cursor: pointer;
+	flex-shrink: 0;
+	margin-left: 6px;
+}
 #emojiTB {
 	width: 0.2in;
 	height: 0.2in;
@@ -568,6 +579,7 @@ textarea {
 	animation-name: fade-in;
 
 	border: solid 0.03in var(--black);
+	z-index: 4;
 }
 @keyframes fade-in {
 	from {
@@ -2057,6 +2069,44 @@ img.bigembedimg {
 		background: var(--card-bg);
 	}
 }
+.stickerSelect {
+	width: 1in;
+	height: 1in;
+	margin-right: 6px;
+	padding: 8px;
+	background: var(--secondary-bg);
+	border-radius: 6px;
+	cursor: pointer;
+	display: flex;
+}
+.stickerPicker {
+	position: absolute;
+	height: 440px;
+	width: 390px;
+	max-height: 100svh;
+	padding: 12px;
+	border-radius: 8px;
+	box-shadow: 0 0 8px var(--shadow);
+	gap: 8px;
+	box-sizing: border-box;
+	user-select: none;
+	background: var(--secondary-bg);
+	z-index: 4;
+
+	input {
+		width: 1in;
+		position: absolute;
+		right: 8px;
+		top: 2px;
+		transition: width 0.2s;
+		background: var(--card-bg);
+	}
+	.sticker {
+		max-width: 1in;
+		max-height: 1in;
+		flex-grow: 1;
+	}
+}
 .emojiHeading {
 	height: 0.25in;
 }
@@ -2067,6 +2117,7 @@ img.bigembedimg {
 	flex: none;
 	align-items: center;
 	overflow-x: auto;
+	flex-grow: 0;
 }
 .emojiSelect {
 	flex: none;
@@ -2101,7 +2152,16 @@ img.bigembedimg {
 	grid-auto-rows: min-content;
 	overflow-y: auto;
 }
-
+.stickerBody {
+	flex: 1;
+	padding: 8px;
+	background: var(--card-bg);
+	border-radius: 8px;
+	display: flex;
+	overflow-y: auto;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
 /* Fullscreen and Modal (TEMP) */
 .background {
 	position: fixed;
@@ -2887,4 +2947,7 @@ fieldset input[type="radio"] {
 	width: 32px;
 	height: 32px;
 	border-radius: 2in;
+}
+.stickerMArea {
+	padding-left: 48px;
 }

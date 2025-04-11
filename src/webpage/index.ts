@@ -309,4 +309,12 @@ import {I18n} from "./i18n.js";
 		thisUser.makeGifBox(gifTB.getBoundingClientRect());
 	};
 	gifTB.onclick = (e) => e.stopImmediatePropagation();
+
+	const stickerTB = document.getElementById("stickerTB") as HTMLElement;
+	stickerTB.onmousedown = (e) => {
+		e.preventDefault();
+		e.stopImmediatePropagation();
+		thisUser.makeStickerBox(stickerTB.getBoundingClientRect());
+	};
+	stickerTB.onclick = (e) => e.stopImmediatePropagation();
 })();

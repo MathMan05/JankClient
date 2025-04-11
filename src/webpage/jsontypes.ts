@@ -250,6 +250,7 @@ interface stickerJson {
 	type: number;
 	format_type: number;
 	description?: string;
+	guild_id?: string;
 }
 type extendedProperties = guildjson["properties"] & {
 	emojis: emojipjson[];
@@ -358,6 +359,7 @@ type messagejson = {
 	pinned: boolean;
 	type: number;
 	webhook?: webhookInfo;
+	sticker_items: stickerJson[];
 	message_reference?: string;
 };
 type filejson = {
