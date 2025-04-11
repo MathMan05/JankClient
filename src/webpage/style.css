@@ -2441,8 +2441,8 @@ fieldset input[type="radio"] {
 	max-height: 2.5in;
 }
 .sticker {
-	max-width: 2.5in;
-	max-height: 2.5in;
+	max-width: 4in;
+	height: 2in;
 }
 .optionElement,
 .FormSettings > button {
