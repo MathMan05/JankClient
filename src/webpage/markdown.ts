@@ -1,8 +1,9 @@
+//TODO for some reason Localuser must be at the top, don't know why
+import {Localuser} from "./localuser.js";
 import {Channel} from "./channel.js";
 import {Emoji} from "./emoji.js";
 import {Guild} from "./guild.js";
 import {I18n} from "./i18n.js";
-import {Localuser} from "./localuser.js";
 import {Member} from "./member.js";
 import {Dialog} from "./settings.js";
 
