@@ -31,6 +31,7 @@ import {Message} from "./message.js";
 import {badgeArr} from "./Dbadges.js";
 import {Rights} from "./rights.js";
 import {Contextmenu} from "./contextmenu.js";
+import {Sticker} from "./sticker.js";
 
 const wsCodesRetry = new Set([4000, 4001, 4002, 4003, 4005, 4007, 4008, 4009]);
 interface CustomHTMLDivElement extends HTMLDivElement {
@@ -802,6 +803,13 @@ class Localuser {
 					if (!guild) break;
 					guild.emojis = temp.d.emojis;
 					guild.onEmojiUpdate(guild.emojis);
+					break;
+				}
+				case "GUILD_STICKERS_UPDATE": {
+					const guild = this.guildids.get(temp.d.guild_id);
+					if (!guild) break;
+					guild.stickers = temp.d.stickers.map((_) => new Sticker(_, guild));
+					guild.onStickerUpdate(guild.stickers);
 					break;
 				}
 				default: {

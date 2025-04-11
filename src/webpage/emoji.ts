@@ -121,6 +121,27 @@ class Emoji {
 				Emoji.decodeEmojiList(e);
 			});
 	}
+	static getEmojiFromIDOrString(idOrString: string, localuser: Localuser) {
+		for (const list of Emoji.emojis) {
+			const emj = list.emojis.find((_) => _.emoji === idOrString);
+			if (emj) {
+				return new Emoji(emj, localuser);
+			}
+		}
+		for (const guild of localuser.guilds) {
+			const emj = guild.emojis.find((_) => _.id === idOrString);
+			if (emj) {
+				return new Emoji(emj, localuser);
+			}
+		}
+		return new Emoji(
+			{
+				id: idOrString,
+				name: "",
+			},
+			localuser,
+		);
+	}
 	static async emojiPicker(
 		this: typeof Emoji,
 		x: number,

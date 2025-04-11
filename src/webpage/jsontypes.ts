@@ -237,12 +237,20 @@ type guildjson = {
 	};
 	roles: rolesjson[];
 	stage_instances: [];
-	stickers: [];
+	stickers: stickerJson[];
 	threads: [];
 	version: string;
 	guild_hashes: {};
 	joined_at: string;
 };
+interface stickerJson {
+	id: string;
+	name: string;
+	tags: string;
+	type: number;
+	format_type: number;
+	description?: string;
+}
 type extendedProperties = guildjson["properties"] & {
 	emojis: emojipjson[];
 	large: boolean;
@@ -626,6 +634,15 @@ type wsjson =
 				guild_id: string;
 			};
 			s: number;
+	  }
+	| {
+			op: 0;
+			t: "GUILD_STICKERS_UPDATE";
+			d: {
+				guild_id: string;
+				stickers: stickerJson[];
+			};
+			s: 3;
 	  };
 
 type memberChunk = {
@@ -799,4 +816,5 @@ export {
 	extendedProperties,
 	webhookInfo,
 	webhookType,
+	stickerJson,
 };

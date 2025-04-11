@@ -553,6 +553,18 @@
 		"name:": "Name:",
 		"confirmDel": "Are you sure you want to delete this emoji?"
 	},
+	"sticker": {
+		"title": "Stickers",
+		"upload": "Upload Stickers",
+		"image": "Image:",
+		"name": "Name:",
+		"desc": "Description",
+		"confirmDel": "Are you sure you want to delete this sticker?",
+		"del": "Delete sticker",
+		"errFileMust": "Must include an image for your sticker",
+		"errEmjMust": "Must include an emoji with your sticker",
+		"tags": "Associated Emoji: "
+	},
 	"widget": "Guild Widget",
 	"widgetEnabled": "Widget enabled",
 	"incorrectURLS": "## This instance has likely sent the incorrect URLs.\n### If you're the instance owner please see [here](https://docs.spacebar.chat/setup/server/) under *Connecting from remote machines* to correct the issue.\n Would you like Jank Client to automatically try to fix this error to let you connect to the instance?",
