@@ -643,7 +643,7 @@ class Guild extends SnowFlake {
 	update(json: extendedProperties) {
 		this.large = json.large;
 		this.member_count = json.member_count;
-		this.emojis = json.emojis;
+		this.emojis = json.emojis || [];
 		this.headers = this.owner.headers;
 		this.properties.features = json.features;
 		if (this.properties.icon !== json.icon) {
@@ -669,7 +669,7 @@ class Guild extends SnowFlake {
 		this.owner = owner;
 		this.large = json.large;
 		this.member_count = json.member_count;
-		this.emojis = json.emojis;
+		this.emojis = json.emojis || [];
 		this.headers = this.owner.headers;
 		this.channels = [];
 		if (json.properties) {
@@ -720,7 +720,7 @@ class Guild extends SnowFlake {
 			}
 		}
 		this.prevchannel = this.localuser.channelids.get(this.perminfo.prevchannel);
-		this.stickers = json.stickers.map((_) => new Sticker(_, this));
+		this.stickers = json.stickers.map((_) => new Sticker(_, this)) || [];
 	}
 	get perminfo() {
 		return this.localuser.perminfo.guilds[this.id];

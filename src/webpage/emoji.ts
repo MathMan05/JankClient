@@ -129,6 +129,7 @@ class Emoji {
 			}
 		}
 		for (const guild of localuser.guilds) {
+			if (!guild.emojis) continue;
 			const emj = guild.emojis.find((_) => _.id === idOrString);
 			if (emj) {
 				return new Emoji(emj, localuser);
