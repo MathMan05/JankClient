@@ -259,6 +259,7 @@ class Message extends SnowFlake {
 			}
 			(this as any)[thing] = (messagejson as any)[thing];
 		}
+		this.stickers ||= [];
 		if (messagejson.reactions?.length) {
 			console.log(messagejson.reactions, ":3");
 		}
