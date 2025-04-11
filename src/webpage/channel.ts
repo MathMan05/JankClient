@@ -26,6 +26,7 @@ import {I18n} from "./i18n.js";
 import {mobile} from "./utils/utils.js";
 import {webhookMenu} from "./webhooks.js";
 import {File} from "./file.js";
+import {Sticker} from "./sticker.js";
 
 declare global {
 	interface NotificationOptions {
@@ -1569,7 +1570,12 @@ class Channel extends SnowFlake {
 		this.fakeMessageMap.delete(id);
 	}
 
-	makeFakeMessage(content: string, files: filejson[] = [], reply = undefined) {
+	makeFakeMessage(
+		content: string,
+		files: filejson[] = [],
+		reply = undefined,
+		sticker_ids: string[],
+	) {
 		const m = new Message(
 			{
 				author: this.localuser.user.tojson(),
@@ -1590,6 +1596,11 @@ class Channel extends SnowFlake {
 				type: 0,
 				pinned: false,
 				message_reference: reply,
+				sticker_items: sticker_ids
+					.map((_) => {
+						return Sticker.getFromId(_, this.localuser);
+					})
+					.filter((_) => _ !== undefined),
 			},
 			this,
 			true,
@@ -1654,9 +1665,20 @@ class Channel extends SnowFlake {
 			attachments = [],
 			replyingto = null,
 			embeds = [],
-		}: {attachments: Blob[]; embeds: embedjson[]; replyingto: Message | null},
+			sticker_ids = [],
+		}: {
+			attachments: Blob[];
+			embeds: embedjson[];
+			replyingto: Message | null;
+			sticker_ids: string[];
+		},
 	) {
-		if (content.trim() === "" && attachments.length === 0 && embeds.length == 0) {
+		if (
+			content.trim() === "" &&
+			attachments.length === 0 &&
+			embeds.length == 0 &&
+			sticker_ids.length === 0
+		) {
 			return;
 		}
 		let replyjson: any;
@@ -1702,6 +1724,7 @@ class Channel extends SnowFlake {
 				content,
 				nonce: Math.floor(Math.random() * 1000000000),
 				message_reference: undefined,
+				sticker_ids,
 			};
 			if (replyjson) {
 				body.message_reference = replyjson;
@@ -1714,7 +1737,7 @@ class Channel extends SnowFlake {
 			res.open("POST", this.info.api + "/channels/" + this.id + "/messages");
 			res.setRequestHeader("Content-type", (ctype = this.headers["Content-type"]));
 			res.setRequestHeader("Authorization", this.headers.Authorization);
-			funcs = this.makeFakeMessage(content, [], body.message_reference);
+			funcs = this.makeFakeMessage(content, [], body.message_reference, sticker_ids);
 			res.send((rbody = JSON.stringify(body)));
 			/*
 			res = fetch(this.info.api + "/channels/" + this.id + "/messages", {
@@ -1729,6 +1752,7 @@ class Channel extends SnowFlake {
 				content,
 				nonce: Math.floor(Math.random() * 1000000000),
 				message_reference: undefined,
+				sticker_ids,
 			};
 			if (replyjson) {
 				body.message_reference = replyjson;
@@ -1756,6 +1780,7 @@ class Channel extends SnowFlake {
 					url: URL.createObjectURL(_),
 				})),
 				body.message_reference,
+				sticker_ids,
 			);
 			res.send((rbody = formData));
 			/*

@@ -14,9 +14,11 @@ import {mobile} from "./utils/utils.js";
 import {I18n} from "./i18n.js";
 import {Hover} from "./hover.js";
 import {Dialog} from "./settings.js";
+import {Sticker} from "./sticker.js";
 
 class Message extends SnowFlake {
 	static contextmenu = new Contextmenu<Message, void>("message menu");
+	stickers: Sticker[];
 	owner: Channel;
 	headers: Localuser["headers"];
 	embeds!: Embed[];
@@ -249,6 +251,11 @@ class Message extends SnowFlake {
 				continue;
 			} else if (thing === "author") {
 				continue;
+			} else if (thing === "sticker_items") {
+				this.stickers = messagejson.sticker_items.map((_) => {
+					const guild = this.localuser.guildids.get(_.guild_id as string);
+					return new Sticker(_, guild || this.localuser);
+				});
 			}
 			(this as any)[thing] = (messagejson as any)[thing];
 		}
@@ -791,6 +798,12 @@ class Message extends SnowFlake {
 			text.append(time);
 			div.classList.add("topMessage");
 		}
+		const stickerArea = document.createElement("div");
+		stickerArea.classList.add("flexltr", "stickerMArea");
+		for (const sticker of this.stickers) {
+			stickerArea.append(sticker.getHTML());
+		}
+		div.append(stickerArea);
 		if (!dupe) {
 			const reactions = document.createElement("div");
 			reactions.classList.add("flexltr", "reactiondiv");

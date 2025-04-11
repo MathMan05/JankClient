@@ -2279,6 +2279,23 @@ class Localuser {
 		if (!this.channelfocus) return;
 		await this.channelfocus.pinnedClick(rect);
 	}
+	async makeStickerBox(rect: DOMRect) {
+		const sticker = await Sticker.stickerPicker(
+			-0 + rect.right - window.innerWidth,
+			-20 + rect.top - window.innerHeight,
+			this,
+		);
+		console.log(sticker);
+		if (this.channelfocus) {
+			this.channelfocus.sendMessage("", {
+				embeds: [],
+				attachments: [],
+				sticker_ids: [sticker.id],
+				replyingto: this.channelfocus.replyingto,
+			});
+			this.channelfocus.replyingto = null;
+		}
+	}
 	async makeGifBox(rect: DOMRect) {
 		interface fullgif {
 			id: string;
@@ -2373,6 +2390,7 @@ class Localuser {
 						this.channelfocus.sendMessage(gif.url, {
 							embeds: [],
 							attachments: [],
+							sticker_ids: [],
 							replyingto: this.channelfocus.replyingto,
 						});
 						menu.remove();
