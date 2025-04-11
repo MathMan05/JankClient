@@ -118,6 +118,7 @@ import {I18n} from "./i18n.js";
 				attachments: images,
 				embeds: [], // Add an empty array for the embeds property
 				replyingto: replyingTo,
+				sticker_ids: [],
 			});
 			if (thisUser.channelfocus) {
 				thisUser.channelfocus.makereplybox();

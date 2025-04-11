@@ -18,7 +18,7 @@ import {Sticker} from "./sticker.js";
 
 class Message extends SnowFlake {
 	static contextmenu = new Contextmenu<Message, void>("message menu");
-	stickers: Sticker[];
+	stickers!: Sticker[];
 	owner: Channel;
 	headers: Localuser["headers"];
 	embeds!: Embed[];
