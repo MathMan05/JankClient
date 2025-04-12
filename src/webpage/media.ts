@@ -1,6 +1,7 @@
 import {Contextmenu} from "./contextmenu.js";
 import {I18n} from "./i18n.js";
 import {Dialog} from "./settings.js";
+import {ProgressiveArray} from "./utils/progessiveLoad.js";
 const menu = new Contextmenu<media, undefined>("media");
 menu.addButton(
 	() => I18n.media.download(),
@@ -312,60 +313,31 @@ class MediaPlayer {
 		}
 		let resMedio = (_: media) => {};
 		this.cache.set(url, new Promise<media>((res) => (resMedio = res)));
-		const controller = new AbortController();
+		const prog = new ProgressiveArray(url, {method: "get"});
+		await prog.ready;
 
-		const f = await fetch(url, {
-			method: "get",
-			signal: controller.signal,
-		});
-		if (!f.ok || !f.body) {
-			return null;
-		}
-
-		let index = 0;
-		const read = f.body.getReader();
-		let cbuff = (await read.read()).value;
 		const output: Partial<media> = {
 			src: url,
 		};
 		try {
-			let sizeLeft = 0;
-			async function next() {
-				return (await get8BitArray(1))[0];
-			}
-			async function get8BitArray(size: number) {
-				sizeLeft -= size;
-				const arr = new Uint8Array(size);
-				let arri = 0;
-				while (size > 0) {
-					if (!cbuff) throw Error("ran out of file to read");
-					let itter = Math.min(size, cbuff.length - index);
-					size -= itter;
-					for (let i = 0; i < itter; i++, arri++, index++) {
-						arr[arri] = cbuff[index];
-					}
-
-					if (size !== 0) {
-						cbuff = (await read.read()).value;
-						index = 0;
-					}
-				}
-				return arr;
-			}
-			const head = String.fromCharCode(await next(), await next(), await next());
+			const head = String.fromCharCode(await prog.next(), await prog.next(), await prog.next());
 			if (head === "ID3") {
-				const version = (await next()) + (await next()) * 256;
+				const version = (await prog.next()) + (await prog.next()) * 256;
 
 				if (version === 2) {
 					//TODO I'm like 90% I can ignore *all* of the flags, but I need to check more sometime
-					await next();
+					await prog.next();
 					//debugger;
-					const sizes = await get8BitArray(4);
-					sizeLeft = (sizes[0] << 21) + (sizes[1] << 14) + (sizes[2] << 7) + sizes[3];
+					const sizes = await prog.get8BitArray(4);
+					prog.sizeLeft = (sizes[0] << 21) + (sizes[1] << 14) + (sizes[2] << 7) + sizes[3];
 					const mappy = new Map<string, Uint8Array>();
-					while (sizeLeft > 0) {
-						const Identify = String.fromCharCode(await next(), await next(), await next());
-						const sizeArr = await get8BitArray(3);
+					while (prog.sizeLeft > 0) {
+						const Identify = String.fromCharCode(
+							await prog.next(),
+							await prog.next(),
+							await prog.next(),
+						);
+						const sizeArr = await prog.get8BitArray(3);
 						const size = (sizeArr[0] << 16) + (sizeArr[1] << 8) + sizeArr[2];
 						if (Identify === String.fromCharCode(0, 0, 0)) {
 							break;
@@ -378,10 +350,10 @@ class MediaPlayer {
 							break;
 						}
 						if (mappy.has(Identify)) {
-							await get8BitArray(size);
+							await prog.get8BitArray(size);
 							//console.warn("Got dupe", Identify);
 						} else {
-							mappy.set(Identify, await get8BitArray(size));
+							mappy.set(Identify, await prog.get8BitArray(size));
 						}
 					}
 					const pic = mappy.get("PIC");
@@ -429,25 +401,25 @@ class MediaPlayer {
 					}
 					//TODO more thoroughly check if these two are the same format
 				} else if (version === 3 || version === 4) {
-					const flags = await next();
+					const flags = await prog.next();
 					if (flags & 0b01000000) {
 						//TODO deal with the extended header
 					}
 					//debugger;
-					const sizes = await get8BitArray(4);
-					sizeLeft = (sizes[0] << 21) + (sizes[1] << 14) + (sizes[2] << 7) + sizes[3];
+					const sizes = await prog.get8BitArray(4);
+					prog.sizeLeft = (sizes[0] << 21) + (sizes[1] << 14) + (sizes[2] << 7) + sizes[3];
 					const mappy = new Map<string, Uint8Array>();
-					while (sizeLeft > 0) {
+					while (prog.sizeLeft > 0) {
 						const Identify = String.fromCharCode(
-							await next(),
-							await next(),
-							await next(),
-							await next(),
+							await prog.next(),
+							await prog.next(),
+							await prog.next(),
+							await prog.next(),
 						);
-						const sizeArr = await get8BitArray(4);
+						const sizeArr = await prog.get8BitArray(4);
 						const size = (sizeArr[0] << 24) + (sizeArr[1] << 16) + (sizeArr[2] << 8) + sizeArr[3];
 
-						const flags = await get8BitArray(2);
+						const flags = await prog.get8BitArray(2);
 						const compression = !!(flags[1] & 0b10000000);
 						if (compression) {
 							//TODO Honestly, I don't know if I can do this with normal JS
@@ -470,10 +442,10 @@ class MediaPlayer {
 							break;
 						}
 						if (mappy.has(Identify)) {
-							await get8BitArray(size);
+							await prog.get8BitArray(size);
 							//console.warn("Got dupe", Identify);
 						} else {
-							mappy.set(Identify, await get8BitArray(size));
+							mappy.set(Identify, await prog.get8BitArray(size));
 						}
 					}
 					const pic = mappy.get("APIC");
@@ -532,7 +504,7 @@ class MediaPlayer {
 			console.error(e);
 		} finally {
 			output.filename = url.split("/").at(-1);
-			controller.abort();
+			prog.close();
 			if (!output.length) {
 				output.length = new Promise<number>(async (res) => {
 					const audio = document.createElement("audio");
