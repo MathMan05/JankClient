@@ -2134,6 +2134,9 @@ class Localuser {
 			img.height = 128;
 			const ver = await (await fetch("/getupdates")).text();
 			jankInfo.addMDText(I18n.clientDesc(ver, window.location.origin, this.rights.allow + ""));
+			jankInfo.addButtonInput("", I18n.instInfo(), () => {
+				this.instanceStats();
+			});
 		})();
 		settings.show();
 	}
@@ -3023,17 +3026,17 @@ class Localuser {
 			" | Jank Client";
 	}
 	async instanceStats() {
+		const dialog = new Dialog("");
+		dialog.show();
+		dialog.options.addTitle(I18n.getTranslation("instanceStats.name", this.instancePing.name));
 		const res = await fetch(this.info.api + "/policies/stats", {
 			headers: this.headers,
 		});
 		const json = await res.json();
-		const dialog = new Dialog("");
-		dialog.options.addTitle(I18n.getTranslation("instanceStats.name", this.instancePing.name));
 		dialog.options.addText(I18n.getTranslation("instanceStats.users", json.counts.user));
 		dialog.options.addText(I18n.getTranslation("instanceStats.servers", json.counts.guild));
 		dialog.options.addText(I18n.getTranslation("instanceStats.messages", json.counts.message));
 		dialog.options.addText(I18n.getTranslation("instanceStats.members", json.counts.members));
-		dialog.show();
 	}
 	setNotificationSound(sound: string) {
 		const userinfos = getBulkInfo();
