@@ -278,17 +278,11 @@ Object.entries;
 type Progressive<T> =
 	T extends Array<any>
 		? ArrayProgressive<T extends Array<infer X> ? X : never, T>
-		: T extends string
+		: T extends string | boolean | null | number
 			? T
-			: T extends boolean
-				? T
-				: T extends null
-					? T
-					: T extends number
-						? T
-						: T extends Object
-							? ObjectProgressive<T>
-							: T;
+			: T extends Object
+				? ObjectProgressive<T>
+				: T;
 /*
  * this will progressively load a JSON object, you must read everything you get to get the next thing in line.
  */
@@ -300,10 +294,12 @@ export async function ProgessiveDecodeJSON<X>(
 	await prog.ready;
 	return identifyType(prog) as Promise<Progressive<X>>;
 }
+/*
 const test = [1, 2, 3, 4, 5, 6];
 const blob = new Blob([JSON.stringify(test)]);
-ProgessiveDecodeJSON<typeof test>(blob)
+ProgessiveDecodeJSON<typeof test>("https://api.github.com/repos/spacebarchat/server/git/refs")
 	.then(async (obj) => {
 		console.log(await obj.getWhole()); //returns the ping object
 	})
 	.then(console.warn);
+//*/
