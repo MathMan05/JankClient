@@ -401,7 +401,7 @@ class Localuser {
 				(async () => {
 					while (true) {
 						const read = await r.read();
-						const data = textdecode.decode(read.value);
+						const data = textdecode.decode(read.value, {stream: true});
 						build += data;
 						try {
 							const temp = JSON.parse(build);
