@@ -2573,7 +2573,6 @@ fieldset input[type="radio"] {
 	#sideContainDiv {
 		position: relative;
 		margin-left: -256px;
-		flex-grow: 1;
 	}
 	.flexspace:has(.hypoprofile) {
 		flex-direction: column;
@@ -2613,8 +2612,10 @@ fieldset input[type="radio"] {
 	#sideContainDiv.searchDiv {
 		display: block;
 		right: -100svw;
+		margin-left: -100svw;
 		width: 100svw;
 		transition: right 0.3s;
+		box-sizing: border-box;
 	}
 	.channelnamediv {
 		padding: 0;
