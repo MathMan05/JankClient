@@ -42,6 +42,12 @@
 	"confirmGuildLeave": "Sidd Dir sécher, datt Dir aus $1 erausgoe wëllt",
 	"typing": "$2 {{PLURAL:$1|ass|sinn}} am schreiwen",
 	"blankMessage": "Eidele Message",
+	"accessibility": {
+		"gifSettings": {
+			"always": "Ëmmer",
+			"never": "Ni"
+		}
+	},
 	"channel": {
 		"creating": "Kanal uleeën",
 		"name": "Kanal",
@@ -86,6 +92,7 @@
 		"DOBError": "Gebuertsdatum: $1"
 	},
 	"guild": {
+		"community": "Communautéit",
 		"markRead": "Als gelies markéieren",
 		"notifications": "Notifikatiounen",
 		"settings": "Astellungen",
@@ -142,6 +149,14 @@
 		"language": "Sprooch:",
 		"connections": "Verbindungen",
 		"deleteAccountButton": "Kont läschen"
+	},
+	"search": {
+		"back": "Zréck",
+		"next": "Nächst",
+		"page": "Säit $1",
+		"new": "Nei",
+		"old": "Al",
+		"search": "Sichen"
 	},
 	"manageInstance": {
 		"length": "Längt:",
@@ -216,6 +231,16 @@
 		"image:": "Bild:",
 		"name:": "Numm:",
 		"confirmDel": "Sidd Dir sécher, datt Dir dësen Emoji läsche wëllt?"
+	},
+	"sticker": {
+		"title": "Stickeren",
+		"upload": "Stickeren eroplueden",
+		"image": "Bild:",
+		"name": "Numm:",
+		"desc": "Beschreiwung",
+		"confirmDel": "Sidd Dir sécher, datt Dir dëse Sticker läsche wëllt?",
+		"del": "Sticker läschen",
+		"tags": "Associéierten Emoji:"
 	},
 	"uploadFilesText": "Lued Är Fichieren hei erop!",
 	"bot": "BOT"
