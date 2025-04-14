@@ -1,11 +1,14 @@
 {
 	"@metadata": {
 		"authors": [
+			"EmDashUser002",
 			"Mahabarata",
 			"Wladek92"
 		]
 	},
 	"readableName": "français",
+	"pinMessage": "Épingler le message",
+	"unableToPin": "Impossible d'épingler le message",
 	"reply": "Répondre",
 	"copyrawtext": "Copier le texte brut",
 	"copymessageid": "Copier l'identifiant du message",
@@ -198,6 +201,8 @@
 	"nevermind": "Tant pis",
 	"submit": "soumettre",
 	"guild": {
+		"ruleId": "Canal des règles :",
+		"community": "Communauté",
 		"copyId": "Copier l'identifiant de la guilde",
 		"markRead": "Marquer comme lu",
 		"notifications": "Notifications",
@@ -238,6 +243,7 @@
 		"helpTips?": "Envoyer des conseils utiles à votre guilde",
 		"defaultNoti": "Définir les paramètres de notification par défaut de votre guilde"
 	},
+	"welcomeMessages": "Bienvenue $1! Ravi de vous voir! Bonjour, enchanté de vous rencontrer $1! Bienvenue, on espère que vous avez apporté de la pizza $1!",
 	"role": {
 		"displaySettings": "Paramètres d'affichage",
 		"name": "Nom du rôle :",
@@ -315,13 +321,25 @@
 		"language": "Langue :",
 		"connections": "Connexions"
 	},
+	"search": {
+		"back": "Retour",
+		"next": "Suivant",
+		"page": "Page $1",
+		"new": "Nouveau",
+		"old": "Ancien",
+		"search": "Rechercher",
+		"nofind": "Il semble qu'il n'y ait aucun message correspondant à votre recherche, essayez peut-être d'élargir votre recherche pour essayer de trouver ce que vous recherchez"
+	},
+	"unpinMessage": "Ne plus épingler le message",
+	"noPins": "Il semble qu'il n'y ait rien ici... pour l'instant",
 	"message": {
 		"reactionAdd": "Ajouter un commentaire",
 		"delete": "Supprimer le message",
 		"edit": "Modifier le message",
 		"edited": "(modifié)",
 		"deleted": "Message supprimé",
-		"attached": "Pièce jointe envoyée"
+		"attached": "Pièce jointe envoyée",
+		"pin": "$1 a épinglé un message"
 	},
 	"instanceStats": {
 		"name": "Statistiques de l'instance : $1",
@@ -444,6 +462,18 @@
 		"image:": "Image :",
 		"name:": "Nom :",
 		"confirmDel": "Etes-vous sûr de vouloir supprimer cet emoji ?"
+	},
+	"sticker": {
+		"title": "Autocollants",
+		"upload": "Télécharger des autocollants",
+		"image": "Image :",
+		"name": "Nom :",
+		"desc": "Description",
+		"confirmDel": "Êtes-vous certain•e de vouloir supprimer cet autocollant?",
+		"del": "Supprimer l'autocollant",
+		"errFileMust": "Vous devez inclure un emoji avec votre autocollant",
+		"errEmjMust": "Vous devez inclure un emoji avec votre autocollant",
+		"tags": "Emoji associé :"
 	},
 	"uploadFilesText": "Téléversez vos fichiers ici !",
 	"errorReconnect": "Impossible de se connecter au serveur, nouvelle tentative dans **$1** secondes...",
