@@ -660,7 +660,7 @@ class HtmlArea implements OptionsElement<void> {
 	}
 	generateHTML(): HTMLElement {
 		if (this.html instanceof Function) {
-			return this.html();
+			return (this.html = this.html());
 		} else {
 			return this.html;
 		}

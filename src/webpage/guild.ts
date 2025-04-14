@@ -14,6 +14,8 @@ import {
 	rolesjson,
 	emojipjson,
 	extendedProperties,
+	banObj,
+	addInfoBan,
 } from "./jsontypes.js";
 import {User} from "./user.js";
 import {I18n} from "./i18n.js";
@@ -21,6 +23,7 @@ import {Emoji} from "./emoji.js";
 import {webhookMenu} from "./webhooks.js";
 import {createImg} from "./utils/utils.js";
 import {Sticker} from "./sticker.js";
+import {ProgessiveDecodeJSON} from "./utils/progessiveLoad.js";
 
 class Guild extends SnowFlake {
 	owner!: Localuser;
@@ -423,9 +426,133 @@ class Guild extends SnowFlake {
 			genDiv();
 			emoji.addHTMLArea(containdiv);
 		}
+		const banMenu = settings.addButton(I18n.guild.bans());
+		const makeBanMenu = () => {
+			const banDiv = document.createElement("div");
+			const bansp = ProgessiveDecodeJSON<banObj[]>(this.info.api + "/guilds/" + this.id + "/bans", {
+				headers: this.headers,
+			});
+			const createBanHTML = (ban: banObj) => {
+				const div = document.createElement("div");
+				div.classList.add("flexltr", "bandiv");
+				let src: string;
+				if (ban.user.avatar !== null) {
+					src = `${this.info.cdn}/avatars/${ban.user.id}/${ban.user.avatar}.png`;
+				} else {
+					const int = Number((BigInt(ban.user.id) >> 22n) % 6n);
+					src = `${this.info.cdn}/embed/avatars/${int}.png`;
+				}
+				const img = createImg(src);
+				img.classList.add("pfp");
+				const divUserRes = document.createElement("div");
+				divUserRes.classList.add("flexttb");
 
+				const username = document.createElement("span");
+				username.textContent = ban.user.username;
+
+				divUserRes.append(username);
+				if (ban.reason) {
+					const reason = document.createElement("span");
+					reason.innerText = ban.reason;
+					divUserRes.append(I18n.guild.banReason(ban.reason));
+				}
+				div.append(img, divUserRes);
+				div.onclick = async (_) => {
+					const opt = banMenu.addSubOptions(ban.user.username);
+
+					opt.addHTMLArea(img.cloneNode(true) as HTMLElement);
+					opt.addText(ban.user.username);
+					if (ban.reason) opt.addText(I18n.guild.banReason(ban.reason));
+					//FIXME the API sends back the wrong responce, so I don't have this info
+					/*
+					const moreInfo = (await (
+						await fetch(this.info.api + "/guilds/" + this.id + "/bans/" + ban.user.id, {
+							headers: this.headers,
+						})
+					).json()) as addInfoBan;
+					const userWhoBanned = await User.resolve(moreInfo.executor_id, this.localuser);
+					opt.addHTMLArea(userWhoBanned.createWidget(this));
+					//*/
+					opt.addButtonInput("", I18n.user.unban(ban.user.username), async () => {
+						bansArr = bansArr.filter((_) => _ !== ban);
+
+						await fetch(this.info.api + "/guilds/" + this.id + "/bans/" + ban.user.id, {
+							headers: this.headers,
+							method: "DELETE",
+						});
+						loadPage(currentPage);
+						banMenu.returnFromSub();
+					});
+				};
+				return div;
+			};
+			let bansArr: banObj[] = [];
+			let onpage = 0;
+			async function loadArr() {
+				let bansArr2: banObj[] = [];
+				let waiting = false;
+				async function addHTML() {
+					if (waiting) return;
+					waiting = true;
+					await new Promise((res) => setTimeout(res, 0));
+					waiting = false;
+					banDiv.append(...bansArr2.map((ban) => createBanHTML(ban)));
+					bansArr2 = [];
+				}
+				while (!(await bansp).done) {
+					const ban = await (await (await bansp).getNext()).getWhole();
+					bansArr.push(ban);
+					if (onpage < 50) {
+						bansArr2.push(ban);
+						addHTML();
+						onpage++;
+					} else {
+						next.disabled = false;
+					}
+				}
+			}
+			let currentPage = 0;
+			function loadPage(page = 0) {
+				banDiv.innerHTML = "";
+				for (onpage = 0; onpage < 50; onpage++) {
+					const ban = bansArr[onpage + page * 50];
+					if (!ban) break;
+					banDiv.append(createBanHTML(ban));
+				}
+				if (onpage === 50 && bansArr[onpage + page * 50]) {
+					next.disabled = false;
+				} else {
+					next.disabled = true;
+				}
+			}
+
+			const pageNav = document.createElement("div");
+			const back = document.createElement("button");
+			back.textContent = I18n.search.back();
+			back.disabled = !currentPage;
+			back.onclick = () => {
+				back.disabled = !(currentPage - 1);
+				next.disabled = false;
+				loadPage(--currentPage);
+			};
+
+			const next = document.createElement("button");
+			next.textContent = I18n.search.next();
+			next.disabled = true;
+			pageNav.append(back, next);
+			banMenu.addHTMLArea(pageNav);
+			next.onclick = () => {
+				loadPage(++currentPage);
+				back.disabled = false;
+			};
+
+			loadArr();
+			loadPage(currentPage);
+			return banDiv;
+		};
+		banMenu.addHTMLArea(makeBanMenu);
+		const widgetMenu = settings.addButton(I18n.widget());
 		(async () => {
-			const widgetMenu = settings.addButton(I18n.widget());
 			const cur = (await (
 				await fetch(this.info.api + "/guilds/" + this.id + "/widget", {
 					headers: this.headers,

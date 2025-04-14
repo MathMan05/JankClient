@@ -245,6 +245,9 @@
 	"nevermind": "Nevermind",
 	"submit": "submit",
 	"guild": {
+		"bannedBy": "Banned by:",
+		"banReason": "Ban reason: $1",
+		"bans": "Bans",
 		"ruleId": "Rules Channel:",
 		"community": "Community",
 		"creating": "Creating guild",
@@ -498,7 +501,8 @@
 		"removeRole": "Remove roles",
 		"editServerProfile": "Edit server profile",
 		"instanceBan": "Instance ban",
-		"confirmInstBan": "Are you sure you want to instance ban $1?"
+		"confirmInstBan": "Are you sure you want to instance ban $1?",
+		"unban": "Unban $1"
 	},
 	"login": {
 		"checking": "Checking Instance",

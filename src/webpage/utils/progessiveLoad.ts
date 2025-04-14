@@ -44,17 +44,29 @@ export class ProgressiveArray {
 	}
 	decoder = new TextDecoder();
 	backChar?: string;
+	chars = "";
+	curchar = 0;
 	async getChar() {
 		if (this.backChar) {
 			const temp = this.backChar;
 			delete this.backChar;
 			return temp;
 		}
-		let char = "";
-		while (!char) {
-			char = this.decoder.decode((await this.get8BitArray(1)).buffer, {stream: true});
+		let char: string;
+		if ((char = this.chars[this.curchar])) {
+			this.curchar++;
+			return char;
 		}
-		return char;
+		let chars = "";
+		while (!chars) {
+			const buflen = (this.cbuff?.length || 0) - this.index;
+			chars = this.decoder.decode((await this.get8BitArray(buflen <= 0 ? 1 : buflen)).buffer, {
+				stream: true,
+			});
+		}
+		this.chars = chars;
+		this.curchar = 1;
+		return chars[0];
 	}
 	putBackChar(char: string) {
 		this.backChar = char;
