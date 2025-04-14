@@ -463,7 +463,7 @@ class Guild extends SnowFlake {
 					opt.addHTMLArea(img.cloneNode(true) as HTMLElement);
 					opt.addText(ban.user.username);
 					if (ban.reason) opt.addText(I18n.guild.banReason(ban.reason));
-					//FIXME the API sends back the wrong responce, so I don't have this info
+					//FIXME the API sends back the wrong response, so I don't have this info
 					/*
 					const moreInfo = (await (
 						await fetch(this.info.api + "/guilds/" + this.id + "/bans/" + ban.user.id, {
