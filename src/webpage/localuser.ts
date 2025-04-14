@@ -3027,8 +3027,8 @@ class Localuser {
 	}
 	async instanceStats() {
 		const dialog = new Dialog("");
-		dialog.show();
 		dialog.options.addTitle(I18n.getTranslation("instanceStats.name", this.instancePing.name));
+		dialog.show();
 		const res = await fetch(this.info.api + "/policies/stats", {
 			headers: this.headers,
 		});
