@@ -48,6 +48,17 @@ body {
 		align-items: center;
 	}
 }
+.bandiv {
+	padding: 10px;
+	align-items: center;
+	margin-bottom: 8px;
+	background: var(--secondary-bg);
+	border-radius: 6px;
+	cursor: pointer;
+	div {
+		margin-left: 8px;
+	}
+}
 .flexltr {
 	min-height: 0;
 	display: flex;

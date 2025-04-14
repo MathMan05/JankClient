@@ -475,7 +475,30 @@ class User extends SnowFlake {
 		}
 		return pfp;
 	}
-
+	createWidget(guild: Guild) {
+		const div = document.createElement("div");
+		div.classList.add("flexltr", "createdWebhook");
+		//TODO make sure this is something I can actually do here
+		const name = document.createElement("b");
+		name.textContent = this.name;
+		const nameBox = document.createElement("div");
+		nameBox.classList.add("flexttb");
+		nameBox.append(name);
+		const pfp = this.buildpfp(undefined, div);
+		div.append(pfp, nameBox);
+		Member.resolveMember(this, guild).then((_) => {
+			if (_) {
+				name.textContent = _.name;
+				pfp.src = _.getpfpsrc();
+			} else {
+				const notFound = document.createElement("span");
+				notFound.textContent = I18n.webhooks.notFound();
+				nameBox.append(notFound);
+			}
+		});
+		this.bind(div, guild);
+		return div;
+	}
 	async buildstatuspfp(guild: Guild | void | Member | null): Promise<HTMLDivElement> {
 		const div = document.createElement("div");
 		div.classList.add("pfpDiv");
@@ -554,6 +577,25 @@ class User extends SnowFlake {
 		const json = await fetch(localuser.info.api.toString() + "/users/" + id + "/profile", {
 			headers: localuser.headers,
 		}).then((res) => res.json());
+		if (json.code === 404) {
+			return new User(
+				{
+					id: "0",
+					public_flags: 0,
+					username: I18n.friends.notfound(),
+					avatar: null,
+					discriminator: "0000",
+					bio: "",
+					bot: false,
+					premium_type: 0,
+					premium_since: "",
+					accent_color: 0,
+					theme_colors: "",
+					badge_ids: [],
+				},
+				localuser,
+			);
+		}
 		return new User(json.user, localuser);
 	}
 

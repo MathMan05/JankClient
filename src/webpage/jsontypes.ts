@@ -121,6 +121,23 @@ type readyjson = {
 		};
 	};
 };
+interface banObj {
+	reason: string | null;
+	user: {
+		username: string;
+		discriminator: string;
+		id: string;
+		avatar: string | null;
+		public_flags: number;
+	};
+}
+interface addInfoBan {
+	id: string;
+	user_id: string;
+	guild_id: string;
+	executor_id: string;
+	reason?: string | undefined;
+}
 type mainuserjson = userjson & {
 	flags: number;
 	mfa_enabled?: boolean;
@@ -819,4 +836,6 @@ export {
 	webhookInfo,
 	webhookType,
 	stickerJson,
+	banObj,
+	addInfoBan,
 };

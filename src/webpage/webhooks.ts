@@ -146,30 +146,9 @@ async function webhookMenu(
 			form.addText(I18n.webhooks.createdBy());
 
 			try {
-				const div = document.createElement("div");
-				div.classList.add("flexltr", "createdWebhook");
-				//TODO make sure this is something I can actually do here
 				const user = new User(hook.user, guild.localuser);
-				const name = document.createElement("b");
-				name.textContent = user.name;
-				const nameBox = document.createElement("div");
-				nameBox.classList.add("flexttb");
-				nameBox.append(name);
-				const pfp = user.buildpfp(undefined, div);
-				div.append(pfp, nameBox);
+				const div = user.createWidget(guild);
 				form.addHTMLArea(div);
-
-				Member.resolveMember(user, guild).then((_) => {
-					if (_) {
-						name.textContent = _.name;
-						pfp.src = _.getpfpsrc();
-					} else {
-						const notFound = document.createElement("span");
-						notFound.textContent = I18n.webhooks.notFound();
-						nameBox.append(notFound);
-					}
-				});
-				user.bind(div, guild);
 			} catch {}
 			form.addButtonInput("", I18n.webhooks.deleteWebhook(), () => {
 				const d = new Dialog("areYouSureDelete");
@@ -191,9 +170,6 @@ async function webhookMenu(
 				d.show();
 			});
 		};
-
-		console.log(hook);
-
 		webhooks.addHTMLArea(div);
 	};
 	regenArea();
