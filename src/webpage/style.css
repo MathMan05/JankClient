@@ -2233,6 +2233,7 @@ fieldset input[type="radio"] {
 	border-radius: 8px;
 	cursor: pointer;
 	align-items: center;
+	flex-shrink: 0;
 }
 .switchtable:hover {
 	background: var(--primary-hover);
