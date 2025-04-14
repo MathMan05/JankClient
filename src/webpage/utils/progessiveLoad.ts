@@ -86,7 +86,7 @@ async function identifyType(prog: ProgressiveArray) {
 		case "7":
 		case "8":
 		case "9": {
-			const validNumber = new Set("0123456789e.+-");
+			const validNumber = new Set("0123456789eE.+-");
 			let build = "";
 			do {
 				build += char;
