@@ -250,7 +250,7 @@
 	"guild": {
 		"template": "Template:",
 		"viewTemplate": "View Template",
-		"createFromTemplate": "Create From Template",
+		"createFromTemplate": "Guild From Template",
 		"tempUseCount": "Template has been used $1 {{PLURAL:$1|time|times}}",
 		"tempCreatedBy": "Template created by:",
 		"editingTemplate": "Editing $1",
