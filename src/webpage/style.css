@@ -525,6 +525,7 @@ textarea {
 .svg-voicensfw {
 	mask: url(/icons/voicensfw.svg);
 }
+
 .svgicon {
 	display: block;
 	height: 100%;
@@ -533,6 +534,11 @@ textarea {
 	mask-repeat: no-repeat;
 	aspect-ratio: 1/1;
 	flex-shrink: 0;
+}
+.mobileback {
+	visibility: hidden;
+	height: 0px;
+	width: 0px;
 }
 #searchX {
 	width: 0.16in;
@@ -2397,17 +2403,24 @@ fieldset input[type="radio"] {
 	box-sizing: border-box;
 	overflow-y: auto;
 }
+
 .SettingsButton {
 	width: 100%;
 	padding: 8px 12px;
 	background: transparent;
 	color: var(--primary-text-soft);
 	border: none;
-	transition: none;
+	transition: background 0.1s;
+}
+.activeSetting {
+	background: color-mix(in srgb, var(--secondary-bg) 60%, transparent);
 }
 .SettingsButton:hover {
 	background: var(--settings-panel-hover);
 	color: var(--primary-text-prominent);
+}
+.activeSetting:hover {
+	background: color-mix(in srgb, var(--secondary-bg) 40%, transparent);
 }
 .addrole {
 	height: 10px;
@@ -2747,8 +2760,16 @@ fieldset input[type="radio"] {
 		font-size: 1.2rem;
 	}
 	.settingbuttons {
-		height: 100px;
+		height: 100%;
 		width: 100%;
+		z-index: 1;
+		position: absolute;
+	}
+	.settingsHTMLArea {
+		z-index: 2;
+		height: 100%;
+		background: var(--primary-bg);
+		transition: transform 0.2s;
 	}
 	.nonimagecenter .settingbuttons {
 		height: auto;
@@ -2761,6 +2782,15 @@ fieldset input[type="radio"] {
 	}
 	.rolesheader {
 		margin: 6px 12px;
+	}
+	.mobileback {
+		width: 20px;
+		height: 20px;
+		visibility: visible;
+		cursor: pointer;
+	}
+	.mobileHidden {
+		transform: translate(100%, 0px);
 	}
 }
 .friendcontainer {

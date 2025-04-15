@@ -13,6 +13,7 @@ interface OptionsElement<x> {
 export class Buttons implements OptionsElement<unknown> {
 	readonly name: string;
 	readonly buttons: [string, Options | string][];
+	readonly buttonMap = new Map<Options | string, HTMLElement>();
 	buttonList!: HTMLDivElement;
 	warndiv!: HTMLElement;
 	value: unknown;
@@ -41,10 +42,11 @@ export class Buttons implements OptionsElement<unknown> {
 		buttonList.classList.add(this.top ? "flexttb" : "flexltr");
 		this.buttonList = buttonList;
 		const htmlarea = document.createElement("div");
-		htmlarea.classList.add("flexgrow");
+		htmlarea.classList.add("flexgrow", "settingsHTMLArea");
 		const buttonTable = this.generateButtons(htmlarea);
 		if (this.buttons[0]) {
 			this.generateHTMLArea(this.buttons[0][1], htmlarea);
+			htmlarea.classList.add("mobileHidden");
 		}
 		buttonList.append(buttonTable);
 		buttonList.append(htmlarea);
@@ -54,10 +56,12 @@ export class Buttons implements OptionsElement<unknown> {
 	}
 	makeButtonHTML(buttond: [string, string | Options], optionsArea: HTMLElement) {
 		const button = document.createElement("button");
+		this.buttonMap.set(buttond[1], button);
 		button.classList.add("SettingsButton");
 		button.textContent = buttond[0];
 		button.onclick = (_) => {
 			this.generateHTMLArea(buttond[1], optionsArea);
+			optionsArea.classList.remove("mobileHidden");
 			if (this.warndiv) {
 				this.warndiv.remove();
 			}
@@ -80,7 +84,19 @@ export class Buttons implements OptionsElement<unknown> {
 		div.textContent = str;
 		return div;
 	}
+	last?: Options | string;
 	generateHTMLArea(buttonInfo: Options | string, htmlarea: HTMLElement) {
+		if (this.last) {
+			const elm = this.buttonMap.get(this.last);
+			if (elm) {
+				elm.classList.remove("activeSetting");
+			}
+		}
+		this.last = buttonInfo;
+		const elm = this.buttonMap.get(buttonInfo);
+		if (elm) {
+			elm.classList.add("activeSetting");
+		}
 		let html: HTMLElement;
 		if (buttonInfo instanceof Options) {
 			buttonInfo.subOptions = undefined;
@@ -90,6 +106,7 @@ export class Buttons implements OptionsElement<unknown> {
 		}
 		htmlarea.innerHTML = "";
 		htmlarea.append(html);
+		return html;
 	}
 	changed(html: HTMLElement) {
 		this.warndiv = html;
@@ -970,6 +987,18 @@ class Options implements OptionsElement<void> {
 	}
 	generateName(): (HTMLElement | string)[] {
 		const build: (HTMLElement | string)[] = [];
+		if (this.owner instanceof Buttons) {
+			const span = document.createElement("span");
+			span.classList.add("svg-intoMenu", "svgicon", "mobileback");
+			build.push(span);
+			span.onclick = () => {
+				const container = this.container.deref();
+				if (!container) return;
+				if (!container.parentElement) return;
+				if (!container.parentElement.parentElement) return;
+				container.parentElement.parentElement.classList.add("mobileHidden");
+			};
+		}
 		if (this.subOptions) {
 			if (this.name !== "") {
 				const name = document.createElement("span");

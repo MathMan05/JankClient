@@ -293,10 +293,10 @@ class RoleList extends Buttons {
 		div.innerHTML = "";
 		div.append(this.buttonListGen(div2)); //not actually sure why the html is needed
 	}
-	buttonMap = new WeakMap<HTMLButtonElement, Role>();
+	buttonRoleMap = new WeakMap<HTMLButtonElement, Role>();
 	dragged?: HTMLButtonElement;
 	buttonDragEvents(button: HTMLButtonElement, role: Role) {
-		this.buttonMap.set(button, role);
+		this.buttonRoleMap.set(button, role);
 		button.addEventListener("dragstart", (e) => {
 			this.dragged = button;
 			e.stopImmediatePropagation();
@@ -318,7 +318,7 @@ class RoleList extends Buttons {
 		});
 
 		button.addEventListener("drop", (_) => {
-			const role2 = this.buttonMap.get(this.dragged as HTMLButtonElement);
+			const role2 = this.buttonRoleMap.get(this.dragged as HTMLButtonElement);
 			if (!role2) return;
 			const index2 = this.guild.roles.indexOf(role2);
 			this.guild.roles.splice(index2, 1);
@@ -390,6 +390,7 @@ class RoleList extends Buttons {
 		buttonTable.append(roleRow);
 		for (const thing of this.buttons) {
 			const button = document.createElement("button");
+			this.buttonMap.set(thing[0], button);
 			button.classList.add("SettingsButton");
 			button.textContent = thing[0];
 			const role = this.guild.roleids.get(thing[1]);
@@ -407,6 +408,7 @@ class RoleList extends Buttons {
 				}
 			}
 			button.onclick = (_) => {
+				html.classList.remove("mobileHidden");
 				this.generateHTMLArea(thing[1], html);
 				if (this.warndiv) {
 					this.warndiv.remove();
