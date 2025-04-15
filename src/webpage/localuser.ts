@@ -2845,6 +2845,7 @@ class Localuser {
 						for (const elm of htmls) elm.remove();
 					}
 					const htmls: HTMLElement[] = [];
+					sideContainDiv.classList.remove("hideSearchDiv");
 					for (const message of messages) {
 						if (channel !== message.channel) {
 							channel = message.channel;
@@ -2857,6 +2858,7 @@ class Localuser {
 						const html = message.buildhtml(undefined, true);
 						html.addEventListener("click", async () => {
 							try {
+								sideContainDiv.classList.add("hideSearchDiv");
 								await message.channel.focus(message.id);
 							} catch (e) {
 								console.error(e);
