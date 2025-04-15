@@ -1266,7 +1266,6 @@ span.instanceStatus {
 	height: 192px;
 }
 .messageimgdiv {
-	height: 100%;
 	position: relative;
 }
 .messageimg {
@@ -1870,7 +1869,7 @@ img.bigembedimg {
 #sideContainDiv.searchDiv {
 	padding: 0px;
 	display: flex;
-	width: 30vw;
+	width: max(30vw, 400px);
 
 	.topMessage {
 		margin: 0px 10px;
@@ -2620,9 +2619,47 @@ fieldset input[type="radio"] {
 	.optionElement .fileinputdiv {
 		width: 100%;
 	}
+	.searching {
+		#searchBox {
+			width: 2in;
+			margin-right: 36px;
+			padding: 7px 10px 13px 10px;
+			flex-shrink: 0;
+		}
+	}
+	#searchBox {
+		width: 0px;
+		padding: 0;
+	}
+	#searchX {
+		position: absolute;
+		width: 24px;
+		height: 24px;
+		margin: 0;
+		cursor: pointer;
+		top: 5px;
+		right: 2px;
+		transition: height 0.2s;
+	}
+	.searchMeta {
+		transition: width 0.2s;
+		min-width: 32px;
+		height: 32px;
+	}
 }
 
-@media screen and (max-width: 500px) {
+@media screen and (max-width: 600px) {
+	.searching {
+		position: absolute;
+		width: 100%;
+		background: var(--primary-bg);
+		z-index: 1;
+		#searchBox {
+			width: 100%;
+			padding: 7px 10px 13px 10px;
+			flex-shrink: 1;
+		}
+	}
 	#homePage {
 		max-width: unset;
 		width: 94%;
@@ -2658,11 +2695,13 @@ fieldset input[type="radio"] {
 	.channelnamediv {
 		padding: 0;
 	}
-	#maintoggleicon,
-	#memberlisttoggleicon {
+	#maintoggleicon {
 		display: block;
 		padding: 12px;
 		cursor: pointer;
+	}
+	#memberlisttoggleicon {
+		padding: 6px;
 	}
 	#maintoggleicon span {
 		height: 14px;
@@ -2681,6 +2720,7 @@ fieldset input[type="radio"] {
 	#page:has(#memberlisttoggle:checked) #sideContainDiv,
 	#sideContainDiv.searchDiv {
 		right: 0;
+		overflow: auto;
 	}
 	#page:has(#maintoggle:checked) #maintoggleicon {
 		rotate: 180deg;
