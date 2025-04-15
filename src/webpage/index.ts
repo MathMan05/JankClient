@@ -166,9 +166,11 @@ import {I18n} from "./i18n.js";
 				setTimeout(() => (searchBox.innerHTML = ""), 0);
 				searchX.classList.add("svg-search");
 				searchX.classList.remove("svg-plainx");
+				searchBox.parentElement!.classList.remove("searching");
 			} else {
 				searchX.classList.remove("svg-search");
 				searchX.classList.add("svg-plainx");
+				searchBox.parentElement!.classList.add("searching");
 			}
 		});
 		searchX.onclick = () => {
@@ -176,8 +178,11 @@ import {I18n} from "./i18n.js";
 				markdown.txt = [];
 				searchBox.innerHTML = "";
 				searchX.classList.add("svg-search");
+				searchBox.parentElement!.classList.remove("searching");
 				searchX.classList.remove("svg-plainx");
 				thisUser.mSearch("");
+			} else {
+				searchBox.parentElement!.classList.add("searching");
 			}
 		};
 
