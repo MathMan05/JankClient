@@ -2772,6 +2772,8 @@ fieldset input[type="radio"] {
 	padding: 0.05in;
 	border: solid 0.03in var(--black);
 	border-radius: 0.05in;
+	z-index: 3;
+
 	span {
 		margin-top: 0.1in;
 		width: 100%;
