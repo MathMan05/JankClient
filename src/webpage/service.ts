@@ -52,17 +52,16 @@ function samedomain(url: string | URL) {
 	return new URL(url).origin === self.origin;
 }
 
-const htmlFiles = new Set(["/index", "/login", "/home", "/register", "/oauth2/auth"]);
+let enabled = "false";
+let offline = false;
 
+const htmlFiles = new Set(["/index", "/login", "/home", "/register", "/oauth2/auth", "/reset"]);
 function isHtml(url: string): string | void {
 	const path = new URL(url).pathname;
 	if (htmlFiles.has(path) || htmlFiles.has(path + ".html")) {
 		return path + path.endsWith(".html") ? "" : ".html";
 	}
 }
-let enabled = "false";
-let offline = false;
-
 function toPath(url: string): string {
 	const Url = new URL(url);
 	let html = isHtml(url);
