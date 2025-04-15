@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Jank Client</title>
+		<meta content="Invite" property="og:title" />
+		<meta content="Accept this invite for a spacebar guild" property="og:description" />
+		<meta name="description" content="A server template" />
+		<meta content="/logo.webp" property="og:image" />
+		<meta content="#4b458c" data-react-helmet="true" name="theme-color" />
+		<link href="/style.css" rel="stylesheet" />
+		<link href="/themes.css" rel="stylesheet" id="lightcss" />
+		<style>
+			body.no-theme {
+				background: #16191b;
+			}
+			@media (prefers-color-scheme: light) {
+				body.no-theme {
+					background: #9397bd;
+				}
+			}
+		</style>
+	</head>
+	<body class="no-theme">
+		<div>
+			<div id="invitebody">
+				<h1 id="templatename">Use Template Name</h1>
+				<p id="templatedescription"></p>
+				<button id="usetemplate">Use template</button>
+			</div>
+		</div>
+		<script type="module" src="/templatePage.js"></script>
+	</body>
+</html>

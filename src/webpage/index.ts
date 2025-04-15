@@ -7,6 +7,7 @@ import {Message} from "./message.js";
 import {File} from "./file.js";
 import {I18n} from "./i18n.js";
 (async () => {
+	let templateID = new URLSearchParams(window.location.search).get("templateID");
 	await I18n.done;
 
 	if (!Localuser.users.currentuser) {
@@ -54,6 +55,9 @@ import {I18n} from "./i18n.js";
 			loading.classList.add("doneloading");
 			loading.classList.remove("loading");
 			console.log("done loading");
+			if (templateID) {
+				thisUser.passTemplateID(templateID);
+			}
 		});
 	} catch (e) {
 		console.error(e);

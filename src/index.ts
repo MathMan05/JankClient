@@ -177,6 +177,10 @@ app.use("/", async (req: Request, res: Response) => {
 		res.sendFile(path.join(__dirname, "webpage", "invite.html"));
 		return;
 	}
+	if (req.path.startsWith("/template/")) {
+		res.sendFile(path.join(__dirname, "webpage", "template.html"));
+		return;
+	}
 	const filePath = await combinePath("/webpage/" + req.path);
 	res.sendFile(filePath);
 });
