@@ -886,6 +886,7 @@ class Localuser {
 		const div = document.getElementById("sideDiv") as HTMLDivElement;
 		div.innerHTML = "";
 		div.classList.remove("searchDiv");
+		div.classList.remove("hideSearchDiv");
 		const guild = this.lookingguild;
 		if (!guild) return;
 		const channel = this.channelfocus;
@@ -2894,6 +2895,7 @@ class Localuser {
 		};
 		if (query === "") {
 			sideContainDiv.classList.remove("searchDiv");
+			sideContainDiv.classList.remove("hideSearchDiv");
 			sideDiv.innerHTML = "";
 			this.searching = false;
 			this.getSidePannel();
