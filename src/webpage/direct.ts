@@ -55,7 +55,10 @@ class Direct extends Guild {
 	}
 	getHTML() {
 		const sideContainDiv = document.getElementById("sideContainDiv");
-		if (sideContainDiv) sideContainDiv.classList.remove("searchDiv");
+		if (sideContainDiv) {
+			sideContainDiv.classList.remove("searchDiv");
+			sideContainDiv.classList.remove("hideSearchDiv");
+		}
 		const searchBox = document.getElementById("searchBox");
 		if (searchBox) searchBox.textContent = "";
 
