@@ -1046,6 +1046,7 @@ class Localuser {
 			return false;
 		}
 	}
+
 	loadGuild(id: string, forceReload = false): Guild | undefined {
 		this.searching = false;
 		let guild = this.guildids.get(id);
@@ -1172,7 +1173,10 @@ class Localuser {
 		}
 		this.unreads();
 	}
-	createGuild() {
+	passTemplateID(id: string) {
+		this.createGuild(id);
+	}
+	createGuild(templateID?: string) {
 		const full = new Dialog("");
 		const buttons = full.options.addButtons("", {top: true});
 		const viacode = buttons.add(I18n.getTranslation("invite.joinUsing"));
@@ -1224,7 +1228,61 @@ class Localuser {
 				full.hide();
 			});
 		}
+		const guildcreateFromTemplate = buttons.add(I18n.guild.createFromTemplate());
+		{
+			const form = guildcreateFromTemplate.addForm(
+				"",
+				(_: any) => {
+					if (_.message) {
+						loading.hide();
+						full.show();
+						alert(_.message);
+						const htmlarea = buttons.htmlarea.deref();
+						if (htmlarea) buttons.generateHTMLArea(guildcreateFromTemplate, htmlarea);
+					} else {
+						loading.hide();
+						full.hide();
+					}
+				},
+				{
+					method: "POST",
+					headers: this.headers,
+				},
+			);
+			const template = form.addTextInput(I18n.guild.template(), "template", {
+				initText: templateID || "",
+			});
+			form.addFileInput(I18n.getTranslation("guild.icon:"), "icon", {files: "one"});
+			form.addTextInput(I18n.getTranslation("guild.name:"), "name", {required: true});
+
+			const loading = new Dialog("");
+			loading.float.options.addTitle(I18n.guild.creating());
+			form.onFormError = () => {
+				loading.hide();
+				full.show();
+			};
+			form.addPreprocessor((e) => {
+				loading.show();
+				full.hide();
+				if ("template" in e) delete e.template;
+				let code: string;
+				if (URL.canParse(template.value)) {
+					const url = new URL(template.value);
+					code = url.pathname.split("/").at(-1) as string;
+					if (url.host === "discord.com") {
+						code = "discord:" + code;
+					}
+				} else {
+					code = template.value;
+				}
+				form.fetchURL = this.info.api + "/guilds/templates/" + code;
+			});
+		}
 		full.show();
+		if (templateID) {
+			const htmlarea = buttons.htmlarea.deref();
+			if (htmlarea) buttons.generateHTMLArea(guildcreateFromTemplate, htmlarea);
+		}
 	}
 	async makeGuild(fields: {name: string; icon: string | null}) {
 		return await (

@@ -1095,7 +1095,7 @@ class Form implements OptionsElement<object> {
 	readonly names: Map<string, OptionsElement<any>> = new Map();
 	readonly required: WeakSet<OptionsElement<any>> = new WeakSet();
 	readonly submitText: string;
-	readonly fetchURL: string;
+	fetchURL: string;
 	readonly headers = {};
 	readonly method: string;
 	value!: object;

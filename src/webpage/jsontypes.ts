@@ -131,6 +131,37 @@ interface banObj {
 		public_flags: number;
 	};
 }
+interface templateSkim {
+	id: string;
+	code: string;
+	name: string;
+	description: string;
+	usage_count: null | number;
+	creator_id: string;
+	created_at: string;
+	updated_at: string;
+	source_guild_id: string;
+	serialized_source_guild: {
+		id: string;
+		afk_channel_id: null | string;
+		afk_timeout: number;
+		default_message_notifications: number;
+		description: null | "string";
+		explicit_content_filter: number;
+		features: string[];
+		icon: null | string;
+		large: boolean;
+		name: string;
+		preferred_locale: string;
+		region: string;
+		system_channel_id: null | string;
+		system_channel_flags: number;
+		verification_level: number;
+		widget_enabled: boolean;
+		nsfw: boolean;
+		premium_progress_bar_enabled: boolean;
+	};
+}
 interface addInfoBan {
 	id: string;
 	user_id: string;
@@ -838,4 +869,5 @@ export {
 	stickerJson,
 	banObj,
 	addInfoBan,
+	templateSkim,
 };

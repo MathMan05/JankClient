@@ -59,6 +59,18 @@ body {
 		margin-left: 8px;
 	}
 }
+.templateMiniBox {
+	display: flex;
+	align-items: center;
+	padding: 6px;
+	border-radius: 4px;
+	width: fit-content;
+	background: var(--secondary-bg);
+
+	button {
+		margin-left: 4px;
+	}
+}
 .flexltr {
 	min-height: 0;
 	display: flex;
@@ -1952,6 +1964,7 @@ img.bigembedimg {
 	border-radius: 8px;
 	overflow: hidden;
 	align-items: flex-start;
+	z-index: 3;
 }
 .hypoprofile {
 	position: relative;

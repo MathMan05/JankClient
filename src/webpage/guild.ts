@@ -16,6 +16,7 @@ import {
 	extendedProperties,
 	banObj,
 	addInfoBan,
+	templateSkim,
 } from "./jsontypes.js";
 import {User} from "./user.js";
 import {I18n} from "./i18n.js";
@@ -24,6 +25,7 @@ import {webhookMenu} from "./webhooks.js";
 import {createImg} from "./utils/utils.js";
 import {Sticker} from "./sticker.js";
 import {ProgessiveDecodeJSON} from "./utils/progessiveLoad.js";
+import {getApiUrls} from "../utils.js";
 
 class Guild extends SnowFlake {
 	owner!: Localuser;
@@ -581,7 +583,89 @@ class Guild extends SnowFlake {
 		})();
 		const webhooks = settings.addButton(I18n.webhooks.base());
 		webhookMenu(this, this.info.api + `/guilds/${this.id}/webhooks`, webhooks);
-		console.log(this.properties.features, this.properties.features.includes("COMMUNITY"));
+		const template = settings.addButton(I18n.guild.templates());
+		(async () => {
+			template.addText(I18n.guild.templcateMetaDesc());
+			const generateTemplateArea = (temp: templateSkim) => {
+				const div = document.createElement("div");
+				div.classList.add("flexltr", "templateMiniBox");
+				const code = document.createElement("span");
+
+				code.textContent = temp.code + ` (${temp.name})`;
+
+				const edit = document.createElement("button");
+				edit.textContent = I18n.edit();
+				edit.onclick = () => {
+					const form = template.addSubForm(
+						I18n.guild.editingTemplate(temp.name),
+						(tempy) => {
+							const template = tempy as templateSkim;
+							temp.name = template.name;
+							temp.description = template.description;
+						},
+						{
+							fetchURL: this.info.api + "/guilds/" + this.id + "/templates/" + temp.code,
+							method: "PATCH",
+							headers: this.headers,
+						},
+					);
+					const search = new URLSearchParams([["instance", this.info.wellknown]]);
+					form.addMDText(
+						I18n.guild.templateURL(
+							window.location.origin + "/template/" + temp.code + "?" + search,
+						),
+					);
+
+					const name = form.addTextInput(I18n.guild.templateName(), "name", {
+						initText: temp.name,
+					});
+					form.addMDInput(I18n.guild.templateDesc(), "description", {
+						initText: temp.description,
+					});
+					User.resolve(temp.creator_id, this.localuser).then((_) => {
+						form.addText(I18n.guild.tempCreatedBy());
+						form.addHTMLArea(_.createWidget(this));
+					});
+					form.addText(I18n.guild.tempUseCount((temp.usage_count || 0) + ""));
+					form.addPreprocessor(() => {
+						if (name.value.length < 2) {
+							throw new FormError(name, I18n.guild.templateNameShort());
+						}
+					});
+				};
+
+				div.append(code, edit);
+				template.addHTMLArea(div);
+			};
+			template.addButtonInput("", I18n.guild.createNewTemplate(), () => {
+				const form = template.addSubForm(
+					I18n.guild.createNewTemplate(),
+					(code) => {
+						template.returnFromSub();
+						generateTemplateArea(code as templateSkim);
+					},
+					{
+						fetchURL: this.info.api + "/guilds/" + this.id + "/templates",
+						method: "POST",
+						headers: this.headers,
+					},
+				);
+				form.addText(I18n.guild.templcateMetaDesc());
+				const name = form.addTextInput(I18n.guild.templateName(), "name");
+				form.addMDInput(I18n.guild.templateDesc(), "description");
+				form.addPreprocessor(() => {
+					if (name.value.length < 2) {
+						throw new FormError(name, I18n.guild.templateNameShort());
+					}
+				});
+			});
+			const templates = (await (
+				await fetch(this.info.api + "/guilds/" + this.id + "/templates", {headers: this.headers})
+			).json()) as templateSkim[];
+			for (const temp of templates.reverse()) {
+				generateTemplateArea(temp);
+			}
+		})();
 		let com = false;
 		if (this.properties.features.includes("COMMUNITY")) {
 			this.addCommunity(settings, textChannels);
