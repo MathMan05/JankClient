@@ -15,7 +15,6 @@ import {
 	emojipjson,
 	extendedProperties,
 	banObj,
-	addInfoBan,
 	templateSkim,
 } from "./jsontypes.js";
 import {User} from "./user.js";
@@ -25,7 +24,6 @@ import {webhookMenu} from "./webhooks.js";
 import {createImg} from "./utils/utils.js";
 import {Sticker} from "./sticker.js";
 import {ProgessiveDecodeJSON} from "./utils/progessiveLoad.js";
-import {getApiUrls} from "../utils.js";
 
 class Guild extends SnowFlake {
 	owner!: Localuser;
