@@ -173,6 +173,10 @@ import {I18n} from "./i18n.js";
 				searchBox.parentElement!.classList.add("searching");
 			}
 		});
+		const sideContainDiv = document.getElementById("sideContainDiv") as HTMLElement;
+		searchBox.onclick = () => {
+			sideContainDiv.classList.remove("hideSearchDiv");
+		};
 		searchX.onclick = () => {
 			if (searchX.classList.contains("svg-plainx")) {
 				markdown.txt = [];
