@@ -1702,12 +1702,17 @@ class Channel extends SnowFlake {
 		};
 		const promiseHandler = (resolve: () => void) => {
 			res.onload = () => {
+				if (res.status !== 200) {
+					fail();
+					return;
+				}
 				resolve();
 				console.log(res.response);
 				funcs.gotid(res.response.id);
 			};
 		};
 		const fail = () => {
+			console.warn("failed");
 			funcs.failed(() => {
 				res.open("POST", this.info.api + "/channels/" + this.id + "/messages");
 				res.setRequestHeader("Authorization", this.headers.Authorization);
@@ -1738,7 +1743,11 @@ class Channel extends SnowFlake {
 			res.setRequestHeader("Content-type", (ctype = this.headers["Content-type"]));
 			res.setRequestHeader("Authorization", this.headers.Authorization);
 			funcs = this.makeFakeMessage(content, [], body.message_reference, sticker_ids);
-			res.send((rbody = JSON.stringify(body)));
+			try {
+				res.send((rbody = JSON.stringify(body)));
+			} catch {
+				fail();
+			}
 			/*
 			res = fetch(this.info.api + "/channels/" + this.id + "/messages", {
 				method: "POST",
@@ -1782,7 +1791,11 @@ class Channel extends SnowFlake {
 				body.message_reference,
 				sticker_ids,
 			);
-			res.send((rbody = formData));
+			try {
+				res.send((rbody = formData));
+			} catch {
+				fail();
+			}
 			/*
 			res = fetch(this.info.api + "/channels/" + this.id + "/messages", {
 				method: "POST",
