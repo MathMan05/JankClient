@@ -467,10 +467,10 @@ type invitejson = {
 	code: string;
 	temporary: boolean;
 	uses: number;
-	max_use: number;
+	max_uses: number;
 	max_age: number;
 	created_at: string;
-	expires_at: string;
+	expires_at: string | null;
 	guild_id: string;
 	channel_id: string;
 	inviter_id: string;

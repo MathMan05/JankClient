@@ -179,6 +179,7 @@
 		"createCatagory": "Create category",
 		"permissions": "Permissions"
 	},
+	"delete": "Delete",
 	"webhooks": {
 		"createdAt": "Created at $1",
 		"name": "Name:",
@@ -259,6 +260,7 @@
 		"templateName": "Template Name:",
 		"templateDesc": "Template Description:",
 		"templcateMetaDesc": "A template allows others to use this guild as a base for their own guilds, it'll copy the channels, roles, and settings of this guild, but not the messages from within the guild, the bots, or the guilds icon.",
+		"invites": "Invites",
 		"templateNameShort": "Template name must at least be 2 characters long",
 		"templateURL": "Template URL: $1",
 		"bannedBy": "Banned by:",
@@ -474,7 +476,13 @@
 		"expireAfter": "Expire after:",
 		"channel:": "Channel:",
 		"inviteMaker": "Invite Maker",
-		"createInvite": "Create invite"
+		"createInvite": "Create invite",
+		"used": "Used $1 {{PLURAL:$1|time|times}}.",
+		"forChannel": "For channel: $1",
+		"createdAt": "Created at $1",
+		"expires": "Expires: $1",
+		"never": "Never",
+		"maxUses": "Max uses: $1"
 	},
 	"friends": {
 		"blocked": "Blocked",

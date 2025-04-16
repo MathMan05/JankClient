@@ -2,7 +2,7 @@
 import {Message} from "./message.js";
 import {AVoice} from "./audio/voice.js";
 import {Contextmenu} from "./contextmenu.js";
-import {Guild} from "./guild.js";
+import {Guild, makeInviteMenu} from "./guild.js";
 import {Localuser} from "./localuser.js";
 import {Permissions} from "./permissions.js";
 import {Dialog, Float, Settings} from "./settings.js";
@@ -269,6 +269,9 @@ class Channel extends SnowFlake {
 				this,
 			),
 		);
+
+		const inviteMenu = settings.addButton(I18n.guild.invites());
+		makeInviteMenu(inviteMenu, this.owner, this.info.api + `/channels/${this.id}/invites`);
 
 		const webhooks = settings.addButton(I18n.webhooks.base());
 		webhookMenu(this.guild, this.info.api + `/channels/${this.id}/webhooks`, webhooks, this.id);
