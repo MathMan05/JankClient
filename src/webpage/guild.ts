@@ -24,7 +24,138 @@ import {webhookMenu} from "./webhooks.js";
 import {createImg} from "./utils/utils.js";
 import {Sticker} from "./sticker.js";
 import {ProgessiveDecodeJSON} from "./utils/progessiveLoad.js";
+export async function makeInviteMenu(inviteMenu: Options, guild: Guild, url: string) {
+	const invDiv = document.createElement("div");
+	const bansp = ProgessiveDecodeJSON<invitejson[]>(url, {
+		headers: guild.headers,
+	});
+	const createInviteHTML = (invite: invitejson) => {
+		const div = document.createElement("div");
+		div.classList.add("templateMiniBox");
 
+		const edit = document.createElement("button");
+		edit.textContent = I18n.edit();
+
+		const code = document.createElement("span");
+		code.textContent = invite.code;
+
+		const used = document.createElement("span");
+		used.textContent = I18n.invite.used(invite.uses + "");
+
+		edit.onclick = () => {
+			const opt = inviteMenu.addSubOptions(invite.code);
+			const inviter = new User(invite.inviter, guild.localuser);
+
+			opt.addMDText(
+				window.location.origin +
+					"/invite/" +
+					invite.code +
+					"?" +
+					new URLSearchParams([["instance", guild.info.wellknown]]),
+			);
+
+			opt.addText(I18n.invite.used(invite.uses + ""));
+			if (invite.max_uses !== 0) opt.addText(I18n.invite.maxUses(invite.max_uses + ""));
+
+			const channel = guild.channels.find((_) => _.id == invite.channel_id);
+			if (channel) {
+				opt.addText(I18n.invite.forChannel(channel.name));
+			}
+
+			opt.addText(I18n.invite.createdAt(new Date(invite.created_at).toLocaleDateString(I18n.lang)));
+
+			let expires = I18n.invite.never();
+			if (invite.expires_at) {
+				expires = new Date(invite.expires_at).toLocaleDateString(I18n.lang);
+			}
+			opt.addText(I18n.invite.expires(expires));
+
+			opt.addText(I18n.webhooks.createdBy());
+			opt.addHTMLArea(inviter.createWidget(guild));
+
+			opt.addButtonInput("", I18n.delete(), async () => {
+				if (
+					(
+						await fetch(guild.info.api + "/invites/" + invite.code, {
+							method: "DELETE",
+							headers: guild.headers,
+						})
+					).ok
+				) {
+					invsArr = invsArr.filter((_) => _ !== invite);
+					inviteMenu.returnFromSub();
+					loadPage(currentPage);
+				}
+			});
+		};
+
+		div.append(used, code, edit);
+		return div;
+	};
+	let invsArr: invitejson[] = [];
+	let onpage = 0;
+	async function loadArr() {
+		let invsArr2: invitejson[] = [];
+		let waiting = false;
+		async function addHTML() {
+			if (waiting) return;
+			waiting = true;
+			await new Promise((res) => setTimeout(res, 0));
+			waiting = false;
+			invDiv.append(...invsArr2.map((inv) => createInviteHTML(inv)));
+			invsArr2 = [];
+		}
+		while (!(await bansp).done) {
+			const inv = await (await (await bansp).getNext()).getWhole();
+			invsArr.push(inv);
+			if (onpage < 50) {
+				invsArr2.push(inv);
+				addHTML();
+				onpage++;
+			} else {
+				next.disabled = false;
+			}
+		}
+	}
+	let currentPage = 0;
+	function loadPage(page = 0) {
+		invDiv.innerHTML = "";
+		for (onpage = 0; onpage < 50; onpage++) {
+			const inv = invsArr[onpage + page * 50];
+			if (!inv) break;
+			invDiv.append(createInviteHTML(inv));
+		}
+		if (onpage === 50 && invsArr[onpage + page * 50]) {
+			next.disabled = false;
+		} else {
+			next.disabled = true;
+		}
+	}
+
+	const pageNav = document.createElement("div");
+	const back = document.createElement("button");
+	back.textContent = I18n.search.back();
+	back.disabled = !currentPage;
+	back.onclick = () => {
+		back.disabled = !(currentPage - 1);
+		next.disabled = false;
+		loadPage(--currentPage);
+	};
+
+	const next = document.createElement("button");
+	next.textContent = I18n.search.next();
+	next.disabled = true;
+	pageNav.append(back, next);
+	inviteMenu.addHTMLArea(pageNav);
+	next.onclick = () => {
+		loadPage(++currentPage);
+		back.disabled = false;
+	};
+
+	loadArr();
+	loadPage(currentPage);
+	inviteMenu.addHTMLArea(invDiv);
+}
 class Guild extends SnowFlake {
 	owner!: Localuser;
 	headers!: Localuser["headers"];
@@ -426,6 +557,9 @@ class Guild extends SnowFlake {
 			genDiv();
 			emoji.addHTMLArea(containdiv);
 		}
+		const inviteMenu = settings.addButton(I18n.guild.invites());
+		makeInviteMenu(inviteMenu, this, this.info.api + `/guilds/${this.id}/invites`);
+
 		const banMenu = settings.addButton(I18n.guild.bans());
 		const makeBanMenu = () => {
 			const banDiv = document.createElement("div");
