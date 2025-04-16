@@ -717,6 +717,9 @@ class Message extends SnowFlake {
 					const fun = saveCaretPosition(area, Infinity);
 					if (fun) fun();
 				});
+				box.oncontextmenu = (e) => {
+					e.stopImmediatePropagation();
+				};
 			} else {
 				this.content.onUpdate = () => {};
 				const messaged = this.content.makeHTML();
