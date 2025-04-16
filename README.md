@@ -1,5 +1,3 @@
-this is myt aweosme fork where i make my awosme icons Yeha
-
 # Jank Client
 Jank Client is a [Spacebar](https://spacebar.chat) Client written in TS, HTML, and CSS.
 
