@@ -137,6 +137,14 @@
 	"typing": "$2 {{PLURAL:$1|est|sont}} en train d'écrire",
 	"noMessages": "Il n'y a aucun message ici, soyez le premier à dire quelque chose !",
 	"blankMessage": "Message vide",
+	"accessibility": {
+		"playGif": "Faire lire le fichier GIF:",
+		"gifSettings": {
+			"hover": "Survol",
+			"always": "Toujours",
+			"never": "Jamais"
+		}
+	},
 	"channel": {
 		"copyId": "Copier l'identifiant du canal",
 		"markRead": "Marquer comme lu",
@@ -201,6 +209,10 @@
 	"nevermind": "Tant pis",
 	"submit": "soumettre",
 	"guild": {
+		"createFromTemplate": "Guilde à partir du modèle",
+		"bannedBy": "Bloqué par :",
+		"banReason": "Raison de bloquer $1 :",
+		"bans": "Bloquages",
 		"ruleId": "Canal des règles :",
 		"community": "Communauté",
 		"copyId": "Copier l'identifiant de la guilde",
@@ -413,7 +425,8 @@
 		"ban": "Bannir un membre",
 		"addRole": "Ajouter des rôles",
 		"removeRole": "Enlever des rôles",
-		"editServerProfile": "Modifier le profil du serveur"
+		"editServerProfile": "Modifier le profil du serveur",
+		"unban": "Débloquer $1"
 	},
 	"login": {
 		"checking": "Vérification de l'instance",
