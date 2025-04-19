@@ -14,14 +14,13 @@ const devmode = (process.env.NODE_ENV || "development") === "development";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Removed getDirectories and combinePath as fastify-static handles serving files
 
 interface Instance {
 	name: string;
 	[key: string]: unknown;
 }
 
-export type instace = { // Consider renaming this type (e.g., InstanceType)
+export type InstanceType = {
 	name: string;
 	description?: string;
 	descriptionLong?: string;
@@ -49,7 +48,7 @@ export type instace = { // Consider renaming this type (e.g., InstanceType)
 
 const instances = JSON.parse(
 	readFileSync(process.env.JANK_INSTANCES_PATH || path.join(__dirname, "webpage", "instances.json")).toString(),
-) as instace[];
+) as InstanceType[];
 
 const instanceNames = new Map<string, Instance>();
 
@@ -70,9 +69,6 @@ async function updateInstances(): Promise<void> {
 			if (instanceNames.has(instance.name)) {
 				const existingInstance = instanceNames.get(instance.name);
 				if (existingInstance) {
-					// Merge properties, prioritizing existing ones? Or fetched ones?
-					// This merges fetched ones into existing if the key doesn't exist.
-					// Consider Object.assign(existingInstance, instance) if fetched should overwrite.
 					for (const key of Object.keys(instance)) {
 						if (!(key in existingInstance)) {
 							existingInstance[key] = instance[key];
@@ -80,9 +76,9 @@ async function updateInstances(): Promise<void> {
 					}
 				}
 			} else {
-				const newInstance = instance as instace; // Cast to the correct type
+				const newInstance = instance as InstanceType;
 				instances.push(newInstance);
-				instanceNames.set(newInstance.name, newInstance); // Add to map as well
+				instanceNames.set(newInstance.name, newInstance);
 			}
 		}
 		observe(instances);
@@ -91,9 +87,7 @@ async function updateInstances(): Promise<void> {
 	}
 }
 
-// Initial load and schedule updates (optional)
 updateInstances();
-// setInterval(updateInstances, 60 * 60 * 1000); // Example: update every hour
 
 const fastify = Fastify({
 	logger: devmode, // Enable logging in development mode
@@ -141,39 +135,27 @@ fastify.get("/instances.json", async (request, reply) => {
 
 // Add oEmbed Link Header Hook
 fastify.addHook('onRequest', async (request, reply) => {
-	// Avoid adding the header for API endpoints, the oEmbed endpoint itself, or static assets.
 	if (
 		request.url.startsWith('/services/oembed') ||
 		request.url.startsWith('/uptime') ||
 		request.url.startsWith('/instances.json') ||
-		request.url.includes('.') // Basic check for file extensions like .css, .js, .png etc.
+		request.url.includes('.')
 	) {
 		return;
 	}
 
 	const scheme = request.protocol;
-	// Use request.headers.host which includes the port if non-standard,
-	// mirroring Express's req.get('Host') behavior.
 	const hostHeader = request.headers.host;
 
-	// If the host header is somehow missing, we can't construct the full URL.
 	if (!hostHeader) {
 		request.log.warn('Host header missing, cannot generate oEmbed link.');
 		return;
 	}
 
 	const fullHost = `${scheme}://${hostHeader}`;
-	// request.url in Fastify includes the path and query string, like Express's req.originalUrl
 	const originalUrl = request.url;
 
-	// Reconstruct the full URL reference for the current page
-	// This matches the Express logic: scheme://host:port/path?query
 	const ref = `${fullHost}${originalUrl}`;
-
-	// Note: The original Express code had a redundant block attempting to re-append query params
-	// which didn't actually modify 'ref'. Fastify's request.url already includes them,
-	// so we don't need that block.
-
 	const link = `${fullHost}/services/oembed?url=${encodeURIComponent(ref)}`;
 	reply.header(
 		"Link",
@@ -182,13 +164,12 @@ fastify.addHook('onRequest', async (request, reply) => {
 });
 
 
-// --- Start Server ---
 
 const PORT: number = process.env.PORT ? Number.parseInt(process.env.PORT) : (Number.parseInt(process.argv[2]) || 8080);
 
 const start = async () => {
 	try {
-		await fastify.listen({ port: PORT, host: '0.0.0.0' }); // Listen on all interfaces
+		await fastify.listen({ port: PORT, host: '0.0.0.0' });
 		console.log(`Server running on port ${PORT}`);
 	} catch (err) {
 		fastify.log.error(err);
@@ -198,5 +179,4 @@ const start = async () => {
 
 start();
 
-// Export necessary functions/variables if needed elsewhere
-export { getApiUrls }; // Keep exports if they are used by other modules
+export { getApiUrls };

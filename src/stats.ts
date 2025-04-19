@@ -199,24 +199,27 @@ function calculateUptimeStats(
 	const dayInMs = 1000 * 60 * 60 * 24;
 	const weekInMs = dayInMs * 7;
 
-	alltime /= totalTimePassed;
+	const alltimeRatio = alltime / totalTimePassed;
+
+	let daytimeResult = daytime;
+	let weektimeResult = weektime;
 
 	if (totalTimePassed > dayInMs) {
-		daytime = daytime || (online ? dayInMs : 0);
-		daytime /= dayInMs;
+		daytimeResult = daytimeResult || (online ? dayInMs : 0);
+		daytimeResult /= dayInMs;
 
 		if (totalTimePassed > weekInMs) {
-			weektime = weektime || (online ? weekInMs : 0);
-			weektime /= weekInMs;
+			weektimeResult = weektimeResult || (online ? weekInMs : 0);
+			weektimeResult /= weekInMs;
 		} else {
-			weektime = alltime;
+			weektimeResult = alltimeRatio;
 		}
 	} else {
-		weektime = alltime;
-		daytime = alltime;
+		weektimeResult = alltimeRatio;
+		daytimeResult = alltimeRatio;
 	}
 
-	return {daytime, weektime, alltime};
+	return {daytime: daytimeResult, weektime: weektimeResult, alltime: alltimeRatio};
 }
 
 function setStatus(instance: string | Instance, status: boolean): void {
