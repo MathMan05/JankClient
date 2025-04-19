@@ -1,76 +1,27 @@
 #!/usr/bin/env node
 
-import compression from "compression";
-import express, {Request, Response} from "express";
-import fs from "node:fs/promises";
+import fastifyCompress from "@fastify/compress";
+import fastifyStatic from "@fastify/static";
+import Fastify from "fastify";
 import path from "node:path";
-import {observe, uptime} from "./stats.js";
-import {getApiUrls, inviteResponse} from "./utils.js";
-import {fileURLToPath} from "node:url";
-import {readFileSync} from "fs";
+import fs, { readFileSync } from "node:fs"
+import { observe, uptime } from "./stats.js";
+import { getApiUrls, inviteResponse } from "./utils.js";
+import { fileURLToPath } from "node:url";
 import process from "node:process";
 
 const devmode = (process.env.NODE_ENV || "development") === "development";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-type dirtype = Map<string, dirtype | string>;
-async function getDirectories(path: string): Promise<dirtype> {
-	return new Map(
-		await Promise.all(
-			(await fs.readdir(path)).map(async function (file): Promise<[string, string | dirtype]> {
-				if ((await fs.stat(path + "/" + file)).isDirectory()) {
-					return [file, await getDirectories(path + "/" + file)];
-				} else {
-					return [file, file];
-				}
-			}),
-		),
-	);
-}
-let dirs: dirtype | undefined = undefined;
-async function combinePath(path: string, tryAgain = true): Promise<string> {
-	if (!dirs) {
-		dirs = await getDirectories(__dirname);
-	}
-	const pathDir = path
-		.split("/")
-		.reverse()
-		.filter((_) => _ !== "");
-	function find(arr: string[], search: dirtype | string | undefined): boolean {
-		if (search == undefined) return false;
-		if (arr.length === 0) {
-			return typeof search == "string";
-		}
-		if (typeof search == "string") {
-			return false;
-		}
-		const thing = arr.pop() as string;
-		return find(arr, search.get(thing));
-	}
-	if (find(pathDir, dirs)) {
-		return __dirname + path;
-	} else {
-		if (!path.includes(".")) {
-			const str = await combinePath(path + ".html", false);
-			if (str !== __dirname + "/webpage/index.html") {
-				return str;
-			}
-		}
-		if (devmode && tryAgain) {
-			dirs = await getDirectories(__dirname);
-			return combinePath(path, false);
-		}
-		return __dirname + "/webpage/index.html";
-	}
-}
+
+// Removed getDirectories and combinePath as fastify-static handles serving files
+
 interface Instance {
 	name: string;
-	[key: string]: any;
+	[key: string]: unknown;
 }
 
-const app = express();
-
-export type instace = {
+export type instace = { // Consider renaming this type (e.g., InstanceType)
 	name: string;
 	description?: string;
 	descriptionLong?: string;
@@ -95,8 +46,9 @@ export type instace = {
 		mastodon?: string;
 	};
 };
+
 const instances = JSON.parse(
-	readFileSync(process.env.JANK_INSTANCES_PATH || __dirname + "/webpage/instances.json").toString(),
+	readFileSync(process.env.JANK_INSTANCES_PATH || path.join(__dirname, "webpage", "instances.json")).toString(),
 ) as instace[];
 
 const instanceNames = new Map<string, Instance>();
@@ -105,18 +57,22 @@ for (const instance of instances) {
 	instanceNames.set(instance.name, instance);
 }
 
-app.use(compression());
-
 async function updateInstances(): Promise<void> {
 	try {
 		const response = await fetch(
 			"https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/instances/instances.json",
 		);
+		if (!response.ok) {
+			throw new Error(`Failed to fetch instances: ${response.statusText}`);
+		}
 		const json = (await response.json()) as Instance[];
 		for (const instance of json) {
 			if (instanceNames.has(instance.name)) {
 				const existingInstance = instanceNames.get(instance.name);
 				if (existingInstance) {
+					// Merge properties, prioritizing existing ones? Or fetched ones?
+					// This merges fetched ones into existing if the key doesn't exist.
+					// Consider Object.assign(existingInstance, instance) if fetched should overwrite.
 					for (const key of Object.keys(instance)) {
 						if (!(key in existingInstance)) {
 							existingInstance[key] = instance[key];
@@ -124,7 +80,9 @@ async function updateInstances(): Promise<void> {
 					}
 				}
 			} else {
-				instances.push(instance as any);
+				const newInstance = instance as instace; // Cast to the correct type
+				instances.push(newInstance);
+				instanceNames.set(newInstance.name, newInstance); // Add to map as well
 			}
 		}
 		observe(instances);
@@ -133,63 +91,112 @@ async function updateInstances(): Promise<void> {
 	}
 }
 
+// Initial load and schedule updates (optional)
 updateInstances();
+// setInterval(updateInstances, 60 * 60 * 1000); // Example: update every hour
 
-app.use("/services/oembed", (req: Request, res: Response) => {
-	inviteResponse(req, res, instances);
+const fastify = Fastify({
+	logger: devmode, // Enable logging in development mode
+	http2: true,
+	https: {
+		allowHTTP1: false,
+		key: fs.readFileSync(process.env.JANK_SSL_KEY || path.join(__dirname, "..", "certs", "key.pem")),
+		cert: fs.readFileSync(process.env.JANK_SSL_CERT || path.join(__dirname, "..", "certs", "cert.pem")),
+	},
+	trustProxy: (ip: string) => ip.startsWith("127."), // Configure trustProxy directly
 });
 
-app.use("/uptime", (req: Request, res: Response) => {
-	const instanceUptime = uptime.get(req.query.name as string);
-	res.send(instanceUptime);
+// Register plugins
+fastify.register(fastifyCompress); // Equivalent to compression()
+fastify.register(fastifyStatic, {
+	root: path.join(__dirname, "webpage"),
+	prefix: "/", // Serve files from the root URL path
+	index: ["home.html", "index.html"], // Serve home.html or index.html for '/'
+	// decorateReply: false // Prevent decoration if not needed, default is true
 });
 
-app.use("/", async (req: Request, res: Response) => {
-	const scheme = req.secure ? "https" : "http";
-	const host = `${scheme}://${req.get("Host")}`;
-	let ref = host + req.originalUrl;
-	if (Object.keys(req.query).length !== 0) {
-		const parms = new URLSearchParams();
-		for (const key of Object.keys(req.query)) {
-			parms.set(key, req.query[key] as string);
-		}
-		ref + `?${parms}`;
-	}
-	if (host && ref) {
-		const link = `${host}/services/oembed?url=${encodeURIComponent(ref)}`;
-		res.set(
-			"Link",
-			`<${link}>; rel="alternate"; type="application/json+oembed"; title="Jank Client oEmbed format"`,
-		);
-	}
+// --- Routes ---
 
-	if (req.path === "/") {
-		res.sendFile(path.join(__dirname, "webpage", "home.html"));
+// oEmbed Route
+fastify.get("/services/oembed", async (request, reply) => {
+	// Fastify automatically parses query parameters into request.query
+	await inviteResponse(request, reply, instances); // Added await as inviteResponse is async
+});
+
+// Uptime Route
+fastify.get("/uptime", async (request, reply) => {
+	const instanceName = (request.query as { name?: string }).name;
+	const instanceUptime = instanceName ? uptime.get(instanceName) : undefined;
+	if (instanceUptime === undefined) {
+		reply.status(404).send({ error: "Instance not found or uptime not tracked" });
+	} else {
+		reply.send(instanceUptime);
+	}
+});
+
+// Instances JSON Route
+fastify.get("/instances.json", async (request, reply) => {
+	reply.send(instances);
+});
+
+// Add oEmbed Link Header Hook
+fastify.addHook('onRequest', async (request, reply) => {
+	// Avoid adding the header for API endpoints, the oEmbed endpoint itself, or static assets.
+	if (
+		request.url.startsWith('/services/oembed') ||
+		request.url.startsWith('/uptime') ||
+		request.url.startsWith('/instances.json') ||
+		request.url.includes('.') // Basic check for file extensions like .css, .js, .png etc.
+	) {
 		return;
 	}
 
-	if (req.path.startsWith("/instances.json")) {
-		res.json(instances);
+	const scheme = request.protocol;
+	// Use request.headers.host which includes the port if non-standard,
+	// mirroring Express's req.get('Host') behavior.
+	const hostHeader = request.headers.host;
+
+	// If the host header is somehow missing, we can't construct the full URL.
+	if (!hostHeader) {
+		request.log.warn('Host header missing, cannot generate oEmbed link.');
 		return;
 	}
 
-	if (req.path.startsWith("/invite/")) {
-		res.sendFile(path.join(__dirname, "webpage", "invite.html"));
-		return;
-	}
-	if (req.path.startsWith("/template/")) {
-		res.sendFile(path.join(__dirname, "webpage", "template.html"));
-		return;
-	}
-	const filePath = await combinePath("/webpage/" + req.path);
-	res.sendFile(filePath);
+	const fullHost = `${scheme}://${hostHeader}`;
+	// request.url in Fastify includes the path and query string, like Express's req.originalUrl
+	const originalUrl = request.url;
+
+	// Reconstruct the full URL reference for the current page
+	// This matches the Express logic: scheme://host:port/path?query
+	const ref = `${fullHost}${originalUrl}`;
+
+	// Note: The original Express code had a redundant block attempting to re-append query params
+	// which didn't actually modify 'ref'. Fastify's request.url already includes them,
+	// so we don't need that block.
+
+	const link = `${fullHost}/services/oembed?url=${encodeURIComponent(ref)}`;
+	reply.header(
+		"Link",
+		`<${link}>; rel="alternate"; type="application/json+oembed"; title="Jank Client oEmbed format"`,
+	);
 });
 
-app.set("trust proxy", (ip: string) => ip.startsWith("127."));
 
-const PORT = process.env.PORT || Number(process.argv[2]) || 8080;
-app.listen(PORT, () => {
-	console.log(`Server running on port ${PORT}`);
-});
+// --- Start Server ---
 
-export {getApiUrls};
+const PORT: number = process.env.PORT ? Number.parseInt(process.env.PORT) : (Number.parseInt(process.argv[2]) || 8080);
+
+const start = async () => {
+	try {
+		await fastify.listen({ port: PORT, host: '0.0.0.0' }); // Listen on all interfaces
+		console.log(`Server running on port ${PORT}`);
+	} catch (err) {
+		fastify.log.error(err);
+		process.exit(1);
+	}
+};
+
+start();
+
+// Export necessary functions/variables if needed elsewhere
+export { getApiUrls }; // Keep exports if they are used by other modules
