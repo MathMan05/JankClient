@@ -1,5 +1,5 @@
-import {BinRead} from "../utils/binaryUtils.js";
-import {Track} from "./track.js";
+import type { BinRead } from "../utils/binaryUtils.js";
+import { Track } from "./track.js";
 
 export class Audio {
 	name: string;
@@ -13,7 +13,7 @@ export class Audio {
 		const length = read.read16();
 		const tracks: (Track | number)[] = [];
 		for (let i = 0; i < length; i++) {
-			let index = read.read16();
+			const index = read.read16();
 			if (index === 0) {
 				tracks.push(read.readFloat32());
 			} else {

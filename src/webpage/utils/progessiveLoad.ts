@@ -29,7 +29,7 @@ export class ProgressiveArray {
 		let arri = 0;
 		while (size > 0) {
 			if (!this.cbuff) throw Error("ran out of file to read");
-			let itter = Math.min(size, this.cbuff.length - this.index);
+			const itter = Math.min(size, this.cbuff.length - this.index);
 			size -= itter;
 			for (let i = 0; i < itter; i++, arri++, this.index++) {
 				arr[arri] = this.cbuff[this.index];
@@ -49,7 +49,7 @@ export class ProgressiveArray {
 	async getChar() {
 		if (this.backChar) {
 			const temp = this.backChar;
-			delete this.backChar;
+			this.backChar = undefined;
 			return temp;
 		}
 		let char: string;
@@ -60,9 +60,12 @@ export class ProgressiveArray {
 		let chars = "";
 		while (!chars) {
 			const buflen = (this.cbuff?.length || 0) - this.index;
-			chars = this.decoder.decode((await this.get8BitArray(buflen <= 0 ? 1 : buflen)).buffer, {
-				stream: true,
-			});
+			chars = this.decoder.decode(
+				(await this.get8BitArray(buflen <= 0 ? 1 : buflen)).buffer,
+				{
+					stream: true,
+				},
+			);
 		}
 		this.chars = chars;
 		this.curchar = 1;
@@ -107,11 +110,11 @@ async function identifyType(prog: ProgressiveArray) {
 			prog.putBackChar(char);
 			return Number(build);
 		}
-		case '"':
+		case '"': {
 			let build = "";
 			do {
 				build += char;
-				if (char == "\\") {
+				if (char === "\\") {
 					char = await prog.getChar();
 					build += char;
 				}
@@ -119,6 +122,7 @@ async function identifyType(prog: ProgressiveArray) {
 			} while (char !== '"');
 			build += char;
 			return JSON.parse(build) as string;
+		}
 		case "t":
 		case "f":
 		case "n": {
@@ -155,9 +159,8 @@ class ArrayProgressive<T, X extends Array<T>> {
 			this.done = true;
 			await this.ondone();
 			return;
-		} else {
-			this.prog.putBackChar(lastChar);
 		}
+			this.prog.putBackChar(lastChar);
 	}
 	awaiting = new Promise<void>((_) => _());
 
@@ -180,10 +183,13 @@ class ArrayProgressive<T, X extends Array<T>> {
 			if (lastChar === "]") {
 				this.done = true;
 				await this.ondone();
-			} else if (lastChar !== ",") throw Error("Bad JSON Object:" + lastChar);
+			} else if (lastChar !== ",") throw Error(`Bad JSON Object:${lastChar}`);
 			checks();
 		};
-		if ((ret instanceof ArrayProgressive || ret instanceof ObjectProgressive) && !ret.done) {
+		if (
+			(ret instanceof ArrayProgressive || ret instanceof ObjectProgressive) &&
+			!ret.done
+		) {
 			ret.ondone = check;
 		} else {
 			await check();
@@ -228,9 +234,8 @@ class ObjectProgressive<X extends Object> {
 			this.done = true;
 			await this.ondone();
 			return;
-		} else {
-			this.prog.putBackChar(lastChar);
 		}
+			this.prog.putBackChar(lastChar);
 	}
 	awaiting = new Promise<void>((_) => _());
 
@@ -243,12 +248,14 @@ class ObjectProgressive<X extends Object> {
 		await cur;
 		return () => res1();
 	}
-	async getNextPair(): Promise<{[K in keyof X]: {key: K; value: Progressive<X[K]>}}[keyof X]> {
+	async getNextPair(): Promise<
+		{ [K in keyof X]: { key: K; value: Progressive<X[K]> } }[keyof X]
+	> {
 		const checks = await this.doChecks();
 		if (this.done) throw new Error("no more object");
 		const key = (await identifyType(this.prog)) as unknown;
 		if (typeof key !== "string") {
-			throw Error("Bad key:" + key);
+			throw Error(`Bad key:${key}`);
 		}
 		const nextChar = await getNextNonWhiteSpace(this.prog);
 		if (nextChar !== ":") throw Error("Bad JSON");
@@ -258,15 +265,19 @@ class ObjectProgressive<X extends Object> {
 			if (lastChar === "}") {
 				this.done = true;
 				await this.ondone();
-			} else if (lastChar !== ",") throw Error("Bad JSON Object:" + lastChar);
+			} else if (lastChar !== ",") throw Error(`Bad JSON Object:${lastChar}`);
 			checks();
 		};
-		if ((value instanceof ArrayProgressive || value instanceof ObjectProgressive) && !value.done) {
+		if (
+			(value instanceof ArrayProgressive ||
+				value instanceof ObjectProgressive) &&
+			!value.done
+		) {
 			value.ondone = check;
 		} else {
 			await check();
 		}
-		return {key, value} as any;
+		return { key, value } as any;
 	}
 	/**
 	 * this only gets what's left, not everything
@@ -274,7 +285,7 @@ class ObjectProgressive<X extends Object> {
 	async getWhole(): Promise<X> {
 		const obj: Partial<X> = {};
 		while (!this.done) {
-			let {key, value} = await this.getNextPair();
+			let { key, value } = await this.getNextPair();
 			if (value instanceof ArrayProgressive) {
 				value = await value.getWhole();
 			}
@@ -287,14 +298,13 @@ class ObjectProgressive<X extends Object> {
 	}
 }
 Object.entries;
-type Progressive<T> =
-	T extends Array<any>
-		? ArrayProgressive<T extends Array<infer X> ? X : never, T>
-		: T extends string | boolean | null | number
-			? T
-			: T extends Object
-				? ObjectProgressive<T>
-				: T;
+type Progressive<T> = T extends Array<any>
+	? ArrayProgressive<T extends Array<infer X> ? X : never, T>
+	: T extends string | boolean | null | number
+		? T
+		: T extends Object
+			? ObjectProgressive<T>
+			: T;
 /*
  * this will progressively load a JSON object, you must read everything you get to get the next thing in line.
  */

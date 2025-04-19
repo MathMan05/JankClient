@@ -3,7 +3,7 @@ import {Dialog, FormError} from "./settings.js";
 await I18n.done;
 const info = JSON.parse(localStorage.getItem("instanceinfo") as string);
 
-function makeMenu2(email: string | void) {
+function makeMenu2(email: string | undefined) {
 	const d2 = new Dialog(I18n.login.recovery());
 	const headers = {
 		"Content-Type": "application/json",
@@ -12,11 +12,11 @@ function makeMenu2(email: string | void) {
 		"",
 		async (obj) => {
 			if ("token" in obj && typeof obj.token === "string") {
-				window.location.href = "/login" + window.location.search;
+				window.location.href = `/login${window.location.search}`;
 			}
 		},
 		{
-			fetchURL: info.api + "/auth/reset",
+			fetchURL: `${info.api}/auth/reset`,
 			method: "POST",
 			headers,
 		},
@@ -36,7 +36,7 @@ function makeMenu2(email: string | void) {
 		if (obj.password !== obj.password2) {
 			throw new FormError(p2, I18n.localuser.PasswordsNoMatch());
 		}
-		delete obj.password2;
+		obj.password2 = undefined;
 	});
 	d2.show(false);
 }
@@ -67,7 +67,7 @@ function makeMenu1() {
 			}
 		},
 		{
-			fetchURL: info.api + "/auth/forgot",
+			fetchURL: `${info.api}/auth/forgot`,
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -88,7 +88,7 @@ function makeMenu1() {
 	d.show(false);
 }
 if (
-	window.location.href.split("#").length == 2 &&
+	window.location.href.split("#").length === 2 &&
 	new URLSearchParams(window.location.href.split("#")[1]).has("token")
 ) {
 	makeMenu2();

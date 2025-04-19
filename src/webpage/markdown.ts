@@ -2,7 +2,7 @@
 import {Localuser} from "./localuser.js";
 import {Channel} from "./channel.js";
 import {Emoji} from "./emoji.js";
-import {Guild} from "./guild.js";
+import type {Guild} from "./guild.js";
 import {I18n} from "./i18n.js";
 import {Member} from "./member.js";
 import {Dialog} from "./settings.js";
@@ -11,8 +11,8 @@ class MarkDown {
 	txt: string[];
 	keep: boolean;
 	stdsize: boolean;
-	owner: Localuser | Channel | void;
-	info: Localuser["info"] | void = undefined;
+	owner: Localuser | Channel | undefined;
+	info: Localuser["info"] | undefined = undefined;
 	constructor(
 		text: string | string[],
 		owner: MarkDown["owner"],
@@ -36,7 +36,7 @@ class MarkDown {
 	get localuser() {
 		if (this.owner instanceof Localuser) {
 			return this.owner;
-		} else if (this.owner) {
+		}if (this.owner) {
 			return this.owner.localuser;
 		}
 		return null;
@@ -245,7 +245,7 @@ class MarkDown {
 						}
 					}
 				}
-				if (find === count && (count != 1 || txt[i + 1] !== " ")) {
+				if (find === count && (count !== 1 || txt[i + 1] !== " ")) {
 					appendcurrent();
 					i = j;
 
@@ -312,7 +312,7 @@ class MarkDown {
 				}
 				if (
 					find === count &&
-					(count != 1 || txt[j + 1] === " " || txt[j + 1] === "\n" || txt[j + 1] === undefined)
+					(count !== 1 || txt[j + 1] === " " || txt[j + 1] === "\n" || txt[j + 1] === undefined)
 				) {
 					appendcurrent();
 					i = j;
@@ -484,7 +484,7 @@ class MarkDown {
 					const char = txt[i + 1];
 					i = j;
 					switch (char) {
-						case "@":
+						case "@": {
 							const user = this.localuser.userMap.get(id);
 							if (user) {
 								mention.textContent = `@${user.name}`;
@@ -506,7 +506,8 @@ class MarkDown {
 								mention.textContent = "@unknown";
 							}
 							break;
-						case "#":
+						}
+						case "#": {
 							const channel = this.localuser.channelids.get(id);
 							if (channel) {
 								mention.textContent = `#${channel.name}`;
@@ -520,6 +521,7 @@ class MarkDown {
 								mention.textContent = "#unknown";
 							}
 							break;
+						}
 					}
 					span.appendChild(mention);
 					mention.setAttribute("real", `<${char}${id}>`);
@@ -563,29 +565,25 @@ class MarkDown {
 							});
 						else if (!parts[3] || parts[3] === "f")
 							time =
-								dateInput.toLocaleString(void 0, {
+								`${dateInput.toLocaleString(void 0, {
 									day: "numeric",
 									month: "long",
 									year: "numeric",
-								}) +
-								" " +
-								dateInput.toLocaleString(void 0, {
+								})} ${dateInput.toLocaleString(void 0, {
 									hour: "2-digit",
 									minute: "2-digit",
-								});
+								})}`;
 						else if (parts[3] === "F")
 							time =
-								dateInput.toLocaleString(void 0, {
+								`${dateInput.toLocaleString(void 0, {
 									day: "numeric",
 									month: "long",
 									year: "numeric",
 									weekday: "long",
-								}) +
-								" " +
-								dateInput.toLocaleString(void 0, {
+								})} ${dateInput.toLocaleString(void 0, {
 									hour: "2-digit",
 									minute: "2-digit",
-								});
+								})}`;
 						else if (parts[3] === "t")
 							time = dateInput.toLocaleString(void 0, {
 								hour: "2-digit",
@@ -599,8 +597,7 @@ class MarkDown {
 							});
 						else if (parts[3] === "R")
 							time =
-								Math.round((Date.now() - Number.parseInt(parts[1]) * 1000) / 1000 / 60) +
-								" minutes ago";
+								`${Math.round((Date.now() - Number.parseInt(parts[1]) * 1000) / 1000 / 60)} minutes ago`;
 					}
 
 					const timeElem = document.createElement("span");
@@ -630,7 +627,7 @@ class MarkDown {
 				if (found) {
 					const buildjoin = build.join("");
 					const parts = buildjoin.match(/^<(a)?:\w+:(\d{10,30})>$/);
-					if (parts && parts[2]) {
+					if (parts?.[2]) {
 						appendcurrent();
 						i = j;
 						const isEmojiOnly = txt.join("").trim() === buildjoin.trim();
@@ -647,7 +644,7 @@ class MarkDown {
 				}
 			}
 
-			if (txt[i] == "[" && !keep) {
+			if (txt[i] === "[" && !keep) {
 				let partsFound = 0;
 				let j = i + 1;
 				const build = ["["];
@@ -686,7 +683,7 @@ class MarkDown {
 							linkElem.target = "_blank";
 							linkElem.rel = "noopener noreferrer";
 							linkElem.title =
-								(parts[3] ? parts[3].substring(2, parts[3].length - 1) + "\n\n" : "") + parts[2];
+								(parts[3] ? `${parts[3].substring(2, parts[3].length - 1)}\n\n` : "") + parts[2];
 							span.appendChild(linkElem);
 
 							continue;
@@ -752,7 +749,7 @@ class MarkDown {
 	) {
 		this.customBox = [stringToHTML, HTMLToString];
 	}
-	boxupdate(offset = 0, allowLazy = true, computedLength: void | number = undefined) {
+	boxupdate(offset = 0, allowLazy = true, computedLength: undefined | number = undefined) {
 		const box = this.box.deref();
 		if (!box) return;
 		let restore: undefined | (() => void);
@@ -775,7 +772,7 @@ class MarkDown {
 			//console.time();
 			const html = this.makeHTML({keep: true});
 			const condition =
-				html.childNodes.length == 1 &&
+				html.childNodes.length === 1 &&
 				html.childNodes[0].childNodes.length === 1 &&
 				html.childNodes[0].childNodes[0];
 			//console.log(box.cloneNode(true), html.cloneNode(true));
@@ -823,7 +820,7 @@ class MarkDown {
 
 				continue;
 			}
-			const text = this.gatherBoxText(thing as HTMLElement);
+			const text = MarkDown.gatherBoxText(thing as HTMLElement);
 			if (text) {
 				build += text;
 			}
@@ -834,7 +831,7 @@ class MarkDown {
 	static safeLink(elm: HTMLElement, url: string) {
 		if (URL.canParse(url)) {
 			const Url = new URL(url);
-			if (elm instanceof HTMLAnchorElement && this.trustedDomains.has(Url.host)) {
+			if (elm instanceof HTMLAnchorElement && MarkDown.trustedDomains.has(Url.host)) {
 				elm.href = url;
 				elm.target = "_blank";
 				return;
@@ -850,7 +847,7 @@ class MarkDown {
 						window.focus();
 					}
 				}
-				if (this.trustedDomains.has(Url.host)) {
+				if (MarkDown.trustedDomains.has(Url.host)) {
 					open();
 				} else {
 					const full = new Dialog("");
@@ -865,13 +862,13 @@ class MarkDown {
 					options.addButtonInput("", I18n.getTranslation("goThereTrust"), () => {
 						open();
 						full.hide();
-						this.trustedDomains.add(Url.host);
+						MarkDown.trustedDomains.add(Url.host);
 					});
 					full.show();
 				}
 			};
 		} else {
-			throw new Error(url + " is not a valid URL");
+			throw new Error(`${url} is not a valid URL`);
 		}
 	}
 	/*
@@ -892,7 +889,7 @@ function saveCaretPosition(
 	context: HTMLElement,
 	offset = 0,
 	txtLengthFunc = MarkDown.gatherBoxText.bind(MarkDown),
-	computedLength: void | number = undefined,
+	computedLength: undefined | number = undefined,
 ) {
 	const selection = window.getSelection() as Selection;
 	if (!selection) return;
@@ -922,7 +919,7 @@ function saveCaretPosition(
 			!(
 				base instanceof HTMLSpanElement &&
 				base.className === "" &&
-				base.children.length == 0 &&
+				base.children.length === 0 &&
 				!(base instanceof HTMLBRElement)
 			)
 		) {
@@ -1016,12 +1013,12 @@ function getTextNodeAtPosition(
 			node: root,
 			position: index,
 		};
-	} else if (root instanceof HTMLBRElement) {
+	}if (root instanceof HTMLBRElement) {
 		return {
 			node: root,
 			position: 0,
 		};
-	} else if (root instanceof HTMLElement && root.hasAttribute("real")) {
+	}if (root instanceof HTMLElement && root.hasAttribute("real")) {
 		return {
 			node: root,
 			position: -1,

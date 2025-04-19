@@ -1,7 +1,7 @@
 import {Contextmenu} from "./contextmenu.js";
-import {Guild} from "./guild.js";
+import type {Guild} from "./guild.js";
 import {Hover} from "./hover.js";
-import {stickerJson} from "./jsontypes.js";
+import type {stickerJson} from "./jsontypes.js";
 import {Localuser} from "./localuser.js";
 import {SnowFlake} from "./snowflake.js";
 import {createImg} from "./utils/utils.js";
@@ -33,7 +33,7 @@ class Sticker extends SnowFlake {
 	}
 	getHTML(): HTMLElement {
 		const img = createImg(
-			this.owner.info.cdn + "/stickers/" + this.id + ".webp?size=160&quality=lossless",
+			`${this.owner.info.cdn}/stickers/${this.id}.webp?size=160&quality=lossless`,
 		);
 		img.classList.add("sticker");
 		const hover = new Hover(this.name);
@@ -48,12 +48,11 @@ class Sticker extends SnowFlake {
 			if (json.name.includes(search)) {
 				ranked.push([json, search.length / json.name.length]);
 				return true;
-			} else if (json.name.toLowerCase().includes(search.toLowerCase())) {
+			}if (json.name.toLowerCase().includes(search.toLowerCase())) {
 				ranked.push([json, search.length / json.name.length / 1.4]);
 				return true;
-			} else {
-				return false;
 			}
+				return false;
 		}
 		const weakGuild = new WeakMap<Sticker, Guild>();
 		for (const guild of localuser.guilds) {
@@ -81,21 +80,21 @@ class Sticker extends SnowFlake {
 	}
 	static async stickerPicker(x: number, y: number, localuser: Localuser): Promise<Sticker> {
 		let res: (r: Sticker) => void;
-		this;
+		Sticker;
 		const promise: Promise<Sticker> = new Promise((r) => {
 			res = r;
 		});
 		const menu = document.createElement("div");
 		menu.classList.add("flexttb", "stickerPicker");
 		if (y > 0) {
-			menu.style.top = y + "px";
+			menu.style.top = `${y}px`;
 		} else {
-			menu.style.bottom = y * -1 + "px";
+			menu.style.bottom = `${y * -1}px`;
 		}
 		if (x > 0) {
-			menu.style.left = x + "px";
+			menu.style.left = `${x}px`;
 		} else {
-			menu.style.right = x * -1 + "px";
+			menu.style.right = `${x * -1}px`;
 		}
 
 		const topBar = document.createElement("div");
@@ -103,7 +102,7 @@ class Sticker extends SnowFlake {
 		const guilds = [
 			localuser.lookingguild,
 			...localuser.guilds
-				.filter((guild) => guild.id != "@me" && guild.stickers.length > 0)
+				.filter((guild) => guild.id !== "@me" && guild.stickers.length > 0)
 				.filter((guild) => guild !== localuser.lookingguild),
 		].filter((guild) => guild !== undefined);
 
@@ -149,7 +148,7 @@ class Sticker extends SnowFlake {
 			}
 		};
 		search.addEventListener("input", () => {
-			updateSearch.call(this);
+			updateSearch.call(Sticker);
 		});
 		search.addEventListener("keyup", (e) => {
 			if (e.key === "Enter" && topSticker) {
@@ -182,13 +181,8 @@ class Sticker extends SnowFlake {
 				img.classList.add("pfp", "servericon", "emoji-server");
 				img.crossOrigin = "anonymous";
 				img.src =
-					localuser.info.cdn +
-					"/icons/" +
-					guild.properties.id +
-					"/" +
-					guild.properties.icon +
-					".png?size=48";
-				img.alt = "Server: " + guild.properties.name;
+					`${localuser.info.cdn}/icons/${guild.properties.id}/${guild.properties.icon}.png?size=48`;
+				img.alt = `Server: ${guild.properties.name}`;
 				select.appendChild(img);
 			} else {
 				const div = document.createElement("span");
@@ -203,7 +197,7 @@ class Sticker extends SnowFlake {
 
 			const clickEvent = () => {
 				search.value = "";
-				updateSearch.call(this);
+				updateSearch.call(Sticker);
 				title.textContent = guild.properties.name;
 				body.innerHTML = "";
 				for (const sticker of guild.stickers) {

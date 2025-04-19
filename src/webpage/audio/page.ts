@@ -1,6 +1,6 @@
-import {BinWrite} from "../utils/binaryUtils.js";
-import {setTheme} from "../utils/utils.js";
-import {Play} from "./play.js";
+import { BinWrite } from "../utils/binaryUtils.js";
+import { setTheme } from "../utils/utils.js";
+import { Play } from "./play.js";
 
 setTheme();
 const w = new BinWrite(2 ** 12);
@@ -22,13 +22,10 @@ w.write8(4); //sin
 w.write8(5); //times
 {
 	w.write8(9); //Power
-
-	{
 		w.write8(6); //adding
 		w.write8(1); //t
 		w.write8(0);
 		w.write32Float(2); //2
-	}
 	w.write8(13); //cos
 	w.write8(5); // times
 	w.write8(1); //t
@@ -148,7 +145,7 @@ console.log(play, buff);
 const download = document.getElementById("download");
 if (download) {
 	download.onclick = () => {
-		const blob = new Blob([buff], {type: "binary"});
+		const blob = new Blob([buff], { type: "binary" });
 		const downloadUrl = URL.createObjectURL(blob);
 		const a = document.createElement("a");
 		a.href = downloadUrl;

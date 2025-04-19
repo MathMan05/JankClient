@@ -116,9 +116,9 @@ fetch("/instances.json")
 					const span = document.createElement("span");
 					span.innerText = I18n.getTranslation(
 						"home.uptimeStats",
-						Math.round(instance.uptime.alltime * 100) + "",
-						Math.round(instance.uptime.weektime * 100) + "",
-						Math.round(instance.uptime.daytime * 100) + "",
+						`${Math.round(instance.uptime.alltime * 100)}`,
+						`${Math.round(instance.uptime.weektime * 100)}`,
+						`${Math.round(instance.uptime.daytime * 100)}`,
 					);
 					stats.append(span);
 					statbox.append(stats);
@@ -126,7 +126,7 @@ fetch("/instances.json")
 				div.append(statbox);
 				div.onclick = (_) => {
 					if (instance.online) {
-						window.location.href = "/register.html?instance=" + encodeURI(instance.name);
+						window.location.href = `/register.html?instance=${encodeURI(instance.name)}`;
 					} else {
 						alert(I18n.getTranslation("home.warnOffiline"));
 					}

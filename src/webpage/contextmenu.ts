@@ -170,11 +170,11 @@ class Contextmenu<x, y> {
 			Contextmenu.currentmenu.remove();
 		}
 		if (y > 0) {
-			div.style.top = y + "px";
+			div.style.top = `${y}px`;
 		} else {
-			div.style.bottom = y * -1 + "px";
+			div.style.bottom = `${y * -1}px`;
 		}
-		div.style.left = x + "px";
+		div.style.left = `${x}px`;
 		document.body.appendChild(div);
 		Contextmenu.keepOnScreen(div);
 		console.log(div);
@@ -249,10 +249,10 @@ class Contextmenu<x, y> {
 		console.log(box, docheight, docwidth);
 		if (box.right > docwidth) {
 			console.log("test");
-			obj.style.left = docwidth - box.width + "px";
+			obj.style.left = `${docwidth - box.width}px`;
 		}
 		if (box.bottom > docheight) {
-			obj.style.top = docheight - box.height + "px";
+			obj.style.top = `${docheight - box.height}px`;
 		}
 	}
 }

@@ -1,12 +1,12 @@
 import {Channel} from "./channel.js";
-import {Localuser} from "./localuser.js";
+import type {Localuser} from "./localuser.js";
 import {Contextmenu} from "./contextmenu.js";
 import {Role, RoleList} from "./role.js";
 import {Member} from "./member.js";
-import {Dialog, FormError, Options, Settings} from "./settings.js";
-import {Permissions} from "./permissions.js";
+import {Dialog, FormError, type Options, Settings} from "./settings.js";
+import type {Permissions} from "./permissions.js";
 import {SnowFlake} from "./snowflake.js";
-import {
+import type {
 	channeljson,
 	guildjson,
 	memberjson,
@@ -40,24 +40,20 @@ export async function makeInviteMenu(inviteMenu: Options, guild: Guild, url: str
 		code.textContent = invite.code;
 
 		const used = document.createElement("span");
-		used.textContent = I18n.invite.used(invite.uses + "");
+		used.textContent = I18n.invite.used(`${invite.uses}`);
 
 		edit.onclick = () => {
 			const opt = inviteMenu.addSubOptions(invite.code);
 			const inviter = new User(invite.inviter, guild.localuser);
 
 			opt.addMDText(
-				window.location.origin +
-					"/invite/" +
-					invite.code +
-					"?" +
-					new URLSearchParams([["instance", guild.info.wellknown]]),
+				`${window.location.origin}/invite/${invite.code}?${new URLSearchParams([["instance", guild.info.wellknown]])}`,
 			);
 
-			opt.addText(I18n.invite.used(invite.uses + ""));
-			if (invite.max_uses !== 0) opt.addText(I18n.invite.maxUses(invite.max_uses + ""));
+			opt.addText(I18n.invite.used(`${invite.uses}`));
+			if (invite.max_uses !== 0) opt.addText(I18n.invite.maxUses(`${invite.max_uses}`));
 
-			const channel = guild.channels.find((_) => _.id == invite.channel_id);
+			const channel = guild.channels.find((_) => _.id === invite.channel_id);
 			if (channel) {
 				opt.addText(I18n.invite.forChannel(channel.name));
 			}
@@ -76,7 +72,7 @@ export async function makeInviteMenu(inviteMenu: Options, guild: Guild, url: str
 			opt.addButtonInput("", I18n.delete(), async () => {
 				if (
 					(
-						await fetch(guild.info.api + "/invites/" + invite.code, {
+						await fetch(`${guild.info.api}/invites/${invite.code}`, {
 							method: "DELETE",
 							headers: guild.headers,
 						})
@@ -208,7 +204,7 @@ class Guild extends SnowFlake {
 			},
 		);
 		Guild.contextmenu.addSeperator();
-		this.contextmenu.addButton(
+		Guild.contextmenu.addButton(
 			() => I18n.getTranslation("user.editServerProfile"),
 			function () {
 				this.member.showEditProfile();
@@ -280,7 +276,7 @@ class Guild extends SnowFlake {
 			const form = overview.addForm("", (_) => {}, {
 				headers: this.headers,
 				traditionalSubmit: true,
-				fetchURL: this.info.api + "/guilds/" + this.id,
+				fetchURL: `${this.info.api}/guilds/${this.id}`,
 				method: "PATCH",
 			});
 			form.addTextInput(I18n.getTranslation("guild.name:"), "name", {
@@ -300,7 +296,7 @@ class Guild extends SnowFlake {
 				"features",
 				options.map((_) => I18n.guild[_]()),
 				{
-					defaultIndex: defaultIndex == -1 ? 2 : defaultIndex,
+					defaultIndex: defaultIndex === -1 ? 2 : defaultIndex,
 				},
 				options,
 			);
@@ -320,13 +316,13 @@ class Guild extends SnowFlake {
 			form.addPreprocessor((e: any) => {
 				let bits = 0;
 				bits += (1 - e.s1) * 1;
-				delete e.s1;
+				e.s1 = undefined;
 				bits += (1 - e.s2) * 2;
-				delete e.s2;
+				e.s2 = undefined;
 				bits += (1 - e.s3) * 4;
-				delete e.s3;
+				e.s3 = undefined;
 				bits += (1 - e.s4) * 8;
-				delete e.s4;
+				e.s4 = undefined;
 				e.system_channel_flags = bits;
 				let temp = this.properties.features;
 				console.log([...temp]);
@@ -466,7 +462,7 @@ class Guild extends SnowFlake {
 					} else {
 						throw new FormError(tags, I18n.sticker.errEmjMust());
 					}
-					const res = await fetch(this.info.api + "/guilds/" + this.id + "/stickers", {
+					const res = await fetch(`${this.info.api}/guilds/${this.id}/stickers`, {
 						method: "POST",
 						headers: {
 							Authorization: this.headers.Authorization,
@@ -502,7 +498,7 @@ class Guild extends SnowFlake {
 
 					div.onclick = () => {
 						const form = emoji.addSubForm(emoji.name, () => {}, {
-							fetchURL: this.info.api + "/guilds/" + this.id + "/stickers/" + sticker.id,
+							fetchURL: `${this.info.api}/guilds/${this.id}/stickers/${sticker.id}`,
 							method: "PATCH",
 							headers: this.headers,
 							traditionalSubmit: true,
@@ -517,7 +513,7 @@ class Guild extends SnowFlake {
 							initText: sticker.description,
 						});
 
-						let initEmoji = Emoji.getEmojiFromIDOrString(sticker.tags, this.localuser);
+						const initEmoji = Emoji.getEmojiFromIDOrString(sticker.tags, this.localuser);
 						form.addEmojiInput(I18n.sticker.tags(), "tags", this.localuser, {
 							initEmoji,
 							required: false,
@@ -558,12 +554,12 @@ class Guild extends SnowFlake {
 			emoji.addHTMLArea(containdiv);
 		}
 		const inviteMenu = settings.addButton(I18n.guild.invites());
-		makeInviteMenu(inviteMenu, this, this.info.api + `/guilds/${this.id}/invites`);
+		makeInviteMenu(inviteMenu, this, `${this.info.api}/guilds/${this.id}/invites`);
 
 		const banMenu = settings.addButton(I18n.guild.bans());
 		const makeBanMenu = () => {
 			const banDiv = document.createElement("div");
-			const bansp = ProgessiveDecodeJSON<banObj[]>(this.info.api + "/guilds/" + this.id + "/bans", {
+			const bansp = ProgessiveDecodeJSON<banObj[]>(`${this.info.api}/guilds/${this.id}/bans`, {
 				headers: this.headers,
 			});
 			const createBanHTML = (ban: banObj) => {
@@ -610,7 +606,7 @@ class Guild extends SnowFlake {
 					opt.addButtonInput("", I18n.user.unban(ban.user.username), async () => {
 						bansArr = bansArr.filter((_) => _ !== ban);
 
-						await fetch(this.info.api + "/guilds/" + this.id + "/bans/" + ban.user.id, {
+						await fetch(`${this.info.api}/guilds/${this.id}/bans/${ban.user.id}`, {
 							headers: this.headers,
 							method: "DELETE",
 						});
@@ -688,7 +684,7 @@ class Guild extends SnowFlake {
 		const widgetMenu = settings.addButton(I18n.widget());
 		(async () => {
 			const cur = (await (
-				await fetch(this.info.api + "/guilds/" + this.id + "/widget", {
+				await fetch(`${this.info.api}/guilds/${this.id}/widget`, {
 					headers: this.headers,
 				})
 			).json()) as {
@@ -697,7 +693,7 @@ class Guild extends SnowFlake {
 			};
 			const form = widgetMenu.addForm("", () => {}, {
 				traditionalSubmit: true,
-				fetchURL: this.info.api + "/guilds/" + this.id + "/widget",
+				fetchURL: `${this.info.api}/guilds/${this.id}/widget`,
 				headers: this.headers,
 				method: "PATCH",
 			});
@@ -708,13 +704,13 @@ class Guild extends SnowFlake {
 				"channel_id",
 				channels.map((_) => _.name),
 				{
-					defaultIndex: channels.findIndex((_) => _.id == cur.channel_id),
+					defaultIndex: channels.findIndex((_) => _.id === cur.channel_id),
 				},
 				channels.map((_) => _.id),
 			);
 		})();
 		const webhooks = settings.addButton(I18n.webhooks.base());
-		webhookMenu(this, this.info.api + `/guilds/${this.id}/webhooks`, webhooks);
+		webhookMenu(this, `${this.info.api}/guilds/${this.id}/webhooks`, webhooks);
 		const template = settings.addButton(I18n.guild.templates());
 		(async () => {
 			template.addText(I18n.guild.templcateMetaDesc());
@@ -723,7 +719,7 @@ class Guild extends SnowFlake {
 				div.classList.add("flexltr", "templateMiniBox");
 				const code = document.createElement("span");
 
-				code.textContent = temp.code + ` (${temp.name})`;
+				code.textContent = `${temp.code} (${temp.name})`;
 
 				const edit = document.createElement("button");
 				edit.textContent = I18n.edit();
@@ -736,7 +732,7 @@ class Guild extends SnowFlake {
 							temp.description = template.description;
 						},
 						{
-							fetchURL: this.info.api + "/guilds/" + this.id + "/templates/" + temp.code,
+							fetchURL: `${this.info.api}/guilds/${this.id}/templates/${temp.code}`,
 							method: "PATCH",
 							headers: this.headers,
 						},
@@ -744,7 +740,7 @@ class Guild extends SnowFlake {
 					const search = new URLSearchParams([["instance", this.info.wellknown]]);
 					form.addMDText(
 						I18n.guild.templateURL(
-							window.location.origin + "/template/" + temp.code + "?" + search,
+							`${window.location.origin}/template/${temp.code}?${search}`,
 						),
 					);
 
@@ -758,7 +754,7 @@ class Guild extends SnowFlake {
 						form.addText(I18n.guild.tempCreatedBy());
 						form.addHTMLArea(_.createWidget(this));
 					});
-					form.addText(I18n.guild.tempUseCount((temp.usage_count || 0) + ""));
+					form.addText(I18n.guild.tempUseCount(`${temp.usage_count || 0}`));
 					form.addPreprocessor(() => {
 						if (name.value.length < 2) {
 							throw new FormError(name, I18n.guild.templateNameShort());
@@ -777,7 +773,7 @@ class Guild extends SnowFlake {
 						generateTemplateArea(code as templateSkim);
 					},
 					{
-						fetchURL: this.info.api + "/guilds/" + this.id + "/templates",
+						fetchURL: `${this.info.api}/guilds/${this.id}/templates`,
 						method: "POST",
 						headers: this.headers,
 					},
@@ -792,7 +788,7 @@ class Guild extends SnowFlake {
 				});
 			});
 			const templates = (await (
-				await fetch(this.info.api + "/guilds/" + this.id + "/templates", {headers: this.headers})
+				await fetch(`${this.info.api}/guilds/${this.id}/templates`, {headers: this.headers})
 			).json()) as templateSkim[];
 			for (const temp of templates.reverse()) {
 				generateTemplateArea(temp);
@@ -808,18 +804,16 @@ class Guild extends SnowFlake {
 	onStickerUpdate = (_stickers: Sticker[]) => {};
 	addCommunity(settings: Settings, textChannels: Channel[]) {
 		const com = settings.addButton(I18n.guild.community()).addForm("", () => {}, {
-			fetchURL: this.info.api + "/guilds/" + this.id,
+			fetchURL: `${this.info.api}/guilds/${this.id}`,
 			method: "PATCH",
 			headers: this.headers,
 			traditionalSubmit: true,
 		});
-		{
 			com.addMDInput(I18n.getTranslation("guild.description:"), "description", {
 				initText: this.properties.description,
 			});
-		}
 		{
-			let defaultIndex = textChannels.findIndex((_) => this.properties.rules_channel_id == _.id);
+			let defaultIndex = textChannels.findIndex((_) => this.properties.rules_channel_id === _.id);
 			if (defaultIndex === -1) {
 				defaultIndex = textChannels.length;
 			}
@@ -844,7 +838,7 @@ class Guild extends SnowFlake {
 			);
 		}
 	}
-	makeInviteMenu(options: Options, valid: void | Channel[]) {
+	makeInviteMenu(options: Options, valid: undefined | Channel[]) {
 		if (!valid) {
 			valid = this.channels.filter((e) => {
 				//TODO there are almost certainly more types. is Voice valid?
@@ -878,7 +872,7 @@ class Guild extends SnowFlake {
 					flags: 0,
 					target_type: null,
 					target_user_id: null,
-					max_age: expires + "",
+					max_age: `${expires}`,
 					max_uses: uses,
 					temporary: uses !== 0,
 				}),
@@ -909,7 +903,7 @@ class Guild extends SnowFlake {
 			I18n.getTranslation("invite.expireAfter"),
 			() => {},
 			["30m", "1h", "6h", "12h", "1d", "7d", "30d", "never"].map((e) =>
-				I18n.getTranslation("inviteOptions." + e),
+				I18n.getTranslation(`inviteOptions.${e}`),
 			),
 		).onchange = (e) => {
 			expires = [1800, 3600, 21600, 43200, 86400, 604800, 2592000, 0][e];
@@ -941,7 +935,7 @@ class Guild extends SnowFlake {
 			position--;
 			return {id: _.id, position};
 		});
-		await fetch(this.info.api + "/guilds/" + this.id + "/roles", {
+		await fetch(`${this.info.api}/guilds/${this.id}/roles`, {
 			method: "PATCH",
 			body: JSON.stringify(map),
 			headers: this.headers,
@@ -1099,7 +1093,7 @@ class Guild extends SnowFlake {
 		}
 	}
 	setnotifcation() {
-		const options = ["all", "onlyMentions", "none"].map((e) => I18n.getTranslation("guild." + e));
+		const options = ["all", "onlyMentions", "none"].map((e) => I18n.getTranslation(`guild.${e}`));
 		const notiselect = new Dialog("");
 		const form = notiselect.options.addForm(
 			"",
@@ -1140,7 +1134,7 @@ class Guild extends SnowFlake {
 		full.show();
 	}
 	async leave() {
-		return fetch(this.info.api + "/users/@me/guilds/" + this.id, {
+		return fetch(`${this.info.api}/users/@me/guilds/${this.id}`, {
 			method: "DELETE",
 			headers: this.headers,
 		});
@@ -1148,9 +1142,9 @@ class Guild extends SnowFlake {
 	printServers() {
 		let build = "";
 		for (const thing of this.headchannels) {
-			build += thing.name + ":" + thing.position + "\n";
+			build += `${thing.name}:${thing.position}\n`;
 			for (const thingy of thing.children) {
-				build += "   " + thingy.name + ":" + thingy.position + "\n";
+				build += `   ${thingy.name}:${thingy.position}\n`;
 			}
 		}
 		console.log(build);
@@ -1197,14 +1191,14 @@ class Guild extends SnowFlake {
 		if (serverbug) {
 			for (const thing of build) {
 				console.log(build, thing);
-				fetch(this.info.api + "/guilds/" + this.id + "/channels", {
+				fetch(`${this.info.api}/guilds/${this.id}/channels`, {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify([thing]),
 				});
 			}
 		} else {
-			fetch(this.info.api + "/guilds/" + this.id + "/channels", {
+			fetch(`${this.info.api}/guilds/${this.id}/channels`, {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify(build),
@@ -1241,7 +1235,7 @@ class Guild extends SnowFlake {
 			icon = guild.icon;
 		}
 		if (icon !== null) {
-			const img = createImg(guild.info.cdn + "/icons/" + guild.id + "/" + icon + ".png");
+			const img = createImg(`${guild.info.cdn}/icons/${guild.id}/${icon}.png`);
 			img.classList.add("pfp", "servericon");
 			divy.appendChild(img);
 			if (guild instanceof Guild) {
@@ -1306,7 +1300,7 @@ class Guild extends SnowFlake {
 		full.show();
 	}
 	async delete() {
-		return fetch(this.info.api + "/guilds/" + this.id + "/delete", {
+		return fetch(`${this.info.api}/guilds/${this.id}/delete`, {
 			method: "POST",
 			headers: this.headers,
 		});
@@ -1328,7 +1322,7 @@ class Guild extends SnowFlake {
 			return;
 		}
 		let read = true;
-		let mentions = this.mentions;
+		const mentions = this.mentions;
 		for (const thing of this.channels) {
 			if (thing.hasunreads) {
 				read = false;
@@ -1338,7 +1332,7 @@ class Guild extends SnowFlake {
 		const noti = html.children[0];
 		if (mentions !== 0) {
 			noti.classList.add("pinged");
-			noti.textContent = "" + mentions;
+			noti.textContent = `${mentions}`;
 		} else {
 			noti.textContent = "";
 			noti.classList.remove("pinged");
@@ -1392,7 +1386,7 @@ class Guild extends SnowFlake {
 			}
 		}
 		this.unreads();
-		fetch(this.info.api + "/read-states/ack-bulk", {
+		fetch(`${this.info.api}/read-states/ack-bulk`, {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify(build),
@@ -1436,7 +1430,7 @@ class Guild extends SnowFlake {
 		if (this !== this.localuser.lookingguild) {
 			this.loadGuild();
 		}
-		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) {
+		if (this.localuser.channelfocus?.myhtml) {
 			this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
 		}
 		this.prevchannel = undefined;
@@ -1452,7 +1446,7 @@ class Guild extends SnowFlake {
 	}
 	noChannel(addstate: boolean) {
 		if (addstate) {
-			history.pushState([this.id, undefined], "", "/channels/" + this.id);
+			history.pushState([this.id, undefined], "", `/channels/${this.id}`);
 		}
 		this.localuser.pageTitle(I18n.getTranslation("guild.emptytitle"));
 		const channelTopic = document.getElementById("channelTopic") as HTMLSpanElement;
@@ -1505,7 +1499,7 @@ class Guild extends SnowFlake {
 		return thischannel;
 	}
 	goToChannelDelay(id: string) {
-		const channel = this.channels.find((_) => _.id == id);
+		const channel = this.channels.find((_) => _.id === id);
 		if (channel) {
 			this.loadChannel(channel.id);
 		} else {
@@ -1514,7 +1508,7 @@ class Guild extends SnowFlake {
 	}
 	createchannels(func = this.createChannel.bind(this)) {
 		const options = ["text", "announcement", "voice"].map((e) =>
-			I18n.getTranslation("channel." + e),
+			I18n.getTranslation(`channel.${e}`),
 		);
 
 		const channelselect = new Dialog("");
@@ -1574,7 +1568,7 @@ class Guild extends SnowFlake {
 		this.printServers();
 	}
 	createChannel(name: string, type: number) {
-		fetch(this.info.api + "/guilds/" + this.id + "/channels", {
+		fetch(`${this.info.api}/guilds/${this.id}/channels`, {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({name, type}),
@@ -1583,7 +1577,7 @@ class Guild extends SnowFlake {
 			.then((_) => this.goToChannelDelay(_.id));
 	}
 	async createRole(name: string) {
-		const fetched = await fetch(this.info.api + "/guilds/" + this.id + "roles", {
+		const fetched = await fetch(`${this.info.api}/guilds/${this.id}roles`, {
 			method: "POST",
 			headers: this.headers,
 			body: JSON.stringify({
@@ -1606,7 +1600,7 @@ class Guild extends SnowFlake {
 		role.permissions.allow = perms.allow;
 		role.permissions.deny = perms.deny;
 
-		await fetch(this.info.api + "/guilds/" + this.id + "/roles/" + role.id, {
+		await fetch(`${this.info.api}/guilds/${this.id}/roles/${role.id}`, {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify({

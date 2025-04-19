@@ -3,11 +3,11 @@ import {Contextmenu} from "./contextmenu.js";
 import {mobile} from "./utils/utils.js";
 import {setTheme} from "./utils/utils.js";
 import {MarkDown} from "./markdown.js";
-import {Message} from "./message.js";
+import type {Message} from "./message.js";
 import {File} from "./file.js";
 import {I18n} from "./i18n.js";
 (async () => {
-	let templateID = new URLSearchParams(window.location.search).get("templateID");
+	const templateID = new URLSearchParams(window.location.search).get("templateID");
 	await I18n.done;
 
 	if (!Localuser.users.currentuser) {
@@ -166,11 +166,11 @@ import {I18n} from "./i18n.js";
 				setTimeout(() => (searchBox.innerHTML = ""), 0);
 				searchX.classList.add("svg-search");
 				searchX.classList.remove("svg-plainx");
-				searchBox.parentElement!.classList.remove("searching");
+				searchBox.parentElement?.classList.remove("searching");
 			} else {
 				searchX.classList.remove("svg-search");
 				searchX.classList.add("svg-plainx");
-				searchBox.parentElement!.classList.add("searching");
+				searchBox.parentElement?.classList.add("searching");
 			}
 		});
 		const sideContainDiv = document.getElementById("sideContainDiv") as HTMLElement;
@@ -182,11 +182,11 @@ import {I18n} from "./i18n.js";
 				markdown.txt = [];
 				searchBox.innerHTML = "";
 				searchX.classList.add("svg-search");
-				searchBox.parentElement!.classList.remove("searching");
+				searchBox.parentElement?.classList.remove("searching");
 				searchX.classList.remove("svg-plainx");
 				thisUser.mSearch("");
 			} else {
-				searchBox.parentElement!.classList.add("searching");
+				searchBox.parentElement?.classList.add("searching");
 			}
 		};
 

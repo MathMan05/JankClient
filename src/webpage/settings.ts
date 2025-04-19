@@ -1,6 +1,6 @@
-import {Emoji} from "./emoji.js";
+import type {Emoji} from "./emoji.js";
 import {I18n} from "./i18n.js";
-import {Localuser} from "./localuser.js";
+import type {Localuser} from "./localuser.js";
 
 interface OptionsElement<x> {
 	//
@@ -169,7 +169,7 @@ class TextInput implements OptionsElement<string> {
 const mdProm = import("./markdown.js");
 class SettingsMDText implements OptionsElement<void> {
 	readonly onSubmit!: (str: string) => void;
-	value!: void;
+	value!: undefined;
 	text: string;
 	elm!: WeakRef<HTMLSpanElement>;
 	constructor(text: string) {
@@ -199,7 +199,7 @@ class SettingsMDText implements OptionsElement<void> {
 
 class SettingsText implements OptionsElement<void> {
 	readonly onSubmit!: (str: string) => void;
-	value!: void;
+	value!: undefined;
 	readonly text: string;
 	elm!: WeakRef<HTMLSpanElement>;
 	constructor(text: string) {
@@ -224,7 +224,7 @@ class SettingsText implements OptionsElement<void> {
 }
 class SettingsTitle implements OptionsElement<void> {
 	readonly onSubmit!: (str: string) => void;
-	value!: void;
+	value!: undefined;
 	readonly text: string;
 	constructor(text: string) {
 		this.text = text;
@@ -299,7 +299,7 @@ class ButtonInput implements OptionsElement<void> {
 	readonly owner: Options;
 	readonly onClick: () => void;
 	textContent: string;
-	value!: void;
+	value!: undefined;
 	constructor(label: string, textContent: string, onClick: () => void, owner: Options, {} = {}) {
 		this.label = label;
 		this.owner = owner;
@@ -670,7 +670,7 @@ class FileInput implements OptionsElement<FileList | null> {
 class HtmlArea implements OptionsElement<void> {
 	submit: () => void;
 	html: (() => HTMLElement) | HTMLElement;
-	value!: void;
+	value!: undefined;
 	constructor(html: (() => HTMLElement) | HTMLElement, submit: () => void) {
 		this.submit = submit;
 		this.html = html;
@@ -678,9 +678,8 @@ class HtmlArea implements OptionsElement<void> {
 	generateHTML(): HTMLElement {
 		if (this.html instanceof Function) {
 			return (this.html = this.html());
-		} else {
-			return this.html;
 		}
+			return this.html;
 	}
 	watchForChange() {}
 }
@@ -741,7 +740,7 @@ class Options implements OptionsElement<void> {
 	readonly options: OptionsElement<any>[];
 	readonly owner: Buttons | Options | Form | Float;
 	readonly ltr: boolean;
-	value!: void;
+	value!: undefined;
 	readonly html: WeakMap<OptionsElement<any>, WeakRef<HTMLDivElement>> = new WeakMap();
 	readonly noSubmit: boolean = false;
 	container: WeakRef<HTMLDivElement> = new WeakRef(document.createElement("div"));
@@ -1159,7 +1158,7 @@ class Form implements OptionsElement<object> {
 		this.values[key] = value;
 	}
 	addSubOptions(name: string, {ltr = false, noSubmit = false} = {}) {
-		if (this.button && this.button.deref()) {
+		if (this.button?.deref()) {
 			(this.button.deref() as HTMLElement).hidden = true;
 		}
 		return this.options.addSubOptions(name, {ltr, noSubmit});
@@ -1179,7 +1178,7 @@ class Form implements OptionsElement<object> {
 			traditionalSubmit = false,
 		} = {},
 	) {
-		if (this.button && this.button.deref()) {
+		if (this.button?.deref()) {
 			console.warn("hidden");
 			(this.button.deref() as HTMLElement).hidden = true;
 		}
@@ -1388,7 +1387,7 @@ class Form implements OptionsElement<object> {
 			if (input instanceof SelectInput) {
 				(build as any)[thing] = (this.selectMap.get(input) as string[])[input.value];
 				continue;
-			} else if (input instanceof FileInput) {
+			}if (input instanceof FileInput) {
 				const options = this.fileOptions.get(input);
 				if (!options) {
 					throw new Error(
@@ -1408,11 +1407,11 @@ class Form implements OptionsElement<object> {
 						});
 						promises.push(promise);
 						continue;
-					} else if (input.value === undefined) {
+					}if (input.value === undefined) {
 						continue;
 					}
 				} else {
-					console.error(options.files + " is not currently implemented");
+					console.error(`${options.files} is not currently implemented`);
 				}
 			} else if (input instanceof EmojiInput) {
 				if (!input.value) {
@@ -1510,7 +1509,7 @@ class Form implements OptionsElement<object> {
 			const elm = this.names.get(error);
 			if (elm) {
 				const ref = this.options.html.get(elm);
-				if (ref && ref.deref()) {
+				if (ref?.deref()) {
 					const html = ref.deref() as HTMLDivElement;
 					const errorMessage = errors.errors[error]._errors[0].message;
 					this.makeError(html, errorMessage);
@@ -1531,7 +1530,7 @@ class Form implements OptionsElement<object> {
 				}
 			}
 		} else {
-			console.warn(formElm + " is not a valid form property");
+			console.warn(`${formElm} is not a valid form property`);
 		}
 	}
 	makeError(e: HTMLDivElement, message: string) {
@@ -1551,7 +1550,6 @@ class Form implements OptionsElement<object> {
 	}
 }
 class HorrizonalRule implements OptionsElement<unknown> {
-	constructor() {}
 	generateHTML(): HTMLElement {
 		return document.createElement("hr");
 	}
@@ -1565,9 +1563,6 @@ class Settings extends Buttons {
 	static readonly Buttons = Buttons;
 	static readonly Options = Options;
 	html!: HTMLElement | null;
-	constructor(name: string) {
-		super(name);
-	}
 	addButton(name: string, {ltr = false} = {}): Options {
 		const options = new Options(name, this, {ltr});
 		this.add(name, options);
@@ -1612,4 +1607,4 @@ class Settings extends Buttons {
 	}
 }
 
-export {Settings, OptionsElement, Options, Form, Float};
+export {Settings, type OptionsElement, Options, Form, Float};

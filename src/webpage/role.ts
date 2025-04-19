@@ -1,12 +1,12 @@
 import {Permissions} from "./permissions.js";
-import {Localuser} from "./localuser.js";
-import {Guild} from "./guild.js";
+import type {Localuser} from "./localuser.js";
+import type {Guild} from "./guild.js";
 import {SnowFlake} from "./snowflake.js";
-import {rolesjson} from "./jsontypes.js";
+import type {rolesjson} from "./jsontypes.js";
 import {Search} from "./search.js";
-import {OptionsElement, Buttons} from "./settings.js";
+import {type OptionsElement, Buttons} from "./settings.js";
 import {Contextmenu} from "./contextmenu.js";
-import {Channel} from "./channel.js";
+import type {Channel} from "./channel.js";
 import {I18n} from "./i18n.js";
 
 class Role extends SnowFlake {
@@ -57,7 +57,7 @@ class Role extends SnowFlake {
 	}
 	canManage() {
 		if (this.guild.member.hasPermission("MANAGE_ROLES")) {
-			let max = -Infinity;
+			let max = Number.NEGATIVE_INFINITY;
 			this.guild.member.roles.forEach((r) => (max = Math.max(max, r.position)));
 			return this.position <= max || this.guild.properties.owner_id === this.guild.member.id;
 		}
@@ -219,7 +219,7 @@ class RoleList extends Buttons {
 					option.genTop();
 				},
 				{
-					fetchURL: this.info.api + "/guilds/" + this.guild.id + "/roles/" + this.curid,
+					fetchURL: `${this.info.api}/guilds/${this.guild.id}/roles/${this.curid}`,
 					method: "PATCH",
 					headers: this.headers,
 					traditionalSubmit: true,
@@ -234,12 +234,12 @@ class RoleList extends Buttons {
 			form.addCheckboxInput(I18n.getTranslation("role.mentionable"), "mentionable", {
 				initState: role.mentionable,
 			});
-			const color = "#" + role.color.toString(16).padStart(6, "0");
+			const color = `#${role.color.toString(16).padStart(6, "0")}`;
 			const colorI = form.addColorInput(I18n.getTranslation("role.color"), "color", {
 				initColor: color,
 			});
 			form.addPreprocessor((obj: any) => {
-				obj.color = Number("0x" + colorI.colorContent.substring(1));
+				obj.color = Number(`0x${colorI.colorContent.substring(1)}`);
 
 				console.log(obj.color);
 			});
@@ -254,7 +254,7 @@ class RoleList extends Buttons {
 			function (role) {
 				if (!this.channel) return;
 				console.log(role);
-				fetch(this.info.api + "/channels/" + this.channel.id + "/permissions/" + role.id, {
+				fetch(`${this.info.api}/channels/${this.channel.id}/permissions/${role.id}`, {
 					method: "DELETE",
 					headers: this.headers,
 				});
@@ -269,7 +269,7 @@ class RoleList extends Buttons {
 			function (role) {
 				if (!confirm(I18n.getTranslation("role.confirmDelete"))) return;
 				console.log(role);
-				fetch(this.info.api + "/guilds/" + this.guild.id + "/roles/" + role.id, {
+				fetch(`${this.info.api}/guilds/${this.guild.id}/roles/${role.id}`, {
 					method: "DELETE",
 					headers: this.headers,
 				});
@@ -343,7 +343,7 @@ class RoleList extends Buttons {
 			if (this.channel) {
 				const roles: [Role, string[]][] = [];
 				for (const role of this.guild.roles) {
-					if (this.permissions.find((r) => r[0] == role)) {
+					if (this.permissions.find((r) => r[0] === role)) {
 						continue;
 					}
 					roles.push([role, [role.name]]);
@@ -360,11 +360,11 @@ class RoleList extends Buttons {
 				const bar = document.createElement("input");
 				div.classList.add("fixedsearch", "OptionList");
 				bar.type = "text";
-				div.style.left = (box.left ^ 0) + "px";
-				div.style.top = (box.top ^ 0) + "px";
+				div.style.left = `${box.left ^ 0}px`;
+				div.style.top = `${box.top ^ 0}px`;
 				div.append(bar);
 				document.body.append(div);
-				if (Contextmenu.currentmenu != "") {
+				if (Contextmenu.currentmenu !== "") {
 					Contextmenu.currentmenu.remove();
 				}
 				Contextmenu.currentmenu = div;
@@ -373,7 +373,7 @@ class RoleList extends Buttons {
 					div.remove();
 					console.log(bar.value);
 					if (bar.value === "") return;
-					fetch(this.info.api + `/guilds/${this.guild.id}/roles`, {
+					fetch(`${this.info.api}/guilds/${this.guild.id}/roles`, {
 						method: "POST",
 						headers: this.headers,
 						body: JSON.stringify({

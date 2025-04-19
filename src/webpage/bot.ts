@@ -1,9 +1,9 @@
-import {mainuserjson} from "./jsontypes.js";
-import {Localuser} from "./localuser.js";
+import type {mainuserjson} from "./jsontypes.js";
+import type {Localuser} from "./localuser.js";
 import {MarkDown} from "./markdown.js";
-import {Form, Settings} from "./settings.js";
+import {type Form, Settings} from "./settings.js";
 import {User} from "./user.js";
-import {guildjson} from "./jsontypes.js";
+import type {guildjson} from "./jsontypes.js";
 import {PermissionToggle} from "./role.js";
 import {Permissions} from "./permissions.js";
 import {I18n} from "./i18n.js";
@@ -109,7 +109,7 @@ class Bot {
 						this.updateProfile({
 							pronouns: newpronouns,
 							bio: newbio,
-							accent_color: Number.parseInt("0x" + color.substr(1), 16),
+							accent_color: Number.parseInt(`0x${color.substr(1)}`, 16),
 						});
 					}
 				},
@@ -130,7 +130,7 @@ class Bot {
 			});
 
 			if (bot.accent_color) {
-				color = "#" + bot.accent_color.toString(16);
+				color = `#${bot.accent_color.toString(16)}`;
 			} else {
 				color = "transparent";
 			}
@@ -142,7 +142,7 @@ class Bot {
 			colorPicker.watchForChange((_) => {
 				console.log();
 				color = _;
-				hypouser.accent_color = Number.parseInt("0x" + _.substr(1), 16);
+				hypouser.accent_color = Number.parseInt(`0x${_.substr(1)}`, 16);
 				changed = true;
 				regen();
 			});
@@ -150,7 +150,7 @@ class Bot {
 		{
 			const guildsettings = settings.addButton("Guilds");
 			guildsettings.addTitle(I18n.getTranslation("botGuilds"));
-			fetch(this.info.api + "/users/@me/guilds/", {
+			fetch(`${this.info.api}/users/@me/guilds/`, {
 				headers: this.headers,
 			})
 				.then((_) => _.json())
@@ -164,7 +164,7 @@ class Bot {
 							banner.classList.add("banner");
 							banner.crossOrigin = "anonymous";
 							banner.src =
-								this.info.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256";
+								`${this.info.cdn}/icons/${guild.id}/${guild.banner}.png?size=256`;
 							banner.alt = "";
 							content.appendChild(banner);
 						}
@@ -177,7 +177,7 @@ class Bot {
 						img.src =
 							this.info.cdn +
 							(guild.icon
-								? "/icons/" + guild.id + "/" + guild.icon + ".png?size=48"
+								? `/icons/${guild.id}/${guild.icon}.png?size=48`
 								: "/embed/avatars/3.png");
 						img.alt = "";
 						nameContainer.appendChild(img);
@@ -196,7 +196,7 @@ class Bot {
 							guildsetting.addHTMLArea(content);
 							guildsetting.addButtonInput("", I18n.getTranslation("leaveGuild"), () => {
 								if (confirm(I18n.getTranslation("confirmGuildLeave", guild.name))) {
-									fetch(this.info.api + "/users/@me/guilds/" + guild.id, {
+									fetch(`${this.info.api}/users/@me/guilds/${guild.id}`, {
 										method: "DELETE",
 										headers: this.headers,
 									});
@@ -213,7 +213,7 @@ class Bot {
 		const reader = new FileReader();
 		reader.readAsDataURL(file);
 		reader.onload = () => {
-			fetch(this.info.api + "/users/@me", {
+			fetch(`${this.info.api}/users/@me`, {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -227,7 +227,7 @@ class Bot {
 			const reader = new FileReader();
 			reader.readAsDataURL(file);
 			reader.onload = () => {
-				fetch(this.info.api + "/users/@me", {
+				fetch(`${this.info.api}/users/@me`, {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify({
@@ -236,7 +236,7 @@ class Bot {
 				});
 			};
 		} else {
-			fetch(this.info.api + "/users/@me", {
+			fetch(`${this.info.api}/users/@me`, {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -246,7 +246,7 @@ class Bot {
 		}
 	}
 	updateProfile(json: {bio?: string; pronouns?: string; accent_color?: number}) {
-		fetch(this.info.api + "/users/@me/profile", {
+		fetch(`${this.info.api}/users/@me/profile`, {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(json),
@@ -274,7 +274,7 @@ class Bot {
 			params.set("permissions", perms.allow.toString());
 			const encoded = params.toString();
 			const urlStr = `${location.origin}/oauth2/authorize?${encoded}`;
-			if (urlStr == url.elm.deref()?.textContent) return;
+			if (urlStr === url.elm.deref()?.textContent) return;
 			console.log(urlStr, url.text);
 			url.setText(urlStr);
 		}, 100);

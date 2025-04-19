@@ -1,7 +1,7 @@
-import {Message} from "./message.js";
+import type {Message} from "./message.js";
 import {MarkDown} from "./markdown.js";
-import {embedjson, invitejson} from "./jsontypes.js";
-import {createImg, getapiurls, getBulkUsers, getInstances, Specialuser} from "./utils/utils.js";
+import type {embedjson, invitejson} from "./jsontypes.js";
+import {createImg, getapiurls, getBulkUsers, getInstances, type Specialuser} from "./utils/utils.js";
 import {Guild} from "./guild.js";
 import {I18n} from "./i18n.js";
 import {ImagesDisplay} from "./disimg.js";
@@ -85,7 +85,7 @@ class Embed {
 	generateRich() {
 		const div = document.createElement("div");
 		if (this.json.color) {
-			div.style.backgroundColor = "#" + this.json.color.toString(16);
+			div.style.backgroundColor = `#${this.json.color.toString(16)}`;
 		}
 		div.classList.add("embed-color");
 
@@ -196,8 +196,8 @@ class Embed {
 			this.json.thumbnail.width /= scale;
 			this.json.thumbnail.height /= scale;
 		}
-		img.style.width = this.json.thumbnail.width + "px";
-		img.style.height = this.json.thumbnail.height + "px";
+		img.style.width = `${this.json.thumbnail.width}px`;
+		img.style.height = `${this.json.thumbnail.height}px`;
 		console.log(this.json, "Image fix");
 		return img;
 	}
@@ -219,7 +219,7 @@ class Embed {
 			const img = document.createElement("img");
 			if (this.json.thumbnail) {
 				img.classList.add("embedimg");
-				img.onclick = function () {
+				img.onclick = () => {
 					const full = new ImagesDisplay([
 						new File({id: "", filename: "", url: img.src, size: -1, content_type: "image/"}, null),
 					]);
@@ -266,7 +266,7 @@ class Embed {
 					return;
 				}
 				info = tempinfo;
-				const res = await fetch(info.api + "/invites/" + json1.code);
+				const res = await fetch(`${info.api}/invites/${json1.code}`);
 				if (!res.ok) {
 					div.classList.remove("embed", "inviteEmbed", "flexttb");
 					div.append(this.generateLink());
@@ -285,7 +285,7 @@ class Embed {
 			if (json.guild.banner) {
 				const banner = document.createElement("img");
 				banner.src =
-					info.cdn + "/icons/" + json.guild.id + "/" + json.guild.banner + ".png?size=256";
+					`${info.cdn}/icons/${json.guild.id}/${json.guild.banner}.png?size=256`;
 				banner.classList.add("banner");
 				div.append(banner);
 			}
@@ -303,7 +303,7 @@ class Embed {
 				guildinfo.append(name);
 
 				const members = document.createElement("span");
-				members.innerText = "#" + json.channel.name + " • Members: " + guild.member_count;
+				members.innerText = `#${json.channel.name} • Members: ${guild.member_count}`;
 				guildinfo.append(members);
 				members.classList.add("subtext");
 				iconrow.append(guildinfo);
@@ -323,7 +323,7 @@ class Embed {
 			div.append(button);
 			button.onclick = (_) => {
 				if (this.localuser.info.api.startsWith(info.api)) {
-					fetch(this.localuser.info.api + "/invites/" + json.code, {
+					fetch(`${this.localuser.info.api}/invites/${json.code}`, {
 						method: "POST",
 						headers: this.localuser.headers,
 					})
@@ -379,8 +379,8 @@ class Embed {
 				scale = Math.max(scale, this.json.thumbnail.height / inch / 3);
 				this.json.thumbnail.width /= scale;
 				this.json.thumbnail.height /= scale;
-				img.style.width = this.json.thumbnail.width + "px";
-				img.style.height = this.json.thumbnail.height + "px";
+				img.style.width = `${this.json.thumbnail.width}px`;
+				img.style.height = `${this.json.thumbnail.height}px`;
 			}
 			img.classList.add("bigembedimg");
 			if (this.json.video) {
@@ -388,10 +388,10 @@ class Embed {
 					if (this.json.video) {
 						img.remove();
 						const iframe = document.createElement("iframe");
-						iframe.src = this.json.video.url + "?autoplay=1";
+						iframe.src = `${this.json.video.url}?autoplay=1`;
 						if (this.json.thumbnail.width && this.json.thumbnail.height) {
-							iframe.style.width = this.json.thumbnail.width + "px";
-							iframe.style.height = this.json.thumbnail.height + "px";
+							iframe.style.width = `${this.json.thumbnail.width}px`;
+							iframe.style.height = `${this.json.thumbnail.height}px`;
 						}
 						div.append(iframe);
 					}

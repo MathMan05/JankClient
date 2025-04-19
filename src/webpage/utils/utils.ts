@@ -1,5 +1,5 @@
-import {I18n} from "../i18n.js";
-import {Dialog} from "../settings.js";
+import { I18n } from "../i18n.js";
+import { Dialog } from "../settings.js";
 setTheme();
 export function setTheme() {
 	let name = localStorage.getItem("theme");
@@ -7,7 +7,7 @@ export function setTheme() {
 		localStorage.setItem("theme", "Dark");
 		name = "Dark";
 	}
-	document.body.className = name + "-theme";
+	document.body.className = `${name}-theme`;
 }
 export function getBulkUsers() {
 	const json = getBulkInfo();
@@ -42,7 +42,10 @@ export function setDefaults() {
 	if (userinfos.accent_color === undefined) {
 		userinfos.accent_color = "#3096f7";
 	}
-	document.documentElement.style.setProperty("--accent-color", userinfos.accent_color);
+	document.documentElement.style.setProperty(
+		"--accent-color",
+		userinfos.accent_color,
+	);
 	if (userinfos.preferences === undefined) {
 		userinfos.preferences = {
 			theme: "Dark",
@@ -75,19 +78,29 @@ export class Specialuser {
 		}
 		this.serverurls = json.serverurls;
 		let apistring = new URL(json.serverurls.api).toString();
-		apistring = apistring.replace(/\/(v\d+\/?)?$/, "") + "/v9";
+		apistring = `${apistring.replace(/\/(v\d+\/?)?$/, "")}/v9`;
 		this.serverurls.api = apistring;
-		this.serverurls.cdn = new URL(json.serverurls.cdn).toString().replace(/\/$/, "");
-		this.serverurls.gateway = new URL(json.serverurls.gateway).toString().replace(/\/$/, "");
-		this.serverurls.wellknown = new URL(json.serverurls.wellknown).toString().replace(/\/$/, "");
-		this.serverurls.login = new URL(json.serverurls.login).toString().replace(/\/$/, "");
+		this.serverurls.cdn = new URL(json.serverurls.cdn)
+			.toString()
+			.replace(/\/$/, "");
+		this.serverurls.gateway = new URL(json.serverurls.gateway)
+			.toString()
+			.replace(/\/$/, "");
+		this.serverurls.wellknown = new URL(json.serverurls.wellknown)
+			.toString()
+			.replace(/\/$/, "");
+		this.serverurls.login = new URL(json.serverurls.login)
+			.toString()
+			.replace(/\/$/, "");
 		this.email = json.email;
 		this.token = json.token;
 		this.loggedin = json.loggedin;
 		this.json = json;
 		this.json.localuserStore ??= {};
 		if (!this.serverurls || !this.email || !this.token) {
-			console.error("There are fundamentally missing pieces of info missing from this user");
+			console.error(
+				"There are fundamentally missing pieces of info missing from this user",
+			);
 		}
 	}
 	remove() {
@@ -208,7 +221,7 @@ class Directory {
 	}
 	async getString(name: string): Promise<string | undefined> {
 		try {
-			return await (await this.getRawFile(name))!.text();
+			return await (await this.getRawFile(name))?.text();
 		} catch {
 			return undefined;
 		}
@@ -234,29 +247,30 @@ class Directory {
 		});
 	}
 	async setString(name: string, value: string): Promise<boolean> {
-		const file = await this.handle.getFileHandle(name, {create: true});
+		const file = await this.handle.getFileHandle(name, { create: true });
 		const contents = new TextEncoder().encode(value);
 
 		if (file.createWritable as unknown) {
-			const stream = await file.createWritable({keepExistingData: false});
+			const stream = await file.createWritable({ keepExistingData: false });
 			await stream.write(contents);
 			await stream.close();
 			return true;
-		} else {
+		}
 			//Curse you webkit!
 			return await this.setStringWorker(file, contents.buffer as ArrayBuffer);
-		}
 	}
 	async getDir(name: string) {
-		return new Directory(await this.handle.getDirectoryHandle(name, {create: true}));
+		return new Directory(
+			await this.handle.getDirectoryHandle(name, { create: true }),
+		);
 	}
 }
 
-export {Directory};
+export { Directory };
 
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-export {mobile, iOS};
+export { mobile, iOS };
 let instances:
 	| {
 			name: string;
@@ -266,7 +280,7 @@ let instances:
 			url?: string;
 			display?: boolean;
 			online?: boolean;
-			uptime: {alltime: number; daytime: number; weektime: number};
+			uptime: { alltime: number; daytime: number; weektime: number };
 			urls: {
 				wellknown: string;
 				api: string;
@@ -290,7 +304,7 @@ const instancefetch = fetch("/instances.json")
 				url?: string;
 				display?: boolean;
 				online?: boolean;
-				uptime: {alltime: number; daytime: number; weektime: number};
+				uptime: { alltime: number; daytime: number; weektime: number };
 				urls: {
 					wellknown: string;
 					api: string;
@@ -304,7 +318,9 @@ const instancefetch = fetch("/instances.json")
 			instances = json;
 			if (datalist) {
 				console.warn(json);
-				const instancein = document.getElementById("instancein") as HTMLInputElement;
+				const instancein = document.getElementById(
+					"instancein",
+				) as HTMLInputElement;
 				if (
 					instancein &&
 					instancein.value === "" &&
@@ -390,7 +406,9 @@ export async function getapiurls(str: string): Promise<
 		} else {
 			const val = stringURLsMap.get(str);
 			if (val) {
-				const responce = await fetch(val.api + (val.api.endsWith("/") ? "" : "/") + "ping");
+				const responce = await fetch(
+					`${val.api + (val.api.endsWith("/") ? "" : "/")}ping`,
+				);
 				if (responce.ok) {
 					if (val.login) {
 						return val as {
@@ -400,7 +418,7 @@ export async function getapiurls(str: string): Promise<
 							gateway: string;
 							login: string;
 						};
-					} else {
+					}
 						val.login = val.api;
 						return val as {
 							wellknown: string;
@@ -409,7 +427,6 @@ export async function getapiurls(str: string): Promise<
 							gateway: string;
 							login: string;
 						};
-					}
 				}
 			}
 		}
@@ -419,7 +436,9 @@ export async function getapiurls(str: string): Promise<
 	}
 	let api: string;
 	try {
-		const info = await fetch(`${str}.well-known/spacebar`).then((x) => x.json());
+		const info = await fetch(`${str}.well-known/spacebar`).then((x) =>
+			x.json(),
+		);
 		api = info.api;
 	} catch {
 		api = str;
@@ -455,7 +474,9 @@ export async function getapiurls(str: string): Promise<
 	} catch {
 		const val = stringURLsMap.get(str);
 		if (val) {
-			const responce = await fetch(val.api + (val.api.endsWith("/") ? "" : "/") + "ping");
+			const responce = await fetch(
+				`${val.api + (val.api.endsWith("/") ? "" : "/")}ping`,
+			);
 			if (responce.ok) {
 				if (val.login) {
 					urls = val as {
@@ -493,7 +514,7 @@ export async function getapiurls(str: string): Promise<
 				const menu = new Dialog("");
 				const options = menu.float.options;
 				options.addMDText(I18n.incorrectURLS());
-				const opt = options.addOptions("", {ltr: true});
+				const opt = options.addOptions("", { ltr: true });
 				let clicked = false;
 				opt.addButtonInput("", I18n.yes(), async () => {
 					if (clicked) return;
@@ -516,7 +537,8 @@ export async function getapiurls(str: string): Promise<
 					tempurls.api.protocol = protical;
 
 					tempurls.gateway.host = newOrgin;
-					tempurls.gateway.protocol = temp.protocol === "http:" ? "ws:" : "wss:";
+					tempurls.gateway.protocol =
+						temp.protocol === "http:" ? "ws:" : "wss:";
 
 					tempurls.wellknown.host = newOrgin;
 					tempurls.wellknown.protocol = protical;
@@ -525,7 +547,7 @@ export async function getapiurls(str: string): Promise<
 					tempurls.login.protocol = protical;
 
 					try {
-						if (!(await fetch(tempurls.api + "/ping")).ok) {
+						if (!(await fetch(`${tempurls.api}/ping`)).ok) {
 							res(false);
 							menu.hide();
 							return;
@@ -548,7 +570,7 @@ export async function getapiurls(str: string): Promise<
 					if (clicked) return;
 					clicked = true;
 					try {
-						if (!(await fetch(urls.api + "/ping")).ok) {
+						if (!(await fetch(`${urls.api}/ping`)).ok) {
 							res(false);
 							menu.hide();
 							return;
@@ -573,7 +595,7 @@ export async function getapiurls(str: string): Promise<
 		}
 		//*/
 		try {
-			if (!(await fetch(urls.api + "/ping")).ok) {
+			if (!(await fetch(`${urls.api}/ping`)).ok) {
 				return false;
 			}
 		} catch {
@@ -589,11 +611,14 @@ function isAnimated(src: string) {
 const staticImgMap = new Map<string, string | Promise<string>>();
 export function createImg(
 	src: string | undefined,
-	staticsrc: string | void,
-	elm: HTMLElement | void,
+	staticsrc: string | undefined,
+	elm: HTMLElement | undefined,
 ) {
 	const settings =
-		localStorage.getItem("gifSetting") || ("hover" as "hover") || "always" || "never";
+		localStorage.getItem("gifSetting") ||
+		("hover" as const) ||
+		"always" ||
+		"never";
 	const img = document.createElement("img");
 	elm ||= img;
 	if (src && isAnimated(src)) {
@@ -603,7 +628,7 @@ export function createImg(
 		if (settings === "always") return;
 		if (!src) return;
 		if (isAnimated(src) && !staticsrc) {
-			let s = staticImgMap.get(src);
+			const s = staticImgMap.get(src);
 			if (s) {
 				staticsrc = await s;
 			} else {
@@ -636,7 +661,7 @@ export function createImg(
 	};
 	img.src = settings !== "always" ? staticsrc || src || "" : src || "";
 	return Object.assign(img, {
-		setSrcs: (nsrc: string, nstaticsrc: string | void) => {
+		setSrcs: (nsrc: string, nstaticsrc: string | undefined) => {
 			src = nsrc;
 			staticsrc = nstaticsrc;
 			if (src && isAnimated(src)) {
@@ -653,7 +678,7 @@ export function createImg(
  * the alt property is something you may fire on success.
  */
 const checkInstance = Object.assign(
-	async function (instance: string) {
+	async (instance: string) => {
 		await instancefetch;
 		const verify = document.getElementById("verify");
 		const loginButton = (document.getElementById("loginButton") ||
@@ -680,7 +705,7 @@ const checkInstance = Object.assign(
 					checkInstance.alt(instanceinfo);
 				}
 				setTimeout((_: any) => {
-					console.log(verify!.textContent);
+					console.log(verify?.textContent);
 					verify!.textContent = "";
 				}, 3000);
 			} else {
@@ -704,7 +729,7 @@ const checkInstance = Object.assign(
 		}) => void;
 	},
 );
-export {checkInstance};
+export { checkInstance };
 export function getInstances() {
 	return instances;
 }
@@ -712,18 +737,18 @@ export class SW {
 	static worker: undefined | ServiceWorker;
 	static setMode(mode: "false" | "offlineOnly" | "true") {
 		localStorage.setItem("SWMode", mode);
-		if (this.worker) {
-			this.worker.postMessage({data: mode, code: "setMode"});
+		if (SW.worker) {
+			SW.worker.postMessage({ data: mode, code: "setMode" });
 		}
 	}
 	static checkUpdate() {
-		if (this.worker) {
-			this.worker.postMessage({code: "CheckUpdate"});
+		if (SW.worker) {
+			SW.worker.postMessage({ code: "CheckUpdate" });
 		}
 	}
 	static forceClear() {
-		if (this.worker) {
-			this.worker.postMessage({code: "ForceClear"});
+		if (SW.worker) {
+			SW.worker.postMessage({ code: "ForceClear" });
 		}
 	}
 }
@@ -746,7 +771,9 @@ if ("serviceWorker" in navigator) {
 				console.log("active");
 			}
 			SW.worker = serviceWorker;
-			SW.setMode(localStorage.getItem("SWMode") as "false" | "offlineOnly" | "true");
+			SW.setMode(
+				localStorage.getItem("SWMode") as "false" | "offlineOnly" | "true",
+			);
 			if (serviceWorker) {
 				console.log(serviceWorker.state);
 				serviceWorker.addEventListener("statechange", (_) => {

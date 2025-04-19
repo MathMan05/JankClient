@@ -1,18 +1,23 @@
-import {BinRead} from "../utils/binaryUtils.js";
+import type { BinRead } from "../utils/binaryUtils.js";
 
 class AVoice {
 	audioCtx: AudioContext;
-	info: {wave: string | Function; freq: number};
+	info: { wave: string | Function; freq: number };
 	playing: boolean;
 	myArrayBuffer: AudioBuffer;
 	gainNode: GainNode;
 	buffer: Float32Array;
 	source: AudioBufferSourceNode;
 	length = 1;
-	constructor(wave: string | Function, freq: number, volume = 1, length = 1000) {
+	constructor(
+		wave: string | Function,
+		freq: number,
+		volume = 1,
+		length = 1000,
+	) {
 		this.length = length;
 		this.audioCtx = new window.AudioContext();
-		this.info = {wave, freq};
+		this.info = { wave, freq };
 		this.playing = false;
 		this.myArrayBuffer = this.audioCtx.createBuffer(
 			1,
@@ -195,7 +200,7 @@ class AVoice {
 		let length = read.readFloat32();
 		let special: Function | string;
 		if (length !== 0) {
-			special = this.parseExpression(read);
+			special = AVoice.parseExpression(read);
 		} else {
 			special = name;
 			length = 1;
@@ -203,43 +208,43 @@ class AVoice {
 		return [new AVoice(special, 0, 0, length), name];
 	}
 	static parseExpression(read: BinRead): Function {
-		return new Function("t", "f", `return ${this.PEHelper(read)};`);
+		return new Function("t", "f", `return ${AVoice.PEHelper(read)};`);
 	}
 	static PEHelper(read: BinRead): string {
-		let state = read.read8();
+		const state = read.read8();
 		switch (state) {
 			case 0:
-				return "" + read.readFloat32();
+				return `${read.readFloat32()}`;
 			case 1:
 				return "t";
 			case 2:
 				return "f";
 			case 3:
-				return `Math.PI`;
+				return "Math.PI";
 			case 4:
-				return `Math.sin(${this.PEHelper(read)})`;
+				return `Math.sin(${AVoice.PEHelper(read)})`;
 			case 5:
-				return `(${this.PEHelper(read)}*${this.PEHelper(read)})`;
+				return `(${AVoice.PEHelper(read)}*${AVoice.PEHelper(read)})`;
 			case 6:
-				return `(${this.PEHelper(read)}+${this.PEHelper(read)})`;
+				return `(${AVoice.PEHelper(read)}+${AVoice.PEHelper(read)})`;
 			case 7:
-				return `(${this.PEHelper(read)}/${this.PEHelper(read)})`;
+				return `(${AVoice.PEHelper(read)}/${AVoice.PEHelper(read)})`;
 			case 8:
-				return `(${this.PEHelper(read)}-${this.PEHelper(read)})`;
+				return `(${AVoice.PEHelper(read)}-${AVoice.PEHelper(read)})`;
 			case 9:
-				return `(${this.PEHelper(read)}**${this.PEHelper(read)})`;
+				return `(${AVoice.PEHelper(read)}**${AVoice.PEHelper(read)})`;
 			case 10:
-				return `(${this.PEHelper(read)}%${this.PEHelper(read)})`;
+				return `(${AVoice.PEHelper(read)}%${AVoice.PEHelper(read)})`;
 			case 11:
-				return `Math.abs(${this.PEHelper(read)})`;
+				return `Math.abs(${AVoice.PEHelper(read)})`;
 			case 12:
-				return `Math.round(${this.PEHelper(read)})`;
+				return `Math.round(${AVoice.PEHelper(read)})`;
 			case 13:
-				return `Math.cos(${this.PEHelper(read)})`;
+				return `Math.cos(${AVoice.PEHelper(read)})`;
 			default:
 				throw new Error("unexpected case found!");
 		}
 	}
 }
 
-export {AVoice as AVoice};
+export { AVoice };

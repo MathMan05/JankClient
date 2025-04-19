@@ -1,8 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
-import {getApiUrls} from "./utils.js";
-import {fileURLToPath} from "node:url";
-import {setTimeout, clearTimeout} from "node:timers";
+import { getApiUrls } from "./utils.js";
+import { fileURLToPath } from "node:url";
+import { setTimeout, clearTimeout } from "node:timers";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -14,7 +14,7 @@ interface UptimeEntry {
 
 interface Instance {
 	name: string;
-	urls?: {api: string};
+	urls?: { api: string };
 	url?: string;
 	online?: boolean;
 	uptime?: {
@@ -25,7 +25,7 @@ interface Instance {
 }
 
 const uptimeObject: Map<string, UptimeEntry[]> = loadUptimeObject();
-export {uptimeObject as uptime};
+export { uptimeObject as uptime };
 
 function loadUptimeObject(): Map<string, UptimeEntry[]> {
 	const filePath = process.env.JANK_UPTIME_JSON_PATH || path.join(__dirname, "..", "uptime.json");
@@ -121,7 +121,7 @@ function scheduleHealthCheck(instance: Instance, api: string): void {
 
 async function checkHealth(instance: Instance, api: string, tries = 0): Promise<void> {
 	try {
-		const response = await fetch(`${api}/ping`, {method: "HEAD"});
+		const response = await fetch(`${api}/ping`, { method: "HEAD" });
 		console.log(`Checking health for ${instance.name}: ${response.status}`);
 		if (response.ok || tries > 3) {
 			setStatus(instance, response.ok);
@@ -195,28 +195,31 @@ function calculateUptimeStats(
 	daytime: number,
 	weektime: number,
 	online: boolean,
-): {daytime: number; weektime: number; alltime: number} {
+): { daytime: number; weektime: number; alltime: number } {
 	const dayInMs = 1000 * 60 * 60 * 24;
 	const weekInMs = dayInMs * 7;
 
-	alltime /= totalTimePassed;
+	const alltimeRatio = alltime / totalTimePassed;
+
+	let daytimeResult = daytime;
+	let weektimeResult = weektime;
 
 	if (totalTimePassed > dayInMs) {
-		daytime = daytime || (online ? dayInMs : 0);
-		daytime /= dayInMs;
+		daytimeResult = daytimeResult || (online ? dayInMs : 0);
+		daytimeResult /= dayInMs;
 
 		if (totalTimePassed > weekInMs) {
-			weektime = weektime || (online ? weekInMs : 0);
-			weektime /= weekInMs;
+			weektimeResult = weektimeResult || (online ? weekInMs : 0);
+			weektimeResult /= weekInMs;
 		} else {
-			weektime = alltime;
+			weektimeResult = alltimeRatio;
 		}
 	} else {
-		weektime = alltime;
-		daytime = alltime;
+		weektimeResult = alltimeRatio;
+		daytimeResult = alltimeRatio;
 	}
 
-	return {daytime, weektime, alltime};
+	return { daytime: daytimeResult, weektime: weektimeResult, alltime: alltimeRatio };
 }
 
 function setStatus(instance: string | Instance, status: boolean): void {
@@ -230,7 +233,7 @@ function setStatus(instance: string | Instance, status: boolean): void {
 
 	const lastEntry = obj.at(-1);
 	if (!lastEntry || lastEntry.online !== status) {
-		obj.push({time: Date.now(), online: status});
+		obj.push({ time: Date.now(), online: status });
 		saveUptimeObject();
 
 		if (typeof instance !== "string") {

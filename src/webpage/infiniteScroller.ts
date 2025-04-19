@@ -243,7 +243,7 @@ class InfiniteScroller {
 	}
 
 	async watchForChange(stop = false): Promise<boolean> {
-		if (stop == true) {
+		if (stop === true) {
 			let prom = this.changePromise;
 			while (this.changePromise) {
 				prom = this.changePromise;
@@ -257,9 +257,8 @@ class InfiniteScroller {
 		if (this.changePromise) {
 			this.watchtime = true;
 			return await this.changePromise;
-		} else {
-			this.watchtime = false;
 		}
+			this.watchtime = false;
 
 		this.changePromise = new Promise<boolean>(async (res) => {
 			//debugger;

@@ -33,7 +33,7 @@ menu.addButton(
 		{
 			const mins = Math.floor((await this.length) / 60000);
 			const seconds = Math.round(((await this.length) - mins * 60000) / 1000);
-			options.addText(I18n.media.length(mins + "", seconds + ""));
+			options.addText(I18n.media.length(`${mins}`, `${seconds}`));
 		}
 
 		di.show();
@@ -92,7 +92,7 @@ function makePlayBox(mor: string | media, player: MediaPlayer, ctime = 0) {
 	const bar = document.createElement("input");
 	bar.type = "range";
 	bar.disabled = true;
-	bar.value = "" + ctime;
+	bar.value = `${ctime}`;
 	bar.min = "0";
 
 	const time = document.createElement("span");
@@ -158,21 +158,21 @@ function makePlayBox(mor: string | media, player: MediaPlayer, ctime = 0) {
 		function followUpdates(cur: mediaEvents) {
 			if (audio && cur.type !== "playing") {
 			}
-			if (cur.type == "audio" && audio) {
-				if (cur.t == "start") {
+			if (cur.type === "audio" && audio) {
+				if (cur.t === "start") {
 					audio.play();
-				} else if (cur.t == "stop") {
+				} else if (cur.t === "stop") {
 					audio.pause();
-				} else if (cur.t == "skip" && audio) {
+				} else if (cur.t === "skip" && audio) {
 					audio.currentTime = cur.time / 1000;
 				}
 			}
-			if (cur.type == "audio" && cur.t == "skip") {
-				bar.value = "" + cur.time / 1000;
+			if (cur.type === "audio" && cur.t === "skip") {
+				bar.value = `${cur.time / 1000}`;
 			}
-			if (cur.type == "playing") {
+			if (cur.type === "playing") {
 				regenTime(cur.time);
-				bar.value = "" + cur.time / 1000;
+				bar.value = `${cur.time / 1000}`;
 				button.classList.add("svg-pause");
 				button.classList.remove("svg-play");
 			} else if (cur.type === "play") {
@@ -208,7 +208,7 @@ function makePlayBox(mor: string | media, player: MediaPlayer, ctime = 0) {
 		}
 		function timeToString(time: number) {
 			const minutes = Math.floor(time / 1000 / 60);
-			const seconds = Math.round(time / 1000 - minutes * 60) + "";
+			const seconds = `${Math.round(time / 1000 - minutes * 60)}`;
 			return `${minutes}:${seconds.padStart(2, "0")}`;
 		}
 		bar.oninput = () => {
@@ -219,10 +219,10 @@ function makePlayBox(mor: string | media, player: MediaPlayer, ctime = 0) {
 			});
 			regenTime(+bar.value * 1000);
 		};
-		async function regenTime(curTime: number = 0) {
+		async function regenTime(curTime = 0) {
 			const len = await med.length;
 			bar.disabled = false;
-			bar.max = "" + len / 1000;
+			bar.max = `${len / 1000}`;
 
 			time.textContent = `${timeToString(curTime)}/${timeToString(len)}`;
 		}
@@ -307,12 +307,12 @@ class MediaPlayer {
 		if (url instanceof Object) {
 			return url;
 		}
-		const cValue = this.cache.get(url);
+		const cValue = MediaPlayer.cache.get(url);
 		if (cValue) {
 			return cValue;
 		}
 		let resMedio = (_: media) => {};
-		this.cache.set(url, new Promise<media>((res) => (resMedio = res)));
+		MediaPlayer.cache.set(url, new Promise<media>((res) => (resMedio = res)));
 		const prog = new ProgressiveArray(url, {method: "get"});
 		await prog.ready;
 
@@ -454,7 +454,7 @@ class MediaPlayer {
 						let i = 1; //skipping info I don't need right now
 						for (; pic[i]; i++) {}
 						i += 2;
-						let desc: number[] = [];
+						const desc: number[] = [];
 						for (; pic[i]; i++) {
 							desc.push(pic[i]);
 						}
@@ -524,4 +524,4 @@ class MediaPlayer {
 		return output as media;
 	}
 }
-export {MediaPlayer, media, makePlayBox};
+export {MediaPlayer, type media, makePlayBox};

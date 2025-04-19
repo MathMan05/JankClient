@@ -21,7 +21,7 @@ class Hover {
 			clearTimeout(timeOut);
 			elm2.remove();
 		});
-		new MutationObserver(function (e) {
+		new MutationObserver((e) => {
 			if (e[0].removedNodes) {
 				clearTimeout(timeOut);
 				elm2.remove();
@@ -45,8 +45,8 @@ class Hover {
 			div.innerText = this.str;
 		}
 		const box = elm.getBoundingClientRect();
-		div.style.top = box.bottom + 4 + "px";
-		div.style.left = Math.floor(box.left + box.width / 2) + "px";
+		div.style.top = `${box.bottom + 4}px`;
+		div.style.left = `${Math.floor(box.left + box.width / 2)}px`;
 		div.classList.add("hoverthing");
 		document.body.append(div);
 		Contextmenu.keepOnScreen(div);

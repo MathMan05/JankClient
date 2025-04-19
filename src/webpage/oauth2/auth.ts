@@ -1,7 +1,7 @@
-import {I18n} from "../i18n.js";
-import {getapiurls} from "../utils/utils.js";
-import {getBulkUsers, Specialuser} from "../utils/utils.js";
-import {Permissions} from "../permissions.js";
+import { I18n } from "../i18n.js";
+import { getapiurls } from "../utils/utils.js";
+import { getBulkUsers, type Specialuser } from "../utils/utils.js";
+import { Permissions } from "../permissions.js";
 type botjsonfetch = {
 	guilds: {
 		id: string;
@@ -61,7 +61,7 @@ type botjsonfetch = {
 		}
 	}
 
-	let urls: {api: string; cdn: string} | undefined;
+	let urls: { api: string; cdn: string } | undefined;
 
 	if (!joinable.length && well) {
 		const out = await getapiurls(well);
@@ -77,19 +77,22 @@ type botjsonfetch = {
 				}
 			}
 		} else {
-			throw new Error("Someone needs to handle the case where the servers don't exist");
+			throw new Error(
+				"Someone needs to handle the case where the servers don't exist",
+			);
 		}
 	} else {
 		urls = joinable[0].serverurls;
 	}
 
 	if (!joinable.length) {
-		document.getElementById("AcceptInvite")!.textContent = "Create an account to invite the bot";
+		document.getElementById("AcceptInvite")!.textContent =
+			"Create an account to invite the bot";
 	}
 	await I18n.done;
 	function showGuilds(user: Specialuser) {
 		if (!urls) return;
-		fetch(urls.api + "/oauth2/authorize/" + window.location.search, {
+		fetch(`${urls.api}/oauth2/authorize/${window.location.search}`, {
 			headers: {
 				Authorization: user.token,
 			},
@@ -129,7 +132,7 @@ type botjsonfetch = {
 					const id = select.value;
 					const params2 = new URLSearchParams("");
 					params2.set("client_id", params.get("client_id") as string);
-					fetch(urls.api + "/oauth2/authorize?" + params2.toString(), {
+					fetch(`${urls.api}/oauth2/authorize?${params2.toString()}`, {
 						method: "POST",
 						body: JSON.stringify({
 							authorize: true,
@@ -168,7 +171,9 @@ type botjsonfetch = {
 			userDiv.append(document.createElement("br"));
 
 			const span = document.createElement("span");
-			span.textContent = user.serverurls.wellknown.replace("https://", "").replace("http://", "");
+			span.textContent = user.serverurls.wellknown
+				.replace("https://", "")
+				.replace("http://", "");
 			span.classList.add("serverURL");
 			userDiv.append(span);
 
@@ -188,14 +193,14 @@ type botjsonfetch = {
 			const l = new URLSearchParams("?");
 			l.set("goback", window.location.href);
 			l.set("instance", well!);
-			window.location.href = "/login?" + l.toString();
+			window.location.href = `/login?${l.toString()}`;
 		});
 
 		if (!joinable.length) {
 			const l = new URLSearchParams("?");
 			l.set("goback", window.location.href);
 			l.set("instance", well!);
-			window.location.href = "/login?" + l.toString();
+			window.location.href = `/login?${l.toString()}`;
 		}
 
 		table.append(td);
@@ -207,7 +212,7 @@ type botjsonfetch = {
 	if (!user) {
 		return;
 	}
-	fetch(urls.api + "/oauth2/authorize/" + window.location.search, {
+	fetch(`${urls.api}/oauth2/authorize/${window.location.search}`, {
 		headers: {
 			Authorization: user.token,
 		},
@@ -232,7 +237,9 @@ type botjsonfetch = {
 			const perms = document.getElementById("permissions") as HTMLDivElement;
 
 			if (perms && permstr) {
-				perms.children[0].textContent = I18n.getTranslation("htmlPages.idpermissions");
+				perms.children[0].textContent = I18n.getTranslation(
+					"htmlPages.idpermissions",
+				);
 				const permisions = new Permissions(permstr);
 				for (const perm of Permissions.info()) {
 					if (permisions.hasPermission(perm.name, false)) {

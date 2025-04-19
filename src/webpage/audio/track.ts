@@ -1,5 +1,5 @@
-import {BinRead} from "../utils/binaryUtils.js";
-import {AVoice} from "./voice.js";
+import type { BinRead } from "../utils/binaryUtils.js";
+import { AVoice } from "./voice.js";
 
 export class Track {
 	seq: (AVoice | number)[];
@@ -27,7 +27,11 @@ export class Track {
 			if (voice.info.wave instanceof Function) {
 				temp = voice.clone(read.readFloat32(), read.readFloat32());
 			} else {
-				temp = voice.clone(read.readFloat32(), read.readFloat32(), read.readFloat32());
+				temp = voice.clone(
+					read.readFloat32(),
+					read.readFloat32(),
+					read.readFloat32(),
+				);
 			}
 			play2.push(temp);
 		}

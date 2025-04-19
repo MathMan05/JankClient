@@ -837,7 +837,7 @@ type opRTC12 = {
 		];
 	};
 };
-export {
+export type {
 	readyjson,
 	dirrectjson,
 	startTypingjson,

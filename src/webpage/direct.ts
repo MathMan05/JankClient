@@ -1,9 +1,9 @@
 import {Guild} from "./guild.js";
 import {Channel} from "./channel.js";
 import {Message} from "./message.js";
-import {Localuser} from "./localuser.js";
+import type {Localuser} from "./localuser.js";
 import {User} from "./user.js";
-import {channeljson, dirrectjson, memberjson, messagejson} from "./jsontypes.js";
+import type {channeljson, dirrectjson, memberjson, messagejson} from "./jsontypes.js";
 import {Permissions} from "./permissions.js";
 import {SnowFlake} from "./snowflake.js";
 import {Contextmenu} from "./contextmenu.js";
@@ -84,7 +84,7 @@ class Direct extends Guild {
 		const ghostMessages = document.getElementById("ghostMessages");
 		if (ghostMessages) ghostMessages.innerHTML = "";
 		if (addstate) {
-			history.pushState([this.id, undefined], "", "/channels/" + this.id);
+			history.pushState([this.id, undefined], "", `/channels/${this.id}`);
 		}
 		this.localuser.pageTitle(I18n.getTranslation("friends.friendlist"));
 		const channelTopic = document.getElementById("channelTopic") as HTMLSpanElement;
@@ -270,17 +270,16 @@ class Direct extends Guild {
 						console.log(e);
 						if (e.code === 404) {
 							throw new FormError(text, I18n.getTranslation("friends.notfound"));
-						} else if (e.code === 400) {
+						}if (e.code === 400) {
 							throw new FormError(text, e.message.split("Error: ")[1]);
-						} else {
+						}
 							const box = text.input.deref();
 							if (!box) return;
 							box.value = "";
-						}
 					},
 					{
 						method: "POST",
-						fetchURL: this.info.api + "/users/@me/relationships",
+						fetchURL: `${this.info.api}/users/@me/relationships`,
 						headers: this.headers,
 					},
 				);
@@ -353,16 +352,16 @@ class Group extends Channel {
 	user: User;
 	static contextmenu = new Contextmenu<Group, undefined>("channel menu");
 	static setupcontextmenu() {
-		this.contextmenu.addButton(
+		Group.contextmenu.addButton(
 			() => I18n.getTranslation("DMs.markRead"),
 			function (this: Group) {
 				this.readbottom();
 			},
 		);
 
-		this.contextmenu.addSeperator();
+		Group.contextmenu.addSeperator();
 
-		this.contextmenu.addButton(
+		Group.contextmenu.addButton(
 			() => I18n.getTranslation("DMs.close"),
 			function (this: Group) {
 				this.deleteChannel();
@@ -372,15 +371,15 @@ class Group extends Channel {
 			},
 		);
 
-		this.contextmenu.addSeperator();
+		Group.contextmenu.addSeperator();
 
-		this.contextmenu.addButton(
+		Group.contextmenu.addButton(
 			() => I18n.getTranslation("user.copyId"),
 			function () {
 				navigator.clipboard.writeText(this.user.id);
 			},
 		);
-		this.contextmenu.addButton(
+		Group.contextmenu.addButton(
 			() => I18n.getTranslation("DMs.copyId"),
 			function (this: Group) {
 				navigator.clipboard.writeText(this.id);
@@ -464,9 +463,9 @@ class Group extends Channel {
 		this.localuser.channelfocus = this;
 		const prom = this.infinite.delete();
 		if (addstate) {
-			history.pushState([this.guild_id, this.id], "", "/channels/" + this.guild_id + "/" + this.id);
+			history.pushState([this.guild_id, this.id], "", `/channels/${this.guild_id}/${this.id}`);
 		}
-		this.localuser.pageTitle("@" + this.name);
+		this.localuser.pageTitle(`@${this.name}`);
 		(document.getElementById("channelTopic") as HTMLElement).setAttribute("hidden", "");
 
 		const loading = document.getElementById("loadingdiv") as HTMLDivElement;
@@ -474,7 +473,7 @@ class Group extends Channel {
 
 		loading.classList.add("loading");
 		this.rendertyping();
-		(document.getElementById("typebox") as HTMLDivElement).contentEditable = "" + true;
+		(document.getElementById("typebox") as HTMLDivElement).contentEditable = `${true}`;
 		(document.getElementById("upload") as HTMLElement).style.visibility = "visible";
 		(document.getElementById("typediv") as HTMLElement).style.visibility = "visible";
 		(document.getElementById("typebox") as HTMLDivElement).focus();
@@ -576,7 +575,7 @@ class Group extends Channel {
 			{
 				const noti = this.noti.deref();
 				if (noti) {
-					noti.textContent = this.mentions + "";
+					noti.textContent = `${this.mentions}`;
 					return;
 				}
 			}
@@ -584,7 +583,7 @@ class Group extends Channel {
 			div.classList.add("servernoti");
 			const noti = document.createElement("div");
 			noti.classList.add("unread", "notiunread", "pinged");
-			noti.textContent = "" + this.mentions;
+			noti.textContent = `${this.mentions}`;
 			this.noti = new WeakRef(noti);
 			div.append(noti);
 			const buildpfp = this.user.buildpfp();

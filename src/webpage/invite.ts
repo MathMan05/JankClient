@@ -1,6 +1,6 @@
 import {I18n} from "./i18n.js";
 import {getapiurls} from "./utils/utils.js";
-import {getBulkUsers, Specialuser} from "./utils/utils.js";
+import {getBulkUsers, type Specialuser} from "./utils/utils.js";
 
 (async () => {
 	const users = getBulkUsers();
@@ -47,7 +47,7 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 	const code = window.location.pathname.split("/")[2];
 	let guildinfo: any;
 
-	fetch(`${urls!.api}/invites/${code}`, {
+	fetch(`${urls?.api}/invites/${code}`, {
 		method: "GET",
 	})
 		.then((response) => response.json())
@@ -62,9 +62,9 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 			);
 			if (guildjson.icon) {
 				const img = document.createElement("img");
-				img.src = `${urls!.cdn}/icons/${guildjson.id}/${guildjson.icon}.png`;
+				img.src = `${urls?.cdn}/icons/${guildjson.id}/${guildjson.icon}.png`;
 				img.classList.add("inviteGuild");
-				document.getElementById("inviteimg")!.append(img);
+				document.getElementById("inviteimg")?.append(img);
 			} else {
 				const txt = guildjson.name
 					.replace(/'s /g, " ")
@@ -73,7 +73,7 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 				const div = document.createElement("div");
 				div.textContent = txt;
 				div.classList.add("inviteGuild");
-				document.getElementById("inviteimg")!.append(div);
+				document.getElementById("inviteimg")?.append(div);
 			}
 		});
 
@@ -105,7 +105,7 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 
 			userinfo.addEventListener("click", () => {
 				console.log(user);
-				fetch(`${urls!.api}/invites/${code}`, {
+				fetch(`${urls?.api}/invites/${code}`, {
 					method: "POST",
 					headers: {
 						Authorization: user.token,
@@ -114,7 +114,7 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 					users.currentuser = user.uid;
 					sessionStorage.setItem("currentuser", user.uid);
 					localStorage.setItem("userinfos", JSON.stringify(users));
-					window.location.href = "/channels/" + guildinfo.id;
+					window.location.href = `/channels/${guildinfo.id}`;
 				});
 			});
 		}
@@ -126,14 +126,14 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 			const l = new URLSearchParams("?");
 			l.set("goback", window.location.href);
 			l.set("instance", well!);
-			window.location.href = "/login?" + l.toString();
+			window.location.href = `/login?${l.toString()}`;
 		});
 
 		if (!joinable.length) {
 			const l = new URLSearchParams("?");
 			l.set("goback", window.location.href);
 			l.set("instance", well!);
-			window.location.href = "/login?" + l.toString();
+			window.location.href = `/login?${l.toString()}`;
 		}
 
 		table.append(td);
@@ -142,5 +142,5 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 		document.body.append(table);
 	}
 
-	document.getElementById("AcceptInvite")!.addEventListener("click", showAccounts);
+	document.getElementById("AcceptInvite")?.addEventListener("click", showAccounts);
 })();

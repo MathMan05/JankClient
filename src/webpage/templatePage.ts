@@ -1,7 +1,7 @@
 import {I18n} from "./i18n.js";
-import {templateSkim} from "./jsontypes.js";
+import type {templateSkim} from "./jsontypes.js";
 import {getapiurls} from "./utils/utils.js";
-import {getBulkUsers, Specialuser} from "./utils/utils.js";
+import {getBulkUsers, type Specialuser} from "./utils/utils.js";
 
 (async () => {
 	const users = getBulkUsers();
@@ -46,7 +46,7 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 
 	const code = window.location.pathname.split("/")[2];
 
-	fetch(`${urls!.api}/guilds/templates/${code}`, {
+	fetch(`${urls?.api}/guilds/templates/${code}`, {
 		method: "GET",
 		headers: {
 			Authorization: joinable[0].token,
@@ -89,7 +89,7 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 				const search = new URLSearchParams();
 				search.set("templateID", code);
 				sessionStorage.setItem("currentuser", user.uid);
-				window.location.assign("/channels/@me?" + search);
+				window.location.assign(`/channels/@me?${search}`);
 			});
 		}
 
@@ -97,7 +97,7 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 			const l = new URLSearchParams("?");
 			l.set("goback", window.location.href);
 			l.set("instance", well!);
-			window.location.href = "/login?" + l.toString();
+			window.location.href = `/login?${l.toString()}`;
 		}
 
 		table.classList.add("flexttb", "accountSwitcher");
@@ -105,6 +105,6 @@ import {getBulkUsers, Specialuser} from "./utils/utils.js";
 		document.body.append(table);
 	}
 
-	document.getElementById("usetemplate")!.addEventListener("click", showAccounts);
+	document.getElementById("usetemplate")?.addEventListener("click", showAccounts);
 	document.getElementById("usetemplate")!.textContent = I18n.useTemplateButton();
 })();

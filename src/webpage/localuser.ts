@@ -1,11 +1,11 @@
 import {Guild} from "./guild.js";
-import {Channel} from "./channel.js";
+import type {Channel} from "./channel.js";
 import {Direct} from "./direct.js";
 import {AVoice} from "./audio/voice.js";
 import {User} from "./user.js";
 import {createImg, getapiurls, getBulkUsers, SW} from "./utils/utils.js";
-import {getBulkInfo, setTheme, Specialuser} from "./utils/utils.js";
-import {
+import {getBulkInfo, setTheme, type Specialuser} from "./utils/utils.js";
+import type {
 	channeljson,
 	guildjson,
 	mainuserjson,
@@ -19,10 +19,10 @@ import {
 	wsjson,
 } from "./jsontypes.js";
 import {Member} from "./member.js";
-import {Dialog, Form, FormError, Options, Settings} from "./settings.js";
+import {Dialog, type Form, FormError, type Options, Settings} from "./settings.js";
 import {getTextNodeAtPosition, MarkDown, saveCaretPosition} from "./markdown.js";
 import {Bot} from "./bot.js";
-import {Role} from "./role.js";
+import type {Role} from "./role.js";
 import {VoiceFactory} from "./voice.js";
 import {I18n, langmap} from "./i18n.js";
 import {Emoji} from "./emoji.js";
@@ -84,7 +84,7 @@ class Localuser {
 		const table = document.createElement("div");
 		table.classList.add("flexttb", "accountSwitcher");
 
-		for (const user of Object.values(this.users.users)) {
+		for (const user of Object.values(Localuser.users.users)) {
 			const specialUser = user as Specialuser;
 			const userInfo = document.createElement("div");
 			userInfo.classList.add("flexltr", "switchtable");
@@ -162,7 +162,7 @@ class Localuser {
 						d.hide();
 					},
 					{
-						fetchURL: this.info.api + "/users/@me/settings",
+						fetchURL: `${this.info.api}/users/@me/settings`,
 						method: "PATCH",
 						headers: this.headers,
 					},
@@ -197,7 +197,7 @@ class Localuser {
 					})
 					.watchForChange(async (i) => {
 						const status = selection[i];
-						await fetch(this.info.api + "/users/@me/settings", {
+						await fetch(`${this.info.api}/users/@me/settings`, {
 							body: JSON.stringify({
 								status,
 							}),
@@ -338,9 +338,7 @@ class Localuser {
 			resume = false;
 		}
 		const ws = new WebSocket(
-			(resume ? this.resume_gateway_url : this.serverurls.gateway.toString()) +
-				"?encoding=json&v=9" +
-				(DecompressionStream ? "&compress=zlib-stream" : ""),
+			`${resume ? this.resume_gateway_url : this.serverurls.gateway.toString()}?encoding=json&v=9${DecompressionStream ? "&compress=zlib-stream" : ""}`,
 		);
 		this.ws = ws;
 		let ds: DecompressionStream;
@@ -447,9 +445,8 @@ class Localuser {
 						w.write(arr.buffer);
 						arr = new Uint8Array();
 						return; //had to move the while loop due to me being dumb
-					} else {
-						temp = JSON.parse(event.data);
 					}
+						temp = JSON.parse(event.data);
 
 					await this.handleEvent(temp as readyjson);
 					if (temp.op === 0 && temp.t === "READY") {
@@ -465,7 +462,7 @@ class Localuser {
 
 		ws.addEventListener("close", async (event) => {
 			this.ws = undefined;
-			console.log("WebSocket closed with code " + event.code);
+			console.log(`WebSocket closed with code ${event.code}`);
 			if (
 				(event.code > 1000 && event.code < 1016 && this.errorBackoff === 0) ||
 				(wsCodesRetry.has(event.code) && this.errorBackoff === 0)
@@ -485,7 +482,7 @@ class Localuser {
 			if (
 				(event.code > 1000 && event.code < 1016) ||
 				wsCodesRetry.has(event.code) ||
-				event.code == 4041
+				event.code === 4041
 			) {
 				if (this.connectionSucceed !== 0 && Date.now() > this.connectionSucceed + 20000) {
 					this.errorBackoff = 0;
@@ -496,13 +493,13 @@ class Localuser {
 				loaddesc.innerHTML = "";
 				loaddesc.append(
 					new MarkDown(
-						I18n.getTranslation("errorReconnect", Math.round(0.2 + this.errorBackoff * 2.8) + ""),
+						I18n.getTranslation("errorReconnect", `${Math.round(0.2 + this.errorBackoff * 2.8)}`),
 					).makeHTML(),
 				);
 				switch (
 					this.errorBackoff //try to recover from bad domain
 				) {
-					case 3:
+					case 3: {
 						const newurls = await getapiurls(this.info.wellknown);
 						if (newurls) {
 							this.info = newurls;
@@ -511,6 +508,7 @@ class Localuser {
 							break;
 						}
 						break;
+					}
 
 					case 4: {
 						const newurls = await getapiurls(new URL(this.info.wellknown).origin);
@@ -524,7 +522,7 @@ class Localuser {
 					}
 					case 5: {
 						const breakappart = new URL(this.info.wellknown).origin.split(".");
-						const url = "https://" + breakappart.at(-2) + "." + breakappart.at(-1);
+						const url = `https://${breakappart.at(-2)}.${breakappart.at(-1)}`;
 						const newurls = await getapiurls(url);
 						if (newurls) {
 							this.info = newurls;
@@ -569,7 +567,7 @@ class Localuser {
 			this.errorBackoff = 0;
 			this.ws.close(4041);
 		}
-		if (temp.op == 0) {
+		if (temp.op === 0) {
 			switch (temp.t) {
 				case "MESSAGE_CREATE":
 					if (this.initialized) {
@@ -610,17 +608,18 @@ class Localuser {
 						}
 					}
 					break;
-				case "CHANNEL_PINS_UPDATE":
+				case "CHANNEL_PINS_UPDATE": {
 					temp.d.guild_id ??= "@me";
 					const channel = this.channelids.get(temp.d.channel_id);
 					if (!channel) break;
-					delete channel.pinnedMessages;
-					channel.lastpin = new Date() + "";
+					channel.pinnedMessages = undefined;
+					channel.lastpin = `${new Date()}`;
 					const pinnedM = document.getElementById("pinnedMDiv");
 					if (pinnedM) {
 						pinnedM.classList.add("unreadPin");
 					}
 					break;
+				}
 				case "CHANNEL_UPDATE":
 					if (this.initialized) {
 						this.updateChannel(temp.d);
@@ -814,7 +813,7 @@ class Localuser {
 				}
 				default: {
 					//@ts-ignore
-					console.warn("Unhandled case " + temp.t, temp);
+					console.warn(`Unhandled case ${temp.t}`, temp);
 				}
 			}
 		} else if (temp.op === 10) {
@@ -829,7 +828,7 @@ class Localuser {
 				this.ws.send(JSON.stringify({op: 1, d: this.lastSequence}));
 			}, this.heartbeat_interval);
 		} else {
-			console.log("Unhandled case " + temp.d, temp);
+			console.log(`Unhandled case ${temp.d}`, temp);
 		}
 	}
 	get currentVoice() {
@@ -856,7 +855,7 @@ class Localuser {
 		}
 	}
 
-	heartbeat_interval: number = 0;
+	heartbeat_interval = 0;
 	updateChannel(json: channeljson): void {
 		const guild = this.guildids.get(json.guild_id);
 		if (guild) {
@@ -881,7 +880,7 @@ class Localuser {
 		}
 		return channel; // Add this line to return the 'channel' variable
 	}
-	async memberListUpdate(list: memberlistupdatejson | void) {
+	async memberListUpdate(list: memberlistupdatejson | undefined) {
 		if (this.searching) return;
 		const div = document.getElementById("sideDiv") as HTMLDivElement;
 		div.innerHTML = "";
@@ -949,7 +948,7 @@ class Localuser {
 			if (!list.length) continue;
 			const category = document.createElement("div");
 			category.classList.add("memberList");
-			let title = document.createElement("h3");
+			const title = document.createElement("h3");
 			if (role === "offline") {
 				title.textContent = I18n.getTranslation("user.offline");
 				category.classList.add("offline");
@@ -1043,9 +1042,8 @@ class Localuser {
 	isAdmin(): boolean {
 		if (this.lookingguild) {
 			return this.lookingguild.isAdmin();
-		} else {
-			return false;
 		}
+			return false;
 	}
 
 	loadGuild(id: string, forceReload = false): Guild | undefined {
@@ -1088,7 +1086,7 @@ class Localuser {
 				banner.classList.remove("Banner");
 			}
 			if (guild.id !== "@me") {
-				banner.style.setProperty("cursor", `pointer`);
+				banner.style.setProperty("cursor", "pointer");
 				banner.onclick = (e) => {
 					e.preventDefault();
 					e.stopImmediatePropagation();
@@ -1190,7 +1188,7 @@ class Localuser {
 					parsed = e.code;
 				}
 				const json = await (
-					await fetch(this.info.api + "/invites/" + parsed, {
+					await fetch(`${this.info.api}/invites/${parsed}`, {
 						method: "POST",
 						headers: this.headers,
 					})
@@ -1265,18 +1263,18 @@ class Localuser {
 			form.addPreprocessor((e) => {
 				loading.show();
 				full.hide();
-				if ("template" in e) delete e.template;
+				if ("template" in e) e.template = undefined;
 				let code: string;
 				if (URL.canParse(template.value)) {
 					const url = new URL(template.value);
 					code = url.pathname.split("/").at(-1) as string;
 					if (url.host === "discord.com") {
-						code = "discord:" + code;
+						code = `discord:${code}`;
 					}
 				} else {
 					code = template.value;
 				}
-				form.fetchURL = this.info.api + "/guilds/templates/" + code;
+				form.fetchURL = `${this.info.api}/guilds/templates/${code}`;
 			});
 		}
 		full.show();
@@ -1287,7 +1285,7 @@ class Localuser {
 	}
 	async makeGuild(fields: {name: string; icon: string | null}) {
 		return await (
-			await fetch(this.info.api + "/guilds", {
+			await fetch(`${this.info.api}/guilds`, {
 				method: "POST",
 				headers: this.headers,
 				body: JSON.stringify(fields),
@@ -1302,7 +1300,7 @@ class Localuser {
 		full.options.addHTMLArea(content);
 		full.show();
 
-		const res = await fetch(this.info.api + "/discoverable-guilds?limit=50", {
+		const res = await fetch(`${this.info.api}/discoverable-guilds?limit=50`, {
 			headers: this.headers,
 		});
 		const json = await res.json();
@@ -1313,7 +1311,7 @@ class Localuser {
 		});
 		content.innerHTML = "";
 		const title = document.createElement("h2");
-		title.textContent = I18n.getTranslation("guild.disoveryTitle", json.guilds.length + "");
+		title.textContent = I18n.getTranslation("guild.disoveryTitle", `${json.guilds.length}`);
 		content.appendChild(title);
 
 		const guilds = document.createElement("div");
@@ -1325,7 +1323,7 @@ class Localuser {
 
 			if (guild.banner) {
 				const banner = createImg(
-					this.info.cdn + "/icons/" + guild.id + "/" + guild.banner + ".png?size=256",
+					`${this.info.cdn}/icons/${guild.id}/${guild.banner}.png?size=256`,
 				);
 				banner.classList.add("banner");
 				banner.crossOrigin = "anonymous";
@@ -1338,7 +1336,7 @@ class Localuser {
 			const img = createImg(
 				this.info.cdn +
 					(guild.icon
-						? "/icons/" + guild.id + "/" + guild.icon + ".png?size=48"
+						? `/icons/${guild.id}/${guild.icon}.png?size=48`
 						: "/embed/avatars/3.png"),
 			);
 			img.classList.add("icon");
@@ -1356,7 +1354,7 @@ class Localuser {
 			content.appendChild(desc);
 
 			content.addEventListener("click", async () => {
-				const joinRes = await fetch(this.info.api + "/guilds/" + guild.id + "/members/@me", {
+				const joinRes = await fetch(`${this.info.api}/guilds/${guild.id}/members/@me`, {
 					method: "PUT",
 					headers: this.headers,
 				});
@@ -1392,7 +1390,7 @@ class Localuser {
 		const reader = new FileReader();
 		reader.readAsDataURL(file);
 		reader.onload = () => {
-			fetch(this.info.api + "/users/@me", {
+			fetch(`${this.info.api}/users/@me`, {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -1406,7 +1404,7 @@ class Localuser {
 			const reader = new FileReader();
 			reader.readAsDataURL(file);
 			reader.onload = () => {
-				fetch(this.info.api + "/users/@me", {
+				fetch(`${this.info.api}/users/@me`, {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify({
@@ -1415,7 +1413,7 @@ class Localuser {
 				});
 			};
 		} else {
-			fetch(this.info.api + "/users/@me", {
+			fetch(`${this.info.api}/users/@me`, {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -1425,7 +1423,7 @@ class Localuser {
 		}
 	}
 	updateProfile(json: {bio?: string; pronouns?: string; accent_color?: number}) {
-		fetch(this.info.api + "/users/@me/profile", {
+		fetch(`${this.info.api}/users/@me/profile`, {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(json),
@@ -1513,7 +1511,7 @@ class Localuser {
 						this.updateProfile({
 							pronouns: newpronouns,
 							bio: newbio,
-							accent_color: Number.parseInt("0x" + color.substr(1), 16),
+							accent_color: Number.parseInt(`0x${color.substr(1)}`, 16),
 						});
 					}
 				},
@@ -1534,7 +1532,7 @@ class Localuser {
 			});
 
 			if (this.user.accent_color) {
-				color = "#" + this.user.accent_color.toString(16);
+				color = `#${this.user.accent_color.toString(16)}`;
 			} else {
 				color = "transparent";
 			}
@@ -1546,7 +1544,7 @@ class Localuser {
 			colorPicker.watchForChange((_) => {
 				console.log();
 				color = _;
-				hypouser.accent_color = Number.parseInt("0x" + _.substr(1), 16);
+				hypouser.accent_color = Number.parseInt(`0x${_.substr(1)}`, 16);
 				changed = true;
 				regen();
 			});
@@ -1578,9 +1576,9 @@ class Localuser {
 							if (input.files?.length === 1) {
 								const file = input.files[0];
 
-								let reader = new FileReader();
+								const reader = new FileReader();
 								reader.onload = () => {
-									let dataUrl = reader.result;
+									const dataUrl = reader.result;
 									if (typeof dataUrl !== "string") return;
 									this.perminfo.sound = {};
 									try {
@@ -1639,7 +1637,7 @@ class Localuser {
 			const sw = update.addSelect(
 				I18n.getTranslation("localuser.swSettings"),
 				() => {},
-				["SWOff", "SWOffline", "SWOn"].map((e) => I18n.getTranslation("localuser." + e)),
+				["SWOff", "SWOffline", "SWOn"].map((e) => I18n.getTranslation(`localuser.${e}`)),
 				{
 					defaultIndex: ["false", "offlineOnly", "true"].indexOf(
 						localStorage.getItem("SWMode") as string,
@@ -1678,7 +1676,7 @@ class Localuser {
 								}
 							},
 							{
-								fetchURL: this.info.api + "/users/@me/mfa/totp/disable",
+								fetchURL: `${this.info.api}/users/@me/mfa/totp/disable`,
 								headers: this.headers,
 							},
 						);
@@ -1709,7 +1707,7 @@ class Localuser {
 								}
 							},
 							{
-								fetchURL: this.info.api + "/users/@me/mfa/totp/enable/",
+								fetchURL: `${this.info.api}/users/@me/mfa/totp/enable/`,
 								headers: this.headers,
 							},
 						);
@@ -1730,7 +1728,7 @@ class Localuser {
 							security.returnFromSub();
 						},
 						{
-							fetchURL: this.info.api + "/users/@me/",
+							fetchURL: `${this.info.api}/users/@me/`,
 							headers: this.headers,
 							method: "PATCH",
 						},
@@ -1744,7 +1742,7 @@ class Localuser {
 							security.returnFromSub();
 						},
 						{
-							fetchURL: this.info.api + "/users/@me/",
+							fetchURL: `${this.info.api}/users/@me/`,
 							headers: this.headers,
 							method: "PATCH",
 						},
@@ -1764,7 +1762,7 @@ class Localuser {
 							security.returnFromSub();
 						},
 						{
-							fetchURL: this.info.api + "/users/@me/",
+							fetchURL: `${this.info.api}/users/@me/`,
 							headers: this.headers,
 							method: "PATCH",
 						},
@@ -1784,7 +1782,7 @@ class Localuser {
 							security.returnFromSub();
 						},
 						{
-							fetchURL: this.info.api + "/users/@me/",
+							fetchURL: `${this.info.api}/users/@me/`,
 							headers: this.headers,
 							method: "PATCH",
 						},
@@ -1809,9 +1807,8 @@ class Localuser {
 					form.setValue("new_password", () => {
 						if (in1 === in2) {
 							return in1;
-						} else {
-							throw new FormError(copy, I18n.getTranslation("localuser.PasswordsNoMatch"));
 						}
+							throw new FormError(copy, I18n.getTranslation("localuser.PasswordsNoMatch"));
 					});
 				});
 
@@ -1901,7 +1898,7 @@ class Localuser {
 			const connectionContainer = document.createElement("div");
 			connectionContainer.id = "connection-container";
 
-			fetch(this.info.api + "/connections", {
+			fetch(`${this.info.api}/connections`, {
 				headers: this.headers,
 			})
 				.then((r) => r.json())
@@ -1917,7 +1914,7 @@ class Localuser {
 							if (connection.enabled) {
 								container.addEventListener("click", async () => {
 									const connectionRes = await fetch(
-										this.info.api + "/connections/" + key + "/authorize",
+										`${this.info.api}/connections/${key}/authorize`,
 										{
 											headers: this.headers,
 										},
@@ -1938,7 +1935,7 @@ class Localuser {
 		{
 			const devPortal = settings.addButton(I18n.getTranslation("localuser.devPortal"));
 
-			fetch(this.info.api + "/teams", {
+			fetch(`${this.info.api}/teams`, {
 				headers: this.headers,
 			}).then(async (teamsRes) => {
 				const teams = await teamsRes.json();
@@ -1954,7 +1951,7 @@ class Localuser {
 							}
 						},
 						{
-							fetchURL: this.info.api + "/applications",
+							fetchURL: `${this.info.api}/applications`,
 							headers: this.headers,
 							method: "POST",
 						},
@@ -1973,7 +1970,7 @@ class Localuser {
 
 				const appListContainer = document.createElement("div");
 				appListContainer.id = "app-list-container";
-				fetch(this.info.api + "/applications", {
+				fetch(`${this.info.api}/applications`, {
 					headers: this.headers,
 				})
 					.then((r) => r.json())
@@ -1990,12 +1987,7 @@ class Localuser {
 
 								if (application.cover_image || application.icon) {
 									const cover = createImg(
-										this.info.cdn +
-											"/app-icons/" +
-											application.id +
-											"/" +
-											(application.cover_image || application.icon) +
-											".png?size=256",
+										`${this.info.cdn}/app-icons/${application.id}/${application.cover_image || application.icon}.png?size=256`,
 									);
 									cover.alt = "";
 									cover.loading = "lazy";
@@ -2032,7 +2024,7 @@ class Localuser {
 				{
 					headers: this.headers,
 					method: "POST",
-					fetchURL: this.info.api + "/users/@me/delete/",
+					fetchURL: `${this.info.api}/users/@me/delete/`,
 					traditionalSubmit: false,
 					submitText: I18n.localuser.deleteAccountButton(),
 				},
@@ -2049,7 +2041,7 @@ class Localuser {
 					if (obj.shrek !== I18n.localuser.sillyDeleteConfirmPhrase()) {
 						throw new FormError(shrek, I18n.localuser.mustTypePhrase());
 					}
-					delete obj.shrek;
+					obj.shrek = undefined;
 				} else {
 					throw new FormError(shrek, I18n.localuser.mustTypePhrase());
 				}
@@ -2067,7 +2059,7 @@ class Localuser {
 					options.addTitle(I18n.manageInstance.AreYouSureStop());
 					const yesno = options.addOptions("", {ltr: true});
 					yesno.addButtonInput("", I18n.yes(), () => {
-						fetch(this.info.api + "/stop", {headers: this.headers, method: "POST"});
+						fetch(`${this.info.api}/stop`, {headers: this.headers, method: "POST"});
 						menu.hide();
 					});
 					yesno.addButtonInput("", I18n.no(), () => {
@@ -2139,7 +2131,7 @@ class Localuser {
 						params.set("length", length.value);
 						const json = (await (
 							await fetch(
-								this.info.api + "/auth/generate-registration-tokens?" + params.toString(),
+								`${this.info.api}/auth/generate-registration-tokens?${params.toString()}`,
 								{
 									headers: this.headers,
 								},
@@ -2156,7 +2148,7 @@ class Localuser {
 								pre.textContent = json.tokens
 									.map((token) => {
 										options.set("token", token);
-										return `${urlOptionsJSON.url}/register?` + options.toString();
+										return `${urlOptionsJSON.url}/register?${options.toString()}`;
 									})
 									.join("\n");
 							} else {
@@ -2164,7 +2156,7 @@ class Localuser {
 								pre.textContent = json.tokens
 									.map((token) => {
 										options.set("token", token);
-										return `${urlOptionsJSON.url}/register?` + options.toString();
+										return `${urlOptionsJSON.url}/register?${options.toString()}`;
 									})
 									.join("\n");
 							}
@@ -2192,7 +2184,7 @@ class Localuser {
 			img.width = 128;
 			img.height = 128;
 			const ver = await (await fetch("/getupdates")).text();
-			jankInfo.addMDText(I18n.clientDesc(ver, window.location.origin, this.rights.allow + ""));
+			jankInfo.addMDText(I18n.clientDesc(ver, window.location.origin, `${this.rights.allow}`));
 			jankInfo.addButtonInput("", I18n.instInfo(), () => {
 				this.instanceStats();
 			});
@@ -2200,18 +2192,18 @@ class Localuser {
 		settings.show();
 	}
 	readonly botTokens: Map<string, string> = new Map();
-	async manageApplication(appId = "", container: Options) {
+	async manageApplication(appId, container: Options) {
 		if (this.perminfo.applications) {
 			for (const item of Object.keys(this.perminfo.applications)) {
 				this.botTokens.set(item, this.perminfo.applications[item]);
 			}
 		}
-		const res = await fetch(this.info.api + "/applications/" + appId, {
+		const res = await fetch(`${this.info.api}/applications/${appId}`, {
 			headers: this.headers,
 		});
 		const json = await res.json();
 		const form = container.addSubForm(json.name, () => {}, {
-			fetchURL: this.info.api + "/applications/" + appId,
+			fetchURL: `${this.info.api}/applications/${appId}`,
 			method: "PATCH",
 			headers: this.headers,
 			traditionalSubmit: true,
@@ -2235,13 +2227,13 @@ class Localuser {
 		});
 		form.addButtonInput(
 			"",
-			I18n.getTranslation("localuser." + (json.bot ? "manageBot" : "addBot")),
+			I18n.getTranslation(`localuser.${json.bot ? "manageBot" : "addBot"}`),
 			async () => {
 				if (!json.bot) {
 					if (!confirm(I18n.getTranslation("localuser.confirmAddBot"))) {
 						return;
 					}
-					const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot", {
+					const updateRes = await fetch(`${this.info.api}/applications/${appId}/bot`, {
 						method: "POST",
 						headers: this.headers,
 					});
@@ -2252,8 +2244,8 @@ class Localuser {
 			},
 		);
 	}
-	async manageBot(appId = "", container: Form) {
-		const res = await fetch(this.info.api + "/applications/" + appId, {
+	async manageBot(appId, container: Form) {
+		const res = await fetch(`${this.info.api}/applications/${appId}`, {
 			headers: this.headers,
 		});
 		const json = await res.json();
@@ -2268,7 +2260,7 @@ class Localuser {
 			},
 			{
 				method: "PATCH",
-				fetchURL: this.info.api + "/applications/" + appId + "/bot",
+				fetchURL: `${this.info.api}/applications/${appId}/bot`,
 				headers: this.headers,
 				traditionalSubmit: true,
 			},
@@ -2281,7 +2273,7 @@ class Localuser {
 			if (!confirm(I18n.getTranslation("localuser.confirmReset"))) {
 				return;
 			}
-			const updateRes = await fetch(this.info.api + "/applications/" + appId + "/bot/reset", {
+			const updateRes = await fetch(`${this.info.api}/applications/${appId}/bot/reset`, {
 				method: "POST",
 				headers: this.headers,
 			});
@@ -2371,8 +2363,8 @@ class Localuser {
 		}
 		const menu = document.createElement("div");
 		menu.classList.add("flexttb", "gifmenu");
-		menu.style.bottom = window.innerHeight - rect.top + 15 + "px";
-		menu.style.right = window.innerWidth - rect.right + "px";
+		menu.style.bottom = `${window.innerHeight - rect.top + 15}px`;
+		menu.style.right = `${window.innerWidth - rect.right}px`;
 		document.body.append(menu);
 		Contextmenu.keepOnScreen(menu);
 		if (Contextmenu.currentmenu !== "") {
@@ -2381,7 +2373,7 @@ class Localuser {
 		Contextmenu.currentmenu = menu;
 		const trending = (await (
 			await fetch(
-				this.info.api + "/gifs/trending?" + new URLSearchParams([["locale", I18n.lang]]),
+				`${this.info.api}/gifs/trending?${new URLSearchParams([["locale", I18n.lang]])}`,
 				{headers: this.headers},
 			)
 		).json()) as {
@@ -2408,21 +2400,19 @@ class Localuser {
 			const sValue = search.value;
 			const gifReturns = (await (
 				await fetch(
-					this.info.api +
-						"/gifs/search?" +
-						new URLSearchParams([
+					`${this.info.api}/gifs/search?${new URLSearchParams([
 							["locale", I18n.lang],
 							["q", sValue],
 							["limit", "500"],
-						]),
+						])}`,
 					{headers: this.headers},
 				)
 			).json()) as fullgif[];
 			if (sValue !== search.value) {
 				return;
 			}
-			let left = 0,
-				right = 0;
+			let left = 0;
+			let right = 0;
 			for (const gif of gifReturns) {
 				const div = document.createElement("div");
 				div.classList.add("gifBox");
@@ -2436,11 +2426,11 @@ class Localuser {
 				div.append(img);
 
 				if (left <= right) {
-					div.style.top = left + "px";
+					div.style.top = `${left}px`;
 					left += Math.ceil(img.height) + 10;
 					div.style.left = "5px";
 				} else {
-					div.style.top = right + "px";
+					div.style.top = `${right}px`;
 					right += Math.ceil(img.height) + 10;
 					div.style.left = "210px";
 				}
@@ -2460,7 +2450,7 @@ class Localuser {
 					}
 				};
 			}
-			gifs.style.height = Math.max(left, right) + "px";
+			gifs.style.height = `${Math.max(left, right)}px`;
 		};
 		let last = "";
 		search.onkeyup = () => {
@@ -2519,7 +2509,7 @@ class Localuser {
 		start: RegExp | null = this.autofillregex,
 	) {
 		let raw = typebox.rawString;
-		let empty = raw.length === 0;
+		const empty = raw.length === 0;
 		raw = original !== "" ? raw.split(original)[1] : raw;
 		if (raw === undefined && !empty) return;
 		if (empty) {
@@ -2538,7 +2528,7 @@ class Localuser {
 		}
 	}
 	MDSearchOptions(
-		options: [string, string, void | HTMLElement][],
+		options: [string, string, undefined | HTMLElement][],
 		original: string,
 		div: HTMLDivElement,
 		typebox: MarkDown,
@@ -2548,7 +2538,7 @@ class Localuser {
 		let i = 0;
 		const htmloptions: HTMLSpanElement[] = [];
 		for (const thing of options) {
-			if (i == 8) {
+			if (i === 8) {
 				break;
 			}
 			i++;
@@ -2649,7 +2639,7 @@ class Localuser {
 		}
 		maybe.sort((a, b) => b[0] - a[0]);
 		this.MDSearchOptions(
-			maybe.map((a) => ["# " + a[1].name, `<#${a[1].id}> `, undefined]),
+			maybe.map((a) => [`# ${a[1].name}`, `<#${a[1].id}> `, undefined]),
 			orginal,
 			box,
 			typebox,
@@ -2659,10 +2649,10 @@ class Localuser {
 		if (this.userMap.has(id)) {
 			return this.userMap.get(id) as User;
 		}
-		return new User(await (await fetch(this.info.api + "/users/" + id)).json(), this);
+		return new User(await (await fetch(`${this.info.api}/users/${id}`)).json(), this);
 	}
 	MDFineMentionGen(name: string, original: string, box: HTMLDivElement, typebox: MarkDown) {
-		let members: [Member, number][] = [];
+		const members: [Member, number][] = [];
 		if (this.lookingguild) {
 			for (const member of this.lookingguild.members) {
 				const rank = member.compare(name);
@@ -2673,7 +2663,7 @@ class Localuser {
 		}
 		members.sort((a, b) => b[1] - a[1]);
 		this.MDSearchOptions(
-			members.map((a) => ["@" + a[0].name, `<@${a[0].id}> `, undefined]),
+			members.map((a) => [`@${a[0].name}`, `<@${a[0].id}> `, undefined]),
 			original,
 			box,
 			typebox,
@@ -2682,7 +2672,7 @@ class Localuser {
 	MDFindMention(name: string, original: string, box: HTMLDivElement, typebox: MarkDown) {
 		if (this.ws && this.lookingguild) {
 			this.MDFineMentionGen(name, original, box, typebox);
-			const nonce = Math.floor(Math.random() * 10 ** 8) + "";
+			const nonce = `${Math.floor(Math.random() * 10 ** 8)}`;
 			if (this.lookingguild.member_count <= this.lookingguild.members.size) return;
 			this.ws.send(
 				JSON.stringify({
@@ -2698,7 +2688,7 @@ class Localuser {
 			);
 			this.searchMap.set(nonce, async (e) => {
 				console.log(e);
-				if (e.members && e.members[0]) {
+				if (e.members?.[0]) {
 					if (e.members[0].user) {
 						for (const thing of e.members) {
 							await Member.new(thing, this.lookingguild as Guild);
@@ -2769,7 +2759,7 @@ class Localuser {
 		const searchBox = document.getElementById("searchBox") as HTMLDivElement;
 		searchBox.style.setProperty("--hint-text", JSON.stringify(I18n.search.search()));
 	}
-	curSearch?: Symbol;
+	curSearch?: symbol;
 	mSearch(query: string) {
 		const searchy = Symbol("search");
 		this.curSearch = searchy;
@@ -2783,8 +2773,8 @@ class Localuser {
 		const sideContainDiv = document.getElementById("sideContainDiv");
 		if (!sideDiv || !sideContainDiv) return;
 		const genPage = (page: number) => {
-			p.set("offset", page * 50 + "");
-			fetch(this.info.api + `/guilds/${this.lookingguild?.id}/messages/search/?` + p.toString(), {
+			p.set("offset", `${page * 50}`);
+			fetch(`${this.info.api}/guilds/${this.lookingguild?.id}/messages/search/?${p.toString()}`, {
 				headers: this.headers,
 			})
 				.then((_) => _.json())
@@ -2804,11 +2794,11 @@ class Localuser {
 						})
 						.filter((_) => _ !== undefined);
 					sideDiv.innerHTML = "";
-					if (messages.length == 0 && page !== 0) {
+					if (messages.length === 0 && page !== 0) {
 						maxpage = page - 1;
 						genPage(page - 1);
 						return;
-					} else if (messages.length !== 50) {
+					}if (messages.length !== 50) {
 						maxpage = page;
 					}
 					const sortBar = document.createElement("div");
@@ -2836,7 +2826,7 @@ class Localuser {
 					const spaceElm = document.createElement("div");
 					spaceElm.classList.add("spaceElm");
 
-					sortBar.append(I18n.search.page(page + 1 + ""), spaceElm, newB, old);
+					sortBar.append(I18n.search.page(`${page + 1}`), spaceElm, newB, old);
 
 					sideDiv.append(sortBar);
 
@@ -2876,7 +2866,7 @@ class Localuser {
 					const bottombuttons = document.createElement("div");
 					bottombuttons.classList.add("flexltr", "searchNavButtons");
 					const next = document.createElement("button");
-					if (page == maxpage) next.disabled = true;
+					if (page === maxpage) next.disabled = true;
 					next.onclick = () => {
 						deleteMessages();
 						genPage(page + 1);
@@ -2886,7 +2876,7 @@ class Localuser {
 						deleteMessages();
 						genPage(page - 1);
 					};
-					if (page == 0) prev.disabled = true;
+					if (page === 0) prev.disabled = true;
 					[next.textContent, prev.textContent] = [I18n.search.next(), I18n.search.back()];
 					bottombuttons.append(prev, next);
 					sideDiv.append(bottombuttons);
@@ -2921,7 +2911,7 @@ class Localuser {
 		if (!guild || (borked && guild.member_count > 250)) {
 			//sorry puyo, I need to fix member resolving while it's broken on large guilds
 			try {
-				const req = await fetch(this.info.api + "/guilds/" + guildid + "/members/" + id, {
+				const req = await fetch(`${this.info.api}/guilds/${guildid}/members/${id}`, {
 					headers: this.headers,
 				});
 				if (req.status !== 200) {
@@ -3017,7 +3007,7 @@ class Localuser {
 					return;
 				}
 				const promise: Promise<[memberjson[], string[]]> = new Promise((res) => {
-					const nonce = "" + Math.floor(Math.random() * 100000000000);
+					const nonce = `${Math.floor(Math.random() * 100000000000)}`;
 					this.noncemap.set(nonce, res);
 					this.noncebuild.set(nonce, [[], [], []]);
 					if (!this.ws) return;
@@ -3069,7 +3059,7 @@ class Localuser {
 		if (!userInfo.instances) userInfo.instances = {};
 		const wellknown = this.info.wellknown;
 		if (!userInfo.instances[wellknown]) {
-			const pingRes = await fetch(this.info.api + "/ping");
+			const pingRes = await fetch(`${this.info.api}/ping`);
 			const pingJSON = await pingRes.json();
 			userInfo.instances[wellknown] = pingJSON;
 			localStorage.setItem("userinfos", JSON.stringify(userInfo));
@@ -3081,17 +3071,14 @@ class Localuser {
 	pageTitle(channelName = "", guildName = "") {
 		(document.getElementById("channelname") as HTMLSpanElement).textContent = channelName;
 		(document.getElementsByTagName("title")[0] as HTMLTitleElement).textContent =
-			channelName +
-			(guildName ? " | " + guildName : "") +
-			" | " +
-			this.instancePing.name +
-			" | Jank Client";
+			`${channelName +
+			(guildName ? ` | ${guildName}` : "")} | ${this.instancePing.name} | Jank Client`;
 	}
 	async instanceStats() {
 		const dialog = new Dialog("");
 		dialog.options.addTitle(I18n.getTranslation("instanceStats.name", this.instancePing.name));
 		dialog.show();
-		const res = await fetch(this.info.api + "/policies/stats", {
+		const res = await fetch(`${this.info.api}/policies/stats`, {
 			headers: this.headers,
 		});
 		const json = await res.json();
@@ -3110,7 +3097,7 @@ class Localuser {
 			const voice = this.play.audios.get(name);
 			if (voice) {
 				voice.play();
-			} else if (this.perminfo.sound && this.perminfo.sound.cSound) {
+			} else if (this.perminfo.sound?.cSound) {
 				const audio = document.createElement("audio");
 				audio.src = this.perminfo.sound.cSound;
 				audio.play().catch();

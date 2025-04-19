@@ -1,8 +1,8 @@
-import {Guild} from "./guild.js";
+import type {Guild} from "./guild.js";
 import {I18n} from "./i18n.js";
-import {webhookType} from "./jsontypes.js";
+import type {webhookType} from "./jsontypes.js";
 import {Member} from "./member.js";
-import {Dialog, Options} from "./settings.js";
+import {Dialog, type Options} from "./settings.js";
 import {SnowFlake} from "./snowflake.js";
 import {User} from "./user.js";
 
@@ -119,7 +119,7 @@ async function webhookMenu(
 				{
 					traditionalSubmit: true,
 					method: "PATCH",
-					fetchURL: guild.info.api + "/webhooks/" + hook.id,
+					fetchURL: `${guild.info.api}/webhooks/${hook.id}`,
 					headers: guild.headers,
 				},
 			);
@@ -156,7 +156,7 @@ async function webhookMenu(
 				opt.addTitle(I18n.webhooks.areYouSureDelete(hook.name));
 				const opt2 = opt.addOptions("", {ltr: true});
 				opt2.addButtonInput("", I18n.yes(), () => {
-					fetch(guild.info.api + "/webhooks/" + hook.id, {
+					fetch(`${guild.info.api}/webhooks/${hook.id}`, {
 						method: "DELETE",
 						headers: guild.headers,
 					}).then(() => {

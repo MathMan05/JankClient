@@ -3,12 +3,12 @@ import {User} from "./user.js";
 import {Member} from "./member.js";
 import {MarkDown, saveCaretPosition} from "./markdown.js";
 import {Embed} from "./embed.js";
-import {Channel} from "./channel.js";
-import {Localuser} from "./localuser.js";
-import {Role} from "./role.js";
+import type {Channel} from "./channel.js";
+import type {Localuser} from "./localuser.js";
+import type {Role} from "./role.js";
 import {File} from "./file.js";
 import {SnowFlake} from "./snowflake.js";
-import {memberjson, messagejson, userjson} from "./jsontypes.js";
+import type {memberjson, messagejson, userjson} from "./jsontypes.js";
 import {Emoji} from "./emoji.js";
 import {mobile} from "./utils/utils.js";
 import {I18n} from "./i18n.js";
@@ -54,8 +54,8 @@ class Message extends SnowFlake {
 	reactions!: messagejson["reactions"];
 	pinned!: boolean;
 	static setup() {
-		this.del = new Promise((_) => {
-			this.resolve = _;
+		Message.del = new Promise((_) => {
+			Message.resolve = _;
 		});
 		Message.setupcmenu();
 	}
@@ -233,25 +233,25 @@ class Message extends SnowFlake {
 					this.attachments.push(new File(thing, this));
 				}
 				continue;
-			} else if (thing === "content") {
+			}if (thing === "content") {
 				this.content = new MarkDown(messagejson[thing], this.channel);
 				continue;
-			} else if (thing === "id") {
+			}if (thing === "id") {
 				continue;
-			} else if (thing === "member") {
+			}if (thing === "member") {
 				Member.new(messagejson.member as memberjson, this.guild).then((_) => {
 					this.member = _ as Member;
 				});
 				continue;
-			} else if (thing === "embeds") {
+			}if (thing === "embeds") {
 				this.embeds = [];
 				for (const thing in messagejson.embeds) {
 					this.embeds[thing] = new Embed(messagejson.embeds[thing], this);
 				}
 				continue;
-			} else if (thing === "author") {
+			}if (thing === "author") {
 				continue;
-			} else if (thing === "sticker_items") {
+			}if (thing === "sticker_items") {
 				this.stickers = messagejson.sticker_items.map((_) => {
 					const guild = this.localuser.guildids.get(_.guild_id as string);
 					return new Sticker(_, guild || this.localuser);
@@ -348,15 +348,13 @@ class Message extends SnowFlake {
 	mentionsuser(userd: User | Member) {
 		if (userd instanceof User) {
 			return this.mentions.includes(userd);
-		} else if (userd instanceof Member) {
+		}if (userd instanceof Member) {
 			if (this.mentions.includes(userd.user)) {
 				return true;
-			} else {
-				return !new Set(this.mentions).isDisjointFrom(new Set(userd.roles)); //if the message mentions a role the user has
 			}
-		} else {
-			return false;
+				return !new Set(this.mentions).isDisjointFrom(new Set(userd.roles)); //if the message mentions a role the user has
 		}
+			return false;
 	}
 	getimages() {
 		const build: File[] = [];
@@ -371,7 +369,7 @@ class Message extends SnowFlake {
 		return new Date(this.timestamp).getTime();
 	}
 	async edit(content: string) {
-		return await fetch(this.info.api + "/channels/" + this.channel.id + "/messages/" + this.id, {
+		return await fetch(`${this.info.api}/channels/${this.channel.id}/messages/${this.id}`, {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify({content}),
@@ -531,7 +529,7 @@ class Message extends SnowFlake {
 					premessage.blockedPropigate();
 					div.appendChild(build);
 					return div;
-				} else {
+				}
 					build.classList.add("blocked", "topMessage");
 					const span = document.createElement("span");
 					let count = 1;
@@ -540,7 +538,7 @@ class Message extends SnowFlake {
 						count++;
 						next = this.channel.messages.get(this.channel.idToNext.get(next.id) as string);
 					}
-					span.textContent = I18n.getTranslation("showBlockedMessages", count + "");
+					span.textContent = I18n.getTranslation("showBlockedMessages", `${count}`);
 					build.append(span);
 					span.onclick = (_) => {
 						const scroll = this.channel.infinite.scrollTop;
@@ -558,7 +556,6 @@ class Message extends SnowFlake {
 					};
 					div.appendChild(build);
 					return div;
-				}
 			}
 		}
 		if (this.message_reference && this.type !== 6) {
@@ -626,7 +623,7 @@ class Message extends SnowFlake {
 				current = newt - old > 600;
 			}
 			const combine =
-				premessage?.author != this.author ||
+				premessage?.author !== this.author ||
 				current ||
 				this.message_reference ||
 				!messageTypes.has(premessage.type);
@@ -659,7 +656,7 @@ class Message extends SnowFlake {
 					userwrap.appendChild(username);
 				}
 				const time = document.createElement("span");
-				time.textContent = "  " + formatTime(new Date(this.timestamp));
+				time.textContent = `  ${formatTime(new Date(this.timestamp))}`;
 				time.classList.add("timestamp");
 				userwrap.appendChild(time);
 				const hover = new Hover(new Date(this.timestamp).toString());
@@ -714,7 +711,7 @@ class Message extends SnowFlake {
 				messagedwrap.append(box);
 				setTimeout(() => {
 					area.focus();
-					const fun = saveCaretPosition(area, Infinity);
+					const fun = saveCaretPosition(area, Number.POSITIVE_INFINITY);
 					if (fun) fun();
 				});
 				box.oncontextmenu = (e) => {
@@ -770,7 +767,7 @@ class Message extends SnowFlake {
 			text.appendChild(secondspan);
 
 			const time = document.createElement("span");
-			time.textContent = "  " + formatTime(new Date(this.timestamp));
+			time.textContent = `  ${formatTime(new Date(this.timestamp))}`;
 			time.classList.add("timestamp");
 			text.append(time);
 			div.classList.add("topMessage");
@@ -797,7 +794,7 @@ class Message extends SnowFlake {
 			text.append(afterText);
 
 			const time = document.createElement("span");
-			time.textContent = "  " + formatTime(new Date(this.timestamp));
+			time.textContent = `  ${formatTime(new Date(this.timestamp))}`;
 			time.classList.add("timestamp");
 			text.append(time);
 			div.classList.add("topMessage");
@@ -952,13 +949,13 @@ class Message extends SnowFlake {
 					build += ", and more!";
 				} else {
 				}
-				build += "\nReacted with " + thing.emoji.name;
+				build += `\nReacted with ${thing.emoji.name}`;
 				console.log(build);
 				return build;
 			});
 			h.addEvent(reaction);
 			const count = document.createElement("p");
-			count.textContent = "" + thing.count;
+			count.textContent = `${thing.count}`;
 			count.classList.add("reactionCount");
 			reaction.append(count);
 			reaction.append(emoji);
@@ -1016,8 +1013,8 @@ class Message extends SnowFlake {
 		for (const i in this.reactions) {
 			const reaction = this.reactions[i];
 			if (
-				(reaction.emoji.id && reaction.emoji.id == emoji.id) ||
-				(!reaction.emoji.id && reaction.emoji.name == emoji.name)
+				(reaction.emoji.id && reaction.emoji.id === emoji.id) ||
+				(!reaction.emoji.id && reaction.emoji.name === emoji.name)
 			) {
 				this.reactions.splice(Number(i), 1);
 				this.updateReactions();
@@ -1058,11 +1055,10 @@ function formatTime(date: Date) {
 
 	if (datestring === now) {
 		return I18n.getTranslation("todayAt", formatTime(date));
-	} else if (datestring === yesterdayStr) {
+	}if (datestring === yesterdayStr) {
 		return I18n.getTranslation("yesterdayAt", formatTime(date));
-	} else {
-		return I18n.getTranslation("otherAt", date.toLocaleDateString(), formatTime(date));
 	}
+		return I18n.getTranslation("otherAt", date.toLocaleDateString(), formatTime(date));
 }
 let tomorrow = 0;
 updateTimes();

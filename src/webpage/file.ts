@@ -1,5 +1,5 @@
-import {Message} from "./message.js";
-import {filejson} from "./jsontypes.js";
+import type {Message} from "./message.js";
+import type {filejson} from "./jsontypes.js";
 import {ImagesDisplay} from "./disimg.js";
 import {makePlayBox, MediaPlayer} from "./media.js";
 import {I18n} from "./i18n.js";
@@ -26,7 +26,7 @@ class File {
 		this.content_type = fileJSON.content_type;
 		this.size = fileJSON.size;
 	}
-	getHTML(temp: boolean = false, fullScreen = false, OSpoiler = false): HTMLElement {
+	getHTML(temp = false, fullScreen = false, OSpoiler = false): HTMLElement {
 		function makeSpoilerHTML(): HTMLElement {
 			const spoil = document.createElement("div");
 			spoil.classList.add("fSpoil");
@@ -70,18 +70,17 @@ class File {
 			};
 			div.append(img);
 			if (this.width && !fullScreen) {
-				div.style.maxWidth = this.width + "px";
-				div.style.maxHeight = this.height + "px";
+				div.style.maxWidth = `${this.width}px`;
+				div.style.maxHeight = `${this.height}px`;
 			}
 			if (!fullScreen) {
 				if (OSpoiler) {
 					div.append(makeSpoilerHTML());
 				}
 				return div;
-			} else {
-				return img;
 			}
-		} else if (this.content_type.startsWith("video/")) {
+				return img;
+		}if (this.content_type.startsWith("video/")) {
 			const video = document.createElement("video");
 			const source = document.createElement("source");
 			source.src = src;
@@ -99,19 +98,18 @@ class File {
 				return div;
 			}
 			return video;
-		} else if (this.content_type.startsWith("audio/")) {
+		}if (this.content_type.startsWith("audio/")) {
 			const a = this.getAudioHTML();
 			if (OSpoiler) {
 				a.append(makeSpoilerHTML());
 			}
 			return a;
-		} else {
+		}
 			const uk = this.createunknown();
 			if (OSpoiler) {
 				uk.append(makeSpoilerHTML());
 			}
 			return uk;
-		}
 	}
 	private getAudioHTML() {
 		const src = this.proxy_url || this.url;
@@ -151,7 +149,7 @@ class File {
 				sicon.classList.add("svg-spoiler");
 				sicon.classList.remove("svg-unspoiler");
 			} else {
-				file = files[files.indexOf(file)] = new globalThis.File([file], "SPOILER_" + file.name, {
+				file = files[files.indexOf(file)] = new globalThis.File([file], `SPOILER_${file.name}`, {
 					type: file.type,
 				});
 				sicon.classList.add("svg-unspoiler");
@@ -208,17 +206,15 @@ class File {
 		const sizetr = document.createElement("tr");
 		const size = document.createElement("td");
 		sizetr.append(size);
-		size.textContent = "Size:" + File.filesizehuman(this.size);
+		size.textContent = `Size:${File.filesizehuman(this.size)}`;
 		size.classList.add("filesize");
 		div.appendChild(sizetr);
 		return div;
 	}
 	static filesizehuman(fsize: number) {
-		const i = fsize == 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024));
+		const i = fsize === 0 ? 0 : Math.floor(Math.log(fsize) / Math.log(1024));
 		return (
-			Number((fsize / Math.pow(1024, i)).toFixed(2)) * 1 +
-			" " +
-			["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i] // I don't think this changes across languages, correct me if I'm wrong
+			`${Number((fsize / 1024 ** i).toFixed(2)) * 1} ${["Bytes", "Kilobytes", "Megabytes", "Gigabytes", "Terabytes"][i]}` // I don't think this changes across languages, correct me if I'm wrong
 		);
 	}
 }

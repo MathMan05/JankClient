@@ -33,9 +33,9 @@ class Search<E> {
 		return new Promise<E | undefined>((res) => {
 			const container = document.createElement("div");
 			container.classList.add("fixedsearch");
-			console.log((x ^ 0) + "", (y ^ 0) + "");
-			container.style.left = (x ^ 0) + "px";
-			container.style.top = (y ^ 0) + "px";
+			console.log(`${x ^ 0}`, `${y ^ 0}`);
+			container.style.left = `${x ^ 0}px`;
+			container.style.top = `${y ^ 0}px`;
 			const remove = container.remove;
 			container.remove = () => {
 				remove.call(container);
@@ -59,7 +59,7 @@ class Search<E> {
 			container.append(bar);
 			container.append(options);
 			document.body.append(container);
-			if (Contextmenu.currentmenu != "") {
+			if (Contextmenu.currentmenu !== "") {
 				Contextmenu.currentmenu.remove();
 			}
 			Contextmenu.currentmenu = container;

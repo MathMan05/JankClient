@@ -9,7 +9,7 @@ function generateRecArea() {
 	if (can) {
 		const a = document.createElement("a");
 		a.textContent = I18n.login.recover();
-		a.href = "/reset" + window.location.search;
+		a.href = `/reset${window.location.search}`;
 		recover.append(a);
 	}
 }
@@ -18,7 +18,7 @@ checkInstance.alt = async (e) => {
 	if (!recover) return;
 	recover.innerHTML = "";
 	try {
-		const json = (await (await fetch(e.api + "/policies/instance/config")).json()) as {
+		const json = (await (await fetch(`${e.api}/policies/instance/config`)).json()) as {
 			can_recover_account: boolean;
 		};
 		if (!json || !json.can_recover_account) throw Error("can't recover account");
@@ -56,7 +56,7 @@ function trimswitcher() {
 		if (wellknown.at(-1) !== "/") {
 			wellknown += "/";
 		}
-		wellknown = (user.id || user.email) + "@" + wellknown;
+		wellknown = `${user.id || user.email}@${wellknown}`;
 		if (map.has(wellknown)) {
 			const otheruser = map.get(wellknown);
 			if (otheruser[1].serverurls.wellknown.at(-1) === "/") {
@@ -146,7 +146,7 @@ async function login(username: string, password: string, captcha: string) {
 	try {
 		const info = JSON.parse(localStorage.getItem("instanceinfo")!);
 		const api = info.login + (info.login.startsWith("/") ? "/" : "");
-		return await fetch(api + "/auth/login", options)
+		return await fetch(`${api}/auth/login`, options)
 			.then((response) => response.json())
 			.then((response) => {
 				console.log(response, response.message);
@@ -159,7 +159,7 @@ async function login(username: string, password: string, captcha: string) {
 
 				if (response.captcha_sitekey) {
 					const capt = document.getElementById("h-captcha");
-					if (capt!.children.length) {
+					if (capt?.children.length) {
 						eval("hcaptcha.reset()");
 					} else {
 						const capty = document.createElement("div");
@@ -168,8 +168,8 @@ async function login(username: string, password: string, captcha: string) {
 						capty.setAttribute("data-sitekey", response.captcha_sitekey);
 						const script = document.createElement("script");
 						script.src = "https://js.hcaptcha.com/1/api.js";
-						capt!.append(script);
-						capt!.append(capty);
+						capt?.append(script);
+						capt?.append(capty);
 					}
 				} else {
 					console.log(response);
@@ -180,7 +180,7 @@ async function login(username: string, password: string, captcha: string) {
 							(res: any) => {
 								if (res.message) {
 									throw new FormError(ti, res.message);
-								} else {
+								}
 									console.warn(res);
 									if (!res.token) return;
 									adduser({
@@ -194,10 +194,9 @@ async function login(username: string, password: string, captcha: string) {
 									} else {
 										window.location.href = "/channels/@me";
 									}
-								}
 							},
 							{
-								fetchURL: api + "/auth/mfa/totp",
+								fetchURL: `${api}/auth/mfa/totp`,
 								method: "POST",
 								headers: {
 									"Content-Type": "application/json",

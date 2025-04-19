@@ -1,10 +1,10 @@
 import {User} from "./user.js";
-import {Role} from "./role.js";
-import {Guild} from "./guild.js";
+import type {Role} from "./role.js";
+import type {Guild} from "./guild.js";
 import {SnowFlake} from "./snowflake.js";
-import {memberjson, presencejson} from "./jsontypes.js";
+import type {memberjson, presencejson} from "./jsontypes.js";
 import {I18n} from "./i18n.js";
-import {Dialog, Options, Settings} from "./settings.js";
+import {Dialog, type Options, Settings} from "./settings.js";
 
 class Member extends SnowFlake {
 	static already = {};
@@ -12,8 +12,8 @@ class Member extends SnowFlake {
 	user: User;
 	roles: Role[] = [];
 	nick!: string;
-	avatar: void | string = undefined;
-	banner: void | string = undefined;
+	avatar: undefined | string = undefined;
+	banner: undefined | string = undefined;
 	private constructor(memberjson: memberjson, owner: Guild) {
 		super(memberjson.id);
 		this.owner = owner;
@@ -52,9 +52,8 @@ class Member extends SnowFlake {
 			return `${this.info.cdn}/banners/${this.guild.id}/${
 				this.banner
 			}.${this.banner.startsWith("a_") ? "gif" : "png"}`;
-		} else {
-			return undefined;
 		}
+			return undefined;
 	}
 	joined_at!: string;
 	premium_since!: string;
@@ -64,7 +63,7 @@ class Member extends SnowFlake {
 	clone() {
 		return new Member(
 			{
-				id: this.id + "#clone",
+				id: `${this.id}#clone`,
 				user: this.user.tojson(),
 				guild_id: this.guild.id,
 				guild: {id: this.guild.id},
@@ -95,7 +94,7 @@ class Member extends SnowFlake {
 		const reader = new FileReader();
 		reader.readAsDataURL(file);
 		reader.onload = () => {
-			fetch(this.info.api + `/guilds/${this.guild.id}/members/${this.id}/`, {
+			fetch(`${this.info.api}/guilds/${this.guild.id}/members/${this.id}/`, {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -109,7 +108,7 @@ class Member extends SnowFlake {
 			const reader = new FileReader();
 			reader.readAsDataURL(file);
 			reader.onload = () => {
-				fetch(this.info.api + `/guilds/${this.guild.id}/profile/${this.id}`, {
+				fetch(`${this.info.api}/guilds/${this.guild.id}/profile/${this.id}`, {
 					method: "PATCH",
 					headers: this.headers,
 					body: JSON.stringify({
@@ -118,7 +117,7 @@ class Member extends SnowFlake {
 				});
 			};
 		} else {
-			fetch(this.info.api + `/guilds/${this.guild.id}/profile/${this.id}`, {
+			fetch(`${this.info.api}/guilds/${this.guild.id}/profile/${this.id}`, {
 				method: "PATCH",
 				headers: this.headers,
 				body: JSON.stringify({
@@ -141,7 +140,7 @@ class Member extends SnowFlake {
 			json.nick=null;
 		}
 		*/
-		fetch(this.info.api + `/guilds/${this.guild.id}/profile/${this.id}`, {
+		fetch(`${this.info.api}/guilds/${this.guild.id}/profile/${this.id}`, {
 			method: "PATCH",
 			headers: this.headers,
 			body: JSON.stringify(json),
@@ -263,7 +262,7 @@ class Member extends SnowFlake {
 				hypomember.bio = _;
 				regen();
 			});
-			color = (this.accent_color ? "#" + this.accent_color.toString(16) : "transparent") as string;
+			color = (this.accent_color ? `#${this.accent_color.toString(16)}` : "transparent") as string;
 
 			const colorPicker = settingsLeft.addColorInput(
 				I18n.getTranslation("profileColor"),
@@ -273,7 +272,7 @@ class Member extends SnowFlake {
 			colorPicker.watchForChange((_) => {
 				console.log();
 				color = _;
-				hypomember.accent_color = Number.parseInt("0x" + _.substring(1));
+				hypomember.accent_color = Number.parseInt(`0x${_.substring(1)}`);
 				changed = true;
 				regen();
 			});
@@ -346,25 +345,23 @@ class Member extends SnowFlake {
 				user.members.set(owner, memb);
 				owner.members.add(memb);
 				return memb;
-			} else if (memb instanceof Promise) {
+			}if (memb instanceof Promise) {
 				const member = await memb; //I should do something else, though for now this is "good enough";
 				if (member) {
 					member.update(memberjson);
 				}
 				return member;
-			} else {
+			}
 				if (memberjson.presence) {
 					memb.getPresence(memberjson.presence);
 				}
 				memb.update(memberjson);
 				return memb;
-			}
-		} else {
+		}
 			const memb = new Member(memberjson, owner);
 			user.members.set(owner, memb);
 			owner.members.add(memb);
 			return memb;
-		}
 	}
 	compare(str: string) {
 		function similar(str2: string | null | undefined) {
@@ -372,7 +369,7 @@ class Member extends SnowFlake {
 			const strl = Math.max(str.length, 1);
 			if (str2.includes(str)) {
 				return strl / str2.length;
-			} else if (str2.toLowerCase().includes(str.toLowerCase())) {
+			}if (str2.toLowerCase().includes(str.toLowerCase())) {
 				return strl / str2.length / 1.2;
 			}
 			return 0;
@@ -394,14 +391,13 @@ class Member extends SnowFlake {
 				const membjson = await membpromise;
 				if (membjson === undefined) {
 					return res(undefined);
-				} else {
+				}
 					const member = new Member(membjson, guild);
 					const map = guild.localuser.presences;
 					member.getPresence(map.get(member.id));
 					map.delete(member.id);
 					res(member);
 					return member;
-				}
 			});
 			user.members.set(guild, promise);
 			const member = await promise;
@@ -413,9 +409,8 @@ class Member extends SnowFlake {
 		}
 		if (maybe instanceof Promise) {
 			return await maybe;
-		} else {
-			return maybe;
 		}
+			return maybe;
 	}
 	public getPresence(presence: presencejson | undefined) {
 		this.user.getPresence(presence);
@@ -425,11 +420,7 @@ class Member extends SnowFlake {
 	 */
 	highInfo() {
 		fetch(
-			this.info.api +
-				"/users/" +
-				this.id +
-				"/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=" +
-				this.guild.id,
+			`${this.info.api}/users/${this.id}/profile?with_mutual_guilds=true&with_mutual_friends_count=true&guild_id=${this.guild.id}`,
 			{headers: this.guild.headers},
 		);
 	}
@@ -513,7 +504,7 @@ class Member extends SnowFlake {
 	addRole(role: Role) {
 		const roles = this.roles.map((_) => _.id);
 		roles.push(role.id);
-		fetch(this.info.api + "/guilds/" + this.guild.id + "/members/" + this.id, {
+		fetch(`${this.info.api}/guilds/${this.guild.id}/members/${this.id}`, {
 			method: "PATCH",
 			headers: this.guild.headers,
 			body: JSON.stringify({roles}),
@@ -522,7 +513,7 @@ class Member extends SnowFlake {
 	removeRole(role: Role) {
 		let roles = this.roles.map((_) => _.id);
 		roles = roles.filter((_) => _ !== role.id);
-		fetch(this.info.api + "/guilds/" + this.guild.id + "/members/" + this.id, {
+		fetch(`${this.info.api}/guilds/${this.guild.id}/members/${this.id}`, {
 			method: "PATCH",
 			headers: this.guild.headers,
 			body: JSON.stringify({roles}),

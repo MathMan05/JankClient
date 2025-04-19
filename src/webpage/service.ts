@@ -46,7 +46,7 @@ async function checkCache() {
 		checkedrecently = true;
 	});
 }
-var checkedrecently = false;
+let checkedrecently = false;
 
 function samedomain(url: string | URL) {
 	return new URL(url).origin === self.origin;
@@ -56,9 +56,9 @@ let enabled = "false";
 let offline = false;
 
 const htmlFiles = new Set(["/index", "/login", "/home", "/register", "/oauth2/auth", "/reset"]);
-function isHtml(url: string): string | void {
+function isHtml(url: string): string | undefined {
 	const path = new URL(url).pathname;
-	if (htmlFiles.has(path) || htmlFiles.has(path + ".html")) {
+	if (htmlFiles.has(path) || htmlFiles.has(`${path}.html`)) {
 		return path + path.endsWith(".html") ? "" : ".html";
 	}
 }
@@ -98,11 +98,11 @@ async function getfile(event: FetchEvent): Promise<Response> {
 		return responce;
 	}
 
-	let path = toPath(event.request.url);
+	const path = toPath(event.request.url);
 	if (path === "/instances.json") {
 		return await fetch(path);
 	}
-	console.log("Getting path: " + path);
+	console.log(`Getting path: ${path}`);
 	const responseFromCache = await caches.match(path);
 	if (responseFromCache) {
 		console.log("cache hit");

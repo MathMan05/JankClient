@@ -4,7 +4,7 @@ class Permissions {
 	allow: bigint;
 	deny: bigint;
 	readonly hasDeny: boolean;
-	constructor(allow: string, deny: string = "") {
+	constructor(allow: string, deny = "") {
 		this.hasDeny = Boolean(deny);
 		try {
 			this.allow = BigInt(allow);
@@ -26,11 +26,11 @@ class Permissions {
 	}
 	//private static info: { name: string; readableName: string; description: string }[];
 	static *info(): Generator<{name: string; readableName: string; description: string}> {
-		for (const thing of this.permisions) {
+		for (const thing of Permissions.permisions) {
 			yield {
 				name: thing,
-				readableName: I18n.getTranslation("permissions.readableNames." + thing),
-				description: I18n.getTranslation("permissions.descriptions." + thing),
+				readableName: I18n.getTranslation(`permissions.readableNames.${thing}`),
+				description: I18n.getTranslation(`permissions.descriptions.${thing}`),
 			};
 		}
 	}
@@ -87,15 +87,14 @@ class Permissions {
 	];
 	getPermission(name: string): number {
 		if (undefined === Permissions.permisions.indexOf(name)) {
-			console.error(name + " is not found in map", Permissions.permisions);
+			console.error(`${name} is not found in map`, Permissions.permisions);
 		}
 		if (this.getPermissionbit(Permissions.permisions.indexOf(name), this.allow)) {
 			return 1;
-		} else if (this.getPermissionbit(Permissions.permisions.indexOf(name), this.deny)) {
+		}if (this.getPermissionbit(Permissions.permisions.indexOf(name), this.deny)) {
 			return -1;
-		} else {
-			return 0;
 		}
+			return 0;
 	}
 	hasPermission(name: string, adminOverride = true): boolean {
 		if (this.deny) {
@@ -111,7 +110,7 @@ class Permissions {
 		const bit = Permissions.permisions.indexOf(name);
 		if (bit === undefined) {
 			return console.error(
-				"Tried to set permission to " + setto + " for " + name + " but it doesn't exist",
+				`Tried to set permission to ${setto} for ${name} but it doesn't exist`,
 			);
 		}
 
@@ -125,7 +124,7 @@ class Permissions {
 			this.deny = this.setPermissionbit(bit, true, this.deny);
 			this.allow = this.setPermissionbit(bit, false, this.allow);
 		} else {
-			console.error("invalid number entered:" + setto);
+			console.error(`invalid number entered:${setto}`);
 		}
 	}
 }

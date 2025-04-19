@@ -45,10 +45,10 @@ async function registertry(e: Event) {
 	let add = "";
 	const token = new URLSearchParams(window.location.search).get("token");
 	if (token) {
-		add = "?" + new URLSearchParams([["token", token]]).toString();
+		add = `?${new URLSearchParams([["token", token]]).toString()}`;
 	}
 	try {
-		const response = await fetch(apiurl + "/auth/register" + add, {
+		const response = await fetch(`${apiurl}/auth/register${add}`, {
 			body: JSON.stringify({
 				date_of_birth: dateofbirth,
 				email,
@@ -149,7 +149,7 @@ async function tosLogic() {
 	const instanceInfo = JSON.parse(localStorage.getItem("instanceinfo") ?? "{}");
 	const apiurl = new URL(instanceInfo.api);
 	const urlstr = apiurl.toString();
-	const response = await fetch(urlstr + (urlstr.endsWith("/") ? "" : "/") + "ping");
+	const response = await fetch(`${urlstr + (urlstr.endsWith("/") ? "" : "/")}ping`);
 	const data = await response.json();
 	const tosPage = data.instance.tosPage;
 

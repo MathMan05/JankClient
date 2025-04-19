@@ -79,10 +79,10 @@ class BinWrite {
 		const buf = new ArrayBuffer(this.i);
 		const ar1 = new Uint8Array(buf);
 		const ar2 = new Uint8Array(this.buffer);
-		for (let i in ar1) {
+		for (const i in ar1) {
 			ar1[+i] = ar2[+i];
 		}
 		return buf;
 	}
 }
-export {BinRead, BinWrite};
+export { BinRead, BinWrite };

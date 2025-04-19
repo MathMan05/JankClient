@@ -1,14 +1,14 @@
 import {Member} from "./member.js";
 import {MarkDown} from "./markdown.js";
 import {Contextmenu} from "./contextmenu.js";
-import {Localuser} from "./localuser.js";
+import type {Localuser} from "./localuser.js";
 import {Guild} from "./guild.js";
 import {SnowFlake} from "./snowflake.js";
-import {presencejson, userjson, webhookInfo} from "./jsontypes.js";
-import {Role} from "./role.js";
+import type {presencejson, userjson, webhookInfo} from "./jsontypes.js";
+import type {Role} from "./role.js";
 import {Search} from "./search.js";
 import {I18n} from "./i18n.js";
-import {Direct} from "./direct.js";
+import type {Direct} from "./direct.js";
 import {Hover} from "./hover.js";
 import {Dialog} from "./settings.js";
 import {createImg} from "./utils/utils.js";
@@ -38,7 +38,7 @@ class User extends SnowFlake {
 	status!: string;
 	resolving: false | Promise<any> = false;
 
-	constructor(userjson: userjson, owner: Localuser, dontclone: boolean = false) {
+	constructor(userjson: userjson, owner: Localuser, dontclone = false) {
 		super(userjson.id);
 		this.owner = owner;
 		if (localStorage.getItem("logbad") && owner.user && owner.user.id !== userjson.id) {
@@ -49,7 +49,7 @@ class User extends SnowFlake {
 		}
 		this.uid = userjson.id;
 		if (userjson.webhook) {
-			this.uid += ":::" + userjson.username;
+			this.uid += `:::${userjson.username}`;
 			console.log(this.uid);
 		}
 		userjson.uid = this.uid;
@@ -85,7 +85,7 @@ class User extends SnowFlake {
 		}
 		for (const thing of bad) {
 			if (json.hasOwnProperty(thing)) {
-				console.error(thing + " should not be exposed to the client");
+				console.error(`${thing} should not be exposed to the client`);
 			}
 		}
 	}
@@ -122,7 +122,7 @@ class User extends SnowFlake {
 		}
 	}
 	get online() {
-		return this.status && this.status != "offline";
+		return this.status && this.status !== "offline";
 	}
 	setstatus(status: string): void {
 		if (this.id === this.localuser.user.id) {
@@ -144,7 +144,7 @@ class User extends SnowFlake {
 			}
 		}
 
-		await fetch(this.info.api + "/users/@me/channels", {
+		await fetch(`${this.info.api}/users/@me/channels`, {
 			method: "POST",
 			body: JSON.stringify({recipients: [this.id]}),
 			headers: this.localuser.headers,
@@ -173,7 +173,7 @@ class User extends SnowFlake {
 		this.relationshipType = type;
 	}
 	static setUpContextMenu(): void {
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("user.message"),
 			function (this: User) {
 				this.opendm();
@@ -185,9 +185,9 @@ class User extends SnowFlake {
 			},
 		);
 
-		this.contextmenu.addSeperator();
+		User.contextmenu.addSeperator();
 
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("user.block"),
 			function (this: User) {
 				this.block();
@@ -199,7 +199,7 @@ class User extends SnowFlake {
 			},
 		);
 
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("user.unblock"),
 			function (this: User) {
 				this.unblock();
@@ -210,7 +210,7 @@ class User extends SnowFlake {
 				},
 			},
 		);
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("user.friendReq"),
 			function (this: User) {
 				this.changeRelationship(1);
@@ -228,7 +228,7 @@ class User extends SnowFlake {
 				},
 			},
 		);
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("friends.removeFriend"),
 			function (this: User) {
 				this.changeRelationship(0);
@@ -240,9 +240,9 @@ class User extends SnowFlake {
 			},
 		);
 
-		this.contextmenu.addSeperator();
+		User.contextmenu.addSeperator();
 
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("user.editServerProfile"),
 			function (this: User, member: Member | undefined) {
 				if (!member) return;
@@ -256,7 +256,7 @@ class User extends SnowFlake {
 		);
 
 		//TODO kick icon
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("user.kick"),
 			function (this: User, member: Member | undefined) {
 				member?.kick();
@@ -278,7 +278,7 @@ class User extends SnowFlake {
 		);
 
 		//TODO ban icon
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("user.ban"),
 			function (this: User, member: Member | undefined) {
 				member?.ban();
@@ -299,9 +299,9 @@ class User extends SnowFlake {
 			},
 		);
 
-		this.contextmenu.addSeperator();
+		User.contextmenu.addSeperator();
 
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("user.addRole"),
 			async function (this: User, member: Member | undefined, e) {
 				if (member) {
@@ -328,7 +328,7 @@ class User extends SnowFlake {
 				},
 			},
 		);
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("user.removeRole"),
 			async function (this: User, member: Member | undefined, e) {
 				if (member) {
@@ -356,17 +356,17 @@ class User extends SnowFlake {
 			},
 		);
 
-		this.contextmenu.addSeperator();
-		this.contextmenu.addButton(
+		User.contextmenu.addSeperator();
+		User.contextmenu.addButton(
 			() => I18n.getTranslation("user.copyId"),
 			function (this: User) {
 				navigator.clipboard.writeText(this.id);
 			},
 		);
 
-		this.contextmenu.addSeperator();
+		User.contextmenu.addSeperator();
 
-		this.contextmenu.addButton(
+		User.contextmenu.addButton(
 			() => I18n.user.instanceBan(),
 			function (this: User) {
 				const menu = new Dialog("");
@@ -374,7 +374,7 @@ class User extends SnowFlake {
 				options.addTitle(I18n.user.confirmInstBan(this.name));
 				const opt = options.addOptions("", {ltr: true});
 				opt.addButtonInput("", I18n.yes(), () => {
-					fetch(this.info.api + "/users/" + this.id + "/delete", {
+					fetch(`${this.info.api}/users/${this.id}/delete`, {
 						headers: this.localuser.headers,
 						method: "POST",
 					});
@@ -402,11 +402,10 @@ class User extends SnowFlake {
 				tempUser.userupdate(user);
 			}
 			return tempUser;
-		} else {
+		}
 			const tempuser = new User(user as userjson, owner, true);
 			owner.userMap.set(user.uid || user.id, tempuser);
 			return tempuser;
-		}
 	}
 
 	get info() {
@@ -440,7 +439,7 @@ class User extends SnowFlake {
 	async getBadge(id: string) {
 		if (this.localuser.badges.has(id)) {
 			return this.localuser.badges.get(id);
-		} else {
+		}
 			if (this.resolving) {
 				await this.resolving;
 				return this.localuser.badges.get(id);
@@ -454,14 +453,13 @@ class User extends SnowFlake {
 				this.localuser.badges.set(badge.id, badge);
 			}
 			return this.localuser.badges.get(id);
-		}
 	}
 
-	buildpfp(guild: Guild | void | Member | null, hoverElm: void | HTMLElement): HTMLImageElement {
+	buildpfp(guild: Guild | undefined | Member | null, hoverElm: undefined | HTMLElement): HTMLImageElement {
 		const pfp = createImg(this.getpfpsrc(), undefined, hoverElm);
 		pfp.loading = "lazy";
 		pfp.classList.add("pfp");
-		pfp.classList.add("userid:" + this.id);
+		pfp.classList.add(`userid:${this.id}`);
 		if (guild) {
 			(async () => {
 				if (guild instanceof Guild) {
@@ -499,7 +497,7 @@ class User extends SnowFlake {
 		this.bind(div, guild);
 		return div;
 	}
-	async buildstatuspfp(guild: Guild | void | Member | null): Promise<HTMLDivElement> {
+	async buildstatuspfp(guild: Guild | undefined | Member | null): Promise<HTMLDivElement> {
 		const div = document.createElement("div");
 		div.classList.add("pfpDiv");
 		const pfp = this.buildpfp(guild, div);
@@ -511,7 +509,6 @@ class User extends SnowFlake {
 			case "invisible":
 				status.classList.add("offlinestatus");
 				break;
-			case "online":
 			default:
 				status.classList.add("onlinestatus");
 				break;
@@ -534,7 +531,7 @@ class User extends SnowFlake {
 		if ("rights" in this) {
 			if (
 				this === this.localuser.user &&
-				(typeof this.rights == "string" || typeof this.rights == "number")
+				(typeof this.rights === "string" || typeof this.rights === "number")
 			) {
 				this.localuser.updateRights(this.rights);
 			}
@@ -574,7 +571,7 @@ class User extends SnowFlake {
 	}
 
 	static async resolve(id: string, localuser: Localuser): Promise<User> {
-		const json = await fetch(localuser.info.api.toString() + "/users/" + id + "/profile", {
+		const json = await fetch(`${localuser.info.api.toString()}/users/${id}/profile`, {
 			headers: localuser.headers,
 		}).then((res) => res.json());
 		if (json.code === 404) {
@@ -603,7 +600,7 @@ class User extends SnowFlake {
 		this.avatar = update;
 		this.hypotheticalpfp = false;
 		//const src = this.getpfpsrc();
-		Array.from(document.getElementsByClassName("userid:" + this.id)).forEach((_element) => {
+		Array.from(document.getElementsByClassName(`userid:${this.id}`)).forEach((_element) => {
 			//(element as HTMLImageElement).src = src;
 			//FIXME
 		});
@@ -631,7 +628,7 @@ class User extends SnowFlake {
 	/**
 	 * @param guild this is an optional thing that'll get the src of the member if it exists, otherwise ignores it, this is meant to be fast, not accurate
 	 */
-	getpfpsrc(guild: Guild | void): string {
+	getpfpsrc(guild: Guild | undefined): string {
 		if (this.hypotheticalpfp && this.avatar) {
 			return this.avatar;
 		}
@@ -643,10 +640,9 @@ class User extends SnowFlake {
 		}
 		if (this.avatar !== null) {
 			return `${this.info.cdn}/avatars/${this.id.replace("#clone", "")}/${this.avatar}.png`;
-		} else {
+		}
 			const int = Number((BigInt(this.id.replace("#clone", "")) >> 22n) % 6n);
 			return `${this.info.cdn}/embed/avatars/${int}.png`;
-		}
 	}
 	async getBadges() {
 		let i = 0;
@@ -712,7 +708,7 @@ class User extends SnowFlake {
 		y: number,
 		guild: Guild | null | Member = null,
 	): Promise<HTMLDivElement> {
-		if (Contextmenu.currentmenu != "") {
+		if (Contextmenu.currentmenu !== "") {
 			Contextmenu.currentmenu.remove();
 		}
 		const membres = (async () => {
@@ -766,14 +762,14 @@ class User extends SnowFlake {
 				if (URL.canParse(badgejson.icon)) {
 					src = badgejson.icon;
 				} else {
-					src = this.info.cdn + "/badge-icons/" + badgejson.icon + ".png";
+					src = `${this.info.cdn}/badge-icons/${badgejson.icon}.png`;
 				}
 				const img = createImg(src, undefined, badgediv);
 
 				badge.append(img);
 				let hovertxt: string;
 				if (badgejson.translate) {
-					hovertxt = I18n.getTranslation("badge." + badgejson.description);
+					hovertxt = I18n.getTranslation(`badge.${badgejson.description}`);
 				} else {
 					hovertxt = badgejson.description;
 				}
@@ -887,12 +883,10 @@ class User extends SnowFlake {
 		if (this.banner) {
 			if (!this.hypotheticalbanner) {
 				return `${this.info.cdn}/avatars/${this.id.replace("#clone", "")}/${this.banner}.png`;
-			} else {
-				return this.banner;
 			}
-		} else {
-			return undefined;
+				return this.banner;
 		}
+			return undefined;
 	}
 	profileclick(obj: HTMLElement, guild?: Guild): void {
 		obj.onclick = (e: MouseEvent) => {

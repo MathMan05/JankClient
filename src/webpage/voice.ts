@@ -1,4 +1,4 @@
-import {memberjson, sdpback, voiceserverupdate, voiceupdate, webRTCSocket} from "./jsontypes.js";
+import type {memberjson, sdpback, voiceserverupdate, voiceupdate, webRTCSocket} from "./jsontypes.js";
 
 class VoiceFactory {
 	settings: {id: string};
@@ -76,7 +76,7 @@ class VoiceFactory {
 }
 
 class Voice {
-	private pstatus: string = "not connected";
+	private pstatus = "not connected";
 	public onSatusChange: (e: string) => unknown = () => {};
 	set status(e: string) {
 		this.pstatus = e;
@@ -95,10 +95,10 @@ class Voice {
 	}
 	pc?: RTCPeerConnection;
 	ws?: WebSocket;
-	timeout: number = 30000;
+	timeout = 30000;
 	interval: NodeJS.Timeout = 0 as unknown as NodeJS.Timeout;
-	time: number = 0;
-	seq: number = 0;
+	time = 0;
+	seq = 0;
 	sendAlive() {
 		if (this.ws) {
 			this.ws.send(JSON.stringify({op: 3, d: 10}));
@@ -176,7 +176,7 @@ class Voice {
 		console.log(bundles);
 
 		if (!this.offer) throw new Error("Offer is missing :P");
-		let cline = sdp.split("\n").find((line) => line.startsWith("c="));
+		const cline = sdp.split("\n").find((line) => line.startsWith("c="));
 		if (!cline) throw new Error("c line wasn't found");
 		const parsed1 = Voice.parsesdp(sdp).medias[0];
 		//const parsed2=Voice.parsesdp(this.offer);
@@ -289,7 +289,7 @@ a=rtcp-mux\r`;
 		sender: RTCRtpSender | undefined | [RTCRtpSender, number] = this.ssrcMap.entries().next().value,
 	) {
 		if (!sender) throw new Error("sender doesn't exist");
-		if (sender instanceof Array) {
+		if (Array.isArray(sender)) {
 			sender = sender[0];
 		}
 		if (this.ws) {
@@ -588,19 +588,21 @@ a=rtcp-mux\r`;
 				case "s":
 				case "t":
 					break;
-				case "m":
+				case "m": {
 					currentA = new Map();
 					const [media, port, proto, ...ports] = setinfo.split(" ");
 					const portnums = ports.map(Number);
 					out.medias.push({media, port: Number(port), proto, ports: portnums, atr: currentA});
 					break;
-				case "a":
+				}
+				case "a": {
 					const [key, ...value] = setinfo.split(":");
 					if (!currentA.has(key)) {
 						currentA.set(key, new Set());
 					}
 					currentA.get(key)?.add(value.join(":"));
 					break;
+				}
 			}
 		}
 		return out;
@@ -631,7 +633,7 @@ a=rtcp-mux\r`;
 				}
 			}
 
-			const ws = new WebSocket(("ws://" + this.urlobj.url) as string);
+			const ws = new WebSocket((`ws://${this.urlobj.url}`) as string);
 			this.ws = ws;
 			ws.onclose = () => {
 				this.leave();

@@ -1,4 +1,4 @@
-import {File} from "./file.js";
+import type {File} from "./file.js";
 
 class ImagesDisplay {
 	files: File[];

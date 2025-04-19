@@ -24,11 +24,11 @@ class Rights {
 	}
 	static *info(): Generator<{name: string; readableName: string; description: string}> {
 		throw new Error("Isn't implemented");
-		for (const thing of this.permisions) {
+		for (const thing of Rights.permisions) {
 			yield {
 				name: thing,
-				readableName: I18n.getTranslation("permissions.readableNames." + thing),
-				description: I18n.getTranslation("permissions.descriptions." + thing),
+				readableName: I18n.getTranslation(`permissions.readableNames.${thing}`),
+				description: I18n.getTranslation(`permissions.descriptions.${thing}`),
 			};
 		}
 	}
@@ -87,7 +87,7 @@ class Rights {
 	];
 	getPermission(name: string): boolean {
 		if (undefined === Rights.permisions.indexOf(name)) {
-			console.error(name + " is not found in map", Rights.permisions);
+			console.error(`${name} is not found in map`, Rights.permisions);
 		}
 		return this.getPermissionbit(Rights.permisions.indexOf(name), this.allow);
 	}
@@ -100,7 +100,7 @@ class Rights {
 		const bit = Rights.permisions.indexOf(name);
 		if (bit === undefined) {
 			return console.error(
-				"Tried to set permission to " + setto + " for " + name + " but it doesn't exist",
+				`Tried to set permission to ${setto} for ${name} but it doesn't exist`,
 			);
 		}
 
@@ -109,7 +109,7 @@ class Rights {
 		} else if (setto === 1) {
 			this.allow = this.setPermissionbit(bit, true, this.allow);
 		} else {
-			console.error("invalid number entered:" + setto);
+			console.error(`invalid number entered:${setto}`);
 		}
 	}
 }
