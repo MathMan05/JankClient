@@ -79,6 +79,7 @@ class Voice {
 	private pstatus: string = "not connected";
 	public onSatusChange: (e: string) => unknown = () => {};
 	set status(e: string) {
+		console.log("state changed: " + e);
 		this.pstatus = e;
 		this.onSatusChange(e);
 	}
@@ -672,6 +673,7 @@ a=rtcp-mux\r`;
 		}
 	}
 	async leave() {
+		console.warn("leave");
 		this.open = false;
 		this.status = "Left voice chat";
 		if (this.ws) {
