@@ -68,6 +68,7 @@
 		"createChannel": "Kanal uleeën",
 		"createCatagory": "Kategorie uleeën"
 	},
+	"delete": "Läschen",
 	"webhooks": {
 		"name": "Numm:",
 		"channel": "Kanal",
@@ -85,13 +86,24 @@
 		"pw2Field": "Passwuert nach eng Kéier aginn:",
 		"dobField": "Gebuertsdatum:"
 	},
+	"useTemplate": "$1 als Schabloun benotzen",
+	"useTemplateButton": "Schabloun benotzen",
 	"register": {
 		"passwordError:": "Passwuert: $1",
 		"usernameError": "Benotzernumm: $1",
 		"emailError": "E-Mail-Adress: $1",
 		"DOBError": "Gebuertsdatum: $1"
 	},
+	"edit": "Änneren",
 	"guild": {
+		"template": "Schabloun:",
+		"viewTemplate": "Schabloun weisen",
+		"tempCreatedBy": "Schabloun ugeluecht vum:",
+		"createNewTemplate": "Nei Schabloun uleeën",
+		"templates": "Schablounen",
+		"templateName": "Numm vun der Schabloun:",
+		"templateDesc": "Beschreiwung vun der Schabloun:",
+		"templateURL": "URL vun der Schabloun: $1",
 		"community": "Communautéit",
 		"markRead": "Als gelies markéieren",
 		"notifications": "Notifikatiounen",
@@ -194,7 +206,8 @@
 		"alreadyJoined": "Scho bäigetrueden",
 		"accept": "Akzeptéieren",
 		"channel:": "Kanal:",
-		"createInvite": "Invitatioun maachen"
+		"createInvite": "Invitatioun maachen",
+		"never": "Ni"
 	},
 	"friends": {
 		"blocked": "Gespaart",
