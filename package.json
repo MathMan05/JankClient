@@ -5,13 +5,13 @@
 	"main": ".dist/index.js",
 	"type": "module",
 	"scripts": {
-		"lint": "eslint .",
+		"lint": "npx eslint .",
 		"prebuild": "npx rimraf dist",
 		"build:compile": "npx swc ./src -d ./dist --strip-leading-paths --copy-files --source-maps",
 		"build:extras": "node scripts/build-extras.mjs",
 		"build": "npm run build:compile && npm run build:extras",
-		"start": "node dist/index.js",
-		"watch": "node scripts/watch.mjs"
+		"start": "dist/index.js",
+		"watch": "scripts/watch.mjs"
 	},
 	"author": "MathMan05",
 	"license": "GPL-3.0",
