@@ -312,7 +312,7 @@ class MarkDown {
 				}
 				if (
 					find === count &&
-					(count != 1 || txt[j + 1] === " " || txt[j + 1] === "\n" || txt[j + 1] === undefined)
+					(count != 1 || txt[j] === " " || txt[j] === "\n" || txt[j] === undefined)
 				) {
 					appendcurrent();
 					i = j;
