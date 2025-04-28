@@ -205,7 +205,8 @@
 	"accountNotStart": "Account unable to start",
 	"home": {
 		"uptimeStats": "Uptime: \n All time: $1%\nThis week: $2%\nToday: $3%",
-		"warnOffiline": "Instance is offline, can't connect"
+		"warnOffiline": "Instance is offline, can't connect",
+		"icon": "$1's instance icon"
 	},
 	"htmlPages": {
 		"idpermissions": "This will allow the bot to:",
