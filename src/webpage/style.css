@@ -3039,6 +3039,19 @@ fieldset input[type="radio"] {
 	font-size: 0.2in;
 	padding: 0 0.1in;
 }
+img.error {
+	position: relative;
+}
+img.error::after {
+	background: var(--secondary-bg) url("/icons/sad.svg");
+	background-size: contain;
+	content: "";
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
 .gifBox {
 	img {
 		max-width: 196px;

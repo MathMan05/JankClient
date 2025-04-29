@@ -599,6 +599,9 @@ export function createImg(
 	const settings =
 		localStorage.getItem("gifSetting") || ("hover" as "hover") || "always" || "never";
 	const img = document.createElement("img");
+	img.addEventListener("error", () => {
+		img.classList.add("error");
+	});
 	elm ||= img;
 	if (src && isAnimated(src)) {
 		img.crossOrigin = "anonymous";
