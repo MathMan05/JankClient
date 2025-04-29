@@ -3,7 +3,7 @@ import {Channel} from "./channel.js";
 import {Direct} from "./direct.js";
 import {AVoice} from "./audio/voice.js";
 import {User} from "./user.js";
-import {createImg, getapiurls, getBulkUsers, SW} from "./utils/utils.js";
+import {createImg, getapiurls, getBulkUsers, installPGet, SW} from "./utils/utils.js";
 import {getBulkInfo, setTheme, Specialuser} from "./utils/utils.js";
 import {
 	channeljson,
@@ -1719,7 +1719,8 @@ class Localuser {
 							required: true,
 							password: true,
 						});
-						form.addTextInput(I18n.getTranslation("localuser.2faCode"), "code", {required: true});
+						form.addTextInput(I18n.localuser["2faCode:"](), "code", {required: true});
+						debugger;
 						form.setValue("secret", secret);
 					});
 				}
@@ -2197,6 +2198,15 @@ class Localuser {
 				this.instanceStats();
 			});
 		})();
+		const installP = installPGet();
+		if (installP) {
+			const c = settings.addButton(I18n.localuser.install());
+			c.addText(I18n.localuser.installDesc());
+			c.addButtonInput("", I18n.localuser.installJank(), async () => {
+				//@ts-expect-error have to do this :3
+				await installP.prompt();
+			});
+		}
 		settings.show();
 	}
 	readonly botTokens: Map<string, string> = new Map();

@@ -782,6 +782,9 @@ span.instanceStatus {
 #verify {
 	color: var(--primary-text-soft);
 }
+.verify {
+	color: var(--primary-text-soft);
+}
 #TOS {
 	vertical-align: middle;
 	margin-bottom: 4px;
@@ -789,6 +792,15 @@ span.instanceStatus {
 #h-captcha {
 	margin: 16px 0;
 	text-align: center;
+}
+.createAccount {
+	width: 94%;
+	padding: 8px;
+	margin-bottom: 16px;
+	font-size: 1.15rem;
+	font-weight: bold;
+	text-align: center;
+	box-sizing: border-box;
 }
 #logindiv button {
 	width: 100%;
@@ -2216,9 +2228,9 @@ img.bigembedimg {
 }
 .nonimagecenter,
 .accountSwitcher {
-	max-height: 80svh;
+	max-height: 95svh;
 	width: 500px;
-	padding: 12px;
+	padding: 6px;
 	margin: 0;
 	background: var(--secondary-bg);
 	border: none;
@@ -2227,7 +2239,6 @@ img.bigembedimg {
 		0 0 24px var(--shadow),
 		0 0 1.5px var(--primary-text);
 	box-sizing: border-box;
-	gap: 8px;
 	overflow-y: auto;
 }
 .nonimagecenter & .flexttb,
@@ -2484,6 +2495,11 @@ fieldset input[type="radio"] {
 	max-width: 4in;
 	height: 2in;
 }
+.vsmaller {
+	.optionElement {
+		margin-top: 8px;
+	}
+}
 .optionElement,
 .FormSettings > button {
 	margin: 16px 16px 0 16px;
@@ -2501,6 +2517,7 @@ fieldset input[type="radio"] {
 }
 .optionElement:has(.optionElement) {
 	margin: 0;
+	position: relative;
 }
 .optionElement:has(.Buttons) {
 	height: 100%;
@@ -3055,4 +3072,8 @@ fieldset input[type="radio"] {
 }
 .stickerMArea {
 	padding-left: 48px;
+}
+.solidBackground {
+	background: var(--secondary-bg);
+	opacity: 1;
 }

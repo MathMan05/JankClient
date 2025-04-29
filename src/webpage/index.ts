@@ -10,7 +10,7 @@ import {I18n} from "./i18n.js";
 	let templateID = new URLSearchParams(window.location.search).get("templateID");
 	await I18n.done;
 
-	if (!Localuser.users.currentuser) {
+	if (!(sessionStorage.getItem("currentuser") || Localuser.users.currentuser)) {
 		window.location.href = "/login.html";
 		return;
 	}

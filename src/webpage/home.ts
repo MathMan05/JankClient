@@ -1,4 +1,5 @@
 import {I18n} from "./i18n.js";
+import {makeRegister} from "./register.js";
 import {mobile} from "./utils/utils.js";
 console.log(mobile);
 const serverbox = document.getElementById("instancebox") as HTMLDivElement;
@@ -127,7 +128,7 @@ fetch("/instances.json")
 				div.append(statbox);
 				div.onclick = (_) => {
 					if (instance.online) {
-						window.location.href = "/register.html?instance=" + encodeURI(instance.name);
+						makeRegister(true, instance.name);
 					} else {
 						alert(I18n.getTranslation("home.warnOffiline"));
 					}

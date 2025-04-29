@@ -22,35 +22,6 @@
 		</style>
 	</head>
 	<body class="no-theme">
-		<div id="logindiv">
-			<h1>Login</h1>
-			<form id="form" submit="check(e)">
-				<label for="instance" id="instanceField"><b>Instance:</b></label>
-				<p id="verify"></p>
-				<input
-					type="search"
-					list="instances"
-					placeholder="Instance URL"
-					name="instance"
-					id="instancein"
-					value=""
-					required
-				/>
-
-				<label for="uname" id="emailField"><b>Email:</b></label>
-				<input type="text" placeholder="Enter email address" name="uname" id="uname" required />
-
-				<label for="psw" id="pwField"><b>Password:</b></label>
-				<input type="password" placeholder="Enter Password" name="psw" id="psw" required />
-				<p class="wrongred" id="wrong"></p>
-
-				<div id="h-captcha"></div>
-				<button type="submit" id="loginButton">Login</button>
-			</form>
-			<a href="/register.html" id="switch">Don't have an account?</a>
-			<div id="recover"></div>
-		</div>
-		<datalist id="instances"></datalist>
 		<script src="/login.js" type="module"></script>
 	</body>
 </html>

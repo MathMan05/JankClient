@@ -1,3 +1,10 @@
+import {
+	checkInstance,
+	getInstances,
+	getStringURLMapPair,
+	instancefetch,
+	instanceinfo,
+} from "./utils/utils.js";
 import {Emoji} from "./emoji.js";
 import {I18n} from "./i18n.js";
 import {Localuser} from "./localuser.js";
@@ -166,6 +173,21 @@ class TextInput implements OptionsElement<string> {
 		this.onSubmit(this.value);
 	}
 }
+class DateInput extends TextInput {
+	generateHTML(): HTMLDivElement {
+		const div = document.createElement("div");
+		const span = document.createElement("span");
+		span.textContent = this.label;
+		div.append(span);
+		const input = document.createElement("input");
+		input.value = this.value;
+		input.type = "date";
+		input.oninput = this.onChange.bind(this);
+		this.input = new WeakRef(input);
+		div.append(input);
+		return div;
+	}
+}
 const mdProm = import("./markdown.js");
 class SettingsMDText implements OptionsElement<void> {
 	readonly onSubmit!: (str: string) => void;
@@ -306,6 +328,7 @@ class ButtonInput implements OptionsElement<void> {
 		this.onClick = onClick;
 		this.textContent = textContent;
 	}
+	buttonHtml?: HTMLButtonElement;
 	generateHTML(): HTMLDivElement {
 		const div = document.createElement("div");
 		if (this.label) {
@@ -317,6 +340,7 @@ class ButtonInput implements OptionsElement<void> {
 		const button = document.createElement("button");
 		button.textContent = this.textContent;
 		button.onclick = this.onClickEvent.bind(this);
+		this.buttonHtml = button;
 		div.append(button);
 		return div;
 	}
@@ -712,6 +736,7 @@ class Dialog {
 	show(hideOnClick = true) {
 		const background = document.createElement("div");
 		background.classList.add("background");
+		if (!hideOnClick) background.classList.add("solidBackground");
 		const center = this.float.generateHTML();
 		center.classList.add("centeritem", "nonimagecenter");
 		center.classList.remove("titlediv");
@@ -733,7 +758,141 @@ class Dialog {
 		background.remove();
 	}
 }
+class InstancePicker implements OptionsElement<instanceinfo | null> {
+	value: instanceinfo | null = null;
+	owner: Options | Form;
+	verify = document.createElement("p");
+	onchange = (_: instanceinfo) => {};
+	instance?: string;
+	watchForChange(func: (arg1: instanceinfo) => void) {
+		this.onchange = func;
+	}
+	constructor(
+		owner: Options | Form,
+		onchange?: InstancePicker["onchange"],
+		button?: HTMLButtonElement,
+		instance?: string,
+	) {
+		this.owner = owner;
+		this.instance = instance;
+		if (onchange) {
+			this.onchange = onchange;
+		}
+		this.button = button;
+	}
+	generateHTML(): HTMLElement {
+		const div = document.createElement("div");
+		const span = document.createElement("span");
+		span.textContent = I18n.htmlPages.instanceField();
+		div.append(span);
 
+		const verify = this.verify;
+		verify.classList.add("verify");
+		div.append(verify);
+
+		const input = this.input;
+		input.type = "search";
+		input.setAttribute("list", "instances");
+		div.append(input);
+		let cur = 0;
+		input.onkeyup = async () => {
+			const thiscur = ++cur;
+			await new Promise((res) => setTimeout(res, 500));
+			if (thiscur !== cur) return;
+			const urls = await checkInstance(input.value, verify, this.button);
+			if (thiscur === cur && urls) {
+				this.onchange(urls);
+			}
+		};
+
+		InstancePicker.picker = this;
+		InstancePicker.genDataList();
+
+		return div;
+	}
+	button?: HTMLButtonElement;
+	input = document.createElement("input");
+	giveButton(button: HTMLButtonElement | undefined) {
+		this.button = button;
+	}
+	static picker?: InstancePicker;
+	static genDataList() {
+		let datalist = document.getElementById("instances");
+		if (!datalist) {
+			datalist = document.createElement("datalist");
+			datalist.setAttribute("id", "instances");
+			document.body.append(datalist);
+		}
+
+		const json = getInstances();
+
+		const [stringURLMap, stringURLsMap] = getStringURLMapPair();
+		if (!json) {
+			instancefetch.then(this.genDataList.bind(this));
+			return;
+		}
+
+		if (json.length !== 0) {
+			let name =
+				this.picker?.instance || new URLSearchParams(window.location.search).get("instance");
+			if (!name) {
+				const l = localStorage.getItem("instanceinfo");
+				if (l) {
+					const json = JSON.parse(l);
+					if (json.value) {
+						name = json.value;
+					} else {
+						name = json.wellknown;
+					}
+				}
+			}
+			if (!name) {
+				name = json[0].name;
+			}
+			if (this.picker) {
+				checkInstance(
+					name,
+					this.picker.verify,
+					this.picker.button || document.createElement("button"),
+				).then((e) => {
+					if (e) this.picker?.onchange(e);
+				});
+				this.picker.input.value = name;
+			}
+		}
+
+		if (datalist.childElementCount !== 0) {
+			return;
+		}
+
+		for (const instance of json) {
+			if (instance.display === false) {
+				continue;
+			}
+			const option = document.createElement("option");
+			option.disabled = !instance.online;
+			option.value = instance.name;
+			if (instance.url) {
+				stringURLMap.set(option.value, instance.url);
+				if (instance.urls) {
+					stringURLsMap.set(instance.url, instance.urls);
+				}
+			} else if (instance.urls) {
+				stringURLsMap.set(option.value, instance.urls);
+			} else {
+				option.disabled = true;
+			}
+			if (instance.description) {
+				option.label = instance.description;
+			} else {
+				option.label = instance.name;
+			}
+			datalist.append(option);
+		}
+	}
+	submit() {}
+}
+setTimeout(InstancePicker.genDataList.bind(InstancePicker), 0);
 export {Dialog};
 class Options implements OptionsElement<void> {
 	name: string;
@@ -745,16 +904,18 @@ class Options implements OptionsElement<void> {
 	readonly html: WeakMap<OptionsElement<any>, WeakRef<HTMLDivElement>> = new WeakMap();
 	readonly noSubmit: boolean = false;
 	container: WeakRef<HTMLDivElement> = new WeakRef(document.createElement("div"));
+	vsmaller = false;
 	constructor(
 		name: string,
 		owner: Buttons | Options | Form | Float,
-		{ltr = false, noSubmit = false} = {},
+		{ltr = false, noSubmit = false, vsmaller = false} = {},
 	) {
 		this.name = name;
 		this.options = [];
 		this.owner = owner;
 		this.ltr = ltr;
 		this.noSubmit = noSubmit;
+		this.vsmaller = vsmaller;
 	}
 	removeAll() {
 		this.returnFromSub();
@@ -837,6 +998,15 @@ class Options implements OptionsElement<void> {
 		this.generate(emoji);
 		return emoji;
 	}
+	addInstancePicker(
+		onchange?: InstancePicker["onchange"],
+		{button, instance}: {button?: HTMLButtonElement; instance?: string} = {},
+	) {
+		const instacePicker = new InstancePicker(this, onchange, button, instance);
+		this.options.push(instacePicker);
+		this.generate(instacePicker);
+		return instacePicker;
+	}
 	returnFromSub() {
 		this.subOptions = undefined;
 		this.genTop();
@@ -860,6 +1030,14 @@ class Options implements OptionsElement<void> {
 		this.options.push(FI);
 		this.generate(FI);
 		return FI;
+	}
+	addDateInput(label: string, onSubmit: (str: string) => void, {initText = ""} = {}) {
+		const textInput = new DateInput(label, onSubmit, this, {
+			initText,
+		});
+		this.options.push(textInput);
+		this.generate(textInput);
+		return textInput;
 	}
 	addTextInput(
 		label: string,
@@ -938,6 +1116,7 @@ class Options implements OptionsElement<void> {
 			headers = {},
 			method = "POST",
 			traditionalSubmit = false,
+			vsmaller = false,
 		} = {},
 	) {
 		const options = new Form(name, this, onSubmit, {
@@ -947,6 +1126,7 @@ class Options implements OptionsElement<void> {
 			headers,
 			method,
 			traditionalSubmit,
+			vsmaller,
 		});
 		this.options.push(options);
 		this.generate(options);
@@ -969,6 +1149,7 @@ class Options implements OptionsElement<void> {
 	generateHTML(): HTMLElement {
 		const div = document.createElement("div");
 		div.classList.add("flexttb", "titlediv");
+		if (this.vsmaller) div.classList.add("vsmaller");
 		if (this.owner instanceof Options) {
 			div.classList.add("optionElement");
 		}
@@ -1106,6 +1287,83 @@ class Options implements OptionsElement<void> {
 		}
 	}
 }
+class Captcha implements OptionsElement<string> {
+	owner: Form;
+	value: string = "";
+	constructor(owner: Form) {
+		this.owner = owner;
+	}
+	div?: HTMLElement;
+	generateHTML(): HTMLElement {
+		const div = document.createElement("div");
+		this.div = div;
+		return div;
+	}
+	submit() {}
+	onchange = (_: string) => {};
+	watchForChange(func: (arg1: string) => void) {
+		this.onchange = func;
+	}
+	static hcaptcha?: HTMLDivElement;
+	static async waitForCaptcha(ctype: "hcaptcha") {
+		switch (ctype) {
+			case "hcaptcha":
+				if (!this.hcaptcha) throw Error("no captcha found");
+				const hcaptcha = this.hcaptcha;
+				console.log(hcaptcha);
+				//@ts-expect-error
+				while (!hcaptcha.children[1].children.length || !hcaptcha.children[1].children[1].value) {
+					await new Promise<void>((res) => setTimeout(res, 100));
+				}
+				//@ts-expect-error
+				return hcaptcha.children[1].children[1].value;
+		}
+	}
+	async makeCaptcha({
+		captcha_sitekey,
+		captcha_service,
+	}: {
+		captcha_sitekey: string;
+		captcha_service: "hcaptcha";
+	}): Promise<string> {
+		if (!this.div) throw new Error("Div doesn't exist yet to give catpcha");
+		switch (captcha_service) {
+			case "hcaptcha":
+				if (Captcha.hcaptcha) {
+					this.div.append(Captcha.hcaptcha);
+					Captcha.hcaptcha.setAttribute("data-sitekey", captcha_sitekey);
+					eval("hcaptcha.reset()");
+					return Captcha.waitForCaptcha(captcha_service);
+				} else {
+					const capt = document.createElement("div");
+					const capty = document.createElement("div");
+					capty.classList.add("h-captcha");
+
+					capty.setAttribute("data-sitekey", captcha_sitekey);
+					const script = document.createElement("script");
+					script.src = "https://js.hcaptcha.com/1/api.js";
+					capt.append(script);
+					capt.append(capty);
+					Captcha.hcaptcha = capt;
+					this.div.append(capt);
+					return Captcha.waitForCaptcha(captcha_service);
+				}
+		}
+	}
+	static async makeCaptcha(json: {
+		captcha_sitekey: string;
+		captcha_service: "hcaptcha";
+	}): Promise<string> {
+		const float = new Dialog("", {noSubmit: true});
+		float.options.addTitle(I18n.form.captcha());
+		const cap = float.options.addForm("", () => {}, {traditionalSubmit: true}).addCaptcha();
+		float.show();
+		const ret = cap.makeCaptcha(json);
+		await ret;
+		float.hide();
+		return ret;
+	}
+}
 class FormError extends Error {
 	elem: OptionsElement<any>;
 	message: string;
@@ -1114,6 +1372,53 @@ class FormError extends Error {
 		this.message = message;
 		this.elem = elem;
 	}
+}
+async function handle2fa(json: any, api: string): Promise<false | any> {
+	if (json.ticket) {
+		return new Promise<boolean>((resolution) => {
+			const better = new Dialog("");
+			const form = better.options.addForm(
+				"",
+				(res: any) => {
+					if (res.message) {
+						throw new FormError(ti, res.message);
+					} else {
+						resolution(res);
+						better.hide();
+					}
+				},
+				{
+					fetchURL: api + "/auth/mfa/totp",
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				},
+			);
+			form.addTitle(I18n.getTranslation("2faCode"));
+			form.addPreprocessor((e) => {
+				//@ts-ignore
+				e.ticket = json.ticket;
+			});
+			const ti = form.addTextInput("", "code");
+			better.show();
+		});
+	} else {
+		return false;
+	}
+}
+async function handleCaptcha(json: any, build: any, cap: Captcha | undefined) {
+	if (json.captcha_sitekey) {
+		let token: string;
+		if (cap) {
+			token = await cap.makeCaptcha(json);
+		} else {
+			token = await Captcha.makeCaptcha(json);
+		}
+		build.captcha_key = token;
+		return true;
+	}
+	return false;
 }
 export {FormError};
 class Form implements OptionsElement<object> {
@@ -1141,13 +1446,14 @@ class Form implements OptionsElement<object> {
 			headers = {},
 			method = "POST",
 			traditionalSubmit = false,
+			vsmaller = false,
 		} = {},
 	) {
 		this.traditionalSubmit = traditionalSubmit;
 		this.name = name;
 		this.method = method;
 		this.submitText = submitText;
-		this.options = new Options(name, this, {ltr});
+		this.options = new Options(name, this, {ltr, vsmaller});
 		this.owner = owner;
 		this.fetchURL = fetchURL;
 		this.headers = headers;
@@ -1166,6 +1472,15 @@ class Form implements OptionsElement<object> {
 	}
 	addHTMLArea(html: (() => HTMLElement) | HTMLElement, onSubmit = () => {}) {
 		return this.options.addHTMLArea(html, onSubmit);
+	}
+	private captcha?: Captcha;
+	addCaptcha() {
+		if (this.captcha) throw new Error("only one captcha is allowed per form");
+		const cap = new Captcha(this);
+		this.options.options.push(cap);
+		this.options.generate(cap);
+		this.captcha = cap;
+		return cap;
 	}
 	addSubForm(
 		name: string,
@@ -1247,7 +1562,16 @@ class Form implements OptionsElement<object> {
 		this.names.set(formName, emoji);
 		return emoji;
 	}
-
+	addDateInput(label: string, formName: string, {initText = "", required = false} = {}) {
+		const dateInput = this.options.addDateInput(label, (_) => {}, {
+			initText,
+		});
+		this.names.set(formName, dateInput);
+		if (required) {
+			this.required.add(dateInput);
+		}
+		return dateInput;
+	}
 	addTextInput(
 		label: string,
 		formName: string,
@@ -1377,7 +1701,7 @@ class Form implements OptionsElement<object> {
 					return;
 				}
 			} else {
-				(build as any)[thing] = thing;
+				(build as any)[key] = thing;
 			}
 		}
 		console.log("middle");
@@ -1444,41 +1768,59 @@ class Form implements OptionsElement<object> {
 			return;
 		}
 		if (this.fetchURL !== "") {
-			fetch(this.fetchURL, {
-				method: this.method,
-				body: JSON.stringify(build),
-				headers: this.headers,
-			})
-				.then((_) => {
-					return _.text();
-				})
-				.then((_) => {
-					if (_ === "") return {};
-					return JSON.parse(_);
-				})
-				.then(async (json) => {
-					if (json.errors) {
-						if (this.errors(json)) {
-							return;
-						}
-					}
-					try {
-						await this.onSubmit(json, build);
-					} catch (e) {
-						console.error(e);
-						if (e instanceof FormError) {
-							this.onFormError(e);
-							const elm = this.options.html.get(e.elem);
-							if (elm) {
-								const html = elm.deref();
-								if (html) {
-									this.makeError(html, e.message);
-								}
+			const onSubmit = async (json: any) => {
+				try {
+					await this.onSubmit(json, build);
+				} catch (e) {
+					console.error(e);
+					if (e instanceof FormError) {
+						this.onFormError(e);
+						const elm = this.options.html.get(e.elem);
+						if (elm) {
+							const html = elm.deref();
+							if (html) {
+								this.makeError(html, e.message);
 							}
 						}
-						return;
 					}
-				});
+					return;
+				}
+			};
+			const doFetch = async () => {
+				fetch(this.fetchURL, {
+					method: this.method,
+					body: JSON.stringify(build),
+					headers: this.headers,
+				})
+					.then((_) => {
+						return _.text();
+					})
+					.then((_) => {
+						if (_ === "") return {};
+						return JSON.parse(_);
+					})
+					.then(async (json) => {
+						if (await handleCaptcha(json, build, this.captcha)) {
+							return await doFetch();
+						}
+						const match = this.fetchURL.match(/https?:\/\/[^\/]*\/api\/v9/gm);
+						if (match) {
+							const tried = await handle2fa(json, match[0]);
+							if (tried) {
+								return await onSubmit(tried);
+							}
+						}
+						if (json.ticket) {
+						}
+						if (json.errors) {
+							if (this.errors(json)) {
+								return;
+							}
+						}
+						onSubmit(json);
+					});
+			};
+			doFetch();
 		} else {
 			try {
 				await this.onSubmit(build, build);
