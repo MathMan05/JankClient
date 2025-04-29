@@ -108,6 +108,7 @@ gulp.task("copy-assets", () => {
 				"src/**/*.svg",
 				"src/**/*.jasf",
 				"src/**/*.txt",
+				"src/**/*.woff2",
 			],
 			{encoding: false},
 		)

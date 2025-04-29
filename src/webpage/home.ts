@@ -81,6 +81,7 @@ fetch("/instances.json")
 				div.classList.add("flexltr", "instance");
 				if (instance.image) {
 					const img = document.createElement("img");
+					img.alt = I18n.home.icon(instance.name);
 					img.src = instance.image;
 					div.append(img);
 				}

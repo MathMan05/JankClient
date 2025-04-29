@@ -21,11 +21,11 @@ class Message extends SnowFlake {
 	stickers!: Sticker[];
 	owner: Channel;
 	headers: Localuser["headers"];
-	embeds!: Embed[];
+	embeds: Embed[] = [];
 	author!: User;
-	mentions!: User[];
+	mentions: User[] = [];
 	mention_roles!: Role[];
-	attachments!: File[]; //probably should be its own class tbh, should be Attachments[]
+	attachments: File[] = []; //probably should be its own class tbh, should be Attachments[]
 	message_reference!: {
 		guild_id: string;
 		channel_id: string;
@@ -277,7 +277,7 @@ class Message extends SnowFlake {
 				this.member = _;
 			});
 		}
-		if (this.mentions.length || this.mention_roles.length) {
+		if (this.mentions?.length || this.mention_roles?.length) {
 			//currently mention_roles isn't implemented on the spacebar servers
 			console.log(this.mentions, this.mention_roles);
 		}
@@ -592,7 +592,7 @@ class Message extends SnowFlake {
 					username.textContent = "Blocked user";
 					return;
 				}
-				if (message.attachments.length || message.embeds.length) {
+				if (message.attachments?.length || message.embeds?.length) {
 					const b = document.createElement("b");
 					b.innerText = I18n.getTranslation("message.attached");
 					reply.append(b);

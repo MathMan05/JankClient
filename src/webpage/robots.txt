@@ -1,6 +1,7 @@
 User-agent: *
 Disallow: /channel/
 Allow: /invite/
-Allow: /oath2/
+Allow: /oauth2/
 Allow: /login
 Allow: /register
+Allow: /
