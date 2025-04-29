@@ -13,6 +13,10 @@ const serverbox = document.getElementById("instancebox") as HTMLDivElement;
 	const compatableInstances = document.getElementById("compatableInstances");
 	const box3title = document.getElementById("box3title");
 	const box3description = document.getElementById("box3description");
+
+	const box4title = document.getElementById("box4title");
+	const box4description = document.getElementById("box4description");
+	const translate = document.getElementById("translate");
 	if (
 		openClient &&
 		welcomeJank &&
@@ -20,7 +24,10 @@ const serverbox = document.getElementById("instancebox") as HTMLDivElement;
 		box3title &&
 		box3description &&
 		box1title &&
-		box1Items
+		box1Items &&
+		box4title &&
+		box4description &&
+		translate
 	) {
 		openClient.textContent = I18n.getTranslation("htmlPages.openClient");
 		welcomeJank.textContent = I18n.getTranslation("htmlPages.welcomeJank");
@@ -29,6 +36,10 @@ const serverbox = document.getElementById("instancebox") as HTMLDivElement;
 		compatableInstances.textContent = I18n.getTranslation("htmlPages.compatableInstances");
 		box3title.textContent = I18n.getTranslation("htmlPages.box3title");
 		box3description.textContent = I18n.getTranslation("htmlPages.box3description");
+
+		box4title.textContent = I18n.htmlPages.transTitle();
+		box4title.textContent = I18n.htmlPages.transDesc();
+		box4title.textContent = I18n.htmlPages.trans();
 
 		const items = I18n.getTranslation("htmlPages.box1Items").split("|");
 		let i = 0;

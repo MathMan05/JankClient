@@ -230,7 +230,10 @@
 		"box1Items": "Direct Messaging|Reactions support|Invites|Account switching|User settings|Developer portal|Bot invites|Translation support",
 		"compatableInstances": "Spacebar-Compatible Instances:",
 		"box3title": "Contribute to Jank Client",
-		"box3description": "We always appreciate some help, whether that be in the form of bug reports, or code, or even just pointing out some typos."
+		"box3description": "We always appreciate some help, whether that be in the form of bug reports, or code, or even just pointing out some typos.",
+		"trans": "Translate",
+		"transTitle": "Translate Jank Client",
+		"transDesc": "You can help translate Jank Client into your own language!"
 	},
 	"form": {
 		"captcha": "Wait, are you a human?"
