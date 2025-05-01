@@ -1149,18 +1149,19 @@ class Guild extends SnowFlake {
 		let build = "";
 		for (const thing of this.headchannels) {
 			build += thing.name + ":" + thing.position + "\n";
+			console.log(thing.children);
 			for (const thingy of thing.children) {
 				build += "   " + thingy.name + ":" + thingy.position + "\n";
 			}
 		}
 		console.log(build);
 	}
-	calculateReorder() {
+	calculateReorder(movedId?: string) {
 		let position = -1;
 		const build: {
 			id: string;
 			position: number | undefined;
-			parent_id: string | undefined;
+			parent_id: string | undefined | null;
 		}[] = [];
 		for (const thing of this.headchannels) {
 			const thisthing: {
@@ -1187,6 +1188,18 @@ class Guild extends SnowFlake {
 					build.push(thing);
 				}
 			}
+		}
+		const find = build.find((_) => _.id === movedId);
+		const channel = this.channels.find((_) => _.id === movedId);
+		if (!find) {
+			if (channel)
+				build.push({
+					id: channel.id,
+					position: channel.position,
+					parent_id: channel.parent?.id || null,
+				});
+		} else {
+			if (channel) find.parent_id = channel.parent?.id || null;
 		}
 		console.log(build);
 		this.printServers();
@@ -1489,6 +1502,10 @@ class Guild extends SnowFlake {
 					this.headchannels.push(thing);
 				}
 			}
+			for (const channel of this.channels) {
+				channel.children = channel.children.sort((a, b) => a.position - b.position);
+			}
+			this.channels = this.channels.sort((a, b) => a.position - b.position);
 			this.printServers();
 		}
 	}
