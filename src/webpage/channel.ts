@@ -530,7 +530,7 @@ class Channel extends SnowFlake {
 		}
 		return this.parent !== undefined;
 	}
-	calculateReorder() {
+	calculateReorder(numbset: Set<number>) {
 		let position = -1;
 		const build: {
 			id: string;
@@ -544,9 +544,15 @@ class Channel extends SnowFlake {
 				parent_id: string | undefined;
 			} = {id: thing.id, position: undefined, parent_id: undefined};
 
-			if (thing.position < position) {
+			if (thing.position <= position) {
 				thing.position = thisthing.position = position + 1;
 			}
+			while (numbset.has(thing.position)) {
+				thing.position++;
+				thisthing.position = thing.position;
+				console.log(thing.position - 1);
+			}
+			numbset.add(thing.position);
 			position = thing.position;
 			if (thing.move_id && thing.move_id !== thing.parent_id) {
 				thing.parent_id = thing.move_id;

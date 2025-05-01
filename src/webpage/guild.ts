@@ -1163,6 +1163,7 @@ class Guild extends SnowFlake {
 			position: number | undefined;
 			parent_id: string | undefined | null;
 		}[] = [];
+		const numbset = new Set<number>();
 		for (const thing of this.headchannels) {
 			const thisthing: {
 				id: string;
@@ -1172,6 +1173,12 @@ class Guild extends SnowFlake {
 			if (thing.position <= position) {
 				thing.position = thisthing.position = position + 1;
 			}
+			while (numbset.has(thing.position)) {
+				thing.position++;
+				thisthing.position = thing.position;
+				console.log(thing.position - 1);
+			}
+			numbset.add(thing.position);
 			position = thing.position;
 			console.log(position);
 			if (thing.move_id && thing.move_id !== thing.parent_id) {
@@ -1183,7 +1190,7 @@ class Guild extends SnowFlake {
 				build.push(thisthing);
 			}
 			if (thing.children.length > 0) {
-				const things = thing.calculateReorder();
+				const things = thing.calculateReorder(numbset);
 				for (const thing of things) {
 					build.push(thing);
 				}
