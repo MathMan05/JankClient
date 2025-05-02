@@ -140,3 +140,4 @@ src/webpage/translations/langs.js
 
 package-lock.json
 pnpm-lock.yaml
+build.js
