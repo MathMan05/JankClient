@@ -51,6 +51,9 @@ async function build() {
 	console.timeEnd("Moving and compiling files");
 
 	console.time("Moving translations");
+	try {
+		await fs.mkdir(path.join(__dirname, "dist", "webpage", "translations"));
+	} catch {}
 	let langs = await fs.readdir(path.join(__dirname, "translations"));
 	langs = langs.filter((e) => e !== "qqq.json");
 	const langobj = {};
