@@ -58,7 +58,7 @@ async function build() {
 		const str = await fs.readFile(path.join(__dirname, "translations", lang));
 		const json = JSON.parse(str.toString());
 		langobj[lang] = json.readableName;
-		fs.writeFile(path.join(__dirname, "dist", "webpage", "translations") + lang, str);
+		fs.writeFile(path.join(__dirname, "dist", "webpage", "translations", lang), str);
 	}
 	await fs.writeFile(
 		path.join(__dirname, "dist", "webpage", "translations", "langs.js"),
