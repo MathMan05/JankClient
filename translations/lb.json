@@ -84,7 +84,8 @@
 		"noAccount": "Hutt Dir kee Benotzerkont?",
 		"userField": "Benotzernumm:",
 		"pw2Field": "Passwuert nach eng Kéier aginn:",
-		"dobField": "Gebuertsdatum:"
+		"dobField": "Gebuertsdatum:",
+		"trans": "Iwwersetzen"
 	},
 	"useTemplate": "$1 als Schabloun benotzen",
 	"useTemplateButton": "Schabloun benotzen",
@@ -129,6 +130,7 @@
 		"save": "Ännerunge späicheren"
 	},
 	"localuser": {
+		"install": "Installéieren",
 		"status": "Status",
 		"settings": "Astellungen",
 		"userSettings": "Benotzerastellungen",
@@ -229,7 +231,8 @@
 	},
 	"login": {
 		"recover": "Passwuert vergiess?",
-		"newPassword": "Neit Passwuert:"
+		"newPassword": "Neit Passwuert:",
+		"login": "Aloggen"
 	},
 	"member": {
 		"reason:": "Grond:",

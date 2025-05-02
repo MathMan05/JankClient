@@ -1149,19 +1149,21 @@ class Guild extends SnowFlake {
 		let build = "";
 		for (const thing of this.headchannels) {
 			build += thing.name + ":" + thing.position + "\n";
+			console.log(thing.children);
 			for (const thingy of thing.children) {
 				build += "   " + thingy.name + ":" + thingy.position + "\n";
 			}
 		}
 		console.log(build);
 	}
-	calculateReorder() {
+	calculateReorder(movedId?: string) {
 		let position = -1;
 		const build: {
 			id: string;
 			position: number | undefined;
-			parent_id: string | undefined;
+			parent_id: string | undefined | null;
 		}[] = [];
+		const numbset = new Set<number>();
 		for (const thing of this.headchannels) {
 			const thisthing: {
 				id: string;
@@ -1171,6 +1173,12 @@ class Guild extends SnowFlake {
 			if (thing.position <= position) {
 				thing.position = thisthing.position = position + 1;
 			}
+			while (numbset.has(thing.position)) {
+				thing.position++;
+				thisthing.position = thing.position;
+				console.log(thing.position - 1);
+			}
+			numbset.add(thing.position);
 			position = thing.position;
 			console.log(position);
 			if (thing.move_id && thing.move_id !== thing.parent_id) {
@@ -1182,11 +1190,23 @@ class Guild extends SnowFlake {
 				build.push(thisthing);
 			}
 			if (thing.children.length > 0) {
-				const things = thing.calculateReorder();
+				const things = thing.calculateReorder(numbset);
 				for (const thing of things) {
 					build.push(thing);
 				}
 			}
+		}
+		const find = build.find((_) => _.id === movedId);
+		const channel = this.channels.find((_) => _.id === movedId);
+		if (!find) {
+			if (channel)
+				build.push({
+					id: channel.id,
+					position: channel.position,
+					parent_id: channel.parent?.id || null,
+				});
+		} else {
+			if (channel) find.parent_id = channel.parent?.id || null;
 		}
 		console.log(build);
 		this.printServers();
@@ -1489,6 +1509,10 @@ class Guild extends SnowFlake {
 					this.headchannels.push(thing);
 				}
 			}
+			for (const channel of this.channels) {
+				channel.children = channel.children.sort((a, b) => a.position - b.position);
+			}
+			this.channels = this.channels.sort((a, b) => a.position - b.position);
 			this.printServers();
 		}
 	}

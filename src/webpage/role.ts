@@ -274,6 +274,9 @@ class RoleList extends Buttons {
 					headers: this.headers,
 				});
 			},
+			{
+				visable: (role) => role.id !== role.guild.id,
+			},
 		);
 		return menu;
 	}
@@ -296,6 +299,7 @@ class RoleList extends Buttons {
 	buttonRoleMap = new WeakMap<HTMLButtonElement, Role>();
 	dragged?: HTMLButtonElement;
 	buttonDragEvents(button: HTMLButtonElement, role: Role) {
+		const height = 35;
 		this.buttonRoleMap.set(button, role);
 		button.addEventListener("dragstart", (e) => {
 			this.dragged = button;
@@ -307,23 +311,38 @@ class RoleList extends Buttons {
 		});
 
 		button.addEventListener("dragenter", (event) => {
-			console.log("enter");
 			event.preventDefault();
 			return true;
 		});
 
 		button.addEventListener("dragover", (event) => {
 			event.preventDefault();
+			if (event.offsetY / height < 0.5) {
+				button.classList.add("dragTopView");
+				button.classList.remove("dragBottomView");
+			} else {
+				button.classList.remove("dragTopView");
+				button.classList.add("dragBottomView");
+			}
 			return true;
 		});
+		button.addEventListener("dragleave", () => {
+			button.classList.remove("dragTopView");
+			button.classList.remove("dragBottomView");
+		});
 
-		button.addEventListener("drop", (_) => {
+		button.addEventListener("drop", (event) => {
 			const role2 = this.buttonRoleMap.get(this.dragged as HTMLButtonElement);
-			if (!role2) return;
+			if (!role2 || this.dragged === button) return;
 			const index2 = this.guild.roles.indexOf(role2);
 			this.guild.roles.splice(index2, 1);
 			const index = this.guild.roles.indexOf(role);
-			this.guild.roles.splice(index + 1, 0, role2);
+			if (event.offsetY / height < 0.5) {
+				this.guild.roles.splice(index, 0, role2);
+			} else {
+				this.guild.roles.splice(index + 1, 0, role2);
+			}
+
 			this.guild.recalcRoles();
 			console.log(role);
 		});

@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import compression from "compression";
 import express, {Request, Response} from "express";
 import fs from "node:fs/promises";
@@ -27,6 +25,7 @@ async function getDirectories(path: string): Promise<dirtype> {
 		),
 	);
 }
+
 let dirs: dirtype | undefined = undefined;
 async function combinePath(path: string, tryAgain = true): Promise<string> {
 	if (!dirs) {

@@ -71,7 +71,7 @@ class Message extends SnowFlake {
 				},
 			},
 		);
-
+		const editTypes = new Set([0, 19]);
 		Message.contextmenu.addButton(
 			() => I18n.getTranslation("message.edit"),
 			function (this: Message) {
@@ -79,7 +79,7 @@ class Message extends SnowFlake {
 			},
 			{
 				visable: function () {
-					return this.author.id === this.localuser.user.id;
+					return this.author.id === this.localuser.user.id && editTypes.has(this.type);
 				},
 
 				icon: {

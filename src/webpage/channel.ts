@@ -530,7 +530,7 @@ class Channel extends SnowFlake {
 		}
 		return this.parent !== undefined;
 	}
-	calculateReorder() {
+	calculateReorder(numbset: Set<number>) {
 		let position = -1;
 		const build: {
 			id: string;
@@ -544,9 +544,15 @@ class Channel extends SnowFlake {
 				parent_id: string | undefined;
 			} = {id: thing.id, position: undefined, parent_id: undefined};
 
-			if (thing.position < position) {
+			if (thing.position <= position) {
 				thing.position = thisthing.position = position + 1;
 			}
+			while (numbset.has(thing.position)) {
+				thing.position++;
+				thisthing.position = thing.position;
+				console.log(thing.position - 1);
+			}
+			numbset.add(thing.position);
 			position = thing.position;
 			if (thing.move_id && thing.move_id !== thing.parent_id) {
 				thing.parent_id = thing.move_id;
@@ -633,16 +639,27 @@ class Channel extends SnowFlake {
 				decoration.classList.add("hiddencat");
 				childrendiv.style.height = "0px";
 			}
-			decdiv.onclick = () => {
-				if (childrendiv.style.height !== "0px") {
+			const handleColapse = async (animate: boolean = true) => {
+				if (this.perminfo.collapsed) {
 					decoration.classList.add("hiddencat");
-					this.perminfo.collapsed = true;
+					childrendiv.style.height = childrendiv.scrollHeight + "px";
+					await new Promise((res) => setTimeout(res, 0));
 					childrendiv.style.height = "0px";
 				} else {
 					decoration.classList.remove("hiddencat");
-					this.perminfo.collapsed = false;
-					childrendiv.style.height = childrendiv.scrollHeight + "px";
+					if (childrendiv.style.height === "0px" && animate) {
+						childrendiv.style.height = childrendiv.scrollHeight + "px";
+					} else {
+						childrendiv.style.removeProperty("height");
+					}
 				}
+			};
+			const observer = new MutationObserver(handleColapse.bind(this, false));
+			observer.observe(childrendiv, {childList: true, subtree: true});
+
+			decdiv.onclick = () => {
+				this.perminfo.collapsed = !this.perminfo.collapsed;
+				handleColapse();
 			};
 		} else {
 			div.classList.add("channel");
@@ -786,27 +803,42 @@ class Channel extends SnowFlake {
 		}
 	}
 
-	coatDropDiv(div: HTMLDivElement, container: HTMLElement | boolean = false) {
+	coatDropDiv(div: HTMLDivElement, container: HTMLElement | false = false) {
 		div.addEventListener("dragenter", (event) => {
 			console.log("enter");
 			event.preventDefault();
 		});
 
 		div.addEventListener("dragover", (event) => {
+			const height = div.getBoundingClientRect().height;
+			if (event.offsetY / height < 0.5) {
+				div.classList.add("dragTopView");
+				div.classList.remove("dragBottomView");
+			} else {
+				div.classList.remove("dragTopView");
+				div.classList.add("dragBottomView");
+			}
 			event.preventDefault();
 		});
-
+		div.addEventListener("dragleave", () => {
+			div.classList.remove("dragTopView");
+			div.classList.remove("dragBottomView");
+		});
 		div.addEventListener("drop", (event) => {
+			div.classList.remove("dragTopView");
+			div.classList.remove("dragBottomView");
 			const that = Channel.dragged[0];
 			if (!that) return;
 			event.preventDefault();
-			if (container && that.type !== 4) {
+			const height = div.getBoundingClientRect().height;
+			const before = event.offsetY / height < 0.5;
+			if (container && that.type !== 4 && !before) {
 				that.move_id = this.id;
 				if (that.parent) {
 					that.parent.children.splice(that.parent.children.indexOf(that), 1);
 				}
 				that.parent = this;
-				(container as HTMLElement).prepend(Channel.dragged[1] as HTMLDivElement);
+				container.prepend(Channel.dragged[1] as HTMLDivElement);
 				this.children.unshift(that);
 			} else {
 				console.log(this, Channel.dragged);
@@ -830,23 +862,32 @@ class Channel extends SnowFlake {
 					for (let i = 0; i < that.parent.children.length; i++) {
 						build.push(that.parent.children[i]);
 						if (that.parent.children[i] === thisy) {
+							if (before) build.pop();
 							build.push(that);
+							if (before) build.push(thisy);
 						}
 					}
 					that.parent.children = build;
+					console.log(build);
 				} else {
 					const build: Channel[] = [];
 					for (let i = 0; i < thisy.guild.headchannels.length; i++) {
 						build.push(thisy.guild.headchannels[i]);
 						if (thisy.guild.headchannels[i] === thisy) {
+							if (before) build.pop();
 							build.push(that);
+							if (before) build.push(thisy);
 						}
 					}
 					thisy.guild.headchannels = build;
 				}
 				if (Channel.dragged[1]) {
 					if (this === thisy && this.type !== 4) {
-						div.after(Channel.dragged[1]);
+						if (before) {
+							div.before(Channel.dragged[1]);
+						} else {
+							div.after(Channel.dragged[1]);
+						}
 					} else {
 						div = div.parentElement as HTMLDivElement;
 						if (!div) return;
@@ -855,11 +896,15 @@ class Channel extends SnowFlake {
 
 						console.log(div);
 						Channel.dragged[1].remove();
-						div.after(Channel.dragged[1]);
+						if (before) {
+							div.before(Channel.dragged[1]);
+						} else {
+							div.after(Channel.dragged[1]);
+						}
 					}
 				}
 			}
-			this.guild.calculateReorder();
+			this.guild.calculateReorder(that.id);
 		});
 
 		return div;

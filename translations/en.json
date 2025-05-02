@@ -230,17 +230,25 @@
 		"box1Items": "Direct Messaging|Reactions support|Invites|Account switching|User settings|Developer portal|Bot invites|Translation support",
 		"compatableInstances": "Spacebar-Compatible Instances:",
 		"box3title": "Contribute to Jank Client",
-		"box3description": "We always appreciate some help, whether that be in the form of bug reports, or code, or even just pointing out some typos."
+		"box3description": "We always appreciate some help, whether that be in the form of bug reports, or code, or even just pointing out some typos.",
+		"trans": "Translate",
+		"transTitle": "Translate Jank Client",
+		"transDesc": "You can help translate Jank Client into your own language!"
+	},
+	"form": {
+		"captcha": "Wait, are you a human?"
 	},
 	"useTemplate": "Use $1 as a template",
 	"useTemplateButton": "Use Template",
 	"register": {
+		"register": "Register",
 		"passwordError:": "Password: $1",
 		"usernameError": "Username: $1",
 		"emailError": "Email: $1",
 		"DOBError": "Date of Birth: $1",
 		"agreeTOS": "I agree to the [Terms of Service]($1):",
-		"noTOS": "This instance has no Terms of Service, accept ToS anyways:"
+		"noTOS": "This instance has no Terms of Service, accept ToS anyways:",
+		"tos": "You must agree to the TOS"
 	},
 	"leaving": "You're leaving Spacebar",
 	"goingToURL": "You're going to $1. Are you sure you want to go there?",
@@ -330,6 +338,9 @@
 		"save": "Save changes"
 	},
 	"localuser": {
+		"install": "Install",
+		"installJank": "Install Jank Client",
+		"installDesc": "Installing Jank Client will allow you to open it in its own window and act like its own app! You can also just continue to use Jank Client in the web browser like you have been and it'll work the same.",
 		"addStatus": "Add status",
 		"status": "Status",
 		"statusWarn": "Spacebar has bugs with this feature and will only update after a refresh, and will often not respect it",
@@ -538,7 +549,8 @@
 		"pasteInfo": "Paste the recovery URL here:",
 		"newPassword": "New password:",
 		"enterPAgain": "Enter new password again:",
-		"recovery": "Forgotten Password"
+		"recovery": "Forgotten Password",
+		"login": "Login"
 	},
 	"member": {
 		"kick": "Kick $1 from $2",

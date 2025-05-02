@@ -1,5 +1,24 @@
 import {I18n} from "../i18n.js";
 import {Dialog} from "../settings.js";
+let instances:
+	| {
+			name: string;
+			description?: string;
+			descriptionLong?: string;
+			image?: string;
+			url?: string;
+			display?: boolean;
+			online?: boolean;
+			uptime: {alltime: number; daytime: number; weektime: number};
+			urls: {
+				wellknown: string;
+				api: string;
+				cdn: string;
+				gateway: string;
+				login?: string;
+			};
+	  }[]
+	| null = null;
 setTheme();
 export function setTheme() {
 	let name = localStorage.getItem("theme");
@@ -172,6 +191,51 @@ export class Specialuser {
 		localStorage.setItem("userinfos", JSON.stringify(info));
 	}
 }
+//this currently does not work, and need to be implemented better at some time.
+if (!localStorage.getItem("SWMode")) {
+	localStorage.setItem("SWMode", "SWOn");
+}
+export function trimswitcher() {
+	const json = getBulkInfo();
+	const map = new Map();
+	for (const thing in json.users) {
+		const user = json.users[thing];
+		let wellknown = user.serverurls.wellknown;
+		if (wellknown.at(-1) !== "/") {
+			wellknown += "/";
+		}
+		wellknown = (user.id || user.email) + "@" + wellknown;
+		if (map.has(wellknown)) {
+			const otheruser = map.get(wellknown);
+			if (otheruser[1].serverurls.wellknown.at(-1) === "/") {
+				delete json.users[otheruser[0]];
+				map.set(wellknown, [thing, user]);
+			} else {
+				delete json.users[thing];
+			}
+		} else {
+			map.set(wellknown, [thing, user]);
+		}
+	}
+	for (const thing in json.users) {
+		if (thing.at(-1) === "/") {
+			const user = json.users[thing];
+			delete json.users[thing];
+			json.users[thing.slice(0, -1)] = user;
+		}
+	}
+	localStorage.setItem("userinfos", JSON.stringify(json));
+	console.log(json);
+}
+export function adduser(user: typeof Specialuser.prototype.json) {
+	user = new Specialuser(user);
+	const info = getBulkInfo();
+	info.users[user.uid] = user;
+	info.currentuser = user.uid;
+	sessionStorage.setItem("currentuser", user.uid);
+	localStorage.setItem("userinfos", JSON.stringify(info));
+	return user;
+}
 class Directory {
 	static home = this.createHome();
 	handle: FileSystemDirectoryHandle;
@@ -257,28 +321,10 @@ export {Directory};
 const mobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const iOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
 export {mobile, iOS};
-let instances:
-	| {
-			name: string;
-			description?: string;
-			descriptionLong?: string;
-			image?: string;
-			url?: string;
-			display?: boolean;
-			online?: boolean;
-			uptime: {alltime: number; daytime: number; weektime: number};
-			urls: {
-				wellknown: string;
-				api: string;
-				cdn: string;
-				gateway: string;
-				login?: string;
-			};
-	  }[]
-	| null;
+
 const datalist = document.getElementById("instances");
 console.warn(datalist);
-const instancefetch = fetch("/instances.json")
+export const instancefetch = fetch("/instances.json")
 	.then((res) => res.json())
 	.then(
 		async (
@@ -302,48 +348,6 @@ const instancefetch = fetch("/instances.json")
 		) => {
 			await I18n.done;
 			instances = json;
-			if (datalist) {
-				console.warn(json);
-				const instancein = document.getElementById("instancein") as HTMLInputElement;
-				if (
-					instancein &&
-					instancein.value === "" &&
-					!new URLSearchParams(window.location.search).get("instance")
-				) {
-					instancein.value = json[0].name;
-				}
-				for (const instance of json) {
-					if (instance.display === false) {
-						continue;
-					}
-					const option = document.createElement("option");
-					option.disabled = !instance.online;
-					option.value = instance.name;
-					if (instance.url) {
-						stringURLMap.set(option.value, instance.url);
-						if (instance.urls) {
-							stringURLsMap.set(instance.url, instance.urls);
-						}
-					} else if (instance.urls) {
-						stringURLsMap.set(option.value, instance.urls);
-					} else {
-						option.disabled = true;
-					}
-					if (instance.description) {
-						option.label = instance.description;
-					} else {
-						option.label = instance.name;
-					}
-					datalist.append(option);
-				}
-				if (
-					json.length !== 0 &&
-					!localStorage.getItem("instanceinfo") &&
-					!new URLSearchParams(window.location.search).get("instance")
-				) {
-					checkInstance(json[0].name);
-				}
-			}
 		},
 	);
 const stringURLMap = new Map<string, string>();
@@ -595,6 +599,9 @@ export function createImg(
 	const settings =
 		localStorage.getItem("gifSetting") || ("hover" as "hover") || "always" || "never";
 	const img = document.createElement("img");
+	img.addEventListener("error", () => {
+		img.classList.add("error");
+	});
 	elm ||= img;
 	if (src && isAnimated(src)) {
 		img.crossOrigin = "anonymous";
@@ -646,6 +653,14 @@ export function createImg(
 		},
 	});
 }
+export interface instanceinfo {
+	wellknown: string;
+	api: string;
+	cdn: string;
+	gateway: string;
+	login: string;
+	value: string;
+}
 /**
  *
  * This function takes in a string and checks if the string is a valid instance
@@ -653,24 +668,19 @@ export function createImg(
  * the alt property is something you may fire on success.
  */
 const checkInstance = Object.assign(
-	async function (instance: string) {
-		await instancefetch;
-		const verify = document.getElementById("verify");
-		const loginButton = (document.getElementById("loginButton") ||
+	async function (
+		instance: string,
+		verify = document.getElementById("verify"),
+		loginButton = (document.getElementById("loginButton") ||
 			document.getElementById("createAccount") ||
-			document.createElement("button")) as HTMLButtonElement;
+			document.createElement("button")) as HTMLButtonElement,
+	) {
+		await instancefetch;
 		try {
 			loginButton.disabled = true;
 			verify!.textContent = I18n.getTranslation("login.checking");
 			const instanceValue = instance;
-			const instanceinfo = (await getapiurls(instanceValue)) as {
-				wellknown: string;
-				api: string;
-				cdn: string;
-				gateway: string;
-				login: string;
-				value: string;
-			};
+			const instanceinfo = (await getapiurls(instanceValue)) as instanceinfo;
 			if (instanceinfo) {
 				instanceinfo.value = instanceValue;
 				localStorage.setItem("instanceinfo", JSON.stringify(instanceinfo));
@@ -683,14 +693,17 @@ const checkInstance = Object.assign(
 					console.log(verify!.textContent);
 					verify!.textContent = "";
 				}, 3000);
+				return instanceinfo;
 			} else {
 				verify!.textContent = I18n.getTranslation("login.invalid");
 				loginButton.disabled = true;
+				return;
 			}
 		} catch {
 			console.log("catch");
 			verify!.textContent = I18n.getTranslation("login.invalid");
 			loginButton.disabled = true;
+			return;
 		}
 	},
 	{} as {
@@ -705,9 +718,7 @@ const checkInstance = Object.assign(
 	},
 );
 export {checkInstance};
-export function getInstances() {
-	return instances;
-}
+
 export class SW {
 	static worker: undefined | ServiceWorker;
 	static setMode(mode: "false" | "offlineOnly" | "true") {
@@ -727,7 +738,14 @@ export class SW {
 		}
 	}
 }
-
+let installPrompt: Event | undefined = undefined;
+window.addEventListener("beforeinstallprompt", (event) => {
+	event.preventDefault();
+	installPrompt = event;
+});
+export function installPGet() {
+	return installPrompt;
+}
 if ("serviceWorker" in navigator) {
 	navigator.serviceWorker
 		.register("/service.js", {
@@ -754,4 +772,10 @@ if ("serviceWorker" in navigator) {
 				});
 			}
 		});
+}
+export function getInstances() {
+	return instances;
+}
+export function getStringURLMapPair() {
+	return [stringURLMap, stringURLsMap] as const;
 }
