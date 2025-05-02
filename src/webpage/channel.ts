@@ -530,8 +530,7 @@ class Channel extends SnowFlake {
 		}
 		return this.parent !== undefined;
 	}
-	calculateReorder(numbset: Set<number>) {
-		let position = -1;
+	calculateReorder(position: number) {
 		const build: {
 			id: string;
 			position: number | undefined;
@@ -544,16 +543,9 @@ class Channel extends SnowFlake {
 				parent_id: string | undefined;
 			} = {id: thing.id, position: undefined, parent_id: undefined};
 
-			if (thing.position <= position) {
-				thing.position = thisthing.position = position + 1;
+			if (thing.position != position) {
+				thisthing.position = thing.position = position;
 			}
-			while (numbset.has(thing.position)) {
-				thing.position++;
-				thisthing.position = thing.position;
-				console.log(thing.position - 1);
-			}
-			numbset.add(thing.position);
-			position = thing.position;
 			if (thing.move_id && thing.move_id !== thing.parent_id) {
 				thing.parent_id = thing.move_id;
 				thisthing.parent_id = thing.parent?.id;
@@ -563,8 +555,9 @@ class Channel extends SnowFlake {
 			if (thisthing.position || thisthing.parent_id) {
 				build.push(thisthing);
 			}
+			position++;
 		}
-		return build;
+		return [build, position] as const;
 	}
 	static dragged: [Channel, HTMLDivElement] | [] = [];
 	html: WeakRef<HTMLElement> | undefined;
@@ -804,6 +797,7 @@ class Channel extends SnowFlake {
 	}
 
 	coatDropDiv(div: HTMLDivElement, container: HTMLElement | false = false) {
+		div.style.position = "relative";
 		div.addEventListener("dragenter", (event) => {
 			console.log("enter");
 			event.preventDefault();
@@ -889,17 +883,16 @@ class Channel extends SnowFlake {
 							div.after(Channel.dragged[1]);
 						}
 					} else {
-						div = div.parentElement as HTMLDivElement;
-						if (!div) return;
-						div = div.parentElement as HTMLDivElement;
-						if (!div) return;
+						let tdiv = div.parentElement as HTMLDivElement;
+						if (!tdiv) return;
+						tdiv = tdiv.parentElement as HTMLDivElement;
+						if (!tdiv) return;
 
-						console.log(div);
 						Channel.dragged[1].remove();
 						if (before) {
-							div.before(Channel.dragged[1]);
+							tdiv.before(Channel.dragged[1]);
 						} else {
-							div.after(Channel.dragged[1]);
+							tdiv.after(Channel.dragged[1]);
 						}
 					}
 				}

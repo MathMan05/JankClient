@@ -3056,6 +3056,12 @@ img.error::after {
 	top: 0;
 	left: 0;
 }
+.dragBottomView {
+	position: relative;
+}
+.dragTopView {
+	position: relative;
+}
 .dragTopView::after {
 	content: "";
 	width: 100%;

@@ -79,7 +79,7 @@ await build();
 if (process.argv.includes("watch")) {
 	let last = Date.now();
 	(async () => {
-		for await (const thing of fs.watch(path.join(__dirname, "src"))) {
+		for await (const thing of fs.watch(path.join(__dirname, "src"), {recursive: true})) {
 			if (Date.now() - last < 100) {
 				continue;
 			}
