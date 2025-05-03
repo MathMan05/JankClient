@@ -83,7 +83,6 @@ export async function makeLogin(trasparentBg = false, instance = "") {
 			method: "POST",
 			headers: {
 				"Content-type": "application/json; charset=UTF-8",
-				Referrer: window.location.href,
 			},
 			vsmaller: true,
 		},
