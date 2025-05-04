@@ -51,6 +51,9 @@ async function build() {
 	console.timeEnd("Moving and compiling files");
 
 	console.time("Moving translations");
+	try {
+		await fs.mkdir(path.join(__dirname, "dist", "webpage", "translations"));
+	} catch {}
 	let langs = await fs.readdir(path.join(__dirname, "translations"));
 	langs = langs.filter((e) => e !== "qqq.json");
 	const langobj = {};
@@ -79,7 +82,7 @@ await build();
 if (process.argv.includes("watch")) {
 	let last = Date.now();
 	(async () => {
-		for await (const thing of fs.watch(path.join(__dirname, "src"))) {
+		for await (const thing of fs.watch(path.join(__dirname, "src"), {recursive: true})) {
 			if (Date.now() - last < 100) {
 				continue;
 			}

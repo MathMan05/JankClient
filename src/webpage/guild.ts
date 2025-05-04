@@ -1157,40 +1157,36 @@ class Guild extends SnowFlake {
 		console.log(build);
 	}
 	calculateReorder(movedId?: string) {
-		let position = -1;
-		const build: {
+		let position = 0;
+		type buildtype = {
 			id: string;
 			position: number | undefined;
 			parent_id: string | undefined | null;
-		}[] = [];
-		const numbset = new Set<number>();
+		}[];
+		const build: buildtype = [];
 		for (const thing of this.headchannels) {
 			const thisthing: {
 				id: string;
 				position: number | undefined;
 				parent_id: string | undefined;
 			} = {id: thing.id, position: undefined, parent_id: undefined};
-			if (thing.position <= position) {
-				thing.position = thisthing.position = position + 1;
+			if (thing.position != position) {
+				thisthing.position = thing.position = position;
 			}
-			while (numbset.has(thing.position)) {
-				thing.position++;
-				thisthing.position = thing.position;
-				console.log(thing.position - 1);
-			}
-			numbset.add(thing.position);
-			position = thing.position;
+
 			console.log(position);
 			if (thing.move_id && thing.move_id !== thing.parent_id) {
 				thing.parent_id = thing.move_id;
 				thisthing.parent_id = thing.parent?.id;
 				thing.move_id = undefined;
 			}
-			if (thisthing.position || thisthing.parent_id) {
+			if (thisthing.position !== undefined || thisthing.parent_id) {
 				build.push(thisthing);
 			}
+			position++;
 			if (thing.children.length > 0) {
-				const things = thing.calculateReorder(numbset);
+				let things: buildtype;
+				[things, position] = thing.calculateReorder(position);
 				for (const thing of things) {
 					build.push(thing);
 				}

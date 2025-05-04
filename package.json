@@ -6,7 +6,7 @@
 	"type": "module",
 	"scripts": {
 		"bunBuild": "bun build.ts",
-		"build": "node --experimental-strip-types build.ts",
+		"build": "node buildnode.js && node build.js",
 		"start": "node dist/index.js"
 	},
 	"author": "MathMan05",
