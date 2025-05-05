@@ -91,7 +91,7 @@ export async function makeLogin(trasparentBg = false, instance = "") {
 	picker.giveButton(button);
 	button?.classList.add("createAccount");
 
-	const email = form.addTextInput(I18n.htmlPages.userField(), "login");
+	const email = form.addTextInput(I18n.htmlPages.emailField(), "login");
 	form.addTextInput(I18n.htmlPages.pwField(), "password", {password: true});
 	form.addCaptcha();
 	const a = document.createElement("a");
