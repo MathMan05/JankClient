@@ -10,6 +10,7 @@
 	"reply": "답변",
 	"copymessageid": "메시지 ID 복사",
 	"media": {
+		"notFound": "미디어를 찾을 수 없습니다",
 		"loading": "불러오는 중",
 		"download": "미디어 다운로드",
 		"moreInfo": "자세한 정보"
