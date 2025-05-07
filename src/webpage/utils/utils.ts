@@ -588,6 +588,9 @@ export async function getapiurls(str: string): Promise<
 	return false;
 }
 function isAnimated(src: string) {
+	try {
+		src = new URL(src).pathname;
+	} catch {}
 	return src.endsWith(".apng") || src.endsWith(".gif");
 }
 const staticImgMap = new Map<string, string | Promise<string>>();

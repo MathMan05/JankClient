@@ -503,7 +503,7 @@ class MediaPlayer {
 		} catch (e) {
 			console.error(e);
 		} finally {
-			output.filename = url.split("/").at(-1);
+			output.filename = new URL(url).pathname.split("/").at(-1);
 			prog.close();
 			if (!output.length) {
 				output.length = new Promise<number>(async (res) => {
