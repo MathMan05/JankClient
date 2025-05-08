@@ -89,6 +89,7 @@
 		"createCatagory": "분류 만들기",
 		"permissions": "권한"
 	},
+	"delete": "삭제",
 	"webhooks": {
 		"createdAt": "만든 날짜: $1",
 		"name": "이름:",
@@ -124,7 +125,8 @@
 		"passwordError:": "비밀번호: $1",
 		"usernameError": "사용자 이름: $1",
 		"emailError": "이메일: $1",
-		"DOBError": "출생일: $1"
+		"DOBError": "출생일: $1",
+		"tos": "TOS에 동의해야 합니다"
 	},
 	"submit": "제출",
 	"guild": {
