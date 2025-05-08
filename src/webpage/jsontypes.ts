@@ -713,7 +713,6 @@ type voiceupdate = {
 		user_id: string;
 		member: memberjson;
 		session_id: string;
-		token: string;
 		deaf: boolean;
 		mute: boolean;
 		self_deaf: boolean;
