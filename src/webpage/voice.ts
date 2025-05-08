@@ -8,7 +8,10 @@ class VoiceFactory {
 	voices = new Map<string, Map<string, Voice>>();
 	voiceChannels = new Map<string, Voice>();
 	currentVoice?: Voice;
-	guildUrlMap = new Map<string, {url?: string; geturl: Promise<void>; gotUrl: () => void}>();
+	guildUrlMap = new Map<
+		string,
+		{url?: string; token?: string; geturl: Promise<void>; gotUrl: () => void}
+	>();
 	makeVoice(guildid: string, channelId: string, settings: Voice["settings"]) {
 		let guild = this.voices.get(guildid);
 		if (!guild) {
@@ -26,10 +29,11 @@ class VoiceFactory {
 	onJoin = (_voice: Voice) => {};
 	onLeave = (_voice: Voice) => {};
 	joinVoice(channelId: string, guildId: string) {
-		if (this.currentVoice) {
+		const voice = this.voiceChannels.get(channelId);
+		if (this.currentVoice && this.currentVoice.ws) {
 			this.currentVoice.leave();
 		}
-		const voice = this.voiceChannels.get(channelId);
+
 		if (!voice) throw new Error(`Voice ${channelId} does not exist`);
 		voice.join();
 		this.currentVoice = voice;
@@ -38,7 +42,7 @@ class VoiceFactory {
 			d: {
 				guild_id: guildId,
 				channel_id: channelId,
-				self_mute: true, //todo
+				self_mute: false, //todo
 				self_deaf: false, //todo
 				self_video: false, //What is this? I have some guesses
 				flags: 2, //?????
@@ -71,6 +75,7 @@ class VoiceFactory {
 		const obj = this.guildUrlMap.get(update.d.guild_id);
 		if (!obj) return;
 		obj.url = update.d.endpoint;
+		obj.token = update.d.token;
 		obj.gotUrl();
 	}
 }
@@ -88,7 +93,7 @@ class Voice {
 	}
 	readonly userid: string;
 	settings: {bitrate: number};
-	urlobj: {url?: string; geturl: Promise<void>; gotUrl: () => void};
+	urlobj: {url?: string; token?: string; geturl: Promise<void>; gotUrl: () => void};
 	constructor(userid: string, settings: Voice["settings"], urlobj: Voice["urlobj"]) {
 		this.userid = userid;
 		this.settings = settings;
@@ -163,7 +168,13 @@ class Voice {
 			}
 		}
 	}
-	offer?: string;
+	hoffer?: string;
+	get offer() {
+		return this.hoffer;
+	}
+	set offer(e: string | undefined) {
+		this.hoffer = e;
+	}
 	cleanServerSDP(sdp: string): string {
 		const pc = this.pc;
 		if (!pc) throw new Error("pc isn't defined");
@@ -188,7 +199,7 @@ class Voice {
 			.value as string;
 		const candidate = (parsed1.atr.get("candidate") as Set<string>).values().next().value as string;
 		let build = `v=0\r
-o=- 1420070400000 0 IN IP4 127.0.0.1\r
+o=- 1420070400000 0 IN IP4 ${this.urlobj.url}\r
 s=-\r
 t=0 0\r
 a=msid-semantic: WMS *\r
@@ -210,7 +221,7 @@ a=fmtp:111 minptime=10;useinbandfec=1;usedtx=1\r
 a=rtcp:${rtcport}\r
 a=rtcp-fb:111 transport-cc\r
 a=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\r
-a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01/r/n
+a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01
 a=setup:passive\r
 a=mid:${bundles[i]}\r
 a=maxptime:60\r
@@ -222,23 +233,24 @@ a=candidate:${candidate}\r
 a=rtcp-mux\r`;
 			} else {
 				build += `
-m=video ${rtcport} UDP/TLS/RTP/SAVPF 102 103\r
+m=video ${rtcport} UDP/TLS/RTP/SAVPF 103 104\r
 ${cline}\r
-a=rtpmap:102 H264/90000\r
-a=rtpmap:103 rtx/90000\r
-a=fmtp:102 x-google-max-bitrate=2500;level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\r
-a=fmtp:103 apt=102\r
+a=rtpmap:103 H264/90000\r
+a=rtpmap:104 rtx/90000\r
+a=fmtp:103 x-google-max-bitrate=2500;level-asymmetry-allowed=1;packetization-mode=1;profile-level-id=42e01f\r
+a=fmtp:104 apt=103\r
 a=rtcp:${rtcport}\r
-a=rtcp-fb:102 ccm fir\r
-a=rtcp-fb:102 nack\r
-a=rtcp-fb:102 nack pli\r
-a=rtcp-fb:102 goog-remb\r
-a=rtcp-fb:102 transport-cc\r
-a=extmap:2 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time/r/n
-a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01/r/n
+a=rtcp-fb:103 ccm fir\r
+a=rtcp-fb:103 nack\r
+a=rtcp-fb:103 nack pli\r
+a=rtcp-fb:103 goog-remb\r
+a=rtcp-fb:103 transport-cc\r
+a=extmap:2 http://www.webrtc.org/experiments/rtp-hdrext/abs-send-time
+a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01
 a=extmap:14 urn:ietf:params:rtp-hdrext:toffset\r
 a=extmap:13 urn:3gpp:video-orientation\r
-a=extmap:5 http://www.webrtc.org/experiments/rtp-hdrext/playout-delay/r/na=setup:passive/r/n
+a=extmap:5 http://www.webrtc.org/experiments/rtp-hdrext/playout-delay
+a=setup:passive
 a=mid:${bundles[i]}\r
 a=${mode}\r
 a=ice-ufrag:${ICE_UFRAG}\r
@@ -254,25 +266,13 @@ a=rtcp-mux\r`;
 	}
 	counter?: string;
 	negotationneeded() {
-		if (this.pc && this.offer) {
+		if (this.pc) {
 			const pc = this.pc;
-			pc.addEventListener("negotiationneeded", async () => {
-				this.offer = (
-					await pc.createOffer({
-						offerToReceiveAudio: true,
-						offerToReceiveVideo: true,
-					})
-				).sdp;
-				await pc.setLocalDescription({sdp: this.offer});
+			const sendOffer = async () => {
+				console.trace("neg need");
+				await pc.setLocalDescription();
+				console.warn(pc.localDescription?.sdp, this.offer);
 
-				if (!this.counter) throw new Error("counter isn't defined");
-				const counter = this.counter;
-				const remote: {sdp: string; type: RTCSdpType} = {
-					sdp: this.cleanServerSDP(counter),
-					type: "answer",
-				};
-				console.log(remote);
-				await pc.setRemoteDescription(remote);
 				const senders = this.senders.difference(this.ssrcMap);
 				for (const sender of senders) {
 					for (const thing of (await sender.getStats()) as Map<string, any>) {
@@ -282,7 +282,43 @@ a=rtcp-mux\r`;
 						}
 					}
 				}
+			};
+			pc.addEventListener("negotiationneeded", async () => {
+				await sendOffer();
 				console.log(this.ssrcMap);
+			});
+			pc.addEventListener("signalingstatechange", async () => {
+				while (!this.counter) await new Promise((res) => setTimeout(res, 100));
+				if (this.pc && this.counter) {
+					if (pc.signalingState === "have-local-offer") {
+						const counter = this.counter;
+						const remote: {sdp: string; type: RTCSdpType} = {
+							sdp: this.cleanServerSDP(counter),
+							type: "answer",
+						};
+						console.log(remote);
+						await pc.setRemoteDescription(remote);
+					}
+				}
+			});
+			pc.addEventListener("connectionstatechange", async () => {
+				if (pc.connectionState === "connecting") {
+					await pc.setLocalDescription();
+				}
+			});
+			pc.addEventListener("icegatheringstatechange", async () => {
+				console.log("icegatheringstatechange", pc.iceGatheringState, this.pc, this.counter);
+				if (this.pc && this.counter) {
+					if (pc.iceGatheringState === "complete") {
+						console.log("icegatheringstatechange");
+						const counter = this.counter;
+						const remote: {sdp: string; type: RTCSdpType} = {
+							sdp: this.cleanServerSDP(counter),
+							type: "answer",
+						};
+						await pc.setRemoteDescription(remote);
+					}
+				}
 			});
 		}
 	}
@@ -294,6 +330,7 @@ a=rtcp-mux\r`;
 			sender = sender[0];
 		}
 		if (this.ws) {
+			console.log(this.ssrcMap);
 			this.ws.send(
 				JSON.stringify({
 					op: 12,
@@ -374,58 +411,26 @@ a=rtcp-mux\r`;
 	}
 	async continueWebRTC(data: sdpback) {
 		if (this.pc && this.offer) {
-			const pc = this.pc;
-			this.negotationneeded();
-			this.status = "Starting Audio streams";
-			const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true});
-			for (const track of audioStream.getAudioTracks()) {
-				//Add track
-
-				this.setupMic(audioStream);
-				const sender = pc.addTrack(track);
-				this.senders.add(sender);
-				console.log(sender);
-			}
-			for (let i = 0; i < 10; i++) {
-				pc.addTransceiver("audio", {
-					direction: "recvonly",
-					streams: [],
-					sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
-				});
-			}
-			for (let i = 0; i < 10; i++) {
-				pc.addTransceiver("video", {
-					direction: "recvonly",
-					streams: [],
-					sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
-				});
-			}
 			this.counter = data.d.sdp;
-			pc.ontrack = async (e) => {
-				this.status = "Done";
-				if (e.track.kind === "video") {
-					return;
-				}
-
-				const media = e.streams[0];
-				console.log("got audio:", e);
-				for (const track of media.getTracks()) {
-					console.log(track);
-				}
-
-				const context = new AudioContext();
-				await context.resume();
-				const ss = context.createMediaStreamSource(media);
-				console.log(media);
-				ss.connect(context.destination);
-				new Audio().srcObject = media; //weird I know, but it's for chromium/webkit bug
-				this.recivers.add(e.receiver);
-			};
 		} else {
 			this.status = "Connection failed";
 		}
 	}
 	reciverMap = new Map<number, RTCRtpReceiver>();
+	off?: Promise<RTCSessionDescriptionInit>;
+	async makeOffer() {
+		if (this.pc?.localDescription?.sdp) return {sdp: this.pc?.localDescription?.sdp};
+		if (this.off) return this.off;
+		return (this.off = new Promise<RTCSessionDescriptionInit>(async (res) => {
+			if (!this.pc) throw new Error("stupid");
+			console.error("stupid!");
+			const offer = await this.pc.createOffer({
+				offerToReceiveAudio: true,
+				offerToReceiveVideo: true,
+			});
+			res(offer);
+		}));
+	}
 	async figureRecivers() {
 		await new Promise((res) => setTimeout(res, 500));
 		for (const reciver of this.recivers) {
@@ -441,15 +446,61 @@ a=rtcp-mux\r`;
 	async startWebRTC() {
 		this.status = "Making offer";
 		const pc = new RTCPeerConnection();
-		this.pc = pc;
-		const offer = await pc.createOffer({
-			offerToReceiveAudio: true,
-			offerToReceiveVideo: true,
-		});
-		this.status = "Starting RTC connection";
-		const sdp = offer.sdp;
-		this.offer = sdp;
+		pc.ontrack = async (e) => {
+			this.status = "Done";
+			if (e.track.kind === "video") {
+				return;
+			}
 
+			const media = e.streams[0];
+			console.log("got audio:", e);
+			for (const track of media.getTracks()) {
+				console.log(track);
+			}
+
+			const context = new AudioContext();
+			await context.resume();
+			const ss = context.createMediaStreamSource(media);
+			console.log(media);
+			ss.connect(context.destination);
+			new Audio().srcObject = media; //weird I know, but it's for chromium/webkit bug
+			this.recivers.add(e.receiver);
+		};
+		const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true});
+		for (const track of audioStream.getAudioTracks()) {
+			//Add track
+
+			this.setupMic(audioStream);
+			const sender = pc.addTrack(track);
+			this.senders.add(sender);
+			console.log(sender);
+		}
+		for (let i = 0; i < 10; i++) {
+			pc.addTransceiver("audio", {
+				direction: "recvonly",
+				streams: [],
+				sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
+			});
+		}
+		for (let i = 0; i < 10; i++) {
+			pc.addTransceiver("video", {
+				direction: "recvonly",
+				streams: [],
+				sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
+			});
+		}
+		this.pc = pc;
+		this.negotationneeded();
+		await new Promise((res) => setTimeout(res, 100));
+		let sdp = this.offer;
+		if (!sdp) {
+			const offer = await this.makeOffer();
+			this.status = "Starting RTC connection";
+			sdp = offer.sdp;
+			this.offer = sdp;
+		}
+
+		await pc.setLocalDescription();
 		if (!sdp) {
 			this.status = "No SDP";
 			this.ws?.close();
@@ -658,7 +709,7 @@ a=rtcp-mux\r`;
 						server_id: update.d.guild_id,
 						user_id: update.d.user_id,
 						session_id: update.d.session_id,
-						token: update.d.token,
+						token: this.urlobj.token,
 						video: false,
 						streams: [
 							{
