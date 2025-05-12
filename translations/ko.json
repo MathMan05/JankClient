@@ -119,7 +119,8 @@
 		"dobField": "출생일:",
 		"createAccount": "계정 만들기",
 		"alreadyHave": "계정이 이미 있습니까?",
-		"openClient": "클라이언트 열기"
+		"openClient": "클라이언트 열기",
+		"trans": "번역"
 	},
 	"register": {
 		"passwordError:": "비밀번호: $1",
@@ -166,6 +167,7 @@
 		"save": "변경사항 저장"
 	},
 	"localuser": {
+		"install": "설치",
 		"addStatus": "상태 추가",
 		"status": "상태",
 		"settings": "설정",
@@ -304,7 +306,8 @@
 		"recover": "비밀번호를 잊으셨나요?",
 		"newPassword": "새 비밀번호:",
 		"enterPAgain": "새 비밀번호를 다시 입력하세요:",
-		"recovery": "비밀번호를 잊으셨나요?"
+		"recovery": "비밀번호를 잊으셨나요?",
+		"login": "로그인"
 	},
 	"member": {
 		"reason:": "이유:",
