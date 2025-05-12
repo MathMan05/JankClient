@@ -29,6 +29,25 @@
 			"dicord": "greysilly7",
 			"github": "https://github.com/greysilly7",
 			"email": "greysilly7@gmail.com"
+		},
+		{
+		"name": "DoxxLabs",
+		"description": "Free speech spacebar instance under DDoS protection. Just don't break EU law",
+		"image": "https://cdn-uploads.huggingface.co/production/uploads/noauth/hf75LBmET93YpyCocEdiN.webp",
+		"url": "https://doxxlabs.com",
+		"language": "en",
+		"country": "US",
+		"display": true,
+		"urls": {
+			"wellknown": "https://doxxlabs.com",
+			"api": "https://doxxlabs.com/api",
+			"cdn": "https://doxxlabs.com",
+			"gateway": "wss://doxxlabs.com"
+		},
+		"contactInfo": {
+			"dicord": "suediedev_",
+			"github": "https://github.com/suediedev",
+			"email": "c4tdrout@protonmail.com"
 		}
 	}
 ]
