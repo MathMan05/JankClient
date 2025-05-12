@@ -1,54 +1,54 @@
 [
-    {
-        "name": "Spacebar",
-        "description": "The official Spacebar instance.",
-        "image": "https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/branding/png/Spacebar__Icon-Discord.png",
-        "urls": {
-            "wellknown": "https://spacebar.chat/",
-            "api": "https://old.server.spacebar.chat/api",
-            "cdn": "https://cdn.old.server.spacebar.chat",
-            "gateway": "wss://gateway.old.server.spacebar.chat"
-        },
-        "url": "https://spacebar.chat"
-    },
-    {
-        "name": "Fastbar",
-        "description": "The best Spacebar instance with 95% uptime, running under on a NVME drive running with bleeding edge stuff <3",
-        "image": "https://spacebar.greysilly7.xyz/logo.png",
-        "url": "https://greysilly7.xyz",
-        "language": "en",
-        "country": "US",
-        "display": true,
-        "urls": {
-            "wellknown": "https://greysilly7.xyz",
-            "api": "https://api-spacebar.greysilly7.xyz/api",
-            "cdn": "https://cdn-spacebar.greysilly7.xyz",
-            "gateway": "wss://gateway-spacebar.greysilly7.xyz"
-        },
-        "contactInfo": {
-            "discord": "greysilly7",
-            "github": "https://github.com/greysilly7",
-            "email": "greysilly7@gmail.com"
-        }
-    },
-    {
-        "name": "DoxxLabs",
-        "description": "Free speech spacebar instance under DDoS protection. Just don't break EU law",
-        "image": "https://cdn-uploads.huggingface.co/production/uploads/noauth/hf75LBmET93YpyCocEdiN.webp",
-        "url": "https://doxxlabs.com",
-        "language": "en",
-        "country": "US",
-        "display": true,
-        "urls": {
-            "wellknown": "https://doxxlabs.com",
-            "api": "https://doxxlabs.com/api",
-            "cdn": "https://doxxlabs.com",
-            "gateway": "wss://doxxlabs.com"
-        },
-        "contactInfo": {
-            "discord": "suediedev_",
-            "github": "https://github.com/suediedev",
-            "email": "c4tdrout@protonmail.com"
-        }
-    }
+	{
+		"name": "Spacebar",
+		"description": "The official Spacebar instance.",
+		"image": "https://raw.githubusercontent.com/spacebarchat/spacebarchat/master/branding/png/Spacebar__Icon-Discord.png",
+		"urls": {
+			"wellknown": "https://spacebar.chat/",
+			"api": "https://old.server.spacebar.chat/api",
+			"cdn": "https://cdn.old.server.spacebar.chat",
+			"gateway": "wss://gateway.old.server.spacebar.chat"
+		},
+		"url": "https://spacebar.chat"
+	},
+	{
+		"name": "Fastbar",
+		"description": "The best Spacebar instance with 95% uptime, running under on a NVME drive running with bleeding edge stuff <3",
+		"image": "https://spacebar.greysilly7.xyz/logo.png",
+		"url": "https://greysilly7.xyz",
+		"language": "en",
+		"country": "US",
+		"display": true,
+		"urls": {
+			"wellknown": "https://greysilly7.xyz",
+			"api": "https://api-spacebar.greysilly7.xyz/api",
+			"cdn": "https://cdn-spacebar.greysilly7.xyz",
+			"gateway": "wss://gateway-spacebar.greysilly7.xyz"
+		},
+		"contactInfo": {
+			"discord": "greysilly7",
+			"github": "https://github.com/greysilly7",
+			"email": "greysilly7@gmail.com"
+		}
+	},
+	{
+		"name": "DoxxLabs",
+		"description": "Free speech spacebar instance under DDoS protection. Just don't break EU law",
+		"image": "https://cdn-uploads.huggingface.co/production/uploads/noauth/hf75LBmET93YpyCocEdiN.webp",
+		"url": "https://doxxlabs.com",
+		"language": "en",
+		"country": "US",
+		"display": true,
+		"urls": {
+			"wellknown": "https://doxxlabs.com",
+			"api": "https://doxxlabs.com/api",
+			"cdn": "https://doxxlabs.com",
+			"gateway": "wss://doxxlabs.com"
+		},
+		"contactInfo": {
+			"discord": "suediedev_",
+			"github": "https://github.com/suediedev",
+			"email": "c4tdrout@protonmail.com"
+		}
+	}
 ]
