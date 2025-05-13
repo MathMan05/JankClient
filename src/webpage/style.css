@@ -1349,6 +1349,8 @@ span.instanceStatus {
 .searchBox:empty::after {
 	content: var(--hint-text);
 	color: var(--primary-text-soft);
+	position: absolute;
+	top: 4px;
 }
 .searchBox {
 	white-space: nowrap;
