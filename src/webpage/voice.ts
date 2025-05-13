@@ -121,7 +121,7 @@ class Voice {
 		const ssrc = this.speakingMap.get(userid);
 
 		if (ssrc) {
-			this.users.delete(ssrc);
+			this.users.set(ssrc, "");
 			for (const thing of this.ssrcMap) {
 				if (thing[1] === ssrc) {
 					this.ssrcMap.delete(thing[0]);
@@ -134,7 +134,7 @@ class Voice {
 		//there's more for sure, but this is "good enough" for now
 		this.onMemberChange(userid, false);
 	}
-	packet(message: MessageEvent) {
+	async packet(message: MessageEvent) {
 		const data = message.data;
 		if (typeof data === "string") {
 			const json: webRTCSocket = JSON.parse(data);
@@ -158,15 +158,35 @@ class Voice {
 					setTimeout(this.sendAlive.bind(this), 1000);
 					break;
 				case 12:
-					this.figureRecivers();
+					await this.figureRecivers();
 					if (!this.users.has(json.d.audio_ssrc)) {
 						console.log("redo 12!");
 						this.makeOp12();
+					}
+					if (this.pc) {
+						this.pc.addTransceiver(json.d.audio_ssrc ? "audio" : "video", {
+							direction: "recvonly",
+							sendEncodings: [{active: true}],
+						});
+						this.getAudioTrans(this.users.size + 1).direction = "recvonly";
 					}
 					this.users.set(json.d.audio_ssrc, json.d.user_id);
 					break;
 			}
 		}
+	}
+	getAudioTrans(id: number) {
+		if (!this.pc) throw new Error("no pc");
+		let i = 0;
+		for (const thing of this.pc.getTransceivers()) {
+			if (thing.receiver.track.kind === "audio") {
+				if (id === i) {
+					return thing;
+				}
+				i++;
+			}
+		}
+		throw new Error("none by that id");
 	}
 	hoffer?: string;
 	get offer() {
@@ -175,6 +195,7 @@ class Voice {
 	set offer(e: string | undefined) {
 		this.hoffer = e;
 	}
+	fingerprint?: string;
 	cleanServerSDP(sdp: string): string {
 		const pc = this.pc;
 		if (!pc) throw new Error("pc isn't defined");
@@ -195,18 +216,25 @@ class Voice {
 		const rtcport = (parsed1.atr.get("rtcp") as Set<string>).values().next().value as string;
 		const ICE_UFRAG = (parsed1.atr.get("ice-ufrag") as Set<string>).values().next().value as string;
 		const ICE_PWD = (parsed1.atr.get("ice-pwd") as Set<string>).values().next().value as string;
-		const FINGERPRINT = (parsed1.atr.get("fingerprint") as Set<string>).values().next()
-			.value as string;
+		const FINGERPRINT =
+			this.fingerprint ||
+			((parsed1.atr.get("fingerprint") as Set<string>).values().next().value as string);
+		this.fingerprint = FINGERPRINT;
 		const candidate = (parsed1.atr.get("candidate") as Set<string>).values().next().value as string;
+
+		const audioUsers = [...this.users];
+		console.warn(audioUsers);
+
 		let build = `v=0\r
 o=- 1420070400000 0 IN IP4 ${this.urlobj.url}\r
 s=-\r
 t=0 0\r
 a=msid-semantic: WMS *\r
 a=group:BUNDLE ${bundles.join(" ")}\r`;
+		let ai = -1;
 		let i = 0;
 		for (const grouping of parsed.medias) {
-			let mode = "recvonly";
+			let mode = "inactive";
 			for (const _ of this.senders) {
 				if (i < 2) {
 					mode = "sendrecv";
@@ -223,17 +251,18 @@ a=rtcp-fb:111 transport-cc\r
 a=extmap:1 urn:ietf:params:rtp-hdrext:ssrc-audio-level\r
 a=extmap:3 http://www.ietf.org/id/draft-holmer-rmcat-transport-wide-cc-extensions-01
 a=setup:passive\r
-a=mid:${bundles[i]}\r
+a=mid:${bundles[i]}${audioUsers[ai] && audioUsers[ai][1] ? `\r\na=msid:${audioUsers[ai][1]}-${audioUsers[ai][0]} a${audioUsers[ai][1]}-${audioUsers[ai][0]}\r` : "\r"}
 a=maxptime:60\r
-a=${mode}\r
+a=${audioUsers[ai] && audioUsers[ai][1] ? "sendonly" : mode}\r
 a=ice-ufrag:${ICE_UFRAG}\r
 a=ice-pwd:${ICE_PWD}\r
 a=fingerprint:${FINGERPRINT}\r
-a=candidate:${candidate}\r
+a=candidate:${candidate}${audioUsers[ai] && audioUsers[ai][1] ? `\r\na=ssrc:${audioUsers[ai][0]} cname:${audioUsers[ai][1]}-${audioUsers[ai][0]}\r` : "\r"}
 a=rtcp-mux\r`;
+				ai++;
 			} else {
 				build += `
-m=video ${rtcport} UDP/TLS/RTP/SAVPF 103 104\r
+m=video ${parsed1.port} UDP/TLS/RTP/SAVPF 103 104\r
 ${cline}\r
 a=rtpmap:103 H264/90000\r
 a=rtpmap:104 rtx/90000\r
@@ -271,7 +300,6 @@ a=rtcp-mux\r`;
 			const sendOffer = async () => {
 				console.trace("neg need");
 				await pc.setLocalDescription();
-				console.warn(pc.localDescription?.sdp, this.offer);
 
 				const senders = this.senders.difference(this.ssrcMap);
 				for (const sender of senders) {
@@ -402,7 +430,7 @@ a=rtcp-mux\r`;
 			JSON.stringify({
 				op: 5,
 				d: {
-					speaking: +this.speaking,
+					speaking: this.speaking,
 					delay: 5, //not sure
 					ssrc: pair[1],
 				},
@@ -449,6 +477,7 @@ a=rtcp-mux\r`;
 		pc.ontrack = async (e) => {
 			this.status = "Done";
 			if (e.track.kind === "video") {
+				console.log("gotVideo?");
 				return;
 			}
 
@@ -459,12 +488,14 @@ a=rtcp-mux\r`;
 			}
 
 			const context = new AudioContext();
+			console.log(context);
 			await context.resume();
 			const ss = context.createMediaStreamSource(media);
-			console.log(media);
-			ss.connect(context.destination);
+			console.log(media, ss);
 			new Audio().srcObject = media; //weird I know, but it's for chromium/webkit bug
+			ss.connect(context.destination);
 			this.recivers.add(e.receiver);
+			console.log(this.recivers);
 		};
 		const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true});
 		for (const track of audioStream.getAudioTracks()) {
@@ -477,14 +508,14 @@ a=rtcp-mux\r`;
 		}
 		for (let i = 0; i < 10; i++) {
 			pc.addTransceiver("audio", {
-				direction: "recvonly",
+				direction: "inactive",
 				streams: [],
 				sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
 			});
 		}
 		for (let i = 0; i < 10; i++) {
 			pc.addTransceiver("video", {
-				direction: "recvonly",
+				direction: "inactive",
 				streams: [],
 				sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
 			});
