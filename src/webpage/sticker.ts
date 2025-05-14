@@ -100,12 +100,10 @@ class Sticker extends SnowFlake {
 
 		const topBar = document.createElement("div");
 		topBar.classList.add("flexltr", "emojiHeading");
-		const guilds = [
-			localuser.lookingguild,
-			...localuser.guilds
-				.filter((guild) => guild.id != "@me" && guild.stickers.length > 0)
-				.filter((guild) => guild !== localuser.lookingguild),
-		].filter((guild) => guild !== undefined);
+		const guilds = [localuser.lookingguild, ...localuser.guilds]
+			.filter((guild) => guild !== undefined)
+			.filter((guild) => guild.id != "@me" && guild.stickers.length > 0)
+			.filter((guild) => guild !== localuser.lookingguild);
 
 		const title = document.createElement("h2");
 		title.textContent = guilds[0].properties.name;
