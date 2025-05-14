@@ -71,6 +71,8 @@ function toPath(url: string): string {
 			html = "./index.html";
 		} else if (path.startsWith("/invite/") || path === "/invite") {
 			html = "./invite.html";
+		} else if (path.startsWith("/template/") || path === "/template") {
+			html = "./template.html";
 		}
 	}
 	return html || Url.pathname;
