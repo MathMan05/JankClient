@@ -1,4 +1,4 @@
-type readyjson = {
+interface readyjson {
 	op: 0;
 	t: "READY";
 	s: number;
@@ -120,7 +120,39 @@ type readyjson = {
 			flags: number;
 		};
 	};
-};
+}
+interface readySuplemental {
+	op: 0;
+	t: "READY_SUPPLEMENTAL";
+	s: number;
+	d: {
+		merged_presences: {
+			guilds: [];
+			friends: [];
+		};
+		merged_members: [];
+		lazy_private_channels: [];
+		guilds: {
+			voice_states: {
+				user_id: string;
+				suppress: boolean;
+				session_id: string;
+				self_video: boolean;
+				self_mute: boolean;
+				self_deaf: boolean;
+				self_stream: boolean;
+				request_to_speak_timestamp: null;
+				mute: boolean;
+				deaf: boolean;
+				channel_id: string; //weird reasons, don't question it too much
+				guild_id: string;
+			}[];
+			id: string;
+			embedded_activities: [];
+		}[];
+		disclose: [];
+	};
+}
 interface banObj {
 	reason: string | null;
 	user: {
@@ -508,6 +540,7 @@ type roleCreate = {
 	s: 6;
 };
 type wsjson =
+	| readySuplemental
 	| roleCreate
 	| {
 			op: 0;
@@ -704,22 +737,23 @@ type memberChunk = {
 	chunk_count: number;
 	not_found: string[];
 };
+export type voiceStatus = {
+	guild_id: string;
+	channel_id: string;
+	user_id: string;
+	member?: memberjson;
+	session_id: string;
+	deaf: boolean;
+	mute: boolean;
+	self_deaf: boolean;
+	self_mute: boolean;
+	self_video: boolean;
+	suppress: boolean;
+};
 type voiceupdate = {
 	op: 0;
 	t: "VOICE_STATE_UPDATE";
-	d: {
-		guild_id: string;
-		channel_id: string;
-		user_id: string;
-		member: memberjson;
-		session_id: string;
-		deaf: boolean;
-		mute: boolean;
-		self_deaf: boolean;
-		self_mute: boolean;
-		self_video: boolean;
-		suppress: boolean;
-	};
+	d: voiceStatus;
 	s: number;
 };
 type voiceserverupdate = {

@@ -243,6 +243,21 @@ class Localuser {
 		if (this.perminfo.user.disableColors === undefined) this.perminfo.user.disableColors = true;
 		this.updateTranslations();
 	}
+	readysup = false;
+	get voiceAllowed() {
+		return this.readysup || localStorage.getItem("Voice enabled");
+	}
+	mute = true;
+	deaf = false;
+	updateMic() {
+		const mic = document.getElementById("mic") as HTMLElement;
+		mic.classList.remove("svg-mic", "svg-micmute");
+		if (this.mute) {
+			mic.classList.add("svg-micmute");
+		} else {
+			mic.classList.add("svg-mic");
+		}
+	}
 	async gottenReady(ready: readyjson): Promise<void> {
 		await I18n.done;
 		this.initialized = true;
@@ -273,6 +288,12 @@ class Localuser {
 				members[thing[0].guild_id] = thing[0];
 			}
 		}
+		this.updateMic();
+		const mic = document.getElementById("mic") as HTMLElement;
+		mic.onclick = () => {
+			this.mute = !this.mute;
+			this.updateMic();
+		};
 		for (const thing of ready.d.guilds) {
 			const temp = new Guild(thing, this, members[thing.id]);
 			this.guilds.push(temp);
@@ -722,9 +743,22 @@ class Localuser {
 					this.memberListUpdate(temp);
 					break;
 				}
+				case "READY_SUPPLEMENTAL":
+					{
+						temp.d.guilds.forEach((_) =>
+							_.voice_states.forEach((status) => {
+								if (this.voiceFactory && status.channel_id) {
+									this.voiceFactory.voiceStateUpdate(status);
+									console.log(status);
+								}
+							}),
+						);
+						this.readysup = temp.d.guilds.length !== 0;
+					}
+					break;
 				case "VOICE_STATE_UPDATE":
 					if (this.voiceFactory) {
-						this.voiceFactory.voiceStateUpdate(temp);
+						this.voiceFactory.voiceStateUpdate(temp.d);
 					}
 
 					break;
@@ -838,7 +872,9 @@ class Localuser {
 	async joinVoice(channel: Channel) {
 		if (!this.voiceFactory) return;
 		if (!this.ws) return;
-		this.ws.send(JSON.stringify(this.voiceFactory.joinVoice(channel.id, channel.guild.id)));
+		this.ws.send(
+			JSON.stringify(this.voiceFactory.joinVoice(channel.id, channel.guild.id, this.mute)),
+		);
 		return undefined;
 	}
 	changeVCStatus(status: string) {
@@ -891,6 +927,9 @@ class Localuser {
 		if (!guild) return;
 		const channel = this.channelfocus;
 		if (!channel) return;
+		if (channel.voice && this.voiceAllowed) {
+			return;
+		}
 		if (list) {
 			const counts = new Map<string, number>();
 			for (const thing of list.d.ops[0].items) {

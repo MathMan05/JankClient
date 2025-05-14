@@ -1,5 +1,4 @@
-import {memberjson, sdpback, voiceserverupdate, voiceupdate, webRTCSocket} from "./jsontypes.js";
-
+import {memberjson, sdpback, voiceserverupdate, voiceStatus, webRTCSocket} from "./jsontypes.js";
 class VoiceFactory {
 	settings: {id: string};
 	constructor(usersettings: VoiceFactory["settings"]) {
@@ -28,7 +27,7 @@ class VoiceFactory {
 	}
 	onJoin = (_voice: Voice) => {};
 	onLeave = (_voice: Voice) => {};
-	joinVoice(channelId: string, guildId: string) {
+	joinVoice(channelId: string, guildId: string, self_mute = false) {
 		const voice = this.voiceChannels.get(channelId);
 		if (this.currentVoice && this.currentVoice.ws) {
 			this.currentVoice.leave();
@@ -42,7 +41,7 @@ class VoiceFactory {
 			d: {
 				guild_id: guildId,
 				channel_id: channelId,
-				self_mute: false, //todo
+				self_mute,
 				self_deaf: false, //todo
 				self_video: false, //What is this? I have some guesses
 				flags: 2, //?????
@@ -51,16 +50,16 @@ class VoiceFactory {
 		};
 	}
 	userMap = new Map<string, Voice>();
-	voiceStateUpdate(update: voiceupdate) {
-		const prev = this.userMap.get(update.d.user_id);
+	voiceStateUpdate(update: voiceStatus) {
+		const prev = this.userMap.get(update.user_id);
 		console.log(prev, this.userMap);
 		if (prev) {
-			prev.disconnect(update.d.user_id);
+			prev.disconnect(update.user_id);
 			this.onLeave(prev);
 		}
-		const voice = this.voiceChannels.get(update.d.channel_id);
+		const voice = this.voiceChannels.get(update.channel_id);
 		if (voice) {
-			this.userMap.set(update.d.user_id, voice);
+			this.userMap.set(update.user_id, voice);
 			voice.voiceupdate(update);
 		}
 	}
@@ -696,11 +695,11 @@ a=rtcp-mux\r`;
 	}
 	onMemberChange = (_member: memberjson | string, _joined: boolean) => {};
 	userids = new Map<string, {}>();
-	async voiceupdate(update: voiceupdate) {
+	async voiceupdate(update: voiceStatus) {
 		console.log("Update!");
-		this.userids.set(update.d.member.id, {deaf: update.d.deaf, muted: update.d.mute});
-		this.onMemberChange(update.d.member, true);
-		if (update.d.member.id === this.userid && this.open) {
+		this.userids.set(update.user_id, {deaf: update.deaf, muted: update.mute});
+		this.onMemberChange(update?.member || update.user_id, true);
+		if (update.user_id === this.userid && this.open) {
 			if (!update) {
 				this.status = "bad responce from WS";
 				return;
@@ -737,9 +736,9 @@ a=rtcp-mux\r`;
 				JSON.stringify({
 					op: 0,
 					d: {
-						server_id: update.d.guild_id,
-						user_id: update.d.user_id,
-						session_id: update.d.session_id,
+						server_id: update.guild_id,
+						user_id: update.user_id,
+						session_id: update.session_id,
 						token: this.urlobj.token,
 						video: false,
 						streams: [

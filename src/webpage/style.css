@@ -538,6 +538,21 @@ textarea {
 	aspect-ratio: 1/1;
 	flex-shrink: 0;
 }
+.svg-mic {
+	height: 22px;
+	width: 22px;
+	margin: 6px;
+	mask: url(/icons/mic.svg);
+	mask-size: contain !important;
+}
+.svg-micmute {
+	height: 22px;
+	width: 22px;
+	margin: 6px;
+	mask: url(/icons/micmute.svg);
+	background-color: var(--red);
+	mask-size: contain !important;
+}
 .mobileback {
 	visibility: hidden;
 	height: 0px;
@@ -1186,10 +1201,6 @@ span.instanceStatus {
 #userinfo {
 	min-width: 50%;
 	padding: 0 6px;
-	background: var(--user-info-bg);
-	color: var(--user-info-text);
-	border-radius: 8px;
-	box-sizing: border-box;
 	gap: 6px;
 	cursor: pointer;
 }
@@ -1205,11 +1216,14 @@ span.instanceStatus {
 #status {
 	font-size: 0.8em;
 }
-#user-actions {
+#user-actions > * {
 	border-radius: 50%;
 	cursor: pointer;
+	background: var(--user-info-bg);
+	color: var(--user-info-text);
+	box-sizing: border-box;
 }
-#user-actions:hover {
+#user-actions > :hover {
 	background: var(--dock-hover);
 }
 #settings {
