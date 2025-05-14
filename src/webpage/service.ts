@@ -42,6 +42,7 @@ async function checkCache() {
 		if (lastcache !== text) {
 			deleteoldcache();
 			putInCache("/getupdates", data);
+			self.close();
 		}
 		checkedrecently = true;
 	});

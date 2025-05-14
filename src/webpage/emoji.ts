@@ -232,13 +232,10 @@ class Emoji {
 
 		let isFirst = true;
 
-		[
-			localuser.lookingguild,
-			...localuser.guilds
-				.filter((guild) => guild.id != "@me" && guild.emojis.length > 0)
-				.filter((guild) => guild !== localuser.lookingguild),
-		]
-			.filter((guild) => guild !== undefined)
+		([localuser.lookingguild, ...localuser.guilds].filter((_) => _) as Guild[])
+			.filter((guild) => guild.id != "@me" && guild.emojis.length > 0)
+			.filter((guild) => guild !== localuser.lookingguild)
+
 			.forEach((guild) => {
 				const select = document.createElement("div");
 				select.classList.add("emojiSelect");
