@@ -259,6 +259,9 @@ class RoleList extends Buttons {
 					headers: this.headers,
 				});
 			},
+			{
+				visable: (role) => role.id !== role.guild.id,
+			},
 		);
 		return menu;
 	}
