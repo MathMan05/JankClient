@@ -51,7 +51,7 @@ async function combinePath(path: string, tryAgain = true): Promise<string> {
 	} else {
 		if (!path.includes(".")) {
 			const str = await combinePath(path + ".html", false);
-			if (str !== __dirname + "/webpage/index.html") {
+			if (str !== __dirname + "/webpage/app.html") {
 				return str;
 			}
 		}
@@ -59,7 +59,7 @@ async function combinePath(path: string, tryAgain = true): Promise<string> {
 			dirs = await getDirectories(__dirname);
 			return combinePath(path, false);
 		}
-		return __dirname + "/webpage/index.html";
+		return __dirname + "/webpage/app.html";
 	}
 }
 interface Instance {
@@ -178,6 +178,10 @@ app.use("/", async (req: Request, res: Response) => {
 	}
 	if (req.path.startsWith("/template/")) {
 		res.sendFile(path.join(__dirname, "webpage", "template.html"));
+		return;
+	}
+	if (req.path === "index.html") {
+		res.sendFile(path.join(__dirname, "webpage", "app.html"));
 		return;
 	}
 	const filePath = await combinePath("/webpage/" + req.path);

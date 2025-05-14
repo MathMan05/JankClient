@@ -56,7 +56,7 @@ function samedomain(url: string | URL) {
 let enabled = "false";
 let offline = false;
 
-const htmlFiles = new Set(["/index", "/login", "/home", "/register", "/oauth2/auth", "/reset"]);
+const htmlFiles = new Set(["/app", "/login", "/home", "/register", "/oauth2/auth", "/reset"]);
 function isHtml(url: string): string | void {
 	const path = new URL(url).pathname;
 	if (htmlFiles.has(path) || htmlFiles.has(path + ".html")) {
@@ -69,7 +69,7 @@ function toPath(url: string): string {
 	if (!html) {
 		const path = Url.pathname;
 		if (path.startsWith("/channels")) {
-			html = "./index.html";
+			html = "./app.html";
 		} else if (path.startsWith("/invite/") || path === "/invite") {
 			html = "./invite.html";
 		} else if (path.startsWith("/template/") || path === "/template") {
