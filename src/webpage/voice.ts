@@ -89,7 +89,7 @@ class VoiceFactory {
 	voiceStateUpdate(update: voiceStatus) {
 		const prev = this.userMap.get(update.user_id);
 		console.log(prev, this.userMap);
-		if (prev && update.channel_id !== this.curChan) {
+		if (prev && prev !== this.voiceChannels.get(update.channel_id)) {
 			prev.disconnect(update.user_id);
 			this.onLeave(prev);
 		}
