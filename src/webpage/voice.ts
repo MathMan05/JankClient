@@ -44,6 +44,22 @@ class VoiceFactory {
 			this.updateSelf();
 		}
 	}
+	disconect() {
+		if (!this.curChan) return;
+		this.curChan = null;
+		this.curGuild = null;
+		this.handleGateway({
+			op: 4,
+			d: {
+				guild_id: this.curGuild,
+				channel_id: this.curChan,
+				self_mute: this.imute,
+				self_deaf: false,
+				self_video: false,
+				flags: 3,
+			},
+		});
+	}
 	updateSelf() {
 		if (this.currentVoice && this.currentVoice.open) {
 			this.handleGateway({
@@ -59,8 +75,8 @@ class VoiceFactory {
 			});
 		}
 	}
-	curGuild?: string;
-	curChan?: string;
+	curGuild: string | null = null;
+	curChan: string | null = null;
 	joinVoice(channelId: string, guildId: string, self_mute = false) {
 		const voice = this.voiceChannels.get(channelId);
 		this.mute = self_mute;
@@ -152,7 +168,7 @@ class Voice {
 			this.ws.send(JSON.stringify({op: 3, d: 10}));
 		}
 	}
-	readonly users = new Map<number, string>();
+	users = new Map<number, string>();
 	readonly speakingMap = new Map<string, number>();
 	onSpeakingChange = (_userid: string, _speaking: number) => {};
 	disconnect(userid: string) {
@@ -826,9 +842,17 @@ a=rtcp-mux\r`;
 		this.micTrack?.stop();
 		this.micTrack = undefined;
 		this.micTrack = undefined;
+		this.mic = undefined;
 		this.off = undefined;
 		this.counter = undefined;
 		this.offer = undefined;
+		this.senders = new Set();
+		this.recivers = new Set();
+		this.ssrcMap = new Map();
+		this.fingerprint = undefined;
+		this.users = new Map();
+		this.owner.disconect();
+		console.log(this);
 	}
 }
 export {Voice, VoiceFactory};
