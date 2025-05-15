@@ -823,6 +823,12 @@ a=rtcp-mux\r`;
 			this.pc.close();
 			this.pc = undefined;
 		}
+		this.micTrack?.stop();
+		this.micTrack = undefined;
+		this.micTrack = undefined;
+		this.off = undefined;
+		this.counter = undefined;
+		this.offer = undefined;
 	}
 }
 export {Voice, VoiceFactory};
