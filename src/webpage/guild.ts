@@ -1429,7 +1429,7 @@ class Guild extends SnowFlake {
 				return;
 			}
 		}
-		if (this.prevchannel && ID !== null) {
+		if (this.prevchannel && ID !== null && this.prevchannel.visable) {
 			console.log(this.prevchannel);
 			this.prevchannel.getHTML(addstate);
 			return;
@@ -1467,6 +1467,12 @@ class Guild extends SnowFlake {
 		(document.getElementById("sideDiv") as HTMLElement).innerHTML = "";
 	}
 	noChannel(addstate: boolean) {
+		for (const c of this.channels) {
+			if (c.visable) {
+				this.loadChannel(c.id, addstate);
+				return;
+			}
+		}
 		if (addstate) {
 			history.pushState([this.id, undefined], "", "/channels/" + this.id);
 		}
