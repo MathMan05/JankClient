@@ -184,6 +184,69 @@ body {
 	position: relative;
 	width: 100%;
 }
+#voiceArea:empty {
+	display: none;
+}
+#voiceArea {
+	background: var(--black);
+	position: relative;
+}
+.voiceUsers {
+	padding: 20px;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+.speaking {
+	border: solid var(--green) 3px;
+	padding: 77px 137px !important;
+}
+.voiceUsers > * {
+	background: var(--accent_color, var(--primary-bg));
+	padding: 80px 140px;
+	width: fit-content;
+	border-radius: 8px;
+	position: relative;
+	box-sizing: border-box;
+	margin: 8px;
+
+	img {
+		width: 60px;
+		height: 60px;
+		cursor: unset;
+	}
+}
+.buttonRow > * {
+	margin-right: 6px;
+	width: 54px;
+	height: 54px;
+	background: var(--secondary-hover);
+	border-radius: 100%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	cursor: pointer;
+	* {
+		width: 32px !important;
+		height: 32px !important;
+		background: var(--primary-text);
+	}
+}
+.buttonRow {
+	position: absolute;
+	bottom: 20px;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+}
+.voiceUsername {
+	position: absolute;
+	bottom: 10px;
+	left: 14px;
+	background: var(--secondary-bg);
+	padding: 4px;
+	border-radius: 6px;
+}
 .flexgrow {
 	flex-grow: 1;
 	min-height: 0;
@@ -414,6 +477,15 @@ textarea {
 	cursor: pointer;
 	display: block;
 	mask-size: cover !important;
+}
+.svg-call {
+	mask: url(/icons/call.svg);
+	mask-size: contain !important;
+}
+.svg-hangup {
+	mask: url(/icons/hangup.svg);
+	mask-size: contain !important;
+	background: var(--red);
 }
 .svg-plainx {
 	mask: url(/icons/plainx.svg);

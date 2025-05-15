@@ -1,8 +1,13 @@
 import {memberjson, sdpback, voiceserverupdate, voiceStatus, webRTCSocket} from "./jsontypes.js";
 class VoiceFactory {
 	settings: {id: string};
-	constructor(usersettings: VoiceFactory["settings"]) {
+	handleGateway: (obj: Object) => void;
+	constructor(
+		usersettings: VoiceFactory["settings"],
+		handleGateway: VoiceFactory["handleGateway"],
+	) {
 		this.settings = usersettings;
+		this.handleGateway = handleGateway;
 	}
 	voices = new Map<string, Map<string, Voice>>();
 	voiceChannels = new Map<string, Voice>();
@@ -20,19 +25,50 @@ class VoiceFactory {
 		}
 		const urlobj = this.guildUrlMap.get(guildid);
 		if (!urlobj) throw new Error("url Object doesn't exist (InternalError)");
-		const voice = new Voice(this.settings.id, settings, urlobj);
+		const voice = new Voice(this.settings.id, settings, urlobj, this);
 		this.voiceChannels.set(channelId, voice);
 		guild.set(channelId, voice);
 		return voice;
 	}
 	onJoin = (_voice: Voice) => {};
 	onLeave = (_voice: Voice) => {};
+	private imute = false;
+	get mute() {
+		return this.imute;
+	}
+	set mute(s) {
+		const changed = this.imute !== s;
+		this.imute = s;
+		if (this.currentVoice && changed) {
+			this.currentVoice.updateMute();
+			this.updateSelf();
+		}
+	}
+	updateSelf() {
+		if (this.currentVoice && this.currentVoice.open) {
+			this.handleGateway({
+				op: 4,
+				d: {
+					guild_id: this.curGuild,
+					channel_id: this.curChan,
+					self_mute: this.imute,
+					self_deaf: false,
+					self_video: false,
+					flags: 3,
+				},
+			});
+		}
+	}
+	curGuild?: string;
+	curChan?: string;
 	joinVoice(channelId: string, guildId: string, self_mute = false) {
 		const voice = this.voiceChannels.get(channelId);
+		this.mute = self_mute;
 		if (this.currentVoice && this.currentVoice.ws) {
 			this.currentVoice.leave();
 		}
-
+		this.curChan = channelId;
+		this.curGuild = guildId;
 		if (!voice) throw new Error(`Voice ${channelId} does not exist`);
 		voice.join();
 		this.currentVoice = voice;
@@ -53,7 +89,7 @@ class VoiceFactory {
 	voiceStateUpdate(update: voiceStatus) {
 		const prev = this.userMap.get(update.user_id);
 		console.log(prev, this.userMap);
-		if (prev) {
+		if (prev && update.channel_id !== this.curChan) {
 			prev.disconnect(update.user_id);
 			this.onLeave(prev);
 		}
@@ -93,10 +129,17 @@ class Voice {
 	readonly userid: string;
 	settings: {bitrate: number};
 	urlobj: {url?: string; token?: string; geturl: Promise<void>; gotUrl: () => void};
-	constructor(userid: string, settings: Voice["settings"], urlobj: Voice["urlobj"]) {
+	owner: VoiceFactory;
+	constructor(
+		userid: string,
+		settings: Voice["settings"],
+		urlobj: Voice["urlobj"],
+		owner: VoiceFactory,
+	) {
 		this.userid = userid;
 		this.settings = settings;
 		this.urlobj = urlobj;
+		this.owner = owner;
 	}
 	pc?: RTCPeerConnection;
 	ws?: WebSocket;
@@ -425,6 +468,7 @@ a=rtcp-mux\r`;
 		if (!this.ws) return;
 		const pair = this.ssrcMap.entries().next().value;
 		if (!pair) return;
+		this.onSpeakingChange(this.userid, +this.speaking);
 		this.ws.send(
 			JSON.stringify({
 				op: 5,
@@ -470,6 +514,12 @@ a=rtcp-mux\r`;
 		}
 		console.log(this.reciverMap);
 	}
+	updateMute() {
+		if (!this.micTrack) return;
+		this.micTrack.enabled = !this.owner.mute;
+	}
+	mic?: RTCRtpSender;
+	micTrack?: MediaStreamTrack;
 	async startWebRTC() {
 		this.status = "Making offer";
 		const pc = new RTCPeerConnection();
@@ -497,14 +547,17 @@ a=rtcp-mux\r`;
 			console.log(this.recivers);
 		};
 		const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true});
-		for (const track of audioStream.getAudioTracks()) {
-			//Add track
+		const [track] = audioStream.getAudioTracks();
+		//Add track
 
-			this.setupMic(audioStream);
-			const sender = pc.addTrack(track);
-			this.senders.add(sender);
-			console.log(sender);
-		}
+		this.setupMic(audioStream);
+		const sender = pc.addTrack(track);
+		this.mic = sender;
+		this.micTrack = track;
+		track.enabled = !this.owner.mute;
+		this.senders.add(sender);
+		console.log(sender);
+
 		for (let i = 0; i < 10; i++) {
 			pc.addTransceiver("audio", {
 				direction: "inactive",
@@ -697,9 +750,12 @@ a=rtcp-mux\r`;
 	userids = new Map<string, {}>();
 	async voiceupdate(update: voiceStatus) {
 		console.log("Update!");
+		if (!this.userids.has(update.user_id)) {
+			this.onMemberChange(update?.member || update.user_id, true);
+		}
 		this.userids.set(update.user_id, {deaf: update.deaf, muted: update.mute});
-		this.onMemberChange(update?.member || update.user_id, true);
-		if (update.user_id === this.userid && this.open) {
+
+		if (update.user_id === this.userid && this.open && !(this.status === "Done")) {
 			if (!update) {
 				this.status = "bad responce from WS";
 				return;
@@ -757,6 +813,8 @@ a=rtcp-mux\r`;
 		console.warn("leave");
 		this.open = false;
 		this.status = "Left voice chat";
+		this.onMemberChange(this.userid, false);
+		this.userids.delete(this.userid);
 		if (this.ws) {
 			this.ws.close();
 			this.ws = undefined;

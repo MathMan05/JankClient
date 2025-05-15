@@ -249,9 +249,12 @@ class Localuser {
 	}
 	mute = true;
 	deaf = false;
-	updateMic() {
+	updateOtherMic = () => {};
+	updateMic(updateVoice: boolean = true) {
+		this.updateOtherMic();
 		const mic = document.getElementById("mic") as HTMLElement;
 		mic.classList.remove("svg-mic", "svg-micmute");
+		if (this.voiceFactory && updateVoice) this.voiceFactory.mute = this.mute;
 		if (this.mute) {
 			mic.classList.add("svg-micmute");
 		} else {
@@ -271,7 +274,11 @@ class Localuser {
 
 		this.mdBox();
 
-		this.voiceFactory = new VoiceFactory({id: this.user.id});
+		this.voiceFactory = new VoiceFactory({id: this.user.id}, (g) => {
+			if (this.ws) {
+				this.ws.send(JSON.stringify(g));
+			}
+		});
 		this.handleVoice();
 		this.mfa_enabled = ready.d.user.mfa_enabled as boolean;
 		this.userinfo.username = this.user.username;
@@ -757,6 +764,10 @@ class Localuser {
 					}
 					break;
 				case "VOICE_STATE_UPDATE":
+					if (this.user.id === temp.d.user_id) {
+						this.mute = temp.d.self_mute;
+						this.updateMic(false);
+					}
 					if (this.voiceFactory) {
 						this.voiceFactory.voiceStateUpdate(temp.d);
 					}

@@ -729,6 +729,17 @@ class Channel extends SnowFlake {
 			if (typeof memb !== "string") {
 				await Member.new(memb, this.guild);
 			}
+
+			const users = this.usersDiv.deref();
+			if (users) {
+				const user = await this.localuser.getUser(typeof memb === "string" ? memb : memb.id);
+				if (joined) {
+					this.makeUserBox(user, users);
+				} else {
+					this.destUserBox(user);
+				}
+			}
+
 			this.updateVoiceUsers();
 			if (this.voice === this.localuser.currentVoice) {
 				AVoice.noises("join");
@@ -1060,7 +1071,124 @@ class Channel extends SnowFlake {
 		if (!this.last_pin_timestamp && !this.lastpin) return false;
 		return this.last_pin_timestamp !== this.lastpin;
 	}
-	async getHTML(addstate = true, getMessages = true) {
+	boxMap = new Map<string, HTMLElement>();
+	destUserBox(user: User) {
+		const box = this.boxMap.get(user.id);
+		if (!box) return;
+		box.remove();
+		this.boxMap.delete(user.id);
+	}
+	async makeUserBox(user: User, users: HTMLElement) {
+		const memb = Member.resolveMember(user, this.guild);
+		const box = document.createElement("div");
+		this.boxMap.set(user.id, box);
+		if (user.accent_color != undefined) {
+			box.style.setProperty(
+				"--accent_color",
+				`#${user.accent_color.toString(16).padStart(6, "0")}`,
+			);
+		}
+		memb.then((_) => {
+			if (!_) return;
+			if (_.accent_color !== undefined) {
+				box.style.setProperty("--accent_color", `#${_.accent_color.toString(16).padStart(6, "0")}`);
+			}
+		});
+
+		box.append(user.buildpfp(this.guild));
+
+		const span = document.createElement("span");
+		span.textContent = user.name;
+		memb.then((_) => {
+			if (!_) return;
+			span.textContent = _.name;
+		});
+		span.classList.add("voiceUsername");
+		box.append(span);
+		users.append(box);
+	}
+	usersDiv = new WeakRef(document.createElement("div"));
+	async setUpVoiceArea() {
+		if (!this.voice) throw new Error("voice not found?");
+		const voiceArea = document.getElementById("voiceArea") as HTMLElement;
+		const buttonRow = document.createElement("div");
+		buttonRow.classList.add("flexltr", "buttonRow");
+		const updateMicIcon = () => {
+			mspan.classList.remove("svg-micmute", "svg-mic");
+			mspan.classList.add(this.localuser.mute ? "svg-micmute" : "svg-mic");
+		};
+
+		const mute = document.createElement("div");
+		const mspan = document.createElement("span");
+		mute.append(mspan);
+		updateMicIcon();
+		this.localuser.updateOtherMic = updateMicIcon;
+		mute.onclick = () => {
+			this.localuser.mute = !this.localuser.mute;
+			this.localuser.updateMic();
+		};
+		mute.classList.add("muteVoiceIcon");
+
+		const updateCallIcon = () => {
+			cspan.classList.remove("svg-call", "svg-hangup");
+			cspan.classList.add(this.voice?.open ? "svg-hangup" : "svg-call");
+		};
+		const call = document.createElement("div");
+		const cspan = document.createElement("span");
+		call.append(cspan);
+		updateCallIcon();
+		call.onclick = async () => {
+			if (this.voice?.userids.has(this.localuser.user.id)) {
+				this.voice.leave();
+			} else if (this.voice) {
+				await this.localuser.joinVoice(this);
+			}
+			updateCallIcon();
+		};
+		call.classList.add("callVoiceIcon");
+
+		buttonRow.append(mute, call);
+
+		const users = document.createElement("div");
+		users.classList.add("voiceUsers");
+		this.voice.userids.forEach(async (_, id) => {
+			const user = await this.localuser.getUser(id);
+			this.makeUserBox(user, users);
+		});
+		this.usersDiv = new WeakRef(users);
+		this.voice.onSpeakingChange = (id, speaking) => {
+			const box = this.boxMap.get(id);
+			if (!box) return;
+			if (speaking) {
+				box.classList.add("speaking");
+			} else {
+				box.classList.remove("speaking");
+			}
+		};
+
+		voiceArea.append(users, buttonRow);
+	}
+	async getHTML(addstate = true, getMessages: boolean | void = undefined) {
+		if (getMessages === undefined) {
+			getMessages = this.type !== 2 || !this.localuser.voiceAllowed;
+		}
+
+		const messages = document.getElementById("channelw") as HTMLDivElement;
+		const messageContainers = Array.from(messages.getElementsByClassName("messagecontainer"));
+		for (const thing of messageContainers) {
+			thing.remove();
+		}
+		const chatArea = document.getElementById("chatArea") as HTMLElement;
+
+		const voiceArea = document.getElementById("voiceArea") as HTMLElement;
+		voiceArea.innerHTML = "";
+		if (getMessages) {
+			chatArea.style.removeProperty("display");
+		} else {
+			chatArea.style.setProperty("display", "none");
+			this.setUpVoiceArea();
+		}
+
 		const pinnedM = document.getElementById("pinnedMDiv");
 		if (pinnedM) {
 			if (this.unreadPins()) {
@@ -1068,11 +1196,6 @@ class Channel extends SnowFlake {
 			} else {
 				pinnedM.classList.remove("unreadPin");
 			}
-		}
-		const ghostMessages = document.getElementById("ghostMessages") as HTMLElement;
-		ghostMessages.innerHTML = "";
-		for (const thing of this.fakeMessages) {
-			ghostMessages.append(thing[1]);
 		}
 		if (addstate) {
 			history.pushState([this.guild_id, this.id], "", "/channels/" + this.guild_id + "/" + this.id);
@@ -1095,6 +1218,7 @@ class Channel extends SnowFlake {
 		if (this.guild !== this.localuser.lookingguild) {
 			this.guild.loadGuild();
 		}
+
 		if (this.localuser.channelfocus && this.localuser.channelfocus.myhtml) {
 			this.localuser.channelfocus.myhtml.classList.remove("viewChannel");
 		}
@@ -1117,15 +1241,22 @@ class Channel extends SnowFlake {
 			return;
 		}
 
-		const prom = this.infinite.delete();
+		const ghostMessages = document.getElementById("ghostMessages") as HTMLElement;
+		ghostMessages.innerHTML = "";
+		for (const thing of this.fakeMessages) {
+			ghostMessages.append(thing[1]);
+		}
 
-		const loading = document.getElementById("loadingdiv") as HTMLDivElement;
-		Channel.regenLoadingMessages();
-		loading.classList.add("loading");
+		const prom = this.infinite.delete();
+		if (getMessages) {
+			const loading = document.getElementById("loadingdiv") as HTMLDivElement;
+			Channel.regenLoadingMessages();
+			loading.classList.add("loading");
+		}
 		this.rendertyping();
 		this.localuser.getSidePannel();
 		if (this.voice && this.localuser.voiceAllowed) {
-			this.localuser.joinVoice(this);
+			//this.localuser.joinVoice(this);
 		}
 		(document.getElementById("typebox") as HTMLDivElement).contentEditable = "" + this.canMessage;
 		(document.getElementById("upload") as HTMLElement).style.visibility = this.canMessage

@@ -54,6 +54,8 @@ class Direct extends Guild {
 		}
 	}
 	getHTML() {
+		const voiceArea = document.getElementById("voiceArea") as HTMLElement;
+		voiceArea.innerHTML = "";
 		const sideContainDiv = document.getElementById("sideContainDiv");
 		if (sideContainDiv) {
 			sideContainDiv.classList.remove("searchDiv");

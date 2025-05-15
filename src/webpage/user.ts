@@ -499,14 +499,14 @@ class User extends SnowFlake {
 		this.bind(div, guild);
 		return div;
 	}
-	async buildstatuspfp(guild: Guild | void | Member | null): Promise<HTMLDivElement> {
+	buildstatuspfp(guild: Guild | void | Member | null): HTMLDivElement {
 		const div = document.createElement("div");
 		div.classList.add("pfpDiv");
 		const pfp = this.buildpfp(guild, div);
 		div.append(pfp);
 		const status = document.createElement("div");
 		status.classList.add("statusDiv");
-		switch (await this.getStatus()) {
+		switch (this.getStatus()) {
 			case "offline":
 			case "invisible":
 				status.classList.add("offlinestatus");
@@ -785,7 +785,7 @@ class User extends SnowFlake {
 				badgediv.append(badge);
 			}
 		})();
-		const pfp = await this.buildstatuspfp(guild);
+		const pfp = this.buildstatuspfp(guild);
 		div.appendChild(pfp);
 		const userbody = document.createElement("div");
 		userbody.classList.add("flexttb", "infosection");
