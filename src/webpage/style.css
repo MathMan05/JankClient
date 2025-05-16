@@ -783,6 +783,11 @@ textarea {
 #sideContainDiv::-webkit-scrollbar {
 	display: none;
 }
+#sideContainDiv:has(#sideDiv:empty):has(#player:empty) {
+	width: 0px;
+	margin: 0px;
+	padding: 0px;
+}
 #servers,
 #channels,
 #sideDiv {

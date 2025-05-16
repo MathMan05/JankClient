@@ -950,7 +950,6 @@ a=rtcp-mux\r`;
 		}
 		this.micTrack?.stop();
 		this.micTrack = undefined;
-		this.micTrack = undefined;
 		this.mic = undefined;
 		this.off = undefined;
 		this.counter = undefined;
