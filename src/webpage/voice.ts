@@ -223,6 +223,7 @@ class Voice {
 						(!this.users.has(json.d.audio_ssrc) && json.d.audio_ssrc !== 0) ||
 						(!this.vidusers.has(json.d.video_ssrc) && json.d.video_ssrc !== 0)
 					) {
+						this.sendtosend12 = false;
 						console.log("redo 12!");
 						this.makeOp12();
 					}
@@ -435,6 +436,7 @@ a=rtcp-mux\r`;
 	async makeOp12(
 		sender: RTCRtpSender | undefined | [RTCRtpSender, number] = this.ssrcMap.entries().next().value,
 	) {
+		if (!this.ws) return;
 		if (!sender) throw new Error("sender doesn't exist");
 		if (sender instanceof Array) {
 			sender = sender[0];
@@ -460,33 +462,32 @@ a=rtcp-mux\r`;
 			//width = settings.width || 0;
 			//height = settings.height || 0;
 		}
-		if (this.ws) {
-			console.log(this.ssrcMap);
-			this.ws.send(
-				JSON.stringify({
-					op: 12,
-					d: {
-						audio_ssrc: this.ssrcMap.get(sender),
-						video_ssrc,
-						rtx_ssrc,
-						streams: [
-							{
-								type: "video",
-								rid: "100",
-								ssrc: video_ssrc,
-								active: !!video_ssrc,
-								quality: 100,
-								rtx_ssrc: rtx_ssrc,
-								max_bitrate: 2500000, //TODO
-								max_framerate, //TODO
-								max_resolution: {type: "fixed", width, height},
-							},
-						],
-					},
-				}),
-			);
-			this.status = "Sending audio streams";
-		}
+
+		console.log(this.ssrcMap);
+		this.ws.send(
+			JSON.stringify({
+				op: 12,
+				d: {
+					audio_ssrc: this.ssrcMap.get(sender),
+					video_ssrc,
+					rtx_ssrc,
+					streams: [
+						{
+							type: "video",
+							rid: "100",
+							ssrc: video_ssrc,
+							active: !!video_ssrc,
+							quality: 100,
+							rtx_ssrc: rtx_ssrc,
+							max_bitrate: 2500000, //TODO
+							max_framerate, //TODO
+							max_resolution: {type: "fixed", width, height},
+						},
+					],
+				},
+			}),
+		);
+		this.status = "Sending audio streams";
 	}
 	senders: Set<RTCRtpSender> = new Set();
 	recivers = new Set<RTCRtpReceiver>();
@@ -586,10 +587,14 @@ a=rtcp-mux\r`;
 		this.owner.video = false;
 		if (!this.cammera) return;
 		this.cammera.stop();
+		this.cammera = undefined;
+
 		this.cam.sender.replaceTrack(null);
+		this.cam.direction = "inactive";
+
+		this.pc?.setLocalDescription();
 
 		this.owner.updateSelf();
-		this.cammera = undefined;
 
 		this.videos.delete(this.userid);
 		this.onUserChange(this.userid, {
@@ -597,10 +602,10 @@ a=rtcp-mux\r`;
 			muted: this.owner.mute,
 			video: false,
 		});
-
-		this.makeOp12();
 	}
+	videoStarted = false;
 	async startVideo(caml: MediaStream) {
+		console.warn("test test test test video sent!");
 		if (!this.cam) return;
 		const tracks = caml.getVideoTracks();
 		const [cam] = tracks;
@@ -614,10 +619,10 @@ a=rtcp-mux\r`;
 		this.videos.set(this.userid, video);
 		video.srcObject = caml;
 		video.autoplay = true;
-		await this.cam.sender.replaceTrack(cam);
-
-		//await this.pc?.setLocalDescription();
-		await this.makeOp12();
+		this.cam.direction = "sendonly";
+		const sender = this.cam.sender;
+		await sender.replaceTrack(cam);
+		this.pc?.setLocalDescription();
 
 		this.owner.updateSelf();
 	}
@@ -819,6 +824,7 @@ a=rtcp-mux\r`;
 				}),
 			);
 		}
+		console.warn("done with this!");
 	}
 	static parsesdp(sdp: string) {
 		let currentA = new Map<string, Set<string>>();
@@ -877,8 +883,11 @@ a=rtcp-mux\r`;
 		const vals = {deaf: update.deaf, muted: update.mute, video: update.self_video};
 		this.onUserChange(update.user_id, vals);
 		this.userids.set(update.user_id, vals);
-
-		if (update.user_id === this.userid && this.open && !(this.status === "Done")) {
+		if (update.user_id === this.userid && this.videoStarted !== update.self_video) {
+			this.makeOp12();
+			this.videoStarted = update.self_video;
+		}
+		if (update.user_id === this.userid && this.open && !this.ws) {
 			if (!update) {
 				this.status = "bad responce from WS";
 				return;
