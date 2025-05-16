@@ -880,7 +880,11 @@ a=rtcp-mux\r`;
 		if (!this.userids.has(update.user_id)) {
 			this.onMemberChange(update?.member || update.user_id, true);
 		}
-		const vals = {deaf: update.deaf, muted: update.mute, video: update.self_video};
+		const vals = {
+			deaf: update.deaf,
+			muted: update.mute || update.self_mute,
+			video: update.self_video,
+		};
 		this.onUserChange(update.user_id, vals);
 		this.userids.set(update.user_id, vals);
 		if (update.user_id === this.userid && this.videoStarted !== update.self_video) {

@@ -745,7 +745,32 @@ class Channel extends SnowFlake {
 				AVoice.noises("join");
 			}
 		};
+		this.voice.onUserChange = (user, change) => {
+			this.boxChange(user, change);
+		};
+		this.voice.onSpeakingChange = (id, speaking) => {
+			const box = this.boxMap.get(id);
+			if (box) {
+				if (speaking) {
+					box.classList.add("speaking");
+				} else {
+					box.classList.remove("speaking");
+				}
+			}
+			const tray = this.voiceTray.get(id);
+			console.log("tray! :3");
+			if (tray && tray.parentElement) {
+				const parent = tray.parentElement;
+				const pfp = Array.from(parent.children)[0];
+				if (speaking) {
+					pfp.classList.add("speaking");
+				} else {
+					pfp.classList.remove("speaking");
+				}
+			}
+		};
 	}
+	voiceTray = new Map<string, HTMLDivElement>();
 	async updateVoiceUsers() {
 		const voiceUsers = this.voiceUsers.deref();
 		if (!voiceUsers || !this.voice) return;
@@ -764,16 +789,24 @@ class Channel extends SnowFlake {
 						return array;
 					}),
 			)
-		).flatMap(([member, _obj]) => {
+		).flatMap(([member, obj]) => {
 			if (!member) {
 				console.warn("This is weird, member doesn't exist :P");
 				return [];
 			}
 			const div = document.createElement("div");
-			div.classList.add("voiceuser");
+			div.classList.add("voiceuser", "flexltr");
 			const span = document.createElement("span");
 			span.textContent = member.name;
-			div.append(span);
+
+			const tray = document.createElement("div");
+			tray.classList.add("flexltr", "voiceTray");
+
+			div.append(member.user.buildpfp(member), span, tray);
+			member.user.bind(div, member.guild);
+
+			this.voiceTray.set(member.id, tray);
+			this.boxChange(member.id, obj);
 			return div;
 		});
 
@@ -1093,13 +1126,30 @@ class Channel extends SnowFlake {
 	}
 	boxChange(id: string, change: {deaf: boolean; muted: boolean; video: boolean}) {
 		const box = this.boxMap.get(id);
-		if (!box || !this.voice) return;
-		const vid = this.voice.videos.get(id);
-		if (vid) {
+		if (!this.voice) return;
+		if (box) {
+			const vid = this.voice.videos.get(id);
+			if (vid) {
+				if (change.video) {
+					this.boxVid(id, vid);
+				} else {
+					this.purgeVid(id);
+				}
+			}
+		}
+		const tray = this.voiceTray.get(id);
+		if (tray) {
+			console.warn("tray build", tray, change);
+			tray.innerHTML = "";
+			if (change.muted) {
+				const span = document.createElement("span");
+				span.classList.add("svg-micmute");
+				tray.append(span);
+			}
 			if (change.video) {
-				this.boxVid(id, vid);
-			} else {
-				this.purgeVid(id);
+				const span = document.createElement("span");
+				span.classList.add("svg-video");
+				tray.append(span);
 			}
 		}
 	}
@@ -1211,24 +1261,13 @@ class Channel extends SnowFlake {
 			this.makeUserBox(user, users);
 		});
 		this.usersDiv = new WeakRef(users);
-		this.voice.onSpeakingChange = (id, speaking) => {
-			const box = this.boxMap.get(id);
-			if (!box) return;
-			if (speaking) {
-				box.classList.add("speaking");
-			} else {
-				box.classList.remove("speaking");
-			}
-		};
 
 		voiceArea.append(users, buttonRow);
 		this.voice.onVideo = (vid, id) => {
 			console.warn("happened");
 			this.boxVid(id, vid);
 		};
-		this.voice.onUserChange = (user, change) => {
-			this.boxChange(user, change);
-		};
+
 		this.voice.onLeave = () => {
 			updateCallIcon();
 			for (const [id] of this.boxMap) {

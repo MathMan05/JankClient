@@ -198,8 +198,7 @@ body {
 	flex-wrap: wrap;
 }
 .speaking {
-	border: solid var(--green) 3px;
-	padding: 77px 137px !important;
+	outline: 3px solid var(--green);
 }
 .voiceUsers > * {
 	background: var(--accent_color, var(--primary-bg));
@@ -434,7 +433,16 @@ textarea {
 #typebox:focus-visible {
 	outline: none;
 }
-
+.voiceTray {
+	margin-left: auto;
+	span {
+		width: 16px;
+		height: 16px;
+		margin: 1px;
+		margin-left: 4px;
+		background: var(--primary-text-soft);
+	}
+}
 /* Icons */
 .pfpDiv {
 	position: relative;
@@ -1235,10 +1243,22 @@ span.instanceStatus {
 .addchannel:hover {
 	background: var(--primary-text-prominent);
 }
+.voiceuser:hover {
+	background: var(--channel-hover);
+}
 .voiceuser {
 	margin-left: 32px;
-	padding: 4px 0;
+	padding: 4px 4px;
+	border-radius: 4px;
+	margin-bottom: 2px;
 	font-size: 0.9rem;
+	align-items: center;
+	cursor: pointer;
+	img {
+		width: 20px;
+		height: 20px;
+		margin-right: 4px;
+	}
 }
 .unreadDateline {
 	color: var(--red);
