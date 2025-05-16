@@ -1078,6 +1078,31 @@ class Channel extends SnowFlake {
 		box.remove();
 		this.boxMap.delete(user.id);
 	}
+	boxVid(id: string, elm: HTMLVideoElement) {
+		//TODO make a loading screen thingy if the video isn't progressing in time yet
+		const box = this.boxMap.get(id);
+		if (!box) return;
+		console.log("vid", elm);
+		box.append(elm);
+	}
+	purgeVid(id: string) {
+		const box = this.boxMap.get(id);
+		if (!box) return;
+		const videos = Array.from(box.getElementsByTagName("video"));
+		videos.forEach((_) => _.remove());
+	}
+	boxChange(id: string, change: {deaf: boolean; muted: boolean; video: boolean}) {
+		const box = this.boxMap.get(id);
+		if (!box || !this.voice) return;
+		const vid = this.voice.videos.get(id);
+		if (vid) {
+			if (change.video) {
+				this.boxVid(id, vid);
+			} else {
+				this.purgeVid(id);
+			}
+		}
+	}
 	async makeUserBox(user: User, users: HTMLElement) {
 		const memb = Member.resolveMember(user, this.guild);
 		const box = document.createElement("div");
@@ -1147,10 +1172,40 @@ class Channel extends SnowFlake {
 		};
 		call.classList.add("callVoiceIcon");
 
-		buttonRow.append(mute, call);
+		const updateVideoIcon = () => {
+			vspan.classList.remove("svg-video", "svg-novideo");
+			vspan.classList.add(this.localuser.voiceFactory?.video ? "svg-video" : "svg-novideo");
+		};
+		const video = document.createElement("div");
+		const vspan = document.createElement("span");
+		video.append(vspan);
+		updateVideoIcon();
+		video.onclick = async () => {
+			if (!this.voice) return;
+			if (this.localuser.voiceFactory?.video) {
+				this.voice.stopVideo();
+			} else {
+				const cam = await navigator.mediaDevices.getUserMedia({
+					video: {
+						advanced: [
+							{
+								aspectRatio: 1.75,
+							},
+						],
+					},
+				});
+				if (!cam) return;
+				this.voice.startVideo(cam);
+			}
+			updateVideoIcon();
+		};
+		video.classList.add("callVoiceIcon");
+
+		buttonRow.append(mute, call, video);
 
 		const users = document.createElement("div");
 		users.classList.add("voiceUsers");
+
 		this.voice.userids.forEach(async (_, id) => {
 			const user = await this.localuser.getUser(id);
 			this.makeUserBox(user, users);
@@ -1167,7 +1222,21 @@ class Channel extends SnowFlake {
 		};
 
 		voiceArea.append(users, buttonRow);
+		this.voice.onVideo = (vid, id) => {
+			console.warn("happened");
+			this.boxVid(id, vid);
+		};
+		this.voice.onUserChange = (user, change) => {
+			this.boxChange(user, change);
+		};
+		this.voice.onLeave = () => {
+			updateCallIcon();
+			for (const [id] of this.boxMap) {
+				this.purgeVid(id);
+			}
+		};
 	}
+
 	async getHTML(addstate = true, getMessages: boolean | void = undefined) {
 		if (getMessages === undefined) {
 			getMessages = this.type !== 2 || !this.localuser.voiceAllowed;

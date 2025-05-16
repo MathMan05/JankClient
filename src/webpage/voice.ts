@@ -33,6 +33,7 @@ class VoiceFactory {
 	onJoin = (_voice: Voice) => {};
 	onLeave = (_voice: Voice) => {};
 	private imute = false;
+	video = false;
 	get mute() {
 		return this.imute;
 	}
@@ -69,7 +70,7 @@ class VoiceFactory {
 					channel_id: this.curChan,
 					self_mute: this.imute,
 					self_deaf: false,
-					self_video: false,
+					self_video: this.video,
 					flags: 3,
 				},
 			});
@@ -169,6 +170,7 @@ class Voice {
 		}
 	}
 	users = new Map<number, string>();
+	vidusers = new Map<number, string>();
 	readonly speakingMap = new Map<string, number>();
 	onSpeakingChange = (_userid: string, _speaking: number) => {};
 	disconnect(userid: string) {
@@ -217,21 +219,46 @@ class Voice {
 					break;
 				case 12:
 					await this.figureRecivers();
-					if (!this.users.has(json.d.audio_ssrc)) {
+					if (
+						(!this.users.has(json.d.audio_ssrc) && json.d.audio_ssrc !== 0) ||
+						(!this.vidusers.has(json.d.video_ssrc) && json.d.video_ssrc !== 0)
+					) {
 						console.log("redo 12!");
 						this.makeOp12();
 					}
-					if (this.pc) {
-						this.pc.addTransceiver(json.d.audio_ssrc ? "audio" : "video", {
+					if (this.pc && json.d.audio_ssrc) {
+						this.pc.addTransceiver("audio", {
 							direction: "recvonly",
 							sendEncodings: [{active: true}],
 						});
 						this.getAudioTrans(this.users.size + 1).direction = "recvonly";
+						this.users.set(json.d.audio_ssrc, json.d.user_id);
 					}
-					this.users.set(json.d.audio_ssrc, json.d.user_id);
+					if (this.pc && json.d.video_ssrc) {
+						this.pc.addTransceiver("video", {
+							direction: "recvonly",
+							sendEncodings: [{active: true}],
+						});
+						this.getVideoTrans(this.vidusers.size + 1).direction = "recvonly";
+						this.vidusers.set(json.d.video_ssrc, json.d.user_id);
+					}
+
 					break;
 			}
 		}
+	}
+	getVideoTrans(id: number) {
+		if (!this.pc) throw new Error("no pc");
+		let i = 0;
+		for (const thing of this.pc.getTransceivers()) {
+			if (thing.receiver.track.kind === "video") {
+				if (id === i) {
+					return thing;
+				}
+				i++;
+			}
+		}
+		throw new Error("none by that id");
 	}
 	getAudioTrans(id: number) {
 		if (!this.pc) throw new Error("no pc");
@@ -281,6 +308,7 @@ class Voice {
 		const candidate = (parsed1.atr.get("candidate") as Set<string>).values().next().value as string;
 
 		const audioUsers = [...this.users];
+		const videoUsers = [...this.vidusers];
 		console.warn(audioUsers);
 
 		let build = `v=0\r
@@ -290,6 +318,7 @@ t=0 0\r
 a=msid-semantic: WMS *\r
 a=group:BUNDLE ${bundles.join(" ")}\r`;
 		let ai = -1;
+		let vi = -1;
 		let i = 0;
 		for (const grouping of parsed.medias) {
 			let mode = "inactive";
@@ -338,13 +367,14 @@ a=extmap:14 urn:ietf:params:rtp-hdrext:toffset\r
 a=extmap:13 urn:3gpp:video-orientation\r
 a=extmap:5 http://www.webrtc.org/experiments/rtp-hdrext/playout-delay
 a=setup:passive
-a=mid:${bundles[i]}\r
-a=${mode}\r
+a=mid:${bundles[i]}${videoUsers[vi] && videoUsers[vi][1] ? `\r\na=msid:${videoUsers[vi][1]}-${videoUsers[vi][0]} v${videoUsers[vi][1]}-${videoUsers[vi][0]}\r` : "\r"}
+a=${videoUsers[vi] && videoUsers[vi][1] ? "sendonly" : mode}\r
 a=ice-ufrag:${ICE_UFRAG}\r
 a=ice-pwd:${ICE_PWD}\r
 a=fingerprint:${FINGERPRINT}\r
-a=candidate:${candidate}\r
+a=candidate:${candidate}${videoUsers[vi] && videoUsers[vi][1] ? `\r\na=ssrc:${videoUsers[vi][0]} cname:${videoUsers[vi][1]}-${videoUsers[vi][0]}\r` : "\r"}
 a=rtcp-mux\r`;
+				vi++;
 			}
 			i++;
 		}
@@ -396,13 +426,7 @@ a=rtcp-mux\r`;
 				console.log("icegatheringstatechange", pc.iceGatheringState, this.pc, this.counter);
 				if (this.pc && this.counter) {
 					if (pc.iceGatheringState === "complete") {
-						console.log("icegatheringstatechange");
-						const counter = this.counter;
-						const remote: {sdp: string; type: RTCSdpType} = {
-							sdp: this.cleanServerSDP(counter),
-							type: "answer",
-						};
-						await pc.setRemoteDescription(remote);
+						pc.setLocalDescription();
 					}
 				}
 			});
@@ -415,6 +439,27 @@ a=rtcp-mux\r`;
 		if (sender instanceof Array) {
 			sender = sender[0];
 		}
+		let video_ssrc = 0;
+		let rtx_ssrc = 0;
+		let max_framerate = 20;
+		let width = 1280;
+		let height = 720;
+		if (this.cam && this.cammera) {
+			const stats = (await this.cam.sender.getStats()) as Map<string, any>;
+			Array.from(stats).forEach((_) => {
+				if (_[1].ssrc) {
+					video_ssrc = _[1].ssrc;
+				}
+				if (_[1].rtxSsrc) {
+					rtx_ssrc = _[1].rtxSsrc;
+					console.log(_);
+				}
+			});
+			const settings = this.cammera.getSettings();
+			console.error(settings);
+			//width = settings.width || 0;
+			//height = settings.height || 0;
+		}
 		if (this.ws) {
 			console.log(this.ssrcMap);
 			this.ws.send(
@@ -422,23 +467,19 @@ a=rtcp-mux\r`;
 					op: 12,
 					d: {
 						audio_ssrc: this.ssrcMap.get(sender),
-						video_ssrc: 0,
-						rtx_ssrc: 0,
+						video_ssrc,
+						rtx_ssrc,
 						streams: [
 							{
 								type: "video",
 								rid: "100",
-								ssrc: 0, //TODO
-								active: false,
+								ssrc: video_ssrc,
+								active: !!video_ssrc,
 								quality: 100,
-								rtx_ssrc: 0, //TODO
+								rtx_ssrc: rtx_ssrc,
 								max_bitrate: 2500000, //TODO
-								max_framerate: 0, //TODO
-								max_resolution: {
-									type: "fixed",
-									width: 0, //TODO
-									height: 0, //TODO
-								},
+								max_framerate, //TODO
+								max_resolution: {type: "fixed", width, height},
 							},
 						],
 					},
@@ -536,17 +577,74 @@ a=rtcp-mux\r`;
 	}
 	mic?: RTCRtpSender;
 	micTrack?: MediaStreamTrack;
+	onVideo = (_video: HTMLVideoElement, _id: string) => {};
+	videos = new Map<string, HTMLVideoElement>();
+	cam?: RTCRtpTransceiver;
+	cammera?: MediaStreamTrack;
+	stopVideo() {
+		if (!this.cam) return;
+		this.owner.video = false;
+		if (!this.cammera) return;
+		this.cammera.stop();
+		this.cam.sender.replaceTrack(null);
+
+		this.owner.updateSelf();
+		this.cammera = undefined;
+
+		this.videos.delete(this.userid);
+		this.onUserChange(this.userid, {
+			deaf: false,
+			muted: this.owner.mute,
+			video: false,
+		});
+
+		this.makeOp12();
+	}
+	async startVideo(caml: MediaStream) {
+		if (!this.cam) return;
+		const tracks = caml.getVideoTracks();
+		const [cam] = tracks;
+
+		this.owner.video = true;
+
+		this.cammera = cam;
+
+		const video = document.createElement("video");
+		this.onVideo(video, this.userid);
+		this.videos.set(this.userid, video);
+		video.srcObject = caml;
+		video.autoplay = true;
+		await this.cam.sender.replaceTrack(cam);
+
+		//await this.pc?.setLocalDescription();
+		await this.makeOp12();
+
+		this.owner.updateSelf();
+	}
 	async startWebRTC() {
 		this.status = "Making offer";
 		const pc = new RTCPeerConnection();
 		pc.ontrack = async (e) => {
 			this.status = "Done";
+			const media = e.streams[0];
+			if (!media) {
+				console.log(e);
+				return;
+			}
+			const userId = media.id.split("-")[0];
 			if (e.track.kind === "video") {
+				console.log(media, this.vidusers);
+				const video = document.createElement("video");
+				this.onVideo(video, userId);
+				this.videos.set(userId, video);
+				video.srcObject = media;
+
+				video.autoplay = true;
+
 				console.log("gotVideo?");
 				return;
 			}
 
-			const media = e.streams[0];
 			console.log("got audio:", e);
 			for (const track of media.getTracks()) {
 				console.log(track);
@@ -568,6 +666,12 @@ a=rtcp-mux\r`;
 
 		this.setupMic(audioStream);
 		const sender = pc.addTrack(track);
+		this.cam = pc.addTransceiver("video", {
+			direction: "sendonly",
+			sendEncodings: [
+				{active: true, maxBitrate: 2500000, scaleResolutionDownBy: 1, maxFramerate: 20},
+			],
+		});
 		this.mic = sender;
 		this.micTrack = track;
 		track.enabled = !this.owner.mute;
@@ -763,13 +867,16 @@ a=rtcp-mux\r`;
 		this.status = "waiting for main WS";
 	}
 	onMemberChange = (_member: memberjson | string, _joined: boolean) => {};
-	userids = new Map<string, {}>();
+	userids = new Map<string, {deaf: boolean; muted: boolean; video: boolean}>();
+	onUserChange = (_user: string, _change: {deaf: boolean; muted: boolean; video: boolean}) => {};
 	async voiceupdate(update: voiceStatus) {
 		console.log("Update!");
 		if (!this.userids.has(update.user_id)) {
 			this.onMemberChange(update?.member || update.user_id, true);
 		}
-		this.userids.set(update.user_id, {deaf: update.deaf, muted: update.mute});
+		const vals = {deaf: update.deaf, muted: update.mute, video: update.self_video};
+		this.onUserChange(update.user_id, vals);
+		this.userids.set(update.user_id, vals);
 
 		if (update.user_id === this.userid && this.open && !(this.status === "Done")) {
 			if (!update) {
@@ -825,10 +932,12 @@ a=rtcp-mux\r`;
 			);
 		}
 	}
+	onLeave = () => {};
 	async leave() {
 		console.warn("leave");
 		this.open = false;
 		this.status = "Left voice chat";
+		this.onLeave();
 		this.onMemberChange(this.userid, false);
 		this.userids.delete(this.userid);
 		if (this.ws) {
@@ -852,6 +961,11 @@ a=rtcp-mux\r`;
 		this.fingerprint = undefined;
 		this.users = new Map();
 		this.owner.disconect();
+		this.vidusers = new Map();
+		this.videos = new Map();
+		if (this.cammera) this.cammera.stop();
+		this.cammera = undefined;
+		this.cam = undefined;
 		console.log(this);
 	}
 }
