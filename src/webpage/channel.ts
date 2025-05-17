@@ -1128,13 +1128,12 @@ class Channel extends SnowFlake {
 		const box = this.boxMap.get(id);
 		if (!this.voice) return;
 		if (box) {
+			console.warn("purge:" + id);
 			const vid = this.voice.videos.get(id);
-			if (vid) {
-				if (change.video) {
-					this.boxVid(id, vid);
-				} else {
-					this.purgeVid(id);
-				}
+			if (vid && change.video) {
+				this.boxVid(id, vid);
+			} else if (!change.video) {
+				this.purgeVid(id);
 			}
 		}
 		const tray = this.voiceTray.get(id);
