@@ -87,7 +87,9 @@ if (process.argv.includes("watch")) {
 				continue;
 			}
 			last = Date.now();
-			await build();
+			try {
+				await build();
+			} catch {}
 		}
 	})();
 	(async () => {
@@ -96,7 +98,9 @@ if (process.argv.includes("watch")) {
 				continue;
 			}
 			last = Date.now();
-			await build();
+			try {
+				await build();
+			} catch {}
 		}
 	})();
 }
