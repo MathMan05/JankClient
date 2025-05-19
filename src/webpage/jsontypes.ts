@@ -726,7 +726,9 @@ type wsjson =
 				stickers: stickerJson[];
 			};
 			s: 3;
-	  };
+	  }
+	| streamServerUpdate
+	| streamCreate;
 
 type memberChunk = {
 	guild_id: string;
@@ -748,8 +750,32 @@ export type voiceStatus = {
 	self_deaf: boolean;
 	self_mute: boolean;
 	self_video: boolean;
+	self_stream: boolean;
 	suppress: boolean;
 };
+export interface streamCreate {
+	op: 0;
+	t: "STREAM_CREATE";
+	d: {
+		stream_key: string;
+		rtc_server_id: string;
+		viewer_ids: string[];
+		region: "spacebar";
+		paused: boolean;
+	};
+	s: number;
+}
+export interface streamServerUpdate {
+	op: 0;
+	t: "STREAM_SERVER_UPDATE";
+	d: {
+		token: string;
+		stream_key: string;
+		guild_id: null; //There is no way this ain't a server bug lol
+		endpoint: string;
+	};
+	s: number;
+}
 type voiceupdate = {
 	op: 0;
 	t: "VOICE_STATE_UPDATE";
@@ -836,6 +862,7 @@ type webRTCSocket =
 				ssrc: 940464811;
 			};
 	  };
+
 type sdpback = {
 	op: 4;
 	d: {

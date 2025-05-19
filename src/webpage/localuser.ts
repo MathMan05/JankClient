@@ -773,6 +773,18 @@ class Localuser {
 					}
 
 					break;
+				case "STREAM_SERVER_UPDATE": {
+					if (this.voiceFactory) {
+						this.voiceFactory.streamServerUpdate(temp);
+					}
+					break;
+				}
+				case "STREAM_CREATE": {
+					if (this.voiceFactory) {
+						this.voiceFactory.streamCreate(temp);
+					}
+					break;
+				}
 				case "VOICE_SERVER_UPDATE":
 					if (this.voiceFactory) {
 						this.voiceFactory.voiceServerUpdate(temp);
@@ -857,8 +869,9 @@ class Localuser {
 					guild.onStickerUpdate(guild.stickers);
 					break;
 				}
+
 				default: {
-					//@ts-ignore
+					//@ts-expect-error
 					console.warn("Unhandled case " + temp.t, temp);
 				}
 			}

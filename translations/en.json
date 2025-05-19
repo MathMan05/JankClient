@@ -5,6 +5,11 @@
 		"locale": "en",
 		"comment": "Don't know how often I'll update this top part lol"
 	},
+	"vc": {
+		"joinstream": "Watch stream",
+		"leavestream": "Leave stream",
+		"joinForStream": "Join the VC to watch"
+	},
 	"readableName": "English",
 	"pinMessage": "Pin Message",
 	"unableToPin": "Unable to pin message",

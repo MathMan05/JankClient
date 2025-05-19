@@ -200,14 +200,35 @@ body {
 .speaking {
 	outline: 3px solid var(--green);
 }
+.voiceUsers > :hover .leave {
+	bottom: 10px;
+	opacity: 1;
+}
+.leave {
+	position: absolute;
+	bottom: 0px;
+	right: 10px;
+	background: var(--red);
+	opacity: 0;
+	transition:
+		bottom 0.4s,
+		opacity 0.2s,
+		background 0.1s;
+}
+.leave:hover {
+	background: color-mix(in srgb, var(--red) 85%, white);
+}
 .voiceUsers > * {
 	background: var(--accent_color, var(--primary-bg));
-	padding: 80px 140px;
-	width: fit-content;
 	border-radius: 8px;
 	position: relative;
 	box-sizing: border-box;
 	margin: 8px;
+	width: 340px;
+	height: 220px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 
 	img {
 		width: 60px;
@@ -339,6 +360,14 @@ iframe {
 }
 audio::-webkit-media-controls-panel {
 	background: var(--secondary-bg);
+}
+.joinb {
+	background: var(--green);
+	border-radius: 200px;
+	transition: background 0.2s;
+}
+.joinb:hover {
+	background: color-mix(in srgb, var(--green) 80%, transparent);
 }
 button,
 input::file-selector-button,
@@ -493,6 +522,10 @@ textarea {
 	cursor: pointer;
 	display: block;
 	mask-size: cover !important;
+}
+.svg-stream {
+	mask: url(/icons/stream.svg);
+	mask-size: contain !important;
 }
 .svg-video {
 	mask: url(/icons/video.svg);
@@ -1234,6 +1267,22 @@ span.instanceStatus {
 }
 .hiddencat {
 	rotate: -90deg;
+}
+.statBub {
+	position: absolute;
+	bottom: 10px;
+	right: 10px;
+	background: color-mix(in srgb, var(--secondary-bg) 75%, transparent);
+	border-radius: 50%;
+	z-index: 1;
+
+	* {
+		background: var(--primary-text);
+		width: 16px;
+		height: 16px;
+		display: block;
+		margin: 5px;
+	}
 }
 .addchannel {
 	height: 10px;

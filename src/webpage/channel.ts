@@ -1105,11 +1105,17 @@ class Channel extends SnowFlake {
 		return this.last_pin_timestamp !== this.lastpin;
 	}
 	boxMap = new Map<string, HTMLElement>();
+	liveMap = new Map<string, HTMLElement>();
 	destUserBox(user: User) {
 		const box = this.boxMap.get(user.id);
 		if (!box) return;
 		box.remove();
 		this.boxMap.delete(user.id);
+		const live = this.liveMap.get(user.id);
+		if (live) {
+			live.remove();
+			this.liveMap.delete(user.id);
+		}
 	}
 	boxVid(id: string, elm: HTMLVideoElement) {
 		//TODO make a loading screen thingy if the video isn't progressing in time yet
@@ -1118,14 +1124,44 @@ class Channel extends SnowFlake {
 		console.log("vid", elm);
 		box.append(elm);
 	}
+	decorateLive(id: string) {
+		if (!this.voice) return;
+		const box = this.liveMap.get(id);
+		if (!box) return;
+		box.innerHTML = "";
+		const live = this.voice.getLive(id);
+		if (!this.voice.open) {
+			const span = document.createElement("span");
+			span.textContent = I18n.vc.joinForStream();
+			box.append(span);
+		} else if (live) {
+			const leave = document.createElement("button");
+			leave.classList.add("leave");
+			leave.textContent = I18n.vc.leavestream();
+			leave.onclick = () => {
+				this.voice?.leaveLive(id);
+			};
+			box.append(live, leave);
+		} else {
+			const joinB = document.createElement("button");
+			joinB.textContent = I18n.vc.joinstream();
+			joinB.classList.add("joinb");
+			box.append(joinB);
+			joinB.onclick = () => {
+				if (!this.voice) return;
+				this.voice.joinLive(id);
+			};
+		}
+	}
 	purgeVid(id: string) {
 		const box = this.boxMap.get(id);
 		if (!box) return;
 		const videos = Array.from(box.getElementsByTagName("video"));
 		videos.forEach((_) => _.remove());
 	}
-	boxChange(id: string, change: {deaf: boolean; muted: boolean; video: boolean}) {
+	boxChange(id: string, change: {deaf: boolean; muted: boolean; video: boolean; live: boolean}) {
 		const box = this.boxMap.get(id);
+
 		if (!this.voice) return;
 		if (box) {
 			console.warn("purge:" + id);
@@ -1135,7 +1171,33 @@ class Channel extends SnowFlake {
 			} else if (!change.video) {
 				this.purgeVid(id);
 			}
+			Array.from(box.getElementsByClassName("statBub")).forEach((_) => _.remove());
+			const statBub = document.createElement("div");
+			statBub.classList.add("statBub");
+			if (change.muted) {
+				const span = document.createElement("span");
+				span.classList.add("svg-micmute");
+				statBub.append(span);
+				box.append(statBub);
+			} else if (change.video) {
+				const span = document.createElement("span");
+				span.classList.add("svg-video");
+				statBub.append(span);
+				box.append(statBub);
+			}
 		}
+
+		const live = this.liveMap.get(id);
+		if (live && !change.live) {
+			live.remove();
+			this.liveMap.delete(id);
+		} else if (!live && change.live && box) {
+			const livediv = document.createElement("div");
+			this.liveMap.set(id, livediv);
+			box.parentElement?.prepend(livediv);
+			this.decorateLive(id);
+		}
+
 		const tray = this.voiceTray.get(id);
 		if (tray) {
 			console.warn("tray build", tray, change);
@@ -1180,6 +1242,10 @@ class Channel extends SnowFlake {
 		span.classList.add("voiceUsername");
 		box.append(span);
 		users.append(box);
+		if (!this.voice) return;
+		const change = this.voice.userids.get(user.id);
+		if (!change) return;
+		this.boxChange(user.id, change);
 	}
 	usersDiv = new WeakRef(document.createElement("div"));
 	async setUpVoiceArea() {
@@ -1250,7 +1316,22 @@ class Channel extends SnowFlake {
 		};
 		video.classList.add("callVoiceIcon");
 
-		buttonRow.append(mute, call, video);
+		const updateLiveIcon = () => {
+			lspan.classList.remove("svg-video", "svg-novideo");
+			lspan.classList.add(true ? "svg-stream" : "svg-stopstream");
+		};
+		const live = document.createElement("div");
+		const lspan = document.createElement("span");
+		live.append(lspan);
+		updateLiveIcon();
+		live.onclick = async () => {
+			const stream = await navigator.mediaDevices.getDisplayMedia();
+			this.voice?.createLive(this.localuser.user.id, stream);
+			updateLiveIcon();
+		};
+		live.classList.add("callVoiceIcon");
+
+		buttonRow.append(mute, call, video, live);
 
 		const users = document.createElement("div");
 		users.classList.add("voiceUsers");
@@ -1259,6 +1340,9 @@ class Channel extends SnowFlake {
 			const user = await this.localuser.getUser(id);
 			this.makeUserBox(user, users);
 		});
+		[...this.liveMap].forEach(([_, box]) => {
+			users.prepend(box);
+		});
 		this.usersDiv = new WeakRef(users);
 
 		voiceArea.append(users, buttonRow);
@@ -1266,11 +1350,27 @@ class Channel extends SnowFlake {
 			console.warn("happened");
 			this.boxVid(id, vid);
 		};
+		this.voice.onGotStream = (_vid, id) => {
+			this.decorateLive(id);
+		};
+		this.voice.onconnect = () => {
+			if (!this.voice) return;
+			for (const [_, user] of this.voice.users) {
+				this.decorateLive(user);
+			}
+		};
+		this.voice.onLeaveStream = (id) => {
+			this.decorateLive(id);
+		};
 
 		this.voice.onLeave = () => {
 			updateCallIcon();
 			for (const [id] of this.boxMap) {
 				this.purgeVid(id);
+			}
+			if (!this.voice) return;
+			for (const [_, user] of this.voice.users) {
+				this.decorateLive(user);
 			}
 		};
 	}

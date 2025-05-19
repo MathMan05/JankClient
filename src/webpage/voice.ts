@@ -1,4 +1,12 @@
-import {memberjson, sdpback, voiceserverupdate, voiceStatus, webRTCSocket} from "./jsontypes.js";
+import {
+	memberjson,
+	sdpback,
+	streamCreate,
+	streamServerUpdate,
+	voiceserverupdate,
+	voiceStatus,
+	webRTCSocket,
+} from "./jsontypes.js";
 class VoiceFactory {
 	settings: {id: string};
 	handleGateway: (obj: Object) => void;
@@ -34,6 +42,7 @@ class VoiceFactory {
 	onLeave = (_voice: Voice) => {};
 	private imute = false;
 	video = false;
+	stream = false;
 	get mute() {
 		return this.imute;
 	}
@@ -96,11 +105,93 @@ class VoiceFactory {
 				channel_id: channelId,
 				self_mute,
 				self_deaf: false, //todo
-				self_video: false, //What is this? I have some guesses
+				self_video: false,
 				flags: 2, //?????
 			},
 			op: 4,
 		};
+	}
+	live = new Map<string, (res: Voice) => void>();
+	steamTokens = new Map<string, Promise<[string, string]>>();
+	steamTokensRes = new Map<string, (res: [string, string]) => void>();
+	async joinLive(userid: string) {
+		const stream_key = `${this.curGuild === "@me" ? "call" : `guild:${this.curGuild}`}:${this.curChan}:${userid}`;
+		this.handleGateway({
+			op: 20,
+			d: {
+				stream_key,
+			},
+		});
+		return new Promise<Voice>(async (res) => {
+			this.live.set(stream_key, res);
+			this.steamTokens.set(
+				stream_key,
+				new Promise<[string, string]>((res) => {
+					this.steamTokensRes.set(stream_key, res);
+				}),
+			);
+		});
+	}
+	islive = false;
+	liveStream?: MediaStream;
+	async createLive(userid: string, stream: MediaStream) {
+		this.islive = true;
+		this.liveStream = stream;
+		const stream_key = `${this.curGuild === "@me" ? "call" : `guild:${this.curGuild}`}:${this.curChan}:${userid}`;
+		this.handleGateway({
+			op: 18,
+			d: {
+				type: this.curGuild === "@me" ? "call" : "guild",
+				guild_id: this.curGuild === "@me" ? null : this.curGuild,
+				channel_id: this.curChan,
+				preferred_region: null,
+			},
+		});
+		return new Promise<Voice>(async (res) => {
+			this.live.set(stream_key, res);
+			this.steamTokens.set(
+				stream_key,
+				new Promise<[string, string]>((res) => {
+					this.steamTokensRes.set(stream_key, res);
+				}),
+			);
+		});
+	}
+	async streamCreate(create: streamCreate) {
+		const prom1 = this.steamTokens.get(create.d.stream_key);
+		if (!prom1) throw new Error("oops");
+		const [token, endpoint] = await prom1;
+		if (create.d.stream_key.startsWith("guild")) {
+			const [_, _guild, chan, user] = create.d.stream_key.split(":");
+			const voice2 = this.voiceChannels.get(chan);
+			if (!voice2 || !voice2.session_id) throw new Error("oops");
+			let stream: undefined | MediaStream = undefined;
+			console.error(user, this.settings.id);
+			if (user === this.settings.id) {
+				stream = this.liveStream;
+			}
+			const voice = new Voice(
+				this.settings.id,
+				{
+					bitrate: 10000,
+					stream: true,
+					live: stream,
+				},
+				{
+					url: endpoint,
+					token,
+				},
+				this,
+			);
+			voice.join();
+			voice.startWS(voice2.session_id, create.d.rtc_server_id);
+
+			voice2.gotStream(voice, user);
+		}
+	}
+	streamServerUpdate(update: streamServerUpdate) {
+		const res = this.steamTokensRes.get(update.d.stream_key);
+		if (res) res([update.d.token, update.d.endpoint]);
 	}
 	userMap = new Map<string, Voice>();
 	voiceStateUpdate(update: voiceStatus) {
@@ -144,8 +235,8 @@ class Voice {
 		return this.pstatus;
 	}
 	readonly userid: string;
-	settings: {bitrate: number};
-	urlobj: {url?: string; token?: string; geturl: Promise<void>; gotUrl: () => void};
+	settings: {bitrate: number; stream?: boolean; live?: MediaStream};
+	urlobj: {url?: string; token?: string; geturl?: Promise<void>; gotUrl?: () => void};
 	owner: VoiceFactory;
 	constructor(
 		userid: string,
@@ -194,6 +285,7 @@ class Voice {
 		//there's more for sure, but this is "good enough" for now
 		this.onMemberChange(userid, false);
 	}
+
 	async packet(message: MessageEvent) {
 		const data = message.data;
 		if (typeof data === "string") {
@@ -223,7 +315,6 @@ class Voice {
 						(!this.users.has(json.d.audio_ssrc) && json.d.audio_ssrc !== 0) ||
 						(!this.vidusers.has(json.d.video_ssrc) && json.d.video_ssrc !== 0)
 					) {
-						this.sendtosend12 = false;
 						console.log("redo 12!");
 						this.makeOp12();
 					}
@@ -323,10 +414,8 @@ a=group:BUNDLE ${bundles.join(" ")}\r`;
 		let i = 0;
 		for (const grouping of parsed.medias) {
 			let mode = "inactive";
-			for (const _ of this.senders) {
-				if (i < 2) {
-					mode = "sendrecv";
-				}
+			if (i < 2) {
+				mode = "sendonly";
 			}
 			if (grouping.media === "audio") {
 				build += `
@@ -380,6 +469,7 @@ a=rtcp-mux\r`;
 			i++;
 		}
 		build += "\n";
+		console.log(build);
 		return build;
 	}
 	counter?: string;
@@ -437,7 +527,7 @@ a=rtcp-mux\r`;
 		sender: RTCRtpSender | undefined | [RTCRtpSender, number] = this.ssrcMap.entries().next().value,
 	) {
 		if (!this.ws) return;
-		if (!sender) throw new Error("sender doesn't exist");
+		if (!sender) return;
 		if (sender instanceof Array) {
 			sender = sender[0];
 		}
@@ -601,12 +691,43 @@ a=rtcp-mux\r`;
 			deaf: false,
 			muted: this.owner.mute,
 			video: false,
+			live: this.owner.stream,
 		});
 	}
+	liveMap = new Map<string, HTMLVideoElement>();
+	private voiceMap = new Map<string, Voice>();
+	getLive(id: string) {
+		return this.liveMap.get(id);
+	}
+	joinLive(id: string) {
+		return this.owner.joinLive(id);
+	}
+	createLive(id: string, stream: MediaStream) {
+		return this.owner.createLive(id, stream);
+	}
+	leaveLive(id: string) {
+		const v = this.voiceMap.get(id);
+		if (!v) return;
+		v.leave();
+		this.voiceMap.delete(id);
+		this.liveMap.delete(id);
+		this.onLeaveStream(id);
+	}
+	onLeaveStream = (_user: string) => {};
+	onGotStream = (_v: HTMLVideoElement, _user: string) => {};
+	gotStream(voice: Voice, user: string) {
+		voice.onVideo = (video) => {
+			this.liveMap.set(user, video);
+			this.onGotStream(video, user);
+		};
+		this.voiceMap.set(user, voice);
+	}
 	videoStarted = false;
-	async startVideo(caml: MediaStream) {
+	async startVideo(caml: MediaStream, early = false) {
 		console.warn("test test test test video sent!");
-		if (!this.cam) return;
+		while (!this.cam) {
+			await new Promise((res) => setTimeout(res, 100));
+		}
 		const tracks = caml.getVideoTracks();
 		const [cam] = tracks;
 
@@ -621,16 +742,20 @@ a=rtcp-mux\r`;
 		video.autoplay = true;
 		this.cam.direction = "sendonly";
 		const sender = this.cam.sender;
-		await sender.replaceTrack(cam);
-		this.pc?.setLocalDescription();
+		if (!early) {
+			await sender.replaceTrack(cam);
+			this.pc?.setLocalDescription();
 
-		this.owner.updateSelf();
+			this.owner.updateSelf();
+		}
 	}
+	onconnect = () => {};
 	async startWebRTC() {
 		this.status = "Making offer";
 		const pc = new RTCPeerConnection();
 		pc.ontrack = async (e) => {
 			this.status = "Done";
+			this.onconnect();
 			const media = e.streams[0];
 			if (!media) {
 				console.log(e);
@@ -667,36 +792,47 @@ a=rtcp-mux\r`;
 		};
 		const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true});
 		const [track] = audioStream.getAudioTracks();
-		//Add track
-
-		this.setupMic(audioStream);
-		const sender = pc.addTrack(track);
-		this.cam = pc.addTransceiver("video", {
-			direction: "sendonly",
-			sendEncodings: [
-				{active: true, maxBitrate: 2500000, scaleResolutionDownBy: 1, maxFramerate: 20},
-			],
-		});
-		this.mic = sender;
-		this.micTrack = track;
-		track.enabled = !this.owner.mute;
-		this.senders.add(sender);
-		console.log(sender);
-
-		for (let i = 0; i < 10; i++) {
+		if (!this.settings.stream) {
+			this.setupMic(audioStream);
+			const sender = pc.addTrack(track);
+			this.cam = pc.addTransceiver("video", {
+				direction: "sendonly",
+				sendEncodings: [
+					{active: true, maxBitrate: 2500000, scaleResolutionDownBy: 1, maxFramerate: 20},
+				],
+			});
+			this.mic = sender;
+			this.micTrack = track;
+			track.enabled = !this.owner.mute;
+			this.senders.add(sender);
+			console.log(sender);
+		}
+		const count = this.settings.stream ? 1 : 10;
+		for (let i = 0; i < count; i++) {
 			pc.addTransceiver("audio", {
 				direction: "inactive",
 				streams: [],
 				sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
 			});
 		}
-		for (let i = 0; i < 10; i++) {
-			pc.addTransceiver("video", {
-				direction: "inactive",
-				streams: [],
-				sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
+		if (this.settings.live) {
+			this.cam = pc.addTransceiver("video", {
+				direction: "sendonly",
+				sendEncodings: [
+					{active: true, maxBitrate: 2500000, scaleResolutionDownBy: 1, maxFramerate: 20},
+				],
 			});
+			this.startVideo(this.settings.live, true);
+		} else {
+			for (let i = 0; i < count; i++) {
+				pc.addTransceiver("video", {
+					direction: "inactive",
+					streams: [],
+					sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
+				});
+			}
 		}
+
 		this.pc = pc;
 		this.negotationneeded();
 		await new Promise((res) => setTimeout(res, 100));
@@ -873,8 +1009,11 @@ a=rtcp-mux\r`;
 		this.status = "waiting for main WS";
 	}
 	onMemberChange = (_member: memberjson | string, _joined: boolean) => {};
-	userids = new Map<string, {deaf: boolean; muted: boolean; video: boolean}>();
-	onUserChange = (_user: string, _change: {deaf: boolean; muted: boolean; video: boolean}) => {};
+	userids = new Map<string, {deaf: boolean; muted: boolean; video: boolean; live: boolean}>();
+	onUserChange = (
+		_user: string,
+		_change: {deaf: boolean; muted: boolean; video: boolean; live: boolean},
+	) => {};
 	async voiceupdate(update: voiceStatus) {
 		console.log("Update!");
 		if (!this.userids.has(update.user_id)) {
@@ -884,6 +1023,7 @@ a=rtcp-mux\r`;
 			deaf: update.deaf,
 			muted: update.mute || update.self_mute,
 			video: update.self_video,
+			live: update.self_stream,
 		};
 		this.onUserChange(update.user_id, vals);
 		this.userids.set(update.user_id, vals);
@@ -896,54 +1036,59 @@ a=rtcp-mux\r`;
 				this.status = "bad responce from WS";
 				return;
 			}
-			if (!this.urlobj.url) {
-				this.status = "waiting for Voice URL";
-				await this.urlobj.geturl;
-				if (!this.open) {
-					this.leave();
-					return;
-				}
-			}
-
-			const ws = new WebSocket(("ws://" + this.urlobj.url) as string);
-			this.ws = ws;
-			ws.onclose = () => {
-				this.leave();
-			};
-			this.status = "waiting for WS to open";
-			ws.addEventListener("message", (m) => {
-				this.packet(m);
-			});
-			await new Promise<void>((res) => {
-				ws.addEventListener("open", () => {
-					res();
-				});
-			});
-			if (!this.ws) {
+			this.session_id = update.session_id;
+			await this.startWS(update.session_id, update.guild_id);
+		}
+	}
+	session_id?: string;
+	async startWS(session_id: string, server_id: string) {
+		if (!this.urlobj.url) {
+			this.status = "waiting for Voice URL";
+			await this.urlobj.geturl;
+			if (!this.open) {
 				this.leave();
 				return;
 			}
-			this.status = "waiting for WS to authorize";
-			ws.send(
-				JSON.stringify({
-					op: 0,
-					d: {
-						server_id: update.guild_id,
-						user_id: update.user_id,
-						session_id: update.session_id,
-						token: this.urlobj.token,
-						video: false,
-						streams: [
-							{
-								type: "video",
-								rid: "100",
-								quality: 100,
-							},
-						],
-					},
-				}),
-			);
 		}
+
+		const ws = new WebSocket(("ws://" + this.urlobj.url) as string);
+		this.ws = ws;
+		ws.onclose = () => {
+			this.leave();
+		};
+		this.status = "waiting for WS to open";
+		ws.addEventListener("message", (m) => {
+			this.packet(m);
+		});
+		await new Promise<void>((res) => {
+			ws.addEventListener("open", () => {
+				res();
+			});
+		});
+		if (!this.ws) {
+			this.leave();
+			return;
+		}
+		this.status = "waiting for WS to authorize";
+		ws.send(
+			JSON.stringify({
+				op: 0,
+				d: {
+					server_id,
+					user_id: this.userid,
+					session_id,
+					token: this.urlobj.token,
+					video: false,
+					streams: [
+						{
+							type: "video",
+							rid: "100",
+							quality: 100,
+						},
+					],
+				},
+			}),
+		);
 	}
 	onLeave = () => {};
 	async leave() {
@@ -951,7 +1096,12 @@ a=rtcp-mux\r`;
 		this.open = false;
 		this.status = "Left voice chat";
 		this.onLeave();
-		this.onMemberChange(this.userid, false);
+		for (const thing of this.liveMap) {
+			this.leaveLive(thing[0]);
+		}
+		if (!this.settings.stream) {
+			this.onMemberChange(this.userid, false);
+		}
 		this.userids.delete(this.userid);
 		if (this.ws) {
 			this.ws.close();
@@ -972,7 +1122,7 @@ a=rtcp-mux\r`;
 		this.ssrcMap = new Map();
 		this.fingerprint = undefined;
 		this.users = new Map();
-		this.owner.disconect();
+		if (!this.settings.stream) this.owner.disconect();
 		this.vidusers = new Map();
 		this.videos = new Map();
 		if (this.cammera) this.cammera.stop();
