@@ -147,6 +147,13 @@ class VoiceFactory {
 				preferred_region: null,
 			},
 		});
+		this.handleGateway({
+			op: 22,
+			d: {
+				paused: false,
+				stream_key,
+			},
+		});
 		return new Promise<Voice>(async (res) => {
 			this.live.set(stream_key, res);
 			this.steamTokens.set(
@@ -164,7 +171,12 @@ class VoiceFactory {
 		if (create.d.stream_key.startsWith("guild")) {
 			const [_, _guild, chan, user] = create.d.stream_key.split(":");
 			const voice2 = this.voiceChannels.get(chan);
+
 			if (!voice2 || !voice2.session_id) throw new Error("oops");
+			if (voice2.voiceMap.has(user)) {
+				voice2.makeOp12();
+				return;
+			}
 			let stream: undefined | MediaStream = undefined;
 			console.error(user, this.settings.id);
 			if (user === this.settings.id) {
@@ -175,7 +187,6 @@ class VoiceFactory {
 				{
 					bitrate: 10000,
 					stream: true,
-					live: stream,
 				},
 				{
 					url: endpoint,
@@ -185,6 +196,15 @@ class VoiceFactory {
 			);
 			voice.join();
 			voice.startWS(voice2.session_id, create.d.rtc_server_id);
+			let video = false;
+			voice.onSatusChange = (e) => {
+				console.warn(e);
+				if (e === "Done" && stream && !video) {
+					console.error("starting to stream");
+					voice.startVideo(stream);
+					video = true;
+				}
+			};
 
 			voice2.gotStream(voice, user);
 		}
@@ -197,6 +217,16 @@ class VoiceFactory {
 	voiceStateUpdate(update: voiceStatus) {
 		const prev = this.userMap.get(update.user_id);
 		console.log(prev, this.userMap);
+		if (update.user_id === this.settings.id && this.liveStream && !update.self_stream) {
+			const stream_key = `${this.curGuild === "@me" ? "call" : `guild:${this.curGuild}`}:${this.curChan}:${this.settings.id}`;
+			this.handleGateway({
+				op: 22,
+				d: {
+					paused: false,
+					stream_key,
+				},
+			});
+		}
 		if (prev && prev !== this.voiceChannels.get(update.channel_id)) {
 			prev.disconnect(update.user_id);
 			this.onLeave(prev);
@@ -415,7 +445,7 @@ a=group:BUNDLE ${bundles.join(" ")}\r`;
 		for (const grouping of parsed.medias) {
 			let mode = "inactive";
 			if (i < 2) {
-				mode = "sendonly";
+				mode = "recvonly";
 			}
 			if (grouping.media === "audio") {
 				build += `
@@ -469,7 +499,6 @@ a=rtcp-mux\r`;
 			i++;
 		}
 		build += "\n";
-		console.log(build);
 		return build;
 	}
 	counter?: string;
@@ -489,12 +518,26 @@ a=rtcp-mux\r`;
 						}
 					}
 				}
+				if (this.senders.size === 0) {
+					console.warn("this was ran :3");
+					this.makeOp12();
+				}
+			};
+			const detectDone = () => {
+				if (
+					pc.signalingState === "stable" &&
+					pc.iceConnectionState === "connected" &&
+					pc.connectionState === "connected"
+				) {
+					this.status = "Done";
+				}
 			};
 			pc.addEventListener("negotiationneeded", async () => {
 				await sendOffer();
 				console.log(this.ssrcMap);
 			});
 			pc.addEventListener("signalingstatechange", async () => {
+				detectDone();
 				while (!this.counter) await new Promise((res) => setTimeout(res, 100));
 				if (this.pc && this.counter) {
 					if (pc.signalingState === "have-local-offer") {
@@ -509,11 +552,13 @@ a=rtcp-mux\r`;
 				}
 			});
 			pc.addEventListener("connectionstatechange", async () => {
+				detectDone();
 				if (pc.connectionState === "connecting") {
 					await pc.setLocalDescription();
 				}
 			});
 			pc.addEventListener("icegatheringstatechange", async () => {
+				detectDone();
 				console.log("icegatheringstatechange", pc.iceGatheringState, this.pc, this.counter);
 				if (this.pc && this.counter) {
 					if (pc.iceGatheringState === "complete") {
@@ -521,13 +566,19 @@ a=rtcp-mux\r`;
 					}
 				}
 			});
+			pc.addEventListener("iceconnectionstatechange", async () => {
+				detectDone();
+				if (pc.iceConnectionState === "checking") {
+					sendOffer();
+				}
+			});
 		}
 	}
 	async makeOp12(
 		sender: RTCRtpSender | undefined | [RTCRtpSender, number] = this.ssrcMap.entries().next().value,
 	) {
+		console.warn("making 12?");
 		if (!this.ws) return;
-		if (!sender) return;
 		if (sender instanceof Array) {
 			sender = sender[0];
 		}
@@ -537,20 +588,26 @@ a=rtcp-mux\r`;
 		let width = 1280;
 		let height = 720;
 		if (this.cam && this.cammera) {
-			const stats = (await this.cam.sender.getStats()) as Map<string, any>;
-			Array.from(stats).forEach((_) => {
-				if (_[1].ssrc) {
-					video_ssrc = _[1].ssrc;
-				}
-				if (_[1].rtxSsrc) {
-					rtx_ssrc = _[1].rtxSsrc;
-					console.log(_);
-				}
-			});
-			const settings = this.cammera.getSettings();
-			console.error(settings);
+			do {
+				const stats = (await this.cam.sender.getStats()) as Map<string, any>;
+				Array.from(stats).forEach((_) => {
+					if (_[1].ssrc) {
+						video_ssrc = _[1].ssrc;
+						console.warn(_);
+					}
+					if (_[1].rtxSsrc) {
+						rtx_ssrc = _[1].rtxSsrc;
+					}
+				});
+				const settings = this.cammera.getSettings();
+				console.error(settings);
+
+				await new Promise((res) => setTimeout(res, 100));
+			} while (!video_ssrc || !rtx_ssrc);
 			//width = settings.width || 0;
 			//height = settings.height || 0;
+		} else if (!sender) {
+			return;
 		}
 
 		console.log(this.ssrcMap);
@@ -558,7 +615,8 @@ a=rtcp-mux\r`;
 			JSON.stringify({
 				op: 12,
 				d: {
-					audio_ssrc: this.ssrcMap.get(sender),
+					audio_ssrc:
+						sender?.track?.kind === "audio" ? this.ssrcMap.get(sender as RTCRtpSender) : 0,
 					video_ssrc,
 					rtx_ssrc,
 					streams: [
@@ -695,7 +753,7 @@ a=rtcp-mux\r`;
 		});
 	}
 	liveMap = new Map<string, HTMLVideoElement>();
-	private voiceMap = new Map<string, Voice>();
+	voiceMap = new Map<string, Voice>();
 	getLive(id: string) {
 		return this.liveMap.get(id);
 	}
@@ -723,15 +781,15 @@ a=rtcp-mux\r`;
 		this.voiceMap.set(user, voice);
 	}
 	videoStarted = false;
-	async startVideo(caml: MediaStream, early = false) {
-		console.warn("test test test test video sent!");
+	async startVideo(caml: MediaStream) {
 		while (!this.cam) {
 			await new Promise((res) => setTimeout(res, 100));
 		}
+		console.warn("test test test test video sent!");
 		const tracks = caml.getVideoTracks();
 		const [cam] = tracks;
 
-		this.owner.video = true;
+		if (!this.settings.stream) this.owner.video = true;
 
 		this.cammera = cam;
 
@@ -742,10 +800,16 @@ a=rtcp-mux\r`;
 		video.autoplay = true;
 		this.cam.direction = "sendonly";
 		const sender = this.cam.sender;
-		if (!early) {
-			await sender.replaceTrack(cam);
-			this.pc?.setLocalDescription();
+		this.senders.add(sender);
 
+		sender.setStreams(caml);
+		await sender.replaceTrack(cam);
+
+		console.warn("replaced track", cam);
+		this.pc?.setLocalDescription();
+		if (this.settings.stream) {
+			this.makeOp12();
+		} else {
 			this.owner.updateSelf();
 		}
 	}
@@ -790,23 +854,30 @@ a=rtcp-mux\r`;
 			this.recivers.add(e.receiver);
 			console.log(this.recivers);
 		};
-		const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true});
-		const [track] = audioStream.getAudioTracks();
 		if (!this.settings.stream) {
+			const audioStream = await navigator.mediaDevices.getUserMedia({video: false, audio: true});
+			const [track] = audioStream.getAudioTracks();
 			this.setupMic(audioStream);
 			const sender = pc.addTrack(track);
-			this.cam = pc.addTransceiver("video", {
-				direction: "sendonly",
-				sendEncodings: [
-					{active: true, maxBitrate: 2500000, scaleResolutionDownBy: 1, maxFramerate: 20},
-				],
-			});
+
 			this.mic = sender;
 			this.micTrack = track;
 			track.enabled = !this.owner.mute;
 			this.senders.add(sender);
 			console.log(sender);
+		} else {
+			pc.addTransceiver("audio", {
+				direction: "inactive",
+				streams: [],
+				sendEncodings: [{active: true, maxBitrate: this.settings.bitrate}],
+			});
 		}
+		this.cam = pc.addTransceiver("video", {
+			direction: "sendonly",
+			sendEncodings: [
+				{active: true, maxBitrate: 2500000, scaleResolutionDownBy: 1, maxFramerate: 20},
+			],
+		});
 		const count = this.settings.stream ? 1 : 10;
 		for (let i = 0; i < count; i++) {
 			pc.addTransceiver("audio", {
@@ -822,7 +893,8 @@ a=rtcp-mux\r`;
 					{active: true, maxBitrate: 2500000, scaleResolutionDownBy: 1, maxFramerate: 20},
 				],
 			});
-			this.startVideo(this.settings.live, true);
+			await this.startVideo(this.settings.live);
+			this.makeOp12();
 		} else {
 			for (let i = 0; i < count; i++) {
 				pc.addTransceiver("video", {
@@ -1078,10 +1150,11 @@ a=rtcp-mux\r`;
 					user_id: this.userid,
 					session_id,
 					token: this.urlobj.token,
-					video: false,
+					max_secure_frames_version: 0,
+					video: !!this.settings.live,
 					streams: [
 						{
-							type: "video",
+							type: this.settings.live ? "screen" : "video",
 							rid: "100",
 							quality: 100,
 						},
