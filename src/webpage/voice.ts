@@ -70,6 +70,7 @@ class VoiceFactory {
 			},
 		});
 	}
+
 	updateSelf() {
 		if (this.currentVoice && this.currentVoice.open) {
 			this.handleGateway({
@@ -111,6 +112,16 @@ class VoiceFactory {
 			op: 4,
 		};
 	}
+	leaveLive() {
+		const userid = this.settings.id;
+		const stream_key = `${this.curGuild === "@me" ? "call" : `guild:${this.curGuild}`}:${this.curChan}:${userid}`;
+		this.handleGateway({
+			op: 19,
+			d: {
+				stream_key,
+			},
+		});
+	}
 	live = new Map<string, (res: Voice) => void>();
 	steamTokens = new Map<string, Promise<[string, string]>>();
 	steamTokensRes = new Map<string, (res: [string, string]) => void>();
@@ -134,7 +145,8 @@ class VoiceFactory {
 	}
 	islive = false;
 	liveStream?: MediaStream;
-	async createLive(userid: string, stream: MediaStream) {
+	async createLive(stream: MediaStream) {
+		const userid = this.settings.id;
 		this.islive = true;
 		this.liveStream = stream;
 		const stream_key = `${this.curGuild === "@me" ? "call" : `guild:${this.curGuild}`}:${this.curChan}:${userid}`;
@@ -207,6 +219,9 @@ class VoiceFactory {
 			};
 
 			voice2.gotStream(voice, user);
+			console.warn(voice2);
+			const res = this.live.get(create.d.stream_key);
+			if (res) res(voice);
 		}
 	}
 	streamServerUpdate(update: streamServerUpdate) {
@@ -410,6 +425,7 @@ class Voice {
 		if (!ld) throw new Error("localDescription isn't defined");
 		const parsed = Voice.parsesdp(ld.sdp);
 		const group = parsed.atr.get("group");
+		console.warn(parsed);
 		if (!group) throw new Error("group isn't in sdp");
 		const [_, ...bundles] = (group.entries().next().value as [string, string])[0].split(" ");
 		bundles[bundles.length - 1] = bundles[bundles.length - 1].replace("\r", "");
@@ -508,13 +524,19 @@ a=rtcp-mux\r`;
 			const sendOffer = async () => {
 				console.trace("neg need");
 				await pc.setLocalDescription();
+				console.log("set local");
 
 				const senders = this.senders.difference(this.ssrcMap);
+				console.log(senders, this.ssrcMap);
 				for (const sender of senders) {
-					for (const thing of (await sender.getStats()) as Map<string, any>) {
+					console.log(sender);
+					const d = (await sender.getStats()) as Map<string, any>;
+					console.log([...d]);
+					for (const thing of d) {
 						if (thing[1].ssrc) {
 							this.ssrcMap.set(sender, thing[1].ssrc);
 							this.makeOp12(sender);
+							console.warn("ssrc");
 						}
 					}
 				}
@@ -532,14 +554,20 @@ a=rtcp-mux\r`;
 					this.status = "Done";
 				}
 			};
+			function logState(thing: string, message = "") {
+				console.log(thing + (message ? ":" + message : ""));
+			}
 			pc.addEventListener("negotiationneeded", async () => {
+				logState("negotiationneeded");
 				await sendOffer();
 				console.log(this.ssrcMap);
 			});
 			pc.addEventListener("signalingstatechange", async () => {
+				logState("signalingstatechange", pc.signalingState);
 				detectDone();
 				while (!this.counter) await new Promise((res) => setTimeout(res, 100));
 				if (this.pc && this.counter) {
+					console.warn("in here :3");
 					if (pc.signalingState === "have-local-offer") {
 						const counter = this.counter;
 						const remote: {sdp: string; type: RTCSdpType} = {
@@ -549,17 +577,20 @@ a=rtcp-mux\r`;
 						console.log(remote);
 						await pc.setRemoteDescription(remote);
 					}
+				} else {
+					console.warn("uh oh!");
 				}
 			});
 			pc.addEventListener("connectionstatechange", async () => {
+				logState("connectionstatechange", pc.connectionState);
 				detectDone();
 				if (pc.connectionState === "connecting") {
 					await pc.setLocalDescription();
 				}
 			});
 			pc.addEventListener("icegatheringstatechange", async () => {
+				logState("icegatheringstatechange", pc.iceGatheringState);
 				detectDone();
-				console.log("icegatheringstatechange", pc.iceGatheringState, this.pc, this.counter);
 				if (this.pc && this.counter) {
 					if (pc.iceGatheringState === "complete") {
 						pc.setLocalDescription();
@@ -567,6 +598,7 @@ a=rtcp-mux\r`;
 				}
 			});
 			pc.addEventListener("iceconnectionstatechange", async () => {
+				logState("iceconnectionstatechange", pc.iceConnectionState);
 				detectDone();
 				if (pc.iceConnectionState === "checking") {
 					sendOffer();
@@ -754,14 +786,17 @@ a=rtcp-mux\r`;
 	}
 	liveMap = new Map<string, HTMLVideoElement>();
 	voiceMap = new Map<string, Voice>();
+	isLive() {
+		return !!this.voiceMap.get(this.userid);
+	}
 	getLive(id: string) {
 		return this.liveMap.get(id);
 	}
 	joinLive(id: string) {
 		return this.owner.joinLive(id);
 	}
-	createLive(id: string, stream: MediaStream) {
-		return this.owner.createLive(id, stream);
+	createLive(stream: MediaStream) {
+		return this.owner.createLive(stream);
 	}
 	leaveLive(id: string) {
 		const v = this.voiceMap.get(id);
@@ -770,6 +805,10 @@ a=rtcp-mux\r`;
 		this.voiceMap.delete(id);
 		this.liveMap.delete(id);
 		this.onLeaveStream(id);
+	}
+	stopStream() {
+		this.leaveLive(this.userid);
+		this.owner.leaveLive();
 	}
 	onLeaveStream = (_user: string) => {};
 	onGotStream = (_v: HTMLVideoElement, _user: string) => {};
@@ -1168,7 +1207,9 @@ a=rtcp-mux\r`;
 		console.warn("leave");
 		this.open = false;
 		this.status = "Left voice chat";
+		if (!this.settings.stream) this.owner.video = false;
 		this.onLeave();
+
 		for (const thing of this.liveMap) {
 			this.leaveLive(thing[0]);
 		}

@@ -8,7 +8,9 @@
 	"vc": {
 		"joinstream": "Watch stream",
 		"leavestream": "Leave stream",
-		"joinForStream": "Join the VC to watch"
+		"joinForStream": "Join the VC to watch",
+		"stopstream": "Stop stream",
+		"joiningStream": "Joining stream..."
 	},
 	"readableName": "English",
 	"pinMessage": "Pin Message",
