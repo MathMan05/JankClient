@@ -1278,7 +1278,7 @@ class Guild extends SnowFlake {
 			}
 			const build = name
 				.replace(/'s /g, " ")
-				.replace(/\w+/g, (word) => word[0])
+				.replace(/[^\s]+/g, (word) => word[0])
 				.replace(/\s/g, "");
 			div.textContent = build;
 			div.classList.add("blankserver", "servericon");
